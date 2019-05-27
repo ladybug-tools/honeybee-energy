@@ -1,9 +1,11 @@
-@property
-def face_to_idf(self):
+"""Face writer to idf."""
+
+
+def face_to_idf(face):
     """generate face idf representation."""
-    #     TODO(): Check self.geo_type first. This only works for a Face. Fails for
+    #     TODO(): Check face.geo_type first. This only works for a Face. Fails for
     #     PolyFace, etc
-    ep = self.properties.energy
+    en_prop = face.properties.energy
 
     idf_string = 'BuildingSurface:Detailed,' \
         '\n\t%s,\t!- Name' \
@@ -17,16 +19,16 @@ def face_to_idf(self):
         '\n\t%s,\t!- View Factor to Ground' \
         '\n\t%d,\t!- Number of Vertices' \
         '\n\t%s;' % (
-            self.name,
-            self.properties.face_type.name,
-            ep.construction.name,
-            self.parent.name if self.parent else 'unknown',
-            ep.boundary_condition.name,
-            ep.boundary_condition.boundary_condition_object_idf,
-            ep.boundary_condition.sun_exposure_idf,
-            ep.boundary_condition.wind_exposure_idf,
-            ep.boundary_condition.view_factor,
-            len(self.vertices),
-            ',\n\t'.join('%f, %f, %f' % (v[0], v[1], v[2]) for v in self.vertices)
+            face.name,
+            face.properties.face_type.name,
+            en_prop.construction.name,
+            face.parent.name if face.parent else 'unknown',
+            en_prop.boundary_condition.name,
+            en_prop.boundary_condition.boundary_condition_object_idf,
+            en_prop.boundary_condition.sun_exposure_idf,
+            en_prop.boundary_condition.wind_exposure_idf,
+            en_prop.boundary_condition.view_factor,
+            len(face.vertices),
+            ',\n\t'.join('%f, %f, %f' % (v[0], v[1], v[2]) for v in face.vertices)
         )
     return idf_string

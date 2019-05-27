@@ -20,7 +20,7 @@ def test_energy_properties():
 
 def test_writer_to_idf():
     assert hasattr(face.to, 'energy')
-    idf_string = face.to.energy
+    idf_string = face.to.energy(face)
     assert 'wall_face,' in idf_string
     assert 'BuildingSurface:Detailed,' in idf_string
 
