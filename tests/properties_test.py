@@ -1,10 +1,11 @@
 from honeybee_energy.properties import EnergyProperties
+from honeybee_energy.lib.constructionset import generic
 from honeybee.facetype import Wall
 
 
 def test_defaults():
     ep = EnergyProperties(Wall())
-    assert ep.construction.name == 'generic_wall'
+    assert ep.construction == generic(ep.face_type, ep.boundary_condition)
     assert ep.boundary_condition.name == 'Outdoors'
 
 def test_to_dict():

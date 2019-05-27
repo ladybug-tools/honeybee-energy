@@ -118,23 +118,25 @@ class Ground(_BoundaryCondition):
     pass
 
 
-class BoundaryConditions(object):
-    """Face types."""
+class _BoundaryConditions(object):
+    """Boundary conditions."""
 
     def __init__(self):
-        pass
+        self._outdoors = Outdoors()
+        self._adiabatic = Adiabatic()
+        self._ground = Ground()
 
     @property
     def outdoors(self):
-        return Outdoors()
+        return self._outdoors
 
     @property
     def adiabatic(self):
-        return Adiabatic()
+        return self._adiabatic
 
     @property
     def ground(self):
-        return Ground()
+        return self._ground
 
     def surface(self, other_object):
         return Surface(other_object)
@@ -144,3 +146,6 @@ class BoundaryConditions(object):
 
     def __contains__(self, value):
         return isinstance(value, _BoundaryCondition)
+
+
+boundary_conditions = _BoundaryConditions()
