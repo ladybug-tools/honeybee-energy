@@ -1,5 +1,5 @@
 from honeybee.properties import Properties
-from honeybee.writer import Writer
+import honeybee.writer as writer
 from honeybee.facetype import Wall
 from .properties import EnergyProperties
 from .constructionlib import generic_wall
@@ -13,4 +13,4 @@ Wall.energy_construction = property(lambda self: generic_wall)
 Properties.energy =  property(lambda self: EnergyProperties(self.face_type))
 
 # add energy writer to idf
-Writer.energy = face_to_idf
+setattr(writer, 'energy', face_to_idf)
