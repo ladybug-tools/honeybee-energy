@@ -1,6 +1,6 @@
-from honeybee_energy.boundarycondition import BoundaryConditions
+from honeybee_energy.boundarycondition import boundary_conditions
 
-bcs = BoundaryConditions()
+bcs = boundary_conditions
 
 def test_outdoors():
     bc = bcs.outdoors
