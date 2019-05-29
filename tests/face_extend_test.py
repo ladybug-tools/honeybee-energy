@@ -4,7 +4,7 @@ from honeybee.facetype import Wall
 from honeybee_energy.properties import EnergyProperties
 
 
-face = Face('wall_face', [[0, 0, 0], [10, 0, 0], [10, 0, 10], [0, 0, 10]])
+face = Face.from_vertices('wall_face', [[0, 0, 0], [10, 0, 0], [10, 0, 10], [0, 0, 10]])
 
 
 def test_energy_properties():
