@@ -1,4 +1,5 @@
 """Energy Face Outside Boundary Condition."""
+import weakref
 
 
 class _BoundaryCondition(object):
@@ -90,7 +91,7 @@ class Surface(_BoundaryCondition):
 
     def __init__(self, other_object=None):
         _BoundaryCondition.__init__(self)
-        self.boundary_condition_object = other_object
+        self.boundary_condition_object = weakref.proxy(other_object)
 
 
 class Zone(Surface):
