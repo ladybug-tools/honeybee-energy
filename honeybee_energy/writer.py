@@ -21,13 +21,13 @@ def face_to_idf(face):
         '\n\t%s;' % (
             face.name,
             face.properties.face_type.name,
-            en_prop.construction.name,
+            en_prop.construction.name if en_prop.construction else '',
             face.parent.name if face.parent else 'unknown',
-            en_prop.boundary_condition.name,
-            en_prop.boundary_condition.boundary_condition_object_idf,
-            en_prop.boundary_condition.sun_exposure_idf,
-            en_prop.boundary_condition.wind_exposure_idf,
-            en_prop.boundary_condition.view_factor,
+            face.boundary_condition.name,
+            face.boundary_condition.boundary_condition_object_idf,
+            face.boundary_condition.sun_exposure_idf,
+            face.boundary_condition.wind_exposure_idf,
+            face.boundary_condition.view_factor,
             len(face.vertices),
             ',\n\t'.join('%f, %f, %f' % (v[0], v[1], v[2]) for v in face.vertices)
         )

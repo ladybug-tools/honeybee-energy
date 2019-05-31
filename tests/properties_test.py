@@ -1,22 +1,17 @@
 from honeybee_energy.properties import EnergyProperties
 from honeybee_energy.lib.constructionset import generic
-from honeybee.facetype import Wall
+from honeybee.facetype import face_types
+from honeybee.boundarycondition import boundary_conditions
 
 
 def test_defaults():
-    ep = EnergyProperties(Wall())
-    assert ep.construction == generic(ep.face_type, ep.boundary_condition)
-    assert ep.boundary_condition.name == 'Outdoors'
+    ep = EnergyProperties(face_types.wall, boundary_conditions.outdoors)
+    assert ep.construction == None
+    assert ep._boundary_condition.name == 'Outdoors'
+
 
 def test_to_dict():
-    ep = EnergyProperties(Wall())
-    ep_dict = ep.to_dict
+    ep = EnergyProperties(face_types.wall, boundary_conditions.outdoors)
+    ep_dict = ep.to_dict()
     assert 'energy' in ep_dict
     assert 'construction' in ep_dict['energy']
-    assert ep_dict['energy']['boundary_condition'] == 'Outdoors'
-    assert ep_dict['energy']['boundary_condition_object'] == ''
-    assert ep_dict['energy']['sun_exposure'] == 'SunExposed'
-    assert ep_dict['energy']['wind_exposure'] == 'WindExposed'
-    assert ep_dict['energy']['view_factor'] == 'autocalculate'
-
-

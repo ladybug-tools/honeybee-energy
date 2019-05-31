@@ -16,7 +16,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/ladybug-tools/honeybee-energy",
     packages=setuptools.find_packages(exclude=["tests"]),
-    install_requires=['git+https://github.com/ladybug-tools/honeybee-core.git'],
+    install_requires=["honeybee-core"],
     classifiers=[
         "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3.6",
