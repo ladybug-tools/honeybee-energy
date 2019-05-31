@@ -1,18 +1,20 @@
 """Energy Properties."""
-from .boundarycondition import boundary_conditions
 from .construction import Construction
-from .lib.constructionset import generic as generic_constructionset
 
 
 class EnergyProperties(object):
     """Energy Properties for Honeybee geometry."""
 
-    def __init__(self, face_type):
-        self.face_type = face_type
-        self.boundary_condition = boundary_conditions.outdoors
-        # this will be set by user
-        self._construction = None
-        # this will be set by parent zone
+    __slots__ = ('_face_type', '_boundary_condition',
+                 '_construction', '_constructionset')
+
+    def __init__(self, face_type, boundary_condition, construction=None):
+        # private properties to set construction from construction-set.
+        self._face_type = face_type
+        self._boundary_condition = boundary_condition
+        # construction set by user
+        self.construction = construction
+        # Constructionset can only be be set from the parent zone
         self._constructionset = None
 
     @property
@@ -21,18 +23,16 @@ class EnergyProperties(object):
 
         If construction is not set by user then it will be assigned based on parent zone
         construction-set when the face is added to a zone. For a free floating face the
-        construction will be set to a generic construction based on face type and face
-        boundary condition.
+        construction will be None unless it is set by user.
         """
         if self._construction:
             # set by user
             return self._construction
         elif self._constructionset:
             # set by parent zone
-            return self._constructionset(self.face_type, self.boundary_condition)
+            return self._constructionset(self._face_type, self._boundary_condition)
         else:
-            # not set yet - use generic construction set
-            return generic_constructionset(self.face_type, self.boundary_condition)
+            return None
 
     @construction.setter
     def construction(self, value):
@@ -57,22 +57,15 @@ class EnergyProperties(object):
         """List of materials."""
         return self._construction.materials
 
-    @property
-    def boundary_condition(self):
-        """Get and set boundary condition."""
-        return self._boundary_condition
-
-    @boundary_condition.setter
-    def boundary_condition(self, bc):
-        self._boundary_condition = bc
-
-    @property
     def to_dict(self):
         """Return energy properties as a dictionary."""
         base = {'energy': {}}
-        base['energy'].update(self.boundary_condition.to_dict)
-        base['energy']['construction'] = self.construction.to_dict
+        construction = self.construction
+        base['energy']['construction'] = construction.to_dict(
+        ) if construction else None
+        base['energy']['construction_set'] = \
+            self._constructionset.name if self._constructionset else None
         return base
 
     def __repr__(self):
-        return 'EnergyProperties:%s' % self.construction.name
+        return 'EnergyProperties:%s' % self.construction.name if self.construction else ''

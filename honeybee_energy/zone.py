@@ -8,8 +8,8 @@ class Zone(object):
     def __init__(self, name, origin=None, constructionset=None):
         self.name = name
         self.origin = origin
-        self.constructionset = constructionset or generic
         self._faces = []
+        self.constructionset = constructionset or generic
 
     @classmethod
     def from_room(self, room, constructionset=None):

@@ -13,7 +13,6 @@ class Construction(object):
         self.name = name
         self.materials = materials
 
-    @property
     def to_dict(self):
         """Construction dictionary representation."""
         return {
@@ -22,7 +21,6 @@ class Construction(object):
             'materials': [m.to_dict for m in self.materials]
         }
 
-    @property
     def to_idf(self):
         """idf representation of construction object."""
         idf_string = 'Construction,\n\t%s,\n\t%s;' % (

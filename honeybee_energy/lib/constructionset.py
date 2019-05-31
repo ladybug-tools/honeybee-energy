@@ -14,8 +14,9 @@ def generic(type, boundary_condition):
         return _construction_set[type.name][boundary_condition.name]
     except KeyError:
         raise ValueError(
-            'Failed to find construction for %s %s' % (
+            'Failed to find preset construction for %s %s' % (
                 boundary_condition, type)
         )
-    except AttributeError:
+    except AttributeError as e:
+        print(e)
         raise TypeError('Invalid type or boundary condition')
