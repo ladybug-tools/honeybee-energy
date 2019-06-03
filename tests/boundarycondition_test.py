@@ -1,5 +1,4 @@
-from honeybee_energy.boundarycondition import Adiabatic, Zone
-from honeybee_energy.zone import Zone as EnergyZone
+from honeybee_energy.boundarycondition import Adiabatic
 
 
 def test_adiabatic():
@@ -11,18 +10,6 @@ def test_adiabatic():
     assert bc.wind_exposure_idf == 'NoWind'
     assert bc.boundary_condition_object == None
     assert bc.boundary_condition_object_idf == ''
-
-
-def test_Zone():
-    zone = EnergyZone('test_zone')
-    bc = Zone(zone)
-    assert bc.name == 'Zone'
-    assert bc.sun_exposure == False
-    assert bc.sun_exposure_idf == 'NoSun'
-    assert bc.wind_exposure == False
-    assert bc.wind_exposure_idf == 'NoWind'
-    assert bc.boundary_condition_object.name == zone.name
-    assert bc.boundary_condition_object_idf == zone.name
 
 
 def test_adiabatic_to_dict():
