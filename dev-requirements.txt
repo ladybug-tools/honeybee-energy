@@ -1,4 +1,4 @@
-git+https://github.com/ladybug-tools/honeybee-core.git
+honeybee-core
 coverage==4.5.2
 coveralls==1.5.1
 pytest==4.1.0
