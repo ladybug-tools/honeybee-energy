@@ -7,11 +7,6 @@ Note to developers:
 from honeybee.boundarycondition import _BoundaryCondition, Surface
 
 
-class Zone(Surface):
-    __slots__ = ()
-    pass
-
-
 class Adiabatic(_BoundaryCondition):
     __slots__ = ()
     pass

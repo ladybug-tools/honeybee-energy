@@ -30,9 +30,3 @@ def test_adiabatic_bc():
 
     assert ad_1.name == 'Adiabatic'
     assert ad_1 is ad_2
-
-
-def test_zone_bc():
-    assert hasattr(boundary_conditions, 'zone')
-    z = boundary_conditions.zone
-    assert z.name == 'Zone'

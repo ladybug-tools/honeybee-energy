@@ -4,7 +4,7 @@ import honeybee.boundarycondition as hbc
 
 from .properties import EnergyProperties
 from .writer import face_to_idf
-from .boundarycondition import Zone, Adiabatic
+from .boundarycondition import Adiabatic
 
 # add energy properties to Properties class
 Properties.energy =  \
@@ -14,10 +14,6 @@ Properties.energy =  \
 setattr(writer, 'energy', face_to_idf)
 
 # extend boundary conditions
-setattr(hbc, 'Zone', Zone)
-hbc._BoundaryConditions.zone = \
-    property(lambda self, other_object=None: Zone(other_object))
-
 setattr(hbc, 'Adiabatic', Adiabatic)
 hbc._BoundaryConditions._adiabatic = Adiabatic()
 hbc._BoundaryConditions.adiabatic = property(lambda self: self._adiabatic)
