@@ -1,5 +1,5 @@
 """Energy Properties."""
-from .construction import Construction
+from .construction import OpaqueConstruction
 
 
 class EnergyProperties(object):
@@ -25,11 +25,9 @@ class EnergyProperties(object):
         construction-set when the face is added to a zone. For a free floating face the
         construction will be None unless it is set by user.
         """
-        if self._construction:
-            # set by user
+        if self._construction:  # set by user
             return self._construction
-        elif self._constructionset:
-            # set by parent zone
+        elif self._constructionset:  # set by parent zone
             return self._constructionset(self._face_type, self._boundary_condition)
         else:
             return None
@@ -37,7 +35,7 @@ class EnergyProperties(object):
     @construction.setter
     def construction(self, value):
         if value:
-            assert isinstance(value, Construction), \
+            assert isinstance(value, OpaqueConstruction), \
                 'Expected Construction not {}'.format(type(value))
         self._construction = value
 
@@ -61,11 +59,12 @@ class EnergyProperties(object):
         """Return energy properties as a dictionary."""
         base = {'energy': {}}
         construction = self.construction
-        base['energy']['construction'] = construction.to_dict(
-        ) if construction else None
+        base['energy']['construction'] = \
+            construction.to_dict() if construction else None
         base['energy']['construction_set'] = \
             self._constructionset.name if self._constructionset else None
         return base
 
     def __repr__(self):
-        return 'EnergyProperties:%s' % self.construction.name if self.construction else ''
+        return 'EnergyProperties: %s' % self.construction.name \
+            if self.construction else ''

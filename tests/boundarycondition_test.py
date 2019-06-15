@@ -24,5 +24,3 @@ def test_adiabatic_to_dict():
     assert 'sun_exposure' not in outdict
     assert 'wind_exposure' not in outdict
     assert 'view_factor' not in outdict
-
-
