@@ -1,0 +1,47 @@
+!       Window Material/Construction file with spectral data in IDF format 
+
+
+!----------------------------------------------------- 
+!       Window Glass Layers 
+!----------------------------------------------------- 
+
+WindowMaterial:Glazing,
+Glass_103_LayerAvg,                                 !- Layer name : CLEAR_6.DAT
+SpectralAverage,                                    !- Optical Data Type
+,                                                   !- Spectral Data name
+0.005715,                                           !- Thickness
+0.770675,                                           !- Solar Transmittance
+6.997562e-002,                                      !- Solar Front Reflectance
+7.023712e-002,                                      !- Solar Back Reflectance
+0.883647,                                           !- Visible Transmittance
+0.080395,                                           !-Visible Front Reflectance
+0.080395,                                           !-Visible Back reflectance
+0.000000,                                           !- IR Transmittance
+0.840000,                                           !-Front Emissivity
+0.840000,                                           !-Back Emissivity
+1.000000;                                           !-Conductivity
+
+
+!----------------------------------------------------------------------
+!         Window Gas Layers
+!----------------------------------------------------------------------
+
+WindowMaterial:Gas,
+Gap_1_W_0_0127,                                     !- gap name - Air
+Air,                                                !- type
+0.0127;                                             !- thickness
+
+
+!----------------------------------------------------- 
+!       Window Construction 
+!----------------------------------------------------- 
+
+CONSTRUCTION,
+GlzSys_5,                                    !- Glazing System name: Triple Clear
+Glass_103_LayerAvg,                             !- glass name : CLEAR_6.DAT
+Gap_1_W_0_0127,                              !- gap name - Air
+Glass_103_LayerAvg,                             !- glass name : CLEAR_6.DAT
+Gap_1_W_0_0127,                              !- gap name - Air
+Glass_103_LayerAvg;                             !- glass name : CLEAR_6.DAT
+
+
