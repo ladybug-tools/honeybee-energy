@@ -33,11 +33,38 @@ def test_material_init():
     assert concrete.conductivity == pytest.approx(0.4, rel=1e-2)
 
 
+def test_material_equivalency():
+    """Test the equality of a material to another EnergyMaterial."""
+    concrete_1 = EnergyMaterial('Concrete [HW]', 0.2, 0.5, 800, 0.75)
+    concrete_2 = concrete_1.duplicate()
+    insulation = EnergyMaterial('Insulation', 0.05, 0.049, 265, 836)
+
+    assert concrete_1 == concrete_2
+    assert concrete_1 != insulation
+    collection = [concrete_1, concrete_2, insulation]
+    assert len(set(collection)) == 2
+
+    concrete_2.density = 600
+    assert concrete_1 != concrete_2
+    assert len(set(collection)) == 3
+
+
+def test_material_lockability():
+    """Test the lockability of the EnergyMaterial."""
+    concrete = EnergyMaterial('Concrete [HW]', 0.2, 0.5, 800, 0.75)
+    concrete.density = 600
+    concrete.lock()
+    with pytest.raises(AttributeError):
+        concrete.density = 700
+    concrete.unlock()
+    concrete.density = 700
+
+
 def test_material_defaults():
     """Test the EnergyMaterial default properties."""
     concrete = EnergyMaterial('Concrete [HW]', 0.2, 0.5, 800, 0.75)
 
-    assert concrete.name == 'Concrete HW'
+    assert concrete.name == 'Concrete [HW]'
     assert concrete.roughness == 'MediumRough'
     assert concrete.thermal_absorptance == 0.9
     assert concrete.solar_absorptance == concrete.visible_absorptance == 0.7
@@ -47,30 +74,30 @@ def test_material_invalid():
     """Test the initalization of EnergyMaterial objects with invalid properties."""
     concrete = EnergyMaterial('Concrete', 0.2, 0.5, 800, 0.75)
 
-    with pytest.raises(Exception):
+    with pytest.raises(TypeError):
         concrete.name = ['test_name']
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         concrete.thickness = -1
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         concrete.conductivity = -1
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         concrete.density = -1
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         concrete.specific_heat = -1
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         concrete.roughness = 'Medium'
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         concrete.thermal_absorptance = 2
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         concrete.solar_absorptance = 2
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         concrete.visible_absorptance = 2
 
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         concrete.resistivity = -1
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         concrete.u_value = -1
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         concrete.r_value = -1
 
 
@@ -161,7 +188,7 @@ def test_material_nomass_defaults():
     """Test the EnergyMaterialNoMass default properties."""
     insul_r2 = EnergyMaterialNoMass('Insulation [R-2]', 2)
 
-    assert insul_r2.name == 'Insulation R-2'
+    assert insul_r2.name == 'Insulation [R-2]'
     assert insul_r2.roughness == 'MediumRough'
     assert insul_r2.thermal_absorptance == 0.9
     assert insul_r2.solar_absorptance == insul_r2.visible_absorptance == 0.7
@@ -171,19 +198,19 @@ def test_material_nomass_invalid():
     """Test the initalization of EnergyMaterial objects with invalid properties."""
     insul_r2 = EnergyMaterialNoMass('Insulation [R-2]', 2)
 
-    with pytest.raises(Exception):
+    with pytest.raises(TypeError):
         insul_r2.name = ['test_name']
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         insul_r2.r_value = -1
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         insul_r2.roughness = 'Medium'
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         insul_r2.thermal_absorptance = 2
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         insul_r2.solar_absorptance = 2
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         insul_r2.visible_absorptance = 2
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         insul_r2.u_value = -1
 
 

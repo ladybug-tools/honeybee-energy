@@ -44,11 +44,11 @@ def test_gas_invalid():
     """Test EnergyWindowMaterialGlazing objects with invalid properties."""
     air = EnergyWindowMaterialGas('Air Gap', 0.0125, 'Air')
 
-    with pytest.raises(Exception):
+    with pytest.raises(TypeError):
         air.name = ['test_name']
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         air.thickness = -1
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         air.gas_type = 'Helium'
 
 
@@ -131,13 +131,13 @@ def test_gas_mixture_invalid():
     air_argon = EnergyWindowMaterialGasMixture(
         'Air Argon Gap', 0.0125, ('Air', 'Argon'), (0.1, 0.9))
 
-    with pytest.raises(Exception):
+    with pytest.raises(TypeError):
         air_argon.name = ['test_name']
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         air_argon.thickness = -1
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         air_argon.gas_types = ('Helium', 'Nitrogen')
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         air_argon.gas_fractions = (0.5, 0.7)
 
 

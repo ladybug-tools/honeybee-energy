@@ -1,4 +1,5 @@
 """Face writer to idf."""
+from honeybee.boundarycondition import Surface
 
 
 def face_to_idf(face):
@@ -20,11 +21,12 @@ def face_to_idf(face):
         '\n\t%d,\t!- Number of Vertices' \
         '\n\t%s;' % (
             face.name,
-            face.properties.face_type.name,
-            en_prop.construction.name if en_prop.construction else '',
+            face.type.name,
+            en_prop.construction.name,
             face.parent.name if face.parent else 'unknown',
             face.boundary_condition.name,
-            face.boundary_condition.boundary_condition_object_idf,
+            face.boundary_condition.boundary_condition_object if
+            isinstance(face.boundary_condition, Surface) else '',
             face.boundary_condition.sun_exposure_idf,
             face.boundary_condition.wind_exposure_idf,
             face.boundary_condition.view_factor,

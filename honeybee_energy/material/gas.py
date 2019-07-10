@@ -7,11 +7,14 @@ They can only exist within window constructions bounded by glazing materials
 from __future__ import division
 
 from ._base import _EnergyMaterialWindowBase
+
+from honeybee._lockable import lockable
 from honeybee.typing import float_positive, float_in_range, tuple_with_length
 
 import math
 
 
+@lockable
 class _EnergyWindowMaterialGasBase(_EnergyMaterialWindowBase):
     """Base for gas gap layer."""
     GASES = ('Air', 'Argon', 'Krypton', 'Xenon')
@@ -29,6 +32,12 @@ class _EnergyWindowMaterialGasBase(_EnergyMaterialWindowBase):
                           'Xenon': (158.33970642, 0.0, 0.0)}
     MOLECULARWEIGHTS = {'Air': 28.97, 'Argon': 39.948,
                         'Krypton': 83.8, 'Xenon': 131.3}
+    __slots__ = ('_thickness',)
+
+    def __init__(self, name, thickness=0.0125):
+        """Initialize gas base material."""
+        _EnergyMaterialWindowBase.__init__(self, name)
+        self.thickness = thickness
 
     @property
     def is_gas_material(self):
@@ -39,6 +48,11 @@ class _EnergyWindowMaterialGasBase(_EnergyMaterialWindowBase):
     def thickness(self):
         """Get or set the thickess of the gas layer [m]."""
         return self._thickness
+
+    @property
+    def molecular_weight(self):
+        """Default placeholder gas molecular weight."""
+        return self.MOLECULARWEIGHTS['Air']
 
     @thickness.setter
     def thickness(self, thick):
@@ -288,6 +302,7 @@ class _EnergyWindowMaterialGasBase(_EnergyMaterialWindowBase):
             self.radiative_conductance(emissivity_1, emissivity_2, t_kelvin)
 
 
+@lockable
 class EnergyWindowMaterialGas(_EnergyWindowMaterialGasBase):
     """Gas gap layer.
 
@@ -301,7 +316,7 @@ class EnergyWindowMaterialGas(_EnergyWindowMaterialGasBase):
         density
         prandtl
     """
-    __slots__ = ('_name', '_thickness', '_gas_type')
+    __slots__ = ('_gas_type',)
 
     def __init__(self, name, thickness=0.0125, gas_type='Air'):
         """Initialize gas energy material.
@@ -314,10 +329,8 @@ class EnergyWindowMaterialGas(_EnergyWindowMaterialGasBase):
             gas_type: Text describing the type of gas in the gap.
                 Must be one of the following: 'Air', 'Argon', 'Krypton', 'Xenon'.
                 Default: 'Air'
-
         """
-        self.name = name
-        self.thickness = thickness
+        _EnergyWindowMaterialGasBase.__init__(self, name, thickness)
         self.gas_type = gas_type
 
     @property
@@ -416,6 +429,20 @@ class EnergyWindowMaterialGas(_EnergyWindowMaterialGasBase):
             dictionary[self._gas_type][1] * t_kelvin + \
             dictionary[self._gas_type][2] * t_kelvin ** 2
 
+    def __key(self):
+        """A tuple based on the object properties, useful for hashing."""
+        return (self.name, self.thickness, self.gas_type)
+
+    def __hash__(self):
+        return hash(self.__key())
+
+    def __eq__(self, other):
+        return isinstance(other, EnergyWindowMaterialGas) and \
+            self.__key() == other.__key()
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     def __repr__(self):
         return self.to_idf()
 
@@ -423,6 +450,7 @@ class EnergyWindowMaterialGas(_EnergyWindowMaterialGasBase):
         return EnergyWindowMaterialGas(self.name, self.thickness, self.gas_type)
 
 
+@lockable
 class EnergyWindowMaterialGasMixture(_EnergyWindowMaterialGasBase):
     """Gas gap layer with a mixture of gasses.
 
@@ -438,7 +466,7 @@ class EnergyWindowMaterialGasMixture(_EnergyWindowMaterialGasBase):
         density
         prandtl
     """
-    __slots__ = ('_name', '_thickness', '_gas_types', '_gas_fractions')
+    __slots__ = ('_gas_count', '_gas_types', '_gas_fractions')
 
     def __init__(self, name, thickness=0.0125,
                  gas_types=('Argon', 'Air'), gas_fractions=(0.9, 0.1)):
@@ -456,17 +484,14 @@ class EnergyWindowMaterialGasMixture(_EnergyWindowMaterialGasBase):
                 types in the mixture.  This list must align with the gas_types
                 input list. Default: (0.9, 0.1)
         """
-        # check the number of gases
-        try:
+        _EnergyWindowMaterialGasBase.__init__(self, name, thickness)
+        try:  # check the number of gases
             self._gas_count = len(gas_types)
         except (TypeError, ValueError):
             raise TypeError(
                 'Expected list for gas_types. Got {}.'.format(type(gas_types)))
         assert 2 <= self._gas_count <= 4, 'Number of gases in gas mixture must be ' \
             'between 2 anf 4. Got {}.'.format(self._gas_count)
-
-        self.name = name
-        self.thickness = thickness
         self.gas_types = gas_types
         self.gas_fractions = gas_fractions
 
@@ -587,6 +612,20 @@ class EnergyWindowMaterialGasMixture(_EnergyWindowMaterialGasBase):
                             dictionary[gas][2] * t_kelvin ** 2)
         return sum(tuple(pr * frac for pr, frac in zip(property, self._gas_fractions)))
 
+    def __key(self):
+        """A tuple based on the object properties, useful for hashing."""
+        return (self.name, self.thickness, self.gas_types, self.gas_fractions)
+
+    def __hash__(self):
+        return hash(self.__key())
+
+    def __eq__(self, other):
+        return isinstance(other, EnergyWindowMaterialGasMixture) and \
+            self.__key() == other.__key()
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     def __repr__(self):
         return self.to_idf()
 
@@ -595,6 +634,7 @@ class EnergyWindowMaterialGasMixture(_EnergyWindowMaterialGasBase):
             self.name, self.thickness, self.gas_types, self.gas_fractions)
 
 
+@lockable
 class EnergyWindowMaterialGasCustom(_EnergyWindowMaterialGasBase):
     """Custom gas gap layer.
 
@@ -624,8 +664,7 @@ class EnergyWindowMaterialGasCustom(_EnergyWindowMaterialGasBase):
         co2_gap.molecular_weight = 44
         print(co2_gap)
     """
-    __slots__ = ('_name', '_thickness',
-                 '_conductivity_coeff_a', '_viscosity_coeff_a', '_specific_heat_coeff_a',
+    __slots__ = ('_conductivity_coeff_a', '_viscosity_coeff_a', '_specific_heat_coeff_a',
                  '_conductivity_coeff_b', '_viscosity_coeff_b', '_specific_heat_coeff_b',
                  '_conductivity_coeff_c', '_viscosity_coeff_c', '_specific_heat_coeff_c',
                  '_specific_heat_ratio', '_molecular_weight')
@@ -672,8 +711,7 @@ class EnergyWindowMaterialGasCustom(_EnergyWindowMaterialGasBase):
             molecular_weight: Number between 20 and 200 for the mass of 1 mol of
                 the substance in grams. Default is 20.0.
         """
-        self.name = name
-        self.thickness = thickness
+        _EnergyWindowMaterialGasBase.__init__(self, name, thickness)
         self.conductivity_coeff_a = conductivity_coeff_a
         self.viscosity_coeff_a = viscosity_coeff_a
         self.specific_heat_coeff_a = specific_heat_coeff_a
@@ -883,6 +921,25 @@ class EnergyWindowMaterialGasCustom(_EnergyWindowMaterialGasBase):
             'specific_heat_ratio': self.specific_heat_ratio,
             'molecular_weight': self.molecular_weight
         }
+
+    def __key(self):
+        """A tuple based on the object properties, useful for hashing."""
+        return (self.name, self.thickness, self.conductivity_coeff_a,
+                self.viscosity_coeff_a, self.specific_heat_coeff_a,
+                self.conductivity_coeff_b, self.viscosity_coeff_b,
+                self.specific_heat_coeff_b, self.conductivity_coeff_c,
+                self.viscosity_coeff_c, self.specific_heat_coeff_c,
+                self.specific_heat_ratio, self.molecular_weight)
+
+    def __hash__(self):
+        return hash(self.__key())
+
+    def __eq__(self, other):
+        return isinstance(other, EnergyWindowMaterialGasCustom) and \
+            self.__key() == other.__key()
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     def __repr__(self):
         return self.to_idf()

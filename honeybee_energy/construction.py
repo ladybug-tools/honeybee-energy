@@ -1,5 +1,5 @@
 # coding=utf-8
-"""Energy construction."""
+"""Energy Construction."""
 from __future__ import division
 
 from .material._base import _EnergyMaterialOpaqueBase, _EnergyMaterialWindowBase
@@ -11,6 +11,8 @@ from .material.gas import _EnergyWindowMaterialGasBase, EnergyWindowMaterialGas,
 from .material.shade import _EnergyWindowMaterialShadeBase, EnergyWindowMaterialShade, \
     EnergyWindowMaterialBlind
 
+
+from honeybee._lockable import lockable
 from honeybee.typing import valid_ep_string
 
 import math
@@ -18,15 +20,24 @@ import re
 import os
 
 
+@lockable
 class _ConstructionBase(object):
     """Energy construction.
 
     Properties:
         name
         materials
+        layers
+        unique_materials
+        r_value
+        u_value
+        u_factor
+        r_factor
     """
     # generic air material used to compute indoor film coefficients.
     _air = EnergyWindowMaterialGas('generic air', gas_type='Air')
+
+    __slots__ = ('_name', '_materials', '_locked')
 
     def __init__(self, name, materials):
         """Initialize energy construction.
@@ -36,8 +47,9 @@ class _ConstructionBase(object):
                 Can include spaces but special characters will be stripped out.
             materials: List of materials in the construction (from outside to inside).
         """
+        self._locked = False  # unlocked by default
         self.name = name
-        self.materials = list(materials)
+        self.materials = materials
 
     @property
     def name(self):
@@ -47,6 +59,19 @@ class _ConstructionBase(object):
     @name.setter
     def name(self, name):
         self._name = valid_ep_string(name, 'construction name')
+
+    @property
+    def layers(self):
+        """A list of material names in the construction (outside to inside)."""
+        return [mat.name for mat in self._materials]
+
+    @property
+    def unique_materials(self):
+        """A set of only unique material objects in the construction.
+
+        This is useful when constructions reuse material layers.
+        """
+        return list(set(self._materials))
 
     @property
     def r_value(self):
@@ -157,6 +182,18 @@ class _ConstructionBase(object):
         _rad_h = 4 * 5.6697e-8 * self.inside_emissivity * (t_kelvin ** 3)
         return _conv_h + _rad_h
 
+    def lock(self):
+        """The lock() method will also lock the materials."""
+        self._locked = True
+        for mat in self.materials:
+            mat._locked = True
+
+    def unlock(self):
+        """The unlock() method will also unlock the materials."""
+        self._locked = False
+        for mat in self.materials:
+            mat._locked = False
+
     def _temperature_profile_from_r_values(
             self, r_values, outside_temperature=-18, inside_temperature=21):
         """Get a list of temperatures at each material boundary between R-values."""
@@ -202,6 +239,19 @@ class _ConstructionBase(object):
     def __iter__(self):
         return iter(self._materials)
 
+    def __key(self):
+        """A tuple based on the object properties, useful for hashing."""
+        return (self.name,) + tuple(hash(mat) for mat in self.materials)
+
+    def __hash__(self):
+        return hash(self.__key())
+
+    def __eq__(self, other):
+        return isinstance(other, _ConstructionBase) and self.__key() == other.__key()
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     def ToString(self):
         """Overwrite .NET ToString."""
         return self.__repr__()
@@ -211,12 +261,15 @@ class _ConstructionBase(object):
             self.name, '\n '.join(tuple(mat.name for mat in self.materials)))
 
 
+@lockable
 class OpaqueConstruction(_ConstructionBase):
     """Opaque energy construction.
 
     Properties:
         name
         materials
+        layers
+        unique_materials
         r_value
         u_value
         u_factor
@@ -230,10 +283,11 @@ class OpaqueConstruction(_ConstructionBase):
         mass_area_density
         area_heat_capacity
     """
+    __slots__ = ()
 
     @property
     def materials(self):
-        """Get or set a list of materials in the construction (outside to inside)."""
+        """Get or set the list of materials in the construction (outside to inside)."""
         return self._materials
 
     @materials.setter
@@ -242,7 +296,7 @@ class OpaqueConstruction(_ConstructionBase):
             if not isinstance(mats, tuple):
                 mats = tuple(mats)
         except TypeError:
-            raise TypeError('Expected list for construction materials. '
+            raise TypeError('Expected list or tuple for construction materials. '
                             'Got {}'.format(type(mats)))
         for mat in mats:
             assert isinstance(mat, _EnergyMaterialOpaqueBase), 'Expected opaque energy' \
@@ -356,7 +410,10 @@ class OpaqueConstruction(_ConstructionBase):
         """
         materials_dict = cls._idf_materials_dictionary(ep_mat_strings)
         ep_strs = cls._parse_ep_string(ep_string)
-        materials = [materials_dict[mat] for mat in ep_strs[1:]]
+        try:
+            materials = [materials_dict[mat] for mat in ep_strs[1:]]
+        except KeyError as e:
+            raise ValueError('Failed to find {} in the input ep_mat_strings.'.format(e))
         return cls(ep_strs[0], materials)
 
     @classmethod
@@ -398,25 +455,30 @@ class OpaqueConstruction(_ConstructionBase):
     def from_dict(cls, data):
         """Create a OpaqueConstruction from a dictionary.
 
+        Note that the dictionary must be a non-abridged version for this
+        classmethod to work.
+
         Args:
             data: {
-                "type": 'EnergyConstructionOpaque',
+                "type": 'OpaqueConstruction',
                 "name": 'Generic Brick Wall',
-                "materials": []  // list of material objects
+                "layers": [] // list of material names (from outside to inside)
+                "materials": []  // list of unique material objects
                 }
         """
-        assert data['type'] == 'EnergyConstructionOpaque', \
-            'Expected EnergyConstructionOpaque. Got {}.'.format(data['type'])
-        materials = []
+        assert data['type'] == 'OpaqueConstruction', \
+            'Expected OpaqueConstruction. Got {}.'.format(data['type'])
+        materials = {}
         for mat in data['materials']:
             if mat['type'] == 'EnergyMaterial':
-                materials.append(EnergyMaterial.from_dict(mat))
+                materials[mat['name']] = EnergyMaterial.from_dict(mat)
             elif mat['type'] == 'EnergyMaterialNoMass':
-                materials.append(EnergyMaterialNoMass.from_dict(mat))
+                materials[mat['name']] = EnergyMaterialNoMass.from_dict(mat)
             else:
                 raise NotImplementedError(
                     'Material {} is not supported.'.format(mat['type']))
-        return cls(data['name'], materials)
+        mat_layers = [materials[mat_name] for mat_name in data['layers']]
+        return cls(data['name'], mat_layers)
 
     def to_idf(self):
         """IDF string representation of construction object and materials.
@@ -427,12 +489,7 @@ class OpaqueConstruction(_ConstructionBase):
                 materials in the construction.
         """
         construction_idf = self._generate_ep_string('opaque', self.name, self.materials)
-        materials_idf = []
-        material_names = []
-        for mat in self.materials:
-            if mat.name not in material_names:
-                material_names.append(mat.name)
-                materials_idf.append(mat.to_idf())
+        materials_idf = [mat.to_idf() for mat in self.unique_materials]
         return construction_idf, materials_idf
 
     def to_radiance_solar_interior(self, specularity=0.0):
@@ -451,13 +508,21 @@ class OpaqueConstruction(_ConstructionBase):
         """Honeybee Radiance material with the exterior visible reflectance."""
         return self.materials[0].to_radiance_visible(specularity)
 
-    def to_dict(self):
-        """Opaque construction dictionary representation."""
-        return {
-            'type': 'EnergyConstructionOpaque',
-            'name': self.name,
-            'materials': [m.to_dict() for m in self.materials]
-        }
+    def to_dict(self, abridged=False):
+        """Opaque construction dictionary representation.
+
+        Args:
+            abridged: Boolean to note whether the full dictionary describing the
+                object should be returned (False) or just an abridged version (True),
+                which only specifies the names of material layers. Default: False.
+        """
+        base = {'type': 'OpaqueConstruction'} if not \
+            abridged else {'type': 'OpaqueConstructionAbridged'}
+        base['name'] = self.name
+        base['layers'] = self.layers
+        if not abridged:
+            base['materials'] = [m.to_dict() for m in self.unique_materials]
+        return base
 
     @staticmethod
     def extract_all_from_idf_file(idf_file):
@@ -517,12 +582,15 @@ class OpaqueConstruction(_ConstructionBase):
         return self._generate_ep_string('opaque', self.name, self.materials)
 
 
+@lockable
 class WindowConstruction(_ConstructionBase):
     """Window energy construction.
 
     Properties:
         name
         materials
+        layers
+        unique_materials
         r_value
         u_value
         u_factor
@@ -536,6 +604,7 @@ class WindowConstruction(_ConstructionBase):
         has_shade
         shade_location
     """
+    __slots__ = ('_has_shade',)
 
     @property
     def materials(self):
@@ -568,7 +637,7 @@ class WindowConstruction(_ConstructionBase):
             if not isinstance(mats, tuple):
                 mats = tuple(mats)
         except TypeError:
-            raise TypeError('Expected list for construction materials. '
+            raise TypeError('Expected list or tuple for construction materials. '
                             'Got {}'.format(type(mats)))
         assert len(mats) > 0, 'Construction must possess at least one material.'
         assert len(mats) <= 8, 'Window construction cannot have more than 8 materials.'
@@ -577,7 +646,7 @@ class WindowConstruction(_ConstructionBase):
         assert not isinstance(mats[-1], _EnergyWindowMaterialGasBase), \
             'Window construction cannot have gas gap layers on the inside layer.'
         glazing_layer = False
-        self._has_shade = False
+        has_shade = False
         for i, mat in enumerate(mats):
             assert isinstance(mat, _EnergyMaterialWindowBase), 'Expected window energy' \
                 ' material for construction. Got {}.'.format(type(mat))
@@ -594,9 +663,10 @@ class WindowConstruction(_ConstructionBase):
                 if i != 0:
                     assert glazing_layer, \
                         'Shade layer must be adjacent to a glazing layer.'
-                assert not self._has_shade, 'Constructions can only possess one shade.'
+                assert not has_shade, 'Constructions can only possess one shade.'
                 glazing_layer = False
-                self._has_shade = True
+                has_shade = True
+        self._has_shade = has_shade
         self._materials = mats
 
     @property
@@ -810,7 +880,10 @@ class WindowConstruction(_ConstructionBase):
         """
         materials_dict = cls._idf_materials_dictionary(ep_mat_strings)
         ep_strs = cls._parse_ep_string(ep_string)
-        materials = [materials_dict[mat] for mat in ep_strs[1:]]
+        try:
+            materials = [materials_dict[mat] for mat in ep_strs[1:]]
+        except KeyError as e:
+            raise ValueError('Failed to find {} in the input ep_mat_strings.'.format(e))
         return cls(ep_strs[0], materials)
 
     @classmethod
@@ -850,35 +923,39 @@ class WindowConstruction(_ConstructionBase):
     def from_dict(cls, data):
         """Create a WindowConstruction from a dictionary.
 
+        Note that the dictionary must be a non-abridged version for this
+        classmethod to work.
+
         Args:
             data: {
-                "type": 'EnergyConstructionWindow',
+                "type": 'WindowConstruction',
                 "name": 'Generic Double Pane Window',
                 "materials": []  // list of material objects
                 }
         """
-        assert data['type'] == 'EnergyConstructionWindow', \
-            'Expected EnergyConstructionWindow. Got {}.'.format(data['type'])
-        materials = []
+        assert data['type'] == 'WindowConstruction', \
+            'Expected WindowConstruction. Got {}.'.format(data['type'])
+        materials = {}
         for mat in data['materials']:
             if mat['type'] == 'EnergyWindowMaterialSimpleGlazSys':
-                materials.append(EnergyWindowMaterialSimpleGlazSys.from_dict(mat))
+                materials[mat['name']] = EnergyWindowMaterialSimpleGlazSys.from_dict(mat)
             elif mat['type'] == 'EnergyWindowMaterialGlazing':
-                materials.append(EnergyWindowMaterialGlazing.from_dict(mat))
+                materials[mat['name']] = EnergyWindowMaterialGlazing.from_dict(mat)
             elif mat['type'] == 'EnergyWindowMaterialGas':
-                materials.append(EnergyWindowMaterialGas.from_dict(mat))
+                materials[mat['name']] = EnergyWindowMaterialGas.from_dict(mat)
             elif mat['type'] == 'EnergyWindowMaterialGasMixture':
-                materials.append(EnergyWindowMaterialGasMixture.from_dict(mat))
+                materials[mat['name']] = EnergyWindowMaterialGasMixture.from_dict(mat)
             elif mat['type'] == 'EnergyWindowMaterialGasCustom':
-                materials.append(EnergyWindowMaterialGasCustom.from_dict(mat))
+                materials[mat['name']] = EnergyWindowMaterialGasCustom.from_dict(mat)
             elif mat['type'] == 'EnergyWindowMaterialShade':
-                materials.append(EnergyWindowMaterialShade.from_dict(mat))
+                materials[mat['name']] = EnergyWindowMaterialShade.from_dict(mat)
             elif mat['type'] == 'EnergyWindowMaterialBlind':
-                materials.append(EnergyWindowMaterialBlind.from_dict(mat))
+                materials[mat['name']] = EnergyWindowMaterialBlind.from_dict(mat)
             else:
                 raise NotImplementedError(
                     'Material {} is not supported.'.format(mat['type']))
-        return cls(data['name'], materials)
+        mat_layers = [materials[mat_name] for mat_name in data['layers']]
+        return cls(data['name'], mat_layers)
 
     def to_idf(self):
         """IDF string representation of construction object and materials.
@@ -889,12 +966,7 @@ class WindowConstruction(_ConstructionBase):
                 materials in the construction.
         """
         construction_idf = self._generate_ep_string('window', self.name, self.materials)
-        materials_idf = []
-        material_names = []
-        for mat in self.materials:
-            if mat.name not in material_names:
-                material_names.append(mat.name)
-                materials_idf.append(mat.to_idf())
+        materials_idf = [mat.to_idf() for mat in self.unique_materials]
         return construction_idf, materials_idf
 
     def to_radiance_solar(self):
@@ -926,9 +998,9 @@ class WindowConstruction(_ConstructionBase):
                 ref = self.materials[-1].solar_reflectance_back
             except AttributeError:
                 ref = self.materials[-1].solar_reflectance
-            return Trans.from_single_reflectance(self.name, rgb_reflectance=ref,
-                                                 transmitted_diff=trans,
-                                                 transmitted_spec=0)
+            return Trans.from_single_reflectance(
+                self.name, rgb_reflectance=ref,
+                transmitted_diff=trans, transmitted_spec=0)
 
     def to_radiance_visible(self, specularity=0.0):
         """Honeybee Radiance material with the visible transmittance."""
@@ -959,17 +1031,25 @@ class WindowConstruction(_ConstructionBase):
                 ref = self.materials[-1].solar_reflectance_back
             except AttributeError:
                 ref = self.materials[-1].solar_reflectance
-            return Trans.from_single_reflectance(self.name, rgb_reflectance=ref,
-                                                 transmitted_diff=trans,
-                                                 transmitted_spec=0)
+            return Trans.from_single_reflectance(
+                self.name, rgb_reflectance=ref,
+                transmitted_diff=trans, transmitted_spec=0)
 
-    def to_dict(self):
-        """Window construction dictionary representation."""
-        return {
-            'type': 'EnergyConstructionWindow',
-            'name': self.name,
-            'materials': [m.to_dict() for m in self.materials]
-        }
+    def to_dict(self, abridged=False):
+        """Window construction dictionary representation.
+
+        Args:
+            abridged: Boolean to note whether the full dictionary describing the
+                object should be returned (False) or just an abridged version (True),
+                which only specifies the names of material layers. Default: False.
+        """
+        base = {'type': 'WindowConstruction'} if not \
+            abridged else {'type': 'WindowConstructionAbridged'}
+        base['name'] = self.name
+        base['layers'] = self.layers
+        if not abridged:
+            base['materials'] = [m.to_dict() for m in self.unique_materials]
+        return base
 
     @staticmethod
     def extract_all_from_idf_file(idf_file):

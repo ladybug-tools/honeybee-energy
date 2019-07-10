@@ -1,8 +1,6 @@
 # coding=utf-8
-
 from honeybee_energy.material.opaque import EnergyMaterial, EnergyMaterialNoMass
-from honeybee_energy.material.glazing import EnergyWindowMaterialGlazing, \
-    EnergyWindowMaterialSimpleGlazSys
+from honeybee_energy.material.glazing import EnergyWindowMaterialGlazing
 from honeybee_energy.material.gas import EnergyWindowMaterialGas, \
     EnergyWindowMaterialGasMixture
 from honeybee_energy.material.shade import EnergyWindowMaterialShade, \
@@ -14,7 +12,7 @@ import json
 
 
 def test_opaque_construction_init():
-    """Test the initalization of EnergyMaterial objects and basic properties."""
+    """Test the initalization of OpaqueConstruction objects and basic properties."""
     concrete = EnergyMaterial('Concrete', 0.15, 2.31, 2322, 832, 'MediumRough',
                               0.95, 0.75, 0.8)
     insulation = EnergyMaterialNoMass('Insulation R-3', 3, 'MediumSmooth')
@@ -51,6 +49,52 @@ def test_opaque_construction_init():
         constr_dup.outside_solar_reflectance == 0.25
     assert wall_constr.outside_visible_reflectance == \
         constr_dup.outside_visible_reflectance == pytest.approx(0.2, rel=1e-2)
+
+
+def test_opaque_lockability():
+    """Test the lockability of the construction."""
+    concrete = EnergyMaterial('Concrete', 0.15, 2.31, 2322, 832, 'MediumRough',
+                              0.95, 0.75, 0.8)
+    insulation = EnergyMaterialNoMass('Insulation R-3', 3, 'MediumSmooth')
+    wall_gap = EnergyMaterial('Wall Air Gap', 0.1, 0.67, 1.2925, 1006.1)
+    gypsum = EnergyMaterial('Gypsum', 0.0127, 0.16, 784.9, 830, 'MediumRough',
+                            0.93, 0.6, 0.65)
+    wall_constr = OpaqueConstruction(
+        'Generic Wall Construction', [concrete, insulation, wall_gap, gypsum])
+
+    wall_constr.materials = [concrete, wall_gap, gypsum]
+    wall_constr.lock()
+    with pytest.raises(AttributeError):
+        wall_constr.materials = [concrete, insulation, wall_gap, gypsum]
+    with pytest.raises(AttributeError):
+        wall_constr[0].density = 600
+    wall_constr.unlock()
+    wall_constr.materials = [concrete, insulation, wall_gap, gypsum]
+    wall_constr[0].density = 600
+
+
+def test_opaque_equivalency():
+    """Test the equality of an opaque construction to another."""
+    concrete = EnergyMaterial('Concrete', 0.15, 2.31, 2322, 832)
+    insulation = EnergyMaterial('Insulation', 0.05, 0.049, 265, 836)
+    wall_gap = EnergyMaterial('Wall Air Gap', 0.1, 0.67, 1.2925, 1006.1)
+    gypsum = EnergyMaterial('Gypsum', 0.0127, 0.16, 784.9, 830)
+    wall_constr_1 = OpaqueConstruction(
+        'Wall Construction', [concrete, insulation, wall_gap, gypsum])
+    wall_constr_2 = wall_constr_1.duplicate()
+    wall_constr_3 = OpaqueConstruction(
+        'Wall Construction', [concrete, wall_gap, gypsum, insulation])
+    wall_constr_4 = OpaqueConstruction(
+        'Other Wall Construction', [concrete, insulation, wall_gap, gypsum])
+
+    collection = [wall_constr_1, wall_constr_1, wall_constr_2, wall_constr_3]
+    assert len(set(collection)) == 2
+    assert wall_constr_1 == wall_constr_2
+    assert wall_constr_1 != wall_constr_3
+    assert wall_constr_1 != wall_constr_4
+
+    wall_constr_2.name = 'Roof Construction'
+    assert wall_constr_1 != wall_constr_2
 
 
 def test_opaque_temperature_profile():
@@ -114,8 +158,7 @@ def test_opaque_to_from_standards_dict():
             "Stucco - 7/8 in. CBES",
             "W1_R8.60",
             "Air - Metal Wall Framing - 16 or 24 in. OC",
-            "Gypsum Board - 1/2 in. CBES"]
-        }
+            "Gypsum Board - 1/2 in. CBES"]}
     wall_constr = OpaqueConstruction.from_standards_dict(standards_dict, data_store)
 
     assert wall_constr.name == 'Metal framed wallsW1_R8.60'
@@ -182,6 +225,50 @@ def test_window_construction_init():
     assert double_clear.u_factor == pytest.approx(2.72, rel=1e-2)
     assert double_low_e.u_factor == pytest.approx(1.698, rel=1e-2)
     assert triple_clear.u_factor == pytest.approx(1.757, rel=1e-2)
+
+
+def test_window_lockability():
+    """Test the lockability of the window construction."""
+    clear_glass = EnergyWindowMaterialGlazing(
+        'Clear Glass', 0.005715, 0.770675, 0.07, 0.8836, 0.0804,
+        0, 0.84, 0.84, 1.0)
+    gap = EnergyWindowMaterialGas('air gap', thickness=0.0127)
+    double_clear = WindowConstruction(
+        'Double Clear Window', [clear_glass, gap, clear_glass])
+
+    double_clear.materials = [clear_glass, gap, clear_glass, gap, clear_glass]
+    double_clear.lock()
+    with pytest.raises(AttributeError):
+        double_clear.materials = [clear_glass]
+    with pytest.raises(AttributeError):
+        double_clear[0].solar_transmittance = 0.45
+    double_clear.unlock()
+    double_clear.materials = [clear_glass]
+    double_clear[0].solar_transmittance = 0.45
+
+
+def test_window_equivalency():
+    """Test the equality of a window construction to another."""
+    clear_glass = EnergyWindowMaterialGlazing(
+        'Clear Glass', 0.005715, 0.770675, 0.07, 0.8836, 0.0804,
+        0, 0.84, 0.84, 1.0)
+    gap = EnergyWindowMaterialGas('air gap', thickness=0.0127)
+    double_clear = WindowConstruction(
+        'Clear Window', [clear_glass, gap, clear_glass])
+    double_clear_2 = double_clear.duplicate()
+    triple_clear = WindowConstruction(
+        'Clear Window', [clear_glass, gap, clear_glass, gap, clear_glass])
+    double_clear_3 = WindowConstruction(
+        'Double Clear Window', [clear_glass, gap, clear_glass])
+
+    collection = [double_clear, double_clear, double_clear_2, triple_clear]
+    assert len(set(collection)) == 2
+    assert double_clear == double_clear_2
+    assert double_clear != triple_clear
+    assert double_clear != double_clear_3
+
+    double_clear_2.name = 'Cool Window'
+    assert double_clear != double_clear_2
 
 
 def test_window_construction_init_shade():
@@ -316,11 +403,10 @@ def test_window_to_from_standards_dict():
             "AIR 13MM",
             "COATED POLY-55",
             "AIR 13MM",
-            "CLEAR 3MM"]
-        }
+            "CLEAR 3MM"]}
     glaz_constr = WindowConstruction.from_standards_dict(standards_dict, data_store)
 
-    assert glaz_constr.name == 'U 0.19 SHGC 0.20 Trp LoE Film 55 Bronze 6mm13mm Air'
+    assert glaz_constr.name == 'U 0.19 SHGC 0.20 Trp LoE Film (55) Bronze 6mm/13mm Air'
     assert glaz_constr.r_value == pytest.approx(0.645449, rel=1e-2)
     assert glaz_constr.u_value == pytest.approx(1.549307, rel=1e-2)
     assert glaz_constr.u_factor == pytest.approx(1.2237779, rel=1e-2)
