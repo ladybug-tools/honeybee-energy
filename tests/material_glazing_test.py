@@ -60,32 +60,32 @@ def test_glazing_invalid():
     """Test EnergyWindowMaterialGlazing objects with invalid properties."""
     clear = EnergyWindowMaterialGlazing('Clear Glass')
 
-    with pytest.raises(Exception):
+    with pytest.raises(TypeError):
         clear.name = ['test_name']
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         clear.thickness = -1
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         clear.conductivity = -1
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         clear.solar_transmittance = 2
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         clear.solar_reflectance = 2
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         clear.visible_transmittance = 2
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         clear.visible_reflectance = 2
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         clear.infrared_transmittance = 2
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         clear.emissivity = 2
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         clear.emissivity_back = 2
 
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         clear.resistivity = -1
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         clear.u_value = -1
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         clear.r_value = -1
 
 
@@ -179,13 +179,13 @@ def test_simple_sys_invalid():
     """Test EnergyWindowMaterialGlazing objects with invalid properties."""
     clear = EnergyWindowMaterialSimpleGlazSys('Clear Window', 5.5, 0.8)
 
-    with pytest.raises(Exception):
+    with pytest.raises(TypeError):
         clear.name = ['test_name']
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         clear.u_factor = 10
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         clear.shgc = 2
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         clear.vt = 2
 
 

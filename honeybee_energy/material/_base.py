@@ -2,17 +2,21 @@
 """Base energy material."""
 from __future__ import division
 
+from honeybee._lockable import lockable
 from honeybee.typing import valid_ep_string
 
 import re
 
 
+@lockable
 class _EnergyMaterialBase(object):
     """Base energy material.
 
     Properties:
         name
     """
+    __slots__ = ('_name', '_locked')
+
     def __init__(self, name):
         """Initialize energy material base.
 
@@ -20,6 +24,7 @@ class _EnergyMaterialBase(object):
             name: Text string for material name. Must be <= 100 characters.
                 Can include spaces but special characters will be stripped out.
         """
+        self._locked = False
         self.name = name
 
     @property
@@ -36,12 +41,18 @@ class _EnergyMaterialBase(object):
         return self.__copy__()
 
     @staticmethod
-    def _parse_ep_string(ep_string, test_string=None):
-        """Parse an EnergyPlus material string into a tuple of values."""
+    def _parse_ep_string(ep_string, expected_type=None):
+        """Parse an EnergyPlus material string into a tuple of values.
+
+        Args:
+            ep_string: An IDF string for a single EnergyPlus object.
+            expected_type: Text representing the expected start of the IDF object.
+                (ie. WindowMaterial:Glazing). If None, no type check will be performed.
+        """
         ep_string = ep_string.strip()
-        if test_string is not None:
-            assert ep_string.startswith(test_string), 'Expected EnergyPlus {} ' \
-                'but received a differet object: {}'.format(test_string, ep_string)
+        if expected_type is not None:
+            assert ep_string.startswith(expected_type), 'Expected EnergyPlus {} ' \
+                'but received a differet object: {}'.format(expected_type, ep_string)
         ep_strings = ep_string.split(';')
         assert len(ep_strings) == 2, 'Received more than one object in ep_string.'
         ep_string = re.sub(r'!.*\n', '', ep_strings[0])
@@ -51,7 +62,16 @@ class _EnergyMaterialBase(object):
 
     @staticmethod
     def _generate_ep_string(object_type, values, comments=None):
-        """Get an EnergyPlus string representation from values and comments."""
+        """Get an IDF string representation of an EnergyPlus object.
+
+        Args:
+            object_type: Text representing the expected start of the IDF object.
+                (ie. WindowMaterial:Glazing).
+            values: A list of values associated with the EnergyPlus object in the
+                order that they are supposed to be written to IDF format.
+            comments: A list of text comments with the same length as the values.
+                If None, no comments will be written into the object.
+        """
         if comments is not None:
             space_count = tuple((25 - len(str(n))) for n in values)
             spaces = tuple(s_c * ' ' if s_c > 0 else ' ' for s_c in space_count)
@@ -77,13 +97,14 @@ class _EnergyMaterialBase(object):
         return 'Base Energy Material:\n{}'.format(self.name)
 
 
+@lockable
 class _EnergyMaterialOpaqueBase(_EnergyMaterialBase):
     """Base energy material for all opaque material types."""
-    _is_window_material = False
     ROUGHTYPES = ('VeryRough', 'Rough', 'MediumRough',
                   'MediumSmooth', 'Smooth', 'VerySmooth')
     RADIANCEROUGHTYPES = {'VeryRough': 0.3, 'Rough': 0.2, 'MediumRough': 0.15,
                           'MediumSmooth': 0.1, 'Smooth': 0.05, 'VerySmooth': 0}
+    __slots__ = ()
 
     @property
     def is_window_material(self):
@@ -94,8 +115,10 @@ class _EnergyMaterialOpaqueBase(_EnergyMaterialBase):
         return 'Base Opaque Energy Material:\n{}'.format(self.name)
 
 
+@lockable
 class _EnergyMaterialWindowBase(_EnergyMaterialBase):
     """Base energy material for all window material types."""
+    __slots__ = ()
 
     @property
     def is_window_material(self):

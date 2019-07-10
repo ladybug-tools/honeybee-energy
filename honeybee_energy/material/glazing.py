@@ -10,11 +10,15 @@ therefore must be the only material in its parent construction.
 from __future__ import division
 
 from ._base import _EnergyMaterialWindowBase
+
+from honeybee._lockable import lockable
 from honeybee.typing import float_in_range, float_positive
 
 
+@lockable
 class _EnergyWindowMaterialGlazingBase(_EnergyMaterialWindowBase):
     """Base for all glazing layers."""
+    __slots__ = ()
 
     @property
     def is_glazing_material(self):
@@ -22,6 +26,7 @@ class _EnergyWindowMaterialGlazingBase(_EnergyMaterialWindowBase):
         return True
 
 
+@lockable
 class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
     """A single glass pane corresponding to a layer in a window construction.
 
@@ -44,7 +49,7 @@ class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
         u_value
         r_value
     """
-    __slots__ = ('_name', '_thickness', '_solar_transmittance', '_solar_reflectance',
+    __slots__ = ('_thickness', '_solar_transmittance', '_solar_reflectance',
                  '_solar_reflectance_back', '_visible_transmittance',
                  '_visible_reflectance', '_visible_reflectance_back',
                  '_infrared_transmittance', '_emissivity', '_emissivity_back',
@@ -55,7 +60,7 @@ class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
                  solar_reflectance=0.075, visible_transmittance=0.9,
                  visible_reflectance=0.075, infrared_transmittance=0,
                  emissivity=0.84, emissivity_back=0.84, conductivity=0.9):
-        """Initialize energy windoww material glazing.
+        """Initialize energy window material glazing.
 
         Args:
             name: Text string for material name. Must be <= 100 characters.
@@ -84,13 +89,14 @@ class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
                 is typical of clear glass.
             conductivity: Number for the thermal conductivity of the glass [W/m-K].
         """
+        _EnergyWindowMaterialGlazingBase.__init__(self, name)
+
         # default for checking transmittance + reflectance < 1
         self._solar_reflectance = 0
         self._solar_reflectance_back = None
         self._visible_reflectance = 0
         self._visible_reflectance_back = None
 
-        self.name = name
         self.thickness = thickness
         self.solar_transmittance = solar_transmittance
         self.solar_reflectance = solar_reflectance
@@ -445,6 +451,25 @@ class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
             'solar_diffusing': self.solar_diffusing
         }
 
+    def __key(self):
+        """A tuple based on the object properties, useful for hashing."""
+        return (self.name, self.thickness, self.solar_transmittance,
+                self.solar_reflectance, self.solar_reflectance_back,
+                self.visible_transmittance, self.visible_reflectance,
+                self.visible_reflectance_back, self.infrared_transmittance,
+                self.emissivity, self.emissivity_back, self.conductivity,
+                self.dirt_correction, self.solar_diffusing)
+
+    def __hash__(self):
+        return hash(self.__key())
+
+    def __eq__(self, other):
+        return isinstance(other, EnergyWindowMaterialGlazing) and \
+            self.__key() == other.__key()
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     def __repr__(self):
         return self.to_idf()
 
@@ -461,6 +486,7 @@ class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
         return new_material
 
 
+@lockable
 class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
     """A material to describe an entire glazing system, including glass, gaps, and frame.
 
@@ -473,11 +499,11 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
         u_value
         r_value
     """
-    __slots__ = ('_name', '_u_factor', '_shgc', '_vt')
+    __slots__ = ('_u_factor', '_shgc', '_vt')
     _film_resistance = (1 / 23) + (1 / 7)  # interior + exterior films resistance
 
     def __init__(self, name, u_factor, shgc, vt=0.6):
-        """Initialize energy windoww material simple glazing system.
+        """Initialize energy window material simple glazing system.
 
         Args:
             name: Text string for material name. Must be <= 100 characters.
@@ -491,7 +517,7 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
             vt: A number between 0 and 1 for the visible transmittance of the
                 glazing system.
         """
-        self.name = name
+        _EnergyWindowMaterialGlazingBase.__init__(self, name)
         self.u_factor = u_factor
         self.shgc = shgc
         self.vt = vt
@@ -606,6 +632,20 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
             'shgc': self.shgc,
             'vt': self.vt
         }
+
+    def __key(self):
+        """A tuple based on the object properties, useful for hashing."""
+        return (self.name, self.u_factor, self.shgc, self.vt)
+
+    def __hash__(self):
+        return hash(self.__key())
+
+    def __eq__(self, other):
+        return isinstance(other, EnergyWindowMaterialSimpleGlazSys) and \
+            self.__key() == other.__key()
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     def __repr__(self):
         return self.to_idf()

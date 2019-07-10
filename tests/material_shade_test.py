@@ -60,30 +60,30 @@ def test_shade_invalid():
     """Test EnergyWindowMaterialShade objects with invalid properties."""
     shade_mat = EnergyWindowMaterialShade('Diffusing Shade')
 
-    with pytest.raises(Exception):
+    with pytest.raises(TypeError):
         shade_mat.name = ['test_name']
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         shade_mat.thickness = -1
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         shade_mat.conductivity = -1
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         shade_mat.solar_transmittance = 2
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         shade_mat.solar_reflectance = 2
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         shade_mat.visible_transmittance = 2
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         shade_mat.visible_reflectance = 2
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         shade_mat.infrared_transmittance = 2
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         shade_mat.emissivity = 2
 
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         shade_mat.resistivity = -1
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         shade_mat.u_value = -1
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         shade_mat.r_value = -1
 
 
@@ -213,38 +213,38 @@ def test_blind_invalid():
     """Test EnergyWindowMaterialShade objects with invalid properties."""
     shade_mat = EnergyWindowMaterialBlind('Metalic Blind')
 
-    with pytest.raises(Exception):
+    with pytest.raises(TypeError):
         shade_mat.name = ['test_name']
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         shade_mat.slat_orientation = 'Diagonal'
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         shade_mat.slat_width = 2
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         shade_mat.slat_separation = 2
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         shade_mat.slat_thickness = -1
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         shade_mat.slat_angle = 270
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         shade_mat.slat_conductivity = -1
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         shade_mat.beam_solar_transmittance = 2
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         shade_mat.beam_solar_reflectance = 2
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         shade_mat.beam_visible_transmittance = 2
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         shade_mat.beam_visible_reflectance = 2
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         shade_mat.infrared_transmittance = 2
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         shade_mat.emissivity = 2
 
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         shade_mat.slat_resistivity = -1
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         shade_mat.u_value = -1
-    with pytest.raises(Exception):
+    with pytest.raises(AssertionError):
         shade_mat.r_value = -1
 
 

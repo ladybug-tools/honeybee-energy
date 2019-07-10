@@ -6,11 +6,12 @@ The materials here are the only ones that can be used in opaque constructions.
 from __future__ import division
 
 from ._base import _EnergyMaterialOpaqueBase
+
+from honeybee._lockable import lockable
 from honeybee.typing import float_in_range, float_positive
 
-import re
 
-
+@lockable
 class EnergyMaterial(_EnergyMaterialOpaqueBase):
     """Typical opaque energy material.
 
@@ -30,9 +31,9 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
         mass_area_density
         area_heat_capacity
     """
-    __slots__ = ('_name', '_roughness', '_thickness', '_conductivity',
-                 '_density', '_specific_heat',
-                 '_thermal_absorptance', '_solar_absorptance', '_visible_absorptance')
+    __slots__ = ('_roughness', '_thickness', '_conductivity',
+                 '_density', '_specific_heat', '_thermal_absorptance',
+                 '_solar_absorptance', '_visible_absorptance')
 
     def __init__(self, name, thickness, conductivity, density, specific_heat,
                  roughness='MediumRough', thermal_absorptance=0.9,
@@ -58,7 +59,7 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
                 visible wavelength radiation absorbed by the material.
                 Default is None, which will yield the same value as solar_absorptance.
         """
-        self.name = name
+        _EnergyMaterialOpaqueBase.__init__(self, name)
         self.thickness = thickness
         self.conductivity = conductivity
         self.density = density
@@ -67,6 +68,7 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
         self.thermal_absorptance = thermal_absorptance
         self.solar_absorptance = solar_absorptance
         self.visible_absorptance = visible_absorptance
+        self._locked = False
 
     @property
     def roughness(self):
@@ -321,16 +323,32 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
             'visible_absorptance': self.visible_absorptance
         }
 
+    def __key(self):
+        """A tuple based on the object properties, useful for hashing."""
+        return (self.name, self.roughness, self.thickness, self.conductivity,
+                self.density, self.specific_heat, self.thermal_absorptance,
+                self.solar_absorptance, self.visible_absorptance)
+
+    def __hash__(self):
+        return hash(self.__key())
+
+    def __eq__(self, other):
+        return isinstance(other, EnergyMaterial) and self.__key() == other.__key()
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     def __repr__(self):
         return self.to_idf()
 
     def __copy__(self):
-        return EnergyMaterial(
+        return self.__class__(
             self.name, self.thickness, self.conductivity, self.density,
             self.specific_heat, self.roughness, self.thermal_absorptance,
             self.solar_absorptance, self._visible_absorptance)
 
 
+@lockable
 class EnergyMaterialNoMass(_EnergyMaterialOpaqueBase):
     """Typical no mass opaque energy material.
 
@@ -345,7 +363,7 @@ class EnergyMaterialNoMass(_EnergyMaterialOpaqueBase):
         mass_area_density
         area_heat_capacity
     """
-    __slots__ = ('_name', '_r_value', '_roughness', '_thermal_absorptance',
+    __slots__ = ('_r_value', '_roughness', '_thermal_absorptance',
                  '_solar_absorptance', '_visible_absorptance')
 
     def __init__(self, name, r_value, roughness='MediumRough', thermal_absorptance=0.9,
@@ -368,7 +386,7 @@ class EnergyMaterialNoMass(_EnergyMaterialOpaqueBase):
                 visible wavelength radiation absorbed by the material.
                 Default value is 0.7.
         """
-        self.name = name
+        _EnergyMaterialOpaqueBase.__init__(self, name)
         self.r_value = r_value
         self.roughness = roughness
         self.thermal_absorptance = thermal_absorptance
@@ -556,10 +574,24 @@ class EnergyMaterialNoMass(_EnergyMaterialOpaqueBase):
             'visible_absorptance': self.visible_absorptance
         }
 
+    def __key(self):
+        return (self.name, self.r_value, self.roughness, self.thermal_absorptance,
+                self.solar_absorptance, self.visible_absorptance)
+
+    def __hash__(self):
+        """A small tuple based on the object properties, useful for hashing."""
+        return hash(self.__key())
+
+    def __eq__(self, other):
+        return isinstance(other, EnergyMaterialNoMass) and self.__key() == other.__key()
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
     def __repr__(self):
         return self.to_idf()
 
     def __copy__(self):
-        return EnergyMaterialNoMass(
+        return self.__class__(
             self.name, self.r_value, self.roughness, self.thermal_absorptance,
             self.solar_absorptance, self._visible_absorptance)
