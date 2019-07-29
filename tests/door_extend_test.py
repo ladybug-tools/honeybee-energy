@@ -101,9 +101,8 @@ def test_to_dict():
     assert drd['properties']['type'] == 'DoorProperties'
     assert 'energy' in drd['properties']
     assert drd['properties']['energy']['type'] == 'DoorEnergyProperties'
-    assert 'construction' in drd['properties']['energy']
-    assert drd['properties']['energy']['construction'] is None
 
     door.properties.energy.construction = mass_constr
     drd = door.to_dict()
+    assert 'construction' in drd['properties']['energy']
     assert drd['properties']['energy']['construction'] is not None

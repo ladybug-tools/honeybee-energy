@@ -97,11 +97,10 @@ def test_to_dict():
     assert fd['properties']['type'] == 'FaceProperties'
     assert 'energy' in fd['properties']
     assert fd['properties']['energy']['type'] == 'FaceEnergyProperties'
-    assert 'construction' in fd['properties']['energy']
-    assert fd['properties']['energy']['construction'] is None
 
     face.properties.energy.construction = thick_constr
     fd = face.to_dict()
+    assert 'construction' in fd['properties']['energy']
     assert fd['properties']['energy']['construction'] is not None
 
 

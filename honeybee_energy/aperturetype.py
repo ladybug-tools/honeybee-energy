@@ -19,6 +19,15 @@ class OperableWindow(_ApertureType):
         self._fraction_operable = float_in_range(
             fraction_operable, 0.0, 1.0, 'aperture fraction operabe')
 
+    @classmethod
+    def from_dict(cls, data):
+        """Initialize ApertureType from a dictionary.
+
+        Args:
+            data: A dictionary representaion of the aperture type.
+        """
+        return cls(data['fraction_operable'])
+
     @property
     def fraction_operable(self):
         """Get or set the fraction of the aperture area that is operable."""
@@ -30,6 +39,10 @@ class OperableWindow(_ApertureType):
             'type': 'OperableWindow',
             'fraction_operable': self.fraction_operable}
         return ap_type_dict
+
+    def __eq__(self, other):
+        return self.__class__ == other.__class__ and \
+            self._fraction_operable == other._fraction_operable
 
 
 class GlassDoor(_ApertureType):

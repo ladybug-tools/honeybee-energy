@@ -83,8 +83,6 @@ class ApertureEnergyProperties(object):
         if self._construction is not None:
             base['energy']['construction'] = \
                 self._construction.name if abridged else self._construction.to_dict()
-        else:
-            base['energy']['construction'] = None
         return base
 
     def duplicate(self, new_host=None):

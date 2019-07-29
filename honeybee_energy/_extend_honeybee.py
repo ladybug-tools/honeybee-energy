@@ -78,9 +78,14 @@ hbc._BoundaryConditions._adiabatic = Adiabatic()
 hbc._BoundaryConditions.adiabatic = property(lambda self: self._adiabatic)
 
 # extend aperture types
-setattr(hat, 'OperableWindow', OperableWindow)
-hat._Types._operable_window = OperableWindow()
-hat._Types.operable_window = property(lambda self: self._operable_window)
 setattr(hat, 'GlassDoor', GlassDoor)
 hat._Types._glass_door = GlassDoor()
 hat._Types.glass_door = property(lambda self: self._glass_door)
+
+
+def operable_window(self, fraction_operable=0.5):
+    return OperableWindow(fraction_operable)
+
+
+setattr(hat, 'OperableWindow', OperableWindow)
+hat._Types.operable_window = operable_window

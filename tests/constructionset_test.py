@@ -8,7 +8,7 @@ from honeybee_energy.material.gas import EnergyWindowMaterialGas
 import pytest
 
 
-def test_construction_set_init():
+def test_constructionset_init():
     """Test the initalization of ConstructionSet and basic properties."""
     default_set = ConstructionSet('Default Set')
     str(default_set)  # test the string representation of the construction
@@ -27,7 +27,7 @@ def test_construction_set_init():
     assert isinstance(default_set.door_set, DoorSet)
 
 
-def test_construction_set_defaults():
+def test_constructionset_defaults():
     """Test the ConstructionSet defaults."""
     default_set = ConstructionSet('Default Set')
 
