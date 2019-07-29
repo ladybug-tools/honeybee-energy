@@ -86,17 +86,14 @@ def test_to_dict():
     assert shade_dict['properties']['type'] == 'ShadeProperties'
     assert 'energy' in shade_dict['properties']
     assert shade_dict['properties']['energy']['type'] == 'ShadeEnergyProperties'
-    assert 'diffuse_reflectance' in shade_dict['properties']['energy']
-    assert 'specular_reflectance' in shade_dict['properties']['energy']
-    assert 'transmittance' in shade_dict['properties']['energy']
-    assert shade_dict['properties']['energy']['diffuse_reflectance'] == 0.2
-    assert shade_dict['properties']['energy']['specular_reflectance'] == 0
-    assert shade_dict['properties']['energy']['transmittance'] == 0
 
     shade.properties.energy.diffuse_reflectance = 0.7
     shade.properties.energy.specular_reflectance = 0.2
     shade.properties.energy.transmittance = 0.1
     shade_dict = shade.to_dict()
+    assert 'diffuse_reflectance' in shade_dict['properties']['energy']
+    assert 'specular_reflectance' in shade_dict['properties']['energy']
+    assert 'transmittance' in shade_dict['properties']['energy']
     assert shade_dict['properties']['energy']['diffuse_reflectance'] == 0.7
     assert shade_dict['properties']['energy']['specular_reflectance'] == 0.2
     assert shade_dict['properties']['energy']['transmittance'] == 0.1

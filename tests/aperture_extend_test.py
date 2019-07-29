@@ -112,11 +112,10 @@ def test_to_dict():
     assert ad['properties']['type'] == 'ApertureProperties'
     assert 'energy' in ad['properties']
     assert ad['properties']['energy']['type'] == 'ApertureEnergyProperties'
-    assert 'construction' in ad['properties']['energy']
-    assert ad['properties']['energy']['construction'] is None
 
     aperture.properties.energy.construction = triple_pane
     ad = aperture.to_dict()
+    assert 'construction' in ad['properties']['energy']
     assert ad['properties']['energy']['construction'] is not None
 
 
@@ -126,7 +125,7 @@ def test_aperture_type():
     wa = Aperture.from_vertices('wall window', vertices_wall)
 
     assert wa.type == aperture_types.window
-    wa.type = aperture_types.operable_window
-    assert wa.type == aperture_types.operable_window
+    wa.type = aperture_types.operable_window()
+    assert wa.type == aperture_types.operable_window()
     wa.type = aperture_types.glass_door
     assert wa.type == aperture_types.glass_door

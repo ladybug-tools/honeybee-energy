@@ -114,14 +114,15 @@ class ShadeEnergyProperties(object):
         base = {'energy': {}}
         base['energy']['type'] = 'ShadeEnergyProperties' if not \
             abridged else 'ShadeEnergyPropertiesAbridged'
-        base['energy']['diffuse_reflectance'] = self.diffuse_reflectance
-        base['energy']['specular_reflectance'] = self.specular_reflectance
+        if self.diffuse_reflectance != 0.2:
+            base['energy']['diffuse_reflectance'] = self.diffuse_reflectance
+        if self.specular_reflectance != 0:
+            base['energy']['specular_reflectance'] = self.specular_reflectance
         if self.transmittance_schedule is not None:
             base['energy']['transmittance_schedule'] = \
                 self.transmittance_schedule.name if abridged else \
                 self.transmittance_schedule.to_dict()
-            base['energy']['transmittance'] = None
-        else:
+        elif self.transmittance != 0:
             base['energy']['transmittance'] = self.transmittance
         return base
 
