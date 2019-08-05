@@ -1,7 +1,7 @@
 # coding=utf-8
 """Face Energy Properties."""
 from ..construction import OpaqueConstruction
-from ..lib.default.room import generic_costruction_set
+from ..lib.constructionsets import generic_costruction_set
 
 
 class FaceEnergyProperties(object):

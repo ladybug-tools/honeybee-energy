@@ -29,7 +29,7 @@ def test_default_constructions():
     vertices_roof = [[10, 0, 3], [10, 10, 3], [0, 10, 3], [0, 0, 3]]
 
     wf = Face.from_vertices('wall', vertices_wall)
-    assert wf.properties.energy.construction.name == 'Generic Exterior Brick Wall'
+    assert wf.properties.energy.construction.name == 'Generic Exterior Wall'
     rf = Face.from_vertices('roof', vertices_roof)
     assert rf.properties.energy.construction.name == 'Generic Roof'
     ff = Face.from_vertices('floor', vertices_floor)

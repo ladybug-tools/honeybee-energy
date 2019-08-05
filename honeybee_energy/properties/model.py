@@ -1,6 +1,6 @@
 # coding=utf-8
 """Model Energy Properties."""
-from ..lib.default.room import generic_costruction_set
+from ..lib.constructionsets import generic_costruction_set
 
 from ..material.opaque import EnergyMaterial, EnergyMaterialNoMass
 from ..material.glazing import EnergyWindowMaterialGlazing, \
