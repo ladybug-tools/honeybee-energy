@@ -1,7 +1,7 @@
 # coding=utf-8
 """Aperture Energy Properties."""
 from ..construction import WindowConstruction
-from ..lib.default.room import generic_costruction_set
+from ..lib.constructionsets import generic_costruction_set
 
 
 class ApertureEnergyProperties(object):

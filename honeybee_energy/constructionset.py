@@ -9,7 +9,7 @@ from .material.gas import EnergyWindowMaterialGas, EnergyWindowMaterialGasMixtur
     EnergyWindowMaterialGasCustom
 from .material.shade import EnergyWindowMaterialShade, EnergyWindowMaterialBlind
 from .construction import OpaqueConstruction, WindowConstruction
-from .lib.default.face import generic_exterior_wall, generic_interior_wall, \
+from .lib.constructions import generic_exterior_wall, generic_interior_wall, \
     generic_underground_wall, generic_exposed_floor, generic_interior_floor, \
     generic_ground_slab, generic_roof, generic_interior_ceiling, \
     generic_underground_roof, generic_double_pane, generic_single_pane, \

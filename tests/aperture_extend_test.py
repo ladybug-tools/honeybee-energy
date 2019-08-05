@@ -31,16 +31,16 @@ def test_default_constructions():
     vertices_roof = [[10, 0, 3], [10, 10, 3], [0, 10, 3], [0, 0, 3]]
 
     wa = Aperture.from_vertices('wall window', vertices_wall)
-    assert wa.properties.energy.construction.name == 'Generic Double Pane Window'
+    assert wa.properties.energy.construction.name == 'Generic Double Pane'
 
     wa2 = Aperture.from_vertices('wall window2', vertices_wall_2)
     wa.set_adjacency(wa2)
-    assert wa.properties.energy.construction.name == 'Generic Single Pane Window'
+    assert wa.properties.energy.construction.name == 'Generic Single Pane'
 
     ra = Aperture.from_vertices('roof window', vertices_roof)
-    assert ra.properties.energy.construction.name == 'Generic Double Pane Window'
+    assert ra.properties.energy.construction.name == 'Generic Double Pane'
     fa = Aperture.from_vertices('floor window', vertices_floor)
-    assert fa.properties.energy.construction.name == 'Generic Double Pane Window'
+    assert fa.properties.energy.construction.name == 'Generic Double Pane'
 
 
 def test_set_construction():
