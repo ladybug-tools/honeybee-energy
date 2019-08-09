@@ -9,4 +9,14 @@ from honeybee.boundarycondition import _BoundaryCondition
 
 class Adiabatic(_BoundaryCondition):
     __slots__ = ()
-    pass
+
+    @classmethod
+    def from_dict(cls, data):
+        """Initialize Adiabatic BoundaryCondition from a dictionary.
+
+        Args:
+            data: A dictionary representaion of the boundary condition.
+        """
+        assert data['type'] == 'Adiabatic', 'Expected dictionary for Adiabatic ' \
+            'boundary condition. Got {}.'.format(data['type'])
+        return cls()

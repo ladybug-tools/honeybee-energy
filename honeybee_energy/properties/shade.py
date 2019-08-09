@@ -103,6 +103,31 @@ class ShadeEnergyProperties(object):
             self._transmittance = 'Set by Schedule'
         self._transmittance_schedule = value
 
+    def apply_properties_from_dict(self, abridged_data):
+        """Apply properties from a ShadeEnergyPropertiesAbridged dictionary.
+
+        Args:
+            abridged_data: A ShadeEnergyPropertiesAbridged dictionary (typically
+                coming from a Model).
+        """
+        if 'diffuse_reflectance' in abridged_data and \
+                abridged_data['diffuse_reflectance'] is not None:
+            self.diffuse_reflectance = abridged_data['diffuse_reflectance']
+
+        if 'specular_reflectance' in abridged_data and \
+                abridged_data['specular_reflectance'] is not None:
+            self.specular_reflectance = abridged_data['specular_reflectance']
+
+        if 'transmittance' in abridged_data and \
+                abridged_data['transmittance'] is not None:
+            self.transmittance = abridged_data['transmittance']
+
+        # TODO: Un-comment this check once schedules are implemented
+        #if 'transmittance_schedule' in abridged_data and \
+        #        abridged_data['transmittance_schedule'] is not None:
+        #    self.transmittance_schedule = \
+        #        schedules[abridged_data['transmittance_schedule']]
+
     def to_dict(self, abridged=False):
         """Return energy properties as a dictionary.
 

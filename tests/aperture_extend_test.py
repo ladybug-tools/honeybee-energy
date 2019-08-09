@@ -1,4 +1,6 @@
 """Tests the features that honeybee_energy adds to honeybee_core Aperture."""
+from honeybee.room import Room
+from honeybee.face import Face
 from honeybee.aperture import Aperture
 from honeybee.aperturetype import aperture_types
 
@@ -25,15 +27,23 @@ def test_energy_properties():
 
 def test_default_constructions():
     """Test the auto-assigning of constructions by boundary condition."""
-    vertices_wall = [[0, 0, 0], [0, 10, 0], [0, 10, 3], [0, 0, 3]]
+    vertices_parent_wall = [[0, 0, 0], [0, 10, 0], [0, 10, 3], [0, 0, 3]]
+    vertices_parent_wall_2 = list(reversed(vertices_parent_wall))
+    vertices_wall = [[0, 1, 0], [0, 2, 0], [0, 2, 2], [0, 0, 2]]
     vertices_wall_2 = list(reversed(vertices_wall))
     vertices_floor = [[0, 0, 0], [0, 10, 0], [10, 10, 0], [10, 0, 0]]
     vertices_roof = [[10, 0, 3], [10, 10, 3], [0, 10, 3], [0, 0, 3]]
 
+    wf = Face.from_vertices('wall face', vertices_parent_wall)
     wa = Aperture.from_vertices('wall window', vertices_wall)
+    wf.add_aperture(wa)
+    Room('Test Room 1', [wf])
     assert wa.properties.energy.construction.name == 'Generic Double Pane'
 
+    wf2 = Face.from_vertices('wall face2', vertices_parent_wall_2)
     wa2 = Aperture.from_vertices('wall window2', vertices_wall_2)
+    wf2.add_aperture(wa2)
+    Room('Test Room 2', [wf2])
     wa.set_adjacency(wa2)
     assert wa.properties.energy.construction.name == 'Generic Single Pane'
 
@@ -125,7 +135,7 @@ def test_aperture_type():
     wa = Aperture.from_vertices('wall window', vertices_wall)
 
     assert wa.type == aperture_types.window
-    wa.type = aperture_types.operable_window()
-    assert wa.type == aperture_types.operable_window()
+    wa.type = aperture_types.operable_window
+    assert wa.type == aperture_types.operable_window
     wa.type = aperture_types.glass_door
     assert wa.type == aperture_types.glass_door

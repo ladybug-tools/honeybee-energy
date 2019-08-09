@@ -17,7 +17,7 @@ def test_window():
 def test_roof_ceiling():
     """Test the initialization of the OperableWindow aperture type."""
     operable_window_type_1 = OperableWindow()
-    operable_window_type_2 = aperture_types.operable_window()
+    operable_window_type_2 = aperture_types.operable_window
 
     str(operable_window_type_1)  # test the string representation
     assert operable_window_type_1 == operable_window_type_2

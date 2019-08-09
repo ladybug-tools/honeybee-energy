@@ -1,4 +1,6 @@
 """Tests the features that honeybee_energy adds to honeybee_core Door."""
+from honeybee.room import Room
+from honeybee.face import Face
 from honeybee.door import Door
 
 from honeybee_energy.properties.door import DoorEnergyProperties
@@ -23,15 +25,23 @@ def test_energy_properties():
 
 def test_default_constructions():
     """Test the auto-assigning of constructions by boundary condition."""
-    vertices_wall = [[0, 0, 0], [0, 1, 0], [0, 1, 3], [0, 0, 3]]
+    vertices_parent_wall = [[0, 0, 0], [0, 10, 0], [0, 10, 3], [0, 0, 3]]
+    vertices_parent_wall_2 = list(reversed(vertices_parent_wall))
+    vertices_wall = [[0, 1, 0], [0, 2, 0], [0, 2, 2], [0, 0, 2]]
     vertices_wall_2 = list(reversed(vertices_wall))
     vertices_floor = [[0, 0, 0], [0, 1, 0], [1, 1, 0], [1, 0, 0]]
     vertices_roof = [[1, 0, 3], [1, 1, 3], [0, 1, 3], [0, 0, 3]]
 
+    wf = Face.from_vertices('wall face', vertices_parent_wall)
     wdr = Door.from_vertices('wall door', vertices_wall)
+    wf.add_door(wdr)
+    Room('Test Room 1', [wf])
     assert wdr.properties.energy.construction.name == 'Generic Exterior Door'
 
+    wf2 = Face.from_vertices('wall face2', vertices_parent_wall_2)
     wdr2 = Door.from_vertices('wall door2', vertices_wall_2)
+    wf2.add_door(wdr2)
+    Room('Test Room 2', [wf2])
     wdr.set_adjacency(wdr2)
     assert wdr.properties.energy.construction.name == 'Generic Interior Door'
 

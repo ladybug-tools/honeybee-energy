@@ -32,12 +32,9 @@ def test_energy_properties():
     room = Room.from_box('Tiny House Zone', 5, 10, 3)
     south_face = room[3]
     south_face.apertures_by_ratio(0.4, 0.01)
-    out_shelf = south_face.apertures[0].overhang(0.5, indoor=False)
-    in_shelf = south_face.apertures[0].overhang(0.5, indoor=True)
-    out_shelf.move(Vector3D(0, 0, -0.5))
-    in_shelf.move(Vector3D(0, 0, -0.5))
-    room.add_outdoor_shade(out_shelf)
-    room.add_indoor_shade(in_shelf)
+    south_face.apertures[0].overhang(0.5, indoor=False)
+    south_face.apertures[0].overhang(0.5, indoor=True)
+    south_face.apertures[0].move_shades(Vector3D(0, 0, -0.5))
     model = Model('Tiny House', [room])
 
     assert hasattr(model.properties, 'energy')
@@ -169,14 +166,11 @@ def test_to_from_dict():
 
     south_face = room[3]
     south_face.apertures_by_ratio(0.4, 0.01)
-    out_shelf = south_face.apertures[0].overhang(0.5, indoor=False)
-    in_shelf = south_face.apertures[0].overhang(0.5, indoor=True)
-    out_shelf.move(Vector3D(0, 0, -0.5))
-    in_shelf.move(Vector3D(0, 0, -0.5))
-    out_shelf.properties.energy.diffuse_reflectance = 0.5
-    in_shelf.properties.energy.diffuse_reflectance = 0.7
-    room.add_outdoor_shade(out_shelf)
-    room.add_indoor_shade(in_shelf)
+    south_face.apertures[0].overhang(0.5, indoor=False)
+    south_face.apertures[0].overhang(0.5, indoor=True)
+    south_face.apertures[0].move_shades(Vector3D(0, 0, -0.5))
+    south_face.apertures[0].shades[0].properties.energy.diffuse_reflectance = 0.5
+    south_face.apertures[0].shades[1].properties.energy.diffuse_reflectance = 0.7
 
     north_face = room[1]
     door_verts = [Point3D(2, 10, 0.1), Point3D(1, 10, 0.1),
@@ -207,8 +201,8 @@ def test_to_from_dict():
     assert stone in new_model.properties.energy.unique_materials
     assert thermal_mass_constr in new_model.properties.energy.unique_constructions
     assert new_model.rooms[0][0].properties.energy.construction == thermal_mass_constr
-    assert new_model.rooms[0].indoor_shades[0].properties.energy.diffuse_reflectance == 0.7
-    assert new_model.rooms[0].outdoor_shades[0].properties.energy.diffuse_reflectance == 0.5
+    assert new_model.rooms[0][3].apertures[0].indoor_shades[0].properties.energy.diffuse_reflectance == 0.7
+    assert new_model.rooms[0][3].apertures[0].outdoor_shades[0].properties.energy.diffuse_reflectance == 0.5
     assert triple_pane in new_model.properties.energy.unique_constructions
     assert new_model.rooms[0][1].apertures[0].properties.energy.construction == triple_pane
     assert new_model.rooms[0][1].apertures[0].type == aperture_types.glass_door
@@ -233,16 +227,14 @@ def test_to_dict_single_zone():
 
     south_face = room[3]
     south_face.apertures_by_ratio(0.4, 0.01)
-    out_shelf = south_face.apertures[0].overhang(0.5, indoor=False)
-    in_shelf = south_face.apertures[0].overhang(0.5, indoor=True)
-    out_shelf.move(Vector3D(0, 0, -0.5))
-    in_shelf.move(Vector3D(0, 0, -0.5))
-    out_shelf.properties.energy.diffuse_reflectance = 0.5
-    in_shelf.properties.energy.diffuse_reflectance = 0.7
-    room.add_outdoor_shade(out_shelf)
-    room.add_indoor_shade(in_shelf)
+    south_face.apertures[0].overhang(0.5, indoor=False)
+    south_face.apertures[0].overhang(0.5, indoor=True)
+    south_face.move_shades(Vector3D(0, 0, -0.5))
+    south_face.apertures[0].outdoor_shades[0].properties.energy.diffuse_reflectance = 0.5
+    south_face.apertures[0].indoor_shades[0].properties.energy.diffuse_reflectance = 0.7
 
     north_face = room[1]
+    north_face.overhang(0.25, indoor=False)
     door_verts = [Point3D(2, 10, 0.1), Point3D(1, 10, 0.1),
                   Point3D(1, 10, 2.5), Point3D(2, 10, 2.5)]
     door = Door('Front Door', Face3D(door_verts))
@@ -261,6 +253,10 @@ def test_to_dict_single_zone():
     tree_canopy = Shade('Tree Canopy', tree_canopy_geo)
     tree_canopy.properties.energy.transmittance = 0.75
 
+    table_geo = Face3D.from_rectangle(2, 2, Plane(o=Point3D(1.5, 4, 1)))
+    table = Shade('Table', table_geo)
+    room.add_indoor_shade(table)
+
     model = Model('Tiny House', [room], orphaned_shades=[tree_canopy])
     model.north_angle = 15
 
@@ -276,16 +272,17 @@ def test_to_dict_single_zone():
     assert len(model_dict['properties']['energy']['constructions']) == 15
     assert len(model_dict['properties']['energy']['construction_sets']) == 1
 
-    assert model_dict['faces'][0]['properties']['energy']['construction'] == \
+    assert model_dict['rooms'][0]['faces'][0]['properties']['energy']['construction'] == \
         thermal_mass_constr.name
-    assert model_dict['shades'][0]['properties']['energy']['diffuse_reflectance'] == 0.7
-    assert model_dict['shades'][1]['properties']['energy']['diffuse_reflectance'] == 0.5
-    assert model_dict['apertures'][0]['properties']['energy']['construction'] == \
+    south_ap_dict = model_dict['rooms'][0]['faces'][3]['apertures'][0]
+    assert south_ap_dict['outdoor_shades'][0]['properties']['energy']['diffuse_reflectance'] == 0.5
+    assert south_ap_dict['indoor_shades'][0]['properties']['energy']['diffuse_reflectance'] == 0.7
+    assert model_dict['rooms'][0]['faces'][1]['apertures'][0]['properties']['energy']['construction'] == \
         triple_pane.name
 
     """
-    dest_file = 'C:/Users/chris/Documents/GitHub/energy-model-schema/tests/fixtures'
-        '/1_single_zone_tiny_house.json'
+    f_dir = 'C:/Users/chris/Documents/GitHub/energy-model-schema/app/models/samples/json'
+    dest_file = f_dir + '/model_single_zone_tiny_house.json'
     with open(dest_file, 'w') as fp:
         json.dump(model_dict, fp, indent=4)
     """
@@ -322,12 +319,12 @@ def test_to_dict_shoe_box():
     assert len(model_dict['properties']['energy']['materials']) == 9
     assert len(model_dict['properties']['energy']['constructions']) == 5
 
-    assert model_dict['faces'][0]['boundary_condition']['type'] == 'Adiabatic'
-    assert model_dict['faces'][2]['boundary_condition']['type'] == 'Adiabatic'
+    assert model_dict['rooms'][0]['faces'][0]['boundary_condition']['type'] == 'Adiabatic'
+    assert model_dict['rooms'][0]['faces'][2]['boundary_condition']['type'] == 'Adiabatic'
 
     """
-    dest_file = 'C:/Users/chris/Documents/GitHub/energy-model-schema/tests/fixtures'
-        '/2_shoe_box.json'
+    f_dir = 'C:/Users/chris/Documents/GitHub/energy-model-schema/app/models/samples/json'
+    dest_file = f_dir + '/model_shoe_box.json'
     with open(dest_file, 'w') as fp:
         json.dump(model_dict, fp, indent=4)
     """
@@ -379,17 +376,17 @@ def test_to_dict_multizone_house():
     assert len(model_dict['properties']['energy']['constructions']) == 15
     assert len(model_dict['properties']['energy']['construction_sets']) == 2
 
-    assert model_dict['faces'][5]['boundary_condition']['type'] == 'Surface'
-    assert model_dict['faces'][6]['boundary_condition']['type'] == 'Surface'
-    assert model_dict['faces'][11]['boundary_condition']['type'] == 'Surface'
-    assert model_dict['faces'][12]['boundary_condition']['type'] == 'Surface'
+    assert model_dict['rooms'][0]['faces'][5]['boundary_condition']['type'] == 'Surface'
+    assert model_dict['rooms'][1]['faces'][0]['boundary_condition']['type'] == 'Surface'
+    assert model_dict['rooms'][1]['faces'][5]['boundary_condition']['type'] == 'Surface'
+    assert model_dict['rooms'][2]['faces'][0]['boundary_condition']['type'] == 'Surface'
 
     assert model_dict['rooms'][2]['properties']['energy']['construction_set'] == \
         constr_set.name
 
     """
-    dest_file = 'C:/Users/chris/Documents/GitHub/energy-model-schema/tests/fixtures'
-        '/3_multi_zone_single_family_house.json'
+    f_dir = 'C:/Users/chris/Documents/GitHub/energy-model-schema/app/models/samples/json'
+    dest_file = f_dir + '/model_multi_zone_single_family_house.json'
     with open(dest_file, 'w') as fp:
         json.dump(model_dict, fp, indent=4)
     """

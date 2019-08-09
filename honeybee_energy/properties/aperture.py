@@ -69,6 +69,18 @@ class ApertureEnergyProperties(object):
         """Check if construction is set by user."""
         return self._construction is not None
 
+    def apply_properties_from_dict(self, abridged_data, constructions):
+        """Apply properties from a ApertureEnergyPropertiesAbridged dictionary.
+
+        Args:
+            abridged_data: A ApertureEnergyPropertiesAbridged dictionary (typically
+                coming from a Model).
+            constructions: A dictionary of constructions with constructions names
+                as keys, which will be used to re-assign constructions.
+        """
+        if 'construction' in abridged_data and abridged_data['construction'] is not None:
+            self.construction = constructions[abridged_data['construction']]
+
     def to_dict(self, abridged=False):
         """Return energy properties as a dictionary.
 
