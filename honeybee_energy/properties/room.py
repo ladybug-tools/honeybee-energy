@@ -2,7 +2,8 @@
 """Room Energy Properties."""
 from ..programtype import ProgramType
 from ..constructionset import ConstructionSet
-from ..lib.default.room import generic_costruction_set, plenum_program_type
+from ..lib.constructionsets import generic_costruction_set
+from ..lib.programtypes import plenum_program_type
 
 
 class RoomEnergyProperties(object):

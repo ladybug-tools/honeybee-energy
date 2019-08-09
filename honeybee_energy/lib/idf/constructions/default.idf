@@ -1,0 +1,294 @@
+!-   =========  DEFAULT HONEYBEE CONSTRUCTIONS =========
+!- These constructions are loaded into the honeybee_energy library as defaults.
+!- Editing these materials and/or constructions will edit the defaults used across
+!- all of honeybee_energy as long as the names of the constructions are kept.
+
+!- Note that these constructions are not in accordance with any particular building
+!- code or climate zone. They are just meant to represent "typical" constructions
+!- that are plausible for a building constructed in the last few decades. While they
+!- provide a decent starting point, it is recommended that at least the outdoor
+!- constructions be changed to suit a given project building code and climate.
+
+
+!-   ================  OPAQUE MATERIALS ================
+
+Material,
+ Generic Brick,            !- name
+ MediumRough,              !- roughness
+ 0.1,                      !- thickness {m}
+ 0.9,                      !- conductivity {W/m-K}
+ 1920.0,                   !- density {kg/m3}
+ 790.0,                    !- specific heat {J/kg-K}
+ 0.9,                      !- thermal absorptance
+ 0.7,                      !- solar absorptance
+ 0.7;                      !- visible absorptance
+
+Material,
+ Generic LW Concrete,      !- name
+ MediumRough,              !- roughness
+ 0.1,                      !- thickness {m}
+ 0.53,                     !- conductivity {W/m-K}
+ 1280.0,                   !- density {kg/m3}
+ 840.0,                    !- specific heat {J/kg-K}
+ 0.9,                      !- thermal absorptance
+ 0.8,                      !- solar absorptance
+ 0.8;                      !- visible absorptance
+
+Material,
+ Generic HW Concrete,      !- name
+ MediumRough,              !- roughness
+ 0.2,                      !- thickness {m}
+ 1.95,                     !- conductivity {W/m-K}
+ 2240.0,                   !- density {kg/m3}
+ 900.0,                    !- specific heat {J/kg-K}
+ 0.9,                      !- thermal absorptance
+ 0.8,                      !- solar absorptance
+ 0.8;                      !- visible absorptance
+
+Material,
+ Generic 50mm Insulation,  !- name
+ MediumRough,              !- roughness
+ 0.05,                     !- thickness {m}
+ 0.03,                     !- conductivity {W/m-K}
+ 43.0,                     !- density {kg/m3}
+ 1210.0,                   !- specific heat {J/kg-K}
+ 0.9,                      !- thermal absorptance
+ 0.7,                      !- solar absorptance
+ 0.7;                      !- visible absorptance
+
+Material,
+ Generic 25mm Insulation,  !- name
+ MediumRough,              !- roughness
+ 0.05,                     !- thickness {m}
+ 0.03,                     !- conductivity {W/m-K}
+ 43.0,                     !- density {kg/m3}
+ 1210.0,                   !- specific heat {J/kg-K}
+ 0.9,                      !- thermal absorptance
+ 0.7,                      !- solar absorptance
+ 0.7;                      !- visible absorptance
+
+Material,
+ Generic Gypsum Board,     !- name
+ MediumSmooth,             !- roughness
+ 0.0127,                   !- thickness {m}
+ 0.16,                     !- conductivity {W/m-K}
+ 800.0,                    !- density {kg/m3}
+ 1090.0,                   !- specific heat {J/kg-K}
+ 0.9,                      !- thermal absorptance
+ 0.5,                      !- solar absorptance
+ 0.5;                      !- visible absorptance
+
+Material,
+ Generic Acoustic Tile,    !- name
+ MediumSmooth,             !- roughness
+ 0.02,                     !- thickness {m}
+ 0.06,                     !- conductivity {W/m-K}
+ 368.0,                    !- density {kg/m3}
+ 590.0,                    !- specific heat {J/kg-K}
+ 0.9,                      !- thermal absorptance
+ 0.3,                      !- solar absorptance
+ 0.3;                      !- visible absorptance
+
+Material,
+ Generic Metal Surface,    !- name
+ Smooth,                   !- roughness
+ 0.0015,                   !- thickness {m}
+ 45.0,                     !- conductivity {W/m-K}
+ 7690.0,                   !- density {kg/m3}
+ 410.0,                    !- specific heat {J/kg-K}
+ 0.9,                      !- thermal absorptance
+ 0.5,                      !- solar absorptance
+ 0.5;                      !- visible absorptance
+
+Material,
+ Generic Roof Membrane,    !- name
+ MediumRough,              !- roughness
+ 0.01,                     !- thickness {m}
+ 0.16,                     !- conductivity {W/m-K}
+ 1120.0,                   !- density {kg/m3}
+ 1460.0,                   !- specific heat {J/kg-K}
+ 0.9,                      !- thermal absorptance
+ 0.7,                      !- solar absorptance
+ 0.7;                      !- visible absorptance
+
+Material,
+ Generic 25mm Wood,        !- name
+ MediumSmooth,             !- roughness
+ 0.0254,                   !- thickness {m}
+ 0.15,                     !- conductivity {W/m-K}
+ 608.0,                    !- density {kg/m3}
+ 1630.0,                   !- specific heat {J/kg-K}
+ 0.9,                      !- thermal absorptance
+ 0.5,                      !- solar absorptance
+ 0.5;                      !- visible absorptance
+
+Material,
+ Generic Wall Air Gap,     !- name
+ Smooth,                   !- roughness
+ 0.1,                      !- thickness {m}
+ 0.667,                    !- conductivity {W/m-K}
+ 1.28,                     !- density {kg/m3}
+ 1000.0,                   !- specific heat {J/kg-K}
+ 0.9,                      !- thermal absorptance
+ 0.7,                      !- solar absorptance
+ 0.7;                      !- visible absorptance
+
+Material,
+ Generic Ceiling Air Gap,  !- name
+ Smooth,                   !- roughness
+ 0.1,                      !- thickness {m}
+ 0.556,                    !- conductivity {W/m-K}
+ 1.28,                     !- density {kg/m3}
+ 1000.0,                   !- specific heat {J/kg-K}
+ 0.9,                      !- thermal absorptance
+ 0.7,                      !- solar absorptance
+ 0.7;                      !- visible absorptance
+
+Material,
+ Air Wall Material,        !- name
+ Smooth,                   !- roughness
+ 0.01,                     !- thickness {m}
+ 0.6,                      !- conductivity {W/m-K}
+ 1.28,                     !- density {kg/m3}
+ 1004.0,                   !- specific heat {J/kg-K}
+ 0.95,                     !- thermal absorptance
+ 0.95,                     !- solar absorptance
+ 0.95;                     !- visible absorptance
+
+
+!-   ================  WINDOW MATERIALS ================
+
+WindowMaterial:Glazing,
+ Generic Clear Glass,      !- name
+ SpectralAverage,          !- optical data type
+ ,                         !- spectral data set name
+ 0.006,                    !- thickness {m}
+ 0.771,                    !- solar transmittance
+ 0.07,                     !- solar reflectance front
+ 0.07,                     !- solar reflectance back
+ 0.884,                    !- visible transmittance
+ 0.0804,                   !- visible reflectance front
+ 0.0804,                   !- visible reflectance back
+ 0.0,                      !- infrared_transmittance
+ 0.84,                     !- emissivity front
+ 0.84,                     !- emissivity back
+ 1.0,                      !- conductivity {W/m-K}
+ 1.0,                      !- dirt correction factor
+ No;                       !- solar diffusing
+
+WindowMaterial:Glazing,
+ Generic Low-e Glass,      !- name
+ SpectralAverage,          !- optical data type
+ ,                         !- spectral data set name
+ 0.006,                    !- thickness {m}
+ 0.452,                    !- solar transmittance
+ 0.359,                    !- solar reflectance front
+ 0.359,                    !- solar reflectance back
+ 0.714,                    !- visible transmittance
+ 0.207,                    !- visible reflectance front
+ 0.207,                    !- visible reflectance back
+ 0.0,                      !- infrared_transmittance
+ 0.84,                     !- emissivity front
+ 0.046578,                 !- emissivity back
+ 1.0,                      !- conductivity {W/m-K}
+ 1.0,                      !- dirt correction factor
+ No;                       !- solar diffusing
+
+WindowMaterial:Gas,
+ Generic Window Air Gap,   !- name
+ Air,                      !- gas type
+ 0.0127;                   !- thickness {m}
+
+WindowMaterial:Gas,
+ Generic Window Argon Gap, !- name
+ Argon,                    !- gas type
+ 0.0127;                   !- thickness {m}
+
+
+!-   ==============  OPAQUE CONSTRUCTIONS ==============
+
+Construction,              !- opaque
+ Generic Exterior Wall,    !- name
+ Generic Brick,            !- layer 1
+ Generic LW Concrete,      !- layer 2
+ Generic 50mm Insulation,  !- layer 3
+ Generic Wall Air Gap,     !- layer 4
+ Generic Gypsum Board;     !- layer 5
+
+Construction,              !- opaque
+ Generic Interior Wall,    !- name
+ Generic Gypsum Board,     !- layer 1
+ Generic Wall Air Gap,     !- layer 2
+ Generic Gypsum Board;     !- layer 3
+
+Construction,              !- opaque
+ Generic Underground Wall, !- name
+ Generic 50mm Insulation,  !- layer 1
+ Generic HW Concrete;      !- layer 2
+
+Construction,              !- opaque
+ Generic Exposed Floor,    !- name
+ Generic Metal Surface,    !- layer 1
+ Generic Ceiling Air Gap,  !- layer 2
+ Generic 50mm Insulation,  !- layer 3
+ Generic LW Concrete;      !- layer 4
+
+Construction,              !- opaque
+ Generic Interior Floor,   !- name
+ Generic Acoustic Tile,    !- layer 1
+ Generic Ceiling Air Gap,  !- layer 2
+ Generic LW Concrete;      !- layer 3
+
+Construction,              !- opaque
+ Generic Ground Slab,      !- name
+ Generic 50mm Insulation,  !- layer 1
+ Generic HW Concrete;      !- layer 2
+
+Construction,              !- opaque
+ Generic Roof,             !- name
+ Generic Roof Membrane,    !- layer 1
+ Generic 50mm Insulation,  !- layer 2
+ Generic LW Concrete,      !- layer 3
+ Generic Ceiling Air Gap,  !- layer 4
+ Generic Acoustic Tile;    !- layer 5
+
+Construction,              !- opaque
+ Generic Interior Ceiling, !- name
+ Generic LW Concrete,      !- layer 1
+ Generic Ceiling Air Gap,  !- layer 2
+ Generic Acoustic Tile;    !- layer 3
+
+Construction,              !- opaque
+ Generic Underground Roof, !- name
+ Generic 50mm Insulation,  !- layer 1
+ Generic HW Concrete,      !- layer 2
+ Generic Ceiling Air Gap,  !- layer 3
+ Generic Acoustic Tile;    !- layer 4
+
+Construction,              !- opaque
+ Generic Exterior Door,    !- name
+ Generic Metal Surface,    !- layer 1
+ Generic 25mm Insulation,  !- layer 2
+ Generic Metal Surface;    !- layer 3
+
+Construction,              !- opaque
+ Generic Interior Door,    !- name
+ Generic 25mm Wood;        !- layer 1
+
+Construction,              !- opaque
+ Air Wall,                 !- name
+ Air Wall Material;        !- layer 1
+
+
+!-   ==============  WINDOW CONSTRUCTIONS ==============
+
+Construction,              !- window
+ Generic Double Pane,      !- name
+ Generic Clear Glass,      !- layer 1
+ Generic Window Air Gap,   !- layer 2
+ Generic Clear Glass;      !- layer 3
+
+Construction,              !- window
+ Generic Single Pane,      !- name
+ Generic Clear Glass;      !- layer 1
+

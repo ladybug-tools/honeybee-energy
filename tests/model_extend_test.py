@@ -15,9 +15,9 @@ from honeybee_energy.construction import WindowConstruction, OpaqueConstruction,
     _ConstructionBase
 from honeybee_energy.material._base import _EnergyMaterialBase
 from honeybee_energy.material.opaque import EnergyMaterial
-from honeybee_energy.lib.default.face import clear_glass, gap, generic_exterior_wall, \
-    generic_interior_wall, generic_interior_floor, generic_interior_ceiling, \
-    generic_double_pane, roof_membrane, wood, insulation
+from honeybee_energy.lib.constructions import clear_glass, air_gap, \
+    generic_exterior_wall, generic_interior_wall, generic_interior_floor, \
+    generic_interior_ceiling, generic_double_pane, roof_membrane, wood, insulation
 
 from ladybug_geometry.geometry3d.pointvector import Point3D, Vector3D
 from ladybug_geometry.geometry3d.plane import Plane
@@ -113,7 +113,7 @@ def test_check_duplicate_construction_names():
     aperture = Aperture('Front Aperture', Face3D(aperture_verts))
     aperture.type = aperture_types.glass_door
     triple_pane = WindowConstruction(
-        'Custom Window Construction', [clear_glass, gap, clear_glass, gap, clear_glass])
+        'Custom Window Construction', [clear_glass, air_gap, clear_glass, air_gap, clear_glass])
     aperture.properties.energy.construction = triple_pane
     north_face.add_aperture(aperture)
 
@@ -189,7 +189,7 @@ def test_to_from_dict():
     aperture = Aperture('Front Aperture', Face3D(aperture_verts))
     aperture.type = aperture_types.glass_door
     triple_pane = WindowConstruction(
-        'Triple Pane Window', [clear_glass, gap, clear_glass, gap, clear_glass])
+        'Triple Pane Window', [clear_glass, air_gap, clear_glass, air_gap, clear_glass])
     aperture.properties.energy.construction = triple_pane
     north_face.add_aperture(aperture)
 
@@ -252,7 +252,7 @@ def test_to_dict_single_zone():
                       Point3D(2.5, 10, 2.5), Point3D(4.5, 10, 2.5)]
     aperture = Aperture('Front Aperture', Face3D(aperture_verts))
     triple_pane = WindowConstruction(
-        'Triple Pane Window', [clear_glass, gap, clear_glass, gap, clear_glass])
+        'Triple Pane Window', [clear_glass, air_gap, clear_glass, air_gap, clear_glass])
     aperture.properties.energy.construction = triple_pane
     north_face.add_aperture(aperture)
 
