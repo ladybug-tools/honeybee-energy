@@ -1,5 +1,7 @@
 # coding=utf-8
 """Model Energy Properties."""
+from honeybee.extensionutil import model_extension_dicts
+
 from ..lib.constructionsets import generic_costruction_set
 
 from ..material.opaque import EnergyMaterial, EnergyMaterialNoMass
@@ -11,6 +13,11 @@ from ..material.shade import EnergyWindowMaterialShade, EnergyWindowMaterialBlin
 from ..construction import OpaqueConstruction, WindowConstruction
 from ..constructionset import ConstructionSet, WallSet, FloorSet, RoofCeilingSet, \
     ApertureSet, DoorSet
+
+try:
+    from itertools import izip as zip  # python 2
+except ImportError:
+    pass   # python 3
 
 
 class ModelEnergyProperties(object):
@@ -109,52 +116,52 @@ class ModelEnergyProperties(object):
 
     def check_duplicate_construction_set_names(self, raise_exception=True):
         """Check that there are no duplicate ConstructionSet names in the model."""
-        con_set_names = []
-        duplicate_names = []
+        con_set_names = set()
+        duplicate_names = set()
         for con_set in self.unique_construction_sets + [self.global_construction_set]:
             if con_set.name not in con_set_names:
-                con_set_names.append(con_set.name)
+                con_set_names.add(con_set.name)
             else:
-                duplicate_names.append(con_set.name)
-        if duplicate_names != []:
+                duplicate_names.add(con_set.name)
+        if len(duplicate_names) != 0:
             if raise_exception:
-                raise ValueError('The model has the following duplicated '
-                                 'ConstructionSet names:\n{}'.format(
-                                    '\n'.join(duplicate_names)))
+                raise ValueError(
+                    'The model has the following duplicated ConstructionSet '
+                    'names:\n{}'.format('\n'.join(duplicate_names)))
             return False
         return True
 
     def check_duplicate_construction_names(self, raise_exception=True):
         """Check that there are no duplicate Construction names in the model."""
-        cnstr_names = []
-        duplicate_names = []
+        cnstr_names = set()
+        duplicate_names = set()
         for cnstr in self.unique_constructions:
             if cnstr.name not in cnstr_names:
-                cnstr_names.append(cnstr.name)
+                cnstr_names.add(cnstr.name)
             else:
-                duplicate_names.append(cnstr.name)
-        if duplicate_names != []:
+                duplicate_names.add(cnstr.name)
+        if len(duplicate_names) != 0:
             if raise_exception:
-                raise ValueError('The model has the following duplicated '
-                                 'Construction names:\n{}'.format(
-                                    '\n'.join(duplicate_names)))
+                raise ValueError(
+                    'The model has the following duplicated Construction '
+                    'names:\n{}'.format('\n'.join(duplicate_names)))
             return False
         return True
 
     def check_duplicate_material_names(self, raise_exception=True):
         """Check that there are no duplicate Material names in the model."""
-        material_names = []
-        duplicate_names = []
+        material_names = set()
+        duplicate_names = set()
         for mat in self.unique_materials:
             if mat.name not in material_names:
-                material_names.append(mat.name)
+                material_names.add(mat.name)
             else:
-                duplicate_names.append(mat.name)
-        if duplicate_names != []:
+                duplicate_names.add(mat.name)
+        if len(duplicate_names) != 0:
             if raise_exception:
-                raise ValueError('The model has the following duplicated '
-                                 'Material names:\n{}'.format(
-                                    '\n'.join(duplicate_names)))
+                raise ValueError(
+                    'The model has the following duplicated Material '
+                    'names:\n{}'.format('\n'.join(duplicate_names)))
             return False
         return True
 
@@ -224,91 +231,21 @@ class ModelEnergyProperties(object):
                 c_set['name'], wall_set, floor_set, roof_ceiling_set,
                 aperture_set, door_set)
 
-        # assign construction sets to rooms
-        room_names = []
-        c_set_names = []
-        for room_dict in data['rooms']:
-            room_names.append(room_dict['name'])
-            if 'construction_set' in room_dict['properties']['energy'] and \
-                    room_dict['properties']['energy']['construction_set'] is not None:
-                c_set_names.append(room_dict['properties']['energy']['construction_set'])
-            else:
-                c_set_names.append(None)
-        for i, room in enumerate(self.host.get_rooms_by_name(room_names)):
-            if c_set_names[i] is not None:
-                room.properties.energy.construction_set = \
-                    construction_sets[c_set_names[i]]
+        # collect lists of energy property dictionaries
+        room_e_dicts, face_e_dicts, shd_e_dicts, ap_e_dicts, dr_e_dicts = \
+            model_extension_dicts(data, 'energy')
 
-        # assign constructions to faces
-        face_names = []
-        cnstr_names = []
-        for face_dict in data['faces']:
-            if 'construction' in face_dict['properties']['energy'] and \
-                    face_dict['properties']['energy']['construction'] is not None:
-                cnstr_names.append(face_dict['properties']['energy']['construction'])
-                face_names.append(face_dict['name'])
-        for i, face in enumerate(self.host.get_faces_by_name(face_names)):
-            face.properties.energy.construction = constructions[cnstr_names[i]]
-
-        # assign properties to shades
-        shade_names = []
-        diff_refs = []
-        spec_refs = []
-        transmittances = []
-        trans_scheds = []
-        for sh_dict in data['shades']:
-            shade_names.append(sh_dict['name'])
-            if 'diffuse_reflectance' in sh_dict['properties']['energy'] and \
-                    sh_dict['properties']['energy']['diffuse_reflectance'] is not None:
-                diff_refs.append(sh_dict['properties']['energy']['diffuse_reflectance'])
-            else:
-                diff_refs.append(0.2)
-            if 'specular_reflectance' in sh_dict['properties']['energy'] and \
-                    sh_dict['properties']['energy']['specular_reflectance'] is not None:
-                spec_refs.append(sh_dict['properties']['energy']['specular_reflectance'])
-            else:
-                spec_refs.append(0)
-            if 'transmittance' in sh_dict['properties']['energy'] and \
-                    sh_dict['properties']['energy']['transmittance'] is not None:
-                transmittances.append(sh_dict['properties']['energy']['transmittance'])
-                trans_scheds.append(None)
-            elif 'transmittance_schedule' in sh_dict['properties']['energy'] and \
-                    sh_dict['properties']['energy']['transmittance_schedule'] \
-                    is not None:
-                trans_scheds.append(
-                    sh_dict['properties']['energy']['transmittance_schedule'])
-                transmittances.append(None)
-            else:
-                transmittances.append(0)
-                trans_scheds.append(None)
-        for i, shd in enumerate(self.host.get_shades_by_name(shade_names)):
-            shd.properties.energy.diffuse_reflectance = diff_refs[i]
-            shd.properties.energy.specular_reflectance = spec_refs[i]
-            if transmittances[i] is not None:
-                shd.properties.energy.transmittance = transmittances[i]
-            shd.properties.energy.transmittance_schedule = trans_scheds[i]
-
-        # assign constructions to apertures
-        ap_names = []
-        cnstr_names = []
-        for ap_dict in data['apertures']:
-            if 'construction' in ap_dict['properties']['energy'] and \
-                    ap_dict['properties']['energy']['construction'] is not None:
-                cnstr_names.append(ap_dict['properties']['energy']['construction'])
-                ap_names.append(ap_dict['name'])
-        for i, ap in enumerate(self.host.get_apertures_by_name(ap_names)):
-            ap.properties.energy.construction = constructions[cnstr_names[i]]
-
-        # assign constructions to doors
-        door_names = []
-        cnstr_names = []
-        for dr_dict in data['doors']:
-            if 'construction' in dr_dict['properties']['energy'] and \
-                    dr_dict['properties']['energy']['construction'] is not None:
-                cnstr_names.append(dr_dict['properties']['energy']['construction'])
-                door_names.append(dr_dict['name'])
-        for i, dr in enumerate(self.host.get_doors_by_name(door_names)):
-            dr.properties.energy.construction = constructions[cnstr_names[i]]
+        # apply energy properties to objects uwing the energy property dictionaries
+        for room, r_dict in zip(self.host.rooms, room_e_dicts):
+            room.properties.energy.apply_properties_from_dict(r_dict, construction_sets)
+        for face, f_dict in zip(self.host.faces, face_e_dicts):
+            face.properties.energy.apply_properties_from_dict(f_dict, constructions)
+        for shade, s_dict in zip(self.host.shades, shd_e_dicts):
+            shade.properties.energy.apply_properties_from_dict(s_dict)
+        for aperture, a_dict in zip(self.host.apertures, ap_e_dicts):
+            aperture.properties.energy.apply_properties_from_dict(a_dict, constructions)
+        for aperture, a_dict in zip(self.host.apertures, ap_e_dicts):
+            aperture.properties.energy.apply_properties_from_dict(a_dict, constructions)
 
     def to_dict(self, include_global_construction_set=True):
         """Return Model energy properties as a dictionary.

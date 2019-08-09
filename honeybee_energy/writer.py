@@ -3,12 +3,13 @@ from honeybee.boundarycondition import Surface
 
 
 def face_to_idf(face):
-    """generate face idf representation."""
-    #     TODO(): Check face.geo_type first. This only works for a Face. Fails for
-    #     PolyFace, etc
-    en_prop = face.properties.energy
+    """Generate an IDF string representation of a Face.
 
-    idf_string = 'BuildingSurface:Detailed,' \
+    Args:
+        face: A honeyee Face for which an IDF representation will be returned.
+    """
+
+    return 'BuildingSurface:Detailed,' \
         '\n\t%s,\t!- Name' \
         '\n\t%s,\t!- Surface Type' \
         '\n\t%s,\t!- Construction Name' \
@@ -22,7 +23,7 @@ def face_to_idf(face):
         '\n\t%s;' % (
             face.name,
             face.type.name,
-            en_prop.construction.name,
+            face.properties.energy.construction.name,
             face.parent.name if face.parent else 'unknown',
             face.boundary_condition.name,
             face.boundary_condition.boundary_condition_object if
@@ -31,6 +32,5 @@ def face_to_idf(face):
             face.boundary_condition.wind_exposure_idf,
             face.boundary_condition.view_factor,
             len(face.vertices),
-            ',\n\t'.join('%f, %f, %f' % (v[0], v[1], v[2]) for v in face.vertices)
+            ',\n\t'.join('%f, %f, %f' % (v[0], v[1], v[2]) for v in face.upper_left_vertices)
         )
-    return idf_string

@@ -94,6 +94,19 @@ class RoomEnergyProperties(object):
             value.lock()   # lock editing in case constructionset has multiple references
         self._construction_set = value
 
+    def apply_properties_from_dict(self, abridged_data, construction_sets):
+        """Apply properties from a RoomEnergyPropertiesAbridged dictionary.
+
+        Args:
+            abridged_data: A RoomEnergyPropertiesAbridged dictionary (typically
+                coming from a Model).
+            construction_sets: A dictionary of ConstructionSets with names of the sets
+                as keys, which will be used to re-assign construction_sets.
+        """
+        if 'construction_set' in abridged_data and \
+                abridged_data['construction_set'] is not None:
+            self.construction_set = construction_sets[abridged_data['construction_set']]
+
     def to_dict(self, abridged=False):
         """Return energy properties as a dictionary.
 
