@@ -64,6 +64,25 @@ class FaceEnergyProperties(object):
         """Check if construction is set by user."""
         return self._construction is not None
 
+    @classmethod
+    def from_dict(cls, data, host):
+        """Create FaceEnergyProperties from a dictionary.
+
+        Note that the dictionary must be a non-abridged version for this
+        classmethod to work.
+
+        Args:
+            data: A dictionary representation of FaceEnergyProperties.
+            host: A Face object that hosts these properties.
+        """
+        assert data['type'] == 'FaceEnergyProperties', \
+            'Expected FaceEnergyProperties. Got {}.'.format(data['type'])
+
+        new_prop = cls(host)
+        if 'construction' in data and data['construction'] is not None:
+            new_prop.construction = OpaqueConstruction.from_dict(data['construction'])
+        return new_prop
+
     def apply_properties_from_dict(self, abridged_data, constructions):
         """Apply properties from a FaceEnergyPropertiesAbridged dictionary.
 

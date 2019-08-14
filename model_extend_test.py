@@ -281,12 +281,10 @@ def test_to_dict_single_zone():
     assert model_dict['rooms'][0]['faces'][1]['apertures'][0]['properties']['energy']['construction'] == \
         triple_pane.name
 
-    """
     f_dir = 'C:/Users/chris/Documents/GitHub/energy-model-schema/app/models/samples/json'
     dest_file = f_dir + '/model_single_zone_tiny_house.json'
     with open(dest_file, 'w') as fp:
         json.dump(model_dict, fp, indent=4)
-    """
 
 
 def test_to_dict_shoe_box():
@@ -323,12 +321,10 @@ def test_to_dict_shoe_box():
     assert model_dict['rooms'][0]['faces'][0]['boundary_condition']['type'] == 'Adiabatic'
     assert model_dict['rooms'][0]['faces'][2]['boundary_condition']['type'] == 'Adiabatic'
 
-    """
     f_dir = 'C:/Users/chris/Documents/GitHub/energy-model-schema/app/models/samples/json'
     dest_file = f_dir + '/model_shoe_box.json'
     with open(dest_file, 'w') as fp:
         json.dump(model_dict, fp, indent=4)
-    """
 
 
 def test_to_dict_multizone_house():
@@ -385,9 +381,12 @@ def test_to_dict_multizone_house():
     assert model_dict['rooms'][2]['properties']['energy']['construction_set'] == \
         constr_set.name
 
-    """
     f_dir = 'C:/Users/chris/Documents/GitHub/energy-model-schema/app/models/samples/json'
     dest_file = f_dir + '/model_multi_zone_single_family_house.json'
     with open(dest_file, 'w') as fp:
         json.dump(model_dict, fp, indent=4)
-    """
+
+
+test_to_dict_single_zone()
+test_to_dict_shoe_box()
+test_to_dict_multizone_house()

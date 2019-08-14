@@ -123,3 +123,16 @@ def test_to_dict():
     room.properties.energy.construction_set = mass_set
     rd = room.to_dict()
     assert rd['properties']['energy']['construction_set'] is not None
+
+
+def test_from_dict():
+    """Test the Room from_dict method with energy properties."""
+    mass_set = ConstructionSet('Thermal Mass Construction Set')
+    room = Room.from_box('Shoe Box', 5, 10, 3)
+    room.properties.energy.construction_set = mass_set
+
+    rd = room.to_dict()
+    new_room = Room.from_dict(rd)
+    assert new_room.properties.energy.construction_set.name == \
+        'Thermal Mass Construction Set'
+    assert new_room.to_dict() == rd

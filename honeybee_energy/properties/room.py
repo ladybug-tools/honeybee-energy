@@ -94,6 +94,27 @@ class RoomEnergyProperties(object):
             value.lock()   # lock editing in case constructionset has multiple references
         self._construction_set = value
 
+    @classmethod
+    def from_dict(cls, data, host):
+        """Create RoomEnergyProperties from a dictionary.
+
+        Note that the dictionary must be a non-abridged version for this
+        classmethod to work.
+
+        Args:
+            data: A dictionary representation of RoomEnergyProperties.
+            host: A Room object that hosts these properties.
+        """
+        assert data['type'] == 'RoomEnergyProperties', \
+            'Expected RoomEnergyProperties. Got {}.'.format(data['type'])
+
+        new_prop = cls(host)
+        if 'construction_set' in data and data['construction_set'] is not None:
+            new_prop.construction_set = \
+                ConstructionSet.from_dict(data['construction_set'])
+        # TODO: Add re-serializing of loads and program type once they are implemented
+        return new_prop
+
     def apply_properties_from_dict(self, abridged_data, construction_sets):
         """Apply properties from a RoomEnergyPropertiesAbridged dictionary.
 
@@ -106,6 +127,7 @@ class RoomEnergyProperties(object):
         if 'construction_set' in abridged_data and \
                 abridged_data['construction_set'] is not None:
             self.construction_set = construction_sets[abridged_data['construction_set']]
+        # TODO: Add re-assigning of loads and program type once they are implemented
 
     def to_dict(self, abridged=False):
         """Return energy properties as a dictionary.

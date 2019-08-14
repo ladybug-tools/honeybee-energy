@@ -2,7 +2,6 @@
 from honeybee.room import Room
 from honeybee.face import Face
 from honeybee.aperture import Aperture
-from honeybee.aperturetype import aperture_types
 
 from honeybee_energy.properties.aperture import ApertureEnergyProperties
 from honeybee_energy.construction import WindowConstruction
@@ -129,13 +128,19 @@ def test_to_dict():
     assert ad['properties']['energy']['construction'] is not None
 
 
-def test_aperture_type():
-    """Test the assigning of aperture type."""
-    vertices_wall = [[0, 0, 0], [0, 10, 0], [0, 10, 3], [0, 0, 3]]
-    wa = Aperture.from_vertices('wall window', vertices_wall)
+def test_from_dict():
+    """Test the Aperture from_dict method with energy properties."""
+    aperture = Aperture.from_vertices(
+        'wall_window', [[0, 0, 0], [10, 0, 0], [10, 0, 10], [0, 0, 10]])
+    clear_glass = EnergyWindowMaterialGlazing(
+        'Clear Glass', 0.005715, 0.770675, 0.07, 0.8836, 0.0804,
+        0, 0.84, 0.84, 1.0)
+    gap = EnergyWindowMaterialGas('air gap', thickness=0.0127)
+    triple_pane = WindowConstruction(
+        'Triple Pane', [clear_glass, gap, clear_glass, gap, clear_glass])
+    aperture.properties.energy.construction = triple_pane
 
-    assert wa.type == aperture_types.window
-    wa.type = aperture_types.operable_window
-    assert wa.type == aperture_types.operable_window
-    wa.type = aperture_types.glass_door
-    assert wa.type == aperture_types.glass_door
+    ad = aperture.to_dict()
+    new_aperture = Aperture.from_dict(ad)
+    assert new_aperture.properties.energy.construction == triple_pane
+    assert new_aperture.to_dict() == ad

@@ -1,6 +1,6 @@
 # coding=utf-8
 """Door Energy Properties."""
-from ..construction import OpaqueConstruction
+from ..construction import OpaqueConstruction, WindowConstruction
 from ..lib.constructionsets import generic_costruction_set
 
 
@@ -19,9 +19,11 @@ class DoorEnergyProperties(object):
 
         Args:
             host_door: A honeybee_core Door object that hosts these properties.
-            construction: An optional Honeybee OpaqueConstruction object for
-                the door. If None, it will be set by the parent Room ConstructionSet
-                or the the Honeybee default generic ConstructionSet.
+            construction: An optional Honeybee OpaqueConstruction or WindowConstruction
+                object for the door. Note that the host Door must have the is_glass
+                property set to True to assign a WindowConstruction. If None, it will
+                be set by the parent Room ConstructionSet or the the Honeybee default
+                generic ConstructionSet.
         """
         self._host = host
         self.construction = construction
@@ -46,19 +48,25 @@ class DoorEnergyProperties(object):
         elif self._host.has_parent and self._host.parent.has_parent:  # set by zone
             constr_set = self._host.parent.parent.properties.energy.construction_set
             return constr_set.get_door_construction(
-                self._host.boundary_condition.name, self._host.parent.type.name)
+                self._host.boundary_condition.name, self._host.is_glass,
+                self._host.parent.type.name)
         elif self._host.has_parent:  # generic but influenced by parent face
             return generic_costruction_set.get_door_construction(
-                self._host.boundary_condition.name, self._host.parent.type.name)
+                self._host.boundary_condition.name, self._host.is_glass,
+                self._host.parent.type.name)
         else:
             return generic_costruction_set.get_door_construction(
-                self._host.boundary_condition.name, 'Wall')
+                self._host.boundary_condition.name, self._host.is_glass, 'Wall')
 
     @construction.setter
     def construction(self, value):
         if value is not None:
-            assert isinstance(value, OpaqueConstruction), \
-                'Expected Opaque Construction for door. Got {}'.format(type(value))
+            if not self.host.is_glass:
+                assert isinstance(value, OpaqueConstruction), 'Expected ' \
+                    'OpaqueConstruction for door. Got {}'.format(type(value))
+            else:
+                assert isinstance(value, WindowConstruction), 'Expected ' \
+                    'WindowConstruction for glass door. Got {}'.format(type(value))
             value.lock()  # lock editing in case construction has multiple references
         self._construction = value
 
@@ -66,6 +74,30 @@ class DoorEnergyProperties(object):
     def is_construction_set_by_user(self):
         """Check if construction is set by user."""
         return self._construction is not None
+
+    @classmethod
+    def from_dict(cls, data, host):
+        """Create DoorEnergyProperties from a dictionary.
+
+        Note that the dictionary must be a non-abridged version for this
+        classmethod to work.
+
+        Args:
+            data: A dictionary representation of DoorEnergyProperties.
+            host: A Door object that hosts these properties.
+        """
+        assert data['type'] == 'DoorEnergyProperties', \
+            'Expected DoorEnergyProperties. Got {}.'.format(data['type'])
+
+        new_prop = cls(host)
+        if 'construction' in data and data['construction'] is not None:
+            if not host.is_glass:
+                new_prop.construction = OpaqueConstruction.from_dict(
+                    data['construction'])
+            else:
+                new_prop.construction = WindowConstruction.from_dict(
+                    data['construction'])
+        return new_prop
 
     def apply_properties_from_dict(self, abridged_data, constructions):
         """Apply properties from a DoorEnergyPropertiesAbridged dictionary.

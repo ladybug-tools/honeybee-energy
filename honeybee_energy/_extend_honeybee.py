@@ -3,7 +3,6 @@ from honeybee.properties import ModelProperties, RoomProperties, FaceProperties,
     ShadeProperties, ApertureProperties, DoorProperties
 import honeybee.writer as writer
 import honeybee.boundarycondition as hbc
-import honeybee.aperturetype as hat
 
 from .properties.model import ModelEnergyProperties
 from .properties.room import RoomEnergyProperties
@@ -13,7 +12,6 @@ from .properties.aperture import ApertureEnergyProperties
 from .properties.door import DoorEnergyProperties
 from .writer import face_to_idf
 from .boundarycondition import Adiabatic
-from .aperturetype import OperableWindow, GlassDoor
 
 # set a hidden energy attribute on each core geometry Property class to None
 # define methods to produce energy property instances on each Proprety instance
@@ -76,11 +74,3 @@ setattr(writer, 'idf', face_to_idf)
 setattr(hbc, 'Adiabatic', Adiabatic)
 hbc._BoundaryConditions._adiabatic = Adiabatic()
 hbc._BoundaryConditions.adiabatic = property(lambda self: self._adiabatic)
-
-# extend aperture types
-setattr(hat, 'OperableWindow', OperableWindow)
-hat._ApertureTypes._operable_window = OperableWindow()
-hat._ApertureTypes.operable_window = property(lambda self: self._operable_window)
-setattr(hat, 'GlassDoor', GlassDoor)
-hat._ApertureTypes._glass_door = GlassDoor()
-hat._ApertureTypes.glass_door = property(lambda self: self._glass_door)

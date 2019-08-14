@@ -20,8 +20,8 @@ Material,
  1920.0,                   !- density {kg/m3}
  790.0,                    !- specific heat {J/kg-K}
  0.9,                      !- thermal absorptance
- 0.7,                      !- solar absorptance
- 0.7;                      !- visible absorptance
+ 0.65,                      !- solar absorptance
+ 0.65;                      !- visible absorptance
 
 Material,
  Generic LW Concrete,      !- name
@@ -86,11 +86,11 @@ Material,
  368.0,                    !- density {kg/m3}
  590.0,                    !- specific heat {J/kg-K}
  0.9,                      !- thermal absorptance
- 0.3,                      !- solar absorptance
- 0.3;                      !- visible absorptance
+ 0.2,                      !- solar absorptance
+ 0.2;                      !- visible absorptance
 
 Material,
- Generic Metal Surface,    !- name
+ Generic Painted Metal,    !- name
  Smooth,                   !- roughness
  0.0015,                   !- thickness {m}
  45.0,                     !- conductivity {W/m-K}
@@ -108,8 +108,8 @@ Material,
  1120.0,                   !- density {kg/m3}
  1460.0,                   !- specific heat {J/kg-K}
  0.9,                      !- thermal absorptance
- 0.7,                      !- solar absorptance
- 0.7;                      !- visible absorptance
+ 0.65,                     !- solar absorptance
+ 0.65;                     !- visible absorptance
 
 Material,
  Generic 25mm Wood,        !- name
@@ -163,12 +163,12 @@ WindowMaterial:Glazing,
  SpectralAverage,          !- optical data type
  ,                         !- spectral data set name
  0.006,                    !- thickness {m}
- 0.771,                    !- solar transmittance
+ 0.77,                     !- solar transmittance
  0.07,                     !- solar reflectance front
  0.07,                     !- solar reflectance back
- 0.884,                    !- visible transmittance
- 0.0804,                   !- visible reflectance front
- 0.0804,                   !- visible reflectance back
+ 0.88,                     !- visible transmittance
+ 0.08,                     !- visible reflectance front
+ 0.08,                     !- visible reflectance back
  0.0,                      !- infrared_transmittance
  0.84,                     !- emissivity front
  0.84,                     !- emissivity back
@@ -181,15 +181,15 @@ WindowMaterial:Glazing,
  SpectralAverage,          !- optical data type
  ,                         !- spectral data set name
  0.006,                    !- thickness {m}
- 0.452,                    !- solar transmittance
- 0.359,                    !- solar reflectance front
- 0.359,                    !- solar reflectance back
- 0.714,                    !- visible transmittance
- 0.207,                    !- visible reflectance front
- 0.207,                    !- visible reflectance back
+ 0.45,                     !- solar transmittance
+ 0.36,                     !- solar reflectance front
+ 0.36,                     !- solar reflectance back
+ 0.71,                     !- visible transmittance
+ 0.21,                     !- visible reflectance front
+ 0.21,                     !- visible reflectance back
  0.0,                      !- infrared_transmittance
  0.84,                     !- emissivity front
- 0.046578,                 !- emissivity back
+ 0.047,                    !- emissivity back
  1.0,                      !- conductivity {W/m-K}
  1.0,                      !- dirt correction factor
  No;                       !- solar diffusing
@@ -224,7 +224,9 @@ Construction,              !- opaque
 Construction,              !- opaque
  Generic Underground Wall, !- name
  Generic 50mm Insulation,  !- layer 1
- Generic HW Concrete;      !- layer 2
+ Generic HW Concrete,      !- layer 2
+ Generic Wall Air Gap,     !- layer 3
+ Generic Gypsum Board;     !- layer 4
 
 Construction,              !- opaque
  Generic Exposed Floor,    !- name
@@ -284,11 +286,10 @@ Construction,              !- opaque
 
 Construction,              !- window
  Generic Double Pane,      !- name
- Generic Clear Glass,      !- layer 1
+ Generic Low-e Glass,      !- layer 1
  Generic Window Air Gap,   !- layer 2
  Generic Clear Glass;      !- layer 3
 
 Construction,              !- window
  Generic Single Pane,      !- name
  Generic Clear Glass;      !- layer 1
-
