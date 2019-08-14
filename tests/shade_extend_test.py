@@ -77,7 +77,7 @@ def test_duplicate():
 
 
 def test_to_dict():
-    """Test the Door to_dict method with energy properties."""
+    """Test the Shade to_dict method with energy properties."""
     verts = [Point3D(0, 0, 0), Point3D(1, 0, 0), Point3D(1, 0, 3), Point3D(0, 0, 3)]
     shade = Shade('overhang', Face3D(verts))
 
@@ -97,3 +97,19 @@ def test_to_dict():
     assert shade_dict['properties']['energy']['diffuse_reflectance'] == 0.7
     assert shade_dict['properties']['energy']['specular_reflectance'] == 0.2
     assert shade_dict['properties']['energy']['transmittance'] == 0.1
+
+
+def test_from_dict():
+    """Test the Shade from_dict method with energy properties."""
+    verts = [Point3D(0, 0, 0), Point3D(1, 0, 0), Point3D(1, 0, 3), Point3D(0, 0, 3)]
+    shade = Shade('overhang', Face3D(verts))
+    shade.properties.energy.diffuse_reflectance = 0.7
+    shade.properties.energy.specular_reflectance = 0.2
+    shade.properties.energy.transmittance = 0.1
+
+    shade_dict = shade.to_dict()
+    new_shade = Shade.from_dict(shade_dict)
+    assert new_shade.properties.energy.diffuse_reflectance == 0.7
+    assert new_shade.properties.energy.specular_reflectance == 0.2
+    assert new_shade.properties.energy.transmittance == 0.1
+    assert new_shade.to_dict() == shade_dict

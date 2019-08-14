@@ -14,9 +14,9 @@ def test_constructionset_init():
     str(default_set)  # test the string representation of the construction
 
     assert default_set.name == 'Default Set'
-    assert len(default_set.constructions) == 17
+    assert len(default_set.constructions) == 18
     assert len(default_set.unique_constructions) == 13
-    assert len(default_set.unique_materials) == 14
+    assert len(default_set.unique_materials) == 15
     assert len(default_set.unique_modified_constructions) == 0
     assert len(default_set.unique_modified_materials) == 0
 
@@ -34,8 +34,8 @@ def test_constructionset_defaults():
     assert len(default_set.wall_set) == 3
     assert len(default_set.floor_set) == 3
     assert len(default_set.roof_ceiling_set) == 3
-    assert len(default_set.aperture_set) == 5
-    assert len(default_set.door_set) == 3
+    assert len(default_set.aperture_set) == 4
+    assert len(default_set.door_set) == 5
 
     for constr in default_set.wall_set:
         assert isinstance(constr, OpaqueConstruction)
@@ -45,8 +45,6 @@ def test_constructionset_defaults():
         assert isinstance(constr, OpaqueConstruction)
     for constr in default_set.aperture_set:
         assert isinstance(constr, WindowConstruction)
-    for constr in default_set.door_set:
-        assert isinstance(constr, OpaqueConstruction)
 
     assert isinstance(default_set.wall_set.exterior_construction, OpaqueConstruction)
     assert isinstance(default_set.wall_set.interior_construction, OpaqueConstruction)
@@ -57,13 +55,14 @@ def test_constructionset_defaults():
     assert isinstance(default_set.roof_ceiling_set.exterior_construction, OpaqueConstruction)
     assert isinstance(default_set.roof_ceiling_set.interior_construction, OpaqueConstruction)
     assert isinstance(default_set.roof_ceiling_set.ground_construction, OpaqueConstruction)
-    assert isinstance(default_set.aperture_set.fixed_window_construction, WindowConstruction)
+    assert isinstance(default_set.aperture_set.window_construction, WindowConstruction)
     assert isinstance(default_set.aperture_set.interior_construction, WindowConstruction)
     assert isinstance(default_set.aperture_set.skylight_construction, WindowConstruction)
-    assert isinstance(default_set.aperture_set.operable_window_construction, WindowConstruction)
-    assert isinstance(default_set.aperture_set.glass_door_construction, WindowConstruction)
+    assert isinstance(default_set.aperture_set.operable_construction, WindowConstruction)
     assert isinstance(default_set.door_set.exterior_construction, OpaqueConstruction)
     assert isinstance(default_set.door_set.interior_construction, OpaqueConstruction)
+    assert isinstance(default_set.door_set.exterior_glass_construction, WindowConstruction)
+    assert isinstance(default_set.door_set.interior_glass_construction, WindowConstruction)
     assert isinstance(default_set.door_set.overhead_construction, OpaqueConstruction)
 
 
@@ -119,8 +118,8 @@ def test_setting_construction():
     assert len(default_set.unique_modified_materials) == 3
 
 
-def test_setting_aperture_construction():
-    """Test the setting of aperture constructions on the ConstructionSet."""
+def test_setting_window_construction():
+    """Test the setting of aperture and glass door constructions on ConstructionSet."""
     default_set = ConstructionSet('Tinted Window Set')
     tinted_glass = EnergyWindowMaterialGlazing(
         'Tinted Glass', 0.006, 0.35, 0.03, 0.884, 0.0804, 0, 0.84, 0.84, 1.0)
@@ -130,24 +129,27 @@ def test_setting_aperture_construction():
     single_tint = WindowConstruction(
         'Single Tinted Window', [tinted_glass])
 
-    default_set.aperture_set.fixed_window_construction = double_tint
-    assert default_set.aperture_set.fixed_window_construction == double_tint
+    default_set.aperture_set.window_construction = double_tint
+    assert default_set.aperture_set.window_construction == double_tint
     assert len(default_set.unique_modified_constructions) == 1
     assert len(default_set.unique_modified_materials) == 2
 
-    assert isinstance(default_set.aperture_set.fixed_window_construction[0],
+    assert isinstance(default_set.aperture_set.window_construction[0],
                       EnergyWindowMaterialGlazing)
     with pytest.raises(AttributeError):
-        default_set.aperture_set.fixed_window_construction[0].thickness = 0.003
+        default_set.aperture_set.window_construction[0].thickness = 0.003
 
     default_set.aperture_set.interior_construction = single_tint
     assert default_set.aperture_set.interior_construction == single_tint
     default_set.aperture_set.skylight_construction = double_tint
     assert default_set.aperture_set.skylight_construction == double_tint
-    default_set.aperture_set.operable_window_construction = double_tint
-    assert default_set.aperture_set.operable_window_construction == double_tint
-    default_set.aperture_set.glass_door_construction = single_tint
-    assert default_set.aperture_set.glass_door_construction == single_tint
+    default_set.aperture_set.operable_construction = double_tint
+    assert default_set.aperture_set.operable_construction == double_tint
+
+    default_set.door_set.exterior_glass_construction = double_tint
+    assert default_set.door_set.exterior_glass_construction == double_tint
+    default_set.door_set.interior_glass_construction = single_tint
+    assert default_set.door_set.interior_glass_construction == single_tint
 
     assert len(default_set.unique_modified_constructions) == 2
     assert len(default_set.unique_modified_materials) == 2
@@ -187,13 +189,14 @@ def test_constructionset_to_dict_full():
     assert constr_dict['roof_ceiling_set']['exterior_construction'] is not None
     assert constr_dict['roof_ceiling_set']['interior_construction'] is not None
     assert constr_dict['roof_ceiling_set']['ground_construction'] is not None
-    assert constr_dict['aperture_set']['fixed_window_construction'] is not None
+    assert constr_dict['aperture_set']['window_construction'] is not None
     assert constr_dict['aperture_set']['interior_construction'] is not None
     assert constr_dict['aperture_set']['skylight_construction'] is not None
-    assert constr_dict['aperture_set']['operable_window_construction'] is not None
-    assert constr_dict['aperture_set']['glass_door_construction'] is not None
+    assert constr_dict['aperture_set']['operable_construction'] is not None
     assert constr_dict['door_set']['exterior_construction'] is not None
     assert constr_dict['door_set']['interior_construction'] is not None
+    assert constr_dict['door_set']['exterior_glass_construction'] is not None
+    assert constr_dict['door_set']['interior_glass_construction'] is not None
     assert constr_dict['door_set']['overhead_construction'] is not None
 
 
@@ -207,7 +210,7 @@ def test_constructionset_dict_methods():
     triple_clear = WindowConstruction(
         'Triple Clear Window', [clear_glass, gap, clear_glass, gap, clear_glass])
 
-    insulated_set.aperture_set.fixed_window_construction = triple_clear
+    insulated_set.aperture_set.window_construction = triple_clear
     constr_dict = insulated_set.to_dict()
 
     assert constr_dict['wall_set']['exterior_construction'] is None
@@ -219,13 +222,14 @@ def test_constructionset_dict_methods():
     assert constr_dict['roof_ceiling_set']['exterior_construction'] is None
     assert constr_dict['roof_ceiling_set']['interior_construction'] is None
     assert constr_dict['roof_ceiling_set']['ground_construction'] is None
-    assert constr_dict['aperture_set']['fixed_window_construction'] is not None
+    assert constr_dict['aperture_set']['window_construction'] is not None
     assert constr_dict['aperture_set']['interior_construction'] is None
     assert constr_dict['aperture_set']['skylight_construction'] is None
-    assert constr_dict['aperture_set']['operable_window_construction'] is None
-    assert constr_dict['aperture_set']['glass_door_construction'] is None
+    assert constr_dict['aperture_set']['operable_construction'] is None
     assert constr_dict['door_set']['exterior_construction'] is None
     assert constr_dict['door_set']['interior_construction'] is None
+    assert constr_dict['door_set']['exterior_glass_construction'] is None
+    assert constr_dict['door_set']['interior_glass_construction'] is None
     assert constr_dict['door_set']['overhead_construction'] is None
 
     new_constr = ConstructionSet.from_dict(constr_dict)

@@ -104,6 +104,21 @@ def test_to_dict():
     assert fd['properties']['energy']['construction'] is not None
 
 
+def test_from_dict():
+    """Test the Face from_dict method with energy properties."""
+    face = Face.from_vertices(
+        'wall_face', [[0, 0, 0], [10, 0, 0], [10, 0, 10], [0, 0, 10]])
+    concrete20 = EnergyMaterial('20cm Concrete', 0.2, 2.31, 2322, 832,
+                                'MediumRough', 0.95, 0.75, 0.8)
+    thick_constr = OpaqueConstruction('Thick Concrete Construction', [concrete20])
+    face.properties.energy.construction = thick_constr
+
+    fd = face.to_dict()
+    new_face = Face.from_dict(fd)
+    assert new_face.properties.energy.construction == thick_constr
+    assert new_face.to_dict() == fd
+
+
 def test_writer_to_idf():
     """Test the Face to_idf method."""
     face = Face.from_vertices(

@@ -9,11 +9,7 @@ from .material.gas import EnergyWindowMaterialGas, EnergyWindowMaterialGasMixtur
     EnergyWindowMaterialGasCustom
 from .material.shade import EnergyWindowMaterialShade, EnergyWindowMaterialBlind
 from .construction import OpaqueConstruction, WindowConstruction
-from .lib.constructions import generic_exterior_wall, generic_interior_wall, \
-    generic_underground_wall, generic_exposed_floor, generic_interior_floor, \
-    generic_ground_slab, generic_roof, generic_interior_ceiling, \
-    generic_underground_roof, generic_double_pane, generic_single_pane, \
-    generic_exterior_door, generic_interior_door, air_wall
+import honeybee_energy.lib.constructions as _lib
 
 from honeybee._lockable import lockable
 from honeybee.typing import valid_ep_string
@@ -205,36 +201,30 @@ class ConstructionSet(object):
         elif face_type == 'RoofCeiling':
             return self._get_constr_from_set(self.roof_ceiling_set, boundary_condition)
         elif face_type == 'AirWall':
-            return air_wall
+            return _lib.air_wall
         else:
             raise NotImplementedError(
                 'Face type {} is not recognized for ConstructionSet'.format(face_type))
 
-    def get_aperture_construction(self, boundary_condition, aperture_type,
+    def get_aperture_construction(self, boundary_condition, is_operable,
                                   parent_face_type):
         """Get a construction object that will be assigned to a given type of aperture.
 
         Args:
             boundary_condition: Text string for the boundary condition
                 (eg. 'Outdoors', 'Surface')
-            aperture_type: Text string for the type of aperture
-                (eg. 'Window', 'OperableWindow', 'GlassDoor').
+            is_operable: Boolean to note whether the aperture is operable.
             parent_face_type: Text string for the type of face to which the aperture
                 is a child (eg. 'Wall', 'Floor', 'Roof').
         """
         if boundary_condition == 'Outdoors':
-            if aperture_type == 'Window':
+            if not is_operable:
                 if parent_face_type == 'Wall':
-                    return self.aperture_set.fixed_window_construction
+                    return self.aperture_set.window_construction
                 else:
                     return self.aperture_set.skylight_construction
-            if aperture_type == 'OperableWindow':
-                return self.aperture_set.operable_window_construction
-            elif aperture_type == 'GlassDoor':
-                return self.aperture_set.glass_door_construction
             else:
-                raise NotImplementedError('Aperture type {} is not recognized for '
-                                          'ConstructionSet'.format(aperture_type))
+                return self.aperture_set.operable_construction
         elif boundary_condition == 'Surface':
             return self.aperture_set.interior_construction
         else:
@@ -242,22 +232,29 @@ class ConstructionSet(object):
                 'Boundary condition {} is not recognized for apertures in '
                 'ConstructionSet'.format(boundary_condition))
 
-    def get_door_construction(self, boundary_condition, parent_face_type):
+    def get_door_construction(self, boundary_condition, is_glass, parent_face_type):
         """Get a construction object that will be assigned to a given type of door.
 
         Args:
             boundary_condition: Text string for the boundary condition
                 (eg. 'Outdoors', 'Surface')
+            is_glass: Boolean to note whether the door is glass (instead of opaque).
             parent_face_type: Text string for the type of face to which the door
                 is a child (eg. 'Wall', 'Floor', 'Roof').
         """
         if boundary_condition == 'Outdoors':
-            if parent_face_type == 'Wall':
-                return self.door_set.exterior_construction
+            if not is_glass:
+                if parent_face_type == 'Wall':
+                    return self.door_set.exterior_construction
+                else:
+                    return self.door_set.overhead_construction
             else:
-                return self.door_set.overhead_construction
+                return self.door_set.exterior_glass_construction
         elif boundary_condition == 'Surface':
-            return self.door_set.interior_construction
+            if not is_glass:
+                return self.door_set.interior_construction
+            else:
+                return self.door_set.interior_glass_construction
         else:
             raise NotImplementedError(
                 'Boundary condition {} is not recognized for doors in '
@@ -330,14 +327,15 @@ class ConstructionSet(object):
             constructions[data['roof_ceiling_set']['interior_construction']],
             constructions[data['roof_ceiling_set']['ground_construction']])
         aperture_set = ApertureSet(
-            constructions[data['aperture_set']['fixed_window_construction']],
+            constructions[data['aperture_set']['window_construction']],
             constructions[data['aperture_set']['interior_construction']],
             constructions[data['aperture_set']['skylight_construction']],
-            constructions[data['aperture_set']['operable_window_construction']],
-            constructions[data['aperture_set']['glass_door_construction']])
+            constructions[data['aperture_set']['operable_construction']])
         door_set = DoorSet(
             constructions[data['door_set']['exterior_construction']],
             constructions[data['door_set']['interior_construction']],
+            constructions[data['door_set']['exterior_glass_construction']],
+            constructions[data['door_set']['interior_glass_construction']],
             constructions[data['door_set']['overhead_construction']])
 
         return cls(data['name'], wall_set, floor_set, roof_ceiling_set,
@@ -585,7 +583,7 @@ class WallSet(_FaceSetBase):
     def exterior_construction(self):
         """Get or set the OpaqueConstruction for exterior walls."""
         if self._exterior_construction is None:
-            return generic_exterior_wall
+            return _lib.generic_exterior_wall
         return self._exterior_construction
 
     @exterior_construction.setter
@@ -598,7 +596,7 @@ class WallSet(_FaceSetBase):
     def interior_construction(self):
         """Get or set the OpaqueConstruction for interior walls."""
         if self._interior_construction is None:
-            return generic_interior_wall
+            return _lib.generic_interior_wall
         return self._interior_construction
 
     @interior_construction.setter
@@ -611,7 +609,7 @@ class WallSet(_FaceSetBase):
     def ground_construction(self):
         """Get or set the OpaqueConstruction for underground walls."""
         if self._ground_construction is None:
-            return generic_underground_wall
+            return _lib.generic_underground_wall
         return self._ground_construction
 
     @ground_construction.setter
@@ -645,7 +643,7 @@ class FloorSet(_FaceSetBase):
     def exterior_construction(self):
         """Get or set the OpaqueConstruction for exterior-exposed floors."""
         if self._exterior_construction is None:
-            return generic_exposed_floor
+            return _lib.generic_exposed_floor
         return self._exterior_construction
 
     @exterior_construction.setter
@@ -658,7 +656,7 @@ class FloorSet(_FaceSetBase):
     def interior_construction(self):
         """Get or set the OpaqueConstruction for interior floors."""
         if self._interior_construction is None:
-            return generic_interior_floor
+            return _lib.generic_interior_floor
         return self._interior_construction
 
     @interior_construction.setter
@@ -671,7 +669,7 @@ class FloorSet(_FaceSetBase):
     def ground_construction(self):
         """Get or set the OpaqueConstruction for ground-contact floor slabs."""
         if self._ground_construction is None:
-            return generic_ground_slab
+            return _lib.generic_ground_slab
         return self._ground_construction
 
     @ground_construction.setter
@@ -705,7 +703,7 @@ class RoofCeilingSet(_FaceSetBase):
     def exterior_construction(self):
         """Get or set the OpaqueConstruction for exterior roofs."""
         if self._exterior_construction is None:
-            return generic_roof
+            return _lib.generic_roof
         return self._exterior_construction
 
     @exterior_construction.setter
@@ -718,7 +716,7 @@ class RoofCeilingSet(_FaceSetBase):
     def interior_construction(self):
         """Get or set the OpaqueConstruction for interior ceilings."""
         if self._interior_construction is None:
-            return generic_interior_ceiling
+            return _lib.generic_interior_ceiling
         return self._interior_construction
 
     @interior_construction.setter
@@ -731,7 +729,7 @@ class RoofCeilingSet(_FaceSetBase):
     def ground_construction(self):
         """Get or set the OpaqueConstruction for underground roofs."""
         if self._ground_construction is None:
-            return generic_underground_roof
+            return _lib.generic_underground_roof
         return self._ground_construction
 
     @ground_construction.setter
@@ -752,63 +750,57 @@ class ApertureSet(object):
     """Set containing all energy constructions needed to for an energy model's Apertures.
 
     Properties:
-        fixed_window_construction
+        window_construction
         interior_construction
         skylight_construction
-        operable_window_construction
-        glass_door_construction
+        operable_construction
         constructions
         modified_constructions
         is_modified
     """
-    __slots__ = ('_fixed_window_construction', '_interior_construction',
-                 '_skylight_construction', '_operable_window_construction',
-                 '_glass_door_construction', '_locked')
+    __slots__ = ('_window_construction', '_interior_construction',
+                 '_skylight_construction', '_operable_construction', '_locked')
 
-    def __init__(self, fixed_window_construction=None, interior_construction=None,
-                 skylight_construction=None, operable_window_construction=None,
-                 glass_door_construction=None):
+    def __init__(self, window_construction=None, interior_construction=None,
+                 skylight_construction=None, operable_construction=None):
         """Initialize aperture set.
 
         Args:
-            fixed_window_construction: A WindowConstruction object for apertures
-                with an Outdoors boundary condition, Window aperture type, and Wall
-                face type for their parent face.
-            interior_construction: A WindowConstruction object for apertures
+            window_construction: A WindowConstruction object for apertures
+                with an Outdoors boundary condition, False is_operable property,
+                and a Wall face type for their parent face.
+            interior_construction: A WindowConstruction object for all apertures
                 with a Surface boundary condition.
             skylight_construction: : A WindowConstruction object for apertures with a
-                Outdoors boundary condition, Window aperture type, and RoofCeiling or
-                Floor face type for their parent face.
-            operable_window_construction: A WindowConstruction object for apertures
-                with an Outdoors boundary condition and OperableWindow aperture type.
-            glass_door_construction: A WindowConstruction object for apertures
-                with an Outdoors boundary condition and GlassDoor aperture type.
+                Outdoors boundary condition, False is_operable property, and a
+                RoofCeiling or Floor face type for their parent face.
+            operable_construction: A WindowConstruction object for all apertures
+                with an Outdoors boundary condition and True is_operable property.
         """
         self._locked = False  # unlocked by default
-        self.fixed_window_construction = fixed_window_construction
+        self.window_construction = window_construction
         self.interior_construction = interior_construction
         self.skylight_construction = skylight_construction
-        self.operable_window_construction = operable_window_construction
-        self.glass_door_construction = glass_door_construction
+        self.operable_construction = operable_construction
 
     @property
-    def fixed_window_construction(self):
+    def window_construction(self):
         """Get or set the WindowConstruction for exterior fixed windows in walls."""
-        if self._fixed_window_construction is None:
-            return generic_double_pane
-        return self._fixed_window_construction
+        if self._window_construction is None:
+            return _lib.generic_double_pane
+        return self._window_construction
 
-    @fixed_window_construction.setter
-    def fixed_window_construction(self, value):
+    @window_construction.setter
+    def window_construction(self, value):
         if value is not None:
             self._check_window_construction(value)
-        self._fixed_window_construction = value
+        self._window_construction = value
 
     @property
     def interior_construction(self):
         """Get or set the WindowConstruction for all interior apertures."""
         if self._interior_construction is None:
-            return generic_single_pane
+            return _lib.generic_single_pane
         return self._interior_construction
 
     @interior_construction.setter
@@ -821,7 +813,7 @@ class ApertureSet(object):
     def skylight_construction(self):
         """Get or set the WindowConstruction for exterior fixed windows in roofs."""
         if self._skylight_construction is None:
-            return generic_double_pane
+            return _lib.generic_double_pane
         return self._skylight_construction
 
     @skylight_construction.setter
@@ -831,64 +823,47 @@ class ApertureSet(object):
         self._skylight_construction = value
 
     @property
-    def operable_window_construction(self):
+    def operable_construction(self):
         """Get or set the WindowConstruction for all exterior operable windows."""
-        if self._operable_window_construction is None:
-            return generic_double_pane
-        return self._operable_window_construction
+        if self._operable_construction is None:
+            return _lib.generic_double_pane
+        return self._operable_construction
 
-    @operable_window_construction.setter
-    def operable_window_construction(self, value):
+    @operable_construction.setter
+    def operable_construction(self, value):
         if value is not None:
             self._check_window_construction(value)
-        self._operable_window_construction = value
-
-    @property
-    def glass_door_construction(self):
-        """Get or set the WindowConstruction for all exterior glass doors."""
-        if self._glass_door_construction is None:
-            return generic_double_pane
-        return self._glass_door_construction
-
-    @glass_door_construction.setter
-    def glass_door_construction(self, value):
-        if value is not None:
-            self._check_window_construction(value)
-        self._glass_door_construction = value
+        self._operable_construction = value
 
     @property
     def constructions(self):
         """List of all constructions contained within the set."""
-        return [self.fixed_window_construction,
+        return [self.window_construction,
                 self.interior_construction,
                 self.skylight_construction,
-                self.operable_window_construction,
-                self.glass_door_construction]
+                self.operable_construction]
 
     @property
     def modified_constructions(self):
         """List of all constructions that are not defaulted within the set."""
         constructions = []
-        if self._fixed_window_construction is not None:
-            constructions.append(self._fixed_window_construction)
+        if self._window_construction is not None:
+            constructions.append(self._window_construction)
         if self._interior_construction is not None:
             constructions.append(self._interior_construction)
         if self._skylight_construction is not None:
             constructions.append(self._skylight_construction)
-        if self._operable_window_construction is not None:
-            constructions.append(self._operable_window_construction)
-        if self._glass_door_construction is not None:
-            constructions.append(self._glass_door_construction)
+        if self._operable_construction is not None:
+            constructions.append(self._operable_construction)
         return constructions
 
     @property
     def is_modified(self):
         """Boolean noting whether any constructions are modified from the default."""
-        return self._fixed_window_construction is not None or \
+        return self._window_construction is not None or \
             self._interior_construction is not None or \
             self._skylight_construction is not None or \
-            self._operable_window_construction is not None or \
-            self._glass_door_construction is None
+            self._operable_construction is not None
 
     def _to_dict(self, none_for_defaults=True):
         """Get ApertureSetAbridged as a dictionary.
@@ -900,28 +875,237 @@ class ApertureSet(object):
         """
         base = {'type': 'ApertureSetAbridged'}
         if none_for_defaults:
-            base['fixed_window_construction'] = self._fixed_window_construction.name if \
-                self._fixed_window_construction is not None else None
+            base['window_construction'] = self._window_construction.name if \
+                self._window_construction is not None else None
             base['interior_construction'] = self._interior_construction.name if \
                 self._interior_construction is not None else None
             base['skylight_construction'] = self._skylight_construction.name if \
                 self._skylight_construction is not None else None
-            base['operable_window_construction'] = \
-                self._operable_window_construction.name if \
-                self._operable_window_construction is not None else None
-            base['glass_door_construction'] = self._glass_door_construction.name if \
-                self._glass_door_construction is not None else None
+            base['operable_construction'] = \
+                self._operable_construction.name if \
+                self._operable_construction is not None else None
         else:
-            base['fixed_window_construction'] = self.fixed_window_construction.name
+            base['window_construction'] = self.window_construction.name
             base['interior_construction'] = self.interior_construction.name
             base['skylight_construction'] = self.skylight_construction.name
-            base['operable_window_construction'] = self.operable_window_construction.name
-            base['glass_door_construction'] = self.glass_door_construction.name
+            base['operable_construction'] = \
+                self.operable_construction.name
         return base
 
     def duplicate(self):
         """Get a copy of this set."""
         return self.__copy__()
+
+    def _check_window_construction(self, value):
+        """Check that a construction is valid before assigning it."""
+        assert isinstance(value, WindowConstruction), \
+            'Expected WindowConstruction. Got {}'.format(type(value))
+        value.lock()   # lock editing in case construction has multiple references
+
+    def ToString(self):
+        """Overwrite .NET ToString."""
+        return self.__repr__()
+
+    def __len__(self):
+        return 4
+
+    def __iter__(self):
+        return iter(self.constructions)
+
+    def __copy__(self):
+        return self.__class__(
+            self._window_construction, self._interior_construction,
+            self._skylight_construction, self._operable_construction)
+
+    def __repr__(self):
+        return 'Aperture Construction Set:\n Window: {}\n Interior: {}' \
+            '\n Skylight: {}\n Operable: {}'.format(
+                self.window_construction.name, self.interior_construction.name,
+                self.skylight_construction.name, self.operable_construction.name)
+
+
+@lockable
+class DoorSet(object):
+    """Set containing all energy constructions needed to for an energy model's Roofs.
+
+    Properties:
+        exterior_construction
+        interior_construction
+        exterior_glass_construction
+        interior_glass_construction
+        overhead_construction
+        constructions
+        modified_constructions
+        is_modified
+    """
+    __slots__ = ('_exterior_construction', '_interior_construction',
+                 '_exterior_glass_construction', '_interior_glass_construction',
+                 '_overhead_construction', '_locked')
+
+    def __init__(self, exterior_construction=None, interior_construction=None,
+                 exterior_glass_construction=None, interior_glass_construction=None,
+                 overhead_construction=None):
+        """Initialize door set.
+
+        Args:
+            exterior_construction: An OpaqueConstruction object for opaque doors with an
+                Outdoors boundary condition and a Wall face type for their parent face.
+            interior_construction: An OpaqueConstruction object for all opaque doors
+                with a Surface boundary condition.
+            exterior_glass_construction: A WindowConstruction object for all glass
+                doors with an Outdoors boundary condition.
+            interior_glass_construction: A WindowConstruction object for all glass
+                doors with a Surface boundary condition.
+            overhead_construction: : An OpaqueConstruction object for opaque doors with
+                an Outdoors boundary condition and a RoofCeiling or Floor face type for
+                their parent face.
+        """
+        self._locked = False  # unlocked by default
+        self.exterior_construction = exterior_construction
+        self.interior_construction = interior_construction
+        self.exterior_glass_construction = exterior_glass_construction
+        self.interior_glass_construction = interior_glass_construction
+        self.overhead_construction = overhead_construction
+
+    @property
+    def exterior_construction(self):
+        """Get or set the OpaqueConstruction for exterior opaque doors in walls."""
+        if self._exterior_construction is None:
+            return _lib.generic_exterior_door
+        return self._exterior_construction
+
+    @exterior_construction.setter
+    def exterior_construction(self, value):
+        if value is not None:
+            self._check_construction(value)
+        self._exterior_construction = value
+
+    @property
+    def interior_construction(self):
+        """Get or set the OpaqueConstruction for all interior opaque doors."""
+        if self._interior_construction is None:
+            return _lib.generic_interior_door
+        return self._interior_construction
+
+    @interior_construction.setter
+    def interior_construction(self, value):
+        if value is not None:
+            self._check_construction(value)
+        self._interior_construction = value
+
+    @property
+    def exterior_glass_construction(self):
+        """Get or set the WindowConstruction for exterior glass doors."""
+        if self._exterior_glass_construction is None:
+            return _lib.generic_double_pane
+        return self._exterior_glass_construction
+
+    @exterior_glass_construction.setter
+    def exterior_glass_construction(self, value):
+        if value is not None:
+            self._check_window_construction(value)
+        self._exterior_glass_construction = value
+
+    @property
+    def interior_glass_construction(self):
+        """Get or set the WindowConstruction for all interior glass doors."""
+        if self._interior_glass_construction is None:
+            return _lib.generic_single_pane
+        return self._interior_glass_construction
+
+    @interior_glass_construction.setter
+    def interior_glass_construction(self, value):
+        if value is not None:
+            self._check_window_construction(value)
+        self._interior_glass_construction = value
+
+    @property
+    def overhead_construction(self):
+        """Get or set the OpaqueConstruction for exterior opaque doors in roofs/floors.
+        """
+        if self._overhead_construction is None:
+            return _lib.generic_exterior_door
+        return self._overhead_construction
+
+    @overhead_construction.setter
+    def overhead_construction(self, value):
+        if value is not None:
+            self._check_construction(value)
+        self._overhead_construction = value
+
+    @property
+    def constructions(self):
+        """List of all constructions contained within the set."""
+        return [self.exterior_construction,
+                self.interior_construction,
+                self.exterior_glass_construction,
+                self.interior_glass_construction,
+                self.overhead_construction]
+
+    @property
+    def modified_constructions(self):
+        """List of all constructions that are not defaulted within the set."""
+        constructions = []
+        if self._exterior_construction is not None:
+            constructions.append(self._exterior_construction)
+        if self._interior_construction is not None:
+            constructions.append(self._interior_construction)
+        if self._exterior_glass_construction is not None:
+            constructions.append(self._exterior_glass_construction)
+        if self._interior_glass_construction is not None:
+            constructions.append(self._interior_glass_construction)
+        if self._overhead_construction is not None:
+            constructions.append(self._overhead_construction)
+        return constructions
+
+    @property
+    def is_modified(self):
+        """Boolean noting whether any constructions are modified from the default."""
+        return self._exterior_construction is not None or \
+            self._interior_construction is not None or \
+            self._exterior_glass_construction is not None or \
+            self._interior_glass_construction is not None or \
+            self._overhead_construction is None
+
+    def _to_dict(self, none_for_defaults=True):
+        """Get the DoorSet as a dictionary.
+
+        Args:
+            none_for_defaults: Boolean to note whether default constructions in the
+                set should be included in detail (False) or should be None (True).
+                Default: True.
+        """
+        base = {'type': 'DoorSetAbridged'}
+        if none_for_defaults:
+            base['exterior_construction'] = self._exterior_construction.name if \
+                self._exterior_construction is not None else None
+            base['interior_construction'] = self._interior_construction.name if \
+                self._interior_construction is not None else None
+            base['exterior_glass_construction'] = \
+                self._exterior_glass_construction.name if \
+                self._exterior_glass_construction is not None else None
+            base['interior_glass_construction'] = \
+                self._interior_glass_construction.name if \
+                self._interior_glass_construction is not None else None
+            base['overhead_construction'] = self._overhead_construction.name if \
+                self._overhead_construction is not None else None
+        else:
+            base['exterior_construction'] = self.exterior_construction.name
+            base['interior_construction'] = self.interior_construction.name
+            base['exterior_glass_construction'] = self.exterior_glass_construction.name
+            base['interior_glass_construction'] = self.interior_glass_construction.name
+            base['overhead_construction'] = self.overhead_construction.name
+        return base
+
+    def duplicate(self):
+        """Get a copy of this set."""
+        return self.__copy__()
+
+    def _check_construction(self, value):
+        """Check an OpaqueConstruction before assigning it."""
+        assert isinstance(value, OpaqueConstruction), \
+            'Expected OpaqueConstruction. Got {}'.format(type(value))
+        value.lock()   # lock editing in case construction has multiple references
 
     def _check_window_construction(self, value):
         """Check that a construction is valid before assigning it."""
@@ -941,164 +1125,13 @@ class ApertureSet(object):
 
     def __copy__(self):
         return self.__class__(
-            self._fixed_window_construction, self._interior_construction,
-            self._skylight_construction, self._operable_window_construction,
-            self._glass_door_construction)
-
-    def __repr__(self):
-        return 'Aperture Construction Set:\n Fixed Window: {}\n Interior: {}' \
-            '\n Skylight: {}\n Operable Window: {}\n Glass Door: {}'.format(
-                self.fixed_window_construction.name, self.interior_construction.name,
-                self.skylight_construction.name, self.operable_window_construction.name,
-                self.glass_door_construction.name)
-
-
-@lockable
-class DoorSet(object):
-    """Set containing all energy constructions needed to for an energy model's Roofs.
-
-    Properties:
-        exterior_construction
-        interior_construction
-        overhead_construction
-        constructions
-        modified_constructions
-        is_modified
-    """
-    __slots__ = ('_exterior_construction', '_interior_construction',
-                 '_overhead_construction', '_locked')
-
-    def __init__(self, exterior_construction=None, interior_construction=None,
-                 overhead_construction=None):
-        """Initialize door set.
-
-        Args:
-            exterior_construction: An OpaqueConstruction object for doors with an
-                Outdoors boundary condition and a Wall face type for their parent face.
-            interior_construction: An OpaqueConstruction object for doors with a
-                Surface boundary condition.
-            overhead_construction: : An OpaqueConstruction object for doors with an
-                Outdoors boundary condition and a RoofCeiling or Floor face type for
-                their parent face.
-        """
-        self._locked = False  # unlocked by default
-        self.exterior_construction = exterior_construction
-        self.interior_construction = interior_construction
-        self.overhead_construction = overhead_construction
-
-    @property
-    def exterior_construction(self):
-        """Get or set the OpaqueConstruction for exterior doors in walls."""
-        if self._exterior_construction is None:
-            return generic_exterior_door
-        return self._exterior_construction
-
-    @exterior_construction.setter
-    def exterior_construction(self, value):
-        if value is not None:
-            self._check_construction(value)
-        self._exterior_construction = value
-
-    @property
-    def interior_construction(self):
-        """Get or set the OpaqueConstruction for all interior doors."""
-        if self._interior_construction is None:
-            return generic_interior_door
-        return self._interior_construction
-
-    @interior_construction.setter
-    def interior_construction(self, value):
-        if value is not None:
-            self._check_construction(value)
-        self._interior_construction = value
-
-    @property
-    def overhead_construction(self):
-        """Get or set the OpaqueConstruction for exterior doors in roofs or floors."""
-        if self._overhead_construction is None:
-            return generic_exterior_door
-        return self._overhead_construction
-
-    @overhead_construction.setter
-    def overhead_construction(self, value):
-        if value is not None:
-            self._check_construction(value)
-        self._overhead_construction = value
-
-    @property
-    def constructions(self):
-        """List of all constructions contained within the set."""
-        return [self.exterior_construction,
-                self.interior_construction,
-                self.overhead_construction]
-
-    @property
-    def modified_constructions(self):
-        """List of all constructions that are not defaulted within the set."""
-        constructions = []
-        if self._exterior_construction is not None:
-            constructions.append(self._exterior_construction)
-        if self._interior_construction is not None:
-            constructions.append(self._interior_construction)
-        if self._overhead_construction is not None:
-            constructions.append(self._overhead_construction)
-        return constructions
-
-    @property
-    def is_modified(self):
-        """Boolean noting whether any constructions are modified from the default."""
-        return self._exterior_construction is not None or \
-            self._interior_construction is not None or \
-            self._overhead_construction is None
-
-    def _to_dict(self, none_for_defaults=True):
-        """Get the DoorSet as a dictionary.
-
-        Args:
-            none_for_defaults: Boolean to note whether default constructions in the
-                set should be included in detail (False) or should be None (True).
-                Default: True.
-        """
-        base = {'type': 'DoorSetAbridged'}
-        if none_for_defaults:
-            base['exterior_construction'] = self._exterior_construction.name if \
-                self._exterior_construction is not None else None
-            base['interior_construction'] = self._interior_construction.name if \
-                self._interior_construction is not None else None
-            base['overhead_construction'] = self._overhead_construction.name if \
-                self._overhead_construction is not None else None
-        else:
-            base['exterior_construction'] = self.exterior_construction.name
-            base['interior_construction'] = self.interior_construction.name
-            base['overhead_construction'] = self.overhead_construction.name
-        return base
-
-    def duplicate(self):
-        """Get a copy of this set."""
-        return self.__copy__()
-
-    def _check_construction(self, value):
-        """Check an OpaqueConstruction before assigning it."""
-        assert isinstance(value, OpaqueConstruction), \
-            'Expected OpaqueConstruction. Got {}'.format(type(value))
-        value.lock()   # lock editing in case construction has multiple references
-
-    def ToString(self):
-        """Overwrite .NET ToString."""
-        return self.__repr__()
-
-    def __len__(self):
-        return 3
-
-    def __iter__(self):
-        return iter(self.constructions)
-
-    def __copy__(self):
-        return self.__class__(self._exterior_construction, self._interior_construction,
-                              self._overhead_construction)
+            self._exterior_construction, self._interior_construction,
+            self._exterior_glass_construction, self._interior_glass_construction,
+            self._overhead_construction)
 
     def __repr__(self):
         return 'Door Construction Set:\n Exterior: {}\n Interior: {}' \
-            '\n Overhead: {}'.format(self.exterior_construction.name,
-                                     self.interior_construction.name,
-                                     self.overhead_construction.name)
+            '\n Exterior Glass: {}\n Interior Glass: {}\n Overhead: {}'.format(
+                self.exterior_construction.name, self.interior_construction.name,
+                self.exterior_glass_construction.name,
+                self.interior_glass_construction.name, self.overhead_construction.name)

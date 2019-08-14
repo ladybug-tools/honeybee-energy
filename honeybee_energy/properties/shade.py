@@ -103,6 +103,34 @@ class ShadeEnergyProperties(object):
             self._transmittance = 'Set by Schedule'
         self._transmittance_schedule = value
 
+    @classmethod
+    def from_dict(cls, data, host):
+        """Create ShadeEnergyProperties from a dictionary.
+
+        Note that the dictionary must be a non-abridged version for this
+        classmethod to work.
+
+        Args:
+            data: A dictionary representation of ShadeEnergyProperties.
+            host: A Shade object that hosts these properties.
+        """
+        assert data['type'] == 'ShadeEnergyProperties', \
+            'Expected ShadeEnergyProperties. Got {}.'.format(data['type'])
+
+        new_prop = cls(host)
+        if 'diffuse_reflectance' in data and data['diffuse_reflectance'] is not None:
+            new_prop.diffuse_reflectance = data['diffuse_reflectance']
+        if 'specular_reflectance' in data and data['specular_reflectance'] is not None:
+            new_prop.specular_reflectance = data['specular_reflectance']
+        if 'transmittance' in data and data['transmittance'] is not None:
+            new_prop.transmittance = data['transmittance']
+        # TODO: Un-comment this check once schedules are implemented
+        #if 'transmittance_schedule' in data and \
+        #        data['transmittance_schedule'] is not None:
+        #    new_prop.transmittance_schedule = \
+        #        Schedule.from_dict(data['transmittance_schedule'])
+        return new_prop
+
     def apply_properties_from_dict(self, abridged_data):
         """Apply properties from a ShadeEnergyPropertiesAbridged dictionary.
 
@@ -113,15 +141,12 @@ class ShadeEnergyProperties(object):
         if 'diffuse_reflectance' in abridged_data and \
                 abridged_data['diffuse_reflectance'] is not None:
             self.diffuse_reflectance = abridged_data['diffuse_reflectance']
-
         if 'specular_reflectance' in abridged_data and \
                 abridged_data['specular_reflectance'] is not None:
             self.specular_reflectance = abridged_data['specular_reflectance']
-
         if 'transmittance' in abridged_data and \
                 abridged_data['transmittance'] is not None:
             self.transmittance = abridged_data['transmittance']
-
         # TODO: Un-comment this check once schedules are implemented
         #if 'transmittance_schedule' in abridged_data and \
         #        abridged_data['transmittance_schedule'] is not None:

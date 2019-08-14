@@ -46,15 +46,15 @@ class ApertureEnergyProperties(object):
         elif self._host.has_parent and self._host.parent.has_parent:  # set by zone
             constr_set = self._host.parent.parent.properties.energy.construction_set
             return constr_set.get_aperture_construction(
-                self._host.boundary_condition.name, self._host.type.name,
+                self._host.boundary_condition.name, self._host.is_operable,
                 self._host.parent.type.name)
         elif self._host.has_parent:  # generic but influenced by parent face
             return generic_costruction_set.get_aperture_construction(
-                self._host.boundary_condition.name, self._host.type.name,
+                self._host.boundary_condition.name, self._host.is_operable,
                 self._host.parent.type.name)
         else:
             return generic_costruction_set.get_aperture_construction(
-                self._host.boundary_condition.name, self._host.type.name, 'Wall')
+                self._host.boundary_condition.name, self._host.is_operable, 'Wall')
 
     @construction.setter
     def construction(self, value):
@@ -68,6 +68,25 @@ class ApertureEnergyProperties(object):
     def is_construction_set_by_user(self):
         """Check if construction is set by user."""
         return self._construction is not None
+
+    @classmethod
+    def from_dict(cls, data, host):
+        """Create ApertureEnergyProperties from a dictionary.
+
+        Note that the dictionary must be a non-abridged version for this
+        classmethod to work.
+
+        Args:
+            data: A dictionary representation of ApertureEnergyProperties.
+            host: A Aperture object that hosts these properties.
+        """
+        assert data['type'] == 'ApertureEnergyProperties', \
+            'Expected ApertureEnergyProperties. Got {}.'.format(data['type'])
+
+        new_prop = cls(host)
+        if 'construction' in data and data['construction'] is not None:
+            new_prop.construction = WindowConstruction.from_dict(data['construction'])
+        return new_prop
 
     def apply_properties_from_dict(self, abridged_data, constructions):
         """Apply properties from a ApertureEnergyPropertiesAbridged dictionary.

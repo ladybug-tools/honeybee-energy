@@ -116,3 +116,18 @@ def test_to_dict():
     drd = door.to_dict()
     assert 'construction' in drd['properties']['energy']
     assert drd['properties']['energy']['construction'] is not None
+
+
+def test_from_dict():
+    """Test the Door from_dict method with energy properties."""
+    door = Door.from_vertices(
+        'front door', [[0, 0, 0], [10, 0, 0], [10, 0, 10], [0, 0, 10]])
+    concrete5 = EnergyMaterial('5cm Concrete', 0.05, 2.31, 2322, 832,
+                               'MediumRough', 0.95, 0.75, 0.8)
+    mass_constr = OpaqueConstruction('Concrete Door', [concrete5])
+    door.properties.energy.construction = mass_constr
+
+    drd = door.to_dict()
+    new_door = Door.from_dict(drd)
+    assert new_door.properties.energy.construction == mass_constr
+    assert new_door.to_dict() == drd
