@@ -5,10 +5,10 @@ from honeybee.door import Door
 from honeybee_energy.properties.room import RoomEnergyProperties
 from honeybee_energy.constructionset import ConstructionSet
 from honeybee_energy.programtype import ProgramType
-from honeybee_energy.construction import OpaqueConstruction
+from honeybee_energy.construction import OpaqueConstruction, ShadeConstruction
 from honeybee_energy.material.opaque import EnergyMaterial
 
-from ladybug_geometry.geometry3d.pointvector import Point3D
+from ladybug_geometry.geometry3d.pointvector import Point3D, Vector3D
 
 import pytest
 
@@ -37,6 +37,10 @@ def test_set_construction_set():
     room = Room.from_box('Shoe Box', 5, 10, 3)
     door_verts = [[1, 0, 0.1], [2, 0, 0.1], [2, 0, 3], [1, 0, 3]]
     room[3].add_door(Door.from_vertices('test_door', door_verts))
+    room[1].apertures_by_ratio(0.4, 0.01)
+    room[1].apertures[0].overhang(0.5, indoor=False)
+    room[1].apertures[0].overhang(0.5, indoor=True)
+    room[1].apertures[0].move_shades(Vector3D(0, 0, -0.5))
 
     mass_set = ConstructionSet('Thermal Mass Construction Set')
     concrete20 = EnergyMaterial('20cm Concrete', 0.2, 2.31, 2322, 832,
@@ -48,15 +52,18 @@ def test_set_construction_set():
     thick_constr = OpaqueConstruction('Thick Concrete Construction', [concrete20])
     thin_constr = OpaqueConstruction('Thin Concrete Construction', [concrete10])
     door_constr = OpaqueConstruction('Stone Door', [stone_door])
+    shade_constr = ShadeConstruction('Light Shelf', 0.5, 0.5)
     mass_set.wall_set.exterior_construction = thick_constr
     mass_set.roof_ceiling_set.exterior_construction = thin_constr
     mass_set.door_set.exterior_construction = door_constr
+    mass_set.shade_construction = shade_constr
 
     room.properties.energy.construction_set = mass_set
     assert room.properties.energy.construction_set == mass_set
     assert room[1].properties.energy.construction == thick_constr
     assert room[5].properties.energy.construction == thin_constr
     assert room[3].doors[0].properties.energy.construction == door_constr
+    assert room[1].apertures[0].shades[0].properties.energy.construction == shade_constr
 
     with pytest.raises(AttributeError):
         room[1].properties.energy.construction.thickness = 0.3

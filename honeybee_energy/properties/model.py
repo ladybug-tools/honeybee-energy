@@ -10,7 +10,7 @@ from ..material.glazing import EnergyWindowMaterialGlazing, \
 from ..material.gas import EnergyWindowMaterialGas, \
     EnergyWindowMaterialGasMixture, EnergyWindowMaterialGasCustom
 from ..material.shade import EnergyWindowMaterialShade, EnergyWindowMaterialBlind
-from ..construction import OpaqueConstruction, WindowConstruction
+from ..construction import OpaqueConstruction, WindowConstruction, ShadeConstruction
 from ..constructionset import ConstructionSet, WallSet, FloorSet, RoofCeilingSet, \
     ApertureSet, DoorSet
 
@@ -27,6 +27,7 @@ class ModelEnergyProperties(object):
         unique_materials
         unique_constructions
         unique_face_constructions
+        unique_shade_constructions
         unique_construction_sets
         global_construction_set
     """
@@ -53,21 +54,25 @@ class ModelEnergyProperties(object):
         """
         materials = []
         for constr in self.unique_constructions:
-            materials.extend(constr.materials)
+            try:
+                materials.extend(constr.materials)
+            except AttributeError:
+                pass  # ShadeConstruction
         return list(set(materials))
 
     @property
     def unique_constructions(self):
         """A list of all unique constructions in the model.
 
-        This includes constructions across all Faces, Apertures, Doors, Room
-        ConstructionSets, and the global_construction_set.
+        This includes constructions across all Faces, Apertures, Doors, Shades,
+        Room ConstructionSets, and the global_construction_set.
         """
         room_constrs = []
         for cnstr_set in self.unique_construction_sets:
             room_constrs.extend(cnstr_set.unique_modified_constructions)
         all_constrs = self.global_construction_set.unique_constructions + \
-            room_constrs + self.unique_face_constructions
+            room_constrs + self.unique_face_constructions + \
+            self.unique_shade_constructions
         return list(set(all_constrs))
 
     @property
@@ -76,20 +81,28 @@ class ModelEnergyProperties(object):
         constructions = []
         for room in self.host.rooms:
             for face in room.faces:  # check all Face constructions
-                if face.properties.energy._construction is not None:
-                    if not self._instance_in_array(
-                            face.properties.energy._construction, constructions):
-                        constructions.append(face.properties.energy._construction)
+                self._check_and_add_obj_construction(face, constructions)
                 for ap in face.apertures:  # check all Aperture constructions
-                    if ap.properties.energy._construction is not None:
-                        if not self._instance_in_array(
-                                ap.properties.energy._construction, constructions):
-                            constructions.append(ap.properties.energy._construction)
+                    self._check_and_add_obj_construction(ap, constructions)
                 for dr in face.doors:  # check all Door constructions
-                    if dr.properties.energy._construction is not None:
-                        if not self._instance_in_array(
-                                dr.properties.energy._construction, constructions):
-                            constructions.append(dr.properties.energy._construction)
+                    self._check_and_add_obj_construction(dr, constructions)
+        return list(set(constructions))
+
+    @property
+    def unique_shade_constructions(self):
+        """A list of all unique constructions assigned to Shades in the model."""
+        constructions = []
+        for shade in self.host.orphaned_shades:
+            self._check_and_add_obj_construction(shade, constructions)
+        for room in self.host.rooms:
+            for shade in room.shades:
+                self._check_and_add_obj_construction(shade, constructions)
+            for face in room.faces:  # check all Face constructions
+                for shade in face.shades:
+                    self._check_and_add_obj_construction(shade, constructions)
+                for ap in face.apertures:  # check all Aperture constructions
+                    for shade in ap.shades:
+                        self._check_and_add_obj_construction(shade, constructions)
         return list(set(constructions))
 
     @property
@@ -204,13 +217,16 @@ class ModelEnergyProperties(object):
         # process all constructions in the ModelEnergyProperties dictionary
         constructions = {}
         for cnstr in data['properties']['energy']['constructions']:
-            mat_layers = [materials[mat_name] for mat_name in cnstr['layers']]
             if cnstr['type'] == 'OpaqueConstructionAbridged':
+                mat_layers = [materials[mat_name] for mat_name in cnstr['layers']]
                 constructions[cnstr['name']] = \
                     OpaqueConstruction(cnstr['name'], mat_layers)
             elif cnstr['type'] == 'WindowConstructionAbridged':
+                mat_layers = [materials[mat_name] for mat_name in cnstr['layers']]
                 constructions[cnstr['name']] = \
                     WindowConstruction(cnstr['name'], mat_layers)
+            elif cnstr['type'] == 'ShadeConstruction':
+                constructions[cnstr['name']] = ShadeConstruction.from_dict(cnstr)
             else:
                 raise NotImplementedError(
                     'Construction {} is not supported.'.format(cnstr['type']))
@@ -227,9 +243,13 @@ class ModelEnergyProperties(object):
             aperture_set = self._make_aperture_subset(
                 c_set, ApertureSet(), constructions)
             door_set = self._make_door_subset(c_set, DoorSet(), constructions)
+            if 'shade_construction' in c_set and c_set['shade_construction'] is not None:
+                shade_construction = constructions[c_set['shade_construction']]
+            else:
+                shade_construction = None
             construction_sets[c_set['name']] = ConstructionSet(
                 c_set['name'], wall_set, floor_set, roof_ceiling_set,
-                aperture_set, door_set)
+                aperture_set, door_set, shade_construction)
 
         # collect lists of energy property dictionaries
         room_e_dicts, face_e_dicts, shd_e_dicts, ap_e_dicts, dr_e_dicts = \
@@ -241,7 +261,7 @@ class ModelEnergyProperties(object):
         for face, f_dict in zip(self.host.faces, face_e_dicts):
             face.properties.energy.apply_properties_from_dict(f_dict, constructions)
         for shade, s_dict in zip(self.host.shades, shd_e_dicts):
-            shade.properties.energy.apply_properties_from_dict(s_dict)
+            shade.properties.energy.apply_properties_from_dict(s_dict, constructions)
         for aperture, a_dict in zip(self.host.apertures, ap_e_dicts):
             aperture.properties.energy.apply_properties_from_dict(a_dict, constructions)
         for aperture, a_dict in zip(self.host.apertures, ap_e_dicts):
@@ -272,17 +292,25 @@ class ModelEnergyProperties(object):
         room_constrs = []
         for cnstr_set in construction_sets:
             room_constrs.extend(cnstr_set.unique_modified_constructions)
-        all_constrs = room_constrs + self.unique_face_constructions
+        all_constrs = room_constrs + self.unique_face_constructions + \
+            self.unique_shade_constructions
         if include_global_construction_set:
             all_constrs.extend(self.global_construction_set.unique_constructions)
         constructions = list(set(all_constrs))
-        base['energy']['constructions'] = [cnstr.to_dict(abridged=True)
-                                           for cnstr in constructions]
+        base['energy']['constructions'] = []
+        for cnst in constructions:
+            try:
+                base['energy']['constructions'].append(cnst.to_dict(abridged=True))
+            except TypeError:  # ShadeConstruction
+                base['energy']['constructions'].append(cnst.to_dict())
 
         # add all unique Materials to the dictionary
         materials = []
         for cnstr in constructions:
-            materials.extend(cnstr.materials)
+            try:
+                materials.extend(cnstr.materials)
+            except AttributeError:
+                pass  # ShadeConstruction
         base['energy']['materials'] = [mat.to_dict() for mat in set(materials)]
         return base
 
@@ -294,6 +322,13 @@ class ModelEnergyProperties(object):
         """
         _host = new_host or self._host
         return ModelEnergyProperties(_host)
+
+    def _check_and_add_obj_construction(self, obj, constructions):
+        """Check if a construction is assigned to an object and add it to a list."""
+        constr = obj.properties.energy._construction
+        if constr is not None:
+            if not self._instance_in_array(constr, constructions):
+                constructions.append(constr)
 
     @staticmethod
     def _instance_in_array(object_instance, object_array):
@@ -311,7 +346,7 @@ class ModelEnergyProperties(object):
 
     @staticmethod
     def _make_construction_subset(c_set, sub_set, sub_set_name, constructions):
-        """Make a WallSet, FloorSet, or RoofCeilingSet from dictaionary."""
+        """Make a WallSet, FloorSet, or RoofCeilingSet from dictionary."""
         if sub_set_name in c_set:
             if 'exterior_construction' in c_set[sub_set_name] and \
                     c_set[sub_set_name]['exterior_construction'] is not None:
@@ -331,10 +366,10 @@ class ModelEnergyProperties(object):
     def _make_aperture_subset(c_set, sub_set, constructions):
         """Make an ApertureSet from a dictionary."""
         if 'aperture_set' in c_set:
-            if 'fixed_window_construction' in c_set['aperture_set'] and \
-                    c_set['aperture_set']['fixed_window_construction'] is not None:
-                sub_set.fixed_window_construction = \
-                    constructions[c_set['aperture_set']['fixed_window_construction']]
+            if 'window_construction' in c_set['aperture_set'] and \
+                    c_set['aperture_set']['window_construction'] is not None:
+                sub_set.window_construction = \
+                    constructions[c_set['aperture_set']['window_construction']]
             if 'interior_construction' in c_set['aperture_set'] and \
                     c_set['aperture_set']['interior_construction'] is not None:
                 sub_set.interior_construction = \
@@ -343,19 +378,15 @@ class ModelEnergyProperties(object):
                     c_set['aperture_set']['skylight_construction'] is not None:
                 sub_set.skylight_construction = \
                     constructions[c_set['aperture_set']['skylight_construction']]
-            if 'operable_window_construction' in c_set['aperture_set'] and \
-                    c_set['aperture_set']['operable_window_construction'] is not None:
-                sub_set.operable_window_construction = \
-                    constructions[c_set['aperture_set']['operable_window_construction']]
-            if 'glass_door_construction' in c_set['aperture_set'] and \
-                    c_set['aperture_set']['glass_door_construction'] is not None:
-                sub_set.glass_door_construction = \
-                    constructions[c_set['aperture_set']['glass_door_construction']]
+            if 'operable_construction' in c_set['aperture_set'] and \
+                    c_set['aperture_set']['operable_construction'] is not None:
+                sub_set.operable_construction = \
+                    constructions[c_set['aperture_set']['operable_construction']]
         return sub_set
 
     @staticmethod
     def _make_door_subset(c_set, sub_set, constructions):
-        """Make a WallSet, FloorSet, or RoofCeilingSet from dictaionary."""
+        """Make a DoorSet from dictionary."""
         if 'door_set' in c_set:
             if 'exterior_construction' in c_set['door_set'] and \
                     c_set['door_set']['exterior_construction'] is not None:
@@ -365,6 +396,14 @@ class ModelEnergyProperties(object):
                     c_set['door_set']['interior_construction'] is not None:
                 sub_set.interior_construction = \
                     constructions[c_set['door_set']['interior_construction']]
+            if 'exterior_glass_construction' in c_set['door_set'] and \
+                    c_set['door_set']['exterior_glass_construction'] is not None:
+                sub_set.exterior_glass_construction = \
+                    constructions[c_set['door_set']['exterior_glass_construction']]
+            if 'interior_glass_construction' in c_set['door_set'] and \
+                    c_set['door_set']['interior_glass_construction'] is not None:
+                sub_set.interior_glass_construction = \
+                    constructions[c_set['door_set']['interior_glass_construction']]
             if 'overhead_construction' in c_set['door_set'] and \
                     c_set['door_set']['overhead_construction'] is not None:
                 sub_set.overhead_construction = \
@@ -375,4 +414,4 @@ class ModelEnergyProperties(object):
         return self.__repr__()
 
     def __repr__(self):
-        return 'Model Energy Properties'
+        return 'Model Energy Properties:\n host: {}'.format(self.host.name)

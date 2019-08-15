@@ -14,6 +14,7 @@ from __future__ import division
 
 from ._base import _EnergyMaterialWindowBase
 from .gas import EnergyWindowMaterialGas
+from ..writer import generate_idf_string, parse_idf_string
 
 from honeybee._lockable import lockable
 from honeybee.typing import float_in_range, float_positive
@@ -423,15 +424,15 @@ class EnergyWindowMaterialShade(_EnergyWindowMaterialShadeBase):
             float_positive(r_val, 'shade material r-value')
 
     @classmethod
-    def from_idf(cls, ep_string):
+    def from_idf(cls, idf_string):
         """Create EnergyWindowMaterialShade from an EnergyPlus text string.
 
         Args:
-            ep_string: A text string fully describing an EnergyPlus material.
+            idf_string: A text string fully describing an EnergyPlus material.
         """
         prop_types = (str, float, float, float, float, float, float, float, float,
                       float, float, float, float, float, float)
-        ep_strs = cls._parse_ep_string(ep_string, 'WindowMaterial:Shade,')
+        ep_strs = parse_idf_string(idf_string, 'WindowMaterial:Shade,')
         ep_s = [typ(prop) for typ, prop in zip(prop_types, ep_strs)]
         new_mat = cls(ep_s[0], ep_s[7], ep_s[1], ep_s[2], ep_s[3], ep_s[4],
                       ep_s[6], ep_s[5], ep_s[8], ep_s[9], ep_s[10], ep_s[14])
@@ -498,7 +499,7 @@ class EnergyWindowMaterialShade(_EnergyWindowMaterialShadeBase):
                     'distance to glass {m}', 'top opening multiplier',
                     'bottom opening multiplier', 'left opening multiplier',
                     'right opening multiplier', 'airflow permeability')
-        return self._generate_ep_string('WindowMaterial:Shade', values, comments)
+        return generate_idf_string('WindowMaterial:Shade', values, comments)
 
     def to_dict(self):
         """Energy Window Material Shade dictionary representation."""
@@ -1024,17 +1025,17 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
         self.diffuse_visible_reflectance_back = None
 
     @classmethod
-    def from_idf(cls, ep_string):
+    def from_idf(cls, idf_string):
         """Create EnergyWindowMaterialBlind from an EnergyPlus text string.
 
         Args:
-            ep_string: A text string fully describing an EnergyPlus material.
+            idf_string: A text string fully describing an EnergyPlus material.
         """
         prop_types = (str, str, float, float, float, float, float, float, float, float,
                       float, float, float, float, float, float, float, float, float,
                       float, float, float, float, float, float, float, float, float,
                       float, float)
-        ep_strs = cls._parse_ep_string(ep_string, 'WindowMaterial:Blind,')
+        ep_strs = parse_idf_string(idf_string, 'WindowMaterial:Blind,')
         ep_s = [typ(prop) for typ, prop in zip(prop_types, ep_strs)]
         new_mat = cls(ep_s[0], ep_s[1], ep_s[2], ep_s[3], ep_s[4], ep_s[5],
                       ep_s[6], ep_s[7], ep_s[8], ep_s[13], ep_s[14], ep_s[19],
@@ -1147,7 +1148,7 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
             'top opening multiplier', 'bottom opening multiplier',
             'left opening multiplier', 'right opening multiplier',
             'minimum slat angle {deg}', 'maximum slat angle {deg}')
-        return self._generate_ep_string('WindowMaterial:Blind', values, comments)
+        return generate_idf_string('WindowMaterial:Blind', values, comments)
 
     def to_dict(self):
         """Energy Window Material Blind dictionary representation."""

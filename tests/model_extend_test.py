@@ -11,7 +11,7 @@ from honeybee.facetype import face_types
 from honeybee_energy.properties.model import ModelEnergyProperties
 from honeybee_energy.constructionset import ConstructionSet
 from honeybee_energy.construction import WindowConstruction, OpaqueConstruction, \
-    _ConstructionBase
+    ShadeConstruction
 from honeybee_energy.material._base import _EnergyMaterialBase
 from honeybee_energy.material.opaque import EnergyMaterial
 from honeybee_energy.lib.materials import clear_glass, air_gap, roof_membrane, \
@@ -44,9 +44,10 @@ def test_energy_properties():
     assert len(model.properties.energy.unique_materials) == 15
     for mat in model.properties.energy.unique_materials:
         assert isinstance(mat, _EnergyMaterialBase)
-    assert len(model.properties.energy.unique_constructions) == 13
-    for mat in model.properties.energy.unique_constructions:
-        assert isinstance(mat, _ConstructionBase)
+    assert len(model.properties.energy.unique_constructions) == 14
+    for cnst in model.properties.energy.unique_constructions:
+        assert isinstance(
+            cnst, (WindowConstruction, OpaqueConstruction, ShadeConstruction))
     assert len(model.properties.energy.unique_face_constructions) == 0
     assert len(model.properties.energy.unique_construction_sets) == 0
     assert isinstance(model.properties.energy.global_construction_set, ConstructionSet)
@@ -170,8 +171,10 @@ def test_to_from_dict():
     south_face.apertures[0].overhang(0.5, indoor=False)
     south_face.apertures[0].overhang(0.5, indoor=True)
     south_face.apertures[0].move_shades(Vector3D(0, 0, -0.5))
-    south_face.apertures[0].shades[0].properties.energy.diffuse_reflectance = 0.5
-    south_face.apertures[0].shades[1].properties.energy.diffuse_reflectance = 0.7
+    light_shelf_out = ShadeConstruction('Outdoor Light Shelf', 0.5, 0.5)
+    light_shelf_in = ShadeConstruction('Indoor Light Shelf', 0.7, 0.7)
+    south_face.apertures[0].shades[0].properties.energy.construction = light_shelf_out
+    south_face.apertures[0].shades[1].properties.energy.construction = light_shelf_in
 
     north_face = room[1]
     door_verts = [Point3D(2, 10, 0.1), Point3D(1, 10, 0.1),
@@ -191,7 +194,6 @@ def test_to_from_dict():
     tree_canopy_geo = Face3D.from_regular_polygon(
         6, 2, Plane(Vector3D(0, 0, 1), Point3D(5, -3, 4)))
     tree_canopy = Shade('Tree Canopy', tree_canopy_geo)
-    tree_canopy.properties.energy.transmittance = 0.75
 
     model = Model('Tiny House', [room], orphaned_shades=[tree_canopy])
     model.north_angle = 15
@@ -202,13 +204,12 @@ def test_to_from_dict():
     assert stone in new_model.properties.energy.unique_materials
     assert thermal_mass_constr in new_model.properties.energy.unique_constructions
     assert new_model.rooms[0][0].properties.energy.construction == thermal_mass_constr
-    assert new_model.rooms[0][3].apertures[0].indoor_shades[0].properties.energy.diffuse_reflectance == 0.7
-    assert new_model.rooms[0][3].apertures[0].outdoor_shades[0].properties.energy.diffuse_reflectance == 0.5
+    assert new_model.rooms[0][3].apertures[0].indoor_shades[0].properties.energy.construction == light_shelf_in
+    assert new_model.rooms[0][3].apertures[0].outdoor_shades[0].properties.energy.construction == light_shelf_out
     assert triple_pane in new_model.properties.energy.unique_constructions
     assert new_model.rooms[0][1].apertures[0].properties.energy.construction == triple_pane
     assert new_model.rooms[0][1].apertures[0].is_operable
     assert len(new_model.orphaned_shades) == 1
-    assert new_model.orphaned_shades[0].properties.energy.transmittance == 0.75
     assert new_model.north_angle == 15
 
     assert new_model.rooms[0][0].type == face_types.floor
@@ -231,8 +232,10 @@ def test_to_dict_single_zone():
     south_face.apertures[0].overhang(0.5, indoor=False)
     south_face.apertures[0].overhang(0.5, indoor=True)
     south_face.move_shades(Vector3D(0, 0, -0.5))
-    south_face.apertures[0].outdoor_shades[0].properties.energy.diffuse_reflectance = 0.5
-    south_face.apertures[0].indoor_shades[0].properties.energy.diffuse_reflectance = 0.7
+    light_shelf_out = ShadeConstruction('Outdoor Light Shelf', 0.5, 0.5)
+    light_shelf_in = ShadeConstruction('Indoor Light Shelf', 0.7, 0.7)
+    south_face.apertures[0].outdoor_shades[0].properties.energy.construction = light_shelf_out
+    south_face.apertures[0].indoor_shades[0].properties.energy.construction = light_shelf_in
 
     north_face = room[1]
     north_face.overhang(0.25, indoor=False)
@@ -252,7 +255,6 @@ def test_to_dict_single_zone():
     tree_canopy_geo = Face3D.from_regular_polygon(
         6, 2, Plane(Vector3D(0, 0, 1), Point3D(5, -3, 4)))
     tree_canopy = Shade('Tree Canopy', tree_canopy_geo)
-    tree_canopy.properties.energy.transmittance = 0.75
 
     table_geo = Face3D.from_rectangle(2, 2, Plane(o=Point3D(1.5, 4, 1)))
     table = Shade('Table', table_geo)
@@ -270,14 +272,16 @@ def test_to_dict_single_zone():
     assert 'global_construction_set' in model_dict['properties']['energy']
 
     assert len(model_dict['properties']['energy']['materials']) == 16
-    assert len(model_dict['properties']['energy']['constructions']) == 15
+    assert len(model_dict['properties']['energy']['constructions']) == 18
     assert len(model_dict['properties']['energy']['construction_sets']) == 1
 
     assert model_dict['rooms'][0]['faces'][0]['properties']['energy']['construction'] == \
         thermal_mass_constr.name
     south_ap_dict = model_dict['rooms'][0]['faces'][3]['apertures'][0]
-    assert south_ap_dict['outdoor_shades'][0]['properties']['energy']['diffuse_reflectance'] == 0.5
-    assert south_ap_dict['indoor_shades'][0]['properties']['energy']['diffuse_reflectance'] == 0.7
+    assert south_ap_dict['outdoor_shades'][0]['properties']['energy']['construction'] == \
+        light_shelf_out.name
+    assert south_ap_dict['indoor_shades'][0]['properties']['energy']['construction'] == \
+        light_shelf_in.name
     assert model_dict['rooms'][0]['faces'][1]['apertures'][0]['properties']['energy']['construction'] == \
         triple_pane.name
 
@@ -374,7 +378,7 @@ def test_to_dict_multizone_house():
     assert 'global_construction_set' in model_dict['properties']['energy']
 
     assert len(model_dict['properties']['energy']['materials']) == 16
-    assert len(model_dict['properties']['energy']['constructions']) == 15
+    assert len(model_dict['properties']['energy']['constructions']) == 16
     assert len(model_dict['properties']['energy']['construction_sets']) == 2
 
     assert model_dict['rooms'][0]['faces'][5]['boundary_condition']['type'] == 'Surface'

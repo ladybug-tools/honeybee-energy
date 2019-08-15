@@ -8,7 +8,7 @@ from .material.glazing import EnergyWindowMaterialSimpleGlazSys, \
 from .material.gas import EnergyWindowMaterialGas, EnergyWindowMaterialGasMixture, \
     EnergyWindowMaterialGasCustom
 from .material.shade import EnergyWindowMaterialShade, EnergyWindowMaterialBlind
-from .construction import OpaqueConstruction, WindowConstruction
+from .construction import OpaqueConstruction, WindowConstruction, ShadeConstruction
 import honeybee_energy.lib.constructions as _lib
 
 from honeybee._lockable import lockable
@@ -26,6 +26,7 @@ class ConstructionSet(object):
         roof_ceiling_set
         aperture_set
         door_set
+        shade_construction
         constructions
         modified_constructions
         unique_constructions
@@ -34,10 +35,10 @@ class ConstructionSet(object):
         unique_modified_materials
     """
     __slots__ = ('_name', '_wall_set', '_floor_set', '_roof_ceiling_set',
-                 '_aperture_set', '_door_set', '_locked')
+                 '_aperture_set', '_door_set', '_shade_construction', '_locked')
 
     def __init__(self, name, wall_set=None, floor_set=None, roof_ceiling_set=None,
-                 aperture_set=None, door_set=None):
+                 aperture_set=None, door_set=None, shade_construction=None):
         """Initialize energy construction set.
 
         Args:
@@ -53,6 +54,9 @@ class ConstructionSet(object):
                 If None, it will be the honeybee generic default ApertureSet.
             door_set: An optional DoorSet object for this ConstructionSet.
                 If None, it will be the honeybee generic default DoorSet.
+            shade_construction: An optional ShadeConstruction to set the reflectance
+                properties of all outdoor shades to which this ConstructionSet is
+                assigned. If None, it will be the honyebee generic shade construction.
         """
         self._locked = False  # unlocked by default
         self.name = name
@@ -61,6 +65,7 @@ class ConstructionSet(object):
         self.roof_ceiling_set = roof_ceiling_set
         self.aperture_set = aperture_set
         self.door_set = door_set
+        self.shade_construction = shade_construction
 
     @property
     def name(self):
@@ -142,22 +147,41 @@ class ConstructionSet(object):
             self._door_set = DoorSet()
 
     @property
+    def shade_construction(self):
+        """Get or set the ShadeConstruction assigned to this ConstructionSet."""
+        if self._shade_construction is None:
+            return _lib.generic_shade
+        return self._shade_construction
+
+    @shade_construction.setter
+    def shade_construction(self, value):
+        if value is not None:
+            assert isinstance(value, ShadeConstruction), \
+                'Expected ShadeConstruction. Got {}'.format(type(value))
+            value.lock()   # lock editing in case construction has multiple references
+        self._shade_construction = value
+
+    @property
     def constructions(self):
         """List of all constructions contained within the set."""
         return self.wall_set.constructions + \
             self.floor_set.constructions + \
             self.roof_ceiling_set.constructions + \
             self.aperture_set.constructions + \
-            self.door_set.constructions
+            self.door_set.constructions + \
+            [self.shade_construction]
 
     @property
     def modified_constructions(self):
         """List of all constructions that are not defaulted within the set."""
-        return self.wall_set.modified_constructions + \
+        mod_constructions = self.wall_set.modified_constructions + \
             self.floor_set.modified_constructions + \
             self.roof_ceiling_set.modified_constructions + \
             self.aperture_set.modified_constructions + \
             self.door_set.modified_constructions
+        if self._shade_construction is not None:
+            mod_constructions.append(self._shade_construction)
+        return mod_constructions
 
     @property
     def unique_constructions(self):
@@ -174,7 +198,10 @@ class ConstructionSet(object):
         """List of all unique materials contained within the set."""
         materials = []
         for constr in self.constructions:
-            materials.extend(constr.materials)
+            try:
+                materials.extend(constr.materials)
+            except AttributeError:
+                pass  # ShadeConstruction
         return list(set(materials))
 
     @property
@@ -182,7 +209,10 @@ class ConstructionSet(object):
         """List of all unique materials that are not defaulted within the set."""
         materials = []
         for constr in self.modified_constructions:
-            materials.extend(constr.materials)
+            try:
+                materials.extend(constr.materials)
+            except AttributeError:
+                pass  # ShadeConstruction
         return list(set(materials))
 
     def get_face_construction(self, face_type, boundary_condition):
@@ -301,13 +331,16 @@ class ConstructionSet(object):
         # gather all construction objects
         constructions = {}
         for cnst in data['constructions']:
-            mat_layers = [materials[mat_name] for mat_name in cnst['layers']]
             if cnst['type'] == 'OpaqueConstructionAbridged':
+                mat_layers = [materials[mat_name] for mat_name in cnst['layers']]
                 constructions[cnst['name']] = \
                     OpaqueConstruction(cnst['name'], mat_layers)
             elif cnst['type'] == 'WindowConstructionAbridged':
+                mat_layers = [materials[mat_name] for mat_name in cnst['layers']]
                 constructions[cnst['name']] = \
                     WindowConstruction(cnst['name'], mat_layers)
+            elif cnst['type'] == 'ShadeConstruction':
+                constructions[cnst['name']] = ShadeConstruction.from_dict(cnst)
             else:
                 raise NotImplementedError(
                     'Construction {} is not supported.'.format(cnst['type']))
@@ -337,9 +370,10 @@ class ConstructionSet(object):
             constructions[data['door_set']['exterior_glass_construction']],
             constructions[data['door_set']['interior_glass_construction']],
             constructions[data['door_set']['overhead_construction']])
+        shade_construction = constructions[data['shade_construction']]
 
         return cls(data['name'], wall_set, floor_set, roof_ceiling_set,
-                   aperture_set, door_set)
+                   aperture_set, door_set, shade_construction)
 
     def to_dict(self, abridged=False, none_for_defaults=True):
         """Get ConstructionSet as a dictionary.
@@ -360,22 +394,26 @@ class ConstructionSet(object):
         base['roof_ceiling_set'] = self.roof_ceiling_set._to_dict(none_for_defaults)
         base['aperture_set'] = self.aperture_set._to_dict(none_for_defaults)
         base['door_set'] = self.door_set._to_dict(none_for_defaults)
+        if none_for_defaults:
+            base['shade_construction'] = self._shade_construction.name if \
+                self._shade_construction is not None else None
+        else:
+            base['shade_construction'] = self.shade_construction.name
 
         if not abridged:
             if none_for_defaults:
                 constructions = self.unique_modified_constructions
-                base['constructions'] = [cnst.to_dict(True) for cnst in constructions]
-                materials = []
-                for cnst in constructions:
-                    materials.extend(cnst.materials)
-                base['materials'] = [mat.to_dict() for mat in list(set(materials))]
             else:
                 constructions = self.unique_constructions
-                base['constructions'] = [cnst.to_dict(True) for cnst in constructions]
-                materials = []
-                for cnst in constructions:
+            base['constructions'] = []
+            materials = []
+            for cnst in constructions:
+                try:
+                    base['constructions'].append(cnst.to_dict(True))
                     materials.extend(cnst.materials)
-                base['materials'] = [mat.to_dict() for mat in list(set(materials))]
+                except TypeError:  # ShadeConstruction
+                    base['constructions'].append(cnst.to_dict())
+            base['materials'] = [mat.to_dict() for mat in list(set(materials))]
         return base
 
     def duplicate(self):
@@ -419,7 +457,8 @@ class ConstructionSet(object):
                                self.floor_set.duplicate(),
                                self.roof_ceiling_set.duplicate(),
                                self.aperture_set.duplicate(),
-                               self.door_set.duplicate())
+                               self.door_set.duplicate(),
+                               self._shade_construction)
 
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""

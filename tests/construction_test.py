@@ -5,7 +5,8 @@ from honeybee_energy.material.gas import EnergyWindowMaterialGas, \
     EnergyWindowMaterialGasMixture
 from honeybee_energy.material.shade import EnergyWindowMaterialShade, \
     EnergyWindowMaterialBlind
-from honeybee_energy.construction import OpaqueConstruction, WindowConstruction
+from honeybee_energy.construction import OpaqueConstruction, WindowConstruction, \
+    ShadeConstruction
 
 import pytest
 import json
@@ -423,4 +424,69 @@ def test_window_dict_methods():
         'Triple Clear Window', [clear_glass, gap, clear_glass, gap, clear_glass])
     constr_dict = triple_clear.to_dict()
     new_constr = WindowConstruction.from_dict(constr_dict)
+    assert constr_dict == new_constr.to_dict()
+
+
+def test_shade_construction_init():
+    """Test the initalization of ShadeConstruction objects and basic properties."""
+    default_constr = ShadeConstruction('Default Shade Construction')
+    light_shelf_out = ShadeConstruction('Outdoor Light Shelf', 0.5, 0.6)
+    str(light_shelf_out)  # test the string representation of the construction
+    assert default_constr.is_default
+    assert not light_shelf_out.is_default
+
+    constr_dup = light_shelf_out.duplicate()
+
+    assert light_shelf_out.name == constr_dup.name == 'Outdoor Light Shelf'
+    assert light_shelf_out.solar_reflectance == constr_dup.solar_reflectance == 0.5
+    assert light_shelf_out.visible_reflectance == constr_dup.visible_reflectance == 0.6
+    assert light_shelf_out.is_specular is constr_dup.is_specular
+
+
+def test_shade_construction_to_idf():
+    """Test the initalization of ShadeConstruction objects and basic properties."""
+    default_constr = ShadeConstruction('Default Shade Construction')
+    light_shelf_out = ShadeConstruction('Outdoor Light Shelf', 0.5, 0.6, True)
+
+    assert isinstance(default_constr.to_idf('Test Shade'), str)
+    assert isinstance(light_shelf_out.to_idf('Test Shade'), str)
+
+    assert default_constr.glazing_construction() is None
+    assert isinstance(light_shelf_out.glazing_construction(), WindowConstruction)
+
+
+def test_shade_lockability():
+    """Test the lockability of the ShadeConstruction."""
+    light_shelf_out = ShadeConstruction('Outdoor Light Shelf', 0.4, 0.6)
+
+    light_shelf_out.solar_reflectance = 0.5
+    light_shelf_out.lock()
+    with pytest.raises(AttributeError):
+        light_shelf_out.solar_reflectance = 0.4
+    light_shelf_out.unlock()
+    light_shelf_out.solar_reflectance = 0.4
+
+
+def test_shade_equivalency():
+    """Test the equality of a ShadeConstruction to another."""
+    shade_constr_1 = ShadeConstruction('Outdoor Light Shelf', 0.4, 0.6)
+    shade_constr_2 = shade_constr_1.duplicate()
+    shade_constr_3 = ShadeConstruction('Outdoor Light Shelf', 0.5, 0.6)
+    shade_constr_4 = ShadeConstruction('Indoor Light Shelf', 0.4, 0.6)
+
+    collection = [shade_constr_1, shade_constr_1, shade_constr_2, shade_constr_3]
+    assert len(set(collection)) == 2
+    assert shade_constr_1 == shade_constr_2
+    assert shade_constr_1 != shade_constr_3
+    assert shade_constr_1 != shade_constr_4
+
+    shade_constr_2.name = 'Indoor Light Shelf'
+    assert shade_constr_1 != shade_constr_2
+
+
+def test_shade_dict_methods():
+    """Test the to/from dict methods."""
+    shade_constr = ShadeConstruction('Outdoor Light Shelf', 0.4, 0.6)
+    constr_dict = shade_constr.to_dict()
+    new_constr = ShadeConstruction.from_dict(constr_dict)
     assert constr_dict == new_constr.to_dict()

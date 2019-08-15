@@ -129,5 +129,4 @@ class ApertureEnergyProperties(object):
         return self.__repr__()
 
     def __repr__(self):
-        return 'Aperture Energy Properties:\n Construction:{}'.format(
-            self.construction.name)
+        return 'Aperture Energy Properties:\n host: {}'.format(self.host.name)

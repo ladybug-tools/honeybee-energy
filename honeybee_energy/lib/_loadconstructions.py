@@ -3,7 +3,6 @@ from honeybee_energy.construction import OpaqueConstruction, \
     WindowConstruction
 
 import os
-import inspect
 
 
 # empty dictionaries to hold idf-loaded materials and constructions
@@ -14,11 +13,11 @@ _idf_window_constructions = {}
 
 
 # load other materials and constructions from user-supplied files
-cur_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-construction_lib = cur_dir + '/idf/constructions/'
+cur_dir = os.path.dirname(__file__)
+construction_lib = os.path.join(cur_dir, 'idf', 'constructions')
 for f in os.listdir(construction_lib):
-    f_path = construction_lib + f
-    if f_path.endswith('.idf') and os.path.isfile(f_path):
+    f_path = os.path.join(construction_lib, f)
+    if os.path.isfile(f_path) and f_path.endswith('.idf'):
         constructions, materials = OpaqueConstruction.extract_all_from_idf_file(f_path)
         for mat in materials:
             mat.lock()

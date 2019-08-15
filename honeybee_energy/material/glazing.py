@@ -10,6 +10,7 @@ therefore must be the only material in its parent construction.
 from __future__ import division
 
 from ._base import _EnergyMaterialWindowBase
+from ..writer import generate_idf_string, parse_idf_string
 
 from honeybee._lockable import lockable
 from honeybee.typing import float_in_range, float_positive
@@ -305,15 +306,15 @@ class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
             float_positive(r_val, 'glazing material r-value')
 
     @classmethod
-    def from_idf(cls, ep_string):
+    def from_idf(cls, idf_string):
         """Create EnergyWindowMaterialGlazing from an EnergyPlus text string.
 
         Args:
-            ep_string: A text string fully describing an EnergyPlus material.
+            idf_string: A text string fully describing an EnergyPlus material.
         """
         prop_types = (str, str, str, float, float, float, float, float, float,
                       float, float, float, float, float, float, str)
-        ep_strs = cls._parse_ep_string(ep_string, 'WindowMaterial:Glazing,')
+        ep_strs = parse_idf_string(idf_string, 'WindowMaterial:Glazing,')
         assert ep_strs[1] == 'SpectralAverage', \
             'Expected SpectralAverage glazing type. Got {}.'.format(ep_strs[1])
         ep_s = [typ(prop) for typ, prop in zip(prop_types, ep_strs)]
@@ -429,7 +430,7 @@ class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
                     'infrared_transmittance', 'emissivity front', 'emissivity back',
                     'conductivity {W/m-K}', 'dirt correction factor',
                     'solar diffusing')
-        return self._generate_ep_string('WindowMaterial:Glazing', values, comments)
+        return generate_idf_string('WindowMaterial:Glazing', values, comments)
 
     def to_dict(self):
         """Energy Window Material Glazing dictionary representation."""
@@ -569,14 +570,14 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
         return (1 / self.u_factor) - self._film_resistance
 
     @classmethod
-    def from_idf(cls, ep_string):
+    def from_idf(cls, idf_string):
         """Create EnergyWindowMaterialSimpleGlazSys from an EnergyPlus text string.
 
         Args:
-            ep_string: A text string fully describing an EnergyPlus material.
+            idf_string: A text string fully describing an EnergyPlus material.
         """
         prop_types = (str, float, float, float)
-        ep_strs = cls._parse_ep_string(ep_string, 'WindowMaterial:SimpleGlazingSystem,')
+        ep_strs = parse_idf_string(idf_string, 'WindowMaterial:SimpleGlazingSystem,')
         ep_s = [typ(prop) for typ, prop in zip(prop_types, ep_strs)]
         return cls(*ep_s)
 
@@ -620,7 +621,7 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
         """Get an EnergyPlus string representation of the material."""
         values = (self.name, self.u_factor, self.shgc, self.vt)
         comments = ('name', 'u-factor {W/m2-K}', 'shgc', 'vt')
-        return self._generate_ep_string(
+        return generate_idf_string(
             'WindowMaterial:SimpleGlazingSystem', values, comments)
 
     def to_dict(self):

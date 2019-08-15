@@ -182,5 +182,4 @@ class RoomEnergyProperties(object):
         return self.__repr__()
 
     def __repr__(self):
-        return 'Room Energy Properties:\n Program Type:{}\n Construction Set:' \
-            '{}'.format(self.program_type.name, self.construction_set.name)
+        return 'Room Energy Properties:\n host: {}'.format(self.host.name)

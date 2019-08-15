@@ -1,7 +1,9 @@
 """Tests the features that honeybee_energy adds to honeybee_core Shade."""
 from honeybee.shade import Shade
+from honeybee.aperture import Aperture
 
 from honeybee_energy.properties.shade import ShadeEnergyProperties
+from honeybee_energy.construction import ShadeConstruction
 
 from ladybug_geometry.geometry3d.pointvector import Point3D
 from ladybug_geometry.geometry3d.face import Face3D
@@ -16,20 +18,25 @@ def test_energy_properties():
 
     assert hasattr(shade.properties, 'energy')
     assert isinstance(shade.properties.energy, ShadeEnergyProperties)
-    assert isinstance(shade.properties.energy.diffuse_reflectance, float)
-    assert isinstance(shade.properties.energy.specular_reflectance, float)
-    assert isinstance(shade.properties.energy.transmittance, float)
+    assert isinstance(shade.properties.energy.construction, ShadeConstruction)
 
 
 def test_default_properties():
     """Test the auto-assigning of shade properties."""
     shade = Shade.from_vertices(
         'overhang', [[0, 0, 3], [1, 0, 3], [1, 1, 3], [0, 1, 3]])
+    aperture = Aperture.from_vertices(
+        'parent aperture', [[0, 0, 0], [0, 10, 0], [0, 10, 3], [0, 0, 3]])
 
-    assert shade.properties.energy.diffuse_reflectance == 0.2
-    assert shade.properties.energy.specular_reflectance == 0
-    assert shade.properties.energy.transmittance == 0
+    assert shade.properties.energy.construction.solar_reflectance == 0.2
+    assert shade.properties.energy.construction.visible_reflectance == 0.2
+    assert not shade.properties.energy.construction.is_specular
     assert shade.properties.energy.transmittance_schedule is None
+
+    aperture.add_outdoor_shade(shade)
+    assert shade.properties.energy.construction.solar_reflectance == 0.35
+    assert shade.properties.energy.construction.visible_reflectance == 0.35
+    assert not shade.properties.energy.construction.is_specular
 
 
 def test_set_properties():
@@ -37,17 +44,14 @@ def test_set_properties():
     shade = Shade.from_vertices(
         'overhang', [[0, 0, 3], [1, 0, 3], [1, 1, 3], [0, 1, 3]])
 
-    shade.properties.energy.diffuse_reflectance = 0.5
-    assert shade.properties.energy.diffuse_reflectance == 0.5
+    light_shelf_construction = ShadeConstruction('Light Shelf', 0.5, 0.5, True)
 
-    shade.properties.energy.specular_reflectance = 0.5
-    assert shade.properties.energy.specular_reflectance == 0.5
+    shade.properties.energy.construction = light_shelf_construction
+    assert shade.properties.energy.construction == light_shelf_construction
 
-    shade.properties.energy.transmittance = 0.25
-    assert shade.properties.energy.transmittance == 0.25
-
-    with pytest.raises(AssertionError):
-        shade.properties.energy.diffuse_reflectance = 0.7
+    assert shade.properties.energy.construction.solar_reflectance == 0.5
+    assert shade.properties.energy.construction.visible_reflectance == 0.5
+    assert shade.properties.energy.construction.is_specular
 
 
 def test_duplicate():
@@ -55,25 +59,27 @@ def test_duplicate():
     verts = [Point3D(0, 0, 0), Point3D(1, 0, 0), Point3D(1, 0, 3), Point3D(0, 0, 3)]
     shade_original = Shade('overhang', Face3D(verts))
     shade_dup_1 = shade_original.duplicate()
+    light_shelf = ShadeConstruction('Light Shelf', 0.5, 0.5, True)
+    bright_light_shelf = ShadeConstruction('Bright Light Shelf', 0.7, 0.7, True)
 
     assert shade_original.properties.energy.host is shade_original
     assert shade_dup_1.properties.energy.host is shade_dup_1
     assert shade_original.properties.energy.host is not \
         shade_dup_1.properties.energy.host
 
-    assert shade_original.properties.energy.diffuse_reflectance == \
-        shade_dup_1.properties.energy.diffuse_reflectance
-    shade_dup_1.properties.energy.diffuse_reflectance = 0.7
-    assert shade_original.properties.energy.diffuse_reflectance != \
-        shade_dup_1.properties.energy.diffuse_reflectance
+    assert shade_original.properties.energy.construction == \
+        shade_dup_1.properties.energy.construction
+    shade_dup_1.properties.energy.construction = light_shelf
+    assert shade_original.properties.energy.construction != \
+        shade_dup_1.properties.energy.construction
 
     shade_dup_2 = shade_dup_1.duplicate()
 
-    assert shade_dup_1.properties.energy.diffuse_reflectance == \
-        shade_dup_2.properties.energy.diffuse_reflectance
-    shade_dup_2.properties.energy.diffuse_reflectance = 0.3
-    assert shade_dup_1.properties.energy.diffuse_reflectance != \
-        shade_dup_2.properties.energy.diffuse_reflectance
+    assert shade_dup_1.properties.energy.construction == \
+        shade_dup_2.properties.energy.construction
+    shade_dup_2.properties.energy.construction = bright_light_shelf
+    assert shade_dup_1.properties.energy.construction != \
+        shade_dup_2.properties.energy.construction
 
 
 def test_to_dict():
@@ -87,29 +93,26 @@ def test_to_dict():
     assert 'energy' in shade_dict['properties']
     assert shade_dict['properties']['energy']['type'] == 'ShadeEnergyProperties'
 
-    shade.properties.energy.diffuse_reflectance = 0.7
-    shade.properties.energy.specular_reflectance = 0.2
-    shade.properties.energy.transmittance = 0.1
+    light_shelf = ShadeConstruction('Light Shelf', 0.5, 0.5, True)
+    shade.properties.energy.construction = light_shelf
     shade_dict = shade.to_dict()
-    assert 'diffuse_reflectance' in shade_dict['properties']['energy']
-    assert 'specular_reflectance' in shade_dict['properties']['energy']
-    assert 'transmittance' in shade_dict['properties']['energy']
-    assert shade_dict['properties']['energy']['diffuse_reflectance'] == 0.7
-    assert shade_dict['properties']['energy']['specular_reflectance'] == 0.2
-    assert shade_dict['properties']['energy']['transmittance'] == 0.1
+    assert 'construction' in shade_dict['properties']['energy']
+    assert shade_dict['properties']['energy']['construction']['solar_reflectance'] == 0.5
+    assert shade_dict['properties']['energy']['construction']['visible_reflectance'] == 0.5
+    assert shade_dict['properties']['energy']['construction']['is_specular']
 
 
 def test_from_dict():
     """Test the Shade from_dict method with energy properties."""
     verts = [Point3D(0, 0, 0), Point3D(1, 0, 0), Point3D(1, 0, 3), Point3D(0, 0, 3)]
     shade = Shade('overhang', Face3D(verts))
-    shade.properties.energy.diffuse_reflectance = 0.7
-    shade.properties.energy.specular_reflectance = 0.2
-    shade.properties.energy.transmittance = 0.1
+    light_shelf = ShadeConstruction('Light Shelf', 0.5, 0.5, True)
+    shade.properties.energy.construction = light_shelf
 
     shade_dict = shade.to_dict()
     new_shade = Shade.from_dict(shade_dict)
-    assert new_shade.properties.energy.diffuse_reflectance == 0.7
-    assert new_shade.properties.energy.specular_reflectance == 0.2
-    assert new_shade.properties.energy.transmittance == 0.1
+    assert new_shade.properties.energy.construction == light_shelf
+    assert shade.properties.energy.construction.solar_reflectance == 0.5
+    assert shade.properties.energy.construction.visible_reflectance == 0.5
+    assert shade.properties.energy.construction.is_specular
     assert new_shade.to_dict() == shade_dict
