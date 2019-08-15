@@ -140,5 +140,4 @@ class DoorEnergyProperties(object):
         return self.__repr__()
 
     def __repr__(self):
-        return 'Door Energy Properties:\n Construction:{}'.format(
-            self.construction.name)
+        return 'Door Energy Properties:\n host: {}'.format(self.host.name)

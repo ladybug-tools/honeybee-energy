@@ -6,6 +6,7 @@ The materials here are the only ones that can be used in opaque constructions.
 from __future__ import division
 
 from ._base import _EnergyMaterialOpaqueBase
+from ..writer import generate_idf_string, parse_idf_string
 
 from honeybee._lockable import lockable
 from honeybee.typing import float_in_range, float_positive
@@ -196,14 +197,14 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
         return self.mass_area_density * self.specific_heat
 
     @classmethod
-    def from_idf(cls, ep_string):
+    def from_idf(cls, idf_string):
         """Create an EnergyMaterial from an EnergyPlus text string.
 
         Args:
-            ep_string: A text string fully describing an EnergyPlus material.
+            idf_string: A text string fully describing an EnergyPlus material.
         """
         prop_types = (str, str, float, float, float, float, float, float, float)
-        ep_strs = cls._parse_ep_string(ep_string, 'Material,')
+        ep_strs = parse_idf_string(idf_string, 'Material,')
         ep_strs = [typ(prop) for typ, prop in zip(prop_types, ep_strs)]
         ep_strs.insert(5, ep_strs.pop(1))  # move roughness to correct place
         return cls(*ep_strs)
@@ -284,7 +285,7 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
         comments = ('name', 'roughness', 'thickness {m}', 'conductivity {W/m-K}',
                     'density {kg/m3}', 'specific heat {J/kg-K}', 'thermal absorptance',
                     'solar absorptance', 'visible absorptance')
-        return self._generate_ep_string('Material', values, comments)
+        return generate_idf_string('Material', values, comments)
 
     def to_radiance_solar(self, specularity=0.0):
         """Honeybee Radiance material from the solar reflectance of this material."""
@@ -465,14 +466,14 @@ class EnergyMaterialNoMass(_EnergyMaterialOpaqueBase):
         return 0
 
     @classmethod
-    def from_idf(cls, ep_string):
+    def from_idf(cls, idf_string):
         """Create an EnergyMaterialNoMass from an EnergyPlus text string.
 
         Args:
-            ep_string: A text string fully describing an EnergyPlus material.
+            idf_string: A text string fully describing an EnergyPlus material.
         """
         prop_types = (str, str, float, float, float, float)
-        ep_strs = cls._parse_ep_string(ep_string, 'Material:NoMass,')
+        ep_strs = parse_idf_string(idf_string, 'Material:NoMass,')
         ep_strs = [typ(prop) for typ, prop in zip(prop_types, ep_strs)]
         ep_strs.insert(2, ep_strs.pop(1))  # move roughness to correct place
         return cls(*ep_strs)
@@ -538,7 +539,7 @@ class EnergyMaterialNoMass(_EnergyMaterialOpaqueBase):
                   self.solar_absorptance, self.visible_absorptance)
         comments = ('name', 'roughness', 'r-value {m2-K/W}', 'thermal absorptance',
                     'solar absorptance', 'visible absorptance')
-        return self._generate_ep_string('Material:NoMass', values, comments)
+        return generate_idf_string('Material:NoMass', values, comments)
 
     def to_radiance_solar(self, specularity=0.0):
         """Honeybee Radiance material from the solar reflectance of this material."""

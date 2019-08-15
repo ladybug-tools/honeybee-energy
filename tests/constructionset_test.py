@@ -1,6 +1,7 @@
 from honeybee_energy.constructionset import ConstructionSet, WallSet, FloorSet, \
     RoofCeilingSet, ApertureSet, DoorSet
-from honeybee_energy.construction import OpaqueConstruction, WindowConstruction
+from honeybee_energy.construction import OpaqueConstruction, WindowConstruction, \
+    ShadeConstruction
 from honeybee_energy.material.opaque import EnergyMaterial
 from honeybee_energy.material.glazing import EnergyWindowMaterialGlazing
 from honeybee_energy.material.gas import EnergyWindowMaterialGas
@@ -14,8 +15,8 @@ def test_constructionset_init():
     str(default_set)  # test the string representation of the construction
 
     assert default_set.name == 'Default Set'
-    assert len(default_set.constructions) == 18
-    assert len(default_set.unique_constructions) == 13
+    assert len(default_set.constructions) == 19
+    assert len(default_set.unique_constructions) == 14
     assert len(default_set.unique_materials) == 15
     assert len(default_set.unique_modified_constructions) == 0
     assert len(default_set.unique_modified_materials) == 0
@@ -25,6 +26,7 @@ def test_constructionset_init():
     assert isinstance(default_set.roof_ceiling_set, RoofCeilingSet)
     assert isinstance(default_set.aperture_set, ApertureSet)
     assert isinstance(default_set.door_set, DoorSet)
+    assert isinstance(default_set.shade_construction, ShadeConstruction)
 
 
 def test_constructionset_defaults():
@@ -81,6 +83,7 @@ def test_setting_construction():
         'Thin Concrete Construction', [concrete10])
     door_constr = OpaqueConstruction(
         'Stone Door', [stone_door])
+    light_shelf = ShadeConstruction('Light Shelf', 0.5, 0.5, True)
 
     default_set.wall_set.exterior_construction = thick_constr
     assert default_set.wall_set.exterior_construction == thick_constr
@@ -113,8 +116,10 @@ def test_setting_construction():
     assert default_set.door_set.interior_construction == door_constr
     default_set.door_set.overhead_construction = door_constr
     assert default_set.door_set.overhead_construction == door_constr
+    default_set.shade_construction = light_shelf
+    assert default_set.shade_construction == light_shelf
 
-    assert len(default_set.unique_modified_constructions) == 3
+    assert len(default_set.unique_modified_constructions) == 4
     assert len(default_set.unique_modified_materials) == 3
 
 
@@ -198,6 +203,7 @@ def test_constructionset_to_dict_full():
     assert constr_dict['door_set']['exterior_glass_construction'] is not None
     assert constr_dict['door_set']['interior_glass_construction'] is not None
     assert constr_dict['door_set']['overhead_construction'] is not None
+    assert constr_dict['shade_construction'] is not None
 
 
 def test_constructionset_dict_methods():
@@ -231,6 +237,7 @@ def test_constructionset_dict_methods():
     assert constr_dict['door_set']['exterior_glass_construction'] is None
     assert constr_dict['door_set']['interior_glass_construction'] is None
     assert constr_dict['door_set']['overhead_construction'] is None
+    assert constr_dict['shade_construction'] is None
 
     new_constr = ConstructionSet.from_dict(constr_dict)
     assert constr_dict == new_constr.to_dict()

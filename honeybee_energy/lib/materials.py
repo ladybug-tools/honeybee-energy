@@ -6,101 +6,143 @@ from honeybee_energy.material.gas import EnergyWindowMaterialGas
 from ._loadconstructions import _idf_opaque_materials, _idf_window_materials
 
 
-# auto-generate materials and constructions if they were not loaded
-# generic opaque materials
-if 'Generic Brick' not in _idf_opaque_materials:
-    _idf_opaque_materials['Generic Brick'] = EnergyMaterial(
-        'Generic Brick', 0.1, 0.9, 1920, 790, 'MediumRough', 0.9, 0.65, 0.65)
-    _idf_opaque_materials['Generic Brick'].lock()
-if 'Generic LW Concrete' not in _idf_opaque_materials:
-    _idf_opaque_materials['Generic LW Concrete'] = EnergyMaterial(
+# establish variables for the default materials used across the library
+# and auto-generate materials if they were not loaded from default.idf
+try:
+    brick = _idf_opaque_materials['Generic Brick']
+except KeyError:
+    brick = EnergyMaterial('Generic Brick', 0.1, 0.9, 1920, 790,
+                           'MediumRough', 0.9, 0.65, 0.65)
+    brick.lock()
+    _idf_opaque_materials['Generic Brick'] = brick
+
+try:
+    concrete_lw = _idf_opaque_materials['Generic LW Concrete']
+except KeyError:
+    concrete_hw = EnergyMaterial(
         'Generic LW Concrete', 0.1, 0.53, 1280, 840, 'MediumRough', 0.9, 0.8, 0.8)
-    _idf_opaque_materials['Generic LW Concrete'].lock()
-if 'Generic HW Concrete' not in _idf_opaque_materials:
-    _idf_opaque_materials['Generic HW Concrete'] = EnergyMaterial(
+    concrete_hw.lock()
+    _idf_opaque_materials['Generic LW Concrete'] = concrete_hw
+
+try:
+    concrete_hw = _idf_opaque_materials['Generic HW Concrete']
+except KeyError:
+    concrete_hw = EnergyMaterial(
         'Generic HW Concrete', 0.2, 1.95, 2240, 900, 'MediumRough', 0.9, 0.8, 0.8)
-    _idf_opaque_materials['Generic HW Concrete'].lock()
-if 'Generic 50mm Insulation' not in _idf_opaque_materials:
-    _idf_opaque_materials['Generic 50mm Insulation'] = EnergyMaterial(
+    concrete_hw.lock()
+    _idf_opaque_materials['Generic HW Concrete'] = concrete_hw
+
+try:
+    insulation = _idf_opaque_materials['Generic 50mm Insulation']
+except KeyError:
+    insulation = EnergyMaterial(
         'Generic 50mm Insulation', 0.05, 0.03, 43, 1210, 'MediumRough', 0.9, 0.7, 0.7)
-    _idf_opaque_materials['Generic 50mm Insulation'].lock()
-if 'Generic 25mm Insulation' not in _idf_opaque_materials:
-    _idf_opaque_materials['Generic 25mm Insulation'] = EnergyMaterial(
+    insulation.lock()
+    _idf_opaque_materials['Generic 50mm Insulation'] = insulation
+
+try:
+    insulation_thin = _idf_opaque_materials['Generic 25mm Insulation']
+except KeyError:
+    insulation_thin = EnergyMaterial(
         'Generic 25mm Insulation', 0.05, 0.03, 43, 1210, 'MediumRough', 0.9, 0.7, 0.7)
-    _idf_opaque_materials['Generic 25mm Insulation'].lock()
-if 'Generic Gypsum Board' not in _idf_opaque_materials:
-    _idf_opaque_materials['Generic Gypsum Board'] = EnergyMaterial(
+    insulation_thin.lock()
+    _idf_opaque_materials['Generic 25mm Insulation'] = insulation_thin
+
+try:
+    gypsum = _idf_opaque_materials['Generic Gypsum Board']
+except KeyError:
+    gypsum = EnergyMaterial(
         'Generic Gypsum Board', 0.0127, 0.16, 800, 1090, 'MediumSmooth', 0.9, 0.5, 0.5)
-    _idf_opaque_materials['Generic Gypsum Board'].lock()
-if 'Generic Acoustic Tile' not in _idf_opaque_materials:
-    _idf_opaque_materials['Generic Acoustic Tile'] = EnergyMaterial(
+    gypsum.lock()
+    _idf_opaque_materials['Generic Gypsum Board'] = gypsum
+
+try:
+    acoustic_tile = _idf_opaque_materials['Generic Acoustic Tile']
+except KeyError:
+    acoustic_tile = EnergyMaterial(
         'Generic Acoustic Tile', 0.02, 0.06, 368, 590, 'MediumSmooth', 0.9, 0.2, 0.2)
-    _idf_opaque_materials['Generic Acoustic Tile'].lock()
-if 'Generic Painted Metal' not in _idf_opaque_materials:
-    _idf_opaque_materials['Generic Painted Metal'] = EnergyMaterial(
+    acoustic_tile.lock()
+    _idf_opaque_materials['Generic Acoustic Tile'] = acoustic_tile
+
+try:
+    painted_metal = _idf_opaque_materials['Generic Painted Metal']
+except KeyError:
+    painted_metal = EnergyMaterial(
         'Generic Painted Metal', 0.0015, 45, 7690, 410, 'Smooth', 0.9, 0.5, 0.5)
-    _idf_opaque_materials['Generic Painted Metal'].lock()
-if 'Generic Roof Membrane' not in _idf_opaque_materials:
-    _idf_opaque_materials['Generic Roof Membrane'] = EnergyMaterial(
+    painted_metal.lock()
+    _idf_opaque_materials['Generic Painted Metal'] = painted_metal
+
+try:
+    roof_membrane = _idf_opaque_materials['Generic Roof Membrane']
+except KeyError:
+    roof_membrane = EnergyMaterial(
         'Generic Roof Membrane', 0.01, 0.16, 1120, 1460, 'MediumRough', 0.9, 0.65, 0.65)
-    _idf_opaque_materials['Generic Roof Membrane'].lock()
-if 'Generic 25mm Wood' not in _idf_opaque_materials:
-    _idf_opaque_materials['Generic 25mm Wood'] = EnergyMaterial(
+    roof_membrane.lock()
+    roof_membrane = _idf_opaque_materials['Generic Roof Membrane']
+
+try:
+    wood = _idf_opaque_materials['Generic 25mm Wood']
+except KeyError:
+    wood = EnergyMaterial(
         'Generic 25mm Wood', 0.0254, 0.15, 608, 1630, 'MediumSmooth', 0.9, 0.5, 0.5)
-    _idf_opaque_materials['Generic 25mm Wood'].lock()
+    wood.lock()
+    _idf_opaque_materials['Generic 25mm Wood'] = wood
 
-# generic opqaue air gap materials
-if 'Generic Wall Air Gap' not in _idf_opaque_materials:
-    _idf_opaque_materials['Generic Wall Air Gap'] = EnergyMaterial(
+try:
+    wall_gap = _idf_opaque_materials['Generic Wall Air Gap']
+except KeyError:
+    wall_gap = EnergyMaterial(
         'Generic Wall Air Gap', 0.1, 0.667, 1.28, 1000, 'Smooth')
-    _idf_opaque_materials['Generic Wall Air Gap'].lock()
-if 'Generic Ceiling Air Gap' not in _idf_opaque_materials:
-    _idf_opaque_materials['Generic Ceiling Air Gap'] = EnergyMaterial(
+    wall_gap.lock()
+    _idf_opaque_materials['Generic Wall Air Gap'] = wall_gap
+
+try:
+    ceiling_gap = _idf_opaque_materials['Generic Ceiling Air Gap']
+except KeyError:
+    ceiling_gap = EnergyMaterial(
         'Generic Ceiling Air Gap', 0.1, 0.556, 1.28, 1000, 'Smooth')
-    _idf_opaque_materials['Generic Ceiling Air Gap'].lock()
-if 'Air Wall Material' not in _idf_opaque_materials:
-    _idf_opaque_materials['Air Wall Material'] = EnergyMaterial(
+    ceiling_gap.lock()
+    _idf_opaque_materials['Generic Ceiling Air Gap'] = ceiling_gap
+
+try:
+    air = _idf_opaque_materials['Air Wall Material']
+except KeyError:
+    air = EnergyMaterial(
         'Air Wall Material', 0.01, 0.6, 1.28, 1004, 'Smooth', 0.95, 0.95, 0.95)
-    _idf_opaque_materials['Air Wall Material'].lock()
+    air.lock()
+    _idf_opaque_materials['Air Wall Material'] = air
 
-# generic glazing materials
-if 'Generic Clear Glass' not in _idf_window_materials:
-    _idf_window_materials['Generic Clear Glass'] = EnergyWindowMaterialGlazing(
+try:
+    clear_glass = _idf_window_materials['Generic Clear Glass']
+except KeyError:
+    clear_glass = EnergyWindowMaterialGlazing(
         'Generic Clear Glass', 0.006, 0.77, 0.07, 0.88, 0.08, 0, 0.84, 0.84, 1.0)
-    _idf_window_materials['Generic Clear Glass'].lock()
-if 'Generic Low-e Glass' not in _idf_window_materials:
-    _idf_window_materials['Generic Low-e Glass'] = EnergyWindowMaterialGlazing(
+    clear_glass.lock()
+    _idf_window_materials['Generic Clear Glass'] = clear_glass
+
+try:
+    lowe_glass = _idf_window_materials['Generic Low-e Glass']
+except KeyError:
+    lowe_glass = EnergyWindowMaterialGlazing(
         'Generic Low-e Glass', 0.006, 0.45, 0.36, 0.71, 0.21, 0, 0.84, 0.047, 1.0)
-    _idf_window_materials['Generic Low-e Glass'].lock()
+    lowe_glass.lock()
+    _idf_window_materials['Generic Low-e Glass'] = lowe_glass
 
-# generic window air gap materials
-if 'Generic Window Air Gap' not in _idf_window_materials:
-    _idf_window_materials['Generic Window Air Gap'] = EnergyWindowMaterialGas(
-        'Generic Window Air Gap', 0.0127, 'Air')
-    _idf_window_materials['Generic Window Air Gap'].lock()
-if 'Generic Window Argon Gap' not in _idf_window_materials:
-    _idf_window_materials['Generic Window Argon Gap'] = EnergyWindowMaterialGas(
+try:
+    air_gap = _idf_window_materials['Generic Window Air Gap']
+except KeyError:
+    air_gap = EnergyWindowMaterialGas('Generic Window Air Gap', 0.0127, 'Air')
+    air_gap.lock()
+    _idf_window_materials['Generic Window Air Gap'] = air_gap
+
+try:
+    argon_gap = _idf_window_materials['Generic Window Argon Gap']
+except KeyError:
+    argon_gap = EnergyWindowMaterialGas(
         'Generic Window Argon Gap', 0.0127, 'Argon')
-    _idf_window_materials['Generic Window Argon Gap'].lock()
+    argon_gap.lock()
+    _idf_window_materials['Generic Window Argon Gap'] = argon_gap
 
-# establish the default materials used across the library
-brick = _idf_opaque_materials['Generic Brick']
-concrete_lw = _idf_opaque_materials['Generic LW Concrete']
-concrete_hw = _idf_opaque_materials['Generic HW Concrete']
-insulation = _idf_opaque_materials['Generic 50mm Insulation']
-insulation_thin = _idf_opaque_materials['Generic 25mm Insulation']
-gypsum = _idf_opaque_materials['Generic Gypsum Board']
-acoustic_tile = _idf_opaque_materials['Generic Acoustic Tile']
-painted_metal = _idf_opaque_materials['Generic Painted Metal']
-roof_membrane = _idf_opaque_materials['Generic Roof Membrane']
-wood = _idf_opaque_materials['Generic 25mm Wood']
-wall_gap = _idf_opaque_materials['Generic Wall Air Gap']
-ceiling_gap = _idf_opaque_materials['Generic Ceiling Air Gap']
-air = _idf_opaque_materials['Air Wall Material']
-clear_glass = _idf_window_materials['Generic Clear Glass']
-lowe_glass = _idf_window_materials['Generic Low-e Glass']
-air_gap = _idf_window_materials['Generic Window Air Gap']
-argon_gap = _idf_window_materials['Generic Window Argon Gap']
 
 # make lists of construction and material names to look up items in the library
 OPAQUE_MATERIALS = tuple(_idf_opaque_materials.keys())

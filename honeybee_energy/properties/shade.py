@@ -1,48 +1,36 @@
 # coding=utf-8
 """Shade Energy Properties."""
-from honeybee.typing import float_in_range
+from ..construction import ShadeConstruction
+from ..lib.constructions import generic_context
+from ..lib.constructionsets import generic_costruction_set
 
 
 class ShadeEnergyProperties(object):
     """Energy Properties for Honeybee Shade.
 
     Properties:
-        diffuse_reflectance
-        specular_reflectance
-        transmittance
+        construction
         transmittance_schedule
     """
 
-    __slots__ = ('_host', '_diffuse_reflectance', '_specular_reflectance',
-                 '_transmittance', '_transmittance_schedule')
+    __slots__ = ('_host', '_construction', '_transmittance_schedule')
 
-    def __init__(self, host_shade, diffuse_reflectance=0.2,
-                 specular_reflectance=0, transmittance=0,
-                 transmittance_schedule=None):
+    def __init__(self, host_shade, construction=None, transmittance_schedule=None):
         """Initialize Shade energy properties.
 
         Args:
             host_shade: A honeybee_core Shade object that hosts these properties.
-            diffuse_reflectance: A float between 0 and 1 for the diffuse
-                reflectance of the shade (in the absence of transmittance or
-                a transmittance schedule). Default: 0.2.
-            specular_reflectance: A float between 0 and 1 for the specular
-                reflectance of the shade (in the absence of transmittance or
-                a transmittance schedule). Default: 0.
-            transmittance: A float between 0 and 1 for the transmittance of
-                the shade. Note that this property is not set-able when a
-                transmittance_schedule is assigned.
-            transmittance_schedule: An optional schedule to replace the
-                assigned transmittance, which will vary transmittance
-                throughout the year.
+            construction: An optional ShadeConstruction object to set the reflectance
+                and specularity of the Shade. The default is set by a ConstructionSet
+                if the shade is the parent to an object. Otherwise, if it is an
+                orphaned shade, the default is a completely diffuse construction
+                with 0.2 visible and solar reflectance.
+            transmittance_schedule: An optional schedule to set the transmittance
+                of the shade, which can vary throughout the day or year.  Default
+                is a completely opaque object.
         """
         self._host = host_shade
-        self._diffuse_reflectance = float_in_range(
-            diffuse_reflectance, 0, 1, 'shade diffuse reflectance')
-        self.specular_reflectance = specular_reflectance
-
-        self._transmittance_schedule = None
-        self.transmittance = transmittance
+        self.construction = construction
         self.transmittance_schedule = transmittance_schedule
 
     @property
@@ -51,42 +39,24 @@ class ShadeEnergyProperties(object):
         return self._host
 
     @property
-    def diffuse_reflectance(self):
-        """Get or set the diffuse reflectance of the shade."""
-        return self._diffuse_reflectance
+    def construction(self):
+        """Get or set a ShadeConstruction for the shade."""
+        if self._construction:  # set by user
+            return self._construction
+        elif not self._host.has_parent:
+            return generic_context
+        else:
+            c_set = self._parent_construction_set(self._host.parent)
+            if c_set is None:
+                c_set = generic_costruction_set
+        return c_set.shade_construction
 
-    @diffuse_reflectance.setter
-    def diffuse_reflectance(self, value):
-        self._diffuse_reflectance = float_in_range(
-            value, 0, 1, 'shade diffuse reflectance')
-        assert self._diffuse_reflectance + self._specular_reflectance <= 1, \
-            'Sum of diffuse and specular reflectance is greater than 1. Got ' \
-            '{}'.format(self._diffuse_reflectance + self._specular_reflectance)
-
-    @property
-    def specular_reflectance(self):
-        """Get or set the specular reflectance of the shade."""
-        return self._specular_reflectance
-
-    @specular_reflectance.setter
-    def specular_reflectance(self, value):
-        self._specular_reflectance = float_in_range(
-            value, 0, 1, 'shade specular reflectance')
-        assert self._diffuse_reflectance + self._specular_reflectance <= 1, \
-            'Sum of diffuse and specular reflectance is greater than 1. Got ' \
-            '{}'.format(self._diffuse_reflectance + self._specular_reflectance)
-
-    @property
-    def transmittance(self):
-        """Get or set the transmittance of the shade."""
-        return self._transmittance
-
-    @transmittance.setter
-    def transmittance(self, value):
-        assert self._transmittance_schedule is None, \
-            'Shade transmittance cannot be be set while a transmittance ' \
-            'schedule is assigned.'
-        self._transmittance = float_in_range(value, 0, 1, 'shade transmittance')
+    @construction.setter
+    def construction(self, value):
+        if value is not None:
+            assert isinstance(value, ShadeConstruction), \
+                'Expected ShadeConstruction. Got {}.'.format(type(value))
+        self._construction = value
 
     @property
     def transmittance_schedule(self):
@@ -100,7 +70,7 @@ class ShadeEnergyProperties(object):
             #assert isinstance(self.transmittance_schedule, _ScheduleBase), \
             #    'Expected schedule for shade transmittance schedule. ' \
             #    'Got {}.'.format(type(value))
-            self._transmittance = 'Set by Schedule'
+            pass
         self._transmittance_schedule = value
 
     @classmethod
@@ -118,12 +88,8 @@ class ShadeEnergyProperties(object):
             'Expected ShadeEnergyProperties. Got {}.'.format(data['type'])
 
         new_prop = cls(host)
-        if 'diffuse_reflectance' in data and data['diffuse_reflectance'] is not None:
-            new_prop.diffuse_reflectance = data['diffuse_reflectance']
-        if 'specular_reflectance' in data and data['specular_reflectance'] is not None:
-            new_prop.specular_reflectance = data['specular_reflectance']
-        if 'transmittance' in data and data['transmittance'] is not None:
-            new_prop.transmittance = data['transmittance']
+        if 'construction' in data and data['construction'] is not None:
+            new_prop.construction = ShadeConstruction.from_dict(data['construction'])
         # TODO: Un-comment this check once schedules are implemented
         #if 'transmittance_schedule' in data and \
         #        data['transmittance_schedule'] is not None:
@@ -131,22 +97,17 @@ class ShadeEnergyProperties(object):
         #        Schedule.from_dict(data['transmittance_schedule'])
         return new_prop
 
-    def apply_properties_from_dict(self, abridged_data):
+    def apply_properties_from_dict(self, abridged_data, constructions):
         """Apply properties from a ShadeEnergyPropertiesAbridged dictionary.
 
         Args:
             abridged_data: A ShadeEnergyPropertiesAbridged dictionary (typically
                 coming from a Model).
+            constructions: A dictionary of constructions with constructions names
+                as keys, which will be used to re-assign constructions.
         """
-        if 'diffuse_reflectance' in abridged_data and \
-                abridged_data['diffuse_reflectance'] is not None:
-            self.diffuse_reflectance = abridged_data['diffuse_reflectance']
-        if 'specular_reflectance' in abridged_data and \
-                abridged_data['specular_reflectance'] is not None:
-            self.specular_reflectance = abridged_data['specular_reflectance']
-        if 'transmittance' in abridged_data and \
-                abridged_data['transmittance'] is not None:
-            self.transmittance = abridged_data['transmittance']
+        if 'construction' in abridged_data and abridged_data['construction'] is not None:
+            self.construction = constructions[abridged_data['construction']]
         # TODO: Un-comment this check once schedules are implemented
         #if 'transmittance_schedule' in abridged_data and \
         #        abridged_data['transmittance_schedule'] is not None:
@@ -164,16 +125,13 @@ class ShadeEnergyProperties(object):
         base = {'energy': {}}
         base['energy']['type'] = 'ShadeEnergyProperties' if not \
             abridged else 'ShadeEnergyPropertiesAbridged'
-        if self.diffuse_reflectance != 0.2:
-            base['energy']['diffuse_reflectance'] = self.diffuse_reflectance
-        if self.specular_reflectance != 0:
-            base['energy']['specular_reflectance'] = self.specular_reflectance
+        if self._construction is not None:
+            base['energy']['construction'] = \
+                self._construction.name if abridged else self._construction.to_dict()
         if self.transmittance_schedule is not None:
             base['energy']['transmittance_schedule'] = \
                 self.transmittance_schedule.name if abridged else \
                 self.transmittance_schedule.to_dict()
-        elif self.transmittance != 0:
-            base['energy']['transmittance'] = self.transmittance
         return base
 
     def duplicate(self, new_host=None):
@@ -183,14 +141,21 @@ class ShadeEnergyProperties(object):
             If None, the properties will be duplicated with the same host.
         """
         _host = new_host or self._host
-        _transm = self.transmittance if self.transmittance != 'Set by Schedule' else 0.0
-        return ShadeEnergyProperties(
-            _host, self._diffuse_reflectance, self._specular_reflectance,
-            _transm, self._transmittance_schedule)
+        return ShadeEnergyProperties(_host, self._construction,
+                                     self._transmittance_schedule)
+
+    @staticmethod
+    def _parent_construction_set(host_parent):
+        """Recursively search through host parents to find a ConstructionSet."""
+        if hasattr(host_parent.properties.energy, 'construction_set'):
+            return host_parent.properties.energy.construction_set
+        elif host_parent.has_parent:
+            return ShadeEnergyProperties._parent_construction_set(host_parent.parent)
+        else:
+            return None
 
     def ToString(self):
         return self.__repr__()
 
     def __repr__(self):
-        return 'Shade Energy Properties:\n Reflectance:{}'.format(
-            self.diffuse_reflectance + self.specular_reflectance)
+        return 'Shade Energy Properties:\n host: {}'.format(self.host.name)

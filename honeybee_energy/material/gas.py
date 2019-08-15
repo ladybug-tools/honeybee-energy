@@ -7,6 +7,7 @@ They can only exist within window constructions bounded by glazing materials
 from __future__ import division
 
 from ._base import _EnergyMaterialWindowBase
+from ..writer import generate_idf_string, parse_idf_string
 
 from honeybee._lockable import lockable
 from honeybee.typing import float_positive, float_in_range, tuple_with_length
@@ -362,14 +363,14 @@ class EnergyWindowMaterialGas(_EnergyWindowMaterialGasBase):
         return self._coeff_property(self.SPECIFICHEATCURVES, t_kelvin)
 
     @classmethod
-    def from_idf(cls, ep_string):
+    def from_idf(cls, idf_string):
         """Create EnergyWindowMaterialGas from an EnergyPlus text string.
 
         Args:
-            ep_string: A text string fully describing an EnergyPlus material.
+            idf_string: A text string fully describing an EnergyPlus material.
         """
         prop_types = (str, str, float)
-        ep_strs = cls._parse_ep_string(ep_string, 'WindowMaterial:Gas,')
+        ep_strs = parse_idf_string(idf_string, 'WindowMaterial:Gas,')
         ep_s = [typ(prop) for typ, prop in zip(prop_types, ep_strs)]
         return cls(ep_s[0], ep_s[2], ep_s[1])
 
@@ -412,7 +413,7 @@ class EnergyWindowMaterialGas(_EnergyWindowMaterialGasBase):
         """Get an EnergyPlus string representation of the material."""
         values = (self.name, self.gas_type, self.thickness)
         comments = ('name', 'gas type', 'thickness {m}')
-        return self._generate_ep_string('WindowMaterial:Gas', values, comments)
+        return generate_idf_string('WindowMaterial:Gas', values, comments)
 
     def to_dict(self):
         """Energy Material Gas dictionary representation."""
@@ -545,14 +546,14 @@ class EnergyWindowMaterialGasMixture(_EnergyWindowMaterialGasBase):
         return self._weighted_avg_coeff_property(self.SPECIFICHEATCURVES, t_kelvin)
 
     @classmethod
-    def from_idf(cls, ep_string):
+    def from_idf(cls, idf_string):
         """Create EnergyWindowMaterialGas from an EnergyPlus text string.
 
         Args:
-            ep_string: A text string fully describing an EnergyPlus material.
+            idf_string: A text string fully describing an EnergyPlus material.
         """
         prop_types = (str, float, int, str, float, str, float, str, float, str, float)
-        ep_strs = cls._parse_ep_string(ep_string, 'WindowMaterial:GasMixture,')
+        ep_strs = parse_idf_string(idf_string, 'WindowMaterial:GasMixture,')
         ep_s = [typ(prop) for typ, prop in zip(prop_types, ep_strs)]
         gas_types = [ep_s[i] for i in range(3, 3 + ep_s[2] * 2, 2)]
         gas_fracs = [ep_s[i] for i in range(4, 4 + ep_s[2] * 2, 2)]
@@ -591,7 +592,7 @@ class EnergyWindowMaterialGasMixture(_EnergyWindowMaterialGasBase):
             values.append(self.gas_fractions[i])
             comments.append('gas {} type'.format(i))
             comments.append('gas {} fraction'.format(i))
-        return self._generate_ep_string('WindowMaterial:GasMixture', values, comments)
+        return generate_idf_string('WindowMaterial:GasMixture', values, comments)
 
     def to_dict(self):
         """Energy Material Gas Mixture dictionary representation."""
@@ -842,15 +843,15 @@ class EnergyWindowMaterialGasCustom(_EnergyWindowMaterialGasBase):
             self.specific_heat_coeff_c * t_kelvin ** 2
 
     @classmethod
-    def from_idf(cls, ep_string):
+    def from_idf(cls, idf_string):
         """Create EnergyWindowMaterialGasCustom from an EnergyPlus text string.
 
         Args:
-            ep_string: A text string fully describing an EnergyPlus material.
+            idf_string: A text string fully describing an EnergyPlus material.
         """
         prop_types = (str, str, float, float, float, float, float, float,
                       float, float, float, float, float, float)
-        ep_strs = cls._parse_ep_string(ep_string, 'WindowMaterial:Gas,')
+        ep_strs = parse_idf_string(idf_string, 'WindowMaterial:Gas,')
         ep_s = [typ(prop) for typ, prop in zip(prop_types, ep_strs)]
         assert ep_s[1].title() == 'Custom', 'Exected Custom Gas. Got a specific one.'
         ep_s.pop(1)
@@ -901,7 +902,7 @@ class EnergyWindowMaterialGasCustom(_EnergyWindowMaterialGasBase):
                     'viscosity coeff b', 'viscosity coeff c', 'specific heat coeff a',
                     'specific heat coeff b', 'specific heat coeff c',
                     'molecular weight', 'specific heat ratio')
-        return self._generate_ep_string('WindowMaterial:Gas', values, comments)
+        return generate_idf_string('WindowMaterial:Gas', values, comments)
 
     def to_dict(self):
         """Energy Material Gas Custom dictionary representation."""
