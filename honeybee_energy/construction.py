@@ -209,12 +209,7 @@ class _ConstructionBase(object):
         """Get an EnergyPlus string representation from values and comments."""
         values = (name,) + tuple(mat.name for mat in materials)
         comments = ('name',) + tuple('layer %s' % (i + 1) for i in range(len(materials)))
-        space_count = tuple((25 - len(str(n))) for n in values)
-        spaces = tuple(s_c * ' ' if s_c > 0 else ' ' for s_c in space_count)
-        ep_str = 'Construction,              !- ' + constr_type + '\n ' + '\n '.join(
-            '{},{}!- {}'.format(val, space, com) for val, space, com in
-            zip(values[:-1], spaces[:-1], comments[:-1]))
-        return ep_str + '\n {};{}!- {}'.format(values[-1], spaces[-1], comments[-1])
+        return generate_idf_string('Construction', values, comments)
 
     def __copy__(self):
         return self.__class__(self.name, [mat.duplicate() for mat in self.materials])
@@ -407,7 +402,7 @@ class OpaqueConstruction(_ConstructionBase):
 
     @classmethod
     def from_standards_dict(cls, data, data_materials):
-        """Create a OpaqueConstruction from an OpenStudio standards gem dictionary.
+        """Create an OpaqueConstruction from an OpenStudio standards gem dictionary.
 
         Args:
             data: {
