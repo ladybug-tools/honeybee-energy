@@ -10,7 +10,8 @@ therefore must be the only material in its parent construction.
 from __future__ import division
 
 from ._base import _EnergyMaterialWindowBase
-from ..writer import generate_idf_string, parse_idf_string
+from ..reader import parse_idf_string
+from ..writer import generate_idf_string
 
 from honeybee._lockable import lockable
 from honeybee.typing import float_in_range, float_positive

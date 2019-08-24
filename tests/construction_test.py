@@ -133,9 +133,10 @@ def test_opaque_construction_from_idf():
     gypsum = EnergyMaterial('Gypsum', 0.0127, 0.16, 784.9, 830)
     wall_constr = OpaqueConstruction(
         'Wall Construction', [concrete, insulation, wall_gap, gypsum])
-    constr_str, mat_str = wall_constr.to_idf()
+    constr_str = wall_constr.to_idf()
+    mat_str = [mat.to_idf() for mat in wall_constr.unique_materials]
     new_wall_constr = OpaqueConstruction.from_idf(constr_str, mat_str)
-    new_constr_str, new_mat_str = new_wall_constr.to_idf()
+    new_constr_str = new_wall_constr.to_idf()
 
     assert wall_constr.r_value == new_wall_constr.r_value
     assert wall_constr.r_factor == new_wall_constr.r_factor
@@ -375,9 +376,10 @@ def test_window_construction_init_from_idf_file():
 
     assert len(glaz_mats) == 2
     glaz_constr = glaz_constrs[0]
-    constr_str, mat_str = glaz_constr.to_idf()
+    constr_str = glaz_constr.to_idf()
+    mat_str = [mat.to_idf() for mat in glaz_constr.unique_materials]
     new_glaz_constr = WindowConstruction.from_idf(constr_str, mat_str)
-    new_constr_str, new_mat_str = new_glaz_constr.to_idf()
+    new_constr_str = new_glaz_constr.to_idf()
 
     assert glaz_constr.name == new_glaz_constr.name == 'GlzSys_5'
     assert glaz_constr.u_factor == new_glaz_constr.u_factor == \
