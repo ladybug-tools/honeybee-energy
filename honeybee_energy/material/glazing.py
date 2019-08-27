@@ -313,12 +313,9 @@ class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
         Args:
             idf_string: A text string fully describing an EnergyPlus material.
         """
-        prop_types = (str, str, str, float, float, float, float, float, float,
-                      float, float, float, float, float, float, str)
-        ep_strs = parse_idf_string(idf_string, 'WindowMaterial:Glazing,')
-        assert ep_strs[1] == 'SpectralAverage', \
-            'Expected SpectralAverage glazing type. Got {}.'.format(ep_strs[1])
-        ep_s = [typ(prop) for typ, prop in zip(prop_types, ep_strs)]
+        ep_s = parse_idf_string(idf_string, 'WindowMaterial:Glazing,')
+        assert ep_s[1] == 'SpectralAverage', \
+            'Expected SpectralAverage glazing type. Got {}.'.format(ep_s[1])
         new_mat = cls(ep_s[0], ep_s[3], ep_s[4], ep_s[5], ep_s[7], ep_s[8],
                       ep_s[10], ep_s[11], ep_s[12], ep_s[13])
         new_mat.solar_reflectance_back = ep_s[6]
@@ -577,10 +574,8 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
         Args:
             idf_string: A text string fully describing an EnergyPlus material.
         """
-        prop_types = (str, float, float, float)
         ep_strs = parse_idf_string(idf_string, 'WindowMaterial:SimpleGlazingSystem,')
-        ep_s = [typ(prop) for typ, prop in zip(prop_types, ep_strs)]
-        return cls(*ep_s)
+        return cls(*ep_strs)
 
     @classmethod
     def from_standards_dict(cls, data):

@@ -370,10 +370,8 @@ class EnergyWindowMaterialGas(_EnergyWindowMaterialGasBase):
         Args:
             idf_string: A text string fully describing an EnergyPlus material.
         """
-        prop_types = (str, str, float)
         ep_strs = parse_idf_string(idf_string, 'WindowMaterial:Gas,')
-        ep_s = [typ(prop) for typ, prop in zip(prop_types, ep_strs)]
-        return cls(ep_s[0], ep_s[2], ep_s[1])
+        return cls(ep_strs[0], ep_strs[2], ep_strs[1])
 
     @classmethod
     def from_standards_dict(cls, data):
@@ -850,10 +848,7 @@ class EnergyWindowMaterialGasCustom(_EnergyWindowMaterialGasBase):
         Args:
             idf_string: A text string fully describing an EnergyPlus material.
         """
-        prop_types = (str, str, float, float, float, float, float, float,
-                      float, float, float, float, float, float)
-        ep_strs = parse_idf_string(idf_string, 'WindowMaterial:Gas,')
-        ep_s = [typ(prop) for typ, prop in zip(prop_types, ep_strs)]
+        ep_s = parse_idf_string(idf_string, 'WindowMaterial:Gas,')
         assert ep_s[1].title() == 'Custom', 'Exected Custom Gas. Got a specific one.'
         ep_s.pop(1)
         return cls(*ep_s)

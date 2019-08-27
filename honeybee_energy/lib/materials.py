@@ -1,4 +1,4 @@
-"""Establish the defauly materials within the honeybee_energy library."""
+"""Establish the default materials within the honeybee_energy library."""
 from honeybee_energy.material.opaque import EnergyMaterial
 from honeybee_energy.material.glazing import EnergyWindowMaterialGlazing
 from honeybee_energy.material.gas import EnergyWindowMaterialGas

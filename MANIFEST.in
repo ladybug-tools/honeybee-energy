@@ -1,1 +1,2 @@
-include dev-requirements.txt
+include honeybee_energy/lib/idf/constructions/*.idf
+include honeybee_energy/lib/idf/schedules/*.idf

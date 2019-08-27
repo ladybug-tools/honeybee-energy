@@ -204,9 +204,7 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
         Args:
             idf_string: A text string fully describing an EnergyPlus material.
         """
-        prop_types = (str, str, float, float, float, float, float, float, float)
         ep_strs = parse_idf_string(idf_string, 'Material,')
-        ep_strs = [typ(prop) for typ, prop in zip(prop_types, ep_strs)]
         ep_strs.insert(5, ep_strs.pop(1))  # move roughness to correct place
         return cls(*ep_strs)
 
@@ -473,9 +471,7 @@ class EnergyMaterialNoMass(_EnergyMaterialOpaqueBase):
         Args:
             idf_string: A text string fully describing an EnergyPlus material.
         """
-        prop_types = (str, str, float, float, float, float)
         ep_strs = parse_idf_string(idf_string, 'Material:NoMass,')
-        ep_strs = [typ(prop) for typ, prop in zip(prop_types, ep_strs)]
         ep_strs.insert(2, ep_strs.pop(1))  # move roughness to correct place
         return cls(*ep_strs)
 
