@@ -7,7 +7,8 @@ They can only exist within window constructions bounded by glazing materials
 from __future__ import division
 
 from ._base import _EnergyMaterialWindowBase
-from ..writer import generate_idf_string, parse_idf_string
+from ..reader import parse_idf_string
+from ..writer import generate_idf_string
 
 from honeybee._lockable import lockable
 from honeybee.typing import float_positive, float_in_range, tuple_with_length

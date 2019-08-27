@@ -10,7 +10,8 @@ from .material.gas import _EnergyWindowMaterialGasBase, EnergyWindowMaterialGas,
     EnergyWindowMaterialGasMixture, EnergyWindowMaterialGasCustom
 from .material.shade import _EnergyWindowMaterialShadeBase, EnergyWindowMaterialShade, \
     EnergyWindowMaterialBlind
-from .writer import generate_idf_string, parse_idf_string
+from .reader import parse_idf_string
+from .writer import generate_idf_string
 
 from honeybee._lockable import lockable
 from honeybee.typing import valid_ep_string, float_in_range
@@ -209,12 +210,7 @@ class _ConstructionBase(object):
         """Get an EnergyPlus string representation from values and comments."""
         values = (name,) + tuple(mat.name for mat in materials)
         comments = ('name',) + tuple('layer %s' % (i + 1) for i in range(len(materials)))
-        space_count = tuple((25 - len(str(n))) for n in values)
-        spaces = tuple(s_c * ' ' if s_c > 0 else ' ' for s_c in space_count)
-        ep_str = 'Construction,              !- ' + constr_type + '\n ' + '\n '.join(
-            '{},{}!- {}'.format(val, space, com) for val, space, com in
-            zip(values[:-1], spaces[:-1], comments[:-1]))
-        return ep_str + '\n {};{}!- {}'.format(values[-1], spaces[-1], comments[-1])
+        return generate_idf_string('Construction', values, comments)
 
     def __copy__(self):
         return self.__class__(self.name, [mat.duplicate() for mat in self.materials])
@@ -407,7 +403,7 @@ class OpaqueConstruction(_ConstructionBase):
 
     @classmethod
     def from_standards_dict(cls, data, data_materials):
-        """Create a OpaqueConstruction from an OpenStudio standards gem dictionary.
+        """Create an OpaqueConstruction from an OpenStudio standards gem dictionary.
 
         Args:
             data: {
@@ -472,14 +468,15 @@ class OpaqueConstruction(_ConstructionBase):
     def to_idf(self):
         """IDF string representation of construction object and materials.
 
+        Note that this method only outputs a single string for the construction and,
+        to write the full construction into an IDF, the construction's unique_materials
+        must also be written.
+
         Returns:
             construction_idf: Text string representation of the construction.
-            materials_idf: List of text string representations for each of the
-                materials in the construction.
         """
         construction_idf = self._generate_idf_string('opaque', self.name, self.materials)
-        materials_idf = [mat.to_idf() for mat in self.unique_materials]
-        return construction_idf, materials_idf
+        return construction_idf
 
     def to_radiance_solar_interior(self, specularity=0.0):
         """Honeybee Radiance material with the interior solar reflectance."""
@@ -949,14 +946,15 @@ class WindowConstruction(_ConstructionBase):
     def to_idf(self):
         """IDF string representation of construction object and materials.
 
+        Note that this method only outputs a single string for the construction and,
+        to write the full construction into an IDF, the construction's unique_materials
+        must also be written.
+
         Returns:
             construction_idf: Text string representation of the construction.
-            materials_idf: Tuple of text string representations for each of the
-                materials in the construction.
         """
         construction_idf = self._generate_idf_string('window', self.name, self.materials)
-        materials_idf = [mat.to_idf() for mat in self.unique_materials]
-        return construction_idf, materials_idf
+        return construction_idf
 
     def to_radiance_solar(self):
         """Honeybee Radiance material with the solar transmittance."""
