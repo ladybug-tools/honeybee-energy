@@ -1,1 +1,1 @@
-"""Library of materials, constructions, and other templates used in honeybee-energy."""
+"""Library of Energyplus objects and templates used by honeybee-energy."""

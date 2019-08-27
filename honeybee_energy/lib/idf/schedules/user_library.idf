@@ -1,0 +1,3 @@
+!-   =============  USER CUSTOM SCHEDULES =============
+!- Paste EnergyPlus Schedules and ScheduleTypeLimits here to have them loaded into
+!- the honeybee_energy schedule and scheduletype library.

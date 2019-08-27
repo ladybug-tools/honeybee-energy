@@ -431,10 +431,7 @@ class EnergyWindowMaterialShade(_EnergyWindowMaterialShadeBase):
         Args:
             idf_string: A text string fully describing an EnergyPlus material.
         """
-        prop_types = (str, float, float, float, float, float, float, float, float,
-                      float, float, float, float, float, float)
-        ep_strs = parse_idf_string(idf_string, 'WindowMaterial:Shade,')
-        ep_s = [typ(prop) for typ, prop in zip(prop_types, ep_strs)]
+        ep_s = parse_idf_string(idf_string, 'WindowMaterial:Shade,')
         new_mat = cls(ep_s[0], ep_s[7], ep_s[1], ep_s[2], ep_s[3], ep_s[4],
                       ep_s[6], ep_s[5], ep_s[8], ep_s[9], ep_s[10], ep_s[14])
         new_mat.bottom_opening_multiplier = ep_s[11]
@@ -1032,12 +1029,7 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
         Args:
             idf_string: A text string fully describing an EnergyPlus material.
         """
-        prop_types = (str, str, float, float, float, float, float, float, float, float,
-                      float, float, float, float, float, float, float, float, float,
-                      float, float, float, float, float, float, float, float, float,
-                      float, float)
-        ep_strs = parse_idf_string(idf_string, 'WindowMaterial:Blind,')
-        ep_s = [typ(prop) for typ, prop in zip(prop_types, ep_strs)]
+        ep_s = parse_idf_string(idf_string, 'WindowMaterial:Blind,')
         new_mat = cls(ep_s[0], ep_s[1], ep_s[2], ep_s[3], ep_s[4], ep_s[5],
                       ep_s[6], ep_s[7], ep_s[8], ep_s[13], ep_s[14], ep_s[19],
                       ep_s[20], ep_s[22], ep_s[23])
