@@ -391,7 +391,7 @@ class ScheduleRule(object):
         Args:
             data: ScheduleRule dictionary following the format below.
 
-        .. code-block:: shell
+        .. code-block:: json
 
             {
             "type": 'ScheduleRule'
@@ -472,7 +472,7 @@ class ScheduleRule(object):
 
         Args:
             week_idf_string: A text string fully describing an EnergyPlus
-                Schedule:Week:Daily.
+                Schedule:Week:Daily or Schedule:Week:Compact.
             day_schedule_dict: A dictionary with the names of ScheduleDay objects as
                 keys and the corresponding ScheduleDay objects as values. These objects
                 will be used to build the ScheduleRules using the week_idf_string.
@@ -486,19 +486,57 @@ class ScheduleRule(object):
                 the Schedule:Week.
         """
         schedule_rules = []
-        applied_day_names = []
-        ep_strs = parse_idf_string(week_idf_string, 'Schedule:Week:Daily,')
-        for i, day_sch_name in enumerate(ep_strs[1:9]):
-            if day_sch_name not in applied_day_names:  # make a new rule
-                rule = ScheduleRule(day_schedule_dict[day_sch_name],
-                                    start_date=start_date, end_date=end_date)
-                rule.apply_day_by_dow(i + 1)
-                schedule_rules.append(rule)
-                applied_day_names.append(day_sch_name)
-            else:  # edit one of the existing rules to apply it to the new day
-                sch_rule_index = applied_day_names.index(day_sch_name)
-                rule = schedule_rules[sch_rule_index]
-                rule.apply_day_by_dow(i + 1)
+        if week_idf_string.startswith('Schedule:Week:Daily,'):
+            ep_strs = parse_idf_string(week_idf_string)
+            applied_day_names = []
+            for i, day_sch_name in enumerate(ep_strs[1:9]):
+                if day_sch_name not in applied_day_names:  # make a new rule
+                    rule = ScheduleRule(day_schedule_dict[day_sch_name],
+                                        start_date=start_date, end_date=end_date)
+                    rule.apply_day_by_dow(i + 1)
+                    schedule_rules.append(rule)
+                    applied_day_names.append(day_sch_name)
+                else:  # edit one of the existing rules to apply it to the new day
+                    sch_rule_index = applied_day_names.index(day_sch_name)
+                    rule = schedule_rules[sch_rule_index]
+                    rule.apply_day_by_dow(i + 1)
+        else:
+            ep_strs = parse_idf_string(week_idf_string, 'Schedule:Week:Compact,')
+            for i in range(1, len(ep_strs), 2):
+                day_type, day_sch_name = ep_strs[i].lower(), ep_strs[i + 1]
+                rule = ScheduleRule(day_schedule_dict[day_sch_name])
+                if 'alldays' in day_type:
+                    rule.apply_all = True
+                elif 'weekdays' in day_type:
+                    rule.apply_weekday = True
+                elif 'weekends' in day_type:
+                    rule.apply_weekend = True
+                elif 'sunday' in day_type:
+                    rule.apply_sunday = True
+                elif 'monday' in day_type:
+                    rule.apply_monday = True
+                elif 'tuesday' in day_type:
+                    rule.apply_tuesday = True
+                elif 'wednesday' in day_type:
+                    rule.apply_wednesday = True
+                elif 'thursday' in day_type:
+                    rule.apply_thursday = True
+                elif 'friday' in day_type:
+                    rule.apply_friday = True
+                elif 'saturday' in day_type:
+                    rule.apply_saturday = True
+                elif 'holiday' in day_type:
+                    rule.apply_holiday = True
+                elif 'allotherdays' in day_type:
+                    apply_mtx = [rul.week_apply_tuple for rul in schedule_rules]
+                    for j, dow in enumerate(zip(*apply_mtx)):
+                        if not any(dow):
+                            rule.apply_day_by_dow(j + 1)
+                    apply_hol = [rul.apply_holiday for rul in schedule_rules]
+                    if not any(apply_hol):
+                        rule.apply_holiday = True
+                if len(rule.days_applied) != 0:
+                    schedule_rules.append(rule)
         return schedule_rules
 
     def _check_start_before_end(self):
@@ -547,5 +585,5 @@ class ScheduleRule(object):
         return self.__repr__()
 
     def __repr__(self):
-        return 'ScheduleRule:\n schedule_day: {}\n days applied: {}'.format(
-            self.schedule_day.name, ', '.join(self.days_applied))
+        return 'ScheduleRule:\n schedule_day: {}\n days applied: {}\n date_range: {} - {}'.format(
+            self.schedule_day.name, ', '.join(self.days_applied), self.start_date, self.end_date)

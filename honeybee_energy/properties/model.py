@@ -13,6 +13,9 @@ from ..material.shade import EnergyWindowMaterialShade, EnergyWindowMaterialBlin
 from ..construction import OpaqueConstruction, WindowConstruction, ShadeConstruction
 from ..constructionset import ConstructionSet, WallSet, FloorSet, RoofCeilingSet, \
     ApertureSet, DoorSet
+from ..schedule.typelimit import ScheduleTypeLimit
+from ..schedule.ruleset import ScheduleRuleset
+from ..schedule.fixedinterval import ScheduleFixedInterval
 
 try:
     from itertools import izip as zip  # python 2
@@ -30,6 +33,9 @@ class ModelEnergyProperties(object):
         unique_shade_constructions
         unique_construction_sets
         global_construction_set
+        unique_schedule_type_limit
+        unique_schedules
+        unique_shade_schedules
     """
 
     def __init__(self, host):
@@ -127,6 +133,46 @@ class ModelEnergyProperties(object):
         """
         return generic_costruction_set
 
+    @property
+    def unique_schedule_type_limit(self):
+        """List of all unique schedule type limits contained within the model.
+
+        This includes schedules across all Shades and Rooms.
+        """
+        type_limits = []
+        for sched in self.unique_schedules:
+            t_lim = sched.schedule_type_limit
+            if t_lim is not None and not self._instance_in_array(t_lim, type_limits):
+                type_limits.append(t_lim)
+        return list(set(type_limits))
+
+    @property
+    def unique_schedules(self):
+        """A list of all unique schedules in the model.
+
+        This includes schedules across all Shades and Rooms.
+        """
+        all_scheds = self.unique_shade_schedules
+        return list(set(all_scheds))
+
+    @property
+    def unique_shade_schedules(self):
+        """A list of all unique transmittance schedules assigned to Shades in the model.
+        """
+        schedules = []
+        for shade in self.host.orphaned_shades:
+            self._check_and_add_shade_schedule(shade, schedules)
+        for room in self.host.rooms:
+            for shade in room.shades:
+                self._check_and_add_shade_schedule(shade, schedules)
+            for face in room.faces:  # check all Face schedules
+                for shade in face.shades:
+                    self._check_and_add_shade_schedule(shade, schedules)
+                for ap in face.apertures:  # check all Aperture schedules
+                    for shade in ap.shades:
+                        self._check_and_add_shade_schedule(shade, schedules)
+        return list(set(schedules))
+
     def check_duplicate_construction_set_names(self, raise_exception=True):
         """Check that there are no duplicate ConstructionSet names in the model."""
         con_set_names = set()
@@ -174,6 +220,40 @@ class ModelEnergyProperties(object):
             if raise_exception:
                 raise ValueError(
                     'The model has the following duplicated Material '
+                    'names:\n{}'.format('\n'.join(duplicate_names)))
+            return False
+        return True
+
+    def check_duplicate_schedule_type_limit_names(self, raise_exception=True):
+        """Check that there are no duplicate ScheduleTypeLimit names in the model."""
+        sched_type_limit_names = set()
+        duplicate_names = set()
+        for t_lim in self.unique_schedule_type_limit:
+            if t_lim.name not in sched_type_limit_names:
+                sched_type_limit_names.add(t_lim.name)
+            else:
+                duplicate_names.add(t_lim.name)
+        if len(duplicate_names) != 0:
+            if raise_exception:
+                raise ValueError(
+                    'The model has the following duplicated ScheduleTypeLimit '
+                    'names:\n{}'.format('\n'.join(duplicate_names)))
+            return False
+        return True
+
+    def check_duplicate_schedule_names(self, raise_exception=True):
+        """Check that there are no duplicate Schedule names in the model."""
+        sched_names = set()
+        duplicate_names = set()
+        for sched in self.unique_schedules:
+            if sched.name not in sched_names:
+                sched_names.add(sched.name)
+            else:
+                duplicate_names.add(sched.name)
+        if len(duplicate_names) != 0:
+            if raise_exception:
+                raise ValueError(
+                    'The model has the following duplicated Schedule '
                     'names:\n{}'.format('\n'.join(duplicate_names)))
             return False
         return True
@@ -251,6 +331,33 @@ class ModelEnergyProperties(object):
                 c_set['name'], wall_set, floor_set, roof_ceiling_set,
                 aperture_set, door_set, shade_construction)
 
+        # process all schedule type limits in the ModelEnergyProperties dictionary
+        schedule_type_limits = {}
+        for t_lim in data['properties']['energy']['schedule_type_limits']:
+            schedule_type_limits[t_lim['name']] = ScheduleTypeLimit.from_dict(t_lim)
+
+        # process all schedules in the ModelEnergyProperties dictionary
+        schedules = {}
+        for sched in data['properties']['energy']['schedules']:
+            sched = sched.copy()  # copy the original dictionary so that we don't edit it
+            # process the schedule type limits
+            typ_lim = None
+            if 'schedule_type_limit' in data:
+                typ_lim = sched['schedule_type_limit']
+                sched['schedule_type_limit'] = None
+            # create the schedule objects
+            if sched['type'] == 'ScheduleRulesetAbridged':
+                sched['type'] = 'ScheduleRuleset'
+                schedules[sched['name']] = ScheduleRuleset.from_dict(sched)
+                schedules[sched['name']].schedule_type_limit = typ_lim
+            elif sched['type'] == 'ScheduleFixedIntervalAbridged':
+                sched['type'] = 'ScheduleFixedInterval'
+                schedules[sched['name']] = ScheduleFixedInterval.from_dict(sched)
+                schedules[sched['name']].schedule_type_limit = typ_lim
+            else:
+                raise NotImplementedError(
+                    'Schedule {} is not supported.'.format(sched['type']))
+
         # collect lists of energy property dictionaries
         room_e_dicts, face_e_dicts, shd_e_dicts, ap_e_dicts, dr_e_dicts = \
             model_extension_dicts(data, 'energy')
@@ -261,7 +368,8 @@ class ModelEnergyProperties(object):
         for face, f_dict in zip(self.host.faces, face_e_dicts):
             face.properties.energy.apply_properties_from_dict(f_dict, constructions)
         for shade, s_dict in zip(self.host.shades, shd_e_dicts):
-            shade.properties.energy.apply_properties_from_dict(s_dict, constructions)
+            shade.properties.energy.apply_properties_from_dict(
+                s_dict, constructions, schedules)
         for aperture, a_dict in zip(self.host.apertures, ap_e_dicts):
             aperture.properties.energy.apply_properties_from_dict(a_dict, constructions)
         for aperture, a_dict in zip(self.host.apertures, ap_e_dicts):
@@ -312,6 +420,22 @@ class ModelEnergyProperties(object):
             except AttributeError:
                 pass  # ShadeConstruction
         base['energy']['materials'] = [mat.to_dict() for mat in set(materials)]
+
+        # add all unique Schedules to the dictionary
+        # TODO: Add the unique room schedules
+        schedules = self.unique_shade_schedules
+        base['energy']['schedules'] = []
+        for sched in schedules:
+            base['energy']['schedules'].append(sched.to_dict(abridged=True))
+
+        # add all unique ScheduleTypeLimits to the dictionary
+        type_limits = []
+        for sched in schedules:
+            t_lim = sched.schedule_type_limit
+            if t_lim is not None and not self._instance_in_array(t_lim, type_limits):
+                type_limits.append(t_lim)
+        base['energy']['schedule_type_limits'] = list(set(type_limits))
+
         return base
 
     def duplicate(self, new_host=None):
@@ -329,6 +453,13 @@ class ModelEnergyProperties(object):
         if constr is not None:
             if not self._instance_in_array(constr, constructions):
                 constructions.append(constr)
+
+    def _check_and_add_shade_schedule(self, obj, schedules):
+        """Check if a schedule is assigned to a shade and add it to a list."""
+        sched = obj.properties.energy._transmittance_schedule
+        if sched is not None:
+            if not self._instance_in_array(sched, schedules):
+                schedules.append(sched)
 
     @staticmethod
     def _instance_in_array(object_instance, object_array):

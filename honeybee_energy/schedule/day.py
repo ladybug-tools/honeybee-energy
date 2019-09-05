@@ -102,7 +102,7 @@ class ScheduleDay(object):
 
     @property
     def values(self):
-        """Get or set the Schedule's numerical values, which correspond to the times."""
+        """Get or set the schedule's numerical values, which correspond to the times."""
         return self._values
 
     @values.setter
@@ -365,7 +365,7 @@ class ScheduleDay(object):
         Args:
             data: Standards gem dictionary of a ScheduleDay following the format below.
 
-        .. code-block:: shell
+        .. code-block:: json
 
             {
             "name": "Large Office Bldg Occ",
@@ -404,7 +404,7 @@ class ScheduleDay(object):
         Args:
             data: ScheduleDay dictionary following the format below.
 
-        .. code-block:: shell
+        .. code-block:: json
 
             {
             "type": 'ScheduleDay',
@@ -462,7 +462,7 @@ class ScheduleDay(object):
             name: A name for the new averaged ScheduleDay.
             schedules: A list of ScheduleDay objects that will be averaged together
                 to make a new ScheduleDay.
-            weights:: An optional list of fractioanl numbers with the same length
+            weights: An optional list of fractioanl numbers with the same length
                 as the input schedules that sum to 1. These will be used to weight
                 each of the ScheduleDay objects in the resulting average schedule.
                 If None, the individual schedules will be weighted equally.

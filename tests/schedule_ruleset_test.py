@@ -220,7 +220,7 @@ def test_schedule_ruleset_from_week_day_schedules():
 
 
 def test_schedule_ruleset_from_idf_file():
-    """Test the initalization of WindowConstruction from file."""
+    """Test the initalization of ScheduleRuleset from file."""
     office_sched_idf = './tests/idf/OfficeOccupancySchedule.idf'
     office_scheds = ScheduleRuleset.extract_all_from_idf_file(office_sched_idf)
 
@@ -239,6 +239,30 @@ def test_schedule_ruleset_from_idf_file():
         'Medium Office Bldg Occ Default Schedule'
     assert office_occ.schedule_rules[1].schedule_day.name == \
         'Medium Office Bldg Occ Saturday Schedule'
+
+    assert isinstance(office_occ.schedule_type_limit, ScheduleTypeLimit)
+
+
+def test_schedule_ruleset_from_idf_file_compact():
+    """Test the initalization of ScheduleRuleset from file with Schedule:Week:Compact."""
+    office_sched_idf = './tests/idf/OfficeOccupancySchedule_Compact.idf'
+    office_scheds = ScheduleRuleset.extract_all_from_idf_file(office_sched_idf)
+
+    office_occ = office_scheds[0]
+
+    assert office_occ.name == 'Medium Office Bldg Occ'
+    assert isinstance(office_occ.default_day_schedule, ScheduleDay)
+    assert office_occ.default_day_schedule.name == \
+        'Medium Office Bldg Occ Default Schedule'
+    assert office_occ.summer_designday_schedule.name == \
+        'Medium Office Bldg Occ Summer Design Day'
+    assert office_occ.winter_designday_schedule.name == \
+        'Medium Office Bldg Occ Winter Design Day'
+    assert len(office_occ.schedule_rules) == 2
+    assert office_occ.schedule_rules[0].schedule_day.name == \
+        'Medium Office Bldg Occ Saturday Schedule'
+    assert office_occ.schedule_rules[1].schedule_day.name == \
+        'Medium Office Bldg Occ Sunday Schedule'
 
     assert isinstance(office_occ.schedule_type_limit, ScheduleTypeLimit)
 
@@ -384,3 +408,105 @@ def test_schedule_ruleset_to_rules():
     for rule in rules:
         assert rule.start_date == Date(6, 1)
         assert rule.end_date == Date(8, 31)
+
+
+def test_schedule_ruleset_average_schedules():
+    """Test the average_schedules method."""
+    weekday_office = ScheduleDay('Weekday Office Occupancy', [0, 1, 0.5, 0],
+                                 [Time(0, 0), Time(9, 0), Time(17, 0), Time(19, 0)])
+    weekday_lobby = ScheduleDay('Weekday Lobby Occupancy', [0.1, 1, 0.1],
+                                [Time(0, 0), Time(8, 0), Time(20, 0)])
+    weekend_office = ScheduleDay('Weekend Office Occupancy', [0])
+    weekend_lobby = ScheduleDay('Weekend Office Occupancy', [0.1])
+    wknd_office_rule = ScheduleRule(weekend_office, apply_saturday=True, apply_sunday=True)
+    wknd_lobby_rule = ScheduleRule(weekend_lobby, apply_saturday=True, apply_sunday=True)
+    office_schedule = ScheduleRuleset('Office Occupancy', weekday_office,
+                                      [wknd_office_rule], schedule_types.fractional)
+    lobby_schedule = ScheduleRuleset('Lobby Occupancy', weekday_lobby,
+                                     [wknd_lobby_rule], schedule_types.fractional)
+
+    office_avg = ScheduleRuleset.average_schedules(
+        'Office Average', [office_schedule, lobby_schedule])
+    week_vals = office_avg.values(end_date=Date(1, 7))
+
+    avg_vals = [0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.5,
+                1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.75, 0.75,
+                0.5, 0.05, 0.05, 0.05, 0.05]
+    assert week_vals[:24] == [0.05] * 24
+    assert week_vals[24:48] == avg_vals
+    assert (len(office_avg.schedule_rules)) == 1
+
+
+def test_schedule_ruleset_average_schedules_weights():
+    """Test the average_schedules method with weights."""
+    weekday_office = ScheduleDay('Weekday Office Occupancy', [0, 1, 0.5, 0],
+                                 [Time(0, 0), Time(8, 0), Time(17, 0), Time(20, 0)])
+    weekday_lobby = ScheduleDay('Weekday Lobby Occupancy', [0.1, 1, 0.1],
+                                [Time(0, 0), Time(8, 0), Time(20, 0)])
+    weekend_office = ScheduleDay('Weekend Office Occupancy', [0])
+    weekend_lobby = ScheduleDay('Weekend Office Occupancy', [0.1])
+    wknd_office_rule = ScheduleRule(weekend_office, apply_saturday=True, apply_sunday=True)
+    wknd_lobby_rule = ScheduleRule(weekend_lobby, apply_saturday=True, apply_sunday=True)
+    office_schedule = ScheduleRuleset('Office Occupancy', weekday_office,
+                                      [wknd_office_rule], schedule_types.fractional)
+    lobby_schedule = ScheduleRuleset('Lobby Occupancy', weekday_lobby,
+                                     [wknd_lobby_rule], schedule_types.fractional)
+
+    office_avg = ScheduleRuleset.average_schedules(
+        'Office Average', [office_schedule, lobby_schedule], [0.75, 0.25])
+    week_vals = office_avg.values(end_date=Date(1, 7))
+
+    avg_vals = [0.025, 0.025, 0.025, 0.025, 0.025, 0.025, 0.025, 0.025, 1.0,
+                1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.625, 0.625,
+                0.625, 0.025, 0.025, 0.025, 0.025]
+    assert week_vals[:24] == [0.025] * 24
+    assert week_vals[24:48] == avg_vals
+    assert (len(office_avg.schedule_rules)) == 1
+
+
+def test_schedule_ruleset_average_schedules_date_range():
+    """Test the ScheduleRuleset average_schedules method with schedules over a date range."""
+    weekday_school = ScheduleDay('Weekday School Year', [0.1, 1, 0.1],
+                                 [Time(0, 0), Time(8, 0), Time(17, 0)])
+    weekend_school = ScheduleDay('Weekend School Year', [0.1])
+    weekday_summer = ScheduleDay('Weekday Summer', [0, 0.5, 0],
+                                 [Time(0, 0), Time(9, 0), Time(17, 0)])
+    weekend_summer = ScheduleDay('Weekend Summer', [0])
+
+    summer_weekday_rule = ScheduleRule(
+        weekday_summer, start_date=Date(7, 1), end_date=Date(9, 1))
+    summer_weekday_rule.apply_weekday = True
+    summer_weekend_rule = ScheduleRule(
+        weekend_summer, start_date=Date(7, 1), end_date=Date(9, 1))
+    summer_weekend_rule.apply_weekend = True
+    summer_weekend_rule.apply_holiday = True
+    school_weekend_rule = ScheduleRule(weekend_school)
+    school_weekend_rule.apply_weekend = True
+    school_weekend_rule.apply_holiday = True
+
+    summer_design = ScheduleDay('School Summer Design', [0, 1, 0.25],
+                                [Time(0, 0), Time(6, 0), Time(18, 0)])
+    winter_design = ScheduleDay('School Winter Design', [0])
+
+    all_rules = [summer_weekday_rule, summer_weekend_rule, school_weekend_rule]
+    school_schedule = ScheduleRuleset(
+        'School Occupancy', weekday_school, all_rules, schedule_types.fractional,
+        summer_design, winter_design)
+    lobby_schedule = ScheduleRuleset.from_constant_value(
+        'Lobby Occupancy', 0.1, schedule_types.fractional)
+
+    school_avg = ScheduleRuleset.average_schedules(
+        'Office Average', [school_schedule, lobby_schedule])
+
+    week_vals = school_avg.values(end_date=Date(1, 7))
+    avg_vals = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.55,
+                0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.55, 0.1, 0.1,
+                0.1, 0.1, 0.1, 0.1, 0.1]
+    assert week_vals[:24] == [0.1] * 24
+    assert week_vals[24:48] == avg_vals
+
+    week_vals = school_avg.values(start_date=Date(7, 1), end_date=Date(7, 7))
+    avg_vals = [0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.3, 0.3, 0.3,
+                0.3, 0.3, 0.3, 0.3, 0.3, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05]
+    assert week_vals[:24] == [0.05] * 24
+    assert week_vals[24:48] == avg_vals

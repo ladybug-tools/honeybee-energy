@@ -160,7 +160,7 @@ class ScheduleTypeLimit(object):
         Args:
             data: ScheduleTypeLimit dictionary following the format below.
 
-        .. code-block:: shell
+        .. code-block:: json
 
             {
             "type": 'ScheduleTypeLimit',

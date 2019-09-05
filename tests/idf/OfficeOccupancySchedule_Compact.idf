@@ -1,0 +1,106 @@
+!       Sample Schedules in IDF format
+
+
+!-----------------------------------------------------
+!       ScheduleTypeLimits
+!-----------------------------------------------------
+
+ScheduleTypeLimits,
+Fractional,                             !- Name
+0,                                      !- Lower Limit Value
+1,                                      !- Upper Limit Value
+Continuous;                             !- Numeric Type
+
+
+!-----------------------------------------------------
+!       Occupancy Schedule
+!-----------------------------------------------------
+
+Schedule:Day:Interval,
+Medium Office Bldg Occ Default Schedule, !- Name
+Fractional,                             !- Schedule Type Limits Name
+No,                                     !- Interpolate to Timestep
+06:00,                                  !- Time 1 {hh:mm}
+0,                                      !- Value Until Time 1
+07:00,                                  !- Time 2 {hh:mm}
+0.1,                                    !- Value Until Time 2
+08:00,                                  !- Time 3 {hh:mm}
+0.2,                                    !- Value Until Time 3
+12:00,                                  !- Time 4 {hh:mm}
+0.95,                                   !- Value Until Time 4
+13:00,                                  !- Time 5 {hh:mm}
+0.5,                                    !- Value Until Time 5
+17:00,                                  !- Time 6 {hh:mm}
+0.95,                                   !- Value Until Time 6
+18:00,                                  !- Time 7 {hh:mm}
+0.7,                                    !- Value Until Time 7
+20:00,                                  !- Time 8 {hh:mm}
+0.4,                                    !- Value Until Time 8
+22:00,                                  !- Time 9 {hh:mm}
+0.1,                                    !- Value Until Time 9
+24:00,                                  !- Time 10 {hh:mm}
+0.05;                                   !- Value Until Time 10
+
+Schedule:Day:Interval,
+Medium Office Bldg Occ Sunday Schedule, !- Name
+Fractional,                             !- Schedule Type Limits Name
+No,                                     !- Interpolate to Timestep
+24:00,                                  !- Time 1 {hh:mm}
+0;                                      !- Value Until Time 1
+
+Schedule:Day:Interval,
+Medium Office Bldg Occ Saturday Schedule, !- Name
+Fractional,                             !- Schedule Type Limits Name
+No,                                     !- Interpolate to Timestep
+06:00,                                  !- Time 1 {hh:mm}
+0,                                      !- Value Until Time 1
+08:00,                                  !- Time 2 {hh:mm}
+0.1,                                    !- Value Until Time 2
+14:00,                                  !- Time 3 {hh:mm}
+0.5,                                    !- Value Until Time 3
+17:00,                                  !- Time 4 {hh:mm}
+0.1,                                    !- Value Until Time 4
+24:00,                                  !- Time 5 {hh:mm}
+0;                                      !- Value Until Time 5
+
+Schedule:Day:Interval,
+Medium Office Bldg Occ Summer Design Day, !- Name
+Fractional,                             !- Schedule Type Limits Name
+No,                                     !- Interpolate to Timestep
+06:00,                                  !- Time 1 {hh:mm}
+0,                                      !- Value Until Time 1
+22:00,                                  !- Time 2 {hh:mm}
+1,                                      !- Value Until Time 2
+24:00,                                  !- Time 3 {hh:mm}
+0.05;                                   !- Value Until Time 3
+
+Schedule:Day:Interval,
+Medium Office Bldg Occ Winter Design Day, !- Name
+Fractional,                             !- Schedule Type Limits Name
+No,                                     !- Interpolate to Timestep
+24:00,                                  !- Time 1 {hh:mm}
+0;                                      !- Value Until Time 1
+
+
+Schedule:Week:Compact,
+Office Occupancy Week Schedule, !- Name
+Weekdays,                           !- Day Type 1
+Medium Office Bldg Occ Default Schedule, !- Schedule:Day 1
+Saturdays,                           !- Day Type 2
+Medium Office Bldg Occ Saturday Schedule, !- Schedule:Day 2
+SummerDesignDay,                           !- Day Type 3
+Medium Office Bldg Occ Summer Design Day, !- Schedule:Day 3
+WinterDesignDay,                           !- Day Type 4
+Medium Office Bldg Occ Winter Design Day, !- Schedule:Day 4
+AllOtherDays,                           !- Day Type 5
+Medium Office Bldg Occ Sunday Schedule; !- Schedule:Day 5
+
+
+Schedule:Year,
+Medium Office Bldg Occ,                 !- Name
+Fractional,                             !- Schedule Type Limits Name
+Office Occupancy Week Schedule,         !- Schedule:Week Name 1
+1,                                      !- Start Month 1
+1,                                      !- Start Day 1
+12,                                     !- End Month 1
+31;                                     !- End Day 1
