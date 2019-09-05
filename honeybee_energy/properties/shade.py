@@ -1,6 +1,9 @@
 # coding=utf-8
 """Shade Energy Properties."""
 from ..construction import ShadeConstruction
+from ..schedule.ruleset import ScheduleRuleset
+from ..schedule.fixedinterval import ScheduleFixedInterval
+
 from ..lib.constructions import generic_context
 from ..lib.constructionsets import generic_costruction_set
 
@@ -66,10 +69,9 @@ class ShadeEnergyProperties(object):
     @transmittance_schedule.setter
     def transmittance_schedule(self, value):
         if value is not None:
-            # TODO: Un-comment this check once schedules are implemented
-            #assert isinstance(self.transmittance_schedule, _ScheduleBase), \
-            #    'Expected schedule for shade transmittance schedule. ' \
-            #    'Got {}.'.format(type(value))
+            assert isinstance(value, (ScheduleRuleset, ScheduleFixedInterval)), \
+                'Expected schedule for shade transmittance schedule. ' \
+                'Got {}.'.format(type(value))
             pass
         self._transmittance_schedule = value
 
@@ -90,14 +92,22 @@ class ShadeEnergyProperties(object):
         new_prop = cls(host)
         if 'construction' in data and data['construction'] is not None:
             new_prop.construction = ShadeConstruction.from_dict(data['construction'])
-        # TODO: Un-comment this check once schedules are implemented
-        #if 'transmittance_schedule' in data and \
-        #        data['transmittance_schedule'] is not None:
-        #    new_prop.transmittance_schedule = \
-        #        Schedule.from_dict(data['transmittance_schedule'])
+        if 'transmittance_schedule' in data and \
+                data['transmittance_schedule'] is not None:
+            sch_dict = data['transmittance_schedule']
+            if sch_dict['type'] == 'ScheduleRuleset':
+                new_prop.transmittance_schedule = \
+                    ScheduleRuleset.from_dict(data['transmittance_schedule'])
+            elif sch_dict['type'] == 'ScheduleFixedInterval':
+                new_prop.transmittance_schedule = \
+                    ScheduleFixedInterval.from_dict(data['transmittance_schedule'])
+            else:
+                raise ValueError(
+                    'Expected non-abridged Schedule dictionary for Shade '
+                    'transmittance_schedule. Got {}.'.format(sch_dict['type']))
         return new_prop
 
-    def apply_properties_from_dict(self, abridged_data, constructions):
+    def apply_properties_from_dict(self, abridged_data, constructions, schedules):
         """Apply properties from a ShadeEnergyPropertiesAbridged dictionary.
 
         Args:
@@ -105,14 +115,15 @@ class ShadeEnergyProperties(object):
                 coming from a Model).
             constructions: A dictionary of constructions with constructions names
                 as keys, which will be used to re-assign constructions.
+            schedules: A dictionary of schedules with schedule names as keys,
+                which will be used to re-assign schedules.
         """
         if 'construction' in abridged_data and abridged_data['construction'] is not None:
             self.construction = constructions[abridged_data['construction']]
-        # TODO: Un-comment this check once schedules are implemented
-        #if 'transmittance_schedule' in abridged_data and \
-        #        abridged_data['transmittance_schedule'] is not None:
-        #    self.transmittance_schedule = \
-        #        schedules[abridged_data['transmittance_schedule']]
+        if 'transmittance_schedule' in abridged_data and \
+                abridged_data['transmittance_schedule'] is not None:
+            self.transmittance_schedule = \
+                schedules[abridged_data['transmittance_schedule']]
 
     def to_dict(self, abridged=False):
         """Return energy properties as a dictionary.

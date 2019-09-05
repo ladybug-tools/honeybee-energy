@@ -1,0 +1,62 @@
+!       Sample Schedule:Files in IDF format
+
+
+!-----------------------------------------------------
+!       ScheduleTypeLimits
+!-----------------------------------------------------
+
+ScheduleTypeLimits,
+ On-Off,                   !- name
+ 0,                        !- lower limit value
+ 1,                        !- upper limit value
+ Discrete,                 !- numeric type
+ Dimensionless;            !- unit type
+
+
+!-----------------------------------------------------
+!       Electrochromic Control Schedule
+!-----------------------------------------------------
+
+Schedule:File,
+ Electrochromic Control 0, !- schedule name
+ On-Off,                   !- schedule type limits
+ ./tests/csv/Electrochromic_Control_0.csv, !- file name
+ 1,                        !- column number
+ 0,                        !- rows to skip
+ 8760,                     !- number of hours of data
+ Comma,                    !- column separator
+ No,                       !- interpolate to timestep
+ 60;                       !- minutes per item
+
+Schedule:File,
+ Electrochromic Control 90, !- schedule name
+ On-Off,                   !- schedule type limits
+ ./tests/csv/Electrochromic_Control_90.csv, !- file name
+ 1,                        !- column number
+ 0,                        !- rows to skip
+ 8760,                     !- number of hours of data
+ Comma,                    !- column separator
+ No,                       !- interpolate to timestep
+ 60;                       !- minutes per item
+
+Schedule:File,
+ Electrochromic Control 180, !- schedule name
+ On-Off,                   !- schedule type limits
+ ./tests/csv/Electrochromic_Control_180.csv, !- file name
+ 1,                        !- column number
+ 0,                        !- rows to skip
+ 8760,                     !- number of hours of data
+ Comma,                    !- column separator
+ No,                       !- interpolate to timestep
+ 60;                       !- minutes per item
+
+Schedule:File,
+ Electrochromic Control 270, !- schedule name
+ On-Off,                   !- schedule type limits
+ ./tests/csv/Electrochromic_Control_270.csv, !- file name
+ 1,                        !- column number
+ 0,                        !- rows to skip
+ 8760,                     !- number of hours of data
+ Comma,                    !- column separator
+ No,                       !- interpolate to timestep
+ 60;                       !- minutes per item
