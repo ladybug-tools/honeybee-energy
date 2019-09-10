@@ -466,7 +466,7 @@ class OpaqueConstruction(_ConstructionBase):
         return cls(data['name'], mat_layers)
 
     def to_idf(self):
-        """IDF string representation of construction object and materials.
+        """IDF string representation of construction object.
 
         Note that this method only outputs a single string for the construction and,
         to write the full construction into an IDF, the construction's unique_materials
@@ -944,7 +944,7 @@ class WindowConstruction(_ConstructionBase):
         return cls(data['name'], mat_layers)
 
     def to_idf(self):
-        """IDF string representation of construction object and materials.
+        """IDF string representation of construction object.
 
         Note that this method only outputs a single string for the construction and,
         to write the full construction into an IDF, the construction's unique_materials

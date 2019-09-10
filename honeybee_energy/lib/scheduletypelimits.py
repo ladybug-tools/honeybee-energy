@@ -1,7 +1,7 @@
 """Establish the default schedule types within the honeybee_energy library."""
 from honeybee_energy.schedule.typelimit import ScheduleTypeLimit
 
-from ._loadschedules import _idf_schedule_type_limits
+from ._loadtypelimits import _idf_schedule_type_limits
 
 
 # properties of all default schedule types; used when they are not found in default.idf
@@ -84,5 +84,5 @@ def schedule_type_limit_by_name(schedule_type_limit_name):
     try:
         return _idf_schedule_type_limits[schedule_type_limit_name]
     except KeyError:
-        raise ValueError('"{}" was not found in the schedule tpye library.'.format(
-            schedule_type_limit_name))
+        raise ValueError('"{}" was not found in the schedule type limits '
+                         'library.'.format(schedule_type_limit_name))

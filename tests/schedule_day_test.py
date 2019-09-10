@@ -331,7 +331,7 @@ def test_schedule_day_dict_methods():
 
 
 def test_schedule_day_average_schedules():
-    """Test the average_schedules methods."""
+    """Test the average_schedules method."""
     open_office = ScheduleDay('Open Office Occupancy', [0, 1, 0.5, 0],
                               [Time(0, 0), Time(9, 0), Time(17, 0), Time(19, 0)])
     office_lobby = ScheduleDay('Office Lobby Occupancy', [0.1, 1, 0.1],

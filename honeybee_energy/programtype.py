@@ -5,21 +5,23 @@ from honeybee.typing import valid_ep_string
 
 
 class ProgramType(object):
-    """Energy Program Type.
+    """Program Type object possessing all schedules and loads defining a program.
 
     Properties:
         name
-        people_load
-        lighting_load
-        electric_equipment_load
-        gas_equipment_load
-        infiltration_load
-        ventilation_load
+        people
+        lighting
+        electric_equipment
+        gas_equipment
+        infiltration
+        ventilation
+        cooling_setpoint_schedule
+        heating_setpoint_schedule
     """
 
-    def __init__(self, name, people_load=None, lighting_load=None,
-                 electric_equipment_load=None, gas_equipment_load=None,
-                 infiltration_load=None, ventilation_load=None):
+    def __init__(self, name, people=None, lighting=None, electric_equipment=None,
+                 gas_equipment=None, infiltration=None, ventilation=None,
+                 cooling_setpoint_schedule=None, heating_setpoint_schedule=None):
         """Initialize energy program type.
 
         Args:
@@ -27,12 +29,14 @@ class ProgramType(object):
                 Can include spaces but special characters will be stripped out.
         """
         self.name = name
-        self.people_load = people_load
-        self.lighting_load = lighting_load
-        self.electric_equipment_load = electric_equipment_load
-        self.gas_equipment_load = gas_equipment_load
-        self.infiltration_load = infiltration_load
-        self.ventilation_load = ventilation_load
+        self.people = people
+        self.lighting = lighting
+        self.electric_equipment = electric_equipment
+        self.gas_equipment = gas_equipment
+        self.infiltration = infiltration
+        self.ventilation = ventilation
+        self.heating_setpoint_schedule = heating_setpoint_schedule
+        self.heating_setpoint_schedule = heating_setpoint_schedule
 
     @property
     def name(self):

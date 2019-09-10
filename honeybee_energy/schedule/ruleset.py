@@ -268,7 +268,7 @@ class ScheduleRuleset(object):
         if end_date.leap_year is not leap_year:
             end_date = Date(end_date.month, end_date.day, leap_year)
         # ensure start date is before end date
-        assert start_date < end_date, 'ScheduleRuleset values() start_date must come ' \
+        assert start_date <= end_date, 'ScheduleRuleset values() start_date must come ' \
             'before end_date. {} comes after {}.'.format(start_date, end_date)
         # process the holidays if they are input
         if holidays is not None:

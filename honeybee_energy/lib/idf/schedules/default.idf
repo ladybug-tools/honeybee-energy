@@ -68,3 +68,11 @@ ScheduleTypeLimits,
 
 
 !-   ===========  WEEK AND YEAR SCHEDULES ===========
+
+
+!-   =============  CONSTANT SCHEDULES ==============
+
+Schedule:Constant,
+ Seated Adult Activity,   !- name
+ Activity Level,          !- schedule type limits name
+ 120;                     !- hourly value
