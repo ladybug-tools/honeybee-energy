@@ -59,6 +59,7 @@ class ShadeEnergyProperties(object):
         if value is not None:
             assert isinstance(value, ShadeConstruction), \
                 'Expected ShadeConstruction. Got {}.'.format(type(value))
+            value.lock()  # lock editing in case construction has multiple references
         self._construction = value
 
     @property
@@ -72,7 +73,7 @@ class ShadeEnergyProperties(object):
             assert isinstance(value, (ScheduleRuleset, ScheduleFixedInterval)), \
                 'Expected schedule for shade transmittance schedule. ' \
                 'Got {}.'.format(type(value))
-            pass
+            value.lock()  # lock editing in case schedule has multiple references
         self._transmittance_schedule = value
 
     @classmethod

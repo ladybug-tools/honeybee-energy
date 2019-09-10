@@ -7,7 +7,8 @@ from ..reader import parse_idf_string
 from ..writer import generate_idf_string
 
 from honeybee._lockable import lockable
-from honeybee.typing import valid_ep_string, float_in_range, int_in_range, tuple_with_length
+from honeybee.typing import valid_ep_string, float_in_range, int_in_range, \
+    tuple_with_length
 
 from ladybug.datacollection import HourlyContinuousCollection
 from ladybug.header import Header
@@ -520,7 +521,7 @@ class ScheduleFixedInterval(object):
     @staticmethod
     def to_idf_collective_csv(schedules, schedule_directory, file_name,
                               include_datetimes=False):
-        """Write several ScheduleFixedIntervals into the same CSV file and get IDF strings.
+        """Write several ScheduleFixedIntervals into the same CSV file and get IDF text.
 
         This method is useful when several ScheduleFixedInterval objects are serving a
         similar purpose and the data would be more easily managed if they all were in
@@ -529,8 +530,8 @@ class ScheduleFixedInterval(object):
         Args:
             schedules: A list of ScheduleFixedInterval objects to be written into
                 the same CSV.
-            schedule_directory: [Required] Text string of a full path to a folder on this
-                machine to which the CSV version of the file will be written.
+            schedule_directory: [Required] Text string of a full path to a folder on
+                this machine to which the CSV version of the file will be written.
             file_name: Text string for the name to be used for the CSV file that
                 houses all of the schedule data.
             include_datetimes: Boolean to note whether a column of datetime objects
@@ -616,18 +617,19 @@ class ScheduleFixedInterval(object):
 
     @staticmethod
     def average_schedules(name, schedules, weights=None):
-        """Create a ScheduleFixedInterval that is a weighted average between other schedules.
+        """Get a ScheduleFixedInterval that's a weighted average between other schedules.
 
         Args:
             name: A name for the new averaged ScheduleFixedInterval.
-            schedules: A list of ScheduleFixedInterval objects that will be averaged together
-                to make a new ScheduleFixedInterval. This list may also contain
-                ScheduleRulesets but it is recommened there be at least one ScheduleFixedInterval.
-                Otherwise, the ScheduleRuleset.average_schedules method should be used.
+            schedules: A list of ScheduleFixedInterval objects that will be averaged
+                together to make a new ScheduleFixedInterval. This list may also contain
+                ScheduleRulesets but it is recommened there be at least one
+                ScheduleFixedInterval. Otherwise, the ScheduleRuleset.average_schedules
+                method should be used.
             weights: An optional list of fractioanl numbers with the same length
                 as the input schedules that sum to 1. These will be used to weight
-                each of the ScheduleFixedInterval objects in the resulting average schedule.
-                If None, the individual schedules will be weighted equally.
+                each of the ScheduleFixedInterval objects in the resulting average
+                schedule. If None, the individual schedules will be weighted equally.
         """
         # check the inputs
         assert isinstance(schedules, (list, tuple)), 'Expected a list of ScheduleDay ' \
@@ -653,7 +655,8 @@ class ScheduleFixedInterval(object):
         timestep = max(t_steps)
         lp_yr = lp_yrs[0] if len(lp_yrs) != 0 else False
         for lp in lp_yrs:
-            assert lp is lp_yr, 'All is_leap_year properties must match to make an average schedule.'
+            assert lp is lp_yr, \
+                'All is_leap_year properties must match to make an average schedule.'
 
         # collect all of the values at the timestep
         all_values = []
@@ -665,7 +668,8 @@ class ScheduleFixedInterval(object):
                     all_values.append(sched.values(timestep, leap_year=lp_yr))
                 except AttributeError:
                     raise TypeError('"{}" is not an acceptable input type for '
-                                    'ScheduleFixedInterval.average_schedules.'.format(type(sched)))
+                                    'ScheduleFixedInterval.average_schedules.'.format(
+                                        type(sched)))
 
         sch_vals = [sum([val * weights[i] for i, val in enumerate(values)])
                     for values in zip(*all_values)]
@@ -730,8 +734,8 @@ class ScheduleFixedInterval(object):
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""
         return (self.name, self._placeholder_value, self._interpolate,
-                self._timestep, hash(self._start_date), hash(self.schedule_type_limit)) + \
-            self._values
+                self._timestep, hash(self._start_date),
+                hash(self.schedule_type_limit)) + self._values
 
     def __hash__(self):
         return hash(self.__key())
