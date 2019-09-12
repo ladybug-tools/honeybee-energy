@@ -1,5 +1,5 @@
 # coding=utf-8
-from honeybee_energy.load.equipment import ElectricEquipment
+from honeybee_energy.load.equipment import ElectricEquipment, GasEquipment
 from honeybee_energy.schedule.day import ScheduleDay
 from honeybee_energy.schedule.rule import ScheduleRule
 from honeybee_energy.schedule.ruleset import ScheduleRuleset
@@ -27,6 +27,27 @@ def test_equipment_init():
     assert equipment.schedule == schedule
     assert equipment.radiant_fraction == 0
     assert equipment.latent_fraction == 0
+    assert equipment.lost_fraction == 0
+    assert equipment.convected_fraction == 1
+
+
+def test_gas_equipment_init():
+    """Test the initialization of GasEquipment and basic properties."""
+    simple_office = ScheduleDay('Simple Weekday', [0, 1, 0],
+                                [Time(0, 0), Time(9, 0), Time(17, 0)])
+    schedule = ScheduleRuleset('Kitchen Equip', simple_office,
+                               None, schedule_types.fractional)
+    equipment = GasEquipment('Kitchen Stove Equip', 8, schedule)
+    str(equipment)  # test the string representation
+
+    assert equipment.name == 'Kitchen Stove Equip'
+    assert equipment.watts_per_area == 8
+    assert equipment.schedule.name == 'Kitchen Equip'
+    assert equipment.schedule.schedule_type_limit == schedule_types.fractional
+    assert equipment.schedule == schedule
+    assert equipment.radiant_fraction == 0
+    assert equipment.latent_fraction == 0
+    assert equipment.lost_fraction == 0
     assert equipment.convected_fraction == 1
 
 
@@ -51,6 +72,8 @@ def test_equipment_setability():
     assert equipment.radiant_fraction == 0.4
     equipment.latent_fraction = 0.2
     assert equipment.latent_fraction == 0.2
+    equipment.lost_fraction = 0.1
+    assert equipment.lost_fraction == 0.1
 
 
 def test_equipment_equality():
@@ -155,13 +178,14 @@ def test_equipment_average():
                                      [wknd_lobby_rule], schedule_types.fractional)
 
     office_equip = ElectricEquipment('Office Equip', 10, office_schedule, 0.3, 0.3)
-    lobby_equip = ElectricEquipment('Lobby Equip', 6, lobby_schedule, 0.4, 0.2)
+    lobby_equip = ElectricEquipment('Lobby Equip', 6, lobby_schedule, 0.4, 0.2, 0.1)
 
     office_avg = ElectricEquipment.average('Office Average Equip', [office_equip, lobby_equip])
 
     assert office_avg.watts_per_area == pytest.approx(8, rel=1e-3)
     assert office_avg.radiant_fraction == pytest.approx(0.35, rel=1e-3)
     assert office_avg.latent_fraction == pytest.approx(0.25, rel=1e-3)
+    assert office_avg.lost_fraction == pytest.approx(0.05, rel=1e-3)
 
     week_vals = office_avg.schedule.values(end_date=Date(1, 7))
     avg_vals = [0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.5,

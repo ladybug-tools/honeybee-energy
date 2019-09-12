@@ -73,6 +73,10 @@ class ShadeEnergyProperties(object):
             assert isinstance(value, (ScheduleRuleset, ScheduleFixedInterval)), \
                 'Expected schedule for shade transmittance schedule. ' \
                 'Got {}.'.format(type(value))
+            if value.schedule_type_limit is not None:
+                assert value.schedule_type_limit.unit == 'fraction', 'Transmittance ' \
+                    'schedule should be fractional [Dimensionless]. Got a schedule ' \
+                    'of unit_type [{}].'.format(value.schedule_type_limit.unit_type)
             value.lock()  # lock editing in case schedule has multiple references
         self._transmittance_schedule = value
 

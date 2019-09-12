@@ -72,9 +72,6 @@ except KeyError:
 SCHEDULE_TYPE_LIMITS = tuple(_idf_schedule_type_limits.keys())
 
 
-# methods to look up schedule types from the library
-
-
 def schedule_type_limit_by_name(schedule_type_limit_name):
     """Get a schedule type from the library given its name.
 

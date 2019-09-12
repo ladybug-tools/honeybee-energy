@@ -20,9 +20,6 @@ except KeyError:
 SCHEDULES = tuple(_idf_schedules.keys())
 
 
-# methods to look up schedule types from the library
-
-
 def schedule_by_name(schedule_name):
     """Get a schedule from the library given its name.
 

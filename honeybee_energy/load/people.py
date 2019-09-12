@@ -11,7 +11,7 @@ from ..writer import generate_idf_string
 import honeybee_energy.lib.schedules as _sched_lib
 
 from honeybee._lockable import lockable
-from honeybee.typing import float_in_range, float_positive, tuple_with_length
+from honeybee.typing import float_in_range, float_positive
 
 
 @lockable
@@ -210,7 +210,8 @@ class People(_LoadBase):
             "latent_fraction": 0.2 // fraction of total heat that is latent
             }
         """
-        assert data['type'] == 'People', 'Expected People. Got {}.'.format(data['type'])
+        assert data['type'] == 'People', \
+            'Expected People dictionary. Got {}.'.format(data['type'])
         occ_sched = cls._get_schedule_from_dict(data['occupancy_schedule'])
         act_sched = cls._get_schedule_from_dict(data['activity_schedule']) if \
             'activity_schedule' in data and data['activity_schedule'] is not None else None
@@ -281,17 +282,7 @@ class People(_LoadBase):
                 smaller than this timestep will be lost in the averaging process.
                 Default: 1.
         """
-        # check the inputs
-        assert isinstance(peoples, (list, tuple)), 'Expected a list of People ' \
-            'objects for People.average. Got {}.'.format(type(peoples))
-        if weights is None:
-            weight = 1 / len(peoples)
-            weights = [weight for i in peoples]
-        else:
-            weights = tuple_with_length(weights, len(peoples), float,
-                                        'average people weights')
-            assert sum(weights) == 1, 'Average people weights must sum to 1. ' \
-                'Got {}.'.format(sum(weights))
+        weights = People._check_avg_weights(peoples, weights, 'People')
 
         # calculate the average values
         ppl_area = sum([ppl.people_per_area * w for ppl, w in zip(peoples, weights)])
