@@ -9,7 +9,7 @@ from ..reader import parse_idf_string
 from ..writer import generate_idf_string
 
 from honeybee._lockable import lockable
-from honeybee.typing import float_in_range, float_positive, tuple_with_length
+from honeybee.typing import float_in_range, float_positive
 
 
 @lockable
@@ -22,16 +22,18 @@ class _EquipmentBase(_LoadBase):
         * schedule
         * radiant_fraction
         * latent_fraction
+        * lost_fraction
         * convected_fraction
     """
-    __slots__ = ('_watts_per_area', '_schedule', '_radiant_fraction', '_latent_fraction')
+    __slots__ = ('_watts_per_area', '_schedule', '_radiant_fraction',
+                 '_latent_fraction', '_lost_fraction')
     _idf_comments = ('name', 'zone name', 'schedule name', 'equipment level method',
                      'equipment power level {W}', 'equipment per floor area {W/m2}',
                      'equipment per person {W/ppl}', 'latent fraction',
                      'radiant fration', 'lost fraction')
 
     def __init__(self, name, watts_per_area, schedule, radiant_fraction=0,
-                 latent_fraction=0):
+                 latent_fraction=0, lost_fraction=0):
         """Initialize Equipment.
 
         Args:
@@ -47,14 +49,20 @@ class _EquipmentBase(_LoadBase):
                 equipment load given off as long wave radiant heat. Default: 0.
             latent_fraction: A number between 0 and 1 for the fraction of the total
                 equipment load that is latent (as opposed to sensible). Default: 0.
+            lost_fraction: A number between 0 and 1 for the fraction of the total
+                equipment load that is lost outside of the zone and the HVAC system.
+                Typically, this is used to represent heat that is exhausted directly
+                out of a zone (as you would for a stove). Default: 0.
         """
         _LoadBase.__init__(self, name)
         self._latent_fraction = 0  # starting value so that check runs correctly
+        self._lost_fraction = 0  # starting value so that check runs correctly
 
         self.watts_per_area = watts_per_area
         self.schedule = schedule
         self.radiant_fraction = radiant_fraction
         self.latent_fraction = latent_fraction
+        self.lost_fraction = lost_fraction
 
     @property
     def watts_per_area(self):
@@ -102,19 +110,32 @@ class _EquipmentBase(_LoadBase):
         self._check_fractions()
 
     @property
+    def lost_fraction(self):
+        """Get or set the fraction of equipment heat that is lost out of the zone."""
+        return self._lost_fraction
+
+    @lost_fraction.setter
+    def lost_fraction(self, value):
+        self._lost_fraction = float_in_range(
+            value, 0.0, 1.0, 'equipment lost fraction')
+        self._check_fractions()
+
+    @property
     def convected_fraction(self):
         """Get the fraction of equipment heat that convects to the zone air."""
-        return 1 - sum((self._radiant_fraction, self._latent_fraction))
+        return 1 - sum((self._radiant_fraction, self._latent_fraction,
+                        self._lost_fraction))
 
     def _check_fractions(self):
-        tot = (self._radiant_fraction, self._latent_fraction)
-        assert sum(tot) <= 1, 'Sum of equipment radiant_fraction ' \
-            'and latent_fraction ({}) is greater than 1.'.format(sum(tot))
+        tot = (self._radiant_fraction, self._latent_fraction, self._lost_fraction)
+        assert sum(tot) <= 1, 'Sum of equipment radiant_fraction, latent_fraction' \
+            ' and lost_fraction ({}) is greater than 1.'.format(sum(tot))
 
     def _get_idf_values(self, zone_name):
         """Get the properties of this object ordered as they are in an IDF."""
         return (self.name, zone_name, self.schedule.name, 'Watts/Area', '',
-                self.watts_per_area, '', self.latent_fraction, self.radiant_fraction, 0)
+                self.watts_per_area, '', self.latent_fraction, self.radiant_fraction,
+                self.lost_fraction)
 
     def _add_dict_keys(self, base, abridged):
         """Add keys to a base dictionary."""
@@ -122,6 +143,7 @@ class _EquipmentBase(_LoadBase):
         base['watts_per_area'] = self.watts_per_area
         base['radiant_fraction'] = self.radiant_fraction
         base['latent_fraction'] = self.latent_fraction
+        base['lost_fraction'] = self.lost_fraction
         base['schedule'] = self.schedule.to_dict() if not \
             abridged else self.schedule.name
         return base
@@ -135,9 +157,11 @@ class _EquipmentBase(_LoadBase):
         # extract the properties from the string
         rad_fract = 0
         lat_fract = 0
+        lost_fract = 0
         try:
             rad_fract = ep_strs[8] if ep_strs[8] != '' else 0
             lat_fract = ep_strs[7] if ep_strs[7] != '' else 0
+            lost_fract = ep_strs[9] if ep_strs[9] != '' else 0
         except IndexError:
             pass  # shorter equipment definitipn lacking fractions
         # extract the schedules from the string
@@ -145,7 +169,7 @@ class _EquipmentBase(_LoadBase):
             sched = schedule_dict[ep_strs[2]]
         except KeyError as e:
             raise ValueError('Failed to find {} in the schedule_dict.'.format(e))
-        return sched, rad_fract, lat_fract
+        return sched, rad_fract, lat_fract, lost_fract
 
     @staticmethod
     def _extract_dict_props(data, expected_type):
@@ -155,39 +179,31 @@ class _EquipmentBase(_LoadBase):
         sched = _EquipmentBase._get_schedule_from_dict(data['schedule'])
         rad_fract = data['radiant_fraction'] if 'radiant_fraction' in data else 0
         lat_fract = data['latent_fraction'] if 'latent_fraction' in data else 0
-        return sched, rad_fract, lat_fract
+        lost_fract = data['lost_fraction'] if 'lost_fraction' in data else 0
+        return sched, rad_fract, lat_fract, lost_fract
 
     @staticmethod
     def _average_properties(name, equipments, weights, timestep_resolution):
         """Get average properties across several equipment objects."""
-        # check the inputs
-        assert isinstance(equipments, (list, tuple)), 'Expected a list of Equipment ' \
-            'objects for Equipment.average. Got {}.'.format(type(equipments))
-        if weights is None:
-            weight = 1 / len(equipments)
-            weights = [weight for i in equipments]
-        else:
-            weights = tuple_with_length(weights, len(equipments), float,
-                                        'average equipment weights')
-            assert sum(weights) == 1, 'Average equipment weights must sum to 1. ' \
-                'Got {}.'.format(sum(weights))
+        weights = _EquipmentBase._check_avg_weights(equipments, weights, 'Equipment')
 
         # calculate the average values
-        pd = sum([li.watts_per_area * w for li, w in zip(equipments, weights)])
-        rad_fract = sum([li.radiant_fraction * w for li, w in zip(equipments, weights)])
-        lat_fract = sum([li.latent_fraction * w for li, w in zip(equipments, weights)])
+        pd = sum([eq.watts_per_area * w for eq, w in zip(equipments, weights)])
+        rad_fract = sum([eq.radiant_fraction * w for eq, w in zip(equipments, weights)])
+        lat_fract = sum([eq.latent_fraction * w for eq, w in zip(equipments, weights)])
+        lost_fract = sum([eq.lost_fraction * w for eq, w in zip(equipments, weights)])
 
         # calculate the average schedules
         sched = _EquipmentBase._average_schedule(
-            '{} Schedule'.format(name), [li.schedule for li in equipments],
+            '{} Schedule'.format(name), [eq.schedule for eq in equipments],
             weights, timestep_resolution)
 
-        return pd, sched, rad_fract, lat_fract
+        return pd, sched, rad_fract, lat_fract, lost_fract
 
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""
         return (self.name, self.watts_per_area, hash(self.schedule),
-                self.radiant_fraction, self.latent_fraction)
+                self.radiant_fraction, self.latent_fraction, self.lost_fraction)
 
     def __hash__(self):
         return hash(self.__key())
@@ -199,8 +215,9 @@ class _EquipmentBase(_LoadBase):
         return not self.__eq__(other)
 
     def __copy__(self):
-        return _EquipmentBase(self.name, self.watts_per_area, self.schedule,
-                              self.radiant_fraction, self.latent_fraction)
+        return _EquipmentBase(
+            self.name, self.watts_per_area, self.schedule,
+            self.radiant_fraction, self.latent_fraction, self.lost_fraction)
 
     def __repr__(self):
         return 'Equipment:\n name: {}\n watts per area: {}\n schedule: ' \
@@ -217,12 +234,13 @@ class ElectricEquipment(_EquipmentBase):
         * schedule
         * radiant_fraction
         * latent_fraction
+        * lost_fraction
         * convected_fraction
     """
     __slots__ = ()
 
     def __init__(self, name, watts_per_area, schedule, radiant_fraction=0,
-                 latent_fraction=0):
+                 latent_fraction=0, lost_fraction=0):
         """Initialize Electric Equipment.
 
         Args:
@@ -238,9 +256,13 @@ class ElectricEquipment(_EquipmentBase):
                 equipment load given off as long wave radiant heat. Default: 0.
             latent_fraction: A number between 0 and 1 for the fraction of the total
                 equipment load that is latent (as opposed to sensible). Default: 0.
+            lost_fraction: A number between 0 and 1 for the fraction of the total
+                equipment load that is lost outside of the zone and the HVAC system.
+                Typically, this is used to represent heat that is exhausted directly
+                out of a zone (as you would for a stove). Default: 0.
         """
         _EquipmentBase.__init__(self, name, watts_per_area, schedule,
-                                radiant_fraction, latent_fraction)
+                                radiant_fraction, latent_fraction, lost_fraction)
 
     @classmethod
     def from_idf(cls, idf_string, schedule_dict):
@@ -265,9 +287,9 @@ class ElectricEquipment(_EquipmentBase):
         # check the inputs
         ep_strs = parse_idf_string(idf_string, 'ElectricEquipment,')
         # get the relevant properties
-        sched, rad_fract, lat_fract = cls._extract_ep_properties(ep_strs, schedule_dict)
+        sched, rad_f, lat_f, lost_f = cls._extract_ep_properties(ep_strs, schedule_dict)
         # return the equipment object and the zone name for the equip object
-        equipment = cls(ep_strs[0], ep_strs[5], sched, rad_fract, lat_fract)
+        equipment = cls(ep_strs[0], ep_strs[5], sched, rad_f, lat_f, lost_f)
         zone_name = ep_strs[1]
         return equipment, zone_name
 
@@ -289,11 +311,12 @@ class ElectricEquipment(_EquipmentBase):
             "watts_per_area": 5, // equipment watts per square meter of floor area
             "schedule": {}, // ScheduleRuleset/ScheduleFixedInterval dictionary
             "radiant_fraction": 0.3, // fraction of heat that is long wave radiant
-            "latent_fraction": 0 // fraction of heat that is latent
+            "latent_fraction": 0, // fraction of heat that is latent
+            "lost_fraction": 0 // fraction of heat that is lost
             }
         """
-        sched, rad_fract, lat_fract = cls._extract_dict_props(data, 'ElectricEquipment')
-        return cls(data['name'], data['watts_per_area'], sched, rad_fract, lat_fract)
+        sched, rad_f, lat_f, lost_f = cls._extract_dict_props(data, 'ElectricEquipment')
+        return cls(data['name'], data['watts_per_area'], sched, rad_f, lat_f, lost_f)
 
     def to_idf(self, zone_name):
         """IDF string representation of ElectricEquipment object.
@@ -323,7 +346,7 @@ class ElectricEquipment(_EquipmentBase):
 
     @staticmethod
     def average(name, equipments, weights=None, timestep_resolution=1):
-        """Get a ElectricEquipment object that's an average between other objects.
+        """Get an ElectricEquipment object that's an average between other objects.
 
         Args:
             name: A name for the new averaged ElectricEquipment object.
@@ -338,21 +361,22 @@ class ElectricEquipment(_EquipmentBase):
                 smaller than this timestep will be lost in the averaging process.
                 Default: 1.
         """
-        pd, sched, rad_fract, lat_fract = ElectricEquipment._average_properties(
+        pd, sched, rad_f, lat_f, lost_f = ElectricEquipment._average_properties(
             name, equipments, weights, timestep_resolution)
-        return ElectricEquipment(name, pd, sched, rad_fract, lat_fract)
+        return ElectricEquipment(name, pd, sched, rad_f, lat_f, lost_f)
 
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""
         return (self.name, self.watts_per_area, hash(self.schedule),
-                self.radiant_fraction, self.latent_fraction)
+                self.radiant_fraction, self.latent_fraction, self.lost_fraction)
 
     def __eq__(self, other):
         return isinstance(other, ElectricEquipment) and self.__key() == other.__key()
 
     def __copy__(self):
-        return ElectricEquipment(self.name, self.watts_per_area, self.schedule,
-                                 self.radiant_fraction, self.latent_fraction)
+        return ElectricEquipment(
+            self.name, self.watts_per_area, self.schedule,
+            self.radiant_fraction, self.latent_fraction, self.lost_fraction)
 
     def __repr__(self):
         return 'ElectricEquipment:\n name: {}\n watts per area: {}\n schedule: ' \
@@ -369,12 +393,13 @@ class GasEquipment(_EquipmentBase):
         * schedule
         * radiant_fraction
         * latent_fraction
+        * lost_fraction
         * convected_fraction
     """
     __slots__ = ()
 
     def __init__(self, name, watts_per_area, schedule, radiant_fraction=0,
-                 latent_fraction=0):
+                 latent_fraction=0, lost_fraction=0):
         """Initialize Gas Equipment.
 
         Args:
@@ -390,9 +415,13 @@ class GasEquipment(_EquipmentBase):
                 equipment load given off as long wave radiant heat. Default: 0.
             latent_fraction: A number between 0 and 1 for the fraction of the total
                 equipment load that is latent (as opposed to sensible). Default: 0.
+            lost_fraction: A number between 0 and 1 for the fraction of the total
+                equipment load that is lost outside of the zone and the HVAC system.
+                Typically, this is used to represent heat that is exhausted directly
+                out of a zone (as you would for a stove). Default: 0.
         """
         _EquipmentBase.__init__(self, name, watts_per_area, schedule,
-                                radiant_fraction, latent_fraction)
+                                radiant_fraction, latent_fraction, lost_fraction)
 
     @classmethod
     def from_idf(cls, idf_string, schedule_dict):
@@ -417,9 +446,9 @@ class GasEquipment(_EquipmentBase):
         # check the inputs
         ep_strs = parse_idf_string(idf_string, 'GasEquipment,')
         # get the relevant properties
-        sched, rad_fract, lat_fract = cls._extract_ep_properties(ep_strs, schedule_dict)
+        sched, rad_f, lat_f, lost_f = cls._extract_ep_properties(ep_strs, schedule_dict)
         # return the equipment object and the zone name for the equip object
-        equipment = cls(ep_strs[0], ep_strs[5], sched, rad_fract, lat_fract)
+        equipment = cls(ep_strs[0], ep_strs[5], sched, rad_f, lat_f, lost_f)
         zone_name = ep_strs[1]
         return equipment, zone_name
 
@@ -441,11 +470,12 @@ class GasEquipment(_EquipmentBase):
             "watts_per_area": 20, // equipment watts per square meter of floor area
             "schedule": {}, // ScheduleRuleset/ScheduleFixedInterval dictionary
             "radiant_fraction": 0.3, // fraction of heat that is long wave radiant
-            "latent_fraction": 0.2 // fraction of heat that is latent
+            "latent_fraction": 0.2, // fraction of heat that is latent
+            "lost_fraction": 0 // fraction of heat that is lost
             }
         """
-        sched, rad_fract, lat_fract = cls._extract_dict_props(data, 'GasEquipment')
-        return cls(data['name'], data['watts_per_area'], sched, rad_fract, lat_fract)
+        sched, rad_f, lat_f, lost_f = cls._extract_dict_props(data, 'GasEquipment')
+        return cls(data['name'], data['watts_per_area'], sched, rad_f, lat_f, lost_f)
 
     def to_idf(self, zone_name):
         """IDF string representation of GasEquipment object.
@@ -490,21 +520,22 @@ class GasEquipment(_EquipmentBase):
                 smaller than this timestep will be lost in the averaging process.
                 Default: 1.
         """
-        pd, sched, rad_fract, lat_fract = GasEquipment._average_properties(
+        pd, sched, rad_f, lat_f, lost_f = GasEquipment._average_properties(
             name, equipments, weights, timestep_resolution)
-        return GasEquipment(name, pd, sched, rad_fract, lat_fract)
+        return GasEquipment(name, pd, sched, rad_f, lat_f, lost_f)
 
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""
         return (self.name, self.watts_per_area, hash(self.schedule),
-                self.radiant_fraction, self.latent_fraction)
+                self.radiant_fraction, self.latent_fraction, self.lost_fraction)
 
     def __eq__(self, other):
         return isinstance(other, GasEquipment) and self.__key() == other.__key()
 
     def __copy__(self):
-        return GasEquipment(self.name, self.watts_per_area, self.schedule,
-                            self.radiant_fraction, self.latent_fraction)
+        return GasEquipment(
+            self.name, self.watts_per_area, self.schedule,
+            self.radiant_fraction, self.latent_fraction, self.lost_fraction)
 
     def __repr__(self):
         return 'GasEquipment:\n name: {}\n watts per area: {}\n schedule: ' \

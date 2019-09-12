@@ -9,7 +9,7 @@ from ..reader import parse_idf_string
 from ..writer import generate_idf_string
 
 from honeybee._lockable import lockable
-from honeybee.typing import float_in_range, float_positive, tuple_with_length
+from honeybee.typing import float_in_range, float_positive
 
 
 @lockable
@@ -192,7 +192,7 @@ class Lighting(_LoadBase):
             }
         """
         assert data['type'] == 'Lighting', \
-            'Expected Lighting. Got {}.'.format(data['type'])
+            'Expected Lighting dictionary. Got {}.'.format(data['type'])
         sched = cls._get_schedule_from_dict(data['schedule'])
         ret_fract = data['return_air_fraction'] if 'return_air_fraction' in data else 0
         rad_fract = data['radiant_fraction'] if 'radiant_fraction' in data else 0.32
@@ -256,17 +256,7 @@ class Lighting(_LoadBase):
                 smaller than this timestep will be lost in the averaging process.
                 Default: 1.
         """
-        # check the inputs
-        assert isinstance(lightings, (list, tuple)), 'Expected a list of Lighting ' \
-            'objects for Lighting.average. Got {}.'.format(type(lightings))
-        if weights is None:
-            weight = 1 / len(lightings)
-            weights = [weight for i in lightings]
-        else:
-            weights = tuple_with_length(weights, len(lightings), float,
-                                        'average lighting weights')
-            assert sum(weights) == 1, 'Average lighting weights must sum to 1. ' \
-                'Got {}.'.format(sum(weights))
+        weights = Lighting._check_avg_weights(lightings, weights, 'Lighting')
 
         # calculate the average values
         lpd = sum([li.watts_per_area * w for li, w in zip(lightings, weights)])

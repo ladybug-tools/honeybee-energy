@@ -172,9 +172,6 @@ OPAQUE_MATERIALS = tuple(_idf_opaque_materials.keys())
 WINDOW_MATERIALS = tuple(_idf_window_materials.keys())
 
 
-# methods to look up materials from the library
-
-
 def opaque_material_by_name(material_name):
     """Get an opaque material from the library given the material name.
 

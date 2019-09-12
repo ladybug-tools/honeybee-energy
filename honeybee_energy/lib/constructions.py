@@ -164,9 +164,6 @@ WINDOW_CONSTRUCTIONS = tuple(_idf_window_constructions.keys())
 SHADE_CONSTRUCTIONS = tuple(_idf_shade_constructions.keys())
 
 
-# methods to look up constructions from the library
-
-
 def opaque_construction_by_name(construction_name):
     """Get an opaque construction from the library given the construction name.
 
