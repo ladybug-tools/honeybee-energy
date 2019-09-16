@@ -12,9 +12,9 @@ _idf_opaque_constructions = {}
 _idf_window_constructions = {}
 
 
-# load other materials and constructions from user-supplied files
+# load materials and constructions from the default and user-supplied files
 cur_dir = os.path.dirname(__file__)
-construction_lib = os.path.join(cur_dir, 'idf', 'constructions')
+construction_lib = os.path.join(cur_dir, 'library', 'constructions')
 for f in os.listdir(construction_lib):
     f_path = os.path.join(construction_lib, f)
     if os.path.isfile(f_path) and f_path.endswith('.idf'):

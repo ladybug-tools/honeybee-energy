@@ -1,7 +1,7 @@
 # coding=utf-8
 """Door Energy Properties."""
 from ..construction import OpaqueConstruction, WindowConstruction
-from ..lib.constructionsets import generic_costruction_set
+from ..lib.constructionsets import generic_construction_set
 
 
 class DoorEnergyProperties(object):
@@ -51,11 +51,11 @@ class DoorEnergyProperties(object):
                 self._host.boundary_condition.name, self._host.is_glass,
                 self._host.parent.type.name)
         elif self._host.has_parent:  # generic but influenced by parent face
-            return generic_costruction_set.get_door_construction(
+            return generic_construction_set.get_door_construction(
                 self._host.boundary_condition.name, self._host.is_glass,
                 self._host.parent.type.name)
         else:
-            return generic_costruction_set.get_door_construction(
+            return generic_construction_set.get_door_construction(
                 self._host.boundary_condition.name, self._host.is_glass, 'Wall')
 
     @construction.setter

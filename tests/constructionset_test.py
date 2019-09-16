@@ -16,10 +16,10 @@ def test_constructionset_init():
 
     assert default_set.name == 'Default Set'
     assert len(default_set.constructions) == 19
-    assert len(default_set.unique_constructions) == 14
-    assert len(default_set.unique_materials) == 15
-    assert len(default_set.unique_modified_constructions) == 0
-    assert len(default_set.unique_modified_materials) == 0
+    assert len(default_set.constructions_unique) == 14
+    assert len(default_set.materials_unique) == 15
+    assert len(default_set.modified_constructions_unique) == 0
+    assert len(default_set.modified_materials_unique) == 0
 
     assert isinstance(default_set.wall_set, WallSet)
     assert isinstance(default_set.floor_set, FloorSet)
@@ -87,8 +87,8 @@ def test_setting_construction():
 
     default_set.wall_set.exterior_construction = thick_constr
     assert default_set.wall_set.exterior_construction == thick_constr
-    assert len(default_set.unique_modified_constructions) == 1
-    assert len(default_set.unique_modified_materials) == 1
+    assert len(default_set.modified_constructions_unique) == 1
+    assert len(default_set.modified_materials_unique) == 1
 
     assert isinstance(default_set.wall_set.exterior_construction[0], EnergyMaterial)
     with pytest.raises(AttributeError):
@@ -119,8 +119,8 @@ def test_setting_construction():
     default_set.shade_construction = light_shelf
     assert default_set.shade_construction == light_shelf
 
-    assert len(default_set.unique_modified_constructions) == 4
-    assert len(default_set.unique_modified_materials) == 3
+    assert len(default_set.modified_constructions_unique) == 4
+    assert len(default_set.modified_materials_unique) == 3
 
 
 def test_setting_window_construction():
@@ -136,8 +136,8 @@ def test_setting_window_construction():
 
     default_set.aperture_set.window_construction = double_tint
     assert default_set.aperture_set.window_construction == double_tint
-    assert len(default_set.unique_modified_constructions) == 1
-    assert len(default_set.unique_modified_materials) == 2
+    assert len(default_set.modified_constructions_unique) == 1
+    assert len(default_set.modified_materials_unique) == 2
 
     assert isinstance(default_set.aperture_set.window_construction[0],
                       EnergyWindowMaterialGlazing)
@@ -156,8 +156,8 @@ def test_setting_window_construction():
     default_set.door_set.interior_glass_construction = single_tint
     assert default_set.door_set.interior_glass_construction == single_tint
 
-    assert len(default_set.unique_modified_constructions) == 2
-    assert len(default_set.unique_modified_materials) == 2
+    assert len(default_set.modified_constructions_unique) == 2
+    assert len(default_set.modified_materials_unique) == 2
 
 
 def test_constructionset_equality():

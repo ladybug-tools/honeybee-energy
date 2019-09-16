@@ -458,12 +458,12 @@ class ScheduleRule(object):
     def lock(self):
         """The lock() method will also lock the schedule_day."""
         self._locked = True
-        self.schedule_day._locked = True
+        self.schedule_day.lock()
 
     def unlock(self):
         """The unlock() method will also unlock the schedule_day."""
         self._locked = False
-        self.schedule_day._locked = False
+        self.schedule_day.unlock()
 
     @staticmethod
     def extract_all_from_schedule_week(week_idf_string, day_schedule_dict,

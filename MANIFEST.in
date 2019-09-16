@@ -1,2 +1,4 @@
-include honeybee_energy/lib/idf/constructions/*.idf
-include honeybee_energy/lib/idf/schedules/*.idf
+include honeybee_energy/lib/library/constructions/*.idf
+include honeybee_energy/lib/library/schedules/*.idf
+include honeybee_energy/lib/library/constructionsets/*.json
+include honeybee_energy/lib/library/programtypes/*.json

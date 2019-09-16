@@ -1,7 +1,7 @@
 # coding=utf-8
 """Aperture Energy Properties."""
 from ..construction import WindowConstruction
-from ..lib.constructionsets import generic_costruction_set
+from ..lib.constructionsets import generic_construction_set
 
 
 class ApertureEnergyProperties(object):
@@ -49,11 +49,11 @@ class ApertureEnergyProperties(object):
                 self._host.boundary_condition.name, self._host.is_operable,
                 self._host.parent.type.name)
         elif self._host.has_parent:  # generic but influenced by parent face
-            return generic_costruction_set.get_aperture_construction(
+            return generic_construction_set.get_aperture_construction(
                 self._host.boundary_condition.name, self._host.is_operable,
                 self._host.parent.type.name)
         else:
-            return generic_costruction_set.get_aperture_construction(
+            return generic_construction_set.get_aperture_construction(
                 self._host.boundary_condition.name, self._host.is_operable, 'Wall')
 
     @construction.setter

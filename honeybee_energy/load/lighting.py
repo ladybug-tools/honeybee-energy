@@ -91,8 +91,11 @@ class Lighting(_LoadBase):
 
     @return_air_fraction.setter
     def return_air_fraction(self, value):
-        self._return_air_fraction = float_in_range(
-            value, 0.0, 1.0, 'lighting return air fraction')
+        if value is not None:
+            self._return_air_fraction = float_in_range(
+                value, 0.0, 1.0, 'lighting return air fraction')
+        else:
+            self._return_air_fraction = 0
         self._check_fractions()
 
     @property
@@ -102,8 +105,11 @@ class Lighting(_LoadBase):
 
     @radiant_fraction.setter
     def radiant_fraction(self, value):
-        self._radiant_fraction = float_in_range(
-            value, 0.0, 1.0, 'lighting radiant fraction')
+        if value is not None:
+            self._radiant_fraction = float_in_range(
+                value, 0.0, 1.0, 'lighting radiant fraction')
+        else:
+            self._radiant_fraction = 0.32
         self._check_fractions()
 
     @property
@@ -113,8 +119,11 @@ class Lighting(_LoadBase):
 
     @visible_fraction.setter
     def visible_fraction(self, value):
-        self._visible_fraction = float_in_range(
-            value, 0.0, 1.0, 'lighting visible fraction')
+        if value is not None:
+            self._visible_fraction = float_in_range(
+                value, 0.0, 1.0, 'lighting visible fraction')
+        else:
+            self._visible_fraction = 0.25
         self._check_fractions()
 
     @property
@@ -165,8 +174,9 @@ class Lighting(_LoadBase):
             raise ValueError('Failed to find {} in the schedule_dict.'.format(e))
 
         # return the lighting object and the zone name for the lighting object
-        lighting = cls(ep_strs[0], ep_strs[5], sched, return_fract, rad_fract, vis_fract)
+        obj_name = ep_strs[0].split('..')[0]
         zone_name = ep_strs[1]
+        lighting = cls(obj_name, ep_strs[5], sched, return_fract, rad_fract, vis_fract)
         return lighting, zone_name
 
     @classmethod
@@ -194,9 +204,39 @@ class Lighting(_LoadBase):
         assert data['type'] == 'Lighting', \
             'Expected Lighting dictionary. Got {}.'.format(data['type'])
         sched = cls._get_schedule_from_dict(data['schedule'])
-        ret_fract = data['return_air_fraction'] if 'return_air_fraction' in data else 0
-        rad_fract = data['radiant_fraction'] if 'radiant_fraction' in data else 0.32
-        vis_fract = data['visible_fraction'] if 'visible_fraction' in data else 0.25
+        ret_fract, rad_fract, vis_fract = cls._optional_dict_keys(data)
+        return cls(data['name'], data['watts_per_area'], sched,
+                   ret_fract, rad_fract, vis_fract)
+
+    @classmethod
+    def from_dict_abridged(cls, data, schedule_dict):
+        """Create a Lighting object from an abridged dictionary.
+
+        Args:
+            data: A LightingAbridged dictionary in following the format below.
+            schedule_dict: A dictionary with schedule names as keys and honeybee schedule
+                objects as values (either ScheduleRuleset or ScheduleFixedInterval).
+                These will be used to assign the schedules to the Lighting object.
+
+        .. code-block:: json
+
+            {
+            "type": 'LightingAbridged',
+            "name": 'Open Office Lighting',
+            "watts_per_area": 10, // lighting watts per square meter of floor area
+            "schedule": "Office Lighting Schedule", // Schedule name
+            "return_air_fraction": 0, // fraction of heat going to return air
+            "radiant_fraction": 0.32, // fraction of heat that is long wave radiant
+            "visible_fraction": 0.25 // fraction of heat that is short wave visible
+            }
+        """
+        assert data['type'] == 'LightingAbridged', \
+            'Expected LightingAbridged dictionary. Got {}.'.format(data['type'])
+        try:
+            sched = schedule_dict[data['schedule']]
+        except KeyError as e:
+            raise ValueError('Failed to find {} in the schedule_dict.'.format(e))
+        ret_fract, rad_fract, vis_fract = cls._optional_dict_keys(data)
         return cls(data['name'], data['watts_per_area'], sched,
                    ret_fract, rad_fract, vis_fract)
 
@@ -212,8 +252,8 @@ class Lighting(_LoadBase):
         Args:
             zone_name: Text for the zone name that the Lights object is assigned to.
         """
-        values = (self.name, zone_name, self.schedule.name, 'Watts/Area',
-                  '', self.watts_per_area, '', self.return_air_fraction,
+        values = ('{}..{}'.format(self.name, zone_name), zone_name, self.schedule.name,
+                  'Watts/Area', '', self.watts_per_area, '', self.return_air_fraction,
                   self.radiant_fraction, self.visible_fraction)
         comments = ('name', 'zone name', 'schedule name', 'lighting level method',
                     'lighting power level {W}', 'lighting per floor area {W/m2}',
@@ -247,27 +287,29 @@ class Lighting(_LoadBase):
             name: A name for the new averaged Lighting object.
             lightings: A list of Lighting objects that will be averaged together to make
                 a new Lighting.
-            weights: An optional list of fractioanl numbers with the same length
-                as the input lightings that sum to 1. These will be used to weight
-                each of the Lighting objects in the resulting average. If None, the
-                individual objects will be weighted equally. Default: None.
+            weights: An optional list of fractional numbers with the same length
+                as the input lightings. These will be used to weight each of the
+                Lighting objects in the resulting average. Note that these weights
+                can sum to less than 1 in which case the average watts_per_area will
+                assume 0 for the unaccounted fraction of the weights.
+                If None, the objects will be weighted equally. Default: None.
             timestep_resolution: An optional integer for the timestep resolution
                 at which the schedules will be averaged. Any schedule details
                 smaller than this timestep will be lost in the averaging process.
                 Default: 1.
         """
-        weights = Lighting._check_avg_weights(lightings, weights, 'Lighting')
+        weights, u_weights = Lighting._check_avg_weights(lightings, weights, 'Lighting')
 
         # calculate the average values
         lpd = sum([li.watts_per_area * w for li, w in zip(lightings, weights)])
-        ret_fract = sum([li.return_air_fraction * w for li, w in zip(lightings, weights)])
-        rad_fract = sum([li.radiant_fraction * w for li, w in zip(lightings, weights)])
-        vis_fract = sum([li.visible_fraction * w for li, w in zip(lightings, weights)])
+        ret_fract = sum([li.return_air_fraction * w for li, w in zip(lightings, u_weights)])
+        rad_fract = sum([li.radiant_fraction * w for li, w in zip(lightings, u_weights)])
+        vis_fract = sum([li.visible_fraction * w for li, w in zip(lightings, u_weights)])
 
         # calculate the average schedules
         sched = Lighting._average_schedule(
             '{} Schedule'.format(name), [li.schedule for li in lightings],
-            weights, timestep_resolution)
+            u_weights, timestep_resolution)
 
         # return the averaged lighting object
         return Lighting(name, lpd, sched, ret_fract, rad_fract, vis_fract)
@@ -276,6 +318,14 @@ class Lighting(_LoadBase):
         tot = (self._return_air_fraction, self._radiant_fraction, self._visible_fraction)
         assert sum(tot) <= 1, 'Sum of lighting return_air_fraction, radiant_fraction ' \
             'and visible_fraction ({}) is greater than 1.'.format(sum(tot))
+
+    @staticmethod
+    def _optional_dict_keys(data):
+        """Get the optional keys from a Lighting dictionary."""
+        ret_fract = data['return_air_fraction'] if 'return_air_fraction' in data else 0
+        rad_fract = data['radiant_fraction'] if 'radiant_fraction' in data else 0.32
+        vis_fract = data['visible_fraction'] if 'visible_fraction' in data else 0.25
+        return ret_fract, rad_fract, vis_fract
 
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""

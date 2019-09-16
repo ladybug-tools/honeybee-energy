@@ -2,7 +2,7 @@
 """Model Energy Properties."""
 from honeybee.extensionutil import model_extension_dicts
 
-from ..lib.constructionsets import generic_costruction_set
+from ..lib.constructionsets import generic_construction_set
 
 from ..material.opaque import EnergyMaterial, EnergyMaterialNoMass
 from ..material.glazing import EnergyWindowMaterialGlazing, \
@@ -11,8 +11,8 @@ from ..material.gas import EnergyWindowMaterialGas, \
     EnergyWindowMaterialGasMixture, EnergyWindowMaterialGasCustom
 from ..material.shade import EnergyWindowMaterialShade, EnergyWindowMaterialBlind
 from ..construction import OpaqueConstruction, WindowConstruction, ShadeConstruction
-from ..constructionset import ConstructionSet, WallSet, FloorSet, RoofCeilingSet, \
-    ApertureSet, DoorSet
+from ..constructionset import ConstructionSet
+from ..programtype import ProgramType
 from ..schedule.typelimit import ScheduleTypeLimit
 from ..schedule.ruleset import ScheduleRuleset
 from ..schedule.fixedinterval import ScheduleFixedInterval
@@ -27,15 +27,17 @@ class ModelEnergyProperties(object):
     """Energy Properties for Honeybee Model.
 
     Properties:
-        unique_materials
-        unique_constructions
-        unique_face_constructions
-        unique_shade_constructions
-        unique_construction_sets
-        global_construction_set
-        unique_schedule_type_limit
-        unique_schedules
-        unique_shade_schedules
+        * materials
+        * constructions
+        * face_constructions
+        * shade_constructions
+        * construction_sets
+        * global_construction_set
+        * schedule_type_limits
+        * schedules
+        * shade_schedules
+        * room_schedules
+        * program_types
     """
 
     def __init__(self, host):
@@ -52,14 +54,14 @@ class ModelEnergyProperties(object):
         return self._host
 
     @property
-    def unique_materials(self):
+    def materials(self):
         """List of all unique materials contained within the model.
 
         This includes materials across all Faces, Apertures, Doors, Room
         ConstructionSets, and the global_construction_set.
         """
         materials = []
-        for constr in self.unique_constructions:
+        for constr in self.constructions:
             try:
                 materials.extend(constr.materials)
             except AttributeError:
@@ -67,22 +69,21 @@ class ModelEnergyProperties(object):
         return list(set(materials))
 
     @property
-    def unique_constructions(self):
+    def constructions(self):
         """A list of all unique constructions in the model.
 
         This includes constructions across all Faces, Apertures, Doors, Shades,
         Room ConstructionSets, and the global_construction_set.
         """
         room_constrs = []
-        for cnstr_set in self.unique_construction_sets:
-            room_constrs.extend(cnstr_set.unique_modified_constructions)
-        all_constrs = self.global_construction_set.unique_constructions + \
-            room_constrs + self.unique_face_constructions + \
-            self.unique_shade_constructions
+        for cnstr_set in self.construction_sets:
+            room_constrs.extend(cnstr_set.modified_constructions_unique)
+        all_constrs = self.global_construction_set.constructions_unique + \
+            room_constrs + self.face_constructions + self.shade_constructions
         return list(set(all_constrs))
 
     @property
-    def unique_face_constructions(self):
+    def face_constructions(self):
         """A list of all unique constructions assigned to Faces, Apertures and Doors."""
         constructions = []
         for room in self.host.rooms:
@@ -95,7 +96,7 @@ class ModelEnergyProperties(object):
         return list(set(constructions))
 
     @property
-    def unique_shade_constructions(self):
+    def shade_constructions(self):
         """A list of all unique constructions assigned to Shades in the model."""
         constructions = []
         for shade in self.host.orphaned_shades:
@@ -112,7 +113,7 @@ class ModelEnergyProperties(object):
         return list(set(constructions))
 
     @property
-    def unique_construction_sets(self):
+    def construction_sets(self):
         """A list of all unique Room-Assigned ConstructionSets in the Model."""
         construction_sets = []
         for room in self.host.rooms:
@@ -131,32 +132,36 @@ class ModelEnergyProperties(object):
         model.  This is to ensure that all objects lacking a construction specification
         always have a default.
         """
-        return generic_costruction_set
+        return generic_construction_set
 
     @property
-    def unique_schedule_type_limit(self):
+    def schedule_type_limits(self):
         """List of all unique schedule type limits contained within the model.
 
         This includes schedules across all Shades and Rooms.
         """
         type_limits = []
-        for sched in self.unique_schedules:
+        for sched in self.schedules:
             t_lim = sched.schedule_type_limit
             if t_lim is not None and not self._instance_in_array(t_lim, type_limits):
                 type_limits.append(t_lim)
         return list(set(type_limits))
 
     @property
-    def unique_schedules(self):
+    def schedules(self):
         """A list of all unique schedules in the model.
 
-        This includes schedules across all Shades and Rooms.
+        This includes schedules across all ProgramTypes, Rooms, and Shades.
         """
-        all_scheds = self.unique_shade_schedules
+        p_type_scheds = []
+        for p_type in self.program_types:
+            for sched in p_type.schedules:
+                self._check_and_add_schedule(sched, p_type_scheds)
+        all_scheds = p_type_scheds + self.room_schedules + self.shade_schedules
         return list(set(all_scheds))
 
     @property
-    def unique_shade_schedules(self):
+    def shade_schedules(self):
         """A list of all unique transmittance schedules assigned to Shades in the model.
         """
         schedules = []
@@ -173,45 +178,61 @@ class ModelEnergyProperties(object):
                         self._check_and_add_shade_schedule(shade, schedules)
         return list(set(schedules))
 
-    def check_duplicate_construction_set_names(self, raise_exception=True):
-        """Check that there are no duplicate ConstructionSet names in the model."""
-        con_set_names = set()
-        duplicate_names = set()
-        for con_set in self.unique_construction_sets + [self.global_construction_set]:
-            if con_set.name not in con_set_names:
-                con_set_names.add(con_set.name)
-            else:
-                duplicate_names.add(con_set.name)
-        if len(duplicate_names) != 0:
-            if raise_exception:
-                raise ValueError(
-                    'The model has the following duplicated ConstructionSet '
-                    'names:\n{}'.format('\n'.join(duplicate_names)))
-            return False
-        return True
+    @property
+    def room_schedules(self):
+        """A list of all unique schedules assigned directly to Rooms in the model.
 
-    def check_duplicate_construction_names(self, raise_exception=True):
-        """Check that there are no duplicate Construction names in the model."""
-        cnstr_names = set()
-        duplicate_names = set()
-        for cnstr in self.unique_constructions:
-            if cnstr.name not in cnstr_names:
-                cnstr_names.add(cnstr.name)
-            else:
-                duplicate_names.add(cnstr.name)
-        if len(duplicate_names) != 0:
-            if raise_exception:
-                raise ValueError(
-                    'The model has the following duplicated Construction '
-                    'names:\n{}'.format('\n'.join(duplicate_names)))
-            return False
-        return True
+        Note that this does not include schedules from ProgramTypes assigned to the
+        rooms.
+        """
+        scheds = []
+        for room in self.host.rooms:
+            people = room.properties.energy._people
+            lighting = room.properties.energy._lighting
+            electric_equipment = room.properties.energy._electric_equipment
+            gas_equipment = room.properties.energy._gas_equipment
+            infiltration = room.properties.energy._infiltration
+            ventilation = room.properties.energy._ventilation
+            setpoint = room.properties.energy._setpoint
+            if people is not None:
+                self._check_and_add_schedule(people.occupancy_schedule, scheds)
+                self._check_and_add_schedule(people.activity_schedule, scheds)
+            if lighting is not None:
+                self._check_and_add_schedule(lighting.schedule, scheds)
+            if electric_equipment is not None:
+                self._check_and_add_schedule(electric_equipment.schedule, scheds)
+            if gas_equipment is not None:
+                self._check_and_add_schedule(gas_equipment.schedule, scheds)
+            if infiltration is not None:
+                self._check_and_add_schedule(infiltration.schedule, scheds)
+            if ventilation is not None and ventilation.schedule is not None:
+                self._check_and_add_schedule(ventilation.schedule, scheds)
+            if setpoint is not None:
+                self._check_and_add_schedule(setpoint.heating_schedule, scheds)
+                self._check_and_add_schedule(setpoint.cooling_schedule, scheds)
+                if setpoint.humidifying_schedule is not None:
+                    self._check_and_add_schedule(
+                        setpoint.humidifying_schedule, scheds)
+                    self._check_and_add_schedule(
+                        setpoint.dehumidifying_schedule, scheds)
+        return list(set(scheds))
+
+    @property
+    def program_types(self):
+        """A list of all unique Room-Assigned ProgramTypes in the Model."""
+        program_types = []
+        for room in self.host.rooms:
+            if room.properties.energy._program_type is not None:
+                if not self._instance_in_array(room.properties.energy._program_type,
+                                               program_types):
+                    program_types.append(room.properties.energy._program_type)
+        return list(set(program_types))  # catch equivalent program types
 
     def check_duplicate_material_names(self, raise_exception=True):
         """Check that there are no duplicate Material names in the model."""
         material_names = set()
         duplicate_names = set()
-        for mat in self.unique_materials:
+        for mat in self.materials:
             if mat.name not in material_names:
                 material_names.add(mat.name)
             else:
@@ -224,11 +245,45 @@ class ModelEnergyProperties(object):
             return False
         return True
 
+    def check_duplicate_construction_names(self, raise_exception=True):
+        """Check that there are no duplicate Construction names in the model."""
+        cnstr_names = set()
+        duplicate_names = set()
+        for cnstr in self.constructions:
+            if cnstr.name not in cnstr_names:
+                cnstr_names.add(cnstr.name)
+            else:
+                duplicate_names.add(cnstr.name)
+        if len(duplicate_names) != 0:
+            if raise_exception:
+                raise ValueError(
+                    'The model has the following duplicated Construction '
+                    'names:\n{}'.format('\n'.join(duplicate_names)))
+            return False
+        return True
+
+    def check_duplicate_construction_set_names(self, raise_exception=True):
+        """Check that there are no duplicate ConstructionSet names in the model."""
+        con_set_names = set()
+        duplicate_names = set()
+        for con_set in self.construction_sets + [self.global_construction_set]:
+            if con_set.name not in con_set_names:
+                con_set_names.add(con_set.name)
+            else:
+                duplicate_names.add(con_set.name)
+        if len(duplicate_names) != 0:
+            if raise_exception:
+                raise ValueError(
+                    'The model has the following duplicated ConstructionSet '
+                    'names:\n{}'.format('\n'.join(duplicate_names)))
+            return False
+        return True
+
     def check_duplicate_schedule_type_limit_names(self, raise_exception=True):
         """Check that there are no duplicate ScheduleTypeLimit names in the model."""
         sched_type_limit_names = set()
         duplicate_names = set()
-        for t_lim in self.unique_schedule_type_limit:
+        for t_lim in self.schedule_type_limits:
             if t_lim.name not in sched_type_limit_names:
                 sched_type_limit_names.add(t_lim.name)
             else:
@@ -245,7 +300,7 @@ class ModelEnergyProperties(object):
         """Check that there are no duplicate Schedule names in the model."""
         sched_names = set()
         duplicate_names = set()
-        for sched in self.unique_schedules:
+        for sched in self.schedules:
             if sched.name not in sched_names:
                 sched_names.add(sched.name)
             else:
@@ -254,6 +309,23 @@ class ModelEnergyProperties(object):
             if raise_exception:
                 raise ValueError(
                     'The model has the following duplicated Schedule '
+                    'names:\n{}'.format('\n'.join(duplicate_names)))
+            return False
+        return True
+
+    def check_duplicate_program_type_names(self, raise_exception=True):
+        """Check that there are no duplicate ProgramType names in the model."""
+        p_type_names = set()
+        duplicate_names = set()
+        for p_type in self.program_types:
+            if p_type.name not in p_type_names:
+                p_type_names.add(p_type.name)
+            else:
+                duplicate_names.add(p_type.name)
+        if len(duplicate_names) != 0:
+            if raise_exception:
+                raise ValueError(
+                    'The model has the following duplicated ProgramType '
                     'names:\n{}'.format('\n'.join(duplicate_names)))
             return False
         return True
@@ -314,22 +386,8 @@ class ModelEnergyProperties(object):
         # process all construction sets in the ModelEnergyProperties dictionary
         construction_sets = {}
         for c_set in data['properties']['energy']['construction_sets']:
-            wall_set = self._make_construction_subset(
-                c_set, WallSet(), 'wall_set', constructions)
-            floor_set = self._make_construction_subset(
-                c_set, FloorSet(), 'floor_set', constructions)
-            roof_ceiling_set = self._make_construction_subset(
-                c_set, RoofCeilingSet(), 'roof_ceiling_set', constructions)
-            aperture_set = self._make_aperture_subset(
-                c_set, ApertureSet(), constructions)
-            door_set = self._make_door_subset(c_set, DoorSet(), constructions)
-            if 'shade_construction' in c_set and c_set['shade_construction'] is not None:
-                shade_construction = constructions[c_set['shade_construction']]
-            else:
-                shade_construction = None
-            construction_sets[c_set['name']] = ConstructionSet(
-                c_set['name'], wall_set, floor_set, roof_ceiling_set,
-                aperture_set, door_set, shade_construction)
+            construction_sets[c_set['name']] = \
+                ConstructionSet.from_dict_abridged(c_set, constructions)
 
         # process all schedule type limits in the ModelEnergyProperties dictionary
         schedule_type_limits = {}
@@ -342,21 +400,29 @@ class ModelEnergyProperties(object):
             sched = sched.copy()  # copy the original dictionary so that we don't edit it
             # process the schedule type limits
             typ_lim = None
-            if 'schedule_type_limit' in data:
+            if 'schedule_type_limit' in sched:
                 typ_lim = sched['schedule_type_limit']
                 sched['schedule_type_limit'] = None
             # create the schedule objects
             if sched['type'] == 'ScheduleRulesetAbridged':
                 sched['type'] = 'ScheduleRuleset'
                 schedules[sched['name']] = ScheduleRuleset.from_dict(sched)
-                schedules[sched['name']].schedule_type_limit = typ_lim
             elif sched['type'] == 'ScheduleFixedIntervalAbridged':
                 sched['type'] = 'ScheduleFixedInterval'
                 schedules[sched['name']] = ScheduleFixedInterval.from_dict(sched)
-                schedules[sched['name']].schedule_type_limit = typ_lim
             else:
                 raise NotImplementedError(
                     'Schedule {} is not supported.'.format(sched['type']))
+            # asign the schedule type limits
+            schedules[sched['name']].schedule_type_limit = \
+                schedule_type_limits[typ_lim] if typ_lim is not None else None
+
+        # process all ProgramType in the ModelEnergyProperties dictionary
+        program_types = {}
+        if 'program_types' in data['properties']['energy']:
+            for p_typ in data['properties']['energy']['program_types']:
+                program_types[p_typ['name']] = \
+                    ProgramType.from_dict_abridged(p_typ, schedules)
 
         # collect lists of energy property dictionaries
         room_e_dicts, face_e_dicts, shd_e_dicts, ap_e_dicts, dr_e_dicts = \
@@ -364,7 +430,8 @@ class ModelEnergyProperties(object):
 
         # apply energy properties to objects uwing the energy property dictionaries
         for room, r_dict in zip(self.host.rooms, room_e_dicts):
-            room.properties.energy.apply_properties_from_dict(r_dict, construction_sets)
+            room.properties.energy.apply_properties_from_dict(
+                r_dict, construction_sets, program_types, schedules)
         for face, f_dict in zip(self.host.faces, face_e_dicts):
             face.properties.energy.apply_properties_from_dict(f_dict, constructions)
         for shade, s_dict in zip(self.host.shades, shd_e_dicts):
@@ -392,18 +459,17 @@ class ModelEnergyProperties(object):
             base['energy']['construction_sets'].append(
                 self.global_construction_set.to_dict(abridged=True,
                                                      none_for_defaults=False))
-        construction_sets = self.unique_construction_sets
+        construction_sets = self.construction_sets
         for cnstr_set in construction_sets:
             base['energy']['construction_sets'].append(cnstr_set.to_dict(abridged=True))
 
         # add all unique Constructions to the dictionary
         room_constrs = []
         for cnstr_set in construction_sets:
-            room_constrs.extend(cnstr_set.unique_modified_constructions)
-        all_constrs = room_constrs + self.unique_face_constructions + \
-            self.unique_shade_constructions
+            room_constrs.extend(cnstr_set.modified_constructions_unique)
+        all_constrs = room_constrs + self.face_constructions + self.shade_constructions
         if include_global_construction_set:
-            all_constrs.extend(self.global_construction_set.unique_constructions)
+            all_constrs.extend(self.global_construction_set.constructions_unique)
         constructions = list(set(all_constrs))
         base['energy']['constructions'] = []
         for cnst in constructions:
@@ -421,9 +487,19 @@ class ModelEnergyProperties(object):
                 pass  # ShadeConstruction
         base['energy']['materials'] = [mat.to_dict() for mat in set(materials)]
 
+        # add all unique program types to the dictionary
+        program_types = self.program_types
+        base['energy']['program_types'] = []
+        for p_type in program_types:
+            base['energy']['program_types'].append(p_type.to_dict(abridged=True))
+
         # add all unique Schedules to the dictionary
-        # TODO: Add the unique room schedules
-        schedules = self.unique_shade_schedules
+        p_type_scheds = []
+        for p_type in program_types:
+            for sched in p_type.schedules:
+                self._check_and_add_schedule(sched, p_type_scheds)
+        all_scheds = p_type_scheds + self.room_schedules + self.shade_schedules
+        schedules = list(set(all_scheds))
         base['energy']['schedules'] = []
         for sched in schedules:
             base['energy']['schedules'].append(sched.to_dict(abridged=True))
@@ -434,7 +510,8 @@ class ModelEnergyProperties(object):
             t_lim = sched.schedule_type_limit
             if t_lim is not None and not self._instance_in_array(t_lim, type_limits):
                 type_limits.append(t_lim)
-        base['energy']['schedule_type_limits'] = list(set(type_limits))
+        base['energy']['schedule_type_limits'] = \
+            [s_typ.to_dict() for s_typ in set(type_limits)]
 
         return base
 
@@ -461,6 +538,11 @@ class ModelEnergyProperties(object):
             if not self._instance_in_array(sched, schedules):
                 schedules.append(sched)
 
+    def _check_and_add_schedule(self, load_sched, schedules):
+        """Check if a schedule is in a list and add it if not."""
+        if not self._instance_in_array(load_sched, schedules):
+            schedules.append(load_sched)
+
     @staticmethod
     def _instance_in_array(object_instance, object_array):
         """Check if a specific object instance is already in an array.
@@ -474,72 +556,6 @@ class ModelEnergyProperties(object):
             if val is object_instance:
                 return True
         return False
-
-    @staticmethod
-    def _make_construction_subset(c_set, sub_set, sub_set_name, constructions):
-        """Make a WallSet, FloorSet, or RoofCeilingSet from dictionary."""
-        if sub_set_name in c_set:
-            if 'exterior_construction' in c_set[sub_set_name] and \
-                    c_set[sub_set_name]['exterior_construction'] is not None:
-                sub_set.exterior_construction = \
-                    constructions[c_set[sub_set_name]['exterior_construction']]
-            if 'interior_construction' in c_set[sub_set_name] and \
-                    c_set[sub_set_name]['interior_construction'] is not None:
-                sub_set.interior_construction = \
-                    constructions[c_set[sub_set_name]['interior_construction']]
-            if 'ground_construction' in c_set[sub_set_name] and \
-                    c_set[sub_set_name]['ground_construction'] is not None:
-                sub_set.ground_construction = \
-                    constructions[c_set[sub_set_name]['ground_construction']]
-        return sub_set
-
-    @staticmethod
-    def _make_aperture_subset(c_set, sub_set, constructions):
-        """Make an ApertureSet from a dictionary."""
-        if 'aperture_set' in c_set:
-            if 'window_construction' in c_set['aperture_set'] and \
-                    c_set['aperture_set']['window_construction'] is not None:
-                sub_set.window_construction = \
-                    constructions[c_set['aperture_set']['window_construction']]
-            if 'interior_construction' in c_set['aperture_set'] and \
-                    c_set['aperture_set']['interior_construction'] is not None:
-                sub_set.interior_construction = \
-                    constructions[c_set['aperture_set']['interior_construction']]
-            if 'skylight_construction' in c_set['aperture_set'] and \
-                    c_set['aperture_set']['skylight_construction'] is not None:
-                sub_set.skylight_construction = \
-                    constructions[c_set['aperture_set']['skylight_construction']]
-            if 'operable_construction' in c_set['aperture_set'] and \
-                    c_set['aperture_set']['operable_construction'] is not None:
-                sub_set.operable_construction = \
-                    constructions[c_set['aperture_set']['operable_construction']]
-        return sub_set
-
-    @staticmethod
-    def _make_door_subset(c_set, sub_set, constructions):
-        """Make a DoorSet from dictionary."""
-        if 'door_set' in c_set:
-            if 'exterior_construction' in c_set['door_set'] and \
-                    c_set['door_set']['exterior_construction'] is not None:
-                sub_set.exterior_construction = \
-                    constructions[c_set['door_set']['exterior_construction']]
-            if 'interior_construction' in c_set['door_set'] and \
-                    c_set['door_set']['interior_construction'] is not None:
-                sub_set.interior_construction = \
-                    constructions[c_set['door_set']['interior_construction']]
-            if 'exterior_glass_construction' in c_set['door_set'] and \
-                    c_set['door_set']['exterior_glass_construction'] is not None:
-                sub_set.exterior_glass_construction = \
-                    constructions[c_set['door_set']['exterior_glass_construction']]
-            if 'interior_glass_construction' in c_set['door_set'] and \
-                    c_set['door_set']['interior_glass_construction'] is not None:
-                sub_set.interior_glass_construction = \
-                    constructions[c_set['door_set']['interior_glass_construction']]
-            if 'overhead_construction' in c_set['door_set'] and \
-                    c_set['door_set']['overhead_construction'] is not None:
-                sub_set.overhead_construction = \
-                    constructions[c_set['door_set']['overhead_construction']]
-        return sub_set
 
     def ToString(self):
         return self.__repr__()

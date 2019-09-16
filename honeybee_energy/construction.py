@@ -187,13 +187,13 @@ class _ConstructionBase(object):
         """The lock() method will also lock the materials."""
         self._locked = True
         for mat in self.materials:
-            mat._locked = True
+            mat.lock()
 
     def unlock(self):
         """The unlock() method will also unlock the materials."""
         self._locked = False
         for mat in self.materials:
-            mat._locked = False
+            mat.unlock()
 
     def _temperature_profile_from_r_values(
             self, r_values, outside_temperature=-18, inside_temperature=21):
@@ -406,7 +406,12 @@ class OpaqueConstruction(_ConstructionBase):
         """Create an OpaqueConstruction from an OpenStudio standards gem dictionary.
 
         Args:
-            data: {
+            data: An OpenStudio standards dictionary of a Construction in the
+                format below.
+
+            .. code-block:: json
+
+                {
                 "name": "Typical Insulated Exterior Mass Wall",
                 "intended_surface_type": "ExteriorWall",
                 "standards_construction_type": "Mass",
@@ -417,6 +422,7 @@ class OpaqueConstruction(_ConstructionBase):
                     "Typical Insulation",
                     "1/2IN Gypsum"]
                 }
+
             data_materials: Dictionary representation of all materials in the
                 OpenStudio standards gem.
         """

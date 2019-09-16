@@ -5,9 +5,10 @@ from __future__ import division
 from ._base import _LoadBase
 from ..schedule.ruleset import ScheduleRuleset
 from ..schedule.fixedinterval import ScheduleFixedInterval
-from ..schedule.typelimit import ScheduleTypeLimit
 from ..reader import parse_idf_string
 from ..writer import generate_idf_string
+
+import honeybee_energy.lib.scheduletypelimits as _type_lib
 
 from honeybee._lockable import lockable
 from honeybee.typing import float_positive
@@ -93,7 +94,8 @@ class Ventilation(_LoadBase):
 
     @flow_per_person.setter
     def flow_per_person(self, value):
-        self._flow_per_person = float_positive(value, 'ventilation flow per person')
+        self._flow_per_person = float_positive(value, 'ventilation flow per person') if \
+            value is not None else 0
 
     @property
     def flow_per_area(self):
@@ -102,7 +104,8 @@ class Ventilation(_LoadBase):
 
     @flow_per_area.setter
     def flow_per_area(self, value):
-        self._flow_per_area = float_positive(value, 'ventilation flow per area')
+        self._flow_per_area = float_positive(value, 'ventilation flow per area') if \
+            value is not None else 0
 
     @property
     def flow_per_zone(self):
@@ -111,7 +114,8 @@ class Ventilation(_LoadBase):
 
     @flow_per_zone.setter
     def flow_per_zone(self, value):
-        self._flow_per_zone = float_positive(value, 'ventilation flow per zone')
+        self._flow_per_zone = float_positive(value, 'ventilation flow per zone')if \
+            value is not None else 0
 
     @property
     def air_changes_per_hour(self):
@@ -120,8 +124,9 @@ class Ventilation(_LoadBase):
 
     @air_changes_per_hour.setter
     def air_changes_per_hour(self, value):
-        self._air_changes_per_hour = float_positive(
-            value, 'ventilation air changes per hour')
+        self._air_changes_per_hour = \
+            float_positive(value, 'ventilation air changes per hour') if \
+            value is not None else 0
 
     @property
     def schedule(self):
@@ -141,9 +146,6 @@ class Ventilation(_LoadBase):
     @classmethod
     def from_idf(cls, idf_string, schedule_dict):
         """Create an Ventilation object from an EnergyPlus IDF text string.
-
-        Note that the idf_string must use the 'flow per exterior surface area'
-        method in order to be successfully imported.
 
         Args:
             idf_string: A text string fully describing an EnergyPlus
@@ -200,7 +202,8 @@ class Ventilation(_LoadBase):
             sched = None
 
         # return the object and the zone name for the object
-        ventilation = cls(ep_strs[0], person, area, zone, ach, sched)
+        obj_name = ep_strs[0].split('..')[0]
+        ventilation = cls(obj_name, person, area, zone, ach, sched)
         return ventilation
 
     @classmethod
@@ -227,12 +230,42 @@ class Ventilation(_LoadBase):
         """
         assert data['type'] == 'Ventilation', \
             'Expected Ventilation dictionary. Got {}.'.format(data['type'])
-        person = data['flow_per_person'] if 'flow_per_person' in data else 0
-        area = data['flow_per_area'] if 'flow_per_area' in data else 0
-        zone = data['flow_per_zone'] if 'flow_per_zone' in data else 0
-        ach = data['air_changes_per_hour'] if 'air_changes_per_hour' in data else 0
+        person, area, zone, ach = cls._optional_dict_keys(data)
         sched = cls._get_schedule_from_dict(data['schedule']) if 'schedule' in data and \
             data['schedule'] is not None else None
+        return cls(data['name'], person, area, zone, ach, sched)
+
+    @classmethod
+    def from_dict_abridged(cls, data, schedule_dict):
+        """Create a Ventilation object from an abridged dictionary.
+
+        Args:
+            data: A VentilationAbridged dictionary in following the format below.
+            schedule_dict: A dictionary with schedule names as keys and honeybee schedule
+                objects as values (either ScheduleRuleset or ScheduleFixedInterval).
+                These will be used to assign the schedules to the Ventilation object.
+
+        .. code-block:: json
+
+            {
+            "type": 'VentilationAbridged',
+            "name": 'Office Ventilation',
+            "flow_per_person": 0.01, // flow per person
+            "flow_per_area": 0.0005, // flow per square meter of floor area
+            "flow_per_zone": 0, // flow per zone
+            "air_changes_per_hour": 0, // air changes per hour
+            "schedule": "Office Ventilation Schedule" // Schedule name
+            }
+        """
+        assert data['type'] == 'VentilationAbridged', \
+            'Expected VentilationAbridged dictionary. Got {}.'.format(data['type'])
+        person, area, zone, ach = cls._optional_dict_keys(data)
+        sched = None
+        if 'schedule' in data and data['schedule'] is not None:
+            try:
+                sched = schedule_dict[data['schedule']]
+            except KeyError as e:
+                raise ValueError('Failed to find {} in the schedule_dict.'.format(e))
         return cls(data['name'], person, area, zone, ach, sched)
 
     def to_idf(self):
@@ -282,16 +315,18 @@ class Ventilation(_LoadBase):
             name: A name for the new averaged Ventilation object.
             ventilations: A list of Ventilation objects that will be averaged
                 together to make a new Ventilation.
-            weights: An optional list of fractioanl numbers with the same length
-                as the input ventilations that sum to 1. These will be used to weight
-                each of the Ventilation objects in the resulting average. If None, the
-                individual objects will be weighted equally. Default: None.
+            weights: An optional list of fractional numbers with the same length
+                as the input ventilations. These will be used to weight each of the
+                Ventilation objects in the resulting average. Note that these weights
+                can sum to less than 1 in which case the average flow rates
+                will assume 0 for the unaccounted fraction of the weights.
             timestep_resolution: An optional integer for the timestep resolution
                 at which the schedules will be averaged. Any schedule details
                 smaller than this timestep will be lost in the averaging process.
                 Default: 1.
         """
-        weights = Ventilation._check_avg_weights(ventilations, weights, 'Ventilation')
+        weights, u_weights = \
+            Ventilation._check_avg_weights(ventilations, weights, 'Ventilation')
 
         # calculate the average values
         person = sum([vent.flow_per_person * w
@@ -308,16 +343,25 @@ class Ventilation(_LoadBase):
         if all(val is None for val in scheds):
             sched = None
         else:
-            fract = ScheduleTypeLimit('Fractional', 0, 1)
-            full_vent = ScheduleRuleset.from_constant_value('Full Ventilation', 1, fract)
+            full_vent = ScheduleRuleset.from_constant_value(
+                'Full Ventilation', 1, _type_lib.fractional)
             for i, sch in enumerate(scheds):
                 if sch is None:
                     scheds[i] = full_vent
             sched = Ventilation._average_schedule(
-                '{} Schedule'.format(name), scheds, weights, timestep_resolution)
+                '{} Schedule'.format(name), scheds, u_weights, timestep_resolution)
 
-        # return the averaged lighting object
+        # return the averaged object
         return Ventilation(name, person, area, zone, ach, sched)
+
+    @staticmethod
+    def _optional_dict_keys(data):
+        """Get the optional keys from an Ventilation dictionary."""
+        person = data['flow_per_person'] if 'flow_per_person' in data else 0
+        area = data['flow_per_area'] if 'flow_per_area' in data else 0
+        zone = data['flow_per_zone'] if 'flow_per_zone' in data else 0
+        ach = data['air_changes_per_hour'] if 'air_changes_per_hour' in data else 0
+        return person, area, zone, ach
 
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""

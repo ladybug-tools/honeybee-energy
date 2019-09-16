@@ -133,9 +133,9 @@ class _EquipmentBase(_LoadBase):
 
     def _get_idf_values(self, zone_name):
         """Get the properties of this object ordered as they are in an IDF."""
-        return (self.name, zone_name, self.schedule.name, 'Watts/Area', '',
-                self.watts_per_area, '', self.latent_fraction, self.radiant_fraction,
-                self.lost_fraction)
+        return ('{}..{}'.format(self.name, zone_name), zone_name, self.schedule.name,
+                'Watts/Area', '', self.watts_per_area, '', self.latent_fraction,
+                self.radiant_fraction, self.lost_fraction)
 
     def _add_dict_keys(self, base, abridged):
         """Add keys to a base dictionary."""
@@ -177,26 +177,45 @@ class _EquipmentBase(_LoadBase):
         assert data['type'] == expected_type, \
             'Expected {} dictionary. Got {}.'.format(expected_type, data['type'])
         sched = _EquipmentBase._get_schedule_from_dict(data['schedule'])
+        rad_fract, lat_fract, lost_fract = _EquipmentBase._optional_dict_keys(data)
+        return sched, rad_fract, lat_fract, lost_fract
+
+    @staticmethod
+    def _extract_abridged_dict_props(data, expected_type, schedule_dict):
+        """Extract relevant properties from an equipment dictionary."""
+        assert data['type'] == expected_type, \
+            'Expected {} dictionary. Got {}.'.format(expected_type, data['type'])
+        try:
+            sched = schedule_dict[data['schedule']]
+        except KeyError as e:
+            raise ValueError('Failed to find {} in the schedule_dict.'.format(e))
+        rad_fract, lat_fract, lost_fract = _EquipmentBase._optional_dict_keys(data)
+        return sched, rad_fract, lat_fract, lost_fract
+
+    @staticmethod
+    def _optional_dict_keys(data):
+        """Get the optional keys from an Equipment dictionary."""
         rad_fract = data['radiant_fraction'] if 'radiant_fraction' in data else 0
         lat_fract = data['latent_fraction'] if 'latent_fraction' in data else 0
         lost_fract = data['lost_fraction'] if 'lost_fraction' in data else 0
-        return sched, rad_fract, lat_fract, lost_fract
+        return rad_fract, lat_fract, lost_fract
 
     @staticmethod
     def _average_properties(name, equipments, weights, timestep_resolution):
         """Get average properties across several equipment objects."""
-        weights = _EquipmentBase._check_avg_weights(equipments, weights, 'Equipment')
+        weights, u_weights = \
+            _EquipmentBase._check_avg_weights(equipments, weights, 'Equipment')
 
         # calculate the average values
         pd = sum([eq.watts_per_area * w for eq, w in zip(equipments, weights)])
-        rad_fract = sum([eq.radiant_fraction * w for eq, w in zip(equipments, weights)])
-        lat_fract = sum([eq.latent_fraction * w for eq, w in zip(equipments, weights)])
-        lost_fract = sum([eq.lost_fraction * w for eq, w in zip(equipments, weights)])
+        rad_fract = sum([eq.radiant_fraction * w for eq, w in zip(equipments, u_weights)])
+        lat_fract = sum([eq.latent_fraction * w for eq, w in zip(equipments, u_weights)])
+        lost_fract = sum([eq.lost_fraction * w for eq, w in zip(equipments, u_weights)])
 
         # calculate the average schedules
         sched = _EquipmentBase._average_schedule(
             '{} Schedule'.format(name), [eq.schedule for eq in equipments],
-            weights, timestep_resolution)
+            u_weights, timestep_resolution)
 
         return pd, sched, rad_fract, lat_fract, lost_fract
 
@@ -289,8 +308,9 @@ class ElectricEquipment(_EquipmentBase):
         # get the relevant properties
         sched, rad_f, lat_f, lost_f = cls._extract_ep_properties(ep_strs, schedule_dict)
         # return the equipment object and the zone name for the equip object
-        equipment = cls(ep_strs[0], ep_strs[5], sched, rad_f, lat_f, lost_f)
+        obj_name = ep_strs[0].split('..')[0]
         zone_name = ep_strs[1]
+        equipment = cls(obj_name, ep_strs[5], sched, rad_f, lat_f, lost_f)
         return equipment, zone_name
 
     @classmethod
@@ -316,6 +336,32 @@ class ElectricEquipment(_EquipmentBase):
             }
         """
         sched, rad_f, lat_f, lost_f = cls._extract_dict_props(data, 'ElectricEquipment')
+        return cls(data['name'], data['watts_per_area'], sched, rad_f, lat_f, lost_f)
+
+    @classmethod
+    def from_dict_abridged(cls, data, schedule_dict):
+        """Create a ElectricEquipment object from an abridged dictionary.
+
+        Args:
+            data: A ElectricEquipmentAbridged dictionary in following the format below.
+            schedule_dict: A dictionary with schedule names as keys and honeybee schedule
+                objects as values (either ScheduleRuleset or ScheduleFixedInterval).
+                These will be used to assign the schedules to the equipment object.
+
+        .. code-block:: json
+
+            {
+            "type": 'ElectricEquipmentAbridged',
+            "name": 'Open Office Equipment',
+            "watts_per_area": 5, // equipment watts per square meter of floor area
+            "schedule": "Office Equipment Schedule", // Schedule name
+            "radiant_fraction": 0.3, // fraction of heat that is long wave radiant
+            "latent_fraction": 0, // fraction of heat that is latent
+            "lost_fraction": 0 // fraction of heat that is lost
+            }
+        """
+        sched, rad_f, lat_f, lost_f = cls._extract_abridged_dict_props(
+            data, 'ElectricEquipmentAbridged', schedule_dict)
         return cls(data['name'], data['watts_per_area'], sched, rad_f, lat_f, lost_f)
 
     def to_idf(self, zone_name):
@@ -352,10 +398,12 @@ class ElectricEquipment(_EquipmentBase):
             name: A name for the new averaged ElectricEquipment object.
             equipments: A list of ElectricEquipment objects that will be averaged
                 together to make a new ElectricEquipment.
-            weights: An optional list of fractioanl numbers with the same length
-                as the input equipments that sum to 1. These will be used to weight
-                each of the equipments objects in the resulting average. If None, the
-                individual objects will be weighted equally. Default: None.
+            weights: An optional list of fractional numbers with the same length
+                as the input equipments. These will be used to weight each of the
+                equipment objects in the resulting average. Note that these weights
+                can sum to less than 1 in which case the average watts_per_area will
+                assume 0 for the unaccounted fraction of the weights.
+                If None, the objects will be weighted equally. Default: None.
             timestep_resolution: An optional integer for the timestep resolution
                 at which the schedules will be averaged. Any schedule details
                 smaller than this timestep will be lost in the averaging process.
@@ -369,6 +417,9 @@ class ElectricEquipment(_EquipmentBase):
         """A tuple based on the object properties, useful for hashing."""
         return (self.name, self.watts_per_area, hash(self.schedule),
                 self.radiant_fraction, self.latent_fraction, self.lost_fraction)
+
+    def __hash__(self):
+        return hash(self.__key())
 
     def __eq__(self, other):
         return isinstance(other, ElectricEquipment) and self.__key() == other.__key()
@@ -448,8 +499,9 @@ class GasEquipment(_EquipmentBase):
         # get the relevant properties
         sched, rad_f, lat_f, lost_f = cls._extract_ep_properties(ep_strs, schedule_dict)
         # return the equipment object and the zone name for the equip object
-        equipment = cls(ep_strs[0], ep_strs[5], sched, rad_f, lat_f, lost_f)
+        obj_name = ep_strs[0].split('..')[0]
         zone_name = ep_strs[1]
+        equipment = cls(obj_name, ep_strs[5], sched, rad_f, lat_f, lost_f)
         return equipment, zone_name
 
     @classmethod
@@ -475,6 +527,32 @@ class GasEquipment(_EquipmentBase):
             }
         """
         sched, rad_f, lat_f, lost_f = cls._extract_dict_props(data, 'GasEquipment')
+        return cls(data['name'], data['watts_per_area'], sched, rad_f, lat_f, lost_f)
+
+    @classmethod
+    def from_dict_abridged(cls, data, schedule_dict):
+        """Create a GasEquipment object from an abridged dictionary.
+
+        Args:
+            data: A GasEquipmentAbridged dictionary in following the format below.
+            schedule_dict: A dictionary with schedule names as keys and honeybee schedule
+                objects as values (either ScheduleRuleset or ScheduleFixedInterval).
+                These will be used to assign the schedules to the equipment object.
+
+        .. code-block:: json
+
+            {
+            "type": 'GasEquipmentAbridged',
+            "name": 'Kitchen Equipment',
+            "watts_per_area": 20, // equipment watts per square meter of floor area
+            "schedule": "Kitchen Equipment Schedule", // Schedule name
+            "radiant_fraction": 0.3, // fraction of heat that is long wave radiant
+            "latent_fraction": 0, // fraction of heat that is latent
+            "lost_fraction": 0 // fraction of heat that is lost
+            }
+        """
+        sched, rad_f, lat_f, lost_f = cls._extract_abridged_dict_props(
+            data, 'GasEquipmentAbridged', schedule_dict)
         return cls(data['name'], data['watts_per_area'], sched, rad_f, lat_f, lost_f)
 
     def to_idf(self, zone_name):
@@ -511,10 +589,12 @@ class GasEquipment(_EquipmentBase):
             name: A name for the new averaged GasEquipment object.
             equipments: A list of GasEquipment objects that will be averaged
                 together to make a new GasEquipment.
-            weights: An optional list of fractioanl numbers with the same length
-                as the input equipments that sum to 1. These will be used to weight
-                each of the equipments objects in the resulting average. If None, the
-                individual objects will be weighted equally. Default: None.
+            weights: An optional list of fractional numbers with the same length
+                as the input equipments. These will be used to weight each of the
+                equipment objects in the resulting average. Note that these weights
+                can sum to less than 1 in which case the average watts_per_area will
+                assume 0 for the unaccounted fraction of the weights.
+                If None, the objects will be weighted equally. Default: None.
             timestep_resolution: An optional integer for the timestep resolution
                 at which the schedules will be averaged. Any schedule details
                 smaller than this timestep will be lost in the averaging process.
@@ -528,6 +608,9 @@ class GasEquipment(_EquipmentBase):
         """A tuple based on the object properties, useful for hashing."""
         return (self.name, self.watts_per_area, hash(self.schedule),
                 self.radiant_fraction, self.latent_fraction, self.lost_fraction)
+
+    def __hash__(self):
+        return hash(self.__key())
 
     def __eq__(self, other):
         return isinstance(other, GasEquipment) and self.__key() == other.__key()

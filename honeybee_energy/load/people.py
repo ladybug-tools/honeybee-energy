@@ -134,7 +134,7 @@ class People(_LoadBase):
 
     @latent_fraction.setter
     def latent_fraction(self, value):
-        if isinstance(value, str) and (value.lower() == 'autocalculate' or value == ''):
+        if str(value).lower() == 'autocalculate' or str(value) == '':
             self._latent_fraction = 'autocalculate'
         else:
             self._latent_fraction = float_in_range(
@@ -170,22 +170,14 @@ class People(_LoadBase):
         rad_fract = ep_strs[7] if ep_strs[7] != '' else 0.3
 
         # extract the schedules from the string
-        try:
-            occ_sched = schedule_dict[ep_strs[2]]
-        except KeyError as e:
-            raise ValueError('Failed to find {} in the schedule_dict.'.format(e))
-        if ep_strs[9].lower() == 'seated adult activity':
-            activity_sched = None
-        else:
-            try:
-                activity_sched = schedule_dict[ep_strs[9]]
-            except KeyError as e:
-                raise ValueError('Failed to find {} in the People schedule_dict.'.format(e))
+        occ_sched, activity_sched = cls._get_occ_act_schedules_from_dict(
+            schedule_dict, ep_strs[2], ep_strs[9])
 
         # return the people object and the zone name for the people object
-        people = cls(ep_strs[0], ep_strs[5], occ_sched, activity_sched,
-                     rad_fract, lat_fract)
+        obj_name = ep_strs[0].split('..')[0]
         zone_name = ep_strs[1]
+        people = cls(obj_name, ep_strs[5], occ_sched, activity_sched,
+                     rad_fract, lat_fract)
         return people, zone_name
 
     @classmethod
@@ -215,9 +207,40 @@ class People(_LoadBase):
         occ_sched = cls._get_schedule_from_dict(data['occupancy_schedule'])
         act_sched = cls._get_schedule_from_dict(data['activity_schedule']) if \
             'activity_schedule' in data and data['activity_schedule'] is not None else None
-        rad_fract = data['radiant_fraction'] if 'radiant_fraction' in data else 0.3
-        lat_fract = data['latent_fraction'] if 'latent_fraction' in data else 'autocalculate'
+        rad_fract, lat_fract = cls._optional_dict_keys(data)
         return cls(data['name'], data['people_per_area'], occ_sched, act_sched,
+                   rad_fract, lat_fract)
+
+    @classmethod
+    def from_dict_abridged(cls, data, schedule_dict):
+        """Create a People object from an abridged dictionary.
+
+        Args:
+            data: A PeopleAbridged dictionary in following the format below.
+            schedule_dict: A dictionary with schedule names as keys and honeybee schedule
+                objects as values (either ScheduleRuleset or ScheduleFixedInterval).
+                These will be used to assign the schedules to the People object.
+
+        .. code-block:: json
+
+            {
+            "type": "PeopleAbridged",
+            "name": "Open Office People",
+            "people_per_area": 0.05, // number of people per square meter of floor area
+            "occupancy_schedule": "Office Occupancy", // Schedule name
+            "activity_schedule": "Office Activity", // Schedule name
+            "radiant_fraction": 0.3, // fraction of sensible heat that is radiant
+            "latent_fraction": 0.2 // fraction of total heat that is latent
+            }
+        """
+        assert data['type'] == 'PeopleAbridged', \
+            'Expected PeopleAbridged dictionary. Got {}.'.format(data['type'])
+        act_sch_name = data['activity_schedule'] if 'activity_schedule' in data and \
+            data['activity_schedule'] is not None else ''
+        occ_sched, activity_sched = cls._get_occ_act_schedules_from_dict(
+            schedule_dict, data['occupancy_schedule'], act_sch_name)
+        rad_fract, lat_fract = cls._optional_dict_keys(data)
+        return cls(data['name'], data['people_per_area'], occ_sched, activity_sched,
                    rad_fract, lat_fract)
 
     def to_idf(self, zone_name):
@@ -235,7 +258,8 @@ class People(_LoadBase):
         """
         sens_fract = 1 - float(self.latent_fraction) if \
             self.latent_fraction != 'autocalculate' else 'autocalculate'
-        values = (self.name, zone_name, self.occupancy_schedule.name, 'People/Area',
+        values = ('{}..{}'.format(self.name, zone_name), zone_name,
+                  self.occupancy_schedule.name, 'People/Area',
                   '', self.people_per_area, '', self.radiant_fraction, sens_fract,
                   self.activity_schedule.name)
         comments = ('name', 'zone name', 'occupancy schedule name', 'occupancy method',
@@ -273,36 +297,38 @@ class People(_LoadBase):
             name: A name for the new averaged People object.
             peoples: A list of People objects that will be averaged together to make
                 a new People.
-            weights: An optional list of fractioanl numbers with the same length
-                as the input peoples that sum to 1. These will be used to weight
-                each of the People objects in the resulting average. If None, the
-                individual objects will be weighted equally. Default: None.
+            weights: An optional list of fractional numbers with the same length
+                as the input peoples. These will be used to weight each of the People
+                objects in the resulting average. Note that these weights
+                can sum to less than 1 in which case the average people_per_area will
+                assume 0 for the unaccounted fraction of the weights.
+                If None, the objects will be weighted equally. Default: None.
             timestep_resolution: An optional integer for the timestep resolution
                 at which the schedules will be averaged. Any schedule details
                 smaller than this timestep will be lost in the averaging process.
                 Default: 1.
         """
-        weights = People._check_avg_weights(peoples, weights, 'People')
+        weights, u_weights = People._check_avg_weights(peoples, weights, 'People')
 
         # calculate the average values
         ppl_area = sum([ppl.people_per_area * w for ppl, w in zip(peoples, weights)])
-        rad_fract = sum([ppl.radiant_fraction * w for ppl, w in zip(peoples, weights)])
+        rad_fract = sum([ppl.radiant_fraction * w for ppl, w in zip(peoples, u_weights)])
         lat_fracts = []
         for i, ppl in enumerate(peoples):
             if ppl.latent_fraction == 'autocalculate':
                 lat_fract = 'autocalculate'
                 break
-            lat_fracts.append(ppl.latent_fraction * weights[i])
+            lat_fracts.append(ppl.latent_fraction * u_weights[i])
         else:
             lat_fract = sum(lat_fracts)
 
         # calculate the average schedules
         occ_sched = People._average_schedule(
-            '{} Occupancy Schedule'.format(name),
-            [ppl.occupancy_schedule for ppl in peoples], weights, timestep_resolution)
+            '{}_Occ Schedule'.format(name),
+            [ppl.occupancy_schedule for ppl in peoples], u_weights, timestep_resolution)
         act_sched = People._average_schedule(
-            '{} Activity Schedule'.format(name),
-            [ppl.activity_schedule for ppl in peoples], weights, timestep_resolution)
+            '{}_Act Schedule'.format(name),
+            [ppl.activity_schedule for ppl in peoples], u_weights, timestep_resolution)
 
         # return the averaged people object
         return People(name, ppl_area, occ_sched, act_sched, rad_fract, lat_fract)
@@ -313,6 +339,30 @@ class People(_LoadBase):
             assert schedule.schedule_type_limit.unit == 'W', 'Activity schedule ' \
                 'should be in Watts [ActivityLevel]. Got a schedule of unit_type ' \
                 '[{}].'.format(schedule.schedule_type_limit.unit_type)
+
+    @staticmethod
+    def _optional_dict_keys(data):
+        """Get the optional keys from a People dictionary."""
+        rad_fract = data['radiant_fraction'] if 'radiant_fraction' in data else 0.3
+        lat_fract = data['latent_fraction'] if \
+            'latent_fraction' in data else 'autocalculate'
+        return rad_fract, lat_fract
+
+    @staticmethod
+    def _get_occ_act_schedules_from_dict(schedule_dict, occ_sch_name, act_sch_name):
+        """Get schedule objects from a dictionary."""
+        try:
+            occ_sched = schedule_dict[occ_sch_name]
+        except KeyError as e:
+            raise ValueError('Failed to find {} in the schedule_dict.'.format(e))
+        if act_sch_name.lower() == 'seated adult activity':
+            activity_sched = None
+        else:
+            try:
+                activity_sched = schedule_dict[act_sch_name]
+            except KeyError as e:
+                raise ValueError('Failed to find {} in the People schedule_dict.'.format(e))
+        return occ_sched, activity_sched
 
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""

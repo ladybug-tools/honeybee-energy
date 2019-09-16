@@ -1,0 +1,640 @@
+!-   =========  DEFAULT HONEYBEE SCHEDULES =========
+!- These schedules are loaded into the honeybee_energy library as defaults.
+!- Editing these schedules and/or schedule types will edit the defaults used across
+!- all of honeybee_energy as long as the names of the constructions are kept.
+
+
+
+!-   ================  SCHEDULE TYPES ================
+
+ScheduleTypeLimits,
+ Fractional,               !- name
+ 0.0,                      !- lower limit value
+ 1.0,                      !- upper limit value
+ Continuous,               !- numeric type
+ Dimensionless;            !- unit type
+
+ScheduleTypeLimits,
+ On-Off,                   !- name
+ 0,                        !- lower limit value
+ 1,                        !- upper limit value
+ Discrete,                 !- numeric type
+ Dimensionless;            !- unit type
+
+ScheduleTypeLimits,
+ Temperature,              !- name
+ -273.15,                  !- lower limit value
+ ,                         !- upper limit value
+ Continuous,               !- numeric type
+ Temperature;              !- unit type
+
+ScheduleTypeLimits,
+ Delta Temperature,        !- name
+ ,                         !- lower limit value
+ ,                         !- upper limit value
+ Continuous,               !- numeric type
+ DeltaTemperature;         !- unit type
+
+ScheduleTypeLimits,
+ Activity Level,           !- name
+ 0.0,                      !- lower limit value
+ ,                         !- upper limit value
+ Continuous,               !- numeric type
+ ActivityLevel;            !- unit type
+
+ScheduleTypeLimits,
+ Power,                    !- name
+ ,                         !- lower limit value
+ ,                         !- upper limit value
+ Continuous,               !- numeric type
+ Power;                    !- unit type
+
+ScheduleTypeLimits,
+ Humidity,                 !- name
+ 0,                        !- lower limit value
+ 100,                      !- upper limit value
+ Continuous,               !- numeric type
+ Percent;                  !- unit type
+
+ScheduleTypeLimits,
+ Angle,                    !- name
+ 0.0,                      !- lower limit value
+ 180.0,                    !- upper limit value
+ Continuous,               !- numeric type
+ Angle;                    !- unit type
+
+ScheduleTypeLimits,
+ Thermostat Control,       !- name
+ 0,                        !- lower limit value
+ 4,                        !- upper limit value
+ Discrete,                 !- numeric type
+ Dimensionless;            !- unit type
+
+
+ !-   ================  DAY SCHEDULES ================
+
+ Schedule:Day:Interval,
+  OfficeMedium BLDG_OCC_SCH_Default, !- schedule name
+  ,                         !- schedule type limits
+  No,                       !- interpolate to timestep
+  06:00,                    !- time 1 {hh:mm}
+  0.0,                      !- value until time 1
+  18:00,                    !- time 2 {hh:mm}
+  0.05,                     !- value until time 2
+  24:00,                    !- time 3 {hh:mm}
+  0.0;                      !- value until time 3
+
+ Schedule:Day:Interval,
+  OfficeMedium BLDG_OCC_SCH_SmrDsn, !- schedule name
+  ,                         !- schedule type limits
+  No,                       !- interpolate to timestep
+  06:00,                    !- time 1 {hh:mm}
+  0.0,                      !- value until time 1
+  22:00,                    !- time 2 {hh:mm}
+  1.0,                      !- value until time 2
+  24:00,                    !- time 3 {hh:mm}
+  0.05;                     !- value until time 3
+
+ Schedule:Day:Interval,
+  OfficeMedium BLDG_OCC_SCH_WntrDsn, !- schedule name
+  ,                         !- schedule type limits
+  No,                       !- interpolate to timestep
+  24:00,                    !- time 1 {hh:mm}
+  0.0;                      !- value until time 1
+
+ Schedule:Day:Interval,
+  OfficeMedium BLDG_OCC_SCH_Sat, !- schedule name
+  ,                         !- schedule type limits
+  No,                       !- interpolate to timestep
+  06:00,                    !- time 1 {hh:mm}
+  0.0,                      !- value until time 1
+  08:00,                    !- time 2 {hh:mm}
+  0.1,                      !- value until time 2
+  12:00,                    !- time 3 {hh:mm}
+  0.3,                      !- value until time 3
+  17:00,                    !- time 4 {hh:mm}
+  0.1,                      !- value until time 4
+  19:00,                    !- time 5 {hh:mm}
+  0.05,                     !- value until time 5
+  24:00,                    !- time 6 {hh:mm}
+  0.0;                      !- value until time 6
+
+ Schedule:Day:Interval,
+  OfficeMedium BLDG_OCC_SCH_Wkdy, !- schedule name
+  ,                         !- schedule type limits
+  No,                       !- interpolate to timestep
+  06:00,                    !- time 1 {hh:mm}
+  0.0,                      !- value until time 1
+  07:00,                    !- time 2 {hh:mm}
+  0.1,                      !- value until time 2
+  08:00,                    !- time 3 {hh:mm}
+  0.2,                      !- value until time 3
+  12:00,                    !- time 4 {hh:mm}
+  0.95,                     !- value until time 4
+  13:00,                    !- time 5 {hh:mm}
+  0.5,                      !- value until time 5
+  17:00,                    !- time 6 {hh:mm}
+  0.95,                     !- value until time 6
+  18:00,                    !- time 7 {hh:mm}
+  0.3,                      !- value until time 7
+  22:00,                    !- time 8 {hh:mm}
+  0.1,                      !- value until time 8
+  24:00,                    !- time 9 {hh:mm}
+  0.05;                     !- value until time 9
+
+ Schedule:Day:Interval,
+  OfficeMedium ACTIVITY_SCH_Default, !- schedule name
+  ,                         !- schedule type limits
+  No,                       !- interpolate to timestep
+  24:00,                    !- time 1 {hh:mm}
+  120.0;                    !- value until time 1
+
+ Schedule:Day:Interval,
+  OfficeMedium ACTIVITY_SCH_Default_SmrDsn, !- schedule name
+  ,                         !- schedule type limits
+  No,                       !- interpolate to timestep
+  24:00,                    !- time 1 {hh:mm}
+  120.0;                    !- value until time 1
+
+ Schedule:Day:Interval,
+  OfficeMedium ACTIVITY_SCH_Default_WntrDsn, !- schedule name
+  ,                         !- schedule type limits
+  No,                       !- interpolate to timestep
+  24:00,                    !- time 1 {hh:mm}
+  120.0;                    !- value until time 1
+
+ Schedule:Day:Interval,
+  OfficeMedium BLDG_LIGHT_SCH_2013_Sat, !- schedule name
+  ,                         !- schedule type limits
+  No,                       !- interpolate to timestep
+  06:00,                    !- time 1 {hh:mm}
+  0.05,                     !- value until time 1
+  08:00,                    !- time 2 {hh:mm}
+  0.08623256,               !- value until time 2
+  12:00,                    !- time 3 {hh:mm}
+  0.25869768,               !- value until time 3
+  17:00,                    !- time 4 {hh:mm}
+  0.12934884,               !- value until time 4
+  19:00,                    !- time 5 {hh:mm}
+  0.04311628,               !- value until time 5
+  24:00,                    !- time 6 {hh:mm}
+  0.05;                     !- value until time 6
+
+ Schedule:Day:Interval,
+  OfficeMedium BLDG_LIGHT_SCH_2013_SmrDsn, !- schedule name
+  ,                         !- schedule type limits
+  No,                       !- interpolate to timestep
+  24:00,                    !- time 1 {hh:mm}
+  1.0;                      !- value until time 1
+
+ Schedule:Day:Interval,
+  OfficeMedium BLDG_LIGHT_SCH_2013_WntrDsn, !- schedule name
+  ,                         !- schedule type limits
+  No,                       !- interpolate to timestep
+  24:00,                    !- time 1 {hh:mm}
+  0.0;                      !- value until time 1
+
+ Schedule:Day:Interval,
+  OfficeMedium BLDG_LIGHT_SCH_2013_Sun, !- schedule name
+  ,                         !- schedule type limits
+  No,                       !- interpolate to timestep
+  06:00,                    !- time 1 {hh:mm}
+  0.05,                     !- value until time 1
+  18:00,                    !- time 2 {hh:mm}
+  0.04311628,               !- value until time 2
+  24:00,                    !- time 3 {hh:mm}
+  0.05;                     !- value until time 3
+
+ Schedule:Day:Interval,
+  OfficeMedium BLDG_LIGHT_SCH_2013_Wkdy, !- schedule name
+  ,                         !- schedule type limits
+  No,                       !- interpolate to timestep
+  05:00,                    !- time 1 {hh:mm}
+  0.05,                     !- value until time 1
+  06:00,                    !- time 2 {hh:mm}
+  0.1,                      !- value until time 2
+  07:00,                    !- time 3 {hh:mm}
+  0.08623256,               !- value until time 3
+  08:00,                    !- time 4 {hh:mm}
+  0.25869768,               !- value until time 4
+  17:00,                    !- time 5 {hh:mm}
+  0.77609304,               !- value until time 5
+  18:00,                    !- time 6 {hh:mm}
+  0.4311628,                !- value until time 6
+  20:00,                    !- time 7 {hh:mm}
+  0.25869768,               !- value until time 7
+  22:00,                    !- time 8 {hh:mm}
+  0.17246512,               !- value until time 8
+  23:00,                    !- time 9 {hh:mm}
+  0.08623256,               !- value until time 9
+  24:00,                    !- time 10 {hh:mm}
+  0.04311628;               !- value until time 10
+
+ Schedule:Day:Interval,
+  OfficeMedium BLDG_EQUIP_SCH_2013_Sat, !- schedule name
+  ,                         !- schedule type limits
+  No,                       !- interpolate to timestep
+  06:00,                    !- time 1 {hh:mm}
+  0.2307553806,             !- value until time 1
+  08:00,                    !- time 2 {hh:mm}
+  0.381234796,              !- value until time 2
+  12:00,                    !- time 3 {hh:mm}
+  0.476543495,              !- value until time 3
+  17:00,                    !- time 4 {hh:mm}
+  0.3335804465,             !- value until time 4
+  19:00,                    !- time 5 {hh:mm}
+  0.285926097,              !- value until time 5
+  24:00,                    !- time 6 {hh:mm}
+  0.2307553806;             !- value until time 6
+
+ Schedule:Day:Interval,
+  OfficeMedium BLDG_EQUIP_SCH_2013_SmrDsn, !- schedule name
+  ,                         !- schedule type limits
+  No,                       !- interpolate to timestep
+  24:00,                    !- time 1 {hh:mm}
+  1.0;                      !- value until time 1
+
+ Schedule:Day:Interval,
+  OfficeMedium BLDG_EQUIP_SCH_2013_WntrDsn, !- schedule name
+  ,                         !- schedule type limits
+  No,                       !- interpolate to timestep
+  24:00,                    !- time 1 {hh:mm}
+  0.0;                      !- value until time 1
+
+ Schedule:Day:Interval,
+  OfficeMedium BLDG_EQUIP_SCH_2013_Sun, !- schedule name
+  ,                         !- schedule type limits
+  No,                       !- interpolate to timestep
+  06:00,                    !- time 1 {hh:mm}
+  0.2307553806,             !- value until time 1
+  18:00,                    !- time 2 {hh:mm}
+  0.288107175,              !- value until time 2
+  24:00,                    !- time 3 {hh:mm}
+  0.2307553806;             !- value until time 3
+
+ Schedule:Day:Interval,
+  OfficeMedium BLDG_EQUIP_SCH_2013_Wkdy, !- schedule name
+  ,                         !- schedule type limits
+  No,                       !- interpolate to timestep
+  06:00,                    !- time 1 {hh:mm}
+  0.3076738408,             !- value until time 1
+  08:00,                    !- time 2 {hh:mm}
+  0.381234796,              !- value until time 2
+  12:00,                    !- time 3 {hh:mm}
+  0.857778291,              !- value until time 3
+  13:00,                    !- time 4 {hh:mm}
+  0.762469592,              !- value until time 4
+  17:00,                    !- time 5 {hh:mm}
+  0.857778291,              !- value until time 5
+  18:00,                    !- time 6 {hh:mm}
+  0.476543495,              !- value until time 6
+  24:00,                    !- time 7 {hh:mm}
+  0.381234796;              !- value until time 7
+
+ Schedule:Day:Interval,
+  OfficeMedium INFIL_SCH_PNNL_Default, !- schedule name
+  ,                         !- schedule type limits
+  No,                       !- interpolate to timestep
+  24:00,                    !- time 1 {hh:mm}
+  1.0;                      !- value until time 1
+
+ Schedule:Day:Interval,
+  OfficeMedium INFIL_SCH_PNNL_Wkdy_SmrDsn, !- schedule name
+  ,                         !- schedule type limits
+  No,                       !- interpolate to timestep
+  06:00,                    !- time 1 {hh:mm}
+  1.0,                      !- value until time 1
+  22:00,                    !- time 2 {hh:mm}
+  0.25,                     !- value until time 2
+  24:00,                    !- time 3 {hh:mm}
+  1.0;                      !- value until time 3
+
+ Schedule:Day:Interval,
+  OfficeMedium INFIL_SCH_PNNL_Sat_WntrDsn, !- schedule name
+  ,                         !- schedule type limits
+  No,                       !- interpolate to timestep
+  06:00,                    !- time 1 {hh:mm}
+  1.0,                      !- value until time 1
+  18:00,                    !- time 2 {hh:mm}
+  0.25,                     !- value until time 2
+  24:00,                    !- time 3 {hh:mm}
+  1.0;                      !- value until time 3
+
+ Schedule:Day:Interval,
+  OfficeMedium INFIL_SCH_PNNL_Wkdy, !- schedule name
+  ,                         !- schedule type limits
+  No,                       !- interpolate to timestep
+  06:00,                    !- time 1 {hh:mm}
+  1.0,                      !- value until time 1
+  22:00,                    !- time 2 {hh:mm}
+  0.25,                     !- value until time 2
+  24:00,                    !- time 3 {hh:mm}
+  1.0;                      !- value until time 3
+
+ Schedule:Day:Interval,
+  OfficeMedium INFIL_SCH_PNNL_Sat, !- schedule name
+  ,                         !- schedule type limits
+  No,                       !- interpolate to timestep
+  06:00,                    !- time 1 {hh:mm}
+  1.0,                      !- value until time 1
+  18:00,                    !- time 2 {hh:mm}
+  0.25,                     !- value until time 2
+  24:00,                    !- time 3 {hh:mm}
+  1.0;                      !- value until time 3
+
+ Schedule:Day:Interval,
+  OfficeMedium HTGSETP_SCH_YES_OPTIMUM_Default, !- schedule name
+  ,                         !- schedule type limits
+  No,                       !- interpolate to timestep
+  24:00,                    !- time 1 {hh:mm}
+  15.6;                     !- value until time 1
+
+ Schedule:Day:Interval,
+  OfficeMedium HTGSETP_SCH_YES_OPTIMUM_Default_SmrDsn, !- schedule name
+  ,                         !- schedule type limits
+  No,                       !- interpolate to timestep
+  24:00,                    !- time 1 {hh:mm}
+  15.6;                     !- value until time 1
+
+ Schedule:Day:Interval,
+  OfficeMedium HTGSETP_SCH_YES_OPTIMUM_WntrDsn, !- schedule name
+  ,                         !- schedule type limits
+  No,                       !- interpolate to timestep
+  05:00,                    !- time 1 {hh:mm}
+  15.6,                     !- value until time 1
+  06:00,                    !- time 2 {hh:mm}
+  17.6,                     !- value until time 2
+  07:00,                    !- time 3 {hh:mm}
+  19.6,                     !- value until time 3
+  22:00,                    !- time 4 {hh:mm}
+  21.0,                     !- value until time 4
+  24:00,                    !- time 5 {hh:mm}
+  15.6;                     !- value until time 5
+
+ Schedule:Day:Interval,
+  OfficeMedium HTGSETP_SCH_YES_OPTIMUM_Sat, !- schedule name
+  ,                         !- schedule type limits
+  No,                       !- interpolate to timestep
+  05:00,                    !- time 1 {hh:mm}
+  15.6,                     !- value until time 1
+  06:00,                    !- time 2 {hh:mm}
+  17.8,                     !- value until time 2
+  07:00,                    !- time 3 {hh:mm}
+  20.0,                     !- value until time 3
+  17:00,                    !- time 4 {hh:mm}
+  21.0,                     !- value until time 4
+  24:00,                    !- time 5 {hh:mm}
+  15.6;                     !- value until time 5
+
+ Schedule:Day:Interval,
+  OfficeMedium HTGSETP_SCH_YES_OPTIMUM_Wkdy, !- schedule name
+  ,                         !- schedule type limits
+  No,                       !- interpolate to timestep
+  05:00,                    !- time 1 {hh:mm}
+  15.6,                     !- value until time 1
+  06:00,                    !- time 2 {hh:mm}
+  17.8,                     !- value until time 2
+  07:00,                    !- time 3 {hh:mm}
+  20.0,                     !- value until time 3
+  22:00,                    !- time 4 {hh:mm}
+  21.0,                     !- value until time 4
+  24:00,                    !- time 5 {hh:mm}
+  15.6;                     !- value until time 5
+
+ Schedule:Day:Interval,
+  OfficeMedium CLGSETP_SCH_YES_OPTIMUM_Default, !- schedule name
+  ,                         !- schedule type limits
+  No,                       !- interpolate to timestep
+  24:00,                    !- time 1 {hh:mm}
+  26.7;                     !- value until time 1
+
+ Schedule:Day:Interval,
+  OfficeMedium CLGSETP_SCH_YES_OPTIMUM_SmrDsn, !- schedule name
+  ,                         !- schedule type limits
+  No,                       !- interpolate to timestep
+  05:00,                    !- time 1 {hh:mm}
+  26.7,                     !- value until time 1
+  06:00,                    !- time 2 {hh:mm}
+  25.7,                     !- value until time 2
+  07:00,                    !- time 3 {hh:mm}
+  25.0,                     !- value until time 3
+  22:00,                    !- time 4 {hh:mm}
+  24.0,                     !- value until time 4
+  24:00,                    !- time 5 {hh:mm}
+  26.7;                     !- value until time 5
+
+ Schedule:Day:Interval,
+  OfficeMedium CLGSETP_SCH_YES_OPTIMUM_Default_WntrDsn, !- schedule name
+  ,                         !- schedule type limits
+  No,                       !- interpolate to timestep
+  24:00,                    !- time 1 {hh:mm}
+  26.7;                     !- value until time 1
+
+ Schedule:Day:Interval,
+  OfficeMedium CLGSETP_SCH_YES_OPTIMUM_Sat, !- schedule name
+  ,                         !- schedule type limits
+  No,                       !- interpolate to timestep
+  05:00,                    !- time 1 {hh:mm}
+  26.7,                     !- value until time 1
+  06:00,                    !- time 2 {hh:mm}
+  25.7,                     !- value until time 2
+  07:00,                    !- time 3 {hh:mm}
+  25.0,                     !- value until time 3
+  17:00,                    !- time 4 {hh:mm}
+  24.0,                     !- value until time 4
+  24:00,                    !- time 5 {hh:mm}
+  26.7;                     !- value until time 5
+
+ Schedule:Day:Interval,
+  OfficeMedium CLGSETP_SCH_YES_OPTIMUM_Wkdy, !- schedule name
+  ,                         !- schedule type limits
+  No,                       !- interpolate to timestep
+  05:00,                    !- time 1 {hh:mm}
+  26.7,                     !- value until time 1
+  06:00,                    !- time 2 {hh:mm}
+  25.6,                     !- value until time 2
+  07:00,                    !- time 3 {hh:mm}
+  25.0,                     !- value until time 3
+  22:00,                    !- time 4 {hh:mm}
+  24.0,                     !- value until time 4
+  24:00,                    !- time 5 {hh:mm}
+  26.7;                     !- value until time 5
+
+
+ !-   ===========  WEEK AND YEAR SCHEDULES ===========
+
+ Schedule:Year,
+  Generic Office Occupancy, !- schedule name
+  Fractional,               !- schedule type limits
+  OfficeMedium BLDG_OCC_SCH_Week 1, !- week schedule name 1
+  1,                        !- start month 1
+  1,                        !- start day 1
+  12,                       !- end month 1
+  31;                       !- end day 1
+
+ Schedule:Week:Daily,
+  OfficeMedium BLDG_OCC_SCH_Week 1, !- name
+  OfficeMedium BLDG_OCC_SCH_Default, !- sunday
+  OfficeMedium BLDG_OCC_SCH_Wkdy, !- monday
+  OfficeMedium BLDG_OCC_SCH_Wkdy, !- tuesday
+  OfficeMedium BLDG_OCC_SCH_Wkdy, !- wednesday
+  OfficeMedium BLDG_OCC_SCH_Wkdy, !- thursday
+  OfficeMedium BLDG_OCC_SCH_Wkdy, !- friday
+  OfficeMedium BLDG_OCC_SCH_Sat, !- saturday
+  OfficeMedium BLDG_OCC_SCH_Default, !- holiday
+  OfficeMedium BLDG_OCC_SCH_SmrDsn, !- summer design day
+  OfficeMedium BLDG_OCC_SCH_WntrDsn, !- winter design day
+  OfficeMedium BLDG_OCC_SCH_Default, !- custom day 1
+  OfficeMedium BLDG_OCC_SCH_Default; !- custom day 2
+
+ Schedule:Year,
+  Generic Office Activity,  !- schedule name
+  Activity Level,           !- schedule type limits
+  OfficeMedium ACTIVITY_SCH_Week 1, !- week schedule name 1
+  1,                        !- start month 1
+  1,                        !- start day 1
+  12,                       !- end month 1
+  31;                       !- end day 1
+
+ Schedule:Week:Daily,
+  OfficeMedium ACTIVITY_SCH_Week 1, !- name
+  OfficeMedium ACTIVITY_SCH_Default, !- sunday
+  OfficeMedium ACTIVITY_SCH_Default, !- monday
+  OfficeMedium ACTIVITY_SCH_Default, !- tuesday
+  OfficeMedium ACTIVITY_SCH_Default, !- wednesday
+  OfficeMedium ACTIVITY_SCH_Default, !- thursday
+  OfficeMedium ACTIVITY_SCH_Default, !- friday
+  OfficeMedium ACTIVITY_SCH_Default, !- saturday
+  OfficeMedium ACTIVITY_SCH_Default, !- holiday
+  OfficeMedium ACTIVITY_SCH_Default_SmrDsn, !- summer design day
+  OfficeMedium ACTIVITY_SCH_Default_WntrDsn, !- winter design day
+  OfficeMedium ACTIVITY_SCH_Default, !- custom day 1
+  OfficeMedium ACTIVITY_SCH_Default; !- custom day 2
+
+ Schedule:Year,
+  Generic Office Lighting,  !- schedule name
+  Fractional,               !- schedule type limits
+  OfficeMedium BLDG_LIGHT_SCH_2013_Week 1, !- week schedule name 1
+  1,                        !- start month 1
+  1,                        !- start day 1
+  12,                       !- end month 1
+  31;                       !- end day 1
+
+ Schedule:Week:Daily,
+  OfficeMedium BLDG_LIGHT_SCH_2013_Week 1, !- name
+  OfficeMedium BLDG_LIGHT_SCH_2013_Sun, !- sunday
+  OfficeMedium BLDG_LIGHT_SCH_2013_Wkdy, !- monday
+  OfficeMedium BLDG_LIGHT_SCH_2013_Wkdy, !- tuesday
+  OfficeMedium BLDG_LIGHT_SCH_2013_Wkdy, !- wednesday
+  OfficeMedium BLDG_LIGHT_SCH_2013_Wkdy, !- thursday
+  OfficeMedium BLDG_LIGHT_SCH_2013_Wkdy, !- friday
+  OfficeMedium BLDG_LIGHT_SCH_2013_Sat, !- saturday
+  OfficeMedium BLDG_LIGHT_SCH_2013_Sat, !- holiday
+  OfficeMedium BLDG_LIGHT_SCH_2013_SmrDsn, !- summer design day
+  OfficeMedium BLDG_LIGHT_SCH_2013_WntrDsn, !- winter design day
+  OfficeMedium BLDG_LIGHT_SCH_2013_Sat, !- custom day 1
+  OfficeMedium BLDG_LIGHT_SCH_2013_Sat; !- custom day 2
+
+ Schedule:Year,
+  Generic Office Equipment, !- schedule name
+  Fractional,               !- schedule type limits
+  OfficeMedium BLDG_EQUIP_SCH_2013_Week 1, !- week schedule name 1
+  1,                        !- start month 1
+  1,                        !- start day 1
+  12,                       !- end month 1
+  31;                       !- end day 1
+
+ Schedule:Week:Daily,
+  OfficeMedium BLDG_EQUIP_SCH_2013_Week 1, !- name
+  OfficeMedium BLDG_EQUIP_SCH_2013_Sun, !- sunday
+  OfficeMedium BLDG_EQUIP_SCH_2013_Wkdy, !- monday
+  OfficeMedium BLDG_EQUIP_SCH_2013_Wkdy, !- tuesday
+  OfficeMedium BLDG_EQUIP_SCH_2013_Wkdy, !- wednesday
+  OfficeMedium BLDG_EQUIP_SCH_2013_Wkdy, !- thursday
+  OfficeMedium BLDG_EQUIP_SCH_2013_Wkdy, !- friday
+  OfficeMedium BLDG_EQUIP_SCH_2013_Sat, !- saturday
+  OfficeMedium BLDG_EQUIP_SCH_2013_Sat, !- holiday
+  OfficeMedium BLDG_EQUIP_SCH_2013_SmrDsn, !- summer design day
+  OfficeMedium BLDG_EQUIP_SCH_2013_WntrDsn, !- winter design day
+  OfficeMedium BLDG_EQUIP_SCH_2013_Sat, !- custom day 1
+  OfficeMedium BLDG_EQUIP_SCH_2013_Sat; !- custom day 2
+
+ Schedule:Year,
+  Generic Office Infiltration, !- schedule name
+  Fractional,               !- schedule type limits
+  OfficeMedium INFIL_SCH_PNNL_Week 1, !- week schedule name 1
+  1,                        !- start month 1
+  1,                        !- start day 1
+  12,                       !- end month 1
+  31;                       !- end day 1
+
+ Schedule:Week:Daily,
+  OfficeMedium INFIL_SCH_PNNL_Week 1, !- name
+  OfficeMedium INFIL_SCH_PNNL_Default, !- sunday
+  OfficeMedium INFIL_SCH_PNNL_Wkdy, !- monday
+  OfficeMedium INFIL_SCH_PNNL_Wkdy, !- tuesday
+  OfficeMedium INFIL_SCH_PNNL_Wkdy, !- wednesday
+  OfficeMedium INFIL_SCH_PNNL_Wkdy, !- thursday
+  OfficeMedium INFIL_SCH_PNNL_Wkdy, !- friday
+  OfficeMedium INFIL_SCH_PNNL_Sat, !- saturday
+  OfficeMedium INFIL_SCH_PNNL_Default, !- holiday
+  OfficeMedium INFIL_SCH_PNNL_Wkdy_SmrDsn, !- summer design day
+  OfficeMedium INFIL_SCH_PNNL_Sat_WntrDsn, !- winter design day
+  OfficeMedium INFIL_SCH_PNNL_Default, !- custom day 1
+  OfficeMedium INFIL_SCH_PNNL_Default; !- custom day 2
+
+ Schedule:Year,
+  Generic Office Heating,   !- schedule name
+  Temperature,              !- schedule type limits
+  OfficeMedium HTGSETP_SCH_YES_OPTIMUM_Week 1, !- week schedule name 1
+  1,                        !- start month 1
+  1,                        !- start day 1
+  12,                       !- end month 1
+  31;                       !- end day 1
+
+ Schedule:Week:Daily,
+  OfficeMedium HTGSETP_SCH_YES_OPTIMUM_Week 1, !- name
+  OfficeMedium HTGSETP_SCH_YES_OPTIMUM_Default, !- sunday
+  OfficeMedium HTGSETP_SCH_YES_OPTIMUM_Wkdy, !- monday
+  OfficeMedium HTGSETP_SCH_YES_OPTIMUM_Wkdy, !- tuesday
+  OfficeMedium HTGSETP_SCH_YES_OPTIMUM_Wkdy, !- wednesday
+  OfficeMedium HTGSETP_SCH_YES_OPTIMUM_Wkdy, !- thursday
+  OfficeMedium HTGSETP_SCH_YES_OPTIMUM_Wkdy, !- friday
+  OfficeMedium HTGSETP_SCH_YES_OPTIMUM_Sat, !- saturday
+  OfficeMedium HTGSETP_SCH_YES_OPTIMUM_Default, !- holiday
+  OfficeMedium HTGSETP_SCH_YES_OPTIMUM_Default_SmrDsn, !- summer design day
+  OfficeMedium HTGSETP_SCH_YES_OPTIMUM_WntrDsn, !- winter design day
+  OfficeMedium HTGSETP_SCH_YES_OPTIMUM_Default, !- custom day 1
+  OfficeMedium HTGSETP_SCH_YES_OPTIMUM_Default; !- custom day 2
+
+ Schedule:Year,
+  Generic Office Cooling,   !- schedule name
+  Temperature,              !- schedule type limits
+  OfficeMedium CLGSETP_SCH_YES_OPTIMUM_Week 1, !- week schedule name 1
+  1,                        !- start month 1
+  1,                        !- start day 1
+  12,                       !- end month 1
+  31;                       !- end day 1
+
+ Schedule:Week:Daily,
+  OfficeMedium CLGSETP_SCH_YES_OPTIMUM_Week 1, !- name
+  OfficeMedium CLGSETP_SCH_YES_OPTIMUM_Default, !- sunday
+  OfficeMedium CLGSETP_SCH_YES_OPTIMUM_Wkdy, !- monday
+  OfficeMedium CLGSETP_SCH_YES_OPTIMUM_Wkdy, !- tuesday
+  OfficeMedium CLGSETP_SCH_YES_OPTIMUM_Wkdy, !- wednesday
+  OfficeMedium CLGSETP_SCH_YES_OPTIMUM_Wkdy, !- thursday
+  OfficeMedium CLGSETP_SCH_YES_OPTIMUM_Wkdy, !- friday
+  OfficeMedium CLGSETP_SCH_YES_OPTIMUM_Sat, !- saturday
+  OfficeMedium CLGSETP_SCH_YES_OPTIMUM_Default, !- holiday
+  OfficeMedium CLGSETP_SCH_YES_OPTIMUM_SmrDsn, !- summer design day
+  OfficeMedium CLGSETP_SCH_YES_OPTIMUM_Default_WntrDsn, !- winter design day
+  OfficeMedium CLGSETP_SCH_YES_OPTIMUM_Default, !- custom day 1
+  OfficeMedium CLGSETP_SCH_YES_OPTIMUM_Default; !- custom day 2
+
+
+!-   =============  CONSTANT SCHEDULES ==============
+
+Schedule:Constant,
+ Seated Adult Activity,   !- name
+ Activity Level,          !- schedule type limits name
+ 120;                     !- hourly value

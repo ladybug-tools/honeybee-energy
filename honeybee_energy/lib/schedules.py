@@ -6,7 +6,7 @@ from .scheduletypelimits import activity_level
 
 
 # establish variables for the default schedules used across the library
-# and auto-generate materials if they were not loaded from default.idf
+# and auto-generate schedules if they were not loaded from default.idf
 try:
     seated_activity = _idf_schedules['Seated Adult Activity']
 except KeyError:
@@ -15,8 +15,25 @@ except KeyError:
     seated_activity.lock()
     _idf_schedules['Seated Adult Activity'] = seated_activity
 
+try:
+    generic_office_occupancy = _idf_schedules['Generic Office Occupancy']
+    generic_office_activity = _idf_schedules['Generic Office Activity']
+    generic_office_lighting = _idf_schedules['Generic Office Lighting']
+    generic_office_equipment = _idf_schedules['Generic Office Equipment']
+    generic_office_infiltration = _idf_schedules['Generic Office Infiltration']
+    generic_office_heating = _idf_schedules['Generic Office Heating']
+    generic_office_cooling = _idf_schedules['Generic Office Cooling']
+except KeyError:  # the office program isn't critical for the rest of the library
+    generic_office_occupancy = None
+    generic_office_activity = None
+    generic_office_lighting = None
+    generic_office_equipment = None
+    generic_office_infiltration = None
+    generic_office_heating = None
+    generic_office_cooling = None
 
-# make lists of schedule types to look up items in the library
+
+# make lists of schedules to look up items in the library
 SCHEDULES = tuple(_idf_schedules.keys())
 
 

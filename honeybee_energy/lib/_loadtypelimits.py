@@ -8,9 +8,9 @@ import os
 _idf_schedule_type_limits = {}
 
 
-# load other materials and constructions from user-supplied files
+# load schedule types from the default and user-supplied files
 cur_dir = os.path.dirname(__file__)
-schedule_lib = os.path.join(cur_dir, 'idf', 'schedules')
+schedule_lib = os.path.join(cur_dir, 'library', 'schedules')
 for f in os.listdir(schedule_lib):
     f_path = os.path.join(schedule_lib, f)
     if os.path.isfile(f_path) and f_path.endswith('.idf'):

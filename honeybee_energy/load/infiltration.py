@@ -195,8 +195,9 @@ class Infiltration(_LoadBase):
             raise ValueError('Failed to find {} in the schedule_dict.'.format(e))
 
         # return the object and the zone name for the object
-        infiltration = cls(ep_strs[0], ep_strs[6], sched, const, temp, vel)
+        obj_name = ep_strs[0].split('..')[0]
         zone_name = ep_strs[1]
+        infiltration = cls(obj_name, ep_strs[6], sched, const, temp, vel)
         return infiltration, zone_name
 
     @classmethod
@@ -224,9 +225,38 @@ class Infiltration(_LoadBase):
         assert data['type'] == 'Infiltration', \
             'Expected Infiltration dictionary. Got {}.'.format(data['type'])
         sched = cls._get_schedule_from_dict(data['schedule'])
-        const = data['constant_coefficient'] if 'constant_coefficient' in data else 1
-        tem = data['temperature_coefficient'] if 'temperature_coefficient' in data else 0
-        vel = data['velocity_coefficient'] if 'velocity_coefficient' in data else 0
+        const, tem, vel = cls._optional_dict_keys(data)
+        return cls(data['name'], data['flow_per_exterior_area'], sched, const, tem, vel)
+
+    @classmethod
+    def from_dict_abridged(cls, data, schedule_dict):
+        """Create a Infiltration object from an abridged dictionary.
+
+        Args:
+            data: A InfiltrationAbridged dictionary in following the format below.
+            schedule_dict: A dictionary with schedule names as keys and honeybee schedule
+                objects as values (either ScheduleRuleset or ScheduleFixedInterval).
+                These will be used to assign the schedules to the Infiltration object.
+
+        .. code-block:: json
+
+            {
+            "type": 'InfiltrationAbridged',
+            "name": 'Residentail Infiltration',
+            "flow_per_exterior_area": 0.0003, // flow per square meter of exterior area
+            "schedule": "Residentail Infiltration Schedule", // Schedule name
+            "constant_coefficient": 1, // optional constant coefficient
+            "temperature_coefficient": 0, // optional temperature coefficient
+            "velocity_coefficient": 0 // optional velocity coefficient
+            }
+        """
+        assert data['type'] == 'InfiltrationAbridged', \
+            'Expected InfiltrationAbridged dictionary. Got {}.'.format(data['type'])
+        try:
+            sched = schedule_dict[data['schedule']]
+        except KeyError as e:
+            raise ValueError('Failed to find {} in the schedule_dict.'.format(e))
+        const, tem, vel = cls._optional_dict_keys(data)
         return cls(data['name'], data['flow_per_exterior_area'], sched, const, tem, vel)
 
     def to_idf(self, zone_name):
@@ -240,9 +270,10 @@ class Infiltration(_LoadBase):
             zone_name: Text for the zone name that the ZoneInfiltration:DesignFlowRate
                 object is assigned to.
         """
-        values = (self.name, zone_name, self.schedule.name, 'Flow/ExteriorArea',
-                  '', '', self.flow_per_exterior_area, '', self.constant_coefficient,
-                  self.temperature_coefficient, self.velocity_coefficient, '')
+        values = ('{}..{}'.format(self.name, zone_name), zone_name, self.schedule.name,
+                  'Flow/ExteriorArea', '', '', self.flow_per_exterior_area, '',
+                  self.constant_coefficient, self.temperature_coefficient,
+                  self.velocity_coefficient, '')
         comments = ('name', 'zone name', 'schedule name', 'flow rate method',
                     'flow rate {m3/s}', 'flow per floor area {m3/s-m2}',
                     'flow per exterior area {m3/s-m2}', 'air changes per hour {1/hr}',
@@ -280,34 +311,45 @@ class Infiltration(_LoadBase):
             name: A name for the new averaged Infiltration object.
             infiltrations: A list of Infiltration objects that will be averaged
                 together to make a new Infiltration.
-            weights: An optional list of fractioanl numbers with the same length
-                as the input infiltrations that sum to 1. These will be used to weight
-                each of the Infiltration objects in the resulting average. If None, the
-                individual objects will be weighted equally. Default: None.
+            weights: An optional list of fractional numbers with the same length
+                as the input infiltrations. These will be used to weight each of the
+                Infiltration objects in the resulting average. Note that these weights
+                can sum to less than 1 in which case the average flow_per_exterior_area
+                will assume 0 for the unaccounted fraction of the weights.
+                If None, the objects will be weighted equally. Default: None.
             timestep_resolution: An optional integer for the timestep resolution
                 at which the schedules will be averaged. Any schedule details
                 smaller than this timestep will be lost in the averaging process.
                 Default: 1.
         """
-        weights = Infiltration._check_avg_weights(infiltrations, weights, 'Infiltration')
+        weights, u_weights = \
+            Infiltration._check_avg_weights(infiltrations, weights, 'Infiltration')
 
         # calculate the average values
         fd = sum([inf.flow_per_exterior_area * w
                   for inf, w in zip(infiltrations, weights)])
         const = sum([inf.constant_coefficient * w
-                     for inf, w in zip(infiltrations, weights)])
+                     for inf, w in zip(infiltrations, u_weights)])
         temp = sum([inf.temperature_coefficient * w
-                    for inf, w in zip(infiltrations, weights)])
+                    for inf, w in zip(infiltrations, u_weights)])
         vel = sum([inf.velocity_coefficient * w
-                   for inf, w in zip(infiltrations, weights)])
+                   for inf, w in zip(infiltrations, u_weights)])
 
         # calculate the average schedules
         sched = Infiltration._average_schedule(
             '{} Schedule'.format(name), [inf.schedule for inf in infiltrations],
-            weights, timestep_resolution)
+            u_weights, timestep_resolution)
 
         # return the averaged infiltration object
         return Infiltration(name, fd, sched, const, temp, vel)
+
+    @staticmethod
+    def _optional_dict_keys(data):
+        """Get the optional keys from an Infiltration dictionary."""
+        const = data['constant_coefficient'] if 'constant_coefficient' in data else 1
+        tem = data['temperature_coefficient'] if 'temperature_coefficient' in data else 0
+        vel = data['velocity_coefficient'] if 'velocity_coefficient' in data else 0
+        return const, tem, vel
 
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""

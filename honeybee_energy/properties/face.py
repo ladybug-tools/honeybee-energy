@@ -1,7 +1,7 @@
 # coding=utf-8
 """Face Energy Properties."""
 from ..construction import OpaqueConstruction
-from ..lib.constructionsets import generic_costruction_set
+from ..lib.constructionsets import generic_construction_set
 
 
 class FaceEnergyProperties(object):
@@ -48,7 +48,7 @@ class FaceEnergyProperties(object):
             return constr_set.get_face_construction(
                 self._host.type.name, self._host.boundary_condition.name)
         else:
-            return generic_costruction_set.get_face_construction(
+            return generic_construction_set.get_face_construction(
                 self._host.type.name, self._host.boundary_condition.name)
 
     @construction.setter
