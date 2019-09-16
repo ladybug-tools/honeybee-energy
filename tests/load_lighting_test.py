@@ -11,7 +11,7 @@ from ladybug.dt import Time, Date
 import pytest
 
 
-def test_lighting_init():
+def test_lighting_init(): 
     """Test the initialization of Lighting and basic properties."""
     simple_office = ScheduleDay('Simple Weekday', [0, 1, 0],
                                 [Time(0, 0), Time(9, 0), Time(17, 0)])

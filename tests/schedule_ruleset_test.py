@@ -344,7 +344,7 @@ def test_schedule_ruleset_to_idf_date_range():
 
 def test_schedule_from_standards_dict():
     """Test the ScheduleRuleset from_standards_dict method."""
-    filename = './tests/standards/OpenStudio_Standards_schedules.json'
+    filename = './tests/standards/OpenStudio_Standards_schedule.json'
     if filename:
         with open(filename, 'r') as f:
             data_store = json.load(f)

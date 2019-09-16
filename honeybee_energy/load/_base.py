@@ -51,17 +51,18 @@ class _LoadBase(object):
     @staticmethod
     def _check_avg_weights(load_objects, weights, obj_name):
         """Check input weights of an average calculation and generate them if None."""
-        assert isinstance(load_objects, (list, tuple)), 'Expected a list of {0} objects' \
-            ' for {0}.average. Got {1}.'.format(obj_name, type(load_objects))
         if weights is None:
-            weights = [1 / len(load_objects)] * len(load_objects) if \
+            weights = unity_weights = [1 / len(load_objects)] * len(load_objects) if \
                 len(load_objects) > 0 else []
         else:
             weights = tuple_with_length(weights, len(load_objects), float,
                                         'average {} weights'.format(obj_name))
-        assert sum(weights) == 1, 'Average {} weights must sum to 1. ' \
-            'Got {}.'.format(obj_name, sum(weights))
-        return weights
+            total_weight = sum(weights)
+            assert total_weight <= 1, 'Average {} weights must be less than or equal to' \
+                ' 1. Got {}.'.format(obj_name, sum(weights))
+            unity_weights = [w / total_weight for w in weights]
+
+        return weights, unity_weights
 
     @staticmethod
     def _average_schedule(name, scheds, weights, timestep):

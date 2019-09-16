@@ -1,0 +1,40 @@
+{
+    "Default Generic Construction Set": {
+        "type": "ConstructionSetAbridged",
+        "name": "Default Generic Construction Set",
+        "wall_set": {
+            "type": "WallSetAbridged",
+            "exterior_construction": null,
+            "interior_construction": null,
+            "ground_construction": null
+        },
+        "floor_set": {
+            "type": "FloorSetAbridged",
+            "exterior_construction": null,
+            "interior_construction": null,
+            "ground_construction": null
+        },
+        "roof_ceiling_set": {
+            "type": "RoofCeilingSetAbridged",
+            "exterior_construction": null,
+            "interior_construction": null,
+            "ground_construction": null
+        },
+        "aperture_set": {
+            "type": "ApertureSetAbridged",
+            "window_construction": null,
+            "interior_construction": null,
+            "skylight_construction": null,
+            "operable_construction": null
+        },
+        "door_set": {
+            "type": "DoorSetAbridged",
+            "exterior_construction": null,
+            "interior_construction": null,
+            "exterior_glass_construction": null,
+            "interior_glass_construction": null,
+            "overhead_construction": null
+        },
+        "shade_construction": null
+    }
+}

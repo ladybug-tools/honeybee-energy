@@ -5,7 +5,7 @@ from ..schedule.ruleset import ScheduleRuleset
 from ..schedule.fixedinterval import ScheduleFixedInterval
 
 from ..lib.constructions import generic_context
-from ..lib.constructionsets import generic_costruction_set
+from ..lib.constructionsets import generic_construction_set
 
 
 class ShadeEnergyProperties(object):
@@ -51,7 +51,7 @@ class ShadeEnergyProperties(object):
         else:
             c_set = self._parent_construction_set(self._host.parent)
             if c_set is None:
-                c_set = generic_costruction_set
+                c_set = generic_construction_set
         return c_set.shade_construction
 
     @construction.setter

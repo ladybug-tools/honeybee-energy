@@ -34,7 +34,7 @@ class ScheduleRuleset(object):
         schedule_type_limit
         summer_designday_schedule
         winter_designday_schedule
-        unique_day_schedules
+        day_schedules
         is_constant
         is_single_week
     """
@@ -169,7 +169,7 @@ class ScheduleRuleset(object):
         self._winter_designday_schedule = schedule
 
     @property
-    def unique_day_schedules(self):
+    def day_schedules(self):
         """Get a list of all unique ScheduleDay objects used in this ScheduleRuleset."""
         day_scheds = [self.default_day_schedule]
         if self._summer_designday_schedule is not None:
@@ -569,9 +569,16 @@ class ScheduleRuleset(object):
         schedule_type = cls._type_from_standards_gem(
             day_sch_dict['units'], day_sch_dict['category'])
 
+        # check that there is a default day
+        if default_day is None:  # just try to pick one of the rules to be the default
+            try:
+                default_day = schedule_rules[0].schedule_day
+                del schedule_rules[0]
+            except IndexError:
+                raise ValueError('No default_day_schedule or schedule rules were '
+                                 'found in the standards gem dictionary.')
+
         # return the schedule
-        assert default_day is not None, \
-            'No default_day_schedule was found in the standards gem dictionary.'
         return cls(data[0]['name'], default_day, schedule_rules, schedule_type,
                    summer_day, winter_day)
 
@@ -675,7 +682,7 @@ class ScheduleRuleset(object):
 
         Note that this method only outputs Schedule:Year and Schedule:Week objects
         (or a Schedule:Constant object if applicable). However, to write the full
-        schedule into an IDF, the schedules's unique_day_schedules must also be
+        schedule into an IDF, the schedules's day_schedules must also be
         written as well as the ScheduleTypeLimit object.
 
         The method is set up this way primarily to give better control over the export
@@ -809,22 +816,22 @@ class ScheduleRuleset(object):
     def lock(self):
         """The lock() method also locks the ScheduleDay and ScheduleRule objects."""
         self._locked = True
-        self._default_day_schedule._locked = True
+        self._default_day_schedule.lock()
         if self._summer_designday_schedule is not None:
-            self._summer_designday_schedule._locked = True
+            self._summer_designday_schedule.lock()
         if self._winter_designday_schedule is not None:
-            self._winter_designday_schedule._locked = True
+            self._winter_designday_schedule.lock()
         for rule in self._schedule_rules:
             rule.lock()
 
     def unlock(self):
         """The unlock() method also unlocks the ScheduleDay and ScheduleRule objects."""
         self._locked = False
-        self._default_day_schedule._locked = False
+        self._default_day_schedule.unlock()
         if self._summer_designday_schedule is not None:
-            self._summer_designday_schedule._locked = False
+            self._summer_designday_schedule.unlock()
         if self._winter_designday_schedule is not None:
-            self._winter_designday_schedule._locked = False
+            self._winter_designday_schedule.unlock()
         for rule in self._schedule_rules:
             rule.unlock()
 

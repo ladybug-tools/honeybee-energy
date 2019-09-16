@@ -11,8 +11,8 @@ _default_prop = {
     'temperature': ('Temperature', -273.15, None, 'Continuous', 'Temperature'),
     'activity_level': ('Activity Level', 0, None, 'Continuous', 'ActivityLevel'),
     'power': ('Power', None, None, 'Continuous', 'Power'),
+    'humidity': ('Humidity', 0, 100, 'Continuous', 'Percent'),
     'angle': ('Angle', 0, 180, 'Continuous', 'Angle'),
-    'thermostat_control': ('Thermostat Control', 0, 4, 'Discrete', 'Dimensionless'),
     'delta_temperature': ('Delta Temperature', None, None, 'Continuous', 'DeltaTemperature')
 }
 
@@ -50,16 +50,16 @@ except KeyError:
     _idf_schedule_type_limits['Power'] = power
 
 try:
+    humidity = _idf_schedule_type_limits['Humidity']
+except KeyError:
+    humidity = ScheduleTypeLimit(*_default_prop['humidity'])
+    _idf_schedule_type_limits['Humidity'] = humidity
+
+try:
     angle = _idf_schedule_type_limits['Angle']
 except KeyError:
     angle = ScheduleTypeLimit(*_default_prop['angle'])
     _idf_schedule_type_limits['Angle'] = angle
-
-try:
-    thermostat_control = _idf_schedule_type_limits['Thermostat Control']
-except KeyError:
-    thermostat_control = ScheduleTypeLimit(*_default_prop['thermostat_control'])
-    _idf_schedule_type_limits['Thermostat Control'] = thermostat_control
 
 try:
     delta_temperature = _idf_schedule_type_limits['Delta Temperature']

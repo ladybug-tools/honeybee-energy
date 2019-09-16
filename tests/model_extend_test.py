@@ -10,10 +10,17 @@ from honeybee.facetype import face_types
 
 from honeybee_energy.properties.model import ModelEnergyProperties
 from honeybee_energy.constructionset import ConstructionSet
+from honeybee_energy.idealair import IdealAirSystem
 from honeybee_energy.construction import WindowConstruction, OpaqueConstruction, \
     ShadeConstruction
 from honeybee_energy.material._base import _EnergyMaterialBase
 from honeybee_energy.material.opaque import EnergyMaterial
+from honeybee_energy.schedule.ruleset import ScheduleRuleset
+from honeybee_energy.schedule.typelimit import ScheduleTypeLimit
+from honeybee_energy.load.people import People
+
+from honeybee_energy.lib.programtypes import office_program
+import honeybee_energy.lib.scheduletypelimits as schedule_types
 from honeybee_energy.lib.materials import clear_glass, air_gap, roof_membrane, \
     wood, insulation
 from honeybee_energy.lib.constructions import generic_exterior_wall, \
@@ -31,26 +38,37 @@ import pytest
 def test_energy_properties():
     """Test the existence of the Model energy properties."""
     room = Room.from_box('Tiny House Zone', 5, 10, 3)
+    room.properties.energy.program_type = office_program
+    room.properties.energy.hvac = IdealAirSystem()
     south_face = room[3]
     south_face.apertures_by_ratio(0.4, 0.01)
     south_face.apertures[0].overhang(0.5, indoor=False)
     south_face.apertures[0].overhang(0.5, indoor=True)
     south_face.apertures[0].move_shades(Vector3D(0, 0, -0.5))
+    fritted_glass_trans = ScheduleRuleset.from_constant_value(
+        'Fritted Glass', 0.5, schedule_types.fractional)
+    south_face.apertures[0].outdoor_shades[0].properties.energy.transmittance_schedule = \
+        fritted_glass_trans
     model = Model('Tiny House', [room])
 
     assert hasattr(model.properties, 'energy')
     assert isinstance(model.properties.energy, ModelEnergyProperties)
     assert isinstance(model.properties.host, Model)
-    assert len(model.properties.energy.unique_materials) == 15
-    for mat in model.properties.energy.unique_materials:
+    assert len(model.properties.energy.materials) == 15
+    for mat in model.properties.energy.materials:
         assert isinstance(mat, _EnergyMaterialBase)
-    assert len(model.properties.energy.unique_constructions) == 14
-    for cnst in model.properties.energy.unique_constructions:
+    assert len(model.properties.energy.constructions) == 14
+    for cnst in model.properties.energy.constructions:
         assert isinstance(
             cnst, (WindowConstruction, OpaqueConstruction, ShadeConstruction))
-    assert len(model.properties.energy.unique_face_constructions) == 0
-    assert len(model.properties.energy.unique_construction_sets) == 0
+    assert len(model.properties.energy.face_constructions) == 0
+    assert len(model.properties.energy.construction_sets) == 0
     assert isinstance(model.properties.energy.global_construction_set, ConstructionSet)
+    assert len(model.properties.energy.schedule_type_limits) == 3
+    assert len(model.properties.energy.schedules) == 8
+    assert len(model.properties.energy.shade_schedules) == 1
+    assert len(model.properties.energy.room_schedules) == 0
+    assert len(model.properties.energy.program_types) == 1
 
 
 def test_check_duplicate_construction_set_names():
@@ -157,9 +175,68 @@ def test_check_duplicate_material_names():
         model.properties.energy.check_duplicate_material_names(True)
 
 
+def test_check_duplicate_schedule_names():
+    """Test the check_duplicate_schedule_names method."""
+    room = Room.from_box('Tiny House Zone', 5, 10, 3)
+    room.properties.energy.program_type = office_program
+    room.properties.energy.hvac = IdealAirSystem()
+    south_face = room[3]
+    south_face.apertures_by_ratio(0.4, 0.01)
+    south_face.apertures[0].overhang(0.5, indoor=False)
+    south_face.apertures[0].overhang(0.5, indoor=True)
+    south_face.apertures[0].move_shades(Vector3D(0, 0, -0.5))
+    fritted_glass_trans = ScheduleRuleset.from_constant_value(
+        'Fritted Glass', 0.6, schedule_types.fractional)
+    half_occ = ScheduleRuleset.from_constant_value(
+        'Half Occupied', 0.5, schedule_types.fractional)
+    south_face.apertures[0].outdoor_shades[0].properties.energy.transmittance_schedule = \
+        fritted_glass_trans
+    room.properties.energy.people = People('Office Occ', 0.05, half_occ)
+    model = Model('Tiny House', [room])
+
+    assert model.properties.energy.check_duplicate_schedule_names(False)
+    half_occ.unlock()
+    half_occ.name = 'Fritted Glass'
+    half_occ.lock()
+    assert not model.properties.energy.check_duplicate_schedule_names(False)
+    with pytest.raises(ValueError):
+        model.properties.energy.check_duplicate_schedule_names(True)
+
+
+def test_check_duplicate_schedule_type_limit_names():
+    """Test the check_duplicate_schedule_type_limit_names method."""
+    room = Room.from_box('Tiny House Zone', 5, 10, 3)
+    room.properties.energy.program_type = office_program
+    room.properties.energy.hvac = IdealAirSystem()
+    south_face = room[3]
+    south_face.apertures_by_ratio(0.4, 0.01)
+    south_face.apertures[0].overhang(0.5, indoor=False)
+    south_face.apertures[0].overhang(0.5, indoor=True)
+    south_face.apertures[0].move_shades(Vector3D(0, 0, -0.5))
+    fritted_glass_trans = ScheduleRuleset.from_constant_value(
+        'Fritted Glass', 0.6, schedule_types.fractional)
+    on_off = ScheduleTypeLimit('On-off', 0, 1, 'Discrete')
+    full_occ = ScheduleRuleset.from_constant_value('Occupied', 1, on_off)
+    south_face.apertures[0].outdoor_shades[0].properties.energy.transmittance_schedule = \
+        fritted_glass_trans
+    room.properties.energy.people = People('Office Occ', 0.05, full_occ)
+    model = Model('Tiny House', [room])
+
+    assert model.properties.energy.check_duplicate_schedule_type_limit_names(False)
+    full_occ.unlock()
+    new_sch_type = ScheduleTypeLimit('Fractional', 0, 1, 'Discrete')
+    full_occ.schedule_type_limit = new_sch_type
+    full_occ.lock()
+    assert not model.properties.energy.check_duplicate_schedule_type_limit_names(False)
+    with pytest.raises(ValueError):
+        model.properties.energy.check_duplicate_schedule_type_limit_names(True)
+
+
 def test_to_from_dict():
     """Test the Model to_dict and from_dict method with a single zone model."""
     room = Room.from_box('Tiny House Zone', 5, 10, 3)
+    room.properties.energy.program_type = office_program
+    room.properties.energy.hvac = IdealAirSystem()
 
     stone = EnergyMaterial('Thick Stone', 0.3, 2.31, 2322, 832, 'Rough',
                            0.95, 0.75, 0.8)
@@ -194,6 +271,9 @@ def test_to_from_dict():
     tree_canopy_geo = Face3D.from_regular_polygon(
         6, 2, Plane(Vector3D(0, 0, 1), Point3D(5, -3, 4)))
     tree_canopy = Shade('Tree Canopy', tree_canopy_geo)
+    tree_trans = ScheduleRuleset.from_constant_value(
+        'Tree Transmittance', 0.75, schedule_types.fractional)
+    tree_canopy.properties.energy.transmittance_schedule = tree_trans
 
     model = Model('Tiny House', [room], orphaned_shades=[tree_canopy])
     model.north_angle = 15
@@ -201,12 +281,12 @@ def test_to_from_dict():
     new_model = Model.from_dict(model_dict)
     assert model_dict == new_model.to_dict()
 
-    assert stone in new_model.properties.energy.unique_materials
-    assert thermal_mass_constr in new_model.properties.energy.unique_constructions
+    assert stone in new_model.properties.energy.materials
+    assert thermal_mass_constr in new_model.properties.energy.constructions
     assert new_model.rooms[0][0].properties.energy.construction == thermal_mass_constr
     assert new_model.rooms[0][3].apertures[0].indoor_shades[0].properties.energy.construction == light_shelf_in
     assert new_model.rooms[0][3].apertures[0].outdoor_shades[0].properties.energy.construction == light_shelf_out
-    assert triple_pane in new_model.properties.energy.unique_constructions
+    assert triple_pane in new_model.properties.energy.constructions
     assert new_model.rooms[0][1].apertures[0].properties.energy.construction == triple_pane
     assert new_model.rooms[0][1].apertures[0].is_operable
     assert len(new_model.orphaned_shades) == 1
@@ -217,10 +297,20 @@ def test_to_from_dict():
     assert isinstance(new_model.rooms[0][0].boundary_condition, Ground)
     assert isinstance(new_model.rooms[0][1].boundary_condition, Outdoors)
 
+    assert new_model.rooms[0].properties.energy.program_type == office_program
+    assert len(new_model.properties.energy.schedule_type_limits) == 3
+    assert len(model.properties.energy.schedules) == 8
+    assert new_model.rooms[0].properties.energy.is_conditioned
+    assert new_model.rooms[0].properties.energy.hvac == IdealAirSystem()
+
+    assert new_model.orphaned_shades[0].properties.energy.transmittance_schedule == tree_trans
+
 
 def test_to_dict_single_zone():
     """Test the Model to_dict method with a single zone model."""
     room = Room.from_box('Tiny House Zone', 5, 10, 3)
+    room.properties.energy.program_type = office_program
+    room.properties.energy.hvac = IdealAirSystem()
 
     stone = EnergyMaterial('Thick Stone', 0.3, 2.31, 2322, 832, 'Rough',
                            0.95, 0.75, 0.8)
@@ -285,9 +375,14 @@ def test_to_dict_single_zone():
     assert model_dict['rooms'][0]['faces'][1]['apertures'][0]['properties']['energy']['construction'] == \
         triple_pane.name
 
+    assert model_dict['rooms'][0]['properties']['energy']['program_type'] == \
+        office_program.name
+    assert model_dict['rooms'][0]['properties']['energy']['hvac'] == \
+        IdealAirSystem().to_dict()
+
     """
     f_dir = 'C:/Users/chris/Documents/GitHub/energy-model-schema/app/models/samples/json'
-    dest_file = f_dir + '/model_single_zone_tiny_house.json'
+    dest_file = f_dir + '/model_single_zone_office.json'
     with open(dest_file, 'w') as fp:
         json.dump(model_dict, fp, indent=4)
     """
@@ -339,6 +434,10 @@ def test_to_dict_multizone_house():
     """Test the Model to_dict method with a multi-zone house."""
     first_floor = Room.from_box('First Floor', 10, 10, 3, origin=Point3D(0, 0, 0))
     second_floor = Room.from_box('Second Floor', 10, 10, 3, origin=Point3D(0, 0, 3))
+    first_floor.properties.energy.program_type = office_program
+    second_floor.properties.energy.program_type = office_program
+    first_floor.properties.energy.hvac = IdealAirSystem()
+    second_floor.properties.energy.hvac = IdealAirSystem()
     for face in first_floor[1:5]:
         face.apertures_by_ratio(0.2, 0.01)
     for face in second_floor[1:5]:
@@ -389,9 +488,16 @@ def test_to_dict_multizone_house():
     assert model_dict['rooms'][2]['properties']['energy']['construction_set'] == \
         constr_set.name
 
+    assert model_dict['rooms'][0]['properties']['energy']['program_type'] == \
+        model_dict['rooms'][1]['properties']['energy']['program_type'] == \
+        office_program.name
+    assert model_dict['rooms'][0]['properties']['energy']['hvac'] == \
+        model_dict['rooms'][1]['properties']['energy']['hvac'] == \
+        IdealAirSystem().to_dict()
+
     """
     f_dir = 'C:/Users/chris/Documents/GitHub/energy-model-schema/app/models/samples/json'
-    dest_file = f_dir + '/model_multi_zone_single_family_house.json'
+    dest_file = f_dir + '/model_multi_zone_office.json'
     with open(dest_file, 'w') as fp:
         json.dump(model_dict, fp, indent=4)
     """

@@ -29,10 +29,10 @@ class ConstructionSet(object):
         shade_construction
         constructions
         modified_constructions
-        unique_constructions
-        unique_modified_constructions
-        unique_materials
-        unique_modified_materials
+        constructions_unique
+        modified_constructions_unique
+        materials_unique
+        modified_materials_unique
     """
     __slots__ = ('_name', '_wall_set', '_floor_set', '_roof_ceiling_set',
                  '_aperture_set', '_door_set', '_shade_construction', '_locked')
@@ -184,17 +184,17 @@ class ConstructionSet(object):
         return mod_constructions
 
     @property
-    def unique_constructions(self):
+    def constructions_unique(self):
         """List of all unique constructions contained within the set."""
         return list(set(self.constructions))
 
     @property
-    def unique_modified_constructions(self):
+    def modified_constructions_unique(self):
         """List of all unique constructions that are not defaulted within the set."""
         return list(set(self.modified_constructions))
 
     @property
-    def unique_materials(self):
+    def materials_unique(self):
         """List of all unique materials contained within the set."""
         materials = []
         for constr in self.constructions:
@@ -205,7 +205,7 @@ class ConstructionSet(object):
         return list(set(materials))
 
     @property
-    def unique_modified_materials(self):
+    def modified_materials_unique(self):
         """List of all unique materials that are not defaulted within the set."""
         materials = []
         for constr in self.modified_constructions:
@@ -347,33 +347,28 @@ class ConstructionSet(object):
         constructions[None] = None
 
         # build each of the sub-construction sets
-        wall_set = WallSet(
-            constructions[data['wall_set']['exterior_construction']],
-            constructions[data['wall_set']['interior_construction']],
-            constructions[data['wall_set']['ground_construction']])
-        floor_set = FloorSet(
-            constructions[data['floor_set']['exterior_construction']],
-            constructions[data['floor_set']['interior_construction']],
-            constructions[data['floor_set']['ground_construction']])
-        roof_ceiling_set = RoofCeilingSet(
-            constructions[data['roof_ceiling_set']['exterior_construction']],
-            constructions[data['roof_ceiling_set']['interior_construction']],
-            constructions[data['roof_ceiling_set']['ground_construction']])
-        aperture_set = ApertureSet(
-            constructions[data['aperture_set']['window_construction']],
-            constructions[data['aperture_set']['interior_construction']],
-            constructions[data['aperture_set']['skylight_construction']],
-            constructions[data['aperture_set']['operable_construction']])
-        door_set = DoorSet(
-            constructions[data['door_set']['exterior_construction']],
-            constructions[data['door_set']['interior_construction']],
-            constructions[data['door_set']['exterior_glass_construction']],
-            constructions[data['door_set']['interior_glass_construction']],
-            constructions[data['door_set']['overhead_construction']])
-        shade_construction = constructions[data['shade_construction']]
+        wall_set, floor_set, roof_ceiling_set, aperture_set, door_set, shade_con = \
+            cls._get_subsets_from_abridged(data, constructions)
 
         return cls(data['name'], wall_set, floor_set, roof_ceiling_set,
-                   aperture_set, door_set, shade_construction)
+                   aperture_set, door_set, shade_con)
+
+    @classmethod
+    def from_dict_abridged(cls, data, construction_dict):
+        """Create a ConstructionSet from an abridged dictionary.
+
+        Args:
+            data: A ConstructionSetAbridged dictionary.
+            construction_dict: A dictionary with construction names as keys and
+                honeybee construction objects as values. These will be used to
+                assign the constructions to the ConstructionSet object.
+        """
+        assert data['type'] == 'ConstructionSetAbridged', \
+            'Expected ConstructionSetAbridged. Got {}.'.format(data['type'])
+        wall_set, floor_set, roof_ceiling_set, aperture_set, door_set, shade_con = \
+            cls._get_subsets_from_abridged(data, construction_dict)
+        return cls(data['name'], wall_set, floor_set, roof_ceiling_set,
+                   aperture_set, door_set, shade_con)
 
     def to_dict(self, abridged=False, none_for_defaults=True):
         """Get ConstructionSet as a dictionary.
@@ -402,9 +397,9 @@ class ConstructionSet(object):
 
         if not abridged:
             if none_for_defaults:
-                constructions = self.unique_modified_constructions
+                constructions = self.modified_constructions_unique
             else:
-                constructions = self.unique_constructions
+                constructions = self.constructions_unique
             base['constructions'] = []
             materials = []
             for cnst in constructions:
@@ -423,20 +418,20 @@ class ConstructionSet(object):
     def lock(self):
         """The lock() method to will also lock the WallSet, FloorSet, etc."""
         self._locked = True
-        self._wall_set._locked = True
-        self._floor_set._locked = True
-        self._roof_ceiling_set._locked = True
-        self._aperture_set._locked = True
-        self._door_set._locked = True
+        self._wall_set.lock()
+        self._floor_set.lock()
+        self._roof_ceiling_set.lock()
+        self._aperture_set.lock()
+        self._door_set.lock()
 
     def unlock(self):
         """The unlock() method will also unlock the WallSet, FloorSet, etc."""
         self._locked = False
-        self._wall_set._locked = False
-        self._floor_set._locked = False
-        self._roof_ceiling_set._locked = False
-        self._aperture_set._locked = False
-        self._door_set._locked = False
+        self._wall_set.unlock()
+        self._floor_set.unlock()
+        self._roof_ceiling_set.unlock()
+        self._aperture_set.unlock()
+        self._door_set.unlock()
 
     def _get_constr_from_set(self, face_type_set, boundary_condition):
         """Get a specific construction from a face_type_set."""
@@ -446,6 +441,90 @@ class ConstructionSet(object):
             return face_type_set.interior_construction
         else:
             return face_type_set.ground_construction
+
+    @staticmethod
+    def _get_subsets_from_abridged(data, constructions):
+        """Get subset objects from and abirdged dictionary."""
+        wall_set = ConstructionSet._make_construction_subset(
+            data, WallSet(), 'wall_set', constructions)
+        floor_set = ConstructionSet._make_construction_subset(
+            data, FloorSet(), 'floor_set', constructions)
+        roof_ceiling_set = ConstructionSet._make_construction_subset(
+            data, RoofCeilingSet(), 'roof_ceiling_set', constructions)
+        aperture_set = ConstructionSet._make_aperture_subset(
+            data, ApertureSet(), constructions)
+        door_set = ConstructionSet._make_door_subset(data, DoorSet(), constructions)
+        if 'shade_construction' in data and data['shade_construction'] is not None:
+            shade_con = constructions[data['shade_construction']]
+        else:
+            shade_con = None
+        return wall_set, floor_set, roof_ceiling_set, aperture_set, door_set, shade_con
+
+    @staticmethod
+    def _make_construction_subset(data, sub_set, sub_set_name, constructions):
+        """Make a WallSet, FloorSet, or RoofCeilingSet from dictionary."""
+        if sub_set_name in data:
+            if 'exterior_construction' in data[sub_set_name] and \
+                    data[sub_set_name]['exterior_construction'] is not None:
+                sub_set.exterior_construction = \
+                    constructions[data[sub_set_name]['exterior_construction']]
+            if 'interior_construction' in data[sub_set_name] and \
+                    data[sub_set_name]['interior_construction'] is not None:
+                sub_set.interior_construction = \
+                    constructions[data[sub_set_name]['interior_construction']]
+            if 'ground_construction' in data[sub_set_name] and \
+                    data[sub_set_name]['ground_construction'] is not None:
+                sub_set.ground_construction = \
+                    constructions[data[sub_set_name]['ground_construction']]
+        return sub_set
+
+    @staticmethod
+    def _make_aperture_subset(data, sub_set, constructions):
+        """Make an ApertureSet from a dictionary."""
+        if 'aperture_set' in data:
+            if 'window_construction' in data['aperture_set'] and \
+                    data['aperture_set']['window_construction'] is not None:
+                sub_set.window_construction = \
+                    constructions[data['aperture_set']['window_construction']]
+            if 'interior_construction' in data['aperture_set'] and \
+                    data['aperture_set']['interior_construction'] is not None:
+                sub_set.interior_construction = \
+                    constructions[data['aperture_set']['interior_construction']]
+            if 'skylight_construction' in data['aperture_set'] and \
+                    data['aperture_set']['skylight_construction'] is not None:
+                sub_set.skylight_construction = \
+                    constructions[data['aperture_set']['skylight_construction']]
+            if 'operable_construction' in data['aperture_set'] and \
+                    data['aperture_set']['operable_construction'] is not None:
+                sub_set.operable_construction = \
+                    constructions[data['aperture_set']['operable_construction']]
+        return sub_set
+
+    @staticmethod
+    def _make_door_subset(data, sub_set, constructions):
+        """Make a DoorSet from dictionary."""
+        if 'door_set' in data:
+            if 'exterior_construction' in data['door_set'] and \
+                    data['door_set']['exterior_construction'] is not None:
+                sub_set.exterior_construction = \
+                    constructions[data['door_set']['exterior_construction']]
+            if 'interior_construction' in data['door_set'] and \
+                    data['door_set']['interior_construction'] is not None:
+                sub_set.interior_construction = \
+                    constructions[data['door_set']['interior_construction']]
+            if 'exterior_glass_construction' in data['door_set'] and \
+                    data['door_set']['exterior_glass_construction'] is not None:
+                sub_set.exterior_glass_construction = \
+                    constructions[data['door_set']['exterior_glass_construction']]
+            if 'interior_glass_construction' in data['door_set'] and \
+                    data['door_set']['interior_glass_construction'] is not None:
+                sub_set.interior_glass_construction = \
+                    constructions[data['door_set']['interior_glass_construction']]
+            if 'overhead_construction' in data['door_set'] and \
+                    data['door_set']['overhead_construction'] is not None:
+                sub_set.overhead_construction = \
+                    constructions[data['door_set']['overhead_construction']]
+        return sub_set
 
     def ToString(self):
         """Overwrite .NET ToString."""
