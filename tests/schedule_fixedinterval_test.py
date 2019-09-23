@@ -14,6 +14,7 @@ from ladybug.futil import csv_to_matrix
 import random
 import os
 import pytest
+import json
 
 
 def test_schedule_fixedinterval_init():
@@ -43,6 +44,54 @@ def test_schedule_fixedinterval_init():
     assert sch_data.header.analysis_period == AnalysisPeriod()
 
 
+def test_schedule_fixedinterval_single_day():
+    """Test the ScheduleFixedInterval initialization for a single day."""
+    increase_sched = ScheduleFixedInterval(
+        'Solstice Increasing', [round(x / 23, 4) for x in range(24)],
+        schedule_types.fractional, start_date=Date(6, 21))
+
+    assert increase_sched.name == 'Solstice Increasing'
+    assert len(increase_sched.values) == 24
+    assert increase_sched[0] == 0
+    assert increase_sched[-1] == 1
+    assert isinstance(increase_sched.schedule_type_limit, ScheduleTypeLimit)
+    assert increase_sched.schedule_type_limit == schedule_types.fractional
+    assert increase_sched.timestep == 1
+    assert not increase_sched.interpolate
+    assert increase_sched.start_date == Date(6, 21)
+
+    """
+    f_dir = 'C:/Users/chris/Documents/GitHub/energy-model-schema/app/models/samples/json'
+    dest_file = f_dir + '/schedule_fixedinterval_increasing_single_day.json'
+    with open(dest_file, 'w') as fp:
+        json.dump(increase_sched.to_dict(True), fp, indent=4)
+    """
+
+
+def test_schedule_fixedinterval_single_day_fine_timestep():
+    """Test the ScheduleFixedInterval initialization for a single day at a fine timestep."""
+    increase_sched = ScheduleFixedInterval(
+        'Solstice Increasing', [round(x / 143, 4) for x in range(144)],
+        schedule_types.fractional, start_date=Date(6, 21), timestep=6,)
+
+    assert increase_sched.name == 'Solstice Increasing'
+    assert len(increase_sched.values) == 144
+    assert increase_sched[0] == 0
+    assert increase_sched[-1] == 1
+    assert isinstance(increase_sched.schedule_type_limit, ScheduleTypeLimit)
+    assert increase_sched.schedule_type_limit == schedule_types.fractional
+    assert increase_sched.timestep == 6
+    assert not increase_sched.interpolate
+    assert increase_sched.start_date == Date(6, 21)
+
+    """
+    f_dir = 'C:/Users/chris/Documents/GitHub/energy-model-schema/app/models/samples/json'
+    dest_file = f_dir + '/schedule_fixedinterval_increasing_fine_timestep.json'
+    with open(dest_file, 'w') as fp:
+        json.dump(increase_sched.to_dict(True), fp, indent=4)
+    """
+
+
 def test_schedule_fixedinterval_equality():
     """Test the ScheduleFixedInterval to/from dict methods."""
     trans_sched = ScheduleFixedInterval(
@@ -50,7 +99,7 @@ def test_schedule_fixedinterval_equality():
         schedule_types.fractional)
     trans_sched_dup = trans_sched.duplicate()
     occ_sched = ScheduleFixedInterval(
-        'Random Occupancy', [random.random() for i in range(8760)],
+        'Random Occupancy', [round(random.random(), 4) for i in range(8760)],
         schedule_types.fractional)
 
     assert trans_sched is trans_sched
@@ -59,6 +108,13 @@ def test_schedule_fixedinterval_equality():
     trans_sched_dup.name = 'Transmittance'
     assert trans_sched != trans_sched_dup
     assert trans_sched != occ_sched
+
+    """
+    f_dir = 'C:/Users/chris/Documents/GitHub/energy-model-schema/app/models/samples/json'
+    dest_file = f_dir + '/schedule_fixedinterval_random_annual.json'
+    with open(dest_file, 'w') as fp:
+        json.dump(occ_sched.to_dict(True), fp, indent=4)
+    """
 
 
 def test_schedule_fixedinterval_lockability():
