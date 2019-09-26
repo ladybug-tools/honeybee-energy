@@ -1,7 +1,8 @@
 from honeybee_energy.constructionset import ConstructionSet, WallSet, FloorSet, \
     RoofCeilingSet, ApertureSet, DoorSet
-from honeybee_energy.construction import OpaqueConstruction, WindowConstruction, \
-    ShadeConstruction
+from honeybee_energy.construction.opaque import OpaqueConstruction
+from honeybee_energy.construction.window import WindowConstruction
+from honeybee_energy.construction.shade import ShadeConstruction
 from honeybee_energy.material.opaque import EnergyMaterial
 from honeybee_energy.material.glazing import EnergyWindowMaterialGlazing
 from honeybee_energy.material.gas import EnergyWindowMaterialGas

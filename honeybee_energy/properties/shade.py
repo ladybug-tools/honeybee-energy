@@ -1,6 +1,6 @@
 # coding=utf-8
 """Shade Energy Properties."""
-from ..construction import ShadeConstruction
+from ..construction.shade import ShadeConstruction
 from ..schedule.ruleset import ScheduleRuleset
 from ..schedule.fixedinterval import ScheduleFixedInterval
 
@@ -12,8 +12,9 @@ class ShadeEnergyProperties(object):
     """Energy Properties for Honeybee Shade.
 
     Properties:
-        construction
-        transmittance_schedule
+        * construction
+        * transmittance_schedule
+        * is_construction_set_by_user
     """
 
     __slots__ = ('_host', '_construction', '_transmittance_schedule')
@@ -79,6 +80,12 @@ class ShadeEnergyProperties(object):
                     'of unit_type [{}].'.format(value.schedule_type_limit.unit_type)
             value.lock()  # lock editing in case schedule has multiple references
         self._transmittance_schedule = value
+
+    @property
+    def is_construction_set_by_user(self):
+        """Boolean noting if construction is user-set (as opposed to a ConstructionSet).
+        """
+        return self._construction is not None
 
     @classmethod
     def from_dict(cls, data, host):

@@ -3,7 +3,7 @@ from honeybee.face import Face
 from honeybee.boundarycondition import boundary_conditions
 
 from honeybee_energy.properties.face import FaceEnergyProperties
-from honeybee_energy.construction import OpaqueConstruction
+from honeybee_energy.construction.opaque import OpaqueConstruction
 from honeybee_energy.material.opaque import EnergyMaterial
 
 from ladybug_geometry.geometry3d.pointvector import Point3D

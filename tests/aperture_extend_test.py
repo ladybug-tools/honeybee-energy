@@ -4,7 +4,7 @@ from honeybee.face import Face
 from honeybee.aperture import Aperture
 
 from honeybee_energy.properties.aperture import ApertureEnergyProperties
-from honeybee_energy.construction import WindowConstruction
+from honeybee_energy.construction.window import WindowConstruction
 from honeybee_energy.material.glazing import EnergyWindowMaterialGlazing
 from honeybee_energy.material.gas import EnergyWindowMaterialGas
 

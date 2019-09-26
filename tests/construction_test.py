@@ -5,8 +5,9 @@ from honeybee_energy.material.gas import EnergyWindowMaterialGas, \
     EnergyWindowMaterialGasMixture
 from honeybee_energy.material.shade import EnergyWindowMaterialShade, \
     EnergyWindowMaterialBlind
-from honeybee_energy.construction import OpaqueConstruction, WindowConstruction, \
-    ShadeConstruction
+from honeybee_energy.construction.opaque import OpaqueConstruction
+from honeybee_energy.construction.window import WindowConstruction
+from honeybee_energy.construction.shade import ShadeConstruction
 
 import pytest
 import json

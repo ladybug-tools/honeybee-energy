@@ -10,7 +10,9 @@ from ..material.glazing import EnergyWindowMaterialGlazing, \
 from ..material.gas import EnergyWindowMaterialGas, \
     EnergyWindowMaterialGasMixture, EnergyWindowMaterialGasCustom
 from ..material.shade import EnergyWindowMaterialShade, EnergyWindowMaterialBlind
-from ..construction import OpaqueConstruction, WindowConstruction, ShadeConstruction
+from ..construction.opaque import OpaqueConstruction
+from ..construction.window import WindowConstruction
+from ..construction.shade import ShadeConstruction
 from ..constructionset import ConstructionSet
 from ..programtype import ProgramType
 from ..schedule.typelimit import ScheduleTypeLimit
@@ -219,7 +221,7 @@ class ModelEnergyProperties(object):
 
     @property
     def program_types(self):
-        """A list of all unique Room-Assigned ProgramTypes in the Model."""
+        """A list of all unique ProgramTypes in the Model."""
         program_types = []
         for room in self.host.rooms:
             if room.properties.energy._program_type is not None:

@@ -11,8 +11,9 @@ from honeybee.facetype import face_types
 from honeybee_energy.properties.model import ModelEnergyProperties
 from honeybee_energy.constructionset import ConstructionSet
 from honeybee_energy.idealair import IdealAirSystem
-from honeybee_energy.construction import WindowConstruction, OpaqueConstruction, \
-    ShadeConstruction
+from honeybee_energy.construction.opaque import OpaqueConstruction
+from honeybee_energy.construction.window import WindowConstruction
+from honeybee_energy.construction.shade import ShadeConstruction
 from honeybee_energy.material._base import _EnergyMaterialBase
 from honeybee_energy.material.opaque import EnergyMaterial
 from honeybee_energy.schedule.ruleset import ScheduleRuleset

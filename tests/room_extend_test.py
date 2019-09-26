@@ -6,7 +6,8 @@ from honeybee_energy.properties.room import RoomEnergyProperties
 from honeybee_energy.programtype import ProgramType
 from honeybee_energy.constructionset import ConstructionSet
 from honeybee_energy.idealair import IdealAirSystem
-from honeybee_energy.construction import OpaqueConstruction, ShadeConstruction
+from honeybee_energy.construction.opaque import OpaqueConstruction
+from honeybee_energy.construction.shade import ShadeConstruction
 from honeybee_energy.material.opaque import EnergyMaterial
 from honeybee_energy.load.equipment import ElectricEquipment
 from honeybee_energy.load.ventilation import Ventilation
