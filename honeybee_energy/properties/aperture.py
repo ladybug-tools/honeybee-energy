@@ -1,6 +1,6 @@
 # coding=utf-8
 """Aperture Energy Properties."""
-from ..construction import WindowConstruction
+from ..construction.window import WindowConstruction
 from ..lib.constructionsets import generic_construction_set
 
 
@@ -8,8 +8,8 @@ class ApertureEnergyProperties(object):
     """Energy Properties for Honeybee Aperture.
 
     Properties:
-        construction
-        is_construction_set_by_user
+        * construction
+        * is_construction_set_by_user
     """
 
     __slots__ = ('_host', '_construction')
@@ -66,7 +66,8 @@ class ApertureEnergyProperties(object):
 
     @property
     def is_construction_set_by_user(self):
-        """Check if construction is set by user."""
+        """Boolean noting if construction is user-set (as opposed to a ConstructionSet).
+        """
         return self._construction is not None
 
     @classmethod

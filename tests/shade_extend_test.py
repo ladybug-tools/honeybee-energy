@@ -3,7 +3,7 @@ from honeybee.shade import Shade
 from honeybee.aperture import Aperture
 
 from honeybee_energy.properties.shade import ShadeEnergyProperties
-from honeybee_energy.construction import ShadeConstruction
+from honeybee_energy.construction.shade import ShadeConstruction
 from honeybee_energy.schedule.ruleset import ScheduleRuleset
 
 import honeybee_energy.lib.scheduletypelimits as schedule_types

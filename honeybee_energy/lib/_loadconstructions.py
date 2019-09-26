@@ -1,6 +1,6 @@
 """Load all materials and constructions from the IDF libraries."""
-from honeybee_energy.construction import OpaqueConstruction, \
-    WindowConstruction
+from honeybee_energy.construction.opaque import OpaqueConstruction
+from honeybee_energy.construction.window import WindowConstruction
 
 import os
 

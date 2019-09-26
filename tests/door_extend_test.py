@@ -4,7 +4,7 @@ from honeybee.face import Face
 from honeybee.door import Door
 
 from honeybee_energy.properties.door import DoorEnergyProperties
-from honeybee_energy.construction import OpaqueConstruction
+from honeybee_energy.construction.opaque import OpaqueConstruction
 from honeybee_energy.material.opaque import EnergyMaterial
 
 from ladybug_geometry.geometry3d.pointvector import Point3D

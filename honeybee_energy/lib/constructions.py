@@ -1,6 +1,7 @@
 """Load all of the constructions and materials from the IDF libraries."""
-from honeybee_energy.construction import OpaqueConstruction, \
-    WindowConstruction, ShadeConstruction
+from honeybee_energy.construction.opaque import OpaqueConstruction
+from honeybee_energy.construction.window import WindowConstruction
+from honeybee_energy.construction.shade import ShadeConstruction
 from ._loadconstructions import _idf_opaque_constructions, _idf_window_constructions
 import honeybee_energy.lib.materials as _m
 

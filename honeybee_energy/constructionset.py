@@ -8,7 +8,9 @@ from .material.glazing import EnergyWindowMaterialSimpleGlazSys, \
 from .material.gas import EnergyWindowMaterialGas, EnergyWindowMaterialGasMixture, \
     EnergyWindowMaterialGasCustom
 from .material.shade import EnergyWindowMaterialShade, EnergyWindowMaterialBlind
-from .construction import OpaqueConstruction, WindowConstruction, ShadeConstruction
+from .construction.opaque import OpaqueConstruction
+from .construction.window import WindowConstruction
+from .construction.shade import ShadeConstruction
 import honeybee_energy.lib.constructions as _lib
 
 from honeybee._lockable import lockable
