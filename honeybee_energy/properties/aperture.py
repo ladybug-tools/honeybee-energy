@@ -8,6 +8,7 @@ class ApertureEnergyProperties(object):
     """Energy Properties for Honeybee Aperture.
 
     Properties:
+        * host
         * construction
         * is_construction_set_by_user
     """

@@ -29,6 +29,8 @@ class ModelEnergyProperties(object):
     """Energy Properties for Honeybee Model.
 
     Properties:
+        * host
+        * terrain_type
         * materials
         * constructions
         * face_constructions
@@ -41,19 +43,48 @@ class ModelEnergyProperties(object):
         * room_schedules
         * program_types
     """
+    TERRAIN_TYPES = ('Ocean', 'Country', 'Suburbs', 'Urban', 'City')
 
-    def __init__(self, host):
+    def __init__(self, host, terrain_type='City'):
         """Initialize Model energy properties.
 
         Args:
             host: A honeybee_core Model object that hosts these properties.
+            terrain_type: Text for the terrain type in which the model sits.
+                Choose from: 'Ocean', 'Country', 'Suburbs', 'Urban', 'City'.
+                Default: 'City'.
         """
         self._host = host
+        self.terrain_type = terrain_type
 
     @property
     def host(self):
         """Get the Model object hosting these properties."""
         return self._host
+
+    @property
+    def terrain_type(self):
+        """Get or set a text string for the terrain in which the model sits.
+
+        This is used to determine the wind profile over the height of the
+        building. Default is 'City'. Choose from the following options:
+            * Ocean
+            * Country
+            * Suburbs
+            * Urban
+            * City
+        """
+        return self._terrain_type
+
+    @terrain_type.setter
+    def terrain_type(self, value):
+        if value is not None:
+            assert value in self.TERRAIN_TYPES, 'Input terrain_type "{}" is ' \
+                'not valid. Choose from the following options:\n{}'.format(
+                    value, self.TERRAIN_TYPES)
+            self._terrain_type = value
+        else:
+            self._terrain_type = 'City'
 
     @property
     def materials(self):
@@ -343,6 +374,10 @@ class ModelEnergyProperties(object):
         assert 'energy' in data['properties'], \
             'Dictionary possesses no ModelEnergyProperties.'
 
+        # set the terrain
+        if 'terrain_type' in data['properties']['energy']:
+            self.terrain_type = data['properties']['energy']['terrain_type']
+
         # process all materials in the ModelEnergyProperties dictionary
         materials = {}
         for mat in data['properties']['energy']['materials']:
@@ -454,6 +489,9 @@ class ModelEnergyProperties(object):
         """
         base = {'energy': {'type': 'ModelEnergyProperties'}}
 
+        # add the terrain
+        base['energy']['terrain_type'] = self.terrain_type
+
         # add all ConstructionSets to the dictionary
         base['energy']['construction_sets'] = []
         if include_global_construction_set:
@@ -524,7 +562,7 @@ class ModelEnergyProperties(object):
             If None, the properties will be duplicated with the same host.
         """
         _host = new_host or self._host
-        return ModelEnergyProperties(_host)
+        return ModelEnergyProperties(_host, self.terrain_type)
 
     def _check_and_add_obj_construction(self, obj, constructions):
         """Check if a construction is assigned to an object and add it to a list."""

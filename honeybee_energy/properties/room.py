@@ -18,6 +18,7 @@ class RoomEnergyProperties(object):
     """Energy Properties for Honeybee Room.
 
     Properties:
+        * host
         * program_type
         * construction_set
         * hvac

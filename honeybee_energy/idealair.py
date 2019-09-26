@@ -138,7 +138,7 @@ class IdealAirSystem(object):
 
     @property
     def sensible_heat_recovery(self):
-        """Get or set a a number for the effectiveness of sensible heat recovery."""
+        """Get or set a number for the effectiveness of sensible heat recovery."""
         return self._sensible_heat_recovery
 
     @sensible_heat_recovery.setter
@@ -148,7 +148,7 @@ class IdealAirSystem(object):
 
     @property
     def latent_heat_recovery(self):
-        """Get or set a a number for the effectiveness of latent heat recovery."""
+        """Get or set a number for the effectiveness of latent heat recovery."""
         return self._latent_heat_recovery
 
     @latent_heat_recovery.setter
@@ -217,6 +217,7 @@ class IdealAirSystem(object):
         .. code-block:: json
 
             {
+            "type": "IdealAirSystem",
             "heating_limit": 'autosize',  // Max size of the heating system in Watts
             "cooling_limit": 'autosize',  // Max size of the cooling system in Watts
             "economizer_type": 'DifferentialDryBulb',  // Economizer type
