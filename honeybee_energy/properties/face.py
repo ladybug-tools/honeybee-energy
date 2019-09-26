@@ -8,6 +8,7 @@ class FaceEnergyProperties(object):
     """Energy Properties for Honeybee Face.
 
     Properties:
+        * host
         * construction
         * is_construction_set_by_user
     """

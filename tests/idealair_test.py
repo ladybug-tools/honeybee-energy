@@ -91,7 +91,7 @@ def test_ideal_air_init_from_idf():
     assert zone_name == rebuilt_zone_name
 
 
-def test_lighting_dict_methods():
+def test_ideal_air_dict_methods():
     """Test the to/from dict methods."""
     ideal_air = IdealAirSystem(sensible_heat_recovery=0.75, latent_heat_recovery=0.6)
 

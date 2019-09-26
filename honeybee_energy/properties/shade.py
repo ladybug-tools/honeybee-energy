@@ -12,6 +12,7 @@ class ShadeEnergyProperties(object):
     """Energy Properties for Honeybee Shade.
 
     Properties:
+        * host
         * construction
         * transmittance_schedule
         * is_construction_set_by_user

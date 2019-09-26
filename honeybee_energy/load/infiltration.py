@@ -36,7 +36,8 @@ class Infiltration(_LoadBase):
                 Can include spaces but special characters will be stripped out.
             flow_per_exterior_area: A numerical value for the intensity of infiltration
                 in m3/s per square meter of exterior surface area. Typical values for
-                this property are as follows:
+                this property are as follows (note all values are at typical building
+                pressures of ~4 Pa):
                     * 0.0001 (m3/s per m2 facade) - Tight building
                     * 0.0003 (m3/s per m2 facade) - Average building
                     * 0.0006 (m3/s per m2 facade) - Leaky building

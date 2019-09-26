@@ -9,6 +9,7 @@ class DoorEnergyProperties(object):
     """Energy Properties for Honeybee Door.
 
     Properties:
+        * host
         * construction
         * is_construction_set_by_user
     """
