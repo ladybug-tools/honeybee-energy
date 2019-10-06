@@ -4,13 +4,13 @@ deploy_to_pypi() {
   echo "Building distribution"
   python setup.py sdist bdist_wheel
   echo "Pushing new version to PyPi"
-  twine upload dist/* -u $PYPI_USERNAME -p $PYPI_PASSWORD 
+  twine upload dist/* -u "$PYPI_USERNAME" -p "$PYPI_PASSWORD"
 }
 
 build_docs() {
   echo "Building documentation files"
   sphinx-apidoc -f -e -d 4 -o ./docs ./honeybee_energy
-  sphinx-build -b html ./docs ./docs/_build/docs -D release=$1 -D version=$1
+  sphinx-build -b html ./docs ./docs/_build/docs -D release="$1" -D version="$1"
 }
 
 
@@ -23,4 +23,4 @@ else
 fi
 
 deploy_to_pypi
-build_docs $NEXT_RELEASE_VERSION
+build_docs "$NEXT_RELEASE_VERSION"
