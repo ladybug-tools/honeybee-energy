@@ -1,5 +1,6 @@
 # coding=utf-8
 from honeybee_energy.simulationparameter import SimulationParameter
+from honeybee_energy.simulation.output import SimulationOutput
 from honeybee_energy.simulation.runperiod import RunPeriod
 from honeybee_energy.simulation.control import SimulationControl
 from honeybee_energy.simulation.shadowcalculation import ShadowCalculation
@@ -15,6 +16,7 @@ def test_simulation_parameter_init():
     sim_par = SimulationParameter()
     str(sim_par)  # test the string representation
 
+    assert sim_par.output == SimulationOutput()
     assert sim_par.run_period == RunPeriod()
     assert sim_par.timestep == 6
     assert sim_par.simulation_control == SimulationControl()
@@ -26,6 +28,10 @@ def test_simulation_parameter_setability():
     """Test the setting of properties of SimulationParameter."""
     sim_par = SimulationParameter()
 
+    output = SimulationOutput()
+    output.add_zone_energy_use()
+    sim_par.output = output
+    assert sim_par.output == output
     run_period = RunPeriod(Date(1, 1), Date(6, 21))
     sim_par.run_period = run_period
     assert sim_par.run_period == run_period
@@ -60,6 +66,9 @@ def test_simulation_parameter_equality():
 def test_simulation_parameter_init_from_idf():
     """Test the initialization of SimulationParameter from_idf."""
     sim_par = SimulationParameter()
+    output = SimulationOutput()
+    output.add_zone_energy_use()
+    sim_par.output = output
     run_period = RunPeriod(Date(1, 1), Date(6, 21))
     sim_par.run_period = run_period
     sim_par.timestep = 4
@@ -80,6 +89,9 @@ def test_simulation_parameter_init_from_idf():
 def test_simulation_parameter_dict_methods():
     """Test the to/from dict methods."""
     sim_par = SimulationParameter()
+    output = SimulationOutput()
+    output.add_zone_energy_use()
+    sim_par.output = output
     run_period = RunPeriod(Date(1, 1), Date(6, 21))
     sim_par.run_period = run_period
     sim_par.timestep = 4

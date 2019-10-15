@@ -2,6 +2,7 @@
 """Complete set of EnergyPlus Simulation Settings."""
 from __future__ import division
 
+from .simulation.output import SimulationOutput
 from .simulation.runperiod import RunPeriod
 from .simulation.control import SimulationControl
 from .simulation.shadowcalculation import ShadowCalculation
@@ -18,21 +19,25 @@ class SimulationParameter(object):
     """Complete set of EnergyPlus Simulation Settings.
 
     Properties:
+        * output
         * run_period
         * timestep
         * simulation_control
         * shadow_calculation
         * sizing_parameter
     """
-    __slots__ = ('_run_period', '_timestep', '_simulation_control',
+    __slots__ = ('_output', '_run_period', '_timestep', '_simulation_control',
                  '_shadow_calculation', '_sizing_parameter')
     VALIDTIMESTEPS = (1, 2, 3, 4, 5, 6, 10, 12, 15, 20, 30, 60)
 
-    def __init__(self, run_period=None, timestep=6, simulation_control=None,
+    def __init__(self, output=None, run_period=None, timestep=6, simulation_control=None,
                  shadow_calculation=None, sizing_parameter=None):
         """Initialize SimulationParameter.
 
         Args:
+            output: A SimulationOutput that lists the desired outputs from the
+                simulation and the format in which to report them. If None, no
+                outputs will be requested. Default: None.
             run_period: A RunPeriod object to describe the time period over which to
                 run the simulation. Default: Run for the whole year starting on Sunday.
             timestep: An integer for the number of timesteps per hour at which the
@@ -47,11 +52,26 @@ class SimulationParameter(object):
                 multiplied by the peak heating and cooling loads. Default: 1.25 for
                 heating; 1.15 for cooling.
         """
+        self.output = output
         self.run_period = run_period
         self.timestep = timestep
         self.simulation_control = simulation_control
         self.shadow_calculation = shadow_calculation
         self.sizing_parameter = sizing_parameter
+
+    @property
+    def output(self):
+        """Get or set a SimulationOutput object for the outputs from the simulation."""
+        return self._output
+
+    @output.setter
+    def output(self, value):
+        if value is not None:
+            assert isinstance(value, SimulationOutput), 'Expected SimulationOutput for ' \
+                'SimulationParameter output. Got {}.'.format(type(value))
+            self._output = value
+        else:
+            self._output = SimulationOutput()
 
     @property
     def run_period(self):
@@ -138,6 +158,10 @@ class SimulationParameter(object):
                 of an IDF.
         """
         # Regex patterns for the varios objects comprising the SimulationParameter
+        out_style_pattern = re.compile(r"(?i)(OutputControl:Table:Style,[\s\S]*?;)")
+        out_var_pattern = re.compile(r"(?i)(Output:Variable,[\s\S]*?;)")
+        out_report_pattern = re.compile(r"(?i)(Output:Table:SummaryReports,[\s\S]*?;)")
+        sqlite_pattern = re.compile(r"(?i)(Output:SQLite,[\s\S]*?;)")
         runper_pattern = re.compile(r"(?i)(RunPeriod,[\s\S]*?;)")
         holiday_pattern = re.compile(r"(?i)(RunPeriodControl:SpecialDays,[\s\S]*?;)")
         dls_pattern = re.compile(r"(?i)(RunPeriodControl:DaylightSavingTime,[\s\S]*?;)")
@@ -146,6 +170,19 @@ class SimulationParameter(object):
         bldg_pattern = re.compile(r"(?i)(Building,[\s\S]*?;)")
         control_pattern = re.compile(r"(?i)(SimulationControl,[\s\S]*?;)")
         sizing_pattern = re.compile(r"(?i)(SizingParameters,[\s\S]*?;)")
+
+        # process the outputs within the idf_string
+        try:
+            out_style_str = out_style_pattern.findall(idf_string)[0]
+        except IndexError:  # No Table:Style in the file.
+            out_style_str = None
+        try:
+            out_report_str = out_report_pattern.findall(idf_string)[0]
+        except IndexError:  # No SummaryReports in the file. Default to None.
+            out_report_str = None
+        sqlite = True if len(sqlite_pattern.findall(idf_string)) != 0 else False
+        output = SimulationOutput.from_idf(
+            out_style_str, out_var_pattern.findall(idf_string), out_report_str, sqlite)
 
         # process the RunPeriod within the idf_string
         try:
@@ -198,7 +235,7 @@ class SimulationParameter(object):
         except IndexError:  # No SizingParameter in the file.
             sizing_par = None
 
-        return cls(run_period, timestep, sim_control, shadow_calc, sizing_par)
+        return cls(output, run_period, timestep, sim_control, shadow_calc, sizing_par)
 
     @classmethod
     def from_dict(cls, data):
@@ -211,6 +248,7 @@ class SimulationParameter(object):
 
             {
             "type": "SimulationParameter",
+            "output": {}, // Honeybee SimulationOutput disctionary
             "run_period": {}, // Honeybee RunPeriod disctionary
             "timestep": 6, // Integer for the simulation timestep
             "simulation_control": {}, // Honeybee SimulationControl dictionary
@@ -222,6 +260,9 @@ class SimulationParameter(object):
             'Expected SimulationParameter dictionary. Got {}.'.format(data['type'])
 
         timestep = data['timestep'] if 'timestep' in data else 6
+        output = None
+        if 'output' in data and data['output'] is not None:
+            output = SimulationOutput.from_dict(data['output'])
         run_period = None
         if 'run_period' in data and data['run_period'] is not None:
             run_period = RunPeriod.from_dict(data['run_period'])
@@ -235,7 +276,7 @@ class SimulationParameter(object):
         if 'sizing_parameter' in data and data['sizing_parameter'] is not None:
             sizing_parameter = SizingParameter.from_dict(data['sizing_parameter'])
 
-        return cls(run_period, timestep, simulation_control,
+        return cls(output, run_period, timestep, simulation_control,
                    shadow_calculation, sizing_parameter)
 
     def to_idf(self):
@@ -246,6 +287,8 @@ class SimulationParameter(object):
         etc.),
         """
         header_str = '!-   ==============  SIMULATION PARAMETERS ==============\n'
+        table_style, output_vars, reports, sqlite, surfaces = self.output.to_idf()
+        output_vars_str = '/n/n'.join(output_vars) if output_vars is not None else ''
         run_period_str, holidays, daylight_saving = self.run_period.to_idf()
         holiday_str = '/n/n'.join(holidays) if holidays is not None else ''
         daylight_saving_time_str = daylight_saving if daylight_saving is not None else ''
@@ -255,14 +298,16 @@ class SimulationParameter(object):
         shadow_calc_str = self.shadow_calculation.to_idf()
         sizing_par_str = self.sizing_parameter.to_idf()
 
-        return '/n/n'.join([header_str, sim_control_str, shadow_calc_str, timestep_str,
-                           run_period_str, holiday_str, daylight_saving_time_str,
-                           sizing_par_str])
+        return '/n/n'.join([table_style, output_vars_str, reports, sqlite, surfaces,
+                            header_str, sim_control_str, shadow_calc_str, timestep_str,
+                            run_period_str, holiday_str, daylight_saving_time_str,
+                            sizing_par_str])
 
     def to_dict(self):
         """SimulationParameter dictionary representation."""
         return {
             'type': 'SimulationParameter',
+            'output': self.output.to_dict(),
             'run_period': self.run_period.to_dict(),
             'timestep': self.timestep,
             'simulation_control': self.simulation_control.to_dict(),
@@ -276,13 +321,14 @@ class SimulationParameter(object):
 
     def __copy__(self):
         return SimulationParameter(
-            self.run_period.duplicate(), self.timestep,
+            self.output.duplicate(), self.run_period.duplicate(), self.timestep,
             self.simulation_control.duplicate(), self.shadow_calculation.duplicate(),
             self.sizing_parameter.duplicate())
 
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""
-        return (hash(self.run_period), self.timestep, hash(self.simulation_control),
+        return (hash(self.output), hash(self.run_period), self.timestep,
+                hash(self.simulation_control),
                 hash(self.shadow_calculation), hash(self.sizing_parameter))
 
     def __hash__(self):

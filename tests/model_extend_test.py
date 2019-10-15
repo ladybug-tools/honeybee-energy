@@ -103,7 +103,7 @@ def test_check_duplicate_construction_set_names():
     constr_set.roof_ceiling_set.exterior_construction = roof_constr
     attic.properties.energy.construction_set = constr_set
 
-    Room.solve_adjcency([first_floor, second_floor, attic], 0.01)
+    Room.solve_adjacency([first_floor, second_floor, attic], 0.01)
 
     model = Model('Multi Zone Single Family House', [first_floor, second_floor, attic])
 
@@ -466,7 +466,7 @@ def test_to_dict_multizone_house():
     constr_set.roof_ceiling_set.exterior_construction = roof_constr
     attic.properties.energy.construction_set = constr_set
 
-    Room.solve_adjcency([first_floor, second_floor, attic], 0.01)
+    Room.solve_adjacency([first_floor, second_floor, attic], 0.01)
 
     model = Model('Multi Zone Single Family House', [first_floor, second_floor, attic])
     model_dict = model.to_dict()
