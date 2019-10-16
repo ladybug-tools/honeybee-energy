@@ -18,6 +18,7 @@ from ..programtype import ProgramType
 from ..schedule.typelimit import ScheduleTypeLimit
 from ..schedule.ruleset import ScheduleRuleset
 from ..schedule.fixedinterval import ScheduleFixedInterval
+from ..writer import generate_idf_string
 
 try:
     from itertools import izip as zip  # python 2
@@ -260,6 +261,33 @@ class ModelEnergyProperties(object):
                                                program_types):
                     program_types.append(room.properties.energy._program_type)
         return list(set(program_types))  # catch equivalent program types
+
+    def building_idf(self, solar_distribution='FullInteriorAndExteriorWithReflections'):
+        """Get an IDF string for Building that this model represents.
+
+        Args:
+            solar_distribution: Text desribing how EnergyPlus should treat beam solar
+                radiation reflected from surfaces. Default:
+                FullInteriorAndExteriorWithReflections. Choose from the following:
+                    * MinimalShadowing
+                    * FullExterior
+                    * FullInteriorAndExterior
+                    * FullExteriorWithReflections
+                    * FullInteriorAndExteriorWithReflections
+        """
+        values = (self.host.name,
+                  self.host.north_angle,
+                  self.terrain_type,
+                  '',
+                  '',
+                  solar_distribution)
+        comments = ('name',
+                    'north axis',
+                    'terrain',
+                    'loads convergence tolerance',
+                    'temperature convergence tolerance',
+                    'solar distribution')
+        return generate_idf_string('Building', values, comments)
 
     def check_duplicate_material_names(self, raise_exception=True):
         """Check that there are no duplicate Material names in the model."""

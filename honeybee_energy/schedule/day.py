@@ -425,9 +425,16 @@ class ScheduleDay(object):
 
         return cls(data['name'], data['values'], times, interpolate)
 
-    def to_idf(self):
-        """IDF string representation of ScheduleDay object."""
-        fields = [self.name, '']
+    def to_idf(self, schedule_type_limit=None):
+        """IDF string representation of ScheduleDay object.
+
+        Args:
+            schedule_type_limits: Optional ScheduleTypeLimit object, which will
+                be written into the IDFstring in order to validate the values
+                within the schedule during the EnergyPlus run.
+        """
+        fields = [self.name, ''] if schedule_type_limit is None else \
+            [self.name, schedule_type_limit.name]
         fields.append('No' if not self.interpolate else 'Linear')
         comments = ['schedule name', 'schedule type limits', 'interpolate to timestep']
         for i in range(len(self._values)):

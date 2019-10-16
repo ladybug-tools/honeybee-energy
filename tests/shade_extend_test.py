@@ -159,3 +159,29 @@ def test_from_dict():
     assert shade.properties.energy.construction.is_specular
     assert new_shade.properties.energy.transmittance_schedule == fritted_glass_trans
     assert new_shade.to_dict() == shade_dict
+
+
+def test_writer_to_idf():
+    """Test the Shade to_idf method."""
+    verts = [Point3D(0, 0, 0), Point3D(1, 0, 0), Point3D(1, 0, 3), Point3D(0, 0, 3)]
+    shade = Shade('overhang', Face3D(verts))
+
+    assert hasattr(shade.to, 'idf')
+    idf_string = shade.to.idf(shade)
+    assert 'overhang,' in idf_string
+    assert 'Shading:Building:Detailed,' in idf_string
+    assert 'ShadingProperty:Reflectance' not in idf_string
+
+    shade = Shade('overhang', Face3D(verts))
+    light_shelf = ShadeConstruction('Light Shelf', 0.5, 0.5, True)
+    shade.properties.energy.construction = light_shelf
+    fritted_glass_trans = ScheduleRuleset.from_constant_value(
+        'FrittedGlass', 0.5, schedule_types.fractional)
+    shade.properties.energy.transmittance_schedule = fritted_glass_trans
+
+    assert hasattr(shade.to, 'idf')
+    idf_string = shade.to.idf(shade)
+    assert 'overhang,' in idf_string
+    assert 'Shading:Building:Detailed,' in idf_string
+    assert 'ShadingProperty:Reflectance' in idf_string
+    assert 'FrittedGlass' in idf_string

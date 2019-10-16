@@ -1,7 +1,12 @@
 # coding=utf-8
 from honeybee.properties import ModelProperties, RoomProperties, FaceProperties, \
     ShadeProperties, ApertureProperties, DoorProperties
-import honeybee.writer as writer
+import honeybee.writer.door as door_writer
+import honeybee.writer.aperture as aperture_writer
+import honeybee.writer.shade as shade_writer
+import honeybee.writer.face as face_writer
+import honeybee.writer.room as room_writer
+import honeybee.writer.model as model_writer
 import honeybee.boundarycondition as hbc
 
 from .properties.model import ModelEnergyProperties
@@ -10,11 +15,12 @@ from .properties.face import FaceEnergyProperties
 from .properties.shade import ShadeEnergyProperties
 from .properties.aperture import ApertureEnergyProperties
 from .properties.door import DoorEnergyProperties
-from .writer import face_to_idf
+from .writer import model_to_idf, room_to_idf, face_to_idf, shade_to_idf, \
+    aperture_to_idf, door_to_idf
 from .boundarycondition import Adiabatic
 
 # set a hidden energy attribute on each core geometry Property class to None
-# define methods to produce energy property instances on each Proprety instance
+# define methods to produce energy property instances on each Property instance
 ModelProperties._energy = None
 RoomProperties._energy = None
 FaceProperties._energy = None
@@ -68,7 +74,12 @@ ApertureProperties.energy = property(aperture_energy_properties)
 DoorProperties.energy = property(door_energy_properties)
 
 # add energy writer to idf
-setattr(writer, 'idf', face_to_idf)
+model_writer.idf = model_to_idf
+room_writer.idf = room_to_idf
+face_writer.idf = face_to_idf
+shade_writer.idf = shade_to_idf
+aperture_writer.idf = aperture_to_idf
+door_writer.idf = door_to_idf
 
 # extend boundary conditions
 setattr(hbc, 'Adiabatic', Adiabatic)

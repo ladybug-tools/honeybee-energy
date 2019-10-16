@@ -131,3 +131,19 @@ def test_from_dict():
     new_door = Door.from_dict(drd)
     assert new_door.properties.energy.construction == mass_constr
     assert new_door.to_dict() == drd
+
+
+def test_writer_to_idf():
+    """Test the Door to_idf method."""
+    door = Door.from_vertices(
+        'front_door', [[0, 0, 0], [10, 0, 0], [10, 0, 10], [0, 0, 10]])
+    concrete5 = EnergyMaterial('5cm Concrete', 0.05, 2.31, 2322, 832,
+                               'MediumRough', 0.95, 0.75, 0.8)
+    mass_constr = OpaqueConstruction('ConcreteDoor', [concrete5])
+    door.properties.energy.construction = mass_constr
+
+    assert hasattr(door.to, 'idf')
+    idf_string = door.to.idf(door)
+    assert 'front_door,' in idf_string
+    assert 'FenestrationSurface:Detailed,' in idf_string
+    assert 'ConcreteDoor' in idf_string
