@@ -245,3 +245,23 @@ def test_from_dict():
     assert new_room.properties.energy.construction_set.name == \
         'Thermal Mass Construction Set'
     assert new_room.to_dict() == rd
+
+
+def test_writer_to_idf():
+    """Test the Room to_idf method."""
+    room = Room.from_box('ClosedOffice', 5, 10, 3)
+    room.properties.energy.program_type = office_program
+    room.properties.energy.hvac = IdealAirSystem()
+
+    assert hasattr(room.to, 'idf')
+    idf_string = room.to.idf(room)
+    assert 'ClosedOffice,' in idf_string
+    assert 'Zone,' in idf_string
+    assert 'People' in idf_string
+    assert 'Lights' in idf_string
+    assert 'ElectricEquipment' in idf_string
+    assert 'GasEquipment' not in idf_string
+    assert 'ZoneInfiltration:DesignFlowRate' in idf_string
+    assert 'DesignSpecification:OutdoorAir' in idf_string
+    assert 'HVACTemplate:Thermostat' in idf_string
+    assert 'HVACTemplate:Zone:IdealLoadsAirSystem' in idf_string

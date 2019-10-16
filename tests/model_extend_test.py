@@ -502,3 +502,56 @@ def test_to_dict_multizone_house():
     with open(dest_file, 'w') as fp:
         json.dump(model_dict, fp, indent=4)
     """
+
+
+def test_writer_to_idf():
+    """Test the Model to.idf method."""
+    room = Room.from_box('Tiny House Zone', 5, 10, 3)
+    room.properties.energy.program_type = office_program
+    room.properties.energy.hvac = IdealAirSystem()
+
+    stone = EnergyMaterial('Thick Stone', 0.3, 2.31, 2322, 832, 'Rough',
+                           0.95, 0.75, 0.8)
+    thermal_mass_constr = OpaqueConstruction('Thermal Mass Floor', [stone])
+    room[0].properties.energy.construction = thermal_mass_constr
+
+    south_face = room[3]
+    south_face.apertures_by_ratio(0.4, 0.01)
+    south_face.apertures[0].overhang(0.5, indoor=False)
+    south_face.apertures[0].overhang(0.5, indoor=True)
+    south_face.move_shades(Vector3D(0, 0, -0.5))
+    light_shelf_out = ShadeConstruction('Outdoor Light Shelf', 0.5, 0.5)
+    light_shelf_in = ShadeConstruction('Indoor Light Shelf', 0.7, 0.7)
+    south_face.apertures[0].outdoor_shades[0].properties.energy.construction = light_shelf_out
+    south_face.apertures[0].indoor_shades[0].properties.energy.construction = light_shelf_in
+
+    north_face = room[1]
+    north_face.overhang(0.25, indoor=False)
+    door_verts = [Point3D(2, 10, 0.1), Point3D(1, 10, 0.1),
+                  Point3D(1, 10, 2.5), Point3D(2, 10, 2.5)]
+    door = Door('Front Door', Face3D(door_verts))
+    north_face.add_door(door)
+
+    aperture_verts = [Point3D(4.5, 10, 1), Point3D(2.5, 10, 1),
+                      Point3D(2.5, 10, 2.5), Point3D(4.5, 10, 2.5)]
+    aperture = Aperture('Front Aperture', Face3D(aperture_verts))
+    triple_pane = WindowConstruction(
+        'Triple Pane Window', [clear_glass, air_gap, clear_glass, air_gap, clear_glass])
+    aperture.properties.energy.construction = triple_pane
+    north_face.add_aperture(aperture)
+
+    tree_canopy_geo = Face3D.from_regular_polygon(
+        6, 2, Plane(Vector3D(0, 0, 1), Point3D(5, -3, 4)))
+    tree_canopy = Shade('Tree Canopy', tree_canopy_geo)
+
+    table_geo = Face3D.from_rectangle(2, 2, Plane(o=Point3D(1.5, 4, 1)))
+    table = Shade('Table', table_geo)
+    room.add_indoor_shade(table)
+
+    model = Model('TinyHouse', [room], orphaned_shades=[tree_canopy])
+    model.north_angle = 15
+
+    assert hasattr(model.to, 'idf')
+    idf_string = model.to.idf(model, schedule_directory='./tests/idf/')
+    assert 'TinyHouse,' in idf_string
+    assert 'Building,' in idf_string

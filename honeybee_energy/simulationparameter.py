@@ -25,6 +25,7 @@ class SimulationParameter(object):
         * simulation_control
         * shadow_calculation
         * sizing_parameter
+        * global_geometry_rules
     """
     __slots__ = ('_output', '_run_period', '_timestep', '_simulation_control',
                  '_shadow_calculation', '_sizing_parameter')
@@ -144,6 +145,28 @@ class SimulationParameter(object):
         else:
             self._sizing_parameter = SizingParameter()
 
+    @property
+    def global_geometry_rules(self):
+        """Get an IDF string for the official honeybee global geometry rules.
+
+        Specifically, these are counter-clockwise vertices starting from the
+        upper left corner of the surface. The output string is the following:
+
+        .. code-block:: python
+
+            GlobalGeometryRules,
+             UpperLeftCorner,          !- starting vertex position
+             Counterclockwise,         !- vertex entry direction
+             Relative;                 !- coordinate system
+        """
+        values = ('UpperLeftCorner',
+                  'Counterclockwise',
+                  'Relative')
+        comments = ('starting vertex position',
+                    'vertex entry direction',
+                    'coordinate system')
+        return generate_idf_string('GlobalGeometryRules', values, comments)
+
     @classmethod
     def from_idf(cls, idf_string):
         """Create a SimulationParameter object from an EnergyPlus IDF text string.
@@ -169,7 +192,7 @@ class SimulationParameter(object):
         sh_calc_pattern = re.compile(r"(?i)(ShadowCalculation,[\s\S]*?;)")
         bldg_pattern = re.compile(r"(?i)(Building,[\s\S]*?;)")
         control_pattern = re.compile(r"(?i)(SimulationControl,[\s\S]*?;)")
-        sizing_pattern = re.compile(r"(?i)(SizingParameters,[\s\S]*?;)")
+        sizing_pattern = re.compile(r"(?i)(Sizing:Parameters,[\s\S]*?;)")
 
         # process the outputs within the idf_string
         try:
@@ -286,22 +309,43 @@ class SimulationParameter(object):
         objects that make up the SimulationParameter (ie. RunPeriod, SimulationControl,
         etc.),
         """
-        header_str = '!-   ==============  SIMULATION PARAMETERS ==============\n'
-        table_style, output_vars, reports, sqlite, surfaces = self.output.to_idf()
-        output_vars_str = '/n/n'.join(output_vars) if output_vars is not None else ''
-        run_period_str, holidays, daylight_saving = self.run_period.to_idf()
-        holiday_str = '/n/n'.join(holidays) if holidays is not None else ''
-        daylight_saving_time_str = daylight_saving if daylight_saving is not None else ''
-        timestep_str = generate_idf_string(
-            'Timestep', [self.timestep], ['timesteps per hour'])
-        sim_control_str = self.simulation_control.to_idf()
-        shadow_calc_str = self.shadow_calculation.to_idf()
-        sizing_par_str = self.sizing_parameter.to_idf()
+        sim_param_str = ['!-   ==========================================\n'
+                         '!-   =========  SIMULATION PARAMETERS =========\n'
+                         '!-   ==========================================\n']
 
-        return '/n/n'.join([table_style, output_vars_str, reports, sqlite, surfaces,
-                            header_str, sim_control_str, shadow_calc_str, timestep_str,
-                            run_period_str, holiday_str, daylight_saving_time_str,
-                            sizing_par_str])
+        # add the outputs requested
+        table_style, output_vars, reports, sqlite, rdd, surfaces = self.output.to_idf()
+        sim_param_str.append(table_style)
+        if output_vars is not None:
+            sim_param_str.append('\n\n'.join(output_vars))
+        if reports is not None:
+            sim_param_str.append(reports)
+        if sqlite is not None:
+            sim_param_str.append(sqlite)
+        sim_param_str.append(rdd)
+        sim_param_str.append(surfaces)
+
+        # add simulation settings
+        sim_param_str.append(self.simulation_control.to_idf())
+        sim_param_str.append(self.shadow_calculation.to_idf())
+        sim_param_str.append(generate_idf_string(
+            'Timestep', [self.timestep], ['timesteps per hour']))
+
+        # add the run period
+        run_period_str, holidays, daylight_saving = self.run_period.to_idf()
+        sim_param_str.append(run_period_str)
+        if holidays is not None:
+            sim_param_str.append('\n\n'.join(holidays))
+        if daylight_saving is not None:
+            sim_param_str.append(daylight_saving)
+
+        # write the sizing parameters
+        sim_param_str.append(self.sizing_parameter.to_idf())
+
+        # write the global geometry rules
+        sim_param_str.append(self.global_geometry_rules)
+
+        return '\n\n'.join(sim_param_str)
 
     def to_dict(self):
         """SimulationParameter dictionary representation."""
@@ -318,6 +362,10 @@ class SimulationParameter(object):
     def duplicate(self):
         """Get a copy of this object."""
         return self.__copy__()
+
+    def ToString(self):
+        """Overwrite .NET ToString."""
+        return self.__repr__()
 
     def __copy__(self):
         return SimulationParameter(

@@ -57,10 +57,10 @@ class SizingParameter(object):
 
         Args:
             idf_string: A text string fully describing an EnergyPlus
-                SizingParameters definition.
+                Sizing:Parameters definition.
         """
         # check the inputs
-        ep_strs = parse_idf_string(idf_string, 'SizingParameters,')
+        ep_strs = parse_idf_string(idf_string, 'Sizing:Parameters,')
 
         # extract the properties from the string
         heating_factor = 1.25
@@ -99,7 +99,7 @@ class SizingParameter(object):
         """Get an EnergyPlus string representation of the SizingParameters."""
         values = (self.heating_factor, self.cooling_factor)
         comments = ('heating factor', 'cooling factor')
-        return generate_idf_string('SizingParameters', values, comments)
+        return generate_idf_string('Sizing:Parameters', values, comments)
 
     def to_dict(self):
         """SizingParameter dictionary representation."""

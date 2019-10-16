@@ -464,6 +464,8 @@ class SimulationOutput(object):
                 if no summary reports have not been requested.
             sqlite: An IDF Output:SQLite string to request the SQLite file from
                 the simulation. Will be None if include_sqlite is False.
+            variable_dictionary: An IDF Output:VariableDictionary string, which
+                will ensure that a .rdd file is generated from the simulation.
             surfaces_list: An IDF Output:Surfaces:List string to ensure surface
                 information is written into the ultimate .eio file.
         """
@@ -478,11 +480,15 @@ class SimulationOutput(object):
             'Output:Table:SummaryReports', self.summary_reports, r_comments) if \
             len(self._summary_reports) != 0 else None
         sqlite = generate_idf_string(
-            'Output:SQLite', ('SimpleAndTabular,'), ('option type',)) if \
+            'Output:SQLite', ('SimpleAndTabular',), ('option type',)) if \
             self.include_sqlite else None
+        variable_dictionary = generate_idf_string(
+            'Output:VariableDictionary', ('IDF', 'Unsorted'),
+            ('key field', 'sort option'))
         surfaces_list = generate_idf_string(
             'Output:Surfaces:List', ('Details',), ('report type',))
-        return table_style, output_variables, summary_reports, sqlite, surfaces_list
+        return table_style, output_variables, summary_reports, sqlite, \
+            variable_dictionary, surfaces_list
 
     def to_dict(self):
         """DaylightSavingTime dictionary representation."""

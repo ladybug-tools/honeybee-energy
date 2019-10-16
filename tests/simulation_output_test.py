@@ -181,13 +181,13 @@ def test_simulation_output_init_from_idf():
     sim_output = SimulationOutput(
         outputs=['Zone Ideal Loads Supply Air Total Cooling Energy'])
 
-    table_style, output_variables, summary_reports, sqlite, surfaces_list = \
+    table_style, output_variables, summary_reports, sqlite, rdd, surfaces_list = \
         sim_output.to_idf()
     rebuilt_sim_output = SimulationOutput.from_idf(table_style, output_variables,
                                                    summary_reports, True)
     assert sim_output == rebuilt_sim_output
     assert rebuilt_sim_output.to_idf() == (table_style, output_variables,
-                                           summary_reports, sqlite, surfaces_list)
+                                           summary_reports, sqlite, rdd, surfaces_list)
 
 
 def test_simulation_output_dict_methods():
