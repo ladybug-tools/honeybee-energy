@@ -7,6 +7,11 @@ from honeybee.face import Face
 from honeybee.boundarycondition import Outdoors, Surface, Ground
 from honeybee.facetype import RoofCeiling, AirWall
 
+try:
+    from itertools import izip as zip  # python 2
+except ImportError:
+    xrange = range  # python 3
+
 
 def generate_idf_string(object_type, values, comments=None):
     """Get an IDF string representation of an EnergyPlus object.
@@ -25,19 +30,23 @@ def generate_idf_string(object_type, values, comments=None):
     if comments is not None:
         space_count = tuple((25 - len(str(n))) for n in values)
         spaces = tuple(s_c * ' ' if s_c > 0 else ' ' for s_c in space_count)
-        ep_str = object_type + ',\n ' + '\n '.join(
-            '{},{}!- {}'.format(val, space, com) for val, space, com in
-            zip(values[:-1], spaces[:-1], comments[:-1]))
-        if len(values) == 1:
-            ep_str = ep_str + '{};{}!- {}'.format(values[-1], spaces[-1], comments[-1])
-        else:
-            ep_str = ep_str + '\n {};{}!- {}'.format(values[-1], spaces[-1], comments[-1]) \
-                if comments[-1] != '' else ep_str + '\n {};'.format(values[-1])
+        body_str = '\n '.join('{},{}!- {}'.format(val, spc, com) for val, spc, com in
+                              zip(values[:-1], spaces[:-1], comments[:-1]))
+        ep_str = '{},\n {}'.format(object_type, body_str)
+        if len(values) == 1:  # ensure we don't have an extra line break
+            ep_str = ''.join(
+                (ep_str, '{};{}!- {}'.format(values[-1], spaces[-1], comments[-1])))
+        else:  # include an extra line break
+            end_str = '\n {};{}!- {}'.format(values[-1], spaces[-1], comments[-1]) \
+                if comments[-1] != '' else '\n {};'.format(values[-1])
+            ep_str = ''.join((ep_str, end_str))
     else:
-        ep_str = object_type + ',\n ' + '\n '.join(
-            '{},'.format(val) for val in values[:-1])
-        ep_str = ep_str + '\n {};'.format(values[-1]) if len(values) == 1 else \
-            ep_str + '{};'.format(values[-1])
+        body_str = '\n '.join('{},'.format(val) for val in values[:-1])
+        ep_str = '{},\n {}'.format(object_type, body_str)
+        if len(values) == 1:  # ensure we don't have an extra line break
+            ep_str = ''.join((ep_str, '{};'.format(values[-1])))
+        else:  # include an extra line break
+            ep_str = ''.join((ep_str, '\n {};'.format(values[-1])))
     return ep_str
 
 
@@ -288,15 +297,16 @@ def room_to_idf(room):
 
 def model_to_idf(model, schedule_directory=None,
                  solar_distribution='FullInteriorAndExteriorWithReflections'):
-    """Generate an IDF string representation of a Model.
+    r"""Generate an IDF string representation of a Model.
 
     The resulting string will include all geometry (Rooms, Faces, Shades, Apertures,
     Doors), all fully-detailed counstructions + materials, all fully-detailed
     schedules, and the room properties (loads, setpoints, and HVAC).
 
     Essentially, the string includes everything needed to simulate the model
-    except the simulation parameters. So joining this string with the output of
-    SimulationParameter.to_idf() should create a simulate-able IDF.
+    except the simulation parameters and design day objects. So joining this
+    string with the output of SimulationParameter.to_idf() and some deisgn day
+    strings from a .ddy file should create a simulate-able IDF.
 
     Args:
         model: A honeyee Model for which an IDF representation will be returned.
@@ -311,6 +321,45 @@ def model_to_idf(model, schedule_directory=None,
                 * FullInteriorAndExterior
                 * FullExteriorWithReflections
                 * FullInteriorAndExteriorWithReflections
+
+    Usage:
+
+    .. code-block:: python
+
+        import os
+        from ladybug.futil import write_to_file_by_name
+        from ladybug.designday import DDY
+        from honeybee.model import Model
+        from honeybee.room import Room
+        from honeybee_energy.lib.programtypes import office_program
+        from honeybee_energy.idealair import IdealAirSystem
+        from honeybee_energy.simulationparameter import SimulationParameter
+
+        # Get input Model
+        room = Room.from_box('Tiny House Zone', 5, 10, 3)
+        room.properties.energy.program_type = office_program
+        room.properties.energy.hvac = IdealAirSystem()
+        model = Model('Tiny House', [room])
+
+        # Get the input SimulationParameter
+        sim_par = SimulationParameter()
+        sim_par.output.add_zone_energy_use()
+
+        # Get the input design days
+        ddy_file = 'C:/EnergyPlusV9-0-1/WeatherData/USA_CO_Golden-NREL.724666_TMY3.ddy'
+        ddy_obj = DDY.from_ddy_file(ddy_file)
+        ddy_strs = [ddy.ep_style_string for ddy in ddy_obj.design_days if
+                    '99.6%' in ddy.name or '.4%' in ddy.name]
+
+        # create the string for simulation paramters and model
+        sim_par_str = sim_par.to_idf()
+        model_str = model.to.idf(model)
+        idf_str = '\n\n'.join((sim_par_str, '\n\n'.join(ddy_strs), model_str, add_str))
+
+        # write the final string into an IDF
+        directory = os.path.join(os.environ['USERPROFILE'], 'honeybee', 'unnamed')
+        idf = os.path.join(directory, 'in.idf')
+        write_to_file_by_name(directory, 'in.idf', idf_str, True)
     """
     # write the building object into the string
     model_str = ['!-   =======================================\n'
