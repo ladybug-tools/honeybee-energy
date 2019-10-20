@@ -259,7 +259,7 @@ class ProgramType(object):
         ventilation = None
         setpoint = None
 
-        if data['occupancy_schedule'] is not None:
+        if 'occupancy_schedule' in data and data['occupancy_schedule'] is not None:
             occ_sched = ScheduleRuleset.from_standards_dict(
                 data_schedules[data['occupancy_schedule']])
             act_sched = ScheduleRuleset.from_standards_dict(
@@ -268,7 +268,7 @@ class ProgramType(object):
             people = People('{}_People'.format(pr_type_name), occ_density,
                             occ_sched, act_sched)
 
-        if data['lighting_schedule'] is not None:
+        if 'lighting_schedule' in data and data['lighting_schedule'] is not None:
             light_sched = ScheduleRuleset.from_standards_dict(
                 data_schedules[data['lighting_schedule']])
             lpd = data['lighting_per_area'] * 10.7639
@@ -277,7 +277,8 @@ class ProgramType(object):
                 data['lighting_fraction_to_return_air'],
                 data['lighting_fraction_radiant'], data['lighting_fraction_visible'])
 
-        if data['electric_equipment_schedule'] is not None:
+        if 'electric_equipment_schedule' in data and \
+                data['electric_equipment_schedule'] is not None:
             eequip_sched = ScheduleRuleset.from_standards_dict(
                 data_schedules[data['electric_equipment_schedule']])
             eepd = data['electric_equipment_per_area'] * 10.7639
@@ -287,7 +288,8 @@ class ProgramType(object):
                 data['electric_equipment_fraction_latent'],
                 data['electric_equipment_fraction_lost'])
 
-        if data['gas_equipment_schedule'] is not None:
+        if 'gas_equipment_schedule' in data and \
+                data['gas_equipment_schedule'] is not None:
             gequip_sched = ScheduleRuleset.from_standards_dict(
                 data_schedules[data['gas_equipment_schedule']])
             gepd = data['gas_equipment_per_area'] * 3.15459
@@ -297,14 +299,16 @@ class ProgramType(object):
                 data['gas_equipment_fraction_latent'],
                 data['gas_equipment_fraction_lost'])
 
-        if data['infiltration_schedule'] is not None:
+        if 'infiltration_schedule' in data and \
+                data['infiltration_schedule'] is not None:
             inf_sched = ScheduleRuleset.from_standards_dict(
                 data_schedules[data['infiltration_schedule']])
             inf = data['infiltration_per_exterior_area'] * 0.00508
             infiltration = Infiltration(
                 '{}_Infiltration'.format(pr_type_name), inf, inf_sched)
 
-        if data['ventilation_standard'] is not None:
+        if 'ventilation_standard' in data and \
+                data['ventilation_standard'] is not None:
             person = data['ventilation_per_person'] * 0.000471947 if \
                 data['ventilation_per_person'] is not None else 0
             area = data['ventilation_per_area'] * 0.00508 if \
@@ -314,7 +318,8 @@ class ProgramType(object):
             ventilation = Ventilation(
                 '{}_Ventilation'.format(pr_type_name), person, area, 0, ach)
 
-        if data['heating_setpoint_schedule'] is not None:
+        if 'heating_setpoint_schedule' in data and \
+                data['heating_setpoint_schedule'] is not None:
             heat_sched = ScheduleRuleset.from_standards_dict(
                 data_schedules[data['heating_setpoint_schedule']])
             cool_sched = ScheduleRuleset.from_standards_dict(
