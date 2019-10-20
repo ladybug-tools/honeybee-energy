@@ -1124,7 +1124,7 @@ class ScheduleRuleset(object):
         Example: "2014-01-01T00:00:00+00:00"
         """
         date_str = date_string.split('T')[0].split('-')
-        return Date(int(date_str[1]), int(date_str[2]))
+        return Date(int(date_str[-2]), int(date_str[-1]))
 
     @staticmethod
     def _type_from_standards_gem(units, category):
