@@ -167,7 +167,7 @@ except KeyError:
     _idf_window_materials['Generic Window Argon Gap'] = argon_gap
 
 
-# make lists of construction and material names to look up items in the library
+# make lists of material names to look up items in the library
 OPAQUE_MATERIALS = tuple(_idf_opaque_materials.keys())
 WINDOW_MATERIALS = tuple(_idf_window_materials.keys())
 

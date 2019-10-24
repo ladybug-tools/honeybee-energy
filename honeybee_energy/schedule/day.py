@@ -359,45 +359,6 @@ class ScheduleDay(object):
             return cls(ep_strs[0], values, times, interpolate)
 
     @classmethod
-    def from_standards_dict(cls, data):
-        """Create a ScheduleDay from an OpenStudio standards gem dictionary.
-
-        Args:
-            data: Standards gem dictionary of a ScheduleDay following the format below.
-
-        .. code-block:: json
-
-            {
-            "name": "Large Office Bldg Occ",
-            "category": "Occupancy",
-            "units": null,
-            "day_types": "Default",
-            "start_date": "2014-01-01T00:00:00+00:00",
-            "end_date": "2014-12-31T00:00:00+00:00",
-            "type": "Hourly",
-            "notes": "From DOE Reference Buildings ",
-            "values": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.1, 0.2, 0.95, 0.95, 0.95,
-                       0.95, 0.5, 0.95, 0.95, 0.95, 0.95, 0.7, 0.4, 0.4, 0.1,
-                       0.1, 0.05, 0.05]
-                }
-        """
-        # get a good unique name for the ScheduleDay
-        day_types = data['day_types'].split('|')
-        if 'SmrDsn' in data['day_types']:
-            day_types.remove('SmrDsn')
-        if 'WntrDsn' in data['day_types']:
-            day_types.remove('WntrDsn')
-        if len(day_types) == 0:
-            sch_name = data['name']
-        else:
-            sch_name = '{}_{}'.format(data['name'], '|'.join(day_types))
-
-        if data['type'] == 'Hourly':
-            return cls.from_values_at_timestep(sch_name, data['values'])
-        elif data['type'] == 'Constant':
-            return cls(sch_name, data['values'])  # single value in the schedule
-
-    @classmethod
     def from_dict(cls, data):
         """Create a ScheduleDay from a dictionary.
 
