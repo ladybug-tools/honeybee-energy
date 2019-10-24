@@ -323,39 +323,6 @@ class WindowConstruction(_ConstructionBase):
         return cls(ep_strs[0], materials)
 
     @classmethod
-    def from_standards_dict(cls, data, data_materials):
-        """Create a WindowConstruction from an OpenStudio standards gem dictionary.
-
-        Args:
-            data: {
-                "name": "ASHRAE 189.1-2009 ExtWindow ClimateZone 4-5",
-                "intended_surface_type": "ExteriorWindow",
-                "materials": ["Theoretical Glass [207]"]
-                }
-            data_materials: Dictionary representation of all materials in the
-                OpenStudio standards gem.
-        """
-        try:
-            materials_dict = tuple(data_materials[mat] for mat in data['materials'])
-        except KeyError as e:
-            raise ValueError('Failed to find {} in OpenStudio Standards material '
-                             'library.'.format(e))
-        materials = []
-        for mat_dict in materials_dict:
-            if mat_dict['material_type'] == 'SimpleGlazing':
-                materials.append(
-                    EnergyWindowMaterialSimpleGlazSys.from_standards_dict(mat_dict))
-            elif mat_dict['material_type'] == 'StandardGlazing':
-                materials.append(
-                    EnergyWindowMaterialGlazing.from_standards_dict(mat_dict))
-            elif mat_dict['material_type'] == 'Gas':
-                materials.append(EnergyWindowMaterialGas.from_standards_dict(mat_dict))
-            else:
-                raise NotImplementedError(
-                    'Material {} is not supported.'.format(mat_dict['material_type']))
-        return cls(data['name'], materials)
-
-    @classmethod
     def from_dict(cls, data):
         """Create a WindowConstruction from a dictionary.
 

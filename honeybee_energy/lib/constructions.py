@@ -159,7 +159,7 @@ _idf_shade_constructions = {generic_context.name: generic_context,
                             generic_shade.name: generic_shade}
 
 
-# make lists of construction and material names to look up items in the library
+# make lists of construction names to look up items in the library
 OPAQUE_CONSTRUCTIONS = tuple(_idf_opaque_constructions.keys())
 WINDOW_CONSTRUCTIONS = tuple(_idf_window_constructions.keys())
 SHADE_CONSTRUCTIONS = tuple(_idf_shade_constructions.keys())

@@ -169,47 +169,6 @@ class OpaqueConstruction(_ConstructionBase):
         return cls(ep_strs[0], materials)
 
     @classmethod
-    def from_standards_dict(cls, data, data_materials):
-        """Create an OpaqueConstruction from an OpenStudio standards gem dictionary.
-
-        Args:
-            data: An OpenStudio standards dictionary of a Construction in the
-                format below.
-
-            .. code-block:: json
-
-                {
-                "name": "Typical Insulated Exterior Mass Wall",
-                "intended_surface_type": "ExteriorWall",
-                "standards_construction_type": "Mass",
-                "insulation_layer": "Typical Insulation",
-                "materials": [
-                    "1IN Stucco",
-                    "8IN CONCRETE HW RefBldg",
-                    "Typical Insulation",
-                    "1/2IN Gypsum"]
-                }
-
-            data_materials: Dictionary representation of all materials in the
-                OpenStudio standards gem.
-        """
-        try:
-            materials_dict = tuple(data_materials[mat] for mat in data['materials'])
-        except KeyError as e:
-            raise ValueError('Failed to find {} in OpenStudio Standards material '
-                             'library.'.format(e))
-        materials = []
-        for mat_dict in materials_dict:
-            if mat_dict['material_type'] == 'StandardOpaqueMaterial':
-                materials.append(EnergyMaterial.from_standards_dict(mat_dict))
-            elif mat_dict['material_type'] in ('MasslessOpaqueMaterial', 'AirGap'):
-                materials.append(EnergyMaterialNoMass.from_standards_dict(mat_dict))
-            else:
-                raise NotImplementedError(
-                    'Material {} is not supported.'.format(mat_dict['material_type']))
-        return cls(data['name'], materials)
-
-    @classmethod
     def from_dict(cls, data):
         """Create a OpaqueConstruction from a dictionary.
 

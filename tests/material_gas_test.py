@@ -65,20 +65,6 @@ def test_gas_init_from_idf():
     assert air.gas_type == 'Air'
 
 
-def test_gas_to_from_standards_dict():
-    """Test initialization of EnergyWindowMaterialGas objects from standards gem."""
-    standards_dict = {
-        "name": "AIR 13MM",
-        "material_type": "Gas",
-        "thickness": 0.5,
-        "gas_type": "Air"}
-    mat_1 = EnergyWindowMaterialGas.from_standards_dict(standards_dict)
-
-    assert mat_1.name == 'AIR 13MM'
-    assert mat_1.thickness == pytest.approx(0.0127, rel=1e-2)
-    assert mat_1.gas_type == 'Air'
-
-
 def test_gas_dict_methods():
     """Test the to/from dict methods."""
     argon = EnergyWindowMaterialGas('Argon Gap', 0.0125, 'Argon')

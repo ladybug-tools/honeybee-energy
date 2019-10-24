@@ -374,22 +374,6 @@ class EnergyWindowMaterialGas(_EnergyWindowMaterialGasBase):
         return cls(ep_strs[0], ep_strs[2], ep_strs[1])
 
     @classmethod
-    def from_standards_dict(cls, data):
-        """Create EnergyWindowMaterialGas from OpenStudio standards dictionary.
-
-        Args:
-            data: {
-                "name": 'Gap_1_W_0_0018',
-                "material_type": "Gas",
-                "thickness": 0.070866,
-                "gas_type": "Air"}
-        """
-        assert data['material_type'] == 'Gas', \
-            'Expected Gas. Got {}.'.format(data['material_type'])
-        thickness = 0.0254 * data['thickness']  # convert from inches
-        return cls(data['name'], thickness, data['gas_type'])
-
-    @classmethod
     def from_dict(cls, data):
         """Create a EnergyWindowMaterialGas from a dictionary.
 

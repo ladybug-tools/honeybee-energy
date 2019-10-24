@@ -145,32 +145,6 @@ def test_opaque_construction_from_idf():
     assert constr_str == new_constr_str
 
 
-def test_opaque_to_from_standards_dict():
-    """Test the initialization of OpaqueConstruction objects from standards gem."""
-    filename = './tests/standards/OpenStudio_Standards_materials.json'
-    if filename:
-        with open(filename, 'r') as f:
-            data_store = json.load(f)
-    standards_dict = {
-        "name": "Metal framed wallsW1_R8.60",
-        "intended_surface_type": "ExteriorWall",
-        "standards_construction_type": None,
-        "insulation_layer": "Typical Insulation",
-        "skylight_framing": None,
-        "materials": [
-            "Stucco - 7/8 in. CBES",
-            "W1_R8.60",
-            "Air - Metal Wall Framing - 16 or 24 in. OC",
-            "Gypsum Board - 1/2 in. CBES"]}
-    wall_constr = OpaqueConstruction.from_standards_dict(standards_dict, data_store)
-
-    assert wall_constr.name == 'Metal framed wallsW1_R8.60'
-    assert wall_constr.r_value == pytest.approx(1.7411, rel=1e-2)
-    assert wall_constr.u_value == pytest.approx(0.57434, rel=1e-2)
-    assert wall_constr.u_factor == pytest.approx(0.524972, rel=1e-2)
-    assert wall_constr.r_factor == pytest.approx(1.904860, rel=1e-2)
-
-
 def test_opaque_dict_methods():
     """Test the to/from dict methods."""
     concrete = EnergyMaterial('Concrete', 0.15, 2.31, 2322, 832)
@@ -388,33 +362,6 @@ def test_window_construction_init_from_idf_file():
     assert glaz_constr.thickness == new_glaz_constr.thickness == \
         pytest.approx(0.0425, rel=1e-2)
     assert constr_str == new_constr_str
-
-
-def test_window_to_from_standards_dict():
-    """Test the initialization of OpaqueConstruction objects from standards gem."""
-    filename = './tests/standards/OpenStudio_Standards_materials.json'
-    if filename:
-        with open(filename, 'r') as f:
-            data_store = json.load(f)
-    standards_dict = {
-        "name": "U 0.19 SHGC 0.20 Trp LoE Film (55) Bronze 6mm/13mm Air",
-        "intended_surface_type": "ExteriorWindow",
-        "standards_construction_type": "Metal framing (all other)",
-        "insulation_layer": None,
-        "skylight_framing": None,
-        "materials": [
-            "BRONZE 6MM",
-            "AIR 13MM",
-            "COATED POLY-55",
-            "AIR 13MM",
-            "CLEAR 3MM"]}
-    glaz_constr = WindowConstruction.from_standards_dict(standards_dict, data_store)
-
-    assert glaz_constr.name == 'U 0.19 SHGC 0.20 Trp LoE Film (55) Bronze 6mm/13mm Air'
-    assert glaz_constr.r_value == pytest.approx(0.645449, rel=1e-2)
-    assert glaz_constr.u_value == pytest.approx(1.549307, rel=1e-2)
-    assert glaz_constr.u_factor == pytest.approx(1.2237779, rel=1e-2)
-    assert glaz_constr.r_factor == pytest.approx(0.817141, rel=1e-2)
 
 
 def test_window_dict_methods():
