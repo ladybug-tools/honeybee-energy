@@ -22,7 +22,7 @@ def construction_set_by_name(construction_set_name):
     """Get a construction_set from the library given its name.
 
     Args:
-        construction_set_name: A text string for the name of the ProgramType.
+        construction_set_name: A text string for the name of the ConstructionSet.
     """
     try:
         return _json_construction_sets[construction_set_name]
