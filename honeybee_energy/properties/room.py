@@ -87,7 +87,7 @@ class RoomEnergyProperties(object):
     def program_type(self, value):
         if value is not None:
             assert isinstance(value, ProgramType), \
-                'Expected ProgramType for Room.program_type. Got {}'.format(type(value))
+                'Expected ProgramType for Room program_type. Got {}'.format(type(value))
             value.lock()   # lock in case program type has multiple references
         self._program_type = value
 
