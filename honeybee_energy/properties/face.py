@@ -44,7 +44,7 @@ class FaceEnergyProperties(object):
         """
         if self._construction:  # set by user
             return self._construction
-        elif self._host.has_parent:  # set by parent zone
+        elif self._host.has_parent:  # set by parent room
             constr_set = self._host.parent.properties.energy.construction_set
             return constr_set.get_face_construction(
                 self._host.type.name, self._host.boundary_condition.name)
