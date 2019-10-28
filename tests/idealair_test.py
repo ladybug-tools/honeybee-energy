@@ -54,18 +54,6 @@ def test_ideal_air_system_equality():
     assert ideal_air != ideal_air_alt
 
 
-def test_ideal_air_lockability():
-    """Test the lockability of IdealAirSystem objects."""
-    ideal_air = IdealAirSystem()
-
-    ideal_air.sensible_heat_recovery = 0.6
-    ideal_air.lock()
-    with pytest.raises(AttributeError):
-        ideal_air.sensible_heat_recovery = 0.75
-    ideal_air.unlock()
-    ideal_air.sensible_heat_recovery = 0.75
-
-
 def test_ideal_air_init_from_idf():
     """Test the initialization of IdealAirSystem from_idf."""
     ideal_air = IdealAirSystem()

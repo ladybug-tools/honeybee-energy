@@ -292,6 +292,9 @@ class Setpoint(_LoadBase):
         # check the inputs
         ep_strs = parse_idf_string(idf_string, 'HVACTemplate:Thermostat,')
 
+        # remove the zone name from the thermostat
+        setp_obj_name = ep_strs[0].split('..')[0]
+
         # extract the schedules from the string
         try:
             heat_sched = schedule_dict[ep_strs[1]] if ep_strs[1] != '' else None
@@ -300,7 +303,7 @@ class Setpoint(_LoadBase):
             raise ValueError('Failed to find {} in the schedule_dict.'.format(e))
 
         # return the object and the zone name for the object
-        setpoint = cls(ep_strs[0], heat_sched, cool_sched)
+        setpoint = cls(setp_obj_name, heat_sched, cool_sched)
         return setpoint
 
     @classmethod
@@ -379,7 +382,7 @@ class Setpoint(_LoadBase):
                 raise ValueError('Failed to find {} in the schedule_dict.'.format(e))
         return cls(data['name'], heat_sched, cool_sched, humid_sched, dehumid_sched)
 
-    def to_idf(self):
+    def to_idf(self, zone_name):
         """IDF string representation of Setpoint object's thermostat.
 
         Note that this method only outputs a string for the HVACTemplate:Thermostat
@@ -387,8 +390,11 @@ class Setpoint(_LoadBase):
         this object's schedules must also be written. If the humidifying or
         dehumidifying schedules are not None, the to_idf_humidistat method should also
         be used to write the humidistat.
+
+        Args:
+            zone_name: Text for the zone name that the Setpoint object is assigned to.
         """
-        values = (self.name, self.heating_schedule.name, '',
+        values = ('{}..{}'.format(self.name, zone_name), self.heating_schedule.name, '',
                   self.cooling_schedule.name, '')
         comments = ('name', 'heating setpoint schedule', 'heating setpoint {C}',
                     'cooling setpoint schedule', 'cooling setpoint {C}')
@@ -408,8 +414,8 @@ class Setpoint(_LoadBase):
             zone_name: Text for the zone name that the Setpoint object is assigned to.
         """
         if self.humidifying_schedule is not None:
-            values = (self.name, zone_name, self.humidifying_schedule.name,
-                      self.dehumidifying_schedule.name)
+            values = ('{}_{}'.format(self.name, zone_name), zone_name,
+                      self.humidifying_schedule.name, self.dehumidifying_schedule.name)
             comments = ('name', 'zone name', 'humidifying setpoint schedule',
                         'dehumidifying setpoint schedule')
             return generate_idf_string('ZoneControl:Humidistat', values, comments)
