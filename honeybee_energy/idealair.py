@@ -5,11 +5,9 @@ from __future__ import division
 from .reader import parse_idf_string
 from .writer import generate_idf_string
 
-from honeybee._lockable import lockable
 from honeybee.typing import valid_string, float_positive, float_in_range
 
 
-@lockable
 class IdealAirSystem(object):
     """Simple ideal air system object used to condition zones.
 
@@ -27,7 +25,7 @@ class IdealAirSystem(object):
     """
     __slots__ = ('_heating_limit', '_cooling_limit', '_economizer_type',
                  '_demand_controlled_ventilation', '_sensible_heat_recovery',
-                 '_latent_heat_recovery', '_parent', '_locked')
+                 '_latent_heat_recovery', '_parent')
     ECONOMIZER_TYPES = ('NoEconomizer', 'DifferentialDryBulb', 'DifferentialEnthalpy')
 
     def __init__(self, heating_limit='autosize', cooling_limit='autosize',
@@ -64,7 +62,6 @@ class IdealAirSystem(object):
             latent_heat_recovery: A number between 0 and 1 for the effectiveness
                 of latent heat recovery within the system. Default: 0.
         """
-        self._locked = False  # unlocked by default
         self._parent = None
         self.heating_limit = heating_limit
         self.cooling_limit = cooling_limit
@@ -281,7 +278,8 @@ class IdealAirSystem(object):
             dehumid_setpt = ''
         if self._parent.properties.energy.ventilation is not None:
             oa_method = 'DetailedSpecification'
-            oa_name = self._parent.properties.energy.ventilation.name
+            oa_name = '{}..{}'.format(self._parent.properties.energy.ventilation.name,
+                                      self._parent.name)
         else:
             oa_method = 'None'
             oa_name = ''
@@ -294,7 +292,9 @@ class IdealAirSystem(object):
             heat_recovery = 'Sensible'
 
         # return a full IDF string
-        values = (self._parent.name, self._parent.properties.energy.setpoint.name,
+        thermostat = '{}..{}'.format(self._parent.properties.energy.setpoint.name,
+                                     self._parent.name)
+        values = (self._parent.name, thermostat,
                   '', '', '', '', '', h_lim_type, '', heat_limit, c_lim_type,
                   air_limit, cool_limit, '', '', dehumid_type, '', dehumid_setpt,
                   humid_type, humid_setpt, oa_method, '', '', '', oa_name, dcv,

@@ -17,6 +17,7 @@ from honeybee_energy.construction.shade import ShadeConstruction
 from honeybee_energy.material._base import _EnergyMaterialBase
 from honeybee_energy.material.opaque import EnergyMaterial
 from honeybee_energy.schedule.ruleset import ScheduleRuleset
+from honeybee_energy.schedule.fixedinterval import ScheduleFixedInterval
 from honeybee_energy.schedule.typelimit import ScheduleTypeLimit
 from honeybee_energy.load.people import People
 
@@ -32,6 +33,7 @@ from ladybug_geometry.geometry3d.pointvector import Point3D, Vector3D
 from ladybug_geometry.geometry3d.plane import Plane
 from ladybug_geometry.geometry3d.face import Face3D
 
+import random
 import json
 import pytest
 
@@ -384,6 +386,82 @@ def test_to_dict_single_zone():
     """
     f_dir = 'C:/Users/chris/Documents/GitHub/energy-model-schema/app/models/samples/json'
     dest_file = f_dir + '/model_single_zone_office.json'
+    with open(dest_file, 'w') as fp:
+        json.dump(model_dict, fp, indent=4)
+    """
+
+
+def test_to_dict_single_zone_schedule_fixed_interval():
+    """Test the Model to_dict method with a single zone model and fixed interval schedules."""
+    room = Room.from_box('Tiny House Zone', 5, 10, 3)
+    room.properties.energy.program_type = office_program
+    room.properties.energy.hvac = IdealAirSystem()
+
+    occ_sched = ScheduleFixedInterval(
+        'Random Occupancy', [round(random.random(), 4) for i in range(8760)],
+        schedule_types.fractional)
+    new_people = room.properties.energy.people.duplicate()
+    new_people.occupancy_schedule = occ_sched
+    room.properties.energy.people = new_people
+
+    south_face = room[3]
+    south_face.apertures_by_ratio(0.4, 0.01)
+    south_face.apertures[0].overhang(0.5, indoor=False)
+    south_face.apertures[0].overhang(0.5, indoor=True)
+    south_face.move_shades(Vector3D(0, 0, -0.5))
+    light_shelf_out = ShadeConstruction('Outdoor Light Shelf', 0.5, 0.5)
+    light_shelf_in = ShadeConstruction('Indoor Light Shelf', 0.7, 0.7)
+    south_face.apertures[0].outdoor_shades[0].properties.energy.construction = light_shelf_out
+    south_face.apertures[0].indoor_shades[0].properties.energy.construction = light_shelf_in
+
+    north_face = room[1]
+    north_face.overhang(0.25, indoor=False)
+    door_verts = [Point3D(2, 10, 0.1), Point3D(1, 10, 0.1),
+                  Point3D(1, 10, 2.5), Point3D(2, 10, 2.5)]
+    door = Door('Front Door', Face3D(door_verts))
+    north_face.add_door(door)
+
+    aperture_verts = [Point3D(4.5, 10, 1), Point3D(2.5, 10, 1),
+                      Point3D(2.5, 10, 2.5), Point3D(4.5, 10, 2.5)]
+    aperture = Aperture('Front Aperture', Face3D(aperture_verts))
+    north_face.add_aperture(aperture)
+
+    tree_canopy_geo = Face3D.from_regular_polygon(
+        6, 2, Plane(Vector3D(0, 0, 1), Point3D(5, -3, 4)))
+    tree_canopy = Shade('Tree Canopy', tree_canopy_geo)
+    winter = [0.75] * 2190
+    spring = [0.75 - ((x / 2190) * 0.5) for x in range(2190)]
+    summer = [0.25] * 2190
+    fall = [0.25 + ((x / 2190) * 0.5) for x in range(2190)]
+    trans_sched = ScheduleFixedInterval(
+        'Seasonal Tree Transmittance', winter + spring + summer + fall,
+        schedule_types.fractional)
+    tree_canopy.properties.energy.transmittance_schedule = trans_sched
+
+    model = Model('Tiny House', [room], orphaned_shades=[tree_canopy])
+    model.north_angle = 15
+
+    model_dict = model.to_dict()
+
+    assert 'energy' in model_dict['properties']
+    assert 'schedules' in model_dict['properties']['energy']
+    assert 'program_types' in model_dict['properties']['energy']
+
+    assert len(model_dict['properties']['energy']['program_types']) == 1
+    assert len(model_dict['properties']['energy']['schedules']) == 9
+
+    assert 'people' in model_dict['rooms'][0]['properties']['energy']
+    assert model_dict['rooms'][0]['properties']['energy']['people']['occupancy_schedule'] \
+        == 'Random Occupancy'
+    assert model_dict['orphaned_shades'][0]['properties']['energy']['transmittance_schedule'] \
+        == 'Seasonal Tree Transmittance'
+
+    assert model_dict['rooms'][0]['properties']['energy']['program_type'] == \
+        office_program.name
+
+    """
+    f_dir = 'C:/Users/chris/Documents/GitHub/energy-model-schema/app/models/samples/json'
+    dest_file = f_dir + '/model_single_zone_office_fixed_interval.json'
     with open(dest_file, 'w') as fp:
         json.dump(model_dict, fp, indent=4)
     """

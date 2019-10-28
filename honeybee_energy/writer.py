@@ -284,10 +284,10 @@ def room_to_idf(room):
 
     # write the ventilation, thermostat, and ideal air system
     if ventilation is not None:
-        zone_str.append(ventilation.to_idf())
+        zone_str.append(ventilation.to_idf(room.name))
     if room.properties.energy.is_conditioned:
         zone_str.append(room.properties.energy.hvac.to_idf())
-        zone_str.append(room.properties.energy.setpoint.to_idf())
+        zone_str.append(room.properties.energy.setpoint.to_idf(room.name))
         humidistat = room.properties.energy.setpoint.to_idf_humidistat(room.name)
         if humidistat is not None:
             zone_str.append(humidistat)

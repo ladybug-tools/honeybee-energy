@@ -161,7 +161,7 @@ def test_setpoint_init_from_idf():
     setpoint = Setpoint('Office Setpoint', heat_setpt, cool_setpt)
     sched_dict = {heat_setpt.name: heat_setpt, cool_setpt.name: cool_setpt}
 
-    idf_str = setpoint.to_idf()
+    idf_str = setpoint.to_idf('Test Zone')
     rebuilt_setpoint = Setpoint.from_idf(idf_str, sched_dict)
     assert setpoint == rebuilt_setpoint
 
@@ -186,7 +186,7 @@ def test_setpoint_init_from_idf_humidity():
                   humid_setpt.name: humid_setpt, dehumid_setpt.name: dehumid_setpt}
 
     zone_name = 'Test Zone'
-    idf_str = setpoint.to_idf()
+    idf_str = setpoint.to_idf(zone_name)
     humid_idf_str = setpoint.to_idf_humidistat(zone_name)
     rebuilt_setpoint = Setpoint.from_idf(idf_str, sched_dict)
     rebuilt_setpoint.add_humidity_from_idf(humid_idf_str, sched_dict)

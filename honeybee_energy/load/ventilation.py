@@ -268,15 +268,19 @@ class Ventilation(_LoadBase):
                 raise ValueError('Failed to find {} in the schedule_dict.'.format(e))
         return cls(data['name'], person, area, zone, ach, sched)
 
-    def to_idf(self):
+    def to_idf(self, zone_name):
         """IDF string representation of Ventilation object.
 
         Note that this method only outputs a single string for the DesignSpecification:
         OutdoorAir object and, to write everything needed to describe the object
         into an IDF, this object's schedule must also be written.
+
+        Args:
+            zone_name: Text for the zone name that the Ventilation object is assigned to.
         """
         sched = self.schedule.name if self.schedule is not None else ''
-        values = (self.name, 'Sum', self.flow_per_person, self.flow_per_area,
+        vent_obj_name = '{}..{}'.format(self.name, zone_name)
+        values = (vent_obj_name, 'Sum', self.flow_per_person, self.flow_per_area,
                   self.flow_per_zone, self.air_changes_per_hour, sched)
         comments = ('name', 'flow rate method', 'flow per person {m3/s-person}',
                     'flow per floor area {m3/s-m2}', 'flow per zone {m3/s}',

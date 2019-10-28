@@ -106,7 +106,7 @@ def test_ventilation_init_from_idf():
     ventilation.schedule = schedule
     sched_dict = {schedule.name: schedule}
 
-    idf_str = ventilation.to_idf()
+    idf_str = ventilation.to_idf('Test Zone')
     rebuilt_ventilation = Ventilation.from_idf(idf_str, sched_dict)
     assert ventilation == rebuilt_ventilation
 
