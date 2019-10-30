@@ -373,10 +373,13 @@ def model_to_idf(model, schedule_directory=None,
     sched_dir = None
     for sched in model.properties.energy.schedules:
         try:
-            day_scheds = [day.to_idf(sched.schedule_type_limit)
-                          for day in sched.day_schedules]
             year_schedule, week_schedules = sched.to_idf()
-            sched_strs.extend([year_schedule] + week_schedules + day_scheds)
+            if week_schedules is None:
+                sched_strs.append(year_schedule)
+            else:
+                day_scheds = [day.to_idf(sched.schedule_type_limit)
+                              for day in sched.day_schedules]
+                sched_strs.extend([year_schedule] + week_schedules + day_scheds)
         except AttributeError:  # ScheduleFixedInterval
             if sched_dir is None:
                 sched_dir = schedule_directory if schedule_directory is not None \

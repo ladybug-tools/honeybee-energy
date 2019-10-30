@@ -99,6 +99,30 @@ def test_opaque_equivalency():
     assert wall_constr_1 != wall_constr_2
 
 
+def test_opaque_symmetric():
+    """Test that the opaque construction is_symmetric property."""
+    concrete = EnergyMaterial('Concrete', 0.15, 2.31, 2322, 832)
+    insulation = EnergyMaterial('Insulation', 0.05, 0.049, 265, 836)
+    wall_gap = EnergyMaterial('Wall Air Gap', 0.1, 0.67, 1.2925, 1006.1)
+    gypsum = EnergyMaterial('Gypsum', 0.0127, 0.16, 784.9, 830)
+    wall_constr_1 = OpaqueConstruction(
+        'Wall Construction', [concrete, insulation, wall_gap, gypsum])
+    wall_constr_2 = OpaqueConstruction(
+        'Wall Construction', [gypsum, wall_gap, gypsum])
+    wall_constr_3 = OpaqueConstruction(
+        'Wall Construction', [concrete])
+    wall_constr_4 = OpaqueConstruction(
+        'Wall Construction', [concrete, concrete])
+    wall_constr_5 = OpaqueConstruction(
+        'Other Wall Construction', [concrete, insulation, wall_gap, insulation, concrete])
+
+    assert not wall_constr_1.is_symmetric
+    assert wall_constr_2.is_symmetric
+    assert wall_constr_3.is_symmetric
+    assert wall_constr_4.is_symmetric
+    assert wall_constr_5.is_symmetric
+
+
 def test_opaque_temperature_profile():
     """Test the opaque construction temperature profile."""
     concrete = EnergyMaterial('Concrete', 0.15, 2.31, 2322, 832)
@@ -246,6 +270,30 @@ def test_window_equivalency():
 
     double_clear_2.name = 'Cool Window'
     assert double_clear != double_clear_2
+
+
+def test_window_symmetric():
+    """Test that the window construction is_symmetric property."""
+    clear_glass = EnergyWindowMaterialGlazing(
+        'Clear Glass', 0.005715, 0.770675, 0.07, 0.8836, 0.0804,
+        0, 0.84, 0.84, 1.0)
+    low_e_glass = EnergyWindowMaterialGlazing(
+        'Clear Glass', 0.005715, 0.770675, 0.07, 0.8836, 0.0804,
+        0, 0.84, 0.05, 1.0)
+    gap = EnergyWindowMaterialGas('air gap', thickness=0.0127)
+    double_low_e = WindowConstruction(
+        'Double Clear Window', [clear_glass, gap, low_e_glass])
+    double_clear = WindowConstruction(
+        'Clear Window', [clear_glass, gap, clear_glass])
+    single_clear = WindowConstruction(
+        'Clear Window', [clear_glass])
+    triple_clear = WindowConstruction(
+        'Clear Window', [clear_glass, gap, clear_glass, gap, clear_glass])
+
+    assert not double_low_e.is_symmetric
+    assert double_clear.is_symmetric
+    assert single_clear.is_symmetric
+    assert triple_clear.is_symmetric
 
 
 def test_window_construction_init_shade():
