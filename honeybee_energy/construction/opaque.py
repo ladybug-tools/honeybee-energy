@@ -26,6 +26,7 @@ class OpaqueConstruction(_ConstructionBase):
         * u_value
         * u_factor
         * r_factor
+        * is_symmetric
         * inside_emissivity
         * inside_solar_reflectance
         * inside_visible_reflectance
@@ -58,11 +59,6 @@ class OpaqueConstruction(_ConstructionBase):
         self._materials = mats
 
     @property
-    def inside_emissivity(self):
-        """"The emissivity of the inside face of the construction."""
-        return self.materials[-1].thermal_absorptance
-
-    @property
     def inside_solar_reflectance(self):
         """"The solar reflectance of the inside face of the construction."""
         return 1 - self.materials[-1].solar_absorptance
@@ -71,11 +67,6 @@ class OpaqueConstruction(_ConstructionBase):
     def inside_visible_reflectance(self):
         """"The visible reflectance of the inside face of the construction."""
         return 1 - self.materials[-1].visible_absorptance
-
-    @property
-    def outside_emissivity(self):
-        """"The emissivity of the outside face of the construction."""
-        return self.materials[0].thermal_absorptance
 
     @property
     def outside_solar_reflectance(self):

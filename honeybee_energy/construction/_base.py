@@ -24,6 +24,7 @@ class _ConstructionBase(object):
         * u_value
         * u_factor
         * r_factor
+        * is_symmetric
     """
     # generic air material used to compute indoor film coefficients.
     _air = EnergyWindowMaterialGas('generic air', gas_type='Air')
@@ -50,6 +51,15 @@ class _ConstructionBase(object):
     @name.setter
     def name(self, name):
         self._name = valid_ep_string(name, 'construction name')
+    
+    @property
+    def materials(self):
+        """Get or set the list of materials in the construction (outside to inside)."""
+        return self._materials
+
+    @materials.setter
+    def materials(self, mats):
+        self._materials = mats
 
     @property
     def layers(self):
@@ -63,6 +73,16 @@ class _ConstructionBase(object):
         This is useful when constructions reuse material layers.
         """
         return list(set(self._materials))
+    
+    @property
+    def inside_emissivity(self):
+        """"The emissivity of the inside face of the construction."""
+        return self.materials[-1].thermal_absorptance
+    
+    @property
+    def outside_emissivity(self):
+        """"The emissivity of the outside face of the construction."""
+        return self.materials[0].thermal_absorptance
 
     @property
     def r_value(self):
@@ -91,6 +111,21 @@ class _ConstructionBase(object):
         Formulas for film coefficients come from EN673 / ISO10292.
         """
         return 1 / self.r_factor
+    
+    @property
+    def is_symmetric(self):
+        """Get a boolean to note whether the construction layers are symmetric.
+
+        Symmetric means that the materials in reversed order are equal to those
+        in the current order (eg. 'Gypsum', 'Air Gap', 'Gypsum'). This is particularly
+        helpful for interior constructions, which need to have matching materials
+        in reveresed order between adjacent Faces.
+        """
+        half_mat = int(len(self._materials) / 2)
+        for i in range(half_mat):
+            if self._materials[i] != self._materials[-(i + 1)]:
+                return False
+        return True
 
     def duplicate(self):
         """Get a copy of this construction."""
