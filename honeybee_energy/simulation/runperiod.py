@@ -49,7 +49,7 @@ class RunPeriod(object):
                     * Friday
                     * Saturday
             holidays: A list of Ladybug Date objects for the holidays within the
-                simulation. If None, no folidays are applied. Default: None.
+                simulation. If None, no holidays are applied. Default: None.
             daylight_saving_time: A DaylightSavingTime object to dictate the start and
                 end dates of daylight saving time. If None, no daylight saving time is
                 applied to the simulation. Default: None.
@@ -203,9 +203,9 @@ class RunPeriod(object):
         """
         assert isinstance(analysis_period, AnalysisPeriod), 'Expected AnalysisPeriod ' \
             'for RunPeriod.from_analysis_period. Got {}.'.format(type(analysis_period))
-        st_date = Date(analysis_period.st_month, analysis_period.st_date,
+        st_date = Date(analysis_period.st_month, analysis_period.st_day,
                        analysis_period.is_leap_year)
-        end_date = Date(analysis_period.end_month, analysis_period.end_date,
+        end_date = Date(analysis_period.end_month, analysis_period.end_day,
                         analysis_period.is_leap_year)
         return cls(st_date, end_date, start_day_of_week, holidays, daylight_saving_time)
 
