@@ -32,9 +32,9 @@ class SimulationControl(object):
             do_plant_sizing: Boolean for whether the plant sizing calculation
                 should be run. Default: True.
             run_for_sizing_periods: Boolean for whether the simulation should
-                be run for the sizing periods.
+                be run for the sizing periods. Default: False.
             run_for_run_periods: Boolean for whether the simulation should
-                be run for the run periods.
+                be run for the run periods. Default: True.
         """
         self.do_zone_sizing = do_zone_sizing
         self.do_system_sizing = do_system_sizing

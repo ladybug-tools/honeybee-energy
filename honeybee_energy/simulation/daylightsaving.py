@@ -77,9 +77,9 @@ class DaylightSavingTime(object):
         assert isinstance(analysis_period, AnalysisPeriod), 'Expected AnalysisPeriod ' \
             'for DaylightSavingTime.from_analysis_period. Got {}.'.format(
                 type(analysis_period))
-        st_date = Date(analysis_period.st_month, analysis_period.st_date,
+        st_date = Date(analysis_period.st_month, analysis_period.st_day,
                        analysis_period.is_leap_year)
-        end_date = Date(analysis_period.end_month, analysis_period.end_date,
+        end_date = Date(analysis_period.end_month, analysis_period.end_day,
                         analysis_period.is_leap_year)
         return cls(st_date, end_date)
 
