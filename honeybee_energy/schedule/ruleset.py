@@ -160,7 +160,7 @@ class ScheduleRuleset(object):
             assert isinstance(schedule, ScheduleDay), 'Expected ScheduleDay for ' \
                 'ScheduleRuleset winter_designday_schedule. Got {}.'.format(
                     type(schedule))
-            self._check_schedule_parent(schedule, 'summer_designday_schedule')
+            self._check_schedule_parent(schedule, 'winter_designday_schedule')
         self._winter_designday_schedule = schedule
 
     @property
@@ -997,9 +997,16 @@ class ScheduleRuleset(object):
     def _get_extra_week_fields(self):
         """Get schedule names of extra days in Schedule:Week."""
         # add summer and winter design days
-        week_fields = [self.summer_designday_schedule.name,
-                       self.winter_designday_schedule.name]
-        for i in range(2):  # add extra 2 custom days that no one uses
+        week_fields = []
+        if self._summer_designday_schedule is not None:
+            week_fields.append(self._summer_designday_schedule.name)
+        else:
+            week_fields.append(self._default_day_schedule.name)
+        if self._winter_designday_schedule is not None:
+            week_fields.append(self._winter_designday_schedule.name)
+        else:
+            week_fields.append(self._default_day_schedule.name)
+        for i in range(2):  # add the extra 2 custom days that are rarely used in E+
             week_fields.append(self.default_day_schedule.name)
         return week_fields
 
