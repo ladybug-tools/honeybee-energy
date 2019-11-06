@@ -640,8 +640,8 @@ class ScheduleFixedInterval(object):
         else:
             weights = tuple_with_length(weights, len(schedules), float,
                                         'average schedules weights')
-            assert sum(weights) == 1, 'Average schedule weights must sum to 1. ' \
-                'Got {}.'.format(sum(weights))
+            assert abs(sum(weights) - 1.0) <= 1e-9, 'Average schedule weights must ' \
+                'sum to 1.  Got {}.'.format(sum(weights))
 
         # determine the max timestep and leap year for the resulting schedule
         t_steps = [1]
