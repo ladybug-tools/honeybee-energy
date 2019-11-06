@@ -70,7 +70,7 @@ def run_idf(idf_file_path, epw_file_path, energyplus_directory):
     sql_file = os.path.join(directory, 'eplusout.sql')
     eio_file = os.path.join(directory, 'eplusout.eio')
     rdd_file = os.path.join(directory, 'eplusout.rdd')
-    html_file = os.path.join(directory, 'inTable.html')
+    html_file = os.path.join(directory, 'eplustbl.htm')
 
     sql = sql_file if os.path.isfile(sql_file) else None
     eio = eio_file if os.path.isfile(eio_file) else None
