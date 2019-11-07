@@ -316,8 +316,9 @@ class Lighting(_LoadBase):
 
     def _check_fractions(self):
         tot = (self._return_air_fraction, self._radiant_fraction, self._visible_fraction)
-        assert sum(tot) <= 1, 'Sum of lighting return_air_fraction, radiant_fraction ' \
-            'and visible_fraction ({}) is greater than 1.'.format(sum(tot))
+        assert sum(tot) <= 1 + 1e-9, 'Sum of lighting return_air_fraction, ' \
+            'radiant_fraction and visible_fraction ({}) is greater than ' \
+            '1.'.format(sum(tot))
 
     @staticmethod
     def _optional_dict_keys(data):
