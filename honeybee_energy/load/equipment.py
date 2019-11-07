@@ -128,8 +128,8 @@ class _EquipmentBase(_LoadBase):
 
     def _check_fractions(self):
         tot = (self._radiant_fraction, self._latent_fraction, self._lost_fraction)
-        assert sum(tot) <= 1, 'Sum of equipment radiant_fraction, latent_fraction' \
-            ' and lost_fraction ({}) is greater than 1.'.format(sum(tot))
+        assert sum(tot) <= 1 + 1e-9, 'Sum of equipment radiant_fraction, ' \
+            'latent_fraction and lost_fraction ({}) is greater than 1.'.format(sum(tot))
 
     def _get_idf_values(self, zone_name):
         """Get the properties of this object ordered as they are in an IDF."""
