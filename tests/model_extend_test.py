@@ -21,7 +21,7 @@ from honeybee_energy.schedule.fixedinterval import ScheduleFixedInterval
 from honeybee_energy.schedule.typelimit import ScheduleTypeLimit
 from honeybee_energy.load.people import People
 
-from honeybee_energy.lib.programtypes import office_program
+from honeybee_energy.lib.programtypes import office_program, plenum_program
 import honeybee_energy.lib.scheduletypelimits as schedule_types
 from honeybee_energy.lib.materials import clear_glass, air_gap, roof_membrane, \
     wood, insulation
@@ -462,6 +462,55 @@ def test_to_dict_single_zone_schedule_fixed_interval():
     """
     f_dir = 'C:/Users/chris/Documents/GitHub/energy-model-schema/app/models/samples/json'
     dest_file = f_dir + '/model_single_zone_office_fixed_interval.json'
+    with open(dest_file, 'w') as fp:
+        json.dump(model_dict, fp, indent=4)
+    """
+
+def test_to_dict_single_zone_detailed_loads():
+    """Test the Model to_dict method with detailed, room-level loads."""
+    room = Room.from_box('Office Test Box', 5, 10, 3)
+    room.properties.energy.program_type = plenum_program
+    room.properties.energy.hvac = IdealAirSystem()
+
+    room.properties.energy.people = office_program.people
+    room.properties.energy.lighting = office_program.lighting
+    room.properties.energy.electric_equipment = office_program.electric_equipment
+    room.properties.energy.infiltration = office_program.infiltration
+    room.properties.energy.ventilation = office_program.ventilation
+    room.properties.energy.setpoint = office_program.setpoint
+
+    room[0].boundary_condition = boundary_conditions.adiabatic
+    room[1].boundary_condition = boundary_conditions.adiabatic
+    room[2].boundary_condition = boundary_conditions.adiabatic
+    room[4].boundary_condition = boundary_conditions.adiabatic
+    room[5].boundary_condition = boundary_conditions.adiabatic
+
+    model = Model('Office Model', [room])
+
+    model_dict = model.to_dict()
+
+    assert 'people' in model_dict['rooms'][0]['properties']['energy']
+    assert model_dict['rooms'][0]['properties']['energy']['people']['name'] == \
+        office_program.people.name
+    assert 'lighting' in model_dict['rooms'][0]['properties']['energy']
+    assert model_dict['rooms'][0]['properties']['energy']['lighting']['name'] == \
+        office_program.lighting.name
+    assert 'electric_equipment' in model_dict['rooms'][0]['properties']['energy']
+    assert model_dict['rooms'][0]['properties']['energy']['electric_equipment']['name'] == \
+        office_program.electric_equipment.name
+    assert 'infiltration' in model_dict['rooms'][0]['properties']['energy']
+    assert model_dict['rooms'][0]['properties']['energy']['infiltration']['name'] == \
+        office_program.infiltration.name
+    assert 'ventilation' in model_dict['rooms'][0]['properties']['energy']
+    assert model_dict['rooms'][0]['properties']['energy']['ventilation']['name'] == \
+        office_program.ventilation.name
+    assert 'setpoint' in model_dict['rooms'][0]['properties']['energy']
+    assert model_dict['rooms'][0]['properties']['energy']['setpoint']['name'] == \
+        office_program.setpoint.name
+    
+    """
+    f_dir = 'C:/Users/chris/Documents/GitHub/energy-model-schema/app/models/samples/json'
+    dest_file = f_dir + '/model_single_zone_office_detailed_loads.json'
     with open(dest_file, 'w') as fp:
         json.dump(model_dict, fp, indent=4)
     """
