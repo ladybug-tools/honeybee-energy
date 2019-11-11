@@ -8,6 +8,7 @@ from honeybee.room import Room
 
 from ladybug_geometry.geometry3d.pointvector import Point3D
 
+import json
 import pytest
 
 
@@ -77,6 +78,33 @@ def test_ideal_air_init_from_idf():
     rebuilt_ideal_air, rebuilt_zone_name = IdealAirSystem.from_idf(idf_str)
     assert ideal_air == rebuilt_ideal_air
     assert zone_name == rebuilt_zone_name
+
+
+def test_ideal_air_to_dict():
+    """Test the to_dict method."""
+    ideal_air = IdealAirSystem()
+    ideal_air.heating_limit = 2000
+    ideal_air.cooling_limit = 3500
+    ideal_air.economizer_type = 'DifferentialEnthalpy'
+    ideal_air.demand_controlled_ventilation = True
+    ideal_air.sensible_heat_recovery = 0.75
+    ideal_air.latent_heat_recovery = 0.6
+
+    ideal_air_dict = ideal_air.to_dict()
+
+    assert ideal_air_dict['heating_limit'] == 2000
+    assert ideal_air_dict['cooling_limit'] == 3500
+    assert ideal_air_dict['economizer_type'] == 'DifferentialEnthalpy'
+    assert ideal_air_dict['demand_controlled_ventilation'] == True
+    assert ideal_air_dict['sensible_heat_recovery'] == 0.75
+    assert ideal_air_dict['latent_heat_recovery'] == 0.6
+
+    """
+    f_dir = 'C:/Users/chris/Documents/GitHub/energy-model-schema/app/models/samples/json'
+    dest_file = f_dir + '/detailed_ideal_air.json'
+    with open(dest_file, 'w') as fp:
+        json.dump(ideal_air_dict, fp, indent=4)
+    """
 
 
 def test_ideal_air_dict_methods():
