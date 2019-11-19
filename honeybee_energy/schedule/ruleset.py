@@ -19,6 +19,7 @@ from ladybug.datatype.generic import GenericType
 
 import re
 import os
+import uuid
 
 
 @lockable
@@ -1094,10 +1095,21 @@ class ScheduleRuleset(object):
         """Get a dictionary of ScheduleRule objects from Schedule:Week strings."""
         week_schedule_dict = {}
         week_designday_dict = {}
+        used_sch_days = []  # track which ScheduleDays have already been used
         for sch_str in week_idf_strings:
             sch_str = sch_str.strip()
             rules = ScheduleRule.extract_all_from_schedule_week(sch_str, day_sch_dict)
             if sch_str.startswith('Schedule:Week:Daily,'):
+                # check that ScheduleDays aren't referenced by multiple ScheduleWeeks
+                for sch_rule in rules:
+                    day_name = sch_rule.schedule_day.name
+                    if day_name not in used_sch_days:
+                        used_sch_days.append(day_name)
+                    else:  # cross-referenced ScheduleDay; duplicate and rename it
+                        sch_rule.schedule_day = sch_rule.schedule_day.duplicate()
+                        new_n = '{}_{}'.format(day_name, str(uuid.uuid4()).split('-')[1])
+                        sch_rule.schedule_day.name = new_n
+                # get the summer and winter design days
                 ep_strs = parse_idf_string(sch_str)
                 summer_dd = day_sch_dict[ep_strs[9]]
                 winter_dd = day_sch_dict[ep_strs[10]]
