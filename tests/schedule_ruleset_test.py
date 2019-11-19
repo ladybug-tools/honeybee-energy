@@ -267,6 +267,18 @@ def test_schedule_ruleset_from_idf_file_compact():
     assert isinstance(office_occ.schedule_type_limit, ScheduleTypeLimit)
 
 
+def test_schedule_ruleset_from_idf_file_cross_referenced():
+    """Test ScheduleRuleset from_idf_file with cross-referenced ScheduleDay."""
+    cool_sched_idf = './tests/idf/cross_referenced_schedule_day.idf'
+    cooling_avail_schs = ScheduleRuleset.extract_all_from_idf_file(cool_sched_idf)
+
+    cooling_avail = cooling_avail_schs[0]
+    assert len(cooling_avail.schedule_rules) == 2
+    for sch_rule in cooling_avail.schedule_rules:
+        assert sch_rule.schedule_day != cooling_avail.default_day_schedule
+        assert sch_rule.schedule_day.name != cooling_avail.default_day_schedule.name
+
+
 def test_schedule_ruleset_to_from_idf():
     """Test the ScheduleRuleset to_idf and from_idf methods."""
     weekday_office = ScheduleDay('Weekday Office Occupancy', [0, 1, 0],

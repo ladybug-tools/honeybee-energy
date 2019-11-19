@@ -102,7 +102,7 @@ def test_simulation_parameter_to_dict_simple():
 
     """
     f_dir = 'C:/Users/chris/Documents/GitHub/energy-model-schema/app/models/samples/json'
-    dest_file = f_dir + '/simple_simulatiion_par.json'
+    dest_file = f_dir + '/simple_simulation_par.json'
     with open(dest_file, 'w') as fp:
         json.dump(sim_par_dict, fp, indent=4)
     """
@@ -141,7 +141,7 @@ def test_simulation_parameter_to_dict_detailed():
 
     """
     f_dir = 'C:/Users/chris/Documents/GitHub/energy-model-schema/app/models/samples/json'
-    dest_file = f_dir + '/detailed_simulatiion_par.json'
+    dest_file = f_dir + '/detailed_simulation_par.json'
     with open(dest_file, 'w') as fp:
         json.dump(sim_par_dict, fp, indent=4)
     """
