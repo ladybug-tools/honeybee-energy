@@ -19,7 +19,6 @@ from ladybug.datatype.generic import GenericType
 
 import re
 import os
-import uuid
 
 
 @lockable
@@ -132,7 +131,7 @@ class ScheduleRuleset(object):
     def summer_designday_schedule(self):
         """Get or set the DaySchedule that will be used for the summer design day.
 
-        Note that, if this property is None, the default_day_schedule is what is
+        Note that, if this property is None, the default_day_schedule is
         ultimately written into the IDF for the summer design day.
         """
         return self._summer_designday_schedule
@@ -150,7 +149,7 @@ class ScheduleRuleset(object):
     def winter_designday_schedule(self):
         """Get or set the DaySchedule that will be used for the winter design day.
 
-        Note that, if this property is None, the default_day_schedule is what is
+        Note that, if this property is None, the default_day_schedule is
         ultimately written into the IDF for the winter design day.
         """
         return self._winter_designday_schedule
@@ -168,12 +167,15 @@ class ScheduleRuleset(object):
     def day_schedules(self):
         """Get a list of all unique ScheduleDay objects used in this ScheduleRuleset."""
         day_scheds = [self.default_day_schedule]
-        if self._summer_designday_schedule is not None:
+        if self._summer_designday_schedule is not None and not \
+                self._instance_in_array(self._summer_designday_schedule, day_scheds):
             day_scheds.append(self._summer_designday_schedule)
-        if self._winter_designday_schedule is not None:
+        if self._winter_designday_schedule is not None and not \
+                self._instance_in_array(self._winter_designday_schedule, day_scheds):
             day_scheds.append(self._winter_designday_schedule)
         for rule in self.schedule_rules:
-            day_scheds.append(rule._schedule_day)
+            if not self._instance_in_array(rule._schedule_day, day_scheds):
+                day_scheds.append(rule._schedule_day)
         return day_scheds
 
     @property
@@ -537,31 +539,40 @@ class ScheduleRuleset(object):
             {
             "type": 'ScheduleRuleset',
             "name": 'Office Occupancy',
-            "default_day_schedule": {}, // ScheduleDay dictionary representation
-            "schedule_rules": [], // list of ScheduleRule dictionaries
+            "day_schedules": [], // Array of ScheduleDay dictionary representations
+            "default_day_schedule": str, // ScheduleDay name
+            "schedule_rules": [], // list of ScheduleRuleAbridged dictionaries
             "schedule_type_limit": {}, // ScheduleTypeLimit dictionary representation
-            "summer_designday_schedule": {}, // ScheduleDay dictionary representation
-            "winter_designday_schedule": {} // ScheduleDay dictionary representation
+            "summer_designday_schedule": str, // ScheduleDay name
+            "winter_designday_schedule": str// ScheduleDay name
             }
         """
         assert data['type'] == 'ScheduleRuleset', \
             'Expected ScheduleRuleset. Got {}.'.format(data['type'])
+        
+        sch_day_dict = {}
+        for day_sch in data['day_schedules']:
+            sch_day_dict[day_sch['name']] = ScheduleDay.from_dict(day_sch)
 
-        default_sched = ScheduleDay.from_dict(data['default_day_schedule'])
+        default_sched = sch_day_dict[data['default_day_schedule']]
         rules = None
         if 'schedule_rules' in data and data['schedule_rules'] is not None:
-            rules = [ScheduleRule.from_dict(rule) for rule in data['schedule_rules']]
-        sched_type = None
-        if 'schedule_type_limit' in data and data['schedule_type_limit'] is not None:
-            sched_type = ScheduleTypeLimit.from_dict(data['schedule_type_limit'])
+            rules = []
+            for rule in data['schedule_rules']:
+                sch_day = sch_day_dict[rule['schedule_day']]
+                rules.append(ScheduleRule.from_dict_abridged(rule, sch_day))
         summer_sched = None
         if 'summer_designday_schedule' in data and \
                 data['summer_designday_schedule'] is not None:
-            summer_sched = ScheduleDay.from_dict(data['summer_designday_schedule'])
+            summer_sched = sch_day_dict[data['summer_designday_schedule']]
         winter_sched = None
         if 'winter_designday_schedule' in data and \
                 data['winter_designday_schedule'] is not None:
-            winter_sched = ScheduleDay.from_dict(data['winter_designday_schedule'])
+            winter_sched = sch_day_dict[data['winter_designday_schedule']]
+
+        sched_type = None
+        if 'schedule_type_limit' in data and data['schedule_type_limit'] is not None:
+            sched_type = ScheduleTypeLimit.from_dict(data['schedule_type_limit'])
 
         return cls(data['name'], default_sched, rules, sched_type,
                    summer_sched, winter_sched)
@@ -629,9 +640,8 @@ class ScheduleRuleset(object):
         process. For example, you usually want to see if there are other schedules
         in a model using the same ScheduleTypeLimit object and then write it into
         the IDF only once rather than writing it multiple times for each schedule
-        that references it. ScheduleDay objects can (sometimes) follow a similar
-        logic where the same ScheduleDay objects are used by multiple ScheduleRulesets,
-        though this is less common than sharing ScheduleTypeLimit objects.
+        that references it. ScheduleDay objects can often follow a similar logic
+        where the same ScheduleDay objects are used by multiple ScheduleRulesets.
 
         Returns:
             year_schedule: Text string representation of the Schedule:Year
@@ -731,15 +741,16 @@ class ScheduleRuleset(object):
         base = {'type': 'ScheduleRuleset'} if not \
             abridged else {'type': 'ScheduleRulesetAbridged'}
         base['name'] = self.name
-        base['default_day_schedule'] = self.default_day_schedule.to_dict()
+        base['day_schedules'] = [sch_day.to_dict() for sch_day in self.day_schedules]
+        base['default_day_schedule'] = self.default_day_schedule.name
 
         # optional properties
         if len(self._schedule_rules) != 0:
-            base['schedule_rules'] = [rule.to_dict() for rule in self._schedule_rules]
+            base['schedule_rules'] = [rule.to_dict(True) for rule in self._schedule_rules]
         if self._summer_designday_schedule is not None:
-            base['summer_designday_schedule'] = self._summer_designday_schedule.to_dict()
+            base['summer_designday_schedule'] = self._summer_designday_schedule.name
         if self._winter_designday_schedule is not None:
-            base['winter_designday_schedule'] = self._winter_designday_schedule.to_dict()
+            base['winter_designday_schedule'] = self._winter_designday_schedule.name
 
         # optional properties that can be abridged
         if self._schedule_type_limit is not None:
@@ -820,6 +831,7 @@ class ScheduleRuleset(object):
         # compile all of the ScheduleRuleset objects from extracted properties
         schedules = []
         for year_sch in year_props:
+            # gather the rules
             all_rules = []
             for i in range(2, len(year_sch), 5):
                 rules = week_sch_dict[year_sch[i]]
@@ -829,9 +841,19 @@ class ScheduleRuleset(object):
                     rule.start_date = st_date
                     rule.end_date = end_date
                 all_rules.extend(rules)
-            default_day_schedule = all_rules[0].schedule_day
+            # gather the other day schedules
             summer_dd_sch, winter_dd_sch = week_dd_dict[year_sch[2]]
             schedule_type = sch_type_dict[year_sch[1]] if year_sch[1] != '' else None
+            # check to be sure the schedule days don't already have a parent
+            for rule in all_rules:
+                if rule.schedule_day._parent is not None:
+                    rule.schedule_day = rule.schedule_day.duplicate()
+            if summer_dd_sch._parent is not None:
+                summer_dd_sch = summer_dd_sch.duplicate()
+            if winter_dd_sch._parent is not None:
+                winter_dd_sch = summer_dd_sch.duplicate()
+            # create the ScheduleRuleset
+            default_day_schedule = all_rules[0].schedule_day
             sch_ruleset = ScheduleRuleset(
                 year_sch[0], default_day_schedule, all_rules[1:], schedule_type)
             ScheduleRuleset._apply_designdays_with_check(
@@ -1034,15 +1056,20 @@ class ScheduleRuleset(object):
         return week_schedule, week_sch_name
 
     def _check_schedule_parent(self, schedule, sch_type='child'):
-        """Check that a ScheduleDay has only one parent."""
-        if schedule._parent is not None:
+        """Used to ensure that a ScheduleDay object has only one parent ScheduleRuleset.
+        
+        This is important to ensure ScheduleRulesets remain self-contained units
+        and that editing one ScheduleRuleset does not edit another one.
+        """
+        if schedule._parent is None or schedule._parent is self:
+            schedule._parent = self
+        else:
             raise ValueError(
                 'ScheduleDay objects can be assigned to a ScheduleRuleset only once.\n'
                 'ScheduleDay "{}" cannot be the {} of ScheduleRuleset "{}" since it is '
                 'already assigned to "{}".\nTry duplicating the ScheduleDay, changing '
                 'its name, and then assigning it to this ScheduleRuleset.'.format(
                     schedule.name, sch_type, self.name, schedule._parent.name))
-        schedule._parent = self
 
     def _check_schedule_rules(self, rules):
         """Check schedule_rules whenever they come through the setter."""
@@ -1095,21 +1122,10 @@ class ScheduleRuleset(object):
         """Get a dictionary of ScheduleRule objects from Schedule:Week strings."""
         week_schedule_dict = {}
         week_designday_dict = {}
-        used_sch_days = []  # track which ScheduleDays have already been used
         for sch_str in week_idf_strings:
             sch_str = sch_str.strip()
             rules = ScheduleRule.extract_all_from_schedule_week(sch_str, day_sch_dict)
             if sch_str.startswith('Schedule:Week:Daily,'):
-                # check that ScheduleDays aren't referenced by multiple ScheduleWeeks
-                for sch_rule in rules:
-                    day_name = sch_rule.schedule_day.name
-                    if day_name not in used_sch_days:
-                        used_sch_days.append(day_name)
-                    else:  # cross-referenced ScheduleDay; duplicate and rename it
-                        sch_rule.schedule_day = sch_rule.schedule_day.duplicate()
-                        new_n = '{}_{}'.format(day_name, str(uuid.uuid4()).split('-')[1])
-                        sch_rule.schedule_day.name = new_n
-                # get the summer and winter design days
                 ep_strs = parse_idf_string(sch_str)
                 summer_dd = day_sch_dict[ep_strs[9]]
                 winter_dd = day_sch_dict[ep_strs[10]]
@@ -1180,6 +1196,20 @@ class ScheduleRuleset(object):
             name, avg_mtx[0], avg_mtx[1], avg_mtx[2], avg_mtx[3], avg_mtx[4],
             avg_mtx[5], avg_mtx[6], avg_mtx[7], timestep_resolution,
             schedules[0].schedule_type_limit, avg_mtx[8], avg_mtx[9])
+
+    @staticmethod
+    def _instance_in_array(object_instance, object_array):
+        """Check if a specific object instance is already in an array.
+
+        This can be much faster than  `if object_instance in object_arrary`
+        when you expect to be testing a lot of the same instance of an object for
+        inclusion in an array since the builtin method uses an == operator to
+        test inclusion.
+        """
+        for val in object_array:
+            if val is object_instance:
+                return True
+        return False
 
     def __len__(self):
         return len(self._schedule_rules)

@@ -401,7 +401,7 @@ class ScheduleRule(object):
                 "values": [0, 1, 0],
                 "times": [(0, 0), (9, 0), (17, 0)],
                 "interpolate": False
-                }
+                },
             "apply_sunday": False,
             "apply_monday": True,
             "apply_tuesday": True,
@@ -418,38 +418,70 @@ class ScheduleRule(object):
             'Expected ScheduleRule. Got {}.'.format(data['type'])
 
         schedule_day = ScheduleDay.from_dict(data['schedule_day'])
-        apply_sunday = data['apply_sunday'] if 'apply_sunday' in data else False
-        apply_monday = data['apply_monday'] if 'apply_monday' in data else False
-        apply_tuesday = data['apply_tuesday'] if 'apply_tuesday' in data else False
-        apply_wednesday = data['apply_wednesday'] if 'apply_wednesday' in data else False
-        apply_thursday = data['apply_thursday'] if 'apply_thursday' in data else False
-        apply_friday = data['apply_friday'] if 'apply_friday' in data else False
-        apply_saturday = data['apply_saturday'] if 'apply_saturday' in data else False
-        apply_holiday = data['apply_holiday'] if 'apply_holiday' in data else False
-        start_date = Date.from_array(data['start_date']) if \
-            'start_date' in data else cls._year_start
-        end_date = Date.from_array(data['end_date']) if \
-            'end_date' in data else cls._year_end
+        sun, mon, tues, wed, thurs, fri, sat, hol, start, end = \
+            cls._extract_apply_from_dict(data)
 
-        return cls(schedule_day, apply_sunday, apply_monday, apply_tuesday,
-                   apply_wednesday, apply_thursday, apply_friday, apply_saturday,
-                   apply_holiday, start_date, end_date)
+        return cls(schedule_day, sun, mon, tues, wed, thurs, fri, sat, hol,
+                   start, end)
 
-    def to_dict(self):
-        """ScheduleRule dictionary representation."""
-        return {'type': 'ScheduleRule',
-                'schedule_day': self.schedule_day.to_dict(),
-                'apply_sunday': self.apply_sunday,
-                'apply_monday': self.apply_monday,
-                'apply_tuesday': self.apply_tuesday,
-                'apply_wednesday': self.apply_wednesday,
-                'apply_thursday': self.apply_thursday,
-                'apply_friday': self.apply_friday,
-                'apply_saturday': self.apply_saturday,
-                'apply_holiday': self.apply_holiday,
-                'start_date': self.start_date.to_array(),
-                'end_date': self.end_date.to_array()
-                }
+    @classmethod
+    def from_dict_abridged(cls, data, schedule_day):
+        """Create a ScheduleRule object from an abridged dictionary.
+
+        Args:
+            data: A ScheduleRuleAbridged dictionary in following the format below.
+            schedule_day: A honeybee ScheduleDay object that will be assinged to
+                this ScheduleRule.
+
+        .. code-block:: json
+
+            {
+            "type": 'ScheduleRule'
+            "schedule_day": str, // ScheduleDay name
+            "apply_sunday": False,
+            "apply_monday": True,
+            "apply_tuesday": True,
+            "apply_wednesday": True,
+            "apply_thursday": True,
+            "apply_friday": True,
+            "apply_saturday": False,
+            "apply_holiday": False,
+            "start_date": (1, 1),
+            "end_date": (12, 31)
+            }
+        """
+        assert data['type'] == 'ScheduleRuleAbridged', \
+            'Expected ScheduleRuleAbridged dictionary. Got {}.'.format(data['type'])
+
+        sun, mon, tues, wed, thurs, fri, sat, hol, start, end = \
+            cls._extract_apply_from_dict(data)
+
+        return cls(schedule_day, sun, mon, tues, wed, thurs, fri, sat, hol,
+                   start, end)
+
+    def to_dict(self, abridged=False):
+        """ScheduleRule dictionary representation.
+        
+        Args:
+            abridged: Boolean to note whether the full dictionary describing the
+                object should be returned (False) or just an abridged version (True),
+                which only specifies the name of the schedule_day. Default: False.
+        """
+        base = {'type': 'ScheduleRule'} if not abridged \
+            else {'type': 'ScheduleRuleAbridged'}
+        base['schedule_day'] = self.schedule_day.to_dict() if not abridged \
+            else self.schedule_day.name
+        base['apply_sunday'] = self.apply_sunday
+        base['apply_monday'] = self.apply_monday
+        base['apply_tuesday'] = self.apply_tuesday
+        base['apply_wednesday'] = self.apply_wednesday
+        base['apply_thursday'] = self.apply_thursday
+        base['apply_friday'] = self.apply_friday
+        base['apply_saturday'] = self.apply_saturday
+        base['apply_holiday'] = self.apply_holiday
+        base['start_date'] = self.start_date.to_array()
+        base['end_date'] = self.end_date.to_array()
+        return base
 
     def duplicate(self):
         """Get a copy of this object."""
@@ -543,6 +575,26 @@ class ScheduleRule(object):
         """Check that the start_date is before the end_date."""
         assert self._start_date < self._end_date, 'ScheduleRule start_date must come ' \
             'before end_date. {} comes after {}.'.format(self.start_date, self.end_date)
+
+    @staticmethod
+    def _extract_apply_from_dict(data):
+        """Extract the apply values from a dictionary."""
+        apply_sunday = data['apply_sunday'] if 'apply_sunday' in data else False
+        apply_monday = data['apply_monday'] if 'apply_monday' in data else False
+        apply_tuesday = data['apply_tuesday'] if 'apply_tuesday' in data else False
+        apply_wednesday = data['apply_wednesday'] if 'apply_wednesday' in data else False
+        apply_thursday = data['apply_thursday'] if 'apply_thursday' in data else False
+        apply_friday = data['apply_friday'] if 'apply_friday' in data else False
+        apply_saturday = data['apply_saturday'] if 'apply_saturday' in data else False
+        apply_holiday = data['apply_holiday'] if 'apply_holiday' in data else False
+        start_date = Date.from_array(data['start_date']) if \
+            'start_date' in data else ScheduleRule._year_start
+        end_date = Date.from_array(data['end_date']) if \
+            'end_date' in data else ScheduleRule._year_end
+
+        return apply_sunday, apply_monday, apply_tuesday, apply_wednesday, \
+            apply_thursday, apply_friday, apply_saturday, apply_holiday, \
+            start_date, end_date
 
     @staticmethod
     def _check_date(date, date_name='date'):
