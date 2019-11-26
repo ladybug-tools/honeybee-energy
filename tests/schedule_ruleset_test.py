@@ -274,9 +274,6 @@ def test_schedule_ruleset_from_idf_file_cross_referenced():
 
     cooling_avail = cooling_avail_schs[0]
     assert len(cooling_avail.schedule_rules) == 2
-    for sch_rule in cooling_avail.schedule_rules:
-        assert sch_rule.schedule_day != cooling_avail.default_day_schedule
-        assert sch_rule.schedule_day.name != cooling_avail.default_day_schedule.name
 
 
 def test_schedule_ruleset_to_from_idf():
