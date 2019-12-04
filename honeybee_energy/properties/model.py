@@ -406,88 +406,8 @@ class ModelEnergyProperties(object):
         if 'terrain_type' in data['properties']['energy']:
             self.terrain_type = data['properties']['energy']['terrain_type']
 
-        # process all materials in the ModelEnergyProperties dictionary
-        materials = {}
-        for mat in data['properties']['energy']['materials']:
-            if mat['type'] == 'EnergyMaterial':
-                materials[mat['name']] = EnergyMaterial.from_dict(mat)
-            elif mat['type'] == 'EnergyMaterialNoMass':
-                materials[mat['name']] = EnergyMaterialNoMass.from_dict(mat)
-            elif mat['type'] == 'EnergyWindowMaterialSimpleGlazSys':
-                materials[mat['name']] = EnergyWindowMaterialSimpleGlazSys.from_dict(mat)
-            elif mat['type'] == 'EnergyWindowMaterialGlazing':
-                materials[mat['name']] = EnergyWindowMaterialGlazing.from_dict(mat)
-            elif mat['type'] == 'EnergyWindowMaterialGas':
-                materials[mat['name']] = EnergyWindowMaterialGas.from_dict(mat)
-            elif mat['type'] == 'EnergyWindowMaterialGasMixture':
-                materials[mat['name']] = EnergyWindowMaterialGasMixture.from_dict(mat)
-            elif mat['type'] == 'EnergyWindowMaterialGasCustom':
-                materials[mat['name']] = EnergyWindowMaterialGasCustom.from_dict(mat)
-            elif mat['type'] == 'EnergyWindowMaterialShade':
-                materials[mat['name']] = EnergyWindowMaterialShade.from_dict(mat)
-            elif mat['type'] == 'EnergyWindowMaterialBlind':
-                materials[mat['name']] = EnergyWindowMaterialBlind.from_dict(mat)
-            else:
-                raise NotImplementedError(
-                    'Material {} is not supported.'.format(mat['type']))
-
-        # process all constructions in the ModelEnergyProperties dictionary
-        constructions = {}
-        for cnstr in data['properties']['energy']['constructions']:
-            if cnstr['type'] == 'OpaqueConstructionAbridged':
-                mat_layers = [materials[mat_name] for mat_name in cnstr['layers']]
-                constructions[cnstr['name']] = \
-                    OpaqueConstruction(cnstr['name'], mat_layers)
-            elif cnstr['type'] == 'WindowConstructionAbridged':
-                mat_layers = [materials[mat_name] for mat_name in cnstr['layers']]
-                constructions[cnstr['name']] = \
-                    WindowConstruction(cnstr['name'], mat_layers)
-            elif cnstr['type'] == 'ShadeConstruction':
-                constructions[cnstr['name']] = ShadeConstruction.from_dict(cnstr)
-            else:
-                raise NotImplementedError(
-                    'Construction {} is not supported.'.format(cnstr['type']))
-
-        # process all construction sets in the ModelEnergyProperties dictionary
-        construction_sets = {}
-        for c_set in data['properties']['energy']['construction_sets']:
-            construction_sets[c_set['name']] = \
-                ConstructionSet.from_dict_abridged(c_set, constructions)
-
-        # process all schedule type limits in the ModelEnergyProperties dictionary
-        schedule_type_limits = {}
-        for t_lim in data['properties']['energy']['schedule_type_limits']:
-            schedule_type_limits[t_lim['name']] = ScheduleTypeLimit.from_dict(t_lim)
-
-        # process all schedules in the ModelEnergyProperties dictionary
-        schedules = {}
-        for sched in data['properties']['energy']['schedules']:
-            sched = sched.copy()  # copy the original dictionary so that we don't edit it
-            # process the schedule type limits
-            typ_lim = None
-            if 'schedule_type_limit' in sched:
-                typ_lim = sched['schedule_type_limit']
-                sched['schedule_type_limit'] = None
-            # create the schedule objects
-            if sched['type'] == 'ScheduleRulesetAbridged':
-                sched['type'] = 'ScheduleRuleset'
-                schedules[sched['name']] = ScheduleRuleset.from_dict(sched)
-            elif sched['type'] == 'ScheduleFixedIntervalAbridged':
-                sched['type'] = 'ScheduleFixedInterval'
-                schedules[sched['name']] = ScheduleFixedInterval.from_dict(sched)
-            else:
-                raise NotImplementedError(
-                    'Schedule {} is not supported.'.format(sched['type']))
-            # asign the schedule type limits
-            schedules[sched['name']].schedule_type_limit = \
-                schedule_type_limits[typ_lim] if typ_lim is not None else None
-
-        # process all ProgramType in the ModelEnergyProperties dictionary
-        program_types = {}
-        if 'program_types' in data['properties']['energy']:
-            for p_typ in data['properties']['energy']['program_types']:
-                program_types[p_typ['name']] = \
-                    ProgramType.from_dict_abridged(p_typ, schedules)
+        materials, constructions, construction_sets, schedule_type_limits, \
+            schedules, program_types = self.load_properties_from_dict(data)
 
         # collect lists of energy property dictionaries
         room_e_dicts, face_e_dicts, shd_e_dicts, ap_e_dicts, dr_e_dicts = \
@@ -591,6 +511,121 @@ class ModelEnergyProperties(object):
         """
         _host = new_host or self._host
         return ModelEnergyProperties(_host, self.terrain_type)
+    
+    @staticmethod
+    def load_properties_from_dict(data):
+        """Load model energy properties of a dictionary to Python objects.
+
+        Loaded objects include Materials, Constructions, ConstructionSets,
+        ScheduleTypeLimits, Schedules, and ProgramTypes.
+
+        Args:
+            data: A dictionary representation of an entire honeybee-core Model.
+                Note that this dictionary must have ModelEnergyProperties in order
+                for this method to successfully load the energy properties.
+        
+        Returns:
+            materials -- A dictionary with names of materials as keys and Python
+                material objects as values.
+            constructions -- A dictionary with names of constructions as keys and Python
+                construction objects as values.
+            construction_sets -- A dictionary with names of construction sets as keys
+                and Python construction set objects as values.
+            schedule_type_limits -- A dictionary with names of schedule type limits
+                as keys and Python schedule type limit objects as values.
+            schedules -- A dictionary with names of schedules as keys and Python
+                schedule objects as values.
+            program_types -- A dictionary with names of program types as keys and Python
+                program type objects as values.
+        """
+        assert 'energy' in data['properties'], \
+            'Dictionary possesses no ModelEnergyProperties.'
+        
+        # process all materials in the ModelEnergyProperties dictionary
+        materials = {}
+        for mat in data['properties']['energy']['materials']:
+            if mat['type'] == 'EnergyMaterial':
+                materials[mat['name']] = EnergyMaterial.from_dict(mat)
+            elif mat['type'] == 'EnergyMaterialNoMass':
+                materials[mat['name']] = EnergyMaterialNoMass.from_dict(mat)
+            elif mat['type'] == 'EnergyWindowMaterialSimpleGlazSys':
+                materials[mat['name']] = EnergyWindowMaterialSimpleGlazSys.from_dict(mat)
+            elif mat['type'] == 'EnergyWindowMaterialGlazing':
+                materials[mat['name']] = EnergyWindowMaterialGlazing.from_dict(mat)
+            elif mat['type'] == 'EnergyWindowMaterialGas':
+                materials[mat['name']] = EnergyWindowMaterialGas.from_dict(mat)
+            elif mat['type'] == 'EnergyWindowMaterialGasMixture':
+                materials[mat['name']] = EnergyWindowMaterialGasMixture.from_dict(mat)
+            elif mat['type'] == 'EnergyWindowMaterialGasCustom':
+                materials[mat['name']] = EnergyWindowMaterialGasCustom.from_dict(mat)
+            elif mat['type'] == 'EnergyWindowMaterialShade':
+                materials[mat['name']] = EnergyWindowMaterialShade.from_dict(mat)
+            elif mat['type'] == 'EnergyWindowMaterialBlind':
+                materials[mat['name']] = EnergyWindowMaterialBlind.from_dict(mat)
+            else:
+                raise NotImplementedError(
+                    'Material {} is not supported.'.format(mat['type']))
+
+        # process all constructions in the ModelEnergyProperties dictionary
+        constructions = {}
+        for cnstr in data['properties']['energy']['constructions']:
+            if cnstr['type'] == 'OpaqueConstructionAbridged':
+                mat_layers = [materials[mat_name] for mat_name in cnstr['layers']]
+                constructions[cnstr['name']] = \
+                    OpaqueConstruction(cnstr['name'], mat_layers)
+            elif cnstr['type'] == 'WindowConstructionAbridged':
+                mat_layers = [materials[mat_name] for mat_name in cnstr['layers']]
+                constructions[cnstr['name']] = \
+                    WindowConstruction(cnstr['name'], mat_layers)
+            elif cnstr['type'] == 'ShadeConstruction':
+                constructions[cnstr['name']] = ShadeConstruction.from_dict(cnstr)
+            else:
+                raise NotImplementedError(
+                    'Construction {} is not supported.'.format(cnstr['type']))
+
+        # process all construction sets in the ModelEnergyProperties dictionary
+        construction_sets = {}
+        for c_set in data['properties']['energy']['construction_sets']:
+            construction_sets[c_set['name']] = \
+                ConstructionSet.from_dict_abridged(c_set, constructions)
+
+        # process all schedule type limits in the ModelEnergyProperties dictionary
+        schedule_type_limits = {}
+        for t_lim in data['properties']['energy']['schedule_type_limits']:
+            schedule_type_limits[t_lim['name']] = ScheduleTypeLimit.from_dict(t_lim)
+
+        # process all schedules in the ModelEnergyProperties dictionary
+        schedules = {}
+        for sched in data['properties']['energy']['schedules']:
+            sched = sched.copy()  # copy the original dictionary so that we don't edit it
+            # process the schedule type limits
+            typ_lim = None
+            if 'schedule_type_limit' in sched:
+                typ_lim = sched['schedule_type_limit']
+                sched['schedule_type_limit'] = None
+            # create the schedule objects
+            if sched['type'] == 'ScheduleRulesetAbridged':
+                sched['type'] = 'ScheduleRuleset'
+                schedules[sched['name']] = ScheduleRuleset.from_dict(sched)
+            elif sched['type'] == 'ScheduleFixedIntervalAbridged':
+                sched['type'] = 'ScheduleFixedInterval'
+                schedules[sched['name']] = ScheduleFixedInterval.from_dict(sched)
+            else:
+                raise NotImplementedError(
+                    'Schedule {} is not supported.'.format(sched['type']))
+            # asign the schedule type limits
+            schedules[sched['name']].schedule_type_limit = \
+                schedule_type_limits[typ_lim] if typ_lim is not None else None
+
+        # process all ProgramType in the ModelEnergyProperties dictionary
+        program_types = {}
+        if 'program_types' in data['properties']['energy']:
+            for p_typ in data['properties']['energy']['program_types']:
+                program_types[p_typ['name']] = \
+                    ProgramType.from_dict_abridged(p_typ, schedules)
+        
+        return materials, constructions, construction_sets, schedule_type_limits, \
+            schedules, program_types
 
     def _check_and_add_obj_construction(self, obj, constructions):
         """Check if a construction is assigned to an object and add it to a list."""
