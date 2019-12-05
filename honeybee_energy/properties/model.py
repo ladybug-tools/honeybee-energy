@@ -440,66 +440,11 @@ class ModelEnergyProperties(object):
         # add the terrain
         base['energy']['terrain_type'] = self.terrain_type
 
-        # add all ConstructionSets to the dictionary
-        base['energy']['construction_sets'] = []
-        if include_global_construction_set:
-            base['energy']['global_construction_set'] = self.global_construction_set.name
-            base['energy']['construction_sets'].append(
-                self.global_construction_set.to_dict(abridged=True,
-                                                     none_for_defaults=False))
-        construction_sets = self.construction_sets
-        for cnstr_set in construction_sets:
-            base['energy']['construction_sets'].append(cnstr_set.to_dict(abridged=True))
+        # add all materials, constructions and construction sets to the dictionary
+        self._add_constructions_to_dict(base, include_global_construction_set)
 
-        # add all unique Constructions to the dictionary
-        room_constrs = []
-        for cnstr_set in construction_sets:
-            room_constrs.extend(cnstr_set.modified_constructions_unique)
-        all_constrs = room_constrs + self.face_constructions + self.shade_constructions
-        if include_global_construction_set:
-            all_constrs.extend(self.global_construction_set.constructions_unique)
-        constructions = list(set(all_constrs))
-        base['energy']['constructions'] = []
-        for cnst in constructions:
-            try:
-                base['energy']['constructions'].append(cnst.to_dict(abridged=True))
-            except TypeError:  # ShadeConstruction
-                base['energy']['constructions'].append(cnst.to_dict())
-
-        # add all unique Materials to the dictionary
-        materials = []
-        for cnstr in constructions:
-            try:
-                materials.extend(cnstr.materials)
-            except AttributeError:
-                pass  # ShadeConstruction
-        base['energy']['materials'] = [mat.to_dict() for mat in set(materials)]
-
-        # add all unique program types to the dictionary
-        program_types = self.program_types
-        base['energy']['program_types'] = []
-        for p_type in program_types:
-            base['energy']['program_types'].append(p_type.to_dict(abridged=True))
-
-        # add all unique Schedules to the dictionary
-        p_type_scheds = []
-        for p_type in program_types:
-            for sched in p_type.schedules:
-                self._check_and_add_schedule(sched, p_type_scheds)
-        all_scheds = p_type_scheds + self.room_schedules + self.shade_schedules
-        schedules = list(set(all_scheds))
-        base['energy']['schedules'] = []
-        for sched in schedules:
-            base['energy']['schedules'].append(sched.to_dict(abridged=True))
-
-        # add all unique ScheduleTypeLimits to the dictionary
-        type_limits = []
-        for sched in schedules:
-            t_lim = sched.schedule_type_limit
-            if t_lim is not None and not self._instance_in_array(t_lim, type_limits):
-                type_limits.append(t_lim)
-        base['energy']['schedule_type_limits'] = \
-            [s_typ.to_dict() for s_typ in set(type_limits)]
+        # add all schedule type limits, schedules, and program types to the dictionary
+        self._add_schedules_to_dict(base)
 
         return base
 
@@ -626,6 +571,83 @@ class ModelEnergyProperties(object):
         
         return materials, constructions, construction_sets, schedule_type_limits, \
             schedules, program_types
+    
+    def _add_constructions_to_dict(self, base, include_global_construction_set=True):
+        """Add materials, constructions and construction sets to a base dictionary.
+        
+        Args:
+            base: A base dictionary for a Honeybee Model.
+            include_global_construction_set: Boolean to note whether the
+                global_construction_set should be included within the dictionary.
+                This will ensure that all objects lacking a construction
+                specification always have a default construction. Default: True.
+        """
+        # add all ConstructionSets to the dictionary
+        base['energy']['construction_sets'] = []
+        if include_global_construction_set:
+            base['energy']['global_construction_set'] = self.global_construction_set.name
+            base['energy']['construction_sets'].append(
+                self.global_construction_set.to_dict(abridged=True,
+                                                     none_for_defaults=False))
+        construction_sets = self.construction_sets
+        for cnstr_set in construction_sets:
+            base['energy']['construction_sets'].append(cnstr_set.to_dict(abridged=True))
+
+        # add all unique Constructions to the dictionary
+        room_constrs = []
+        for cnstr_set in construction_sets:
+            room_constrs.extend(cnstr_set.modified_constructions_unique)
+        all_constrs = room_constrs + self.face_constructions + self.shade_constructions
+        if include_global_construction_set:
+            all_constrs.extend(self.global_construction_set.constructions_unique)
+        constructions = list(set(all_constrs))
+        base['energy']['constructions'] = []
+        for cnst in constructions:
+            try:
+                base['energy']['constructions'].append(cnst.to_dict(abridged=True))
+            except TypeError:  # ShadeConstruction
+                base['energy']['constructions'].append(cnst.to_dict())
+
+        # add all unique Materials to the dictionary
+        materials = []
+        for cnstr in constructions:
+            try:
+                materials.extend(cnstr.materials)
+            except AttributeError:
+                pass  # ShadeConstruction
+        base['energy']['materials'] = [mat.to_dict() for mat in set(materials)]
+    
+    def _add_schedules_to_dict(self, base):
+        """Add schedule type limits, schedules, and program types to a base dictionary.
+        
+        Args:
+            base: A base dictionary for a Honeybee Model.
+        """
+        # add all unique program types to the dictionary
+        program_types = self.program_types
+        base['energy']['program_types'] = []
+        for p_type in program_types:
+            base['energy']['program_types'].append(p_type.to_dict(abridged=True))
+
+        # add all unique Schedules to the dictionary
+        p_type_scheds = []
+        for p_type in program_types:
+            for sched in p_type.schedules:
+                self._check_and_add_schedule(sched, p_type_scheds)
+        all_scheds = p_type_scheds + self.room_schedules + self.shade_schedules
+        schedules = list(set(all_scheds))
+        base['energy']['schedules'] = []
+        for sched in schedules:
+            base['energy']['schedules'].append(sched.to_dict(abridged=True))
+
+        # add all unique ScheduleTypeLimits to the dictionary
+        type_limits = []
+        for sched in schedules:
+            t_lim = sched.schedule_type_limit
+            if t_lim is not None and not self._instance_in_array(t_lim, type_limits):
+                type_limits.append(t_lim)
+        base['energy']['schedule_type_limits'] = \
+            [s_typ.to_dict() for s_typ in set(type_limits)]
 
     def _check_and_add_obj_construction(self, obj, constructions):
         """Check if a construction is assigned to an object and add it to a list."""
