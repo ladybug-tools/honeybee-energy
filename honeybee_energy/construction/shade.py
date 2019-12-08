@@ -33,13 +33,13 @@ class ShadeConstruction(object):
             name: Text string for construction name. Must be <= 100 characters.
                 Can include spaces but special characters will be stripped out.
             solar_reflectance: A number between 0 and 1 for the solar reflectance
-                of the construction.
-            visible_reflectance: A number between 0 and 1 for the solar reflectance
-                of the construction.
+                of the construction. Default: 0.2.
+            visible_reflectance: A number between 0 and 1 for the visible reflectance
+                of the construction. Default: 0.2.
             is_specular: A boolean to note whether the reflection off the shade
                 should be diffuse (False) or specular (True). Set to True if the
-                construction is representing a neighboring glass facade or a mirror
-                material. Default: False.
+                construction is representing a glass facade or a mirror material.
+                Default: False.
         """
         self._locked = False  # unlocked by default
         self.name = name
@@ -205,4 +205,6 @@ class ShadeConstruction(object):
         return self.__repr__()
 
     def __repr__(self):
-        return 'ShadeConstruction,\n {}'.format(self.name)
+        return 'ShadeConstruction,\n name: {}\n solar_ref: {}\n vis_ref: {}' \
+            '\n specular: {}'.format(self.name, self.solar_reflectance,
+                                     self.visible_reflectance, self.is_specular)

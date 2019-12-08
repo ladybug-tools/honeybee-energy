@@ -249,7 +249,7 @@ class EnergyWindowMaterialShade(_EnergyWindowMaterialShadeBase):
                  solar_reflectance=0.5,
                  visible_transmittance=0.4, visible_reflectance=0.4,
                  infrared_transmittance=0, emissivity=0.9,
-                 conductivity=0.9, distance_to_glass=0.05,
+                 conductivity=0.05, distance_to_glass=0.05,
                  opening_multiplier=0.5, airflow_permeability=0.0):
         """Initialize energy window material shade.
 
@@ -257,33 +257,34 @@ class EnergyWindowMaterialShade(_EnergyWindowMaterialShadeBase):
             name: Text string for material name. Must be <= 100 characters.
                 Can include spaces but special characters will be stripped out.
             thickness: Number for the thickness of the shade layer [m].
-                Default is 0.005 meters (5 mm).
+                Default: 0.005 meters (5 mm).
             solar_transmittance: Number between 0 and 1 for the transmittance
                 of solar radiation through the shade.
-                Default is 0.4, which is typical of a white diffusing shade.
+                Default: 0.4, which is typical of a white diffusing shade.
             solar_reflectance: Number between 0 and 1 for the reflectance of solar
                 radiation off of the shade, averaged over the solar spectrum.
-                Default value is 0.5, which is typical of a white diffusing shade.
+                Default: 0.5, which is typical of a white diffusing shade.
             visible_transmittance: Number between 0 and 1 for the transmittance
                 of visible light through the shade.
-                Default is 0.4, which is typical of a white diffusing shade.
+                Default: 0.4, which is typical of a white diffusing shade.
             visible_reflectance: Number between 0 and 1 for the reflectance of
                 visible light off of the shade.
-                Default value is 0.4, which is typical of a white diffusing shade.
+                Default: 0.4, which is typical of a white diffusing shade.
             infrared_transmittance: Long-wave hemisperical transmittance of the shade.
-                Default value is 0, which is typical of diffusing shades.
+                Default: 0, which is typical of diffusing shades.
             emissivity: Number between 0 and 1 for the infrared hemispherical
-                emissivity of the front side of the shade.  Default is 0.9, which
+                emissivity of the front side of the shade.  Default: 0.9, which
                 is typical of most diffusing shade materials.
             conductivity: Number for the thermal conductivity of the shade [W/m-K].
+                Default: 0.05, typical of cotton shades.
             distance_to_glass: A number between 0.001 and 1.0 for the distance
                 between the shade and neighboring glass layers [m].
-                Default is 0.05 (50 mm).
+                Default: 0.05 (50 mm).
             opening_multiplier: Factor between 0 and 1 that is multiplied by the
                 area at the top, bottom and sides of the shade for air flow
                 calculations. Default: 0.5.
             airflow_permeability: The fraction of the shade surface that is open to
-                air flow. Must be between 0 and 0.8. Default is 0 for no permeability.
+                air flow. Must be between 0 and 0.8. Default: 0 for no permeability.
         """
         _EnergyWindowMaterialShadeBase.__init__(
             self, name, infrared_transmittance, emissivity,

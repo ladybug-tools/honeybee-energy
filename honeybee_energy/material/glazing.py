@@ -68,28 +68,29 @@ class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
             name: Text string for material name. Must be <= 100 characters.
                 Can include spaces but special characters will be stripped out.
             thickness: Number for the thickness of the glass layer [m].
-                Default is 0.003 meters (3 mm).
+                Default: 0.003 meters (3 mm).
             solar_transmittance: Number between 0 and 1 for the transmittance of solar
                 radiation through the glass at normal incidence.
-                Default is 0.85 for clear glass.
+                Default: 0.85 for clear glass.
             solar_reflectance: Number between 0 and 1 for the reflectance of solar
                 radiation off of the front side of the glass at normal incidence,
-                averaged over the solar spectrum. Default value is 0.075.
+                averaged over the solar spectrum. Default: 0.075.
             visible_transmittance: Number between 0 and 1 for the transmittance of
                 visible light through the glass at normal incidence.
-                Default is 0.9 for clear glass.
+                Default: 0.9 for clear glass.
             visible_reflectance: Number between 0 and 1 for the reflectance of
                 visible light off of the front side of the glass at normal incidence.
-                Default value is 0.075.
+                Default: 0.075.
             infrared_transmittance: Long-wave transmittance of the glass at normal
-                incidence. Default vallue is 0.
+                incidence. Default: 0.
             emissivity: Number between 0 and 1 for the infrared hemispherical
-                emissivity of the front side of the glass.  Default is 0.84, which
+                emissivity of the front side of the glass.  Default: 0.84, which
                 is typical of clear glass.
             emissivity_back: Number between 0 and 1 for the infrared hemispherical
-                emissivity of the back side of the glass.  Default is 0.84, which
+                emissivity of the back side of the glass.  Default: 0.84, which
                 is typical of clear glass.
             conductivity: Number for the thermal conductivity of the glass [W/m-K].
+                Default: 0.9.
         """
         _EnergyWindowMaterialGlazingBase.__init__(self, name)
 
@@ -471,7 +472,7 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
                 heat as well as solar heat that is absorbed by the glazing system and
                 conducts towards the interior.
             vt: A number between 0 and 1 for the visible transmittance of the
-                glazing system.
+                glazing system. Default: 0.6.
         """
         _EnergyWindowMaterialGlazingBase.__init__(self, name)
         self.u_factor = u_factor

@@ -44,16 +44,16 @@ def test_shade_defaults():
     assert shade_mat.visible_reflectance == 0.4
     assert shade_mat.infrared_transmittance == 0
     assert shade_mat.emissivity == 0.9
-    assert shade_mat.conductivity == 0.9
+    assert shade_mat.conductivity == 0.05
     assert shade_mat.distance_to_glass == 0.05
     assert shade_mat.top_opening_multiplier == 0.5
     assert shade_mat.bottom_opening_multiplier == 0.5
     assert shade_mat.left_opening_multiplier == 0.5
     assert shade_mat.right_opening_multiplier == 0.5
     assert shade_mat.airflow_permeability == 0
-    assert shade_mat.resistivity == pytest.approx(1 / 0.9, rel=1e-2)
-    assert shade_mat.u_value == pytest.approx(0.9 / 0.005, rel=1e-2)
-    assert shade_mat.r_value == pytest.approx(0.005 / 0.9, rel=1e-2)
+    assert shade_mat.resistivity == pytest.approx(1 / 0.05, rel=1e-2)
+    assert shade_mat.u_value == pytest.approx(0.05 / 0.005, rel=1e-2)
+    assert shade_mat.r_value == pytest.approx(0.005 / 0.05, rel=1e-2)
 
 
 def test_shade_invalid():
