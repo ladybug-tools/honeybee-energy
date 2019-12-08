@@ -49,7 +49,7 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
             conductivity: Number for the thermal conductivity of the material [W/m-K].
             density: Number for the density of the material [kg/m3].
             specific_heat: Number for the specific heat of the material [J/kg-K].
-            roughness: Text describing the relative roughness of a particular material.
+            roughness: Text describing the relative roughness of the material.
                 Must be one of the following: 'VeryRough', 'Rough', 'MediumRough',
                 'MediumSmooth', 'Smooth', 'VerySmooth'. Defailt is 'MediumRough'.
             thermal_absorptance: A number between 0 aand 1 for the fraction of
@@ -338,17 +338,18 @@ class EnergyMaterialNoMass(_EnergyMaterialOpaqueBase):
             name: Text string for material name. Must be <= 100 characters.
                 Can include spaces but special characters will be stripped out.
             r_value: Number for the R-value of the material [m2-K/W].
-            roughness: Text describing the relative roughness of a particular material.
+            roughness: Text describing the relative roughness of the material.
                 Must be one of the following: 'VeryRough', 'Rough', 'MediumRough',
-                'MediumSmooth', 'Smooth', 'VerySmooth'. Defailt is 'MediumRough'.
-            thermal_absorptance: A number between 0 aand 1 for the fraction of
+                'MediumSmooth', 'Smooth', 'VerySmooth'. Default: 'MediumRough'.
+            thermal_absorptance: A number between 0 and 1 for the fraction of
                 incident long wavelength radiation that is absorbed by the material.
-                Default value is 0.9.
+                Default: 0.9.
             solar_absorptance: A number between 0 and 1 for the fraction of incident
-                solar radiation absorbed by the material. Default value is 0.7.
+                solar radiation absorbed by the material. Default: 0.7.
             visible_absorptance: A number between 0 and 1 for the fraction of incident
                 visible wavelength radiation absorbed by the material.
-                Default value is 0.7.
+                Default value is None, which will use the same value as the
+                solar_absorptance.
         """
         _EnergyMaterialOpaqueBase.__init__(self, name)
         self.r_value = r_value
