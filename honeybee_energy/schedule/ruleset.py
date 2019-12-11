@@ -425,7 +425,7 @@ class ScheduleRuleset(object):
         if winter_designday_values is None:
             sch_i = avg_day_vals.index(min(avg_day_vals))
             winter = schedule_rules[sch_i]._schedule_day.duplicate()
-            summer.name = '{}_WntrDsn'.format(summer.name)
+            winter.name = '{}_WntrDsn'.format(summer.name)
         else:
             winter = ScheduleDay.from_values_at_timestep(
                 '{}_WntrDsn'.format(name), winter_designday_values, timestep)
