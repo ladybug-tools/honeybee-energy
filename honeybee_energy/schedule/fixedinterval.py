@@ -75,7 +75,7 @@ class ScheduleFixedInterval(object):
                 minutes, the timestep is 2. For 15 minutes, it is 4. Default is 1,
                 meaning each value represents a single hour. Must be one of the
                 following: (1, 2, 3, 4, 5, 6, 10, 12, 15, 20, 30, 60).
-            start_date: A ladybug Date object to note when the the input values begin
+            start_date: A ladybug Date object to note when the input values begin
                 to take effect. Default is 1 Jan for a non-leap year. Note that this
                 default usually should not be changed unless you plan to run a
                 simulation that is much shorter than a year and/or you plan to run
