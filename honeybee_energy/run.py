@@ -8,10 +8,11 @@ from __future__ import division
 
 import os
 
+from .config import folders
 from ladybug.futil import write_to_file_by_name, copy_files_to_folder
 
 
-def run_idf(idf_file_path, epw_file_path, energyplus_directory):
+def run_idf(idf_file_path, epw_file_path, energyplus_directory=None):
     """Run an IDF file through energyplus.
 
     Args:
@@ -19,8 +20,8 @@ def run_idf(idf_file_path, epw_file_path, energyplus_directory):
         epw_file_path: The full path to an EPW file.
         energyplus_directory: The directory in which EnergyPlus is installed on
             the machine. Specifically, this should be the folder containing
-            energyplus.exe as well as the other supporting files.
-            (eg. 'C:/openstudio-2.8.0/EnergyPlus/')
+            energyplus.exe (eg. 'C:/openstudio-2.8.0/EnergyPlus/'). If None, the
+            energyplus_path in the config.folders will be used. Default: None.
 
     Returns:
         sql -- Path to a .sqlite file containing all simulation results.
@@ -32,6 +33,13 @@ def run_idf(idf_file_path, epw_file_path, energyplus_directory):
         html -- Path to a .html file containing all summary reports.
             Will be None if no file exists.
     """
+    # check the energyplus directory
+    if not energyplus_directory:
+        energyplus_directory = folders.energyplus_path
+        if not energyplus_directory:
+            raise OSError('No EnergyPlus installation was found on this machine.\n'
+                          'Install EnergyPlus to run energy simulations.')
+
     # check the input files
     assert os.path.isfile(idf_file_path), \
         'No IDF file found at {}.'.format(idf_file_path)
