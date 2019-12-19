@@ -6,6 +6,7 @@ from honeybee.room import Room
 from honeybee.face import Face
 from honeybee.boundarycondition import Outdoors, Surface, Ground
 from honeybee.facetype import RoofCeiling, AirWall
+import honeybee.config as hb_config
 
 try:
     from itertools import izip as zip  # python 2
@@ -387,9 +388,11 @@ def model_to_idf(model, schedule_directory=None,
                 sched_strs.extend([year_schedule] + week_schedules + day_scheds)
         except AttributeError:  # ScheduleFixedInterval
             if sched_dir is None:
-                sched_dir = schedule_directory if schedule_directory is not None \
-                    else os.path.join(os.environ['USERPROFILE'], 'honeybee',
-                                      'unnamed', 'schedules')
+                if schedule_directory is None:
+                    sched_dir = os.path.join(hb_config.folders.default_simulation_folder,
+                                             'unnamed', 'schedules')
+                else:
+                    sched_dir = schedule_directory 
             sched_strs.append(sched.to_idf(sched_dir))
         t_lim = sched.schedule_type_limit
         if t_lim is not None and not _instance_in_array(t_lim, type_limits):

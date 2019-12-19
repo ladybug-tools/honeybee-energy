@@ -1,4 +1,5 @@
 """Load all schedules from the IDF libraries."""
+from honeybee_energy.config import folders
 from honeybee_energy.schedule.ruleset import ScheduleRuleset
 
 import os
@@ -9,10 +10,8 @@ _idf_schedules = {}
 
 
 # load schedules from the default and user-supplied files
-cur_dir = os.path.dirname(__file__)
-schedule_lib = os.path.join(cur_dir, 'library', 'schedules')
-for f in os.listdir(schedule_lib):
-    f_path = os.path.join(schedule_lib, f)
+for f in os.listdir(folders.schedule_lib):
+    f_path = os.path.join(folders.schedule_lib, f)
     if os.path.isfile(f_path) and f_path.endswith('.idf'):
         schedule_rulesets = ScheduleRuleset.extract_all_from_idf_file(f_path)
         for sch in schedule_rulesets:

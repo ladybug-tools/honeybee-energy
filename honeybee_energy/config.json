@@ -1,0 +1,7 @@
+{
+    "__comment__": "Add full paths to folders (eg. C:/EnergyPlusV9-0-1, /usr/local/energyplus).",
+    "energyplus_path": "",
+    "openstudio_path": "",
+    "energy_model_measure_path": "",
+    "template_library_folder": ""
+}
