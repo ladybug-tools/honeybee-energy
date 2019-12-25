@@ -11,7 +11,7 @@ Usage:
 import honeybee.config as hb_config
 
 import os
-import sys
+import platform
 import json
 
 
@@ -119,6 +119,7 @@ class Folders(object):
         This folder must have the following sub-folders in order to be valid:
             * ladybug - ruby library with modules for model translation to OpenStudio.
             * measures - folder with the actual measures that run the translation.
+            * files - folder containing the openapi schemas
         """
         return self._energy_model_measure_path
     
@@ -281,7 +282,7 @@ class Folders(object):
             ep_folders = ['C:\\{}'.format(f) for f in os.listdir('C:\\')
                           if (f.lower().startswith('energyplus') and
                               os.path.isdir('C:\\{}'.format(f)))]
-        elif sys.platform == 'darwin':  # search the Applications folder on Mac
+        elif platform.system() == 'Darwin':  # search the Applications folder on Mac
             ep_folders = ['/Applications/{}'.format(f) for f in os.listdir('/Applications/')
                           if (f.lower().startswith('energyplus') and
                               os.path.isdir('/Applications/{}'.format(f)))]
@@ -317,7 +318,7 @@ class Folders(object):
             os_folders = ['C:\\{}'.format(f) for f in os.listdir('C:\\')
                           if (f.lower().startswith('openstudio') and
                               os.path.isdir('C:\\{}'.format(f)))]
-        elif sys.platform == 'darwin':  # search the Applications folder on Mac
+        elif platform.system() == 'Darwin':  # search the Applications folder on Mac
             os_folders = ['/Applications/{}'.format(f) for f in os.listdir('/Applications/')
                           if (f.lower().startswith('openstudio') and
                               os.path.isdir('/Applications/{}'.format(f)))]
@@ -343,7 +344,7 @@ class Folders(object):
         This is usually next to the Python pacakges when it's installed for a plugin.
         """
         measure_path = os.path.join(hb_config.folders.python_package_path,
-                                    'energy_model_measure')
+                                    'energy_model_measure', 'lib')
         if not os.path.isdir(measure_path):
             return  # No energy_model_measure is installed
         return measure_path
