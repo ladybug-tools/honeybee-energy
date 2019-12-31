@@ -238,6 +238,7 @@ class SimulationOutput(object):
                    'Heating Coil Electric Energy',
                    'Humidifier Electric Energy',
                    'Fan Electric Energy',
+                   'Cooling Tower Fan Electric Energy',
                    'Pump Electric Energy',
                    'Zone VRF Air Terminal Cooling Electric Energy',
                    'Zone VRF Air Terminal Heating Electric Energy',
