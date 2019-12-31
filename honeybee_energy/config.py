@@ -270,7 +270,7 @@ class Folders(object):
         def getversion(energyplus_path):
             """Get digits for the version of EnergyPlus."""
             ver = ''.join(s for s in energyplus_path if (s.isdigit() or s == '-'))
-            return sum(int(i) * d ** 10 for d, i in enumerate(reversed(ver.split('-'))))
+            return sum(int(d) * (10 ** i) for i, d in enumerate(reversed(ver.split('-'))))
 
         # first check for the EnergyPlus that comes with OpenStudio
         ep_path = None
@@ -312,7 +312,7 @@ class Folders(object):
         def getversion(openstudio_path):
             """Get digits for the version of OpenStudio."""
             ver = ''.join(s for s in openstudio_path if (s.isdigit() or s == '.'))
-            return sum(int(i) * d ** 10 for d, i in enumerate(reversed(ver.split('.'))))
+            return sum(int(d) * (10 ** i) for i, d in enumerate(reversed(ver.split('.'))))
 
         if os.name == 'nt':  # search the C:/ drive on Windows
             os_folders = ['C:\\{}'.format(f) for f in os.listdir('C:\\')
