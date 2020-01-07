@@ -2,13 +2,13 @@
 """Complete set of EnergyPlus Simulation Settings."""
 from __future__ import division
 
-from .simulation.output import SimulationOutput
-from .simulation.runperiod import RunPeriod
-from .simulation.control import SimulationControl
-from .simulation.shadowcalculation import ShadowCalculation
-from .simulation.sizing import SizingParameter
-from .reader import parse_idf_string
-from .writer import generate_idf_string
+from .output import SimulationOutput
+from .runperiod import RunPeriod
+from .control import SimulationControl
+from .shadowcalculation import ShadowCalculation
+from .sizing import SizingParameter
+from ..reader import parse_idf_string
+from ..writer import generate_idf_string
 
 from honeybee.typing import int_positive
 
@@ -49,9 +49,8 @@ class SimulationParameter(object):
             shadow_calculation: A ShadowCalculation object describing settings for
                 the EnergyPlus Shadow Calculation. Default: Average over 30 days with
                 FullInteriorAndExteriorWithReflections.
-            sizing_parameter: A SizingParameter object with factors that will get
-                multiplied by the peak heating and cooling loads. Default: 1.25 for
-                heating; 1.15 for cooling.
+            sizing_parameter: A SizingParameter object with criteria for sizing the
+                heating and cooling system.
         """
         self.output = output
         self.run_period = run_period
@@ -159,11 +158,8 @@ class SimulationParameter(object):
              Counterclockwise,         !- vertex entry direction
              Relative;                 !- coordinate system
         """
-        values = ('UpperLeftCorner',
-                  'Counterclockwise',
-                  'Relative')
-        comments = ('starting vertex position',
-                    'vertex entry direction',
+        values = ('UpperLeftCorner', 'Counterclockwise', 'Relative')
+        comments = ('starting vertex position', 'vertex entry direction',
                     'coordinate system')
         return generate_idf_string('GlobalGeometryRules', values, comments)
 
@@ -193,6 +189,8 @@ class SimulationParameter(object):
         bldg_pattern = re.compile(r"(?i)(Building,[\s\S]*?;)")
         control_pattern = re.compile(r"(?i)(SimulationControl,[\s\S]*?;)")
         sizing_pattern = re.compile(r"(?i)(Sizing:Parameters,[\s\S]*?;)")
+        ddy_p = re.compile(r"(SizingPeriod:DesignDay,(.|\n)*?((;\s*!)|(;\s*\n)|(;\n)))")
+        loc_pattern = re.compile(r"(?i)(Site:Location,[\s\S]*?;)")
 
         # process the outputs within the idf_string
         try:
@@ -254,9 +252,14 @@ class SimulationParameter(object):
         # process the SizingParameter within the idf_string
         try:
             sizing_str = sizing_pattern.findall(idf_string)[0]
-            sizing_par = SizingParameter.from_idf(sizing_str)
-        except IndexError:  # No SizingParameter in the file.
-            sizing_par = None
+        except IndexError:  # No Sizing:Parameters in the file.
+            sizing_str = None
+        try:
+            location = loc_pattern.findall(idf_string)[0]
+        except IndexError:  # No Site:Location in the file.
+            location = None
+        sizing_par = SizingParameter.from_idf([dy[0] for dy in ddy_p.findall(idf_string)],
+                                              sizing_str, location)
 
         return cls(output, run_period, timestep, sim_control, shadow_calc, sizing_par)
 
@@ -340,7 +343,10 @@ class SimulationParameter(object):
             sim_param_str.append(daylight_saving)
 
         # write the sizing parameters
-        sim_param_str.append(self.sizing_parameter.to_idf())
+        design_days, siz_par = self.sizing_parameter.to_idf()
+        if len(design_days) != 0:
+            sim_param_str.append('\n\n'.join(design_days))
+        sim_param_str.append(siz_par)
 
         # write the global geometry rules
         sim_param_str.append(self.global_geometry_rules)

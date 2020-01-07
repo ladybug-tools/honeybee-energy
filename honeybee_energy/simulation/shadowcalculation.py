@@ -43,7 +43,7 @@ class ShadowCalculation(object):
                 Default: AverageOverDaysInFrequency. Choose from the following:
                     * AverageOverDaysInFrequency
                     * TimestepFrequency
-            calculation_frequency: Integer for the number of days in each period in
+            calculation_frequency: Integer for the number of days in each period for
                 which a unique shadow calculation will be performed. This field is only
                 used if the AverageOverDaysInFrequency method is used in the previous
                 field. Default: 30.

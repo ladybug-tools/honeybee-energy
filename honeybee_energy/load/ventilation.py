@@ -62,8 +62,8 @@ class Ventilation(_LoadBase):
             schedule: An optional ScheduleRuleset or ScheduleFixedInterval for the
                 ventilation over the course of the year. The type of this schedule
                 should be Fractional and the fractional values will get multiplied by
-                the total design flow rate (determined from the fields above and the
-                calculation_method) to yield a complete ventilation profile. Setting
+                the total design flow rate (determined from the sum of the other
+                4 fields) to yield a complete ventilation profile. Setting
                 this schedule to be the occupancy schedule of the zone will mimic demand
                 controlled ventilation. If None, the design level of ventilation will
                 be used throughout all timesteps of the simulation. Default: None.

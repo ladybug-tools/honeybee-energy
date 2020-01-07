@@ -12,7 +12,7 @@ from ladybug.dt import Date
 
 @lockable
 class ScheduleRule(object):
-    """Schedule rule including a DaySchedule and when it should be applied.
+    """Schedule rule including a ScheduleDay and when it should be applied.
 
     Note that a ScheduleRule cannot be assigned to Rooms, Shades, etc.  The
     ScheduleRule must be added to a ScheduleRuleset and then the ScheduleRuleset
