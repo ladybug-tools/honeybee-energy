@@ -96,6 +96,7 @@ class ScheduleFixedInterval(object):
         assert self._timestep in self.VALIDTIMESTEPS, 'ScheduleFixedInterval timestep ' \
             '"{}" is invalid. Must be one of the following:\n{}'.format(
                 timestep, self.VALIDTIMESTEPS)
+        start_date = Date(1, 1) if start_date is None else start_date
         assert isinstance(start_date, Date), 'Expected ladybug Date for ' \
             'ScheduleFixedInterval start_date. Got {}.'.format(type(start_date))
         self._start_date = start_date
