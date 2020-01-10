@@ -592,8 +592,6 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
         bottom_opening_multiplier
         left_opening_multiplier
         right_opening_multiplier
-        minimum_slat_angle
-        maximum_slat_angle
         slat_resistivity
         u_value
         r_value
@@ -607,7 +605,7 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
                  '_beam_visible_transmittance', '_beam_visible_reflectance',
                  '_beam_visible_reflectance_back', '_diffuse_visible_transmittance',
                  '_diffuse_visible_reflectance', '_diffuse_visible_reflectance_back',
-                 '_emissivity_back', '_minimum_slat_angle', '_maximum_slat_angle')
+                 '_emissivity_back')
 
     def __init__(self, name, slat_orientation='Horizontal', slat_width=0.025,
                  slat_separation=0.01875, slat_thickness=0.001, slat_angle=45,
@@ -680,8 +678,6 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
         self.set_all_visible_reflectance(visible_reflectance)
         self.infrared_transmittance = infrared_transmittance
         self.emissivity_back = None
-        self._minimum_slat_angle = 0
-        self._maximum_slat_angle = 180
 
     @property
     def slat_orientation(self):
@@ -942,30 +938,6 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
         self._emissivity_back = ir_e
 
     @property
-    def minimum_slat_angle(self):
-        """Get or set the minimum angle between the slats and the glazing normal."""
-        return self._minimum_slat_angle
-
-    @minimum_slat_angle.setter
-    def minimum_slat_angle(self, angle):
-        _ang = float_in_range(angle, 0, 180, 'shade material slat angle')
-        assert _ang < self._maximum_slat_angle, \
-            'Minimum slat angle is greater than maximum slat angle.'
-        self._minimum_slat_angle = _ang
-
-    @property
-    def maximum_slat_angle(self):
-        """Get or set the maximum angle between the slats and the glazing normal."""
-        return self._maximum_slat_angle
-
-    @maximum_slat_angle.setter
-    def maximum_slat_angle(self, angle):
-        _ang = float_in_range(angle, 0, 180, 'shade material slat angle')
-        assert _ang > self._minimum_slat_angle, \
-            'maximum slat angle is less than minimum slat angle.'
-        self._maximum_slat_angle = _ang
-
-    @property
     def slat_resistivity(self):
         """Get or set the resistivity of the blind layer [m-K/W]."""
         return 1 / self._slat_conductivity
@@ -1046,8 +1018,6 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
         new_mat.bottom_opening_multiplier = ep_s[24]
         new_mat.left_opening_multiplier = ep_s[25]
         new_mat.right_opening_multiplier = ep_s[26]
-        new_mat.minimum_slat_angle = ep_s[27]
-        new_mat.maximum_slat_angle = ep_s[28]
         return new_mat
 
     @classmethod
@@ -1079,7 +1049,7 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
             'diffuse_visible_reflectance_back', 'infrared_transmittance', 'emissivity',
             'emissivity_back', 'distance_to_glass', 'top_opening_multiplier',
             'bottom_opening_multiplier', 'left_opening_multiplier',
-            'right_opening_multiplier', 'minimum_slat_angle', 'maximum_slat_angle')
+            'right_opening_multiplier')
         optional_vals = ('Horizontal', 0.025, 0.01875, 0.001, 45, 221, 0, 0.5, None,
                          0, 0.5, None, 0, 0.5, None, 0, 0.5, None, 0, 0.9, None, 0.05,
                          0.5, 0.5, 0.5, 0.5, 0, 180)
@@ -1109,8 +1079,6 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
         new_mat.bottom_opening_multiplier = data['bottom_opening_multiplier']
         new_mat.left_opening_multiplier = data['left_opening_multiplier']
         new_mat.right_opening_multiplier = data['right_opening_multiplier']
-        new_mat.minimum_slat_angle = data['minimum_slat_angle']
-        new_mat.maximum_slat_angle = data['maximum_slat_angle']
         return new_mat
 
     def to_idf(self):
@@ -1126,8 +1094,7 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
                   self.diffuse_visible_reflectance_back, self.infrared_transmittance,
                   self.emissivity, self.emissivity_back, self.distance_to_glass,
                   self.top_opening_multiplier, self.bottom_opening_multiplier,
-                  self.left_opening_multiplier, self.right_opening_multiplier,
-                  self.minimum_slat_angle, self.maximum_slat_angle)
+                  self.left_opening_multiplier, self.right_opening_multiplier, 0, 180)
         comments = (
             'name', 'slat orientation', 'slat width {m}', 'slat separation {m}',
             'slat thickness {m}', 'slat angle {deg}',
@@ -1174,9 +1141,7 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
             'top_opening_multiplier': self.top_opening_multiplier,
             'bottom_opening_multiplier': self.bottom_opening_multiplier,
             'left_opening_multiplier': self.left_opening_multiplier,
-            'right_opening_multiplier': self.right_opening_multiplier,
-            'minimum_slat_angle': self.minimum_slat_angle,
-            'maximum_slat_angle': self.maximum_slat_angle
+            'right_opening_multiplier': self.right_opening_multiplier
         }
 
     def __key(self):
@@ -1192,8 +1157,7 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
                 self.diffuse_visible_reflectance_back, self.infrared_transmittance,
                 self.emissivity, self.emissivity_back, self.distance_to_glass,
                 self.top_opening_multiplier, self.bottom_opening_multiplier,
-                self.left_opening_multiplier, self.right_opening_multiplier,
-                self.minimum_slat_angle, self.maximum_slat_angle)
+                self.left_opening_multiplier, self.right_opening_multiplier)
 
     def __hash__(self):
         return hash(self.__key())
@@ -1228,6 +1192,4 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
         new_m._bottom_opening_multiplier = self._bottom_opening_multiplier
         new_m._left_opening_multiplier = self._left_opening_multiplier
         new_m._right_opening_multiplier = self._right_opening_multiplier
-        new_m._minimum_slat_angle = self._minimum_slat_angle
-        new_m._maximum_slat_angle = self._maximum_slat_angle
         return new_m

@@ -245,6 +245,11 @@ class RunPeriod(object):
                 holidays.append(Date(int(hol_vals[0]), int(hol_vals[1]), leap_year))
         daylight_saving = DaylightSavingTime.from_idf(daylight_saving_string) if \
             daylight_saving_string is not None else None
+        if daylight_saving is not None:
+            st_dt = daylight_saving._start_date
+            ed_dt = daylight_saving._end_date
+            daylight_saving._start_date = Date(st_dt.month, st_dt.day, leap_year)
+            daylight_saving._end_date = Date(ed_dt.month, ed_dt.day, leap_year)
 
         return cls(start_date, end_date, start_day_of_week, holidays, daylight_saving)
 
@@ -259,27 +264,40 @@ class RunPeriod(object):
 
             {
             "type": "RunPeriod",
-            "start_date": {month: 1, day: 1},
-            "end_date": {month: 12, day: 31},
+            "start_date": (1, 1),
+            "end_date": (12, 31),
             "start_day_of_week": 'Monday',
-            "holidays": [{month: 1, day: 1}, {month: 7, day: 4}],
-            "daylight_saving_time": {} // DaylightSavingTime dictionary representation
+            "holidays": [(1, 1), (7, 4)],
+            "daylight_saving_time": {}, // DaylightSavingTime dictionary representation
+            "leap_year": False
             }
         """
+        # check that it is the correct type
         assert data['type'] == 'RunPeriod', \
             'Expected RunPeriod dictionary. Got {}.'.format(data['type'])
-        start_date = Date.from_dict(data['start_date']) if \
-            'start_date' in data else Date(1, 1)
-        end_date = Date.from_dict(data['end_date']) if \
+
+        # set a default leap_year value
+        leap_year = False if 'leap_year' not in data else data['leap_year']
+
+        # process the properties
+        start_date = Date(data['start_date'][0], data['start_date'][1], leap_year) if \
+            'start_date' in data else Date(1, 1, leap_year)
+        end_date = Date(data['end_date'][0], data['end_date'][1], leap_year) if \
             'end_date' in data else Date(12, 31)
         start_day_of_week = data['start_day_of_week'] if \
             'start_day_of_week' in data else 'Sunday'
         holidays = None
         if 'holidays' in data and data['holidays'] is not None:
-            holidays = tuple(Date.from_dict(hol) for hol in data['holidays'])
+            holidays = tuple(Date(hol[0], hol[1], leap_year) for hol in data['holidays'])
         daylight_saving = None
         if 'daylight_saving_time' in data and data['daylight_saving_time'] is not None:
             daylight_saving = DaylightSavingTime.from_dict(data['daylight_saving_time'])
+        if daylight_saving is not None:
+            st_dt = daylight_saving._start_date
+            ed_dt = daylight_saving._end_date
+            daylight_saving._start_date = Date(st_dt.month, st_dt.day, leap_year)
+            daylight_saving._end_date = Date(ed_dt.month, ed_dt.day, leap_year)
+        
         return cls(start_date, end_date, start_day_of_week, holidays, daylight_saving)
 
     def to_idf(self):
@@ -315,12 +333,13 @@ class RunPeriod(object):
         """RunPeriod dictionary representation."""
         base = {
             'type': 'RunPeriod',
-            'start_date': self.start_date.to_dict(),
-            'end_date': self.end_date.to_dict(),
-            'start_day_of_week': self.start_day_of_week
+            'start_date': (self.start_date.month, self.start_date.day),
+            'end_date': (self.end_date.month, self.end_date.day),
+            'start_day_of_week': self.start_day_of_week,
+            'leap_year': self.is_leap_year
         }
         if self.holidays is not None:
-            base['holidays'] = [hol.to_dict() for hol in self.holidays]
+            base['holidays'] = [(hol.month, hol.day) for hol in self.holidays]
         if self.daylight_saving_time is not None:
             base['daylight_saving_time'] = self.daylight_saving_time.to_dict()
         return base

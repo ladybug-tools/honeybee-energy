@@ -61,7 +61,7 @@ def test_schedule_fixedinterval_single_day():
     assert increase_sched.start_date == Date(6, 21)
 
     """
-    f_dir = 'C:/Users/chris/Documents/GitHub/energy-model-schema/app/models/samples/json'
+    f_dir = 'C:/Users/chris/Documents/GitHub/honeybee-schema/honeybee_schema/samples'
     dest_file = f_dir + '/schedule_fixedinterval_increasing_single_day.json'
     with open(dest_file, 'w') as fp:
         json.dump(increase_sched.to_dict(True), fp, indent=4)
@@ -85,7 +85,7 @@ def test_schedule_fixedinterval_single_day_fine_timestep():
     assert increase_sched.start_date == Date(6, 21)
 
     """
-    f_dir = 'C:/Users/chris/Documents/GitHub/energy-model-schema/app/models/samples/json'
+    f_dir = 'C:/Users/chris/Documents/GitHub/honeybee-schema/honeybee_schema/samples'
     dest_file = f_dir + '/schedule_fixedinterval_increasing_fine_timestep.json'
     with open(dest_file, 'w') as fp:
         json.dump(increase_sched.to_dict(True), fp, indent=4)
@@ -110,7 +110,7 @@ def test_schedule_fixedinterval_equality():
     assert trans_sched != occ_sched
 
     """
-    f_dir = 'C:/Users/chris/Documents/GitHub/energy-model-schema/app/models/samples/json'
+    f_dir = 'C:/Users/chris/Documents/GitHub/honeybee-schema/honeybee_schema/samples'
     dest_file = f_dir + '/schedule_fixedinterval_random_annual.json'
     with open(dest_file, 'w') as fp:
         json.dump(occ_sched.to_dict(True), fp, indent=4)

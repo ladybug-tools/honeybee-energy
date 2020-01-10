@@ -168,8 +168,6 @@ def test_blind_init():
     assert shade_mat.bottom_opening_multiplier == shade_dup.bottom_opening_multiplier == 1
     assert shade_mat.left_opening_multiplier == shade_dup.left_opening_multiplier == 1
     assert shade_mat.right_opening_multiplier == shade_dup.right_opening_multiplier == 1
-    assert shade_mat.minimum_slat_angle == shade_dup.minimum_slat_angle == 0
-    assert shade_mat.maximum_slat_angle == shade_dup.maximum_slat_angle == 180
     assert shade_mat.slat_resistivity == shade_dup.slat_resistivity == 1 / 0.2
     assert shade_mat.u_value == shade_dup.u_value == 0.2 / 0.003
     assert shade_mat.r_value == shade_dup.r_value == 0.003 / 0.2
@@ -205,8 +203,6 @@ def test_blind_defaults():
     assert shade_mat.bottom_opening_multiplier == 0.5
     assert shade_mat.left_opening_multiplier == 0.5
     assert shade_mat.right_opening_multiplier == 0.5
-    assert shade_mat.minimum_slat_angle == 0
-    assert shade_mat.maximum_slat_angle == 180
 
 
 def test_blind_invalid():
@@ -308,8 +304,6 @@ def test_blind_from_idf():
     assert shade_mat.bottom_opening_multiplier == 1
     assert shade_mat.left_opening_multiplier == 1
     assert shade_mat.right_opening_multiplier == 1
-    assert shade_mat.minimum_slat_angle == 0
-    assert shade_mat.maximum_slat_angle == 180
 
 
 def test_blind_dict_methods():
