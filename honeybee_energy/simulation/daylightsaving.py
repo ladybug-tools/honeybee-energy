@@ -110,16 +110,16 @@ class DaylightSavingTime(object):
 
             {
             "type": "DaylightSavingTime",
-            "start_date": {month: 1, day: 1},
-            "end_date": {month: 12, day: 31}
+            "start_date": [3, 12],
+            "end_date": [11, 5]
             }
         """
         assert data['type'] == 'DaylightSavingTime', \
             'Expected DaylightSavingTime dictionary. Got {}.'.format(data['type'])
-        start_date = Date.from_dict(data['start_date']) if \
-            'start_date' in data else Date(1, 1)
-        end_date = Date.from_dict(data['end_date']) if \
-            'end_date' in data else Date(12, 31)
+        start_date = Date.from_array(data['start_date']) if 'start_date' in data and \
+            data['start_date'] is not None else Date(1, 1)
+        end_date = Date.from_array(data['end_date']) if 'end_date' in data and \
+            data['end_date'] is not None else Date(12, 31)
         return cls(start_date, end_date)
 
     def to_idf(self):
@@ -134,8 +134,8 @@ class DaylightSavingTime(object):
         """DaylightSavingTime dictionary representation."""
         return {
             'type': 'DaylightSavingTime',
-            'start_date': self.start_date.to_dict(),
-            'end_date': self.end_date.to_dict()
+            'start_date': self.start_date.to_array(),
+            'end_date': self.end_date.to_array()
         }
 
     def duplicate(self):

@@ -386,11 +386,9 @@ class EnergyWindowMaterialGas(_EnergyWindowMaterialGasBase):
         """
         assert data['type'] == 'EnergyWindowMaterialGas', \
             'Expected EnergyWindowMaterialGas. Got {}.'.format(data['type'])
-        if 'thickness' not in data:
-            data['thickness'] = 0.0125
-        if 'gas_type' not in data:
-            data['gas_type'] = 'Air'
-        return cls(data['name'], data['thickness'], data['gas_type'])
+        thickness = 0.0125 if 'thickness' not in data else data['thickness']
+        gas_type = 'Air' if 'gas_type' not in data else data['gas_type']
+        return cls(data['name'], thickness, gas_type)
 
     def to_idf(self):
         """Get an EnergyPlus string representation of the material."""
@@ -464,9 +462,9 @@ class EnergyWindowMaterialGasMixture(_EnergyWindowMaterialGasBase):
             gas_types: A list of text describing the types of gas in the gap.
                 Text must be one of the following: 'Air', 'Argon', 'Krypton', 'Xenon'.
                 Default: ('Argon', 'Air')
-            gas_fractions: A list of text describing the volumetric fractions of gas
-                types in the mixture.  This list must align with the gas_types
-                input list. Default: (0.9, 0.1)
+            gas_fractions: A list of fractional numbers describing the volumetric
+                fractions of gas types in the mixture.  This list must align with
+                the gas_types input list and must sum to 1. Default: (0.9, 0.1).
         """
         _EnergyWindowMaterialGasBase.__init__(self, name, thickness)
         try:  # check the number of gases
@@ -548,23 +546,23 @@ class EnergyWindowMaterialGasMixture(_EnergyWindowMaterialGasBase):
 
         Args:
             data: {
-                "type": 'EnergyWindowMaterialGasMixture',
-                "name": 'Argon Mixture Gap',
-                "thickness": 0.01,
-                'gas_type_fraction': ({'gas_type': 'Air', 'gas_fraction': 0.95},
-                                      {'gas_type': 'Argon', 'gas_fraction': 0.05})}
+                'type': 'EnergyWindowMaterialGasMixture',
+                'name': 'Argon Mixture',
+                'thickness': 0.01,
+                'gas_types': ['Argon', 'Air'],
+                'gas_fractions': [0.95, 0.05]
+                }
         """
         assert data['type'] == 'EnergyWindowMaterialGasMixture', \
             'Expected EnergyWindowMaterialGasMixture. Got {}.'.format(data['type'])
-        optional_keys = ('thickness', 'gas_type_fraction')
-        optional_vals = (0.0125, ({'gas_type': 'Air', 'gas_fraction': 0.9},
-                                  {'gas_type': 'Argon', 'gas_fraction': 0.1}))
-        for key, val in zip(optional_keys, optional_vals):
-            if key not in data:
-                data[key] = val
-        gas_types = tuple(gas['gas_type'] for gas in data['gas_type_fraction'])
-        gas_fractions = tuple(gas['gas_fraction'] for gas in data['gas_type_fraction'])
-        return cls(data['name'], data['thickness'], gas_types, gas_fractions)
+        required_keys = ('gas_types', 'gas_fractions')
+        for key in required_keys:
+            assert key in data, 'Required key "{}" is missing.'.format(key)
+        
+        thickness = 0.0125 if 'thickness' not in data else data['thickness']
+
+        return cls(data['name'], data['thickness'], data['gas_types'],
+                   data['gas_fractions'])
 
     def to_idf(self):
         """Get an EnergyPlus string representation of the material."""
@@ -579,13 +577,12 @@ class EnergyWindowMaterialGasMixture(_EnergyWindowMaterialGasBase):
 
     def to_dict(self):
         """Energy Material Gas Mixture dictionary representation."""
-        gas_array = tuple({'gas_type': gas, 'gas_fraction': frac}
-                          for gas, frac in zip(self.gas_types, self.gas_fractions))
         return {
             'type': 'EnergyWindowMaterialGasMixture',
             'name': self.name,
             'thickness': self.thickness,
-            'gas_type_fraction': gas_array
+            'gas_types': self.gas_types,
+            'gas_fractions': self.gas_fractions
         }
 
     def _weighted_avg_coeff_property(self, dictionary, t_kelvin):
@@ -854,20 +851,17 @@ class EnergyWindowMaterialGasCustom(_EnergyWindowMaterialGasBase):
         """
         assert data['type'] == 'EnergyWindowMaterialGasCustom', \
             'Expected EnergyWindowMaterialGasCustom. Got {}.'.format(data['type'])
-        optional_keys = ('conductivity_coeff_b', 'viscosity_coeff_b',
-                         'specific_heat_coeff_b', 'conductivity_coeff_c',
-                         'viscosity_coeff_c', 'specific_heat_coeff_c',
-                         'specific_heat_ratio', 'molecular_weight')
-        optional_vals = (0, 0, 0, 0, 0, 0, 1.0, 20.0)
-        for key, val in zip(optional_keys, optional_vals):
-            if key not in data:
-                data[key] = val
+        con_b = 0 if 'conductivity_coeff_b' not in data else data['conductivity_coeff_b']
+        vis_b = 0 if 'viscosity_coeff_b' not in data else data['viscosity_coeff_b']
+        sph_b = 0 if 'specific_heat_coeff_b' not in data else data['specific_heat_coeff_b']
+        con_c = 0 if 'conductivity_coeff_c' not in data else data['conductivity_coeff_c']
+        vis_c = 0 if 'viscosity_coeff_c' not in data else data['viscosity_coeff_c']
+        sph_c = 0 if 'specific_heat_coeff_c' not in data else data['specific_heat_coeff_c']
+        sphr = 1.0 if 'specific_heat_ratio' not in data else data['specific_heat_ratio']
+        mw = 20.0 if 'molecular_weight' not in data else data['molecular_weight']
         return cls(data['name'], data['thickness'], data['conductivity_coeff_a'],
                    data['viscosity_coeff_a'], data['specific_heat_coeff_a'],
-                   data['conductivity_coeff_b'], data['viscosity_coeff_b'],
-                   data['specific_heat_coeff_b'], data['conductivity_coeff_c'],
-                   data['viscosity_coeff_c'], data['specific_heat_coeff_c'],
-                   data['specific_heat_ratio'], data['molecular_weight'])
+                   con_b, vis_b, sph_b, con_c, vis_c, sph_c, sphr, mw)
 
     def to_idf(self):
         """Get an EnergyPlus string representation of the material."""

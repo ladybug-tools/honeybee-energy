@@ -378,7 +378,7 @@ class ScheduleFixedInterval(object):
             "values": [], // list of numbers for the values of the schedule
             "schedule_type_limit": {}, // ScheduleTypeLimit dictionary representation
             "timestep": 1, // Integer for the timestep of the schedule
-            "start_date": {}, // Date dictionary representation
+            "start_date": (1, 1), // Date dictionary representation
             "placeholder_value": 0, // Number for the values out of range
             "interpolate": False // Boolean noting whether to interpolate between values
             }
@@ -394,7 +394,7 @@ class ScheduleFixedInterval(object):
             timestep = data['timestep']
         start_date = Date(1, 1)
         if 'start_date' in data and data['start_date'] is not None:
-            start_date = Date.from_dict(data['start_date'])
+            start_date = Date.from_array(data['start_date'])
         placeholder_value = 0
         if 'placeholder_value' in data and data['placeholder_value'] is not None:
             placeholder_value = data['placeholder_value']
@@ -503,7 +503,7 @@ class ScheduleFixedInterval(object):
 
         # optional properties
         base['timestep'] = self.timestep
-        base['start_date'] = self.start_date.to_dict()
+        base['start_date'] = self.start_date.to_array()
         base['placeholder_value'] = self.placeholder_value
         base['interpolate'] = self.interpolate
 
