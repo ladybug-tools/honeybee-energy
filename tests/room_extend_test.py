@@ -5,7 +5,7 @@ from honeybee.door import Door
 from honeybee_energy.properties.room import RoomEnergyProperties
 from honeybee_energy.programtype import ProgramType
 from honeybee_energy.constructionset import ConstructionSet
-from honeybee_energy.idealair import IdealAirSystem
+from honeybee_energy.hvac.idealair import IdealAirSystem
 from honeybee_energy.construction.opaque import OpaqueConstruction
 from honeybee_energy.construction.shade import ShadeConstruction
 from honeybee_energy.material.opaque import EnergyMaterial
@@ -28,7 +28,7 @@ def test_energy_properties():
     """Test the existence of the Room energy properties."""
     room = Room.from_box('Shoe Box', 5, 10, 3, 90, Point3D(0, 0, 3))
     room.properties.energy.program_type = office_program
-    room.properties.energy.hvac = IdealAirSystem()
+    room.properties.energy.add_default_ideal_air()
 
     assert hasattr(room.properties, 'energy')
     assert isinstance(room.properties.energy, RoomEnergyProperties)
@@ -176,7 +176,15 @@ def test_duplicate():
     """Test what happens to energy properties when duplicating a Room."""
     mass_set = ConstructionSet('Thermal Mass Construction Set')
     room_original = Room.from_box('Shoe Box', 5, 10, 3)
+    room_original.properties.energy.program_type = office_program
+    room_original.properties.energy.add_default_ideal_air()
+
     room_dup_1 = room_original.duplicate()
+
+    assert room_original.properties.energy.program_type == \
+        room_dup_1.properties.energy.program_type
+    assert room_original.properties.energy.hvac == \
+        room_dup_1.properties.energy.hvac
 
     assert room_original.properties.energy.host is room_original
     assert room_dup_1.properties.energy.host is room_dup_1
@@ -251,7 +259,7 @@ def test_writer_to_idf():
     """Test the Room to_idf method."""
     room = Room.from_box('ClosedOffice', 5, 10, 3)
     room.properties.energy.program_type = office_program
-    room.properties.energy.hvac = IdealAirSystem()
+    room.properties.energy.add_default_ideal_air()
 
     assert hasattr(room.to, 'idf')
     idf_string = room.to.idf(room)
@@ -264,4 +272,4 @@ def test_writer_to_idf():
     assert 'ZoneInfiltration:DesignFlowRate' in idf_string
     assert 'DesignSpecification:OutdoorAir' in idf_string
     assert 'HVACTemplate:Thermostat' in idf_string
-    assert 'HVACTemplate:Zone:IdealLoadsAirSystem' in idf_string
+    assert 'HVACTemplate:Zone:IdealLoadsAirSystem' not in idf_string

@@ -240,8 +240,8 @@ def room_to_idf(room):
 
     The resulting string will include all internal gain defintiions for the Room
     (people, lights, equipment), infiltration definitions, ventilation requirements,
-    thermostat objects, and ideal air load objects. However, complete schedule
-    defintions assigned to these objects are not included.
+    and thermostat objects. However, complete schedule defintions assigned to
+    these objects are excluded and the Room's hvac is also excluded.
 
     Also note that this method does not write any of the geometry of the Room
     into the resulting string. To represent the Room geometry, you must loop
@@ -287,7 +287,6 @@ def room_to_idf(room):
     if ventilation is not None:
         zone_str.append(ventilation.to_idf(room.name))
     if room.properties.energy.is_conditioned:
-        zone_str.append(room.properties.energy.hvac.to_idf())
         zone_str.append(room.properties.energy.setpoint.to_idf(room.name))
         humidistat = room.properties.energy.setpoint.to_idf_humidistat(room.name)
         if humidistat is not None:
@@ -302,12 +301,11 @@ def model_to_idf(model, schedule_directory=None,
 
     The resulting string will include all geometry (Rooms, Faces, Shades, Apertures,
     Doors), all fully-detailed counstructions + materials, all fully-detailed
-    schedules, and the room properties (loads, setpoints, and HVAC).
+    schedules, and the room properties (loads, thermostats with setpoints, and HVAC).
 
     Essentially, the string includes everything needed to simulate the model
-    except the simulation parameters and design day objects. So joining this
-    string with the output of SimulationParameter.to_idf() and some deisgn day
-    strings from a .ddy file should create a simulate-able IDF.
+    except the simulation parameters. So joining this string with the output of
+    SimulationParameter.to_idf() should create a simulate-able IDF.
 
     Args:
         model: A honeyee Model for which an IDF representation will be returned.
@@ -328,39 +326,32 @@ def model_to_idf(model, schedule_directory=None,
     .. code-block:: python
 
         import os
-        from ladybug.futil import write_to_file_by_name
-        from ladybug.designday import DDY
+        from ladybug.futil import write_to_file
         from honeybee.model import Model
         from honeybee.room import Room
+        from honeybee.config import folders
         from honeybee_energy.lib.programtypes import office_program
         from honeybee_energy.idealair import IdealAirSystem
-        from honeybee_energy.simulationparameter import SimulationParameter
+        from honeybee_energy.simulation.parameter import SimulationParameter
 
         # Get input Model
         room = Room.from_box('Tiny House Zone', 5, 10, 3)
         room.properties.energy.program_type = office_program
-        room.properties.energy.hvac = IdealAirSystem()
+        room.properties.energy.add_default_ideal_air()
         model = Model('Tiny House', [room])
 
         # Get the input SimulationParameter
         sim_par = SimulationParameter()
         sim_par.output.add_zone_energy_use()
-
-        # Get the input design days
         ddy_file = 'C:/EnergyPlusV9-0-1/WeatherData/USA_CO_Golden-NREL.724666_TMY3.ddy'
-        ddy_obj = DDY.from_ddy_file(ddy_file)
-        ddy_strs = [ddy.ep_style_string for ddy in ddy_obj.design_days if
-                    '99.6%' in ddy.name or '.4%' in ddy.name]
+        sim_par.sizing_parameter.add_from_ddy_996_004(ddy_file)
 
-        # create the string for simulation paramters and model
-        sim_par_str = sim_par.to_idf()
-        model_str = model.to.idf(model)
-        idf_str = '\n\n'.join((sim_par_str, '\n\n'.join(ddy_strs), model_str, add_str))
+        # create the IDF string for simulation paramters and model
+        idf_str = '\n\n'.join((sim_par.to_idf(), model.to.idf(model)))
 
         # write the final string into an IDF
-        directory = os.path.join(os.environ['USERPROFILE'], 'honeybee', 'unnamed')
-        idf = os.path.join(directory, 'in.idf')
-        write_to_file_by_name(directory, 'in.idf', idf_str, True)
+        idf = os.path.join(folders.default_simulation_folder, 'test_file', 'in.idf')
+        write_to_file(idf, idf_str, True)
     """
     # write the building object into the string
     model_str = ['!-   =======================================\n'
@@ -415,6 +406,17 @@ def model_to_idf(model, schedule_directory=None,
     model_str.extend([mat.to_idf() for mat in set(materials)])
     model_str.append('!-   ============ CONSTRUCTIONS ============\n')
     model_str.extend(construction_strs)
+
+    # write all of the HVAC systems
+    model_str.append('!-   ============ HVAC SYSTEMS ============\n')
+    for hvac in model.properties.energy.hvacs:
+        try:
+            model_str.append(hvac.to_idf())
+        except AttributeError:
+            raise AttributeError(
+                'HVAC system type "{}" does not support direct translation to IDF. '
+                'Try using the export to OpenStudio workflow.'.format(
+                    hvac.__class__.__name__))
 
     # write all of the zone geometry
     model_str.append('!-   ============ ZONE GEOMETRY ============\n')
