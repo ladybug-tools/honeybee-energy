@@ -1,8 +1,8 @@
 # coding=utf-8
 """Room Energy Properties."""
+# import the main types of assignable objects
 from ..programtype import ProgramType
 from ..constructionset import ConstructionSet
-from ..idealair import IdealAirSystem
 from ..load.people import People
 from ..load.lighting import Lighting
 from ..load.equipment import ElectricEquipment, GasEquipment
@@ -10,6 +10,12 @@ from ..load.infiltration import Infiltration
 from ..load.ventilation import Ventilation
 from ..load.setpoint import Setpoint
 
+# import all hvac modules to ensure they are all re-serializable in Room.from_dict
+from ..hvac import HVAC_TYPES_DICT
+from ..hvac._base import _HVACSystem
+from ..hvac.idealair import IdealAirSystem
+
+# import the libraries of constructionsets and programs
 from ..lib.constructionsets import generic_construction_set
 from ..lib.programtypes import plenum_program
 
@@ -53,12 +59,13 @@ class RoomEnergyProperties(object):
                 how the Room is conditioned. If None, it will be assumed that the
                 Room is not conditioned. Default: None.
         """
+        # set the main properties of the Room
         self._host = host
         self.program_type = program_type
         self.construction_set = construction_set
         self.hvac = hvac
 
-        # set the Room's overriding properties to None by default
+        # set the Room's specific properties that override the program_type to None
         self._people = None
         self._lighting = None
         self._electric_equipment = None
@@ -121,16 +128,20 @@ class RoomEnergyProperties(object):
     @hvac.setter
     def hvac(self, value):
         if value is not None:
-            assert isinstance(value, IdealAirSystem), \
-                'Expected IdealAirSystem for Room hvac. Got {}'.format(type(value))
-            if value._parent is not None:
-                raise ValueError(
-                    'IdealAirSystem objects can be assigned to a only one Room.\n'
-                    'IdealAirSystem cannot be assigned to Room "{}" since it is '
-                    'already assigned to "{}".\nTry duplicating the IdealAirSystem, '
-                    'and then assigning it to this Room.'.format(
-                        self.host.name, value._parent.name))
-            value._parent = self.host
+            assert isinstance(value, _HVACSystem), \
+                'Expected HVACSystem for Room hvac. Got {}'.format(type(value))
+            if value.is_single_room:
+                if value._parent is None:
+                    value._parent = self.host
+                elif value._parent.name != self.host.name:
+                    raise ValueError(
+                        '{0} objects can be assigned to a only one Room.\n'
+                        '{0} "{1}" cannot be assigned to Room "{2}" since it is '
+                        'already assigned to "{3}".\nTry duplicating the {0}, '
+                        'and then assigning it to this Room.'.format(
+                            value.__class__.__name__, value.name,
+                            self.host.name, value._parent.name))
+            value.lock()   # lock in case hvac has multiple references
         self._hvac = value
 
     @property
@@ -249,6 +260,28 @@ class RoomEnergyProperties(object):
     def is_conditioned(self):
         """Boolean to note whether the Room is conditioned."""
         return self._hvac is not None
+    
+    def add_default_ideal_air(self):
+        """Add a default IdealAirSystem to this Room.
+        
+        The name of this system will be derived from the room name.
+        """
+        self.hvac = IdealAirSystem('{}_IdealAir'.format(self.host.name))
+
+    def add_prefix(self, prefix):
+        """Change the name extension attributes unique to this object by adding a prefix.
+        
+        Notably, this method only adds the prefix to extension attributes that must
+        be unique to the Room (eg. single-room HVAC systems) and does not add the
+        prefix to attributes that are shared across several Rooms (eg. ConstructionSets).
+
+        Args:
+            prefix: Text that will be inserted at the start of extension attribute names.
+        """
+        if self._hvac is not None and self._hvac.is_single_room:
+            new_hvac = self._hvac.dupicate()
+            new_hvac.name = '{}_{}'.format(prefix, self._hvac.name)
+            self.hvac = new_hvac
 
     @classmethod
     def from_dict(cls, data, host):
@@ -271,7 +304,8 @@ class RoomEnergyProperties(object):
         if 'program_type' in data and data['program_type'] is not None:
             new_prop.program_type = ProgramType.from_dict(data['program_type'])
         if 'hvac' in data and data['hvac'] is not None:
-            new_prop.hvac = IdealAirSystem.from_dict(data['hvac'])
+            hvac_class = HVAC_TYPES_DICT[data['hvac']['type']]
+            new_prop.hvac = hvac_class.from_dict(data['hvac'])
 
         if 'people' in data and data['people'] is not None:
             new_prop.people = People.from_dict(data['people'])
@@ -292,7 +326,7 @@ class RoomEnergyProperties(object):
         return new_prop
 
     def apply_properties_from_dict(self, abridged_data, construction_sets,
-                                   program_types, schedules):
+                                   program_types, hvacs, schedules):
         """Apply properties from a RoomEnergyPropertiesAbridged dictionary.
 
         Args:
@@ -300,8 +334,10 @@ class RoomEnergyProperties(object):
                 coming from a Model).
             construction_sets: A dictionary of ConstructionSets with names of the sets
                 as keys, which will be used to re-assign construction_sets.
-            program_types: A dictionary of ProgramTypes with names of the types ask
+            program_types: A dictionary of ProgramTypes with names of the types as
                 keys, which will be used to re-assign program_types.
+            hvacs: A dictionary of HVACSystems with the names of the systems as
+                keys, which will be used to re-assign hvac to the Room.
             schedules: A dictionary of Schedules with names of the schedules ask
                 keys, which will be used to re-assign schedules.
         """
@@ -311,7 +347,7 @@ class RoomEnergyProperties(object):
         if 'program_type' in abridged_data and abridged_data['program_type'] is not None:
             self.program_type = program_types[abridged_data['program_type']]
         if 'hvac' in abridged_data and abridged_data['hvac'] is not None:
-            self.hvac = IdealAirSystem.from_dict(abridged_data['hvac'])
+            self.hvac = hvacs[abridged_data['hvac']]
 
         if 'people' in abridged_data and abridged_data['people'] is not None:
             self.people = People.from_dict_abridged(
@@ -362,7 +398,8 @@ class RoomEnergyProperties(object):
 
         # write the hvac into the dictionary
         if self._hvac is not None:
-            base['energy']['hvac'] = self._hvac.to_dict()
+            base['energy']['hvac'] = \
+                self._hvac.name if abridged else self._hvac.to_dict()
 
         # write any room-specific overriding properties into the dictionary
         if self._people is not None:
@@ -390,9 +427,8 @@ class RoomEnergyProperties(object):
             If None, the properties will be duplicated with the same host.
         """
         _host = new_host or self._host
-        hvac = self.hvac.duplicate() if self.is_conditioned else None
         new_room = RoomEnergyProperties(
-            _host, self._program_type, self._construction_set, hvac)
+            _host, self._program_type, self._construction_set, self._hvac)
         new_room._people = self._people
         new_room._lighting = self._lighting
         new_room._electric_equipment = self._electric_equipment

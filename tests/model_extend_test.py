@@ -10,7 +10,6 @@ from honeybee.facetype import face_types
 
 from honeybee_energy.properties.model import ModelEnergyProperties
 from honeybee_energy.constructionset import ConstructionSet
-from honeybee_energy.idealair import IdealAirSystem
 from honeybee_energy.construction.opaque import OpaqueConstruction
 from honeybee_energy.construction.window import WindowConstruction
 from honeybee_energy.construction.shade import ShadeConstruction
@@ -42,7 +41,7 @@ def test_energy_properties():
     """Test the existence of the Model energy properties."""
     room = Room.from_box('Tiny House Zone', 5, 10, 3)
     room.properties.energy.program_type = office_program
-    room.properties.energy.hvac = IdealAirSystem()
+    room.properties.energy.add_default_ideal_air()
     south_face = room[3]
     south_face.apertures_by_ratio(0.4, 0.01)
     south_face.apertures[0].overhang(0.5, indoor=False)
@@ -182,7 +181,7 @@ def test_check_duplicate_schedule_names():
     """Test the check_duplicate_schedule_names method."""
     room = Room.from_box('Tiny House Zone', 5, 10, 3)
     room.properties.energy.program_type = office_program
-    room.properties.energy.hvac = IdealAirSystem()
+    room.properties.energy.add_default_ideal_air()
     south_face = room[3]
     south_face.apertures_by_ratio(0.4, 0.01)
     south_face.apertures[0].overhang(0.5, indoor=False)
@@ -210,7 +209,7 @@ def test_check_duplicate_schedule_type_limit_names():
     """Test the check_duplicate_schedule_type_limit_names method."""
     room = Room.from_box('Tiny House Zone', 5, 10, 3)
     room.properties.energy.program_type = office_program
-    room.properties.energy.hvac = IdealAirSystem()
+    room.properties.energy.add_default_ideal_air()
     south_face = room[3]
     south_face.apertures_by_ratio(0.4, 0.01)
     south_face.apertures[0].overhang(0.5, indoor=False)
@@ -239,7 +238,7 @@ def test_to_from_dict():
     """Test the Model to_dict and from_dict method with a single zone model."""
     room = Room.from_box('Tiny House Zone', 5, 10, 3)
     room.properties.energy.program_type = office_program
-    room.properties.energy.hvac = IdealAirSystem()
+    room.properties.energy.add_default_ideal_air()
 
     stone = EnergyMaterial('Thick Stone', 0.3, 2.31, 2322, 832, 'Rough',
                            0.95, 0.75, 0.8)
@@ -304,7 +303,7 @@ def test_to_from_dict():
     assert len(new_model.properties.energy.schedule_type_limits) == 3
     assert len(model.properties.energy.schedules) == 8
     assert new_model.rooms[0].properties.energy.is_conditioned
-    assert new_model.rooms[0].properties.energy.hvac == IdealAirSystem()
+    assert new_model.rooms[0].properties.energy.hvac == room.properties.energy.hvac
 
     assert new_model.orphaned_shades[0].properties.energy.transmittance_schedule == tree_trans
 
@@ -313,7 +312,7 @@ def test_to_dict_single_zone():
     """Test the Model to_dict method with a single zone model."""
     room = Room.from_box('Tiny House Zone', 5, 10, 3)
     room.properties.energy.program_type = office_program
-    room.properties.energy.hvac = IdealAirSystem()
+    room.properties.energy.add_default_ideal_air()
 
     stone = EnergyMaterial('Thick Stone', 0.3, 2.31, 2322, 832, 'Rough',
                            0.95, 0.75, 0.8)
@@ -381,11 +380,11 @@ def test_to_dict_single_zone():
     assert model_dict['rooms'][0]['properties']['energy']['program_type'] == \
         office_program.name
     assert model_dict['rooms'][0]['properties']['energy']['hvac'] == \
-        IdealAirSystem().to_dict()
+        room.properties.energy.hvac.name
 
     """
-    f_dir = 'C:/Users/chris/Documents/GitHub/energy-model-schema/app/models/samples/json'
-    dest_file = f_dir + '/model_single_zone_office.json'
+    f_dir = 'C:/Users/chris/Documents/GitHub/honeybee-schema/honeybee_schema/samples'
+    dest_file = f_dir + '/model_complete_single_zone_office.json'
     with open(dest_file, 'w') as fp:
         json.dump(model_dict, fp, indent=4)
     """
@@ -395,7 +394,7 @@ def test_to_dict_single_zone_schedule_fixed_interval():
     """Test the Model to_dict method with a single zone model and fixed interval schedules."""
     room = Room.from_box('Tiny House Zone', 5, 10, 3)
     room.properties.energy.program_type = office_program
-    room.properties.energy.hvac = IdealAirSystem()
+    room.properties.energy.add_default_ideal_air()
 
     occ_sched = ScheduleFixedInterval(
         'Random Occupancy', [round(random.random(), 4) for i in range(8760)],
@@ -460,8 +459,8 @@ def test_to_dict_single_zone_schedule_fixed_interval():
         office_program.name
 
     """
-    f_dir = 'C:/Users/chris/Documents/GitHub/energy-model-schema/app/models/samples/json'
-    dest_file = f_dir + '/model_single_zone_office_fixed_interval.json'
+    f_dir = 'C:/Users/chris/Documents/GitHub/honeybee-schema/honeybee_schema/samples'
+    dest_file = f_dir + '/model_complete_single_zone_office_fixed_interval.json'
     with open(dest_file, 'w') as fp:
         json.dump(model_dict, fp, indent=4)
     """
@@ -470,7 +469,7 @@ def test_to_dict_single_zone_detailed_loads():
     """Test the Model to_dict method with detailed, room-level loads."""
     room = Room.from_box('Office Test Box', 5, 10, 3)
     room.properties.energy.program_type = plenum_program
-    room.properties.energy.hvac = IdealAirSystem()
+    room.properties.energy.add_default_ideal_air()
 
     room.properties.energy.people = office_program.people
     room.properties.energy.lighting = office_program.lighting
@@ -507,10 +506,10 @@ def test_to_dict_single_zone_detailed_loads():
     assert 'setpoint' in model_dict['rooms'][0]['properties']['energy']
     assert model_dict['rooms'][0]['properties']['energy']['setpoint']['name'] == \
         office_program.setpoint.name
-    
+
     """
-    f_dir = 'C:/Users/chris/Documents/GitHub/energy-model-schema/app/models/samples/json'
-    dest_file = f_dir + '/model_single_zone_office_detailed_loads.json'
+    f_dir = 'C:/Users/chris/Documents/GitHub/honeybee-schema/honeybee_schema/samples'
+    dest_file = f_dir + '/model_complete_single_zone_office_detailed_loads.json'
     with open(dest_file, 'w') as fp:
         json.dump(model_dict, fp, indent=4)
     """
@@ -551,7 +550,7 @@ def test_to_dict_shoe_box():
     assert model_dict['rooms'][0]['faces'][2]['boundary_condition']['type'] == 'Adiabatic'
 
     """
-    f_dir = 'C:/Users/chris/Documents/GitHub/energy-model-schema/app/models/samples/json'
+    f_dir = 'C:/Users/chris/Documents/GitHub/honeybee-schema/honeybee_schema/samples'
     dest_file = f_dir + '/model_shoe_box.json'
     with open(dest_file, 'w') as fp:
         json.dump(model_dict, fp, indent=4)
@@ -564,8 +563,8 @@ def test_to_dict_multizone_house():
     second_floor = Room.from_box('Second Floor', 10, 10, 3, origin=Point3D(0, 0, 3))
     first_floor.properties.energy.program_type = office_program
     second_floor.properties.energy.program_type = office_program
-    first_floor.properties.energy.hvac = IdealAirSystem()
-    second_floor.properties.energy.hvac = IdealAirSystem()
+    first_floor.properties.energy.add_default_ideal_air()
+    second_floor.properties.energy.add_default_ideal_air()
     for face in first_floor[1:5]:
         face.apertures_by_ratio(0.2, 0.01)
     for face in second_floor[1:5]:
@@ -620,12 +619,13 @@ def test_to_dict_multizone_house():
         model_dict['rooms'][1]['properties']['energy']['program_type'] == \
         office_program.name
     assert model_dict['rooms'][0]['properties']['energy']['hvac'] == \
-        model_dict['rooms'][1]['properties']['energy']['hvac'] == \
-        IdealAirSystem().to_dict()
+        first_floor.properties.energy.hvac.name
+    assert model_dict['rooms'][1]['properties']['energy']['hvac'] == \
+        second_floor.properties.energy.hvac.name
 
     """
-    f_dir = 'C:/Users/chris/Documents/GitHub/energy-model-schema/app/models/samples/json'
-    dest_file = f_dir + '/model_multi_zone_office.json'
+    f_dir = 'C:/Users/chris/Documents/GitHub/honeybee-schema/honeybee_schema/samples'
+    dest_file = f_dir + '/model_complete_multi_zone_office.json'
     with open(dest_file, 'w') as fp:
         json.dump(model_dict, fp, indent=4)
     """
@@ -635,7 +635,7 @@ def test_writer_to_idf():
     """Test the Model to.idf method."""
     room = Room.from_box('Tiny House Zone', 5, 10, 3)
     room.properties.energy.program_type = office_program
-    room.properties.energy.hvac = IdealAirSystem()
+    room.properties.energy.add_default_ideal_air()
 
     stone = EnergyMaterial('Thick Stone', 0.3, 2.31, 2322, 832, 'Rough',
                            0.95, 0.75, 0.8)

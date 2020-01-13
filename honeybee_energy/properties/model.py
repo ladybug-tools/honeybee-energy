@@ -14,10 +14,11 @@ from ..construction.opaque import OpaqueConstruction
 from ..construction.window import WindowConstruction
 from ..construction.shade import ShadeConstruction
 from ..constructionset import ConstructionSet
-from ..programtype import ProgramType
 from ..schedule.typelimit import ScheduleTypeLimit
 from ..schedule.ruleset import ScheduleRuleset
 from ..schedule.fixedinterval import ScheduleFixedInterval
+from ..programtype import ProgramType
+from ..hvac import HVAC_TYPES_DICT
 from ..writer import generate_idf_string
 
 try:
@@ -34,6 +35,7 @@ class ModelEnergyProperties(object):
         * terrain_type
         * materials
         * constructions
+        * room_constructions
         * face_constructions
         * shade_constructions
         * construction_sets
@@ -42,7 +44,10 @@ class ModelEnergyProperties(object):
         * schedules
         * shade_schedules
         * room_schedules
+        * program_type_schedules
+        * hvac_schedules
         * program_types
+        * hvacs
     """
     TERRAIN_TYPES = ('Ocean', 'Country', 'Suburbs', 'Urban', 'City')
 
@@ -109,12 +114,21 @@ class ModelEnergyProperties(object):
         This includes constructions across all Faces, Apertures, Doors, Shades,
         Room ConstructionSets, and the global_construction_set.
         """
+        all_constrs = self.global_construction_set.constructions_unique + \
+            self.room_constructions + self.face_constructions + self.shade_constructions
+        return list(set(all_constrs))
+    
+    @property
+    def room_constructions(self):
+        """A list of all unique constructions assigned to Room ConstructionSets.
+        
+        Note that this does not include constructions in the global_construction_set.
+        For these, you can request global_construction_set.constructions_unique.
+        """
         room_constrs = []
         for cnstr_set in self.construction_sets:
             room_constrs.extend(cnstr_set.modified_constructions_unique)
-        all_constrs = self.global_construction_set.constructions_unique + \
-            room_constrs + self.face_constructions + self.shade_constructions
-        return list(set(all_constrs))
+        return list(set(room_constrs))
 
     @property
     def face_constructions(self):
@@ -185,13 +199,10 @@ class ModelEnergyProperties(object):
     def schedules(self):
         """A list of all unique schedules in the model.
 
-        This includes schedules across all ProgramTypes, Rooms, and Shades.
+        This includes schedules across all ProgramTypes, HVACs, Rooms and Shades.
         """
-        p_type_scheds = []
-        for p_type in self.program_types:
-            for sched in p_type.schedules:
-                self._check_and_add_schedule(sched, p_type_scheds)
-        all_scheds = p_type_scheds + self.room_schedules + self.shade_schedules
+        all_scheds = self.program_type_schedules + self.hvac_schedules + \
+            self.room_schedules + self.shade_schedules
         return list(set(all_scheds))
 
     @property
@@ -217,7 +228,7 @@ class ModelEnergyProperties(object):
         """A list of all unique schedules assigned directly to Rooms in the model.
 
         Note that this does not include schedules from ProgramTypes assigned to the
-        rooms.
+        rooms. For this, use the program_type_schedules proeprty.
         """
         scheds = []
         for room in self.host.rooms:
@@ -250,6 +261,24 @@ class ModelEnergyProperties(object):
                     self._check_and_add_schedule(
                         setpoint.dehumidifying_schedule, scheds)
         return list(set(scheds))
+    
+    @property
+    def program_type_schedules(self):
+        """A list of all unique schedules assigned to ProgramTypes in the model."""
+        schedules = []
+        for p_type in self.program_types:
+            for sched in p_type.schedules:
+                self._check_and_add_schedule(sched, schedules)
+        return list(set(schedules))
+    
+    @property
+    def hvac_schedules(self):
+        """A list of all unique HVAC-assigned schedules in the model."""
+        schedules = []
+        for hvac in self.hvacs:
+            for sched in hvac.schedules:
+                self._check_and_add_schedule(sched, schedules)
+        return list(set(schedules))
 
     @property
     def program_types(self):
@@ -261,6 +290,16 @@ class ModelEnergyProperties(object):
                                                program_types):
                     program_types.append(room.properties.energy._program_type)
         return list(set(program_types))  # catch equivalent program types
+    
+    @property
+    def hvacs(self):
+        """A list of all unique HVAC systems in the Model."""
+        hvacs = []
+        for room in self.host.rooms:
+            if room.properties.energy._hvac is not None:
+                if not self._instance_in_array(room.properties.energy._hvac, hvacs):
+                    hvacs.append(room.properties.energy._hvac)
+        return hvacs
 
     def building_idf(self, solar_distribution='FullInteriorAndExteriorWithReflections'):
         """Get an IDF string for Building that this model represents.
@@ -390,6 +429,23 @@ class ModelEnergyProperties(object):
                     'names:\n{}'.format('\n'.join(duplicate_names)))
             return False
         return True
+    
+    def check_duplicate_hvac_names(self, raise_exception=True):
+        """Check that there are no duplicate HVAC names in the model."""
+        hvac_names = set()
+        duplicate_names = set()
+        for hvac in self.hvacs:
+            if hvac.name not in hvac_names:
+                hvac_names.add(hvac.name)
+            else:
+                duplicate_names.add(hvac.name)
+        if len(duplicate_names) != 0:
+            if raise_exception:
+                raise ValueError(
+                    'The model has the following duplicated HVAC system '
+                    'names:\n{}'.format('\n'.join(duplicate_names)))
+            return False
+        return True
 
     def apply_properties_from_dict(self, data):
         """Apply the energy properties of a dictionary to the host Model of this object.
@@ -407,16 +463,16 @@ class ModelEnergyProperties(object):
             self.terrain_type = data['properties']['energy']['terrain_type']
 
         materials, constructions, construction_sets, schedule_type_limits, \
-            schedules, program_types = self.load_properties_from_dict(data)
+            schedules, program_types, hvacs = self.load_properties_from_dict(data)
 
         # collect lists of energy property dictionaries
         room_e_dicts, face_e_dicts, shd_e_dicts, ap_e_dicts, dr_e_dicts = \
             model_extension_dicts(data, 'energy')
 
-        # apply energy properties to objects uwing the energy property dictionaries
+        # apply energy properties to objects using the energy property dictionaries
         for room, r_dict in zip(self.host.rooms, room_e_dicts):
             room.properties.energy.apply_properties_from_dict(
-                r_dict, construction_sets, program_types, schedules)
+                r_dict, construction_sets, program_types, hvacs, schedules)
         for face, f_dict in zip(self.host.faces, face_e_dicts):
             face.properties.energy.apply_properties_from_dict(f_dict, constructions)
         for shade, s_dict in zip(self.host.shades, shd_e_dicts):
@@ -441,10 +497,10 @@ class ModelEnergyProperties(object):
         base['energy']['terrain_type'] = self.terrain_type
 
         # add all materials, constructions and construction sets to the dictionary
-        self._add_constructions_to_dict(base, include_global_construction_set)
+        self._add_constr_type_objs_to_dict(base, include_global_construction_set)
 
-        # add all schedule type limits, schedules, and program types to the dictionary
-        self._add_schedules_to_dict(base)
+        # add all schedule type limits, schedules, program types and hvacs to the dict
+        self._add_sched_type_objs_to_dict(base)
 
         return base
 
@@ -464,6 +520,10 @@ class ModelEnergyProperties(object):
         Loaded objects include Materials, Constructions, ConstructionSets,
         ScheduleTypeLimits, Schedules, and ProgramTypes.
 
+        The function is called when re-serializing a Model object from a dictionary
+        to load honeybee_energy objects into their Python object form before
+        applying them to the Model geometry.
+
         Args:
             data: A dictionary representation of an entire honeybee-core Model.
                 Note that this dictionary must have ModelEnergyProperties in order
@@ -482,6 +542,8 @@ class ModelEnergyProperties(object):
                 schedule objects as values.
             program_types -- A dictionary with names of program types as keys and Python
                 program type objects as values.
+            hvacs -- A dictionary with names of HVAC systems as keys and Python
+                HVACSystem objects as values.
         """
         assert 'energy' in data['properties'], \
             'Dictionary possesses no ModelEnergyProperties.'
@@ -569,10 +631,17 @@ class ModelEnergyProperties(object):
                 program_types[p_typ['name']] = \
                     ProgramType.from_dict_abridged(p_typ, schedules)
         
+        # process all HVAC systems in the ModelEnergyProperties dictionary
+        hvacs = {}
+        if 'hvacs' in data['properties']['energy']:
+            for hvac in data['properties']['energy']['hvacs']:
+                hvac_class = HVAC_TYPES_DICT[hvac['type'].replace('Abridged', '')]
+                hvacs[hvac['name']] = hvac_class.from_dict_abridged(hvac, schedules)
+        
         return materials, constructions, construction_sets, schedule_type_limits, \
-            schedules, program_types
+            schedules, program_types, hvacs
     
-    def _add_constructions_to_dict(self, base, include_global_construction_set=True):
+    def _add_constr_type_objs_to_dict(self, base, include_global_construction_set=True):
         """Add materials, constructions and construction sets to a base dictionary.
         
         Args:
@@ -616,13 +685,19 @@ class ModelEnergyProperties(object):
             except AttributeError:
                 pass  # ShadeConstruction
         base['energy']['materials'] = [mat.to_dict() for mat in set(materials)]
-    
-    def _add_schedules_to_dict(self, base):
-        """Add schedule type limits, schedules, and program types to a base dictionary.
-        
+
+    def _add_sched_type_objs_to_dict(self, base):
+        """Add type limits, schedules, program types, and hvacs to a base dictionary.
+
         Args:
             base: A base dictionary for a Honeybee Model.
         """
+        # add all unique hvacs to the dictionary
+        hvacs = self.hvacs
+        base['energy']['hvacs'] = []
+        for hvac in hvacs:
+            base['energy']['hvacs'].append(hvac.to_dict(abridged=True))
+
         # add all unique program types to the dictionary
         program_types = self.program_types
         base['energy']['program_types'] = []
@@ -634,7 +709,12 @@ class ModelEnergyProperties(object):
         for p_type in program_types:
             for sched in p_type.schedules:
                 self._check_and_add_schedule(sched, p_type_scheds)
-        all_scheds = p_type_scheds + self.room_schedules + self.shade_schedules
+        hvac_scheds = []
+        for hvac in hvacs:
+            for sched in hvac.schedules:
+                self._check_and_add_schedule(sched, hvac_scheds)
+        all_scheds = hvac_scheds + p_type_scheds + \
+            self.room_schedules + self.shade_schedules
         schedules = list(set(all_scheds))
         base['energy']['schedules'] = []
         for sched in schedules:
@@ -663,10 +743,10 @@ class ModelEnergyProperties(object):
             if not self._instance_in_array(sched, schedules):
                 schedules.append(sched)
 
-    def _check_and_add_schedule(self, load_sched, schedules):
+    def _check_and_add_schedule(self, sched, schedules):
         """Check if a schedule is in a list and add it if not."""
-        if not self._instance_in_array(load_sched, schedules):
-            schedules.append(load_sched)
+        if not self._instance_in_array(sched, schedules):
+            schedules.append(sched)
 
     @staticmethod
     def _instance_in_array(object_instance, object_array):
