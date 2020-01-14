@@ -279,7 +279,7 @@ class RoomEnergyProperties(object):
             prefix: Text that will be inserted at the start of extension attribute names.
         """
         if self._hvac is not None and self._hvac.is_single_room:
-            new_hvac = self._hvac.dupicate()
+            new_hvac = self._hvac.duplicate()
             new_hvac.name = '{}_{}'.format(prefix, self._hvac.name)
             self.hvac = new_hvac
 
