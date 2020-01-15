@@ -130,8 +130,8 @@ class Folders(object):
 
         # check that the library's sub-folders exist
         if path:
-            assert os.path.isdir(os.path.join(path, 'ladybug')), \
-                '{} lacks a "ladybug" folder for the translation ruby library.'.format(path)
+            assert os.path.isdir(os.path.join(path, 'from_honeybee')), '{} lacks a ' \
+                '"from_honeybee" folder for the translation ruby library.'.format(path)
             assert os.path.isdir(os.path.join(path, 'measures')), \
                 '{} lacks a "measures" folder.'.format(path)
 
