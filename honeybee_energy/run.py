@@ -38,16 +38,16 @@ def to_openstudio_osw(osw_directory, model_json_path, sim_par_json_path, epw_fil
     # the model measure and the simulation parameter measure
     model_measure_dict = {
         'arguments' : {
-            'ladybug_json' : model_json_path
+            'model_json' : model_json_path
             },
-         'measure_dir_name': 'ladybug_energy_model_measure'
+         'measure_dir_name': 'from_honeybee_model'
          }
 
     sim_par_dict = {
         'arguments' : {
             'simulation_parameter_json' : sim_par_json_path
             },
-         'measure_dir_name': 'ladybug_simulation_parameter_measure'
+         'measure_dir_name': 'from_honeybee_simulation_parameter'
          }
 
     osw_dict = {'steps': [model_measure_dict, sim_par_dict]}
