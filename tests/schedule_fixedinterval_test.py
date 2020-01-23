@@ -14,7 +14,6 @@ from ladybug.futil import csv_to_matrix
 import random
 import os
 import pytest
-import json
 
 
 def test_schedule_fixedinterval_init():
@@ -60,13 +59,6 @@ def test_schedule_fixedinterval_single_day():
     assert not increase_sched.interpolate
     assert increase_sched.start_date == Date(6, 21)
 
-    """
-    f_dir = 'C:/Users/chris/Documents/GitHub/honeybee-schema/honeybee_schema/samples'
-    dest_file = f_dir + '/schedule_fixedinterval_increasing_single_day.json'
-    with open(dest_file, 'w') as fp:
-        json.dump(increase_sched.to_dict(True), fp, indent=4)
-    """
-
 
 def test_schedule_fixedinterval_single_day_fine_timestep():
     """Test the ScheduleFixedInterval initialization for a single day at a fine timestep."""
@@ -83,13 +75,6 @@ def test_schedule_fixedinterval_single_day_fine_timestep():
     assert increase_sched.timestep == 6
     assert not increase_sched.interpolate
     assert increase_sched.start_date == Date(6, 21)
-
-    """
-    f_dir = 'C:/Users/chris/Documents/GitHub/honeybee-schema/honeybee_schema/samples'
-    dest_file = f_dir + '/schedule_fixedinterval_increasing_fine_timestep.json'
-    with open(dest_file, 'w') as fp:
-        json.dump(increase_sched.to_dict(True), fp, indent=4)
-    """
 
 
 def test_schedule_fixedinterval_equality():
@@ -108,13 +93,6 @@ def test_schedule_fixedinterval_equality():
     trans_sched_dup.name = 'Transmittance'
     assert trans_sched != trans_sched_dup
     assert trans_sched != occ_sched
-
-    """
-    f_dir = 'C:/Users/chris/Documents/GitHub/honeybee-schema/honeybee_schema/samples'
-    dest_file = f_dir + '/schedule_fixedinterval_random_annual.json'
-    with open(dest_file, 'w') as fp:
-        json.dump(occ_sched.to_dict(True), fp, indent=4)
-    """
 
 
 def test_schedule_fixedinterval_lockability():

@@ -9,7 +9,6 @@ from honeybee_energy.simulation.sizing import SizingParameter
 
 from ladybug.dt import Date
 
-import json
 import pytest
 
 
@@ -105,13 +104,6 @@ def test_simulation_parameter_to_dict_simple():
     assert 'shadow_calculation' in sim_par_dict
     assert 'sizing_parameter' in sim_par_dict
 
-    """
-    f_dir = 'C:/Users/chris/Documents/GitHub/honeybee-model-schema/honeybee_model_schema/samples'
-    dest_file = f_dir + '/simulation_par_simple.json'
-    with open(dest_file, 'w') as fp:
-        json.dump(sim_par_dict, fp, indent=4)
-    """
-
 
 def test_simulation_parameter_to_dict_detailed():
     """Test the to_dict method with a detailed SimulationParameter."""
@@ -146,13 +138,6 @@ def test_simulation_parameter_to_dict_detailed():
     assert 'holidays' in sim_par_dict['run_period']
     assert 'daylight_saving_time' in sim_par_dict['run_period']
     assert 'design_days' in sim_par_dict['sizing_parameter']
-
-    """
-    f_dir = 'C:/Users/chris/Documents/GitHub/honeybee-model-schema/honeybee_model_schema/samples'
-    dest_file = f_dir + '/simulation_par_detailed.json'
-    with open(dest_file, 'w') as fp:
-        json.dump(sim_par_dict, fp, indent=4)
-    """
 
 
 def test_simulation_parameter_dict_methods():

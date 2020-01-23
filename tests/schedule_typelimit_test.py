@@ -2,7 +2,6 @@
 from honeybee_energy.schedule.typelimit import ScheduleTypeLimit
 from ladybug.datatype import fraction
 
-import json
 import pytest
 
 
@@ -42,18 +41,11 @@ def test_schedule_typelimit_to_from_idf():
     assert rebuilt_temp_string == temp_string
 
 
-def test_schedule_ruleset_dict_methods():
-    """Test the ScheduleRuleset to/from dict methods."""
+def test_schedule_typelimit_dict_methods():
+    """Test the ScheduleTypeLimit to/from dict methods."""
     temperature = ScheduleTypeLimit('Temperature', -273.15, None, 'Continuous', 'Temperature')
 
     temp_dict = temperature.to_dict()
     new_temperature = ScheduleTypeLimit.from_dict(temp_dict)
     assert new_temperature == temperature
     assert temp_dict == new_temperature.to_dict()
-
-    """
-    f_dir = 'C:/Users/chris/Documents/GitHub/energy-model-schema/app/models/samples/json'
-    dest_file = f_dir + '/scheduletypelimit_temperature.json'
-    with open(dest_file, 'w') as fp:
-        json.dump(temp_dict, fp, indent=4)
-    """

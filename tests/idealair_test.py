@@ -11,7 +11,6 @@ from ladybug.dt import Time
 
 from ladybug_geometry.geometry3d.pointvector import Point3D
 
-import json
 import pytest
 
 
@@ -144,13 +143,6 @@ def test_ideal_air_to_dict():
     assert ideal_air_dict['cooling_limit'] == 3500
     assert ideal_air_dict['heating_availability'] == 'HVAC Control'
     assert ideal_air_dict['cooling_availability'] == 'HVAC Control'
-
-    """
-    f_dir = 'C:/Users/chris/Documents/GitHub/honeybee-schema/honeybee_schema/samples'
-    dest_file = f_dir + '/ideal_air_detailed.json'
-    with open(dest_file, 'w') as fp:
-        json.dump(ideal_air_dict, fp, indent=4)
-    """
 
 
 def test_ideal_air_dict_methods():

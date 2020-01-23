@@ -10,7 +10,6 @@ from honeybee_energy.construction.window import WindowConstruction
 from honeybee_energy.construction.shade import ShadeConstruction
 
 import pytest
-import json
 
 
 def test_opaque_construction_init():
