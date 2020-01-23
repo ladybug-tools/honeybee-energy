@@ -9,7 +9,6 @@ from ladybug.dt import Date, Time
 from ladybug.datatype import fraction
 from ladybug.analysisperiod import AnalysisPeriod
 
-import json
 import pytest
 
 
@@ -164,13 +163,6 @@ def test_schedule_ruleset_from_daily_values():
     assert sched.summer_designday_schedule is None
     assert sched.winter_designday_schedule is None
     assert sched == sched_alt
-
-    """
-    f_dir = 'C:/Users/chris/Documents/GitHub/energy-model-schema/app/models/samples/json'
-    dest_file = f_dir + '/schedule_simple_repeating.json'
-    with open(dest_file, 'w') as fp:
-        json.dump(sched.to_dict(True), fp, indent=4)
-    """
 
 
 def test_schedule_ruleset_from_week_daily_values():
@@ -342,13 +334,6 @@ def test_schedule_ruleset_to_idf_date_range():
 
     assert len(year_sched.split(',')) > 6
     assert len(week_scheds) == 2
-
-    """
-    f_dir = 'C:/Users/chris/Documents/GitHub/energy-model-schema/app/models/samples/json'
-    dest_file = f_dir + '/schedule_primary_school_occupancy.json'
-    with open(dest_file, 'w') as fp:
-        json.dump(schedule.to_dict(True), fp, indent=4)
-    """
 
 
 def test_schedule_ruleset_dict_methods():

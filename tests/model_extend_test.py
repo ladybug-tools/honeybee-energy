@@ -33,7 +33,6 @@ from ladybug_geometry.geometry3d.plane import Plane
 from ladybug_geometry.geometry3d.face import Face3D
 
 import random
-import json
 import pytest
 
 
@@ -382,13 +381,6 @@ def test_to_dict_single_zone():
     assert model_dict['rooms'][0]['properties']['energy']['hvac'] == \
         room.properties.energy.hvac.name
 
-    """
-    f_dir = 'C:/Users/chris/Documents/GitHub/honeybee-schema/honeybee_schema/samples'
-    dest_file = f_dir + '/model_complete_single_zone_office.json'
-    with open(dest_file, 'w') as fp:
-        json.dump(model_dict, fp, indent=4)
-    """
-
 
 def test_to_dict_single_zone_schedule_fixed_interval():
     """Test the Model to_dict method with a single zone model and fixed interval schedules."""
@@ -458,12 +450,6 @@ def test_to_dict_single_zone_schedule_fixed_interval():
     assert model_dict['rooms'][0]['properties']['energy']['program_type'] == \
         office_program.name
 
-    """
-    f_dir = 'C:/Users/chris/Documents/GitHub/honeybee-schema/honeybee_schema/samples'
-    dest_file = f_dir + '/model_complete_single_zone_office_fixed_interval.json'
-    with open(dest_file, 'w') as fp:
-        json.dump(model_dict, fp, indent=4)
-    """
 
 def test_to_dict_single_zone_detailed_loads():
     """Test the Model to_dict method with detailed, room-level loads."""
@@ -507,13 +493,6 @@ def test_to_dict_single_zone_detailed_loads():
     assert model_dict['rooms'][0]['properties']['energy']['setpoint']['name'] == \
         office_program.setpoint.name
 
-    """
-    f_dir = 'C:/Users/chris/Documents/GitHub/honeybee-schema/honeybee_schema/samples'
-    dest_file = f_dir + '/model_complete_single_zone_office_detailed_loads.json'
-    with open(dest_file, 'w') as fp:
-        json.dump(model_dict, fp, indent=4)
-    """
-
 
 def test_to_dict_shoe_box():
     """Test the Model to_dict method with a shoebox zone model."""
@@ -548,13 +527,6 @@ def test_to_dict_shoe_box():
 
     assert model_dict['rooms'][0]['faces'][0]['boundary_condition']['type'] == 'Adiabatic'
     assert model_dict['rooms'][0]['faces'][2]['boundary_condition']['type'] == 'Adiabatic'
-
-    """
-    f_dir = 'C:/Users/chris/Documents/GitHub/honeybee-schema/honeybee_schema/samples'
-    dest_file = f_dir + '/model_shoe_box.json'
-    with open(dest_file, 'w') as fp:
-        json.dump(model_dict, fp, indent=4)
-    """
 
 
 def test_to_dict_multizone_house():
@@ -622,13 +594,6 @@ def test_to_dict_multizone_house():
         first_floor.properties.energy.hvac.name
     assert model_dict['rooms'][1]['properties']['energy']['hvac'] == \
         second_floor.properties.energy.hvac.name
-
-    """
-    f_dir = 'C:/Users/chris/Documents/GitHub/honeybee-schema/honeybee_schema/samples'
-    dest_file = f_dir + '/model_complete_multi_zone_office.json'
-    with open(dest_file, 'w') as fp:
-        json.dump(model_dict, fp, indent=4)
-    """
 
 
 def test_writer_to_idf():
