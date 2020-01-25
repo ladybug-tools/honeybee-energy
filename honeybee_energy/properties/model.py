@@ -592,48 +592,56 @@ class ModelEnergyProperties(object):
 
         # process all construction sets in the ModelEnergyProperties dictionary
         construction_sets = {}
-        for c_set in data['properties']['energy']['construction_sets']:
-            construction_sets[c_set['name']] = \
-                ConstructionSet.from_dict_abridged(c_set, constructions)
+        if 'construction_sets' in data['properties']['energy'] and \
+                data['properties']['energy']['construction_sets'] is not None:
+            for c_set in data['properties']['energy']['construction_sets']:
+                construction_sets[c_set['name']] = \
+                    ConstructionSet.from_dict_abridged(c_set, constructions)
 
         # process all schedule type limits in the ModelEnergyProperties dictionary
         schedule_type_limits = {}
-        for t_lim in data['properties']['energy']['schedule_type_limits']:
-            schedule_type_limits[t_lim['name']] = ScheduleTypeLimit.from_dict(t_lim)
+        if 'schedule_type_limits' in data['properties']['energy'] and \
+                data['properties']['energy']['schedule_type_limits'] is not None:
+            for t_lim in data['properties']['energy']['schedule_type_limits']:
+                schedule_type_limits[t_lim['name']] = ScheduleTypeLimit.from_dict(t_lim)
 
         # process all schedules in the ModelEnergyProperties dictionary
         schedules = {}
-        for sched in data['properties']['energy']['schedules']:
-            sched = sched.copy()  # copy the original dictionary so that we don't edit it
-            # process the schedule type limits
-            typ_lim = None
-            if 'schedule_type_limit' in sched:
-                typ_lim = sched['schedule_type_limit']
-                sched['schedule_type_limit'] = None
-            # create the schedule objects
-            if sched['type'] == 'ScheduleRulesetAbridged':
-                sched['type'] = 'ScheduleRuleset'
-                schedules[sched['name']] = ScheduleRuleset.from_dict(sched)
-            elif sched['type'] == 'ScheduleFixedIntervalAbridged':
-                sched['type'] = 'ScheduleFixedInterval'
-                schedules[sched['name']] = ScheduleFixedInterval.from_dict(sched)
-            else:
-                raise NotImplementedError(
-                    'Schedule {} is not supported.'.format(sched['type']))
-            # asign the schedule type limits
-            schedules[sched['name']].schedule_type_limit = \
-                schedule_type_limits[typ_lim] if typ_lim is not None else None
+        if 'schedules' in data['properties']['energy'] and \
+                data['properties']['energy']['schedules'] is not None:
+            for sched in data['properties']['energy']['schedules']:
+                sched = sched.copy()  # copy original dictionary so we don't edit it
+                # process the schedule type limits
+                typ_lim = None
+                if 'schedule_type_limit' in sched:
+                    typ_lim = sched['schedule_type_limit']
+                    sched['schedule_type_limit'] = None
+                # create the schedule objects
+                if sched['type'] == 'ScheduleRulesetAbridged':
+                    sched['type'] = 'ScheduleRuleset'
+                    schedules[sched['name']] = ScheduleRuleset.from_dict(sched)
+                elif sched['type'] == 'ScheduleFixedIntervalAbridged':
+                    sched['type'] = 'ScheduleFixedInterval'
+                    schedules[sched['name']] = ScheduleFixedInterval.from_dict(sched)
+                else:
+                    raise NotImplementedError(
+                        'Schedule {} is not supported.'.format(sched['type']))
+                # asign the schedule type limits
+                schedules[sched['name']].schedule_type_limit = \
+                    schedule_type_limits[typ_lim] if typ_lim is not None else None
 
         # process all ProgramType in the ModelEnergyProperties dictionary
         program_types = {}
-        if 'program_types' in data['properties']['energy']:
+        if 'program_types' in data['properties']['energy'] and \
+                data['properties']['energy']['program_types'] is not None:
             for p_typ in data['properties']['energy']['program_types']:
                 program_types[p_typ['name']] = \
                     ProgramType.from_dict_abridged(p_typ, schedules)
         
         # process all HVAC systems in the ModelEnergyProperties dictionary
         hvacs = {}
-        if 'hvacs' in data['properties']['energy']:
+        if 'hvacs' in data['properties']['energy']  and \
+                data['properties']['energy']['hvacs'] is not None:
             for hvac in data['properties']['energy']['hvacs']:
                 hvac_class = HVAC_TYPES_DICT[hvac['type'].replace('Abridged', '')]
                 hvacs[hvac['name']] = hvac_class.from_dict_abridged(hvac, schedules)
