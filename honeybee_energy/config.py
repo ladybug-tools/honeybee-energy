@@ -3,6 +3,9 @@
 Import this into every module where access configurations are needed.
 
 Usage:
+
+.. code-block:: python
+
     from honeybee_energy.config import folders
     print(folders.energyplus_path)
     print(folders.openstudio_path)
