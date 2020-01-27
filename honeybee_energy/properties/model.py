@@ -149,14 +149,17 @@ class ModelEnergyProperties(object):
         constructions = []
         for shade in self.host.orphaned_shades:
             self._check_and_add_obj_construction(shade, constructions)
-        for room in self.host.rooms:
+        for room in self.host.rooms:  # check all Room Shade constructions
             for shade in room.shades:
                 self._check_and_add_obj_construction(shade, constructions)
-            for face in room.faces:  # check all Face constructions
+            for face in room.faces:  # check all Face Shade constructions
                 for shade in face.shades:
                     self._check_and_add_obj_construction(shade, constructions)
-                for ap in face.apertures:  # check all Aperture constructions
+                for ap in face.apertures:  # check all Aperture Shade constructions
                     for shade in ap.shades:
+                        self._check_and_add_obj_construction(shade, constructions)
+                for dr in face.doors:  # check all Door Shade constructions
+                    for shade in dr.shades:
                         self._check_and_add_obj_construction(shade, constructions)
         return list(set(constructions))
 
@@ -212,14 +215,17 @@ class ModelEnergyProperties(object):
         schedules = []
         for shade in self.host.orphaned_shades:
             self._check_and_add_shade_schedule(shade, schedules)
-        for room in self.host.rooms:
+        for room in self.host.rooms:  # check all Room Shade schedules
             for shade in room.shades:
                 self._check_and_add_shade_schedule(shade, schedules)
-            for face in room.faces:  # check all Face schedules
+            for face in room.faces:  # check all Face Shade schedules
                 for shade in face.shades:
                     self._check_and_add_shade_schedule(shade, schedules)
-                for ap in face.apertures:  # check all Aperture schedules
+                for ap in face.apertures:  # check all Aperture Shade schedules
                     for shade in ap.shades:
+                        self._check_and_add_shade_schedule(shade, schedules)
+                for dr in face.doors:  # check all Door Shade schedules
+                    for shade in dr.shades:
                         self._check_and_add_shade_schedule(shade, schedules)
         return list(set(schedules))
 
@@ -480,8 +486,8 @@ class ModelEnergyProperties(object):
                 s_dict, constructions, schedules)
         for aperture, a_dict in zip(self.host.apertures, ap_e_dicts):
             aperture.properties.energy.apply_properties_from_dict(a_dict, constructions)
-        for aperture, a_dict in zip(self.host.apertures, ap_e_dicts):
-            aperture.properties.energy.apply_properties_from_dict(a_dict, constructions)
+        for door, d_dict in zip(self.host.doors, dr_e_dicts):
+            door.properties.energy.apply_properties_from_dict(d_dict, constructions)
 
     def to_dict(self, include_global_construction_set=True):
         """Return Model energy properties as a dictionary.

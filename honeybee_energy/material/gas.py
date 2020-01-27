@@ -640,6 +640,9 @@ class EnergyWindowMaterialGasCustom(_EnergyWindowMaterialGasBase):
         prandtl
 
     Usage:
+
+    .. code-block:: python
+
         co2_gap = EnergyWindowMaterialGasCustom('CO2', 0.0125, 0.0146, 0.000014, 827.73)
         co2_gap.specific_heat_ratio = 1.4
         co2_gap.molecular_weight = 44

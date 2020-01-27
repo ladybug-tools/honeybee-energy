@@ -139,11 +139,11 @@ def shade_to_idf(shade):
     if shade.has_parent and not isinstance(shade.parent, Room):
         if isinstance(shade.parent, Face):
             base_srf = shade.parent.name
-        else:  # Aperture for parent
+        else:  # Aperture or Door for parent
             try:
                 base_srf = shade.parent.parent.name
             except AttributeError:
-                base_srf = 'unknown'  # aperture without a parent
+                base_srf = 'unknown'  # aperture without a parent (not simulate-able)
         values = (shade.name,
                   base_srf,
                   trans_sched,
@@ -430,6 +430,8 @@ def model_to_idf(model, schedule_directory=None,
                     model_str.append(shade.to.idf(shade))
             for dr in face.doors:
                 model_str.append(dr.to.idf(dr))
+                for shade in dr.outdoor_shades:
+                    model_str.append(shade.to.idf(shade))
             for shade in face.outdoor_shades:
                 model_str.append(shade.to.idf(shade))
         for shade in room.outdoor_shades:

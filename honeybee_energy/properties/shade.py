@@ -172,10 +172,13 @@ class ShadeEnergyProperties(object):
     def _parent_construction_set(host_parent):
         """Recursively search through host parents to find a ConstructionSet."""
         if hasattr(host_parent.properties.energy, 'construction_set'):
+            # we found the room with the construction set
             return host_parent.properties.energy.construction_set
         elif host_parent.has_parent:
+            # we found an aperture or face that could have a room with a construction set
             return ShadeEnergyProperties._parent_construction_set(host_parent.parent)
         else:
+            # there is no parent room
             return None
 
     def ToString(self):
