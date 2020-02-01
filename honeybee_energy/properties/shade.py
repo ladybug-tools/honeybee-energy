@@ -15,7 +15,7 @@ class ShadeEnergyProperties(object):
         * host
         * construction
         * transmittance_schedule
-        * is_construction_set_by_user
+        * is_construction_set_on_object
     """
 
     __slots__ = ('_host', '_construction', '_transmittance_schedule')
@@ -45,7 +45,14 @@ class ShadeEnergyProperties(object):
 
     @property
     def construction(self):
-        """Get or set a ShadeConstruction for the shade."""
+        """Get or set a ShadeConstruction for the shade.
+        
+        If the construction is not set on the shade-level, then it will be assigned
+        based on the ConstructionSet assigned to the parent Room.  If the parent Room's
+        ConstructionSet has no construction for the Shade type, it will be assigned
+        using the honeybee default generic ConstructionSet. If there is no parent
+        Room, it will be the generic context construction.
+        """
         if self._construction:  # set by user
             return self._construction
         elif not self._host.has_parent:
@@ -83,10 +90,19 @@ class ShadeEnergyProperties(object):
         self._transmittance_schedule = value
 
     @property
-    def is_construction_set_by_user(self):
-        """Boolean noting if construction is user-set (as opposed to a ConstructionSet).
+    def is_construction_set_on_object(self):
+        """Boolean noting if construction is assigned on the level of this Shade.
+        
+        This is opposed to having the construction assigned by a ConstructionSet.
         """
         return self._construction is not None
+
+    def reset_to_default(self):
+        """Reset a construction assigned at the level of this Shade to the default.
+
+        This means that the Shade's construction will be assigned by a ConstructionSet.
+        """
+        self._construction = None
 
     @classmethod
     def from_dict(cls, data, host):

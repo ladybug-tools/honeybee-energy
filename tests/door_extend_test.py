@@ -20,7 +20,7 @@ def test_energy_properties():
     assert hasattr(door.properties, 'energy')
     assert isinstance(door.properties.energy, DoorEnergyProperties)
     assert isinstance(door.properties.energy.construction, OpaqueConstruction)
-    assert not door.properties.energy.is_construction_set_by_user
+    assert not door.properties.energy.is_construction_set_on_object
 
 
 def test_default_constructions():
@@ -62,7 +62,7 @@ def test_set_construction():
     door.properties.energy.construction = mass_constr
 
     assert door.properties.energy.construction == mass_constr
-    assert door.properties.energy.is_construction_set_by_user
+    assert door.properties.energy.is_construction_set_on_object
 
     with pytest.raises(AttributeError):
         door.properties.energy.construction[0].thickness = 0.1

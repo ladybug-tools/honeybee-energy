@@ -398,10 +398,8 @@ class ConstructionSet(object):
             base['shade_construction'] = self.shade_construction.name
 
         if not abridged:
-            if none_for_defaults:
-                constructions = self.modified_constructions_unique
-            else:
-                constructions = self.constructions_unique
+            constructions = self.modified_constructions_unique if none_for_defaults \
+                else self.constructions_unique
             base['constructions'] = []
             materials = []
             for cnst in constructions:

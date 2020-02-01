@@ -15,15 +15,14 @@ SDK in order to add energy simulation properties and capabilities to
 [honeybee-core](https://github.com/ladybug-tools/honeybee-core).
 
 ## Installation
-```console
-pip install honeybee-energy
-```
+`pip install -U honeybee-energy`
 
-## QuickStart
-```python
-import honeybee_energy
+If you want to also include the command line interface try:
 
-```
+`pip install -U honeybee-energy[cli]`
+
+To check if the command line is installed correctly try `honeybee energy --help`
+or `honeybee-energy --help`. 
 
 ## [API Documentation](http://ladybug-tools.github.io/honeybee-energy/docs)
 

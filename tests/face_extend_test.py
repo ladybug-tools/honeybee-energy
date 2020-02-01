@@ -19,7 +19,7 @@ def test_energy_properties():
     assert hasattr(face.properties, 'energy')
     assert isinstance(face.properties.energy, FaceEnergyProperties)
     assert isinstance(face.properties.energy.construction, OpaqueConstruction)
-    assert not face.properties.energy.is_construction_set_by_user
+    assert not face.properties.energy.is_construction_set_on_object
 
 
 def test_default_constructions():
@@ -47,7 +47,7 @@ def test_set_construction():
     face.properties.energy.construction = thick_constr
 
     assert face.properties.energy.construction == thick_constr
-    assert face.properties.energy.is_construction_set_by_user
+    assert face.properties.energy.is_construction_set_on_object
 
     with pytest.raises(AttributeError):
         face.properties.energy.construction[0].thickness = 0.1
