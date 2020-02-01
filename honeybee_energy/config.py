@@ -345,11 +345,18 @@ class Folders(object):
         """Find the energy_model_measure_path in its default location.
         
         This is usually next to the Python pacakges when it's installed for a plugin.
+        We will also search the OpenStudio BCL Measures path if we don't find it here.
         """
         measure_path = os.path.join(hb_config.folders.python_package_path,
                                     'energy_model_measure', 'lib')
-        if not os.path.isdir(measure_path):
-            return  # No energy_model_measure is installed
+        if not os.path.isdir(measure_path):  # not with python packages; search BCL folder
+            home_folder = os.getenv('HOME') or os.path.expanduser('~')
+            bcl_path = os.path.join(home_folder, 'OpenStudio', 'Measures')
+            measure_path = os.path.join(bcl_path, 'energy_model_measure', 'lib')
+            if not os.path.isdir(measure_path):
+                measure_path = os.path.join(bcl_path, 'energy-model-measure', 'lib')
+                if not os.path.isdir(measure_path):
+                    return  # No energy_model_measure is installed
         return measure_path
     
     @staticmethod

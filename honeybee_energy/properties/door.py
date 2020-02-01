@@ -11,7 +11,7 @@ class DoorEnergyProperties(object):
     Properties:
         * host
         * construction
-        * is_construction_set_by_user
+        * is_construction_set_on_object
     """
 
     __slots__ = ('_host', '_construction')
@@ -41,13 +41,13 @@ class DoorEnergyProperties(object):
 
         If the Construction is not set on the door-level, then it will be assigned
         based on the ConstructionSet assigned to the parent Room.  If there is no
-        parent Room or the the parent Room's ConstructionSet has no construction for
+        parent Room or the parent Room's ConstructionSet has no construction for
         this type of door, it will be assigned using the honeybee default
         generic construction set.
         """
         if self._construction:  # set by user
             return self._construction
-        elif self._host.has_parent and self._host.parent.has_parent:  # set by zone
+        elif self._host.has_parent and self._host.parent.has_parent:  # set by room
             constr_set = self._host.parent.parent.properties.energy.construction_set
             return constr_set.get_door_construction(
                 self._host.boundary_condition.name, self._host.is_glass,
@@ -73,10 +73,19 @@ class DoorEnergyProperties(object):
         self._construction = value
 
     @property
-    def is_construction_set_by_user(self):
-        """Boolean noting if construction is user-set (as opposed to a ConstructionSet).
+    def is_construction_set_on_object(self):
+        """Boolean noting if construction is assigned on the level of this Door.
+        
+        This is opposed to having the construction assigned by a ConstructionSet.
         """
         return self._construction is not None
+
+    def reset_to_default(self):
+        """Reset a construction assigned at the level of this Door to the default.
+
+        This means that the Door's construction will be assigned by a ConstructionSet.
+        """
+        self._construction = None
 
     @classmethod
     def from_dict(cls, data, host):

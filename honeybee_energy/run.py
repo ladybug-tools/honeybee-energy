@@ -15,14 +15,17 @@ from .config import folders
 from ladybug.futil import write_to_file, copy_files_to_folder, copy_file_tree
 
 
-def to_openstudio_osw(osw_directory, model_json_path, sim_par_json_path, epw_file=None):
+def to_openstudio_osw(osw_directory, model_json_path, sim_par_json_path=None,
+                      epw_file=None):
     """Create a .osw to translate honeybee JSONs to an .osm file.
     
     Args:
         osw_directory: The directory into which the .osw should be written and the
             .osm will eventually be written into.
         model_json_path: File path to the Model JSON.
-        sim_par_json_path: File path to the SimulationParameter JSON.
+        sim_par_json_path: Optional file path to the SimulationParameter JSON.
+            If None, the resulting OSM will not have everything it needs to be
+            simulate-able.
         epw_file: Optional file path to an EPW that should be associated with the
             output energy model.
     
@@ -41,16 +44,19 @@ def to_openstudio_osw(osw_directory, model_json_path, sim_par_json_path, epw_fil
             'model_json' : model_json_path
             },
          'measure_dir_name': 'from_honeybee_model'
-         }
-
-    sim_par_dict = {
-        'arguments' : {
-            'simulation_parameter_json' : sim_par_json_path
-            },
-         'measure_dir_name': 'from_honeybee_simulation_parameter'
-         }
-
-    osw_dict = {'steps': [model_measure_dict, sim_par_dict]}
+        }
+    osw_dict = {'steps': [model_measure_dict]}
+    
+    # add a simulation parameter step if it is specified
+    if sim_par_json_path is not None:
+        sim_par_dict = {
+            'arguments' : {
+                'simulation_parameter_json' : sim_par_json_path
+                },
+            'measure_dir_name': 'from_honeybee_simulation_parameter'
+            }
+        osw_dict['steps'].append(sim_par_dict)
+        
 
     # assign the measure_paths to the osw_dict
     measure_directory = os.path.join(folders.energy_model_measure_path, 'measures')
@@ -65,7 +71,7 @@ def to_openstudio_osw(osw_directory, model_json_path, sim_par_json_path, epw_fil
     with open(osw_json, 'w') as fp:
         json.dump(osw_dict, fp, indent=4)
 
-    return osw_json
+    return os.path.abspath(osw_json)
 
 
 def run_osw(osw_json, measures_only=True):

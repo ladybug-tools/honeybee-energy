@@ -21,6 +21,12 @@ setuptools.setup(
     packages=setuptools.find_packages(exclude=["tests"]),
     include_package_data=True,
     install_requires=requirements,
+    extra_requires={
+        'cli': ['click>=5.1', 'honeybee-schema>=1.9.0']
+    },
+    entry_points={
+        "console_scripts": ["honeybee-energy = honeybee_energy.cli:energy"]
+    },
     classifiers=[
         "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3.6",

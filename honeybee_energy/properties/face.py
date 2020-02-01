@@ -10,7 +10,7 @@ class FaceEnergyProperties(object):
     Properties:
         * host
         * construction
-        * is_construction_set_by_user
+        * is_construction_set_on_object
     """
 
     __slots__ = ('_host', '_construction')
@@ -38,7 +38,7 @@ class FaceEnergyProperties(object):
 
         If the Construction is not set on the face-level, then it will be assigned
         based on the ConstructionSet assigned to the parent Room.  If there is no
-        parent Room or the the parent Room's ConstructionSet has no construction for
+        parent Room or the parent Room's ConstructionSet has no construction for
         the Face type and boundary_condition, it will be assigned using the honeybee
         default generic construction set.
         """
@@ -61,10 +61,19 @@ class FaceEnergyProperties(object):
         self._construction = value
 
     @property
-    def is_construction_set_by_user(self):
-        """Boolean noting if construction is user-set (as opposed to a ConstructionSet).
+    def is_construction_set_on_object(self):
+        """Boolean noting if construction is assigned on the level of this Face.
+        
+        This is opposed to having the construction assigned by a ConstructionSet.
         """
         return self._construction is not None
+    
+    def reset_to_default(self):
+        """Reset a construction assigned at the level of this Face to the default.
+
+        This means that the Face's construction will be assigned by a ConstructionSet.
+        """
+        self._construction = None
 
     @classmethod
     def from_dict(cls, data, host):

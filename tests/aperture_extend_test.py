@@ -21,7 +21,7 @@ def test_energy_properties():
     assert hasattr(aperture.properties, 'energy')
     assert isinstance(aperture.properties.energy, ApertureEnergyProperties)
     assert isinstance(aperture.properties.energy.construction, WindowConstruction)
-    assert not aperture.properties.energy.is_construction_set_by_user
+    assert not aperture.properties.energy.is_construction_set_on_object
 
 
 def test_default_constructions():
@@ -66,7 +66,7 @@ def test_set_construction():
     aperture.properties.energy.construction = triple_pane
 
     assert aperture.properties.energy.construction == triple_pane
-    assert aperture.properties.energy.is_construction_set_by_user
+    assert aperture.properties.energy.is_construction_set_on_object
 
     with pytest.raises(AttributeError):
         aperture.properties.energy.construction[0].thickness = 0.1

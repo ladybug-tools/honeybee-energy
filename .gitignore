@@ -11,3 +11,4 @@ test.py
 tox.ini
 /.cache
 /.vscode
+honeybee.log*
