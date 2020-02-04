@@ -10,6 +10,7 @@ from ..schedule.fixedinterval import ScheduleFixedInterval
 
 from honeybee._lockable import lockable
 from honeybee.typing import valid_string, float_positive, float_in_range
+from honeybee.altnumber import autosize, no_limit
 
 
 @lockable
@@ -44,7 +45,7 @@ class IdealAirSystem(_HVACSystem):
                  demand_controlled_ventilation=False,
                  sensible_heat_recovery=0, latent_heat_recovery=0,
                  heating_air_temperature=50, cooling_air_temperature=13,
-                 heating_limit='autosize', cooling_limit='autosize',
+                 heating_limit=autosize, cooling_limit=autosize,
                  heating_availability=None, cooling_availability=None):
         """Initialize IdealAirSystem.
 
@@ -74,17 +75,15 @@ class IdealAirSystem(_HVACSystem):
                 temperature [C]. Default: 13, which is typical for many air-based
                 HVAC systems.
             heating_limit: A number for the maximum heating capacity in Watts. This
-                can also be the text 'autosize' to indicate that the capacity should
+                can also be an Autosize object to indicate that the capacity should
                 be determined during the EnergyPlus sizing calculation. This can also
-                be the text 'NoLimit' to indicate no upper limit to the heating
-                capacity. Default: 'autosize'. Note that setting this to None will
-                trigger the default ('autosize').
+                be a NoLimit object to indicate no upper limit to the heating
+                capacity. Default: autosize.
             cooling_limit: A number for the maximum cooling capacity in Watts. This
-                can also be the text 'autosize' to indicate that the capacity should
+                can also be an Autosize object to indicate that the capacity should
                 be determined during the EnergyPlus sizing calculation. This can also
-                be the text 'NoLimit' to indicate no upper limit to the cooling
-                capacity. Default: 'autosize'. Note that setting this to None will
-                trigger the default ('autosize').
+                be a NoLimit object to indicate no upper limit to the cooling
+                capacity.
             heating_availability: An optional schedule to set the availability of
                 heating over the course of the simulation. Default: None.
             cooling_availability: An optional schedule to set the availability of
@@ -191,15 +190,10 @@ class IdealAirSystem(_HVACSystem):
 
     @heating_limit.setter
     def heating_limit(self, value):
-        if value is None:
-            self._heating_limit = 'autosize'
-        elif isinstance(value, str):
-            if value.lower() == 'autosize':
-                self._heating_limit = 'autosize'
-            elif value.lower() == 'nolimit':
-                self._heating_limit = 'NoLimit'
-            else:
-                self._heating_limit = float_positive(value, 'ideal air heating limit')
+        if value == autosize or value is None:
+            self._heating_limit = autosize
+        elif value == no_limit:
+            self._heating_limit = no_limit
         else:
             self._heating_limit = float_positive(value, 'ideal air heating limit')
 
@@ -210,17 +204,12 @@ class IdealAirSystem(_HVACSystem):
 
     @cooling_limit.setter
     def cooling_limit(self, value):
-        if value is None:
-            self._cooling_limit = 'autosize'
-        elif isinstance(value, str):
-            if value.lower() == 'autosize':
-                self._cooling_limit = 'autosize'
-            elif value.lower() == 'nolimit':
-                assert self.economizer_type == 'NoEconomizer', 'Ideal air system ' \
-                    'economizer_type must be "NoEconomizer" to have no cooling limit.'
-                self._cooling_limit = 'NoLimit'
-            else:
-                self._cooling_limit = float_positive(value, 'ideal air cooling limit')
+        if value == autosize or value is None:
+            self._cooling_limit = autosize
+        elif value == no_limit:
+            assert self.economizer_type == 'NoEconomizer', 'Ideal air system ' \
+                'economizer_type must be "NoEconomizer" to have no cooling limit.'
+            self._cooling_limit = no_limit
         else:
             self._cooling_limit = float_positive(value, 'ideal air cooling limit')
     
@@ -288,8 +277,8 @@ class IdealAirSystem(_HVACSystem):
         latent = 0
         heat_temp = 50
         cool_temp = 13
-        heat_limit = 'autosize'
-        cool_limit = 'autosize'
+        heat_limit = autosize
+        cool_limit = autosize
         heat_sch = None
         cool_sch = None
 
@@ -299,14 +288,16 @@ class IdealAirSystem(_HVACSystem):
             cool_temp = ep_strs[4] if ep_strs[4] != '' else cool_temp
             if ep_strs[7].lower() == 'limitcapacity' or \
                     ep_strs[7].lower() == 'limitflowrateandcapacity':
-                heat_limit = ep_strs[9] if ep_strs[9] != '' else 'autosize'
+                heat_limit = autosize if ep_strs[9] == '' or \
+                    ep_strs[9].lower() == 'autosize' else ep_strs[9]
             else:
-                heat_limit = 'NoLimit'
+                heat_limit = no_limit
             if ep_strs[10].lower() == 'limitcapacity' or \
                     ep_strs[10].lower() == 'limitflowrateandcapacity':
-                heat_limit = ep_strs[12] if ep_strs[12] != '' else 'autosize'
+                cool_limit = autosize if ep_strs[12] == '' or \
+                    ep_strs[12].lower() == 'autosize' else ep_strs[12]
             else:
-                heat_limit = 'NoLimit'
+                cool_limit = no_limit
             if ep_strs[13] != '':
                 heat_sch = schedule_dict[ep_strs[13]]
             if ep_strs[14] != '':
@@ -347,8 +338,8 @@ class IdealAirSystem(_HVACSystem):
             "latent_heat_recovery": 0.7,  # Latent heat recovery effectiveness
             "heating_air_temperature": 50,  # Heating supply air temperature
             "cooling_air_temperature": 13,  # Cooling supply air temperature
-            "heating_limit": 'autosize',  # Max size of the heating system in Watts
-            "cooling_limit": 'autosize',  # Max size of the cooling system in Watts
+            "heating_limit": {'type': 'Autosize'},  # Max size of the heating system
+            "cooling_limit": {'type': 'Autosize'},  # Max size of the cooling system 
             "heating_availability": {},  # Schedule for availability of heat or None
             "cooling_availability": {}  # Schedule for availability of cooling or None
             }
@@ -441,17 +432,17 @@ class IdealAirSystem(_HVACSystem):
 
         # extract all of the fields from this object and its parent
         # heating limit
-        if self.heating_limit != 'NoLimit':
+        if self.heating_limit != no_limit:
             h_lim_type = 'LimitCapacity'
-            heat_limit = self.heating_limit
+            heat_limit = str(self.heating_limit)  # stringify Autosize
         else:
             h_lim_type = 'NoLimit'
             heat_limit = ''
         # cooling limit
-        if self.cooling_limit != 'NoLimit':
+        if self.cooling_limit != no_limit:
             c_lim_type = 'LimitFlowRateAndCapacity'
-            air_limit = 'autosize'
-            cool_limit = self.cooling_limit
+            air_limit = 'Autosize'
+            cool_limit = str(self.cooling_limit)  # stringify Autosize
         else:
             c_lim_type = 'NoLimit'
             air_limit = cool_limit = ''
@@ -535,8 +526,10 @@ class IdealAirSystem(_HVACSystem):
         base['latent_heat_recovery'] = self.latent_heat_recovery
         base['heating_air_temperature'] = self.heating_air_temperature
         base['cooling_air_temperature'] = self.cooling_air_temperature
-        base['heating_limit'] = self.heating_limit
-        base['cooling_limit'] = self.cooling_limit
+        base['heating_limit'] = self.heating_limit if \
+            isinstance(self.heating_limit, float) else self.heating_limit.to_dict()
+        base['cooling_limit'] = self.cooling_limit if \
+            isinstance(self.cooling_limit, float) else self.cooling_limit.to_dict()
         if self.heating_availability is not None:
             base['heating_availability'] = self.heating_availability.name if abridged \
                 else self.heating_availability.to_dict()
@@ -572,13 +565,23 @@ class IdealAirSystem(_HVACSystem):
         latent = data['latent_heat_recovery'] if \
             'latent_heat_recovery' in data else 0
 
-        # extract the properties affecting heating and cooling
+        # extract the heating and cooling temperature
         heat_temp = data['heating_air_temperature'] if \
             'heating_air_temperature' in data else 50
         cool_temp = data['cooling_air_temperature'] if \
             'cooling_air_temperature' in data else 13
-        heat_limit = data['heating_limit'] if 'heating_limit' in data else 'autosize'
-        cool_limit = data['cooling_limit'] if 'cooling_limit' in data else 'autosize'
+
+        # extract the heating and cooling limits
+        if 'heating_limit' not in data or data['heating_limit'] == autosize.to_dict():
+            heat_limit = autosize
+        else:
+            heat_limit = no_limit if data['heating_limit'] == no_limit.to_dict() \
+                else data['heating_limit']
+        if 'cooling_limit' not in data or data['cooling_limit'] == autosize.to_dict():
+            cool_limit = autosize
+        else:
+            cool_limit = no_limit if data['cooling_limit'] == no_limit.to_dict() \
+                else data['cooling_limit']
 
         return econ, dcv, sensible, latent, heat_temp, cool_temp, heat_limit, cool_limit
 
@@ -596,7 +599,7 @@ class IdealAirSystem(_HVACSystem):
             self._name, self._economizer_type, self._demand_controlled_ventilation,
             self._sensible_heat_recovery, self._latent_heat_recovery,
             self._heating_air_temperature, self._cooling_air_temperature,
-            self._heating_limit, self._cooling_limit,
+            str(self._heating_limit), str(self._cooling_limit),
             hash(self._heating_availability), hash(self._cooling_availability))
 
     def __hash__(self):

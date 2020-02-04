@@ -6,6 +6,7 @@ from ..reader import parse_idf_string
 from ..writer import generate_idf_string
 
 from honeybee.typing import valid_ep_string, valid_string, float_in_range
+from honeybee.altnumber import no_limit
 from ladybug.datatype import fraction, temperature, temperaturedelta, power, \
     angle, speed, distance, uvalue
 
@@ -47,7 +48,7 @@ class ScheduleTypeLimit(object):
     UNIT_TYPES = tuple(_default_lb_unit_type.keys())
     NUMERIC_TYPES = ('Continuous', 'Discrete')
 
-    def __init__(self, name, lower_limit=None, upper_limit=None,
+    def __init__(self, name, lower_limit=no_limit, upper_limit=no_limit,
                  numeric_type='Continuous', unit_type='Dimensionless'):
         """Initialize ScheduleTypeLimit.
 
@@ -55,9 +56,9 @@ class ScheduleTypeLimit(object):
             name: Text string for schedule type name. Must be <= 100 characters.
                 Can include spaces but special characters will be stripped out.
             lower_limit: An optional number for the lower limit for values in the
-                schedule. If None, there will be no lower limit.
+                schedule. If None or a NoLimit object, there will be no lower limit.
             upper_limit: An optional number for the upper limit for values in the
-                schedule. If None, there will be no upper limit.
+                schedule. If None or a NoLimit object, there will be no upper limit.
             numeric_type: Either one of two strings: 'Continuous' or 'Discrete'.
                 The latter means that only integers are accepted as schedule values.
                 Default: 'Continuous'.
@@ -72,10 +73,10 @@ class ScheduleTypeLimit(object):
         # process the name and limits
         self._name = valid_ep_string(name, 'schedule type name')
         self._lower_limit = float_in_range(lower_limit) if lower_limit is not \
-            None else None
+            None and lower_limit != no_limit else no_limit
         self._upper_limit = float_in_range(upper_limit) if upper_limit is not \
-            None else None
-        if self._lower_limit is not None and self._upper_limit is not None:
+            None and upper_limit != no_limit else no_limit
+        if self._lower_limit != no_limit and self._upper_limit != no_limit:
             assert self._lower_limit <= self._upper_limit, 'ScheduleTypeLimit ' \
                 'lower_limit must be less than upper_limit. {} > {}.'.format(
                     self._lower_limit, self._upper_limit)
@@ -173,8 +174,10 @@ class ScheduleTypeLimit(object):
         """
         assert data['type'] == 'ScheduleTypeLimit', \
             'Expected ScheduleTypeLimit dictionary. Got {}.'.format(data['type'])
-        lower_limit = data['lower_limit'] if 'lower_limit' in data else None
-        upper_limit = data['upper_limit'] if 'upper_limit' in data else None
+        lower_limit = no_limit if 'lower_limit' not in data or \
+            data['lower_limit'] == no_limit.to_dict()  else data['lower_limit']
+        upper_limit = no_limit if 'upper_limit' not in data or \
+            data['upper_limit'] == no_limit.to_dict()  else data['upper_limit']
         numeric_type = data['numeric_type'] if 'numeric_type' in data else 'Continuous'
         unit_type = data['unit_type'] if 'unit_type' in data else 'Dimensionless'
         return cls(data['name'], lower_limit, upper_limit, numeric_type, unit_type)
@@ -183,9 +186,9 @@ class ScheduleTypeLimit(object):
         """IDF string for the ScheduleTypeLimits of this object."""
         values = [self.name, self.lower_limit, self.upper_limit,
                   self.numeric_type, self.unit_type]
-        if values[1] is None:
+        if values[1] == no_limit:
             values[1] = ''
-        if values[2] is None:
+        if values[2] == no_limit:
             values[2] = ''
         comments = ('name', 'lower limit value', 'upper limit value',
                     'numeric type', 'unit type')
@@ -195,8 +198,10 @@ class ScheduleTypeLimit(object):
         """Shade construction dictionary representation."""
         base = {'type': 'ScheduleTypeLimit'}
         base['name'] = self.name
-        base['lower_limit'] = self.lower_limit
-        base['upper_limit'] = self.upper_limit
+        base['lower_limit'] = self.lower_limit if \
+            isinstance(self.lower_limit, float) else self.lower_limit.to_dict()
+        base['upper_limit'] = self.upper_limit if \
+            isinstance(self.upper_limit, float) else self.upper_limit.to_dict()
         base['numeric_type'] = self.numeric_type
         base['unit_type'] = self.unit_type
         return base
@@ -235,7 +240,7 @@ class ScheduleTypeLimit(object):
 
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""
-        return (self.name, self._lower_limit, self._upper_limit,
+        return (self.name, str(self._lower_limit), str(self._upper_limit),
                 self._numeric_type, self._unit_type)
 
     def __hash__(self):

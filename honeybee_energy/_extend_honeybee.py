@@ -1,4 +1,11 @@
 # coding=utf-8
+# extend the honeybee.altnumber module first since other modules rely on it
+import honeybee.altnumber as haltn
+from .altnumber import Autosize
+setattr(haltn, 'Autosize', Autosize)
+setattr(haltn, 'autosize', Autosize())
+
+# import all of the other modules
 from honeybee.properties import ModelProperties, RoomProperties, FaceProperties, \
     ShadeProperties, ApertureProperties, DoorProperties
 import honeybee.writer.door as door_writer
@@ -80,6 +87,7 @@ face_writer.idf = face_to_idf
 shade_writer.idf = shade_to_idf
 aperture_writer.idf = aperture_to_idf
 door_writer.idf = door_to_idf
+
 
 # extend boundary conditions
 setattr(hbc, 'Adiabatic', Adiabatic)

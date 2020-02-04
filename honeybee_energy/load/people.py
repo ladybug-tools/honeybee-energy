@@ -12,6 +12,7 @@ import honeybee_energy.lib.schedules as _sched_lib
 
 from honeybee._lockable import lockable
 from honeybee.typing import float_in_range, float_positive
+from honeybee.altnumber import autocalculate
 
 
 @lockable
@@ -31,7 +32,7 @@ class People(_LoadBase):
                  '_radiant_fraction', '_latent_fraction')
 
     def __init__(self, name, people_per_area, occupancy_schedule, activity_schedule=None,
-                 radiant_fraction=0.3, latent_fraction='autocalculate'):
+                 radiant_fraction=0.3, latent_fraction=autocalculate):
         """Initialize People.
 
         Args:
@@ -54,9 +55,9 @@ class People(_LoadBase):
                 Default: 0.3.
             latent_fraction: A number between 0 and 1 for the fraction of the heat
                 given off by people that is latent (as opposed to sensible). This
-                input can also be the text 'autocalculate', which will automatically
+                input can also be an Autocalculate object, which will automatically
                 estimate the latent fraction based on the occupant's activity level.
-                Default: 'autocalculate'.
+                Default: autocalculate.
         """
         _LoadBase.__init__(self, name)
         self.people_per_area = people_per_area
@@ -134,8 +135,8 @@ class People(_LoadBase):
 
     @latent_fraction.setter
     def latent_fraction(self, value):
-        if str(value).lower() == 'autocalculate' or str(value) == '':
-            self._latent_fraction = 'autocalculate'
+        if value == autocalculate:
+            self._latent_fraction = autocalculate
         else:
             self._latent_fraction = float_in_range(
                 value, 0.0, 1.0, 'people latent fraction')
@@ -165,8 +166,8 @@ class People(_LoadBase):
             'People must use People/Area method to be loaded from IDF to honeybee.'
 
         # extract the properties from the string
-        lat_fract = 1 - float(ep_strs[8]) if ep_strs[8] != '' and \
-            ep_strs[8].lower() != 'autocalculate' else ep_strs[8]
+        lat_fract = autocalculate if ep_strs[8] == '' or \
+            ep_strs[8].lower() == 'autocalculate' else 1 - float(ep_strs[8])
         rad_fract = ep_strs[7] if ep_strs[7] != '' else 0.3
 
         # extract the schedules from the string
@@ -256,8 +257,8 @@ class People(_LoadBase):
         Args:
             zone_name: Text for the zone name that the People object is assigned to.
         """
-        sens_fract = 1 - float(self.latent_fraction) if \
-            self.latent_fraction != 'autocalculate' else 'autocalculate'
+        sens_fract = 'autocalculate' if self.latent_fraction == autocalculate else \
+            1 - float(self.latent_fraction)
         values = ('{}..{}'.format(self.name, zone_name), zone_name,
                   self.occupancy_schedule.name, 'People/Area',
                   '', self.people_per_area, '', self.radiant_fraction, sens_fract,
@@ -280,7 +281,8 @@ class People(_LoadBase):
         base['name'] = self.name
         base['people_per_area'] = self.people_per_area
         base['radiant_fraction'] = self.radiant_fraction
-        base['latent_fraction'] = self.latent_fraction
+        base['latent_fraction'] = self.latent_fraction if \
+            isinstance(self.latent_fraction, float) else self.latent_fraction.to_dict()
         if not abridged:
             base['occupancy_schedule'] = self.occupancy_schedule.to_dict()
             base['activity_schedule'] = self.activity_schedule.to_dict()
@@ -315,8 +317,8 @@ class People(_LoadBase):
         rad_fract = sum([ppl.radiant_fraction * w for ppl, w in zip(peoples, u_weights)])
         lat_fracts = []
         for i, ppl in enumerate(peoples):
-            if ppl.latent_fraction == 'autocalculate':
-                lat_fract = 'autocalculate'
+            if ppl.latent_fraction == autocalculate:
+                lat_fract = autocalculate
                 break
             lat_fracts.append(ppl.latent_fraction * u_weights[i])
         else:
@@ -344,8 +346,8 @@ class People(_LoadBase):
     def _optional_dict_keys(data):
         """Get the optional keys from a People dictionary."""
         rad_fract = data['radiant_fraction'] if 'radiant_fraction' in data else 0.3
-        lat_fract = data['latent_fraction'] if \
-            'latent_fraction' in data else 'autocalculate'
+        lat_fract = autocalculate if 'latent_fraction' not in data or \
+            data['latent_fraction'] == autocalculate.to_dict() else data['latent_fraction']
         return rad_fract, lat_fract
 
     @staticmethod
@@ -368,7 +370,7 @@ class People(_LoadBase):
         """A tuple based on the object properties, useful for hashing."""
         return (self.name, self.people_per_area, hash(self.occupancy_schedule),
                 hash(self.activity_schedule), self.radiant_fraction,
-                self.latent_fraction)
+                str(self.latent_fraction))
 
     def __hash__(self):
         return hash(self.__key())

@@ -6,6 +6,7 @@ from honeybee_energy.schedule.ruleset import ScheduleRuleset
 import honeybee_energy.lib.scheduletypelimits as schedule_types
 
 from honeybee.room import Room
+from honeybee.altnumber import autosize, no_limit
 
 from ladybug.dt import Time
 
@@ -26,8 +27,8 @@ def test_ideal_air_system_init():
     assert ideal_air.latent_heat_recovery == 0
     assert ideal_air.heating_air_temperature == 50
     assert ideal_air.cooling_air_temperature == 13
-    assert ideal_air.heating_limit == 'autosize'
-    assert ideal_air.cooling_limit == 'autosize'
+    assert ideal_air.heating_limit == autosize
+    assert ideal_air.cooling_limit == autosize
     assert ideal_air.heating_availability is None
     assert ideal_air.cooling_availability is None
 
