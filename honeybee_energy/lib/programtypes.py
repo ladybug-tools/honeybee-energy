@@ -38,7 +38,7 @@ except KeyError:
         office_program = ProgramType(
             'Generic Office Program', people, lighting, equipment, None, infiltration,
             ventilation, setpoint)
-        plenum_program.lock()
+        office_program.lock()
     else:
         office_program = None
     _json_program_types['Generic Office Program'] = office_program

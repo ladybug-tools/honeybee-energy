@@ -6,6 +6,8 @@ from honeybee_energy.schedule.ruleset import ScheduleRuleset
 
 import honeybee_energy.lib.scheduletypelimits as schedule_types
 
+from honeybee.altnumber import autocalculate
+
 from ladybug.dt import Time, Date
 
 import pytest
@@ -30,7 +32,7 @@ def test_people_init():
     assert people.activity_schedule.schedule_type_limit == schedule_types.activity_level
     assert people.activity_schedule.values() == [120] * 8760
     assert people.radiant_fraction == 0.3
-    assert people.latent_fraction == 'autocalculate'
+    assert people.latent_fraction == autocalculate
 
 
 def test_people_setability():
@@ -174,7 +176,7 @@ def test_people_average():
 
     assert office_avg.people_per_area == pytest.approx(0.075, rel=1e-3)
     assert office_avg.radiant_fraction == pytest.approx(0.35, rel=1e-3)
-    assert office_avg.latent_fraction == 'autocalculate'
+    assert office_avg.latent_fraction == autocalculate
 
     week_vals = office_avg.occupancy_schedule.values(end_date=Date(1, 7))
     avg_vals = [0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.5,
