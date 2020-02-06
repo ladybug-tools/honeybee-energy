@@ -10,7 +10,8 @@ except ImportError:
 from honeybee.model import Model
 
 from honeybee_energy.simulation.parameter import SimulationParameter
-from honeybee_energy.run import to_openstudio_osw, run_osw, run_idf
+from honeybee_energy.run import measure_compatible_model_json, to_openstudio_osw, \
+    run_osw, run_idf
 
 import sys
 import os
@@ -31,10 +32,13 @@ def simulate():
               'of simulation to run. If None, an annual simulation will be run.',
               default=None, show_default=True)
 @click.option('--folder', help='Output folder.', default='.', show_default=True)
+@click.option('--check-model', help='Boolean to note whether the Model should be '
+              're-serialized to Python and checked before it is translated to .osm. ',
+              default=True, show_default=True)
 @click.option('--log-file', help='Optional log file to output the progress of the'
               'translation. By default the list will be printed out to stdout',
               type=click.File('w'), default='-')
-def simulate_model(model_json, epw_file, sim_par_json, folder, log_file):
+def simulate_model(model_json, epw_file, sim_par_json, folder, check_model, log_file):
     """Simulate a Model JSON file in EnergyPlus.
     \b
     Args:
@@ -45,6 +49,8 @@ def simulate_model(model_json, epw_file, sim_par_json, folder, log_file):
             some default simulation parameters will automatically be used.
         folder: An optional folder on this computer, into which the IDF and result
             files will be written.
+        check_model: Boolean to note whether the Model should be re-serialized to
+            Python and checked before it is translated to .osm.
         log_file: Optional log file to output the progress of the translation.
             By default the list will be printed out to stdout.
     """
@@ -74,6 +80,12 @@ def simulate_model(model_json, epw_file, sim_par_json, folder, log_file):
             assert os.path.isfile(sim_par_json), \
                 'No simulation parameter file found at {}.'.format(sim_par_json)
     
+        # run the Model re-serialzation and check if specified
+        if check_model:
+            log_file.write('Checking and re-serailizing model JSON.\n')
+            model_json = measure_compatible_model_json(model_json, folder)
+            log_file.write('Model check complete.\n')
+
         # Write the osw file to translate the model to osm
         log_file.write('Writing OSW for model translation.\n')
         osw = to_openstudio_osw(folder, model_json, sim_par_json, epw_file)

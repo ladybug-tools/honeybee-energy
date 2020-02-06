@@ -12,7 +12,56 @@ import subprocess
 
 from .config import folders
 
-from ladybug.futil import write_to_file, copy_files_to_folder, copy_file_tree
+from honeybee.model import Model
+
+from ladybug.futil import write_to_file, copy_files_to_folder, copy_file_tree, preparedir
+
+
+def measure_compatible_model_json(model_json_path, destination_directory=None):
+    """Convert a Model JSON to a version that's compatible with the energy_model_measure.
+
+    This includes the re-serialization of the Model to Python, which will
+    automatically ensure that all Apertures and Doors point in the same direction
+    as their parent Face. If the Model tolerance is non-zero and Rooms are closed
+    solids, this will also ensure that all Room Faces point outwards from their
+    parent's volume. Lastly, if the Model units are not Meters, the model will
+    be scaled to be in Meters.
+
+    Args:
+        model_json_path: File path to the Model JSON.
+        destination_directory: The directory into which the Model JSON that's
+            compatible with the energy_model_measure should be written. If None,
+            this will be the same location as the input model_json_path. Default: None.
+
+    Returns:
+        The full file path to the new Model JSON written out by this method.
+    """
+    # check that the file is thre
+    assert os.path.isfile(model_json_path), \
+        'No JSON file found at {}.'.format(model_json_path)
+
+    # get the directory and the file path for the new Model JSON
+    directory, init_file_name = os.path.split(model_json_path)
+    dest_dir = directory if destination_directory is None else destination_directory
+    base_file_name = init_file_name.replace('.json', '')
+    file_name = '{}_osm.json'.format(base_file_name)
+    dest_file_path = os.path.join(dest_dir, file_name)
+
+    # serialze the Model to Python
+    with open(model_json_path) as json_file:
+        data = json.load(json_file)
+    parsed_model = Model.from_dict(data)
+
+    # convert the Model to Meters and get the dictionary
+    parsed_model.convert_to_units('Meters')
+    model_dict = parsed_model.to_dict(triangulate_sub_faces=True)
+
+    # write the dictionary into a file
+    preparedir(dest_dir, remove_content=False)  # create the directory if it's not there
+    with open(dest_file_path, 'w') as fp:
+        json.dump(model_dict, fp)
+    
+    return os.path.abspath(dest_file_path)
 
 
 def to_openstudio_osw(osw_directory, model_json_path, sim_par_json_path=None,

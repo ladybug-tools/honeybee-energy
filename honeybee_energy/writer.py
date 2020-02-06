@@ -353,6 +353,11 @@ def model_to_idf(model, schedule_directory=None,
         idf = os.path.join(folders.default_simulation_folder, 'test_file', 'in.idf')
         write_to_file(idf, idf_str, True)
     """
+    # make sure the model is in meters and, if it's not, duplicate and scale it
+    if model.units != 'Meters':
+        model = model.duplicate()  # duplicate the model to avoid mutating the input
+        model.convert_to_units('Meters')
+    
     # write the building object into the string
     model_str = ['!-   =======================================\n'
                  '!-   ================ MODEL ================\n'
