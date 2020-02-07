@@ -21,7 +21,7 @@ class SimulationOutput(object):
     REPORTING_FREQUENCIES = ('Annual', 'Monthly', 'Daily', 'Hourly', 'Timestep')
 
     def __init__(self, outputs=None, reporting_frequency='Hourly', include_sqlite=True,
-                 include_html=False, summary_reports=['AllSummary']):
+                 include_html=False, summary_reports=('AllSummary',)):
         """Initialize SimulationOutput.
 
         Args:
@@ -45,9 +45,9 @@ class SimulationOutput(object):
             include_html: Boolean to note whether an HTML report should be generated
                 from the simulation, which contains all of the summary_reports.
                 Default: False.
-            summary_reports: A list of EnergyPlus summary report names as strings.
+            summary_reports: An array of EnergyPlus summary report names as strings.
                 An empty list or None will result in no summary reports.
-                Default: ['AllSummary']. See the Input Output Reference SummaryReports
+                Default: ('AllSummary',). See the Input Output Reference SummaryReports
                 section for a full list of all reports that can be requested.
                 (https://bigladdersoftware.com/epx/docs/9-1/input-output-reference/
                 output-table-summaryreports.html#outputtablesummaryreports).
@@ -131,8 +131,8 @@ class SimulationOutput(object):
     @summary_reports.setter
     def summary_reports(self, value):
         if value is not None:
-            assert not isinstance(value, (str, bytes)), 'Extected list or tuple for ' \
-                'SimulationOutput summary_reports. Got {}.'.format(type(value))
+            assert not isinstance(value, (str, bytes)), 'Extected list, tuple, or ' \
+                'set for SimulationOutput summary_reports. Got {}.'.format(type(value))
             if not isinstance(value, set):
                 value = set(value)
             for report in value:
