@@ -2,7 +2,7 @@
 from honeybee_energy.schedule.ruleset import ScheduleRuleset
 
 from ._loadschedules import _idf_schedules
-from .scheduletypelimits import activity_level
+from .scheduletypelimits import activity_level, fractional
 
 
 # establish variables for the default schedules used across the library
@@ -14,6 +14,13 @@ except KeyError:
         'Seated Adult Activity', 120, activity_level)
     seated_activity.lock()
     _idf_schedules['Seated Adult Activity'] = seated_activity
+
+try:
+    always_on = _idf_schedules['Always On']
+except KeyError:
+    always_on = ScheduleRuleset.from_constant_value('Always On', 1, fractional)
+    always_on.lock()
+    _idf_schedules['Always On'] = always_on
 
 try:
     generic_office_occupancy = _idf_schedules['Generic Office Occupancy']

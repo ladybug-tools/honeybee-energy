@@ -289,8 +289,11 @@ class Folders(object):
             ep_folders = ['/Applications/{}'.format(f) for f in os.listdir('/Applications/')
                           if (f.lower().startswith('energyplus') and
                               os.path.isdir('/Applications/{}'.format(f)))]
+        elif platform.system() == 'Linux':  # search the usr/local folder
+            ep_folders = ['/usr/local/{}'.format(f) for f in os.listdir('/usr/local/')
+                          if (f.lower().startswith('energyplus') and
+                              os.path.isdir('/usr/local/{}'.format(f)))]
         else:  # unknown operating system
-            # TODO: Add code to search in the default installation folder on Linux
             ep_folders = None
         
         if not ep_path and not ep_folders:  # No EnergyPlus installations were found
@@ -325,8 +328,11 @@ class Folders(object):
             os_folders = ['/Applications/{}'.format(f) for f in os.listdir('/Applications/')
                           if (f.lower().startswith('openstudio') and
                               os.path.isdir('/Applications/{}'.format(f)))]
+        elif platform.system() == 'Linux':  # search the usr/local folder
+            os_folders = ['/usr/local/{}'.format(f) for f in os.listdir('/usr/local/')
+                          if (f.lower().startswith('openstudio') and
+                              os.path.isdir('/usr/local/{}'.format(f)))]
         else:  # unknown operating system
-            # TODO: Add code to search in the default installation folder on Linux
             os_folders = None
         
         if not os_folders:  # No Openstudio installations were found
@@ -343,7 +349,7 @@ class Folders(object):
     @staticmethod
     def _find_energy_model_measure_path():
         """Find the energy_model_measure_path in its default location.
-        
+
         This is usually the OpenStudio BCL Measures path .
         """
         home_folder = os.getenv('HOME') or os.path.expanduser('~')

@@ -1,13 +1,12 @@
 # coding=utf-8
 """Methods to write to idf."""
-import os
-
 from honeybee.room import Room
 from honeybee.face import Face
 from honeybee.boundarycondition import Outdoors, Surface, Ground
-from honeybee.facetype import RoofCeiling, AirWall
+from honeybee.facetype import RoofCeiling, AirBoundary
 import honeybee.config as hb_config
 
+import os
 try:
     from itertools import izip as zip  # python 2
 except ImportError:
@@ -203,8 +202,8 @@ def face_to_idf(face):
     if isinstance(face.type, RoofCeiling):
         face_type = 'Roof' if isinstance(face.boundary_condition, (Outdoors, Ground)) \
             else 'Ceiling'  # EnergyPlus distinguishes between Roof and Ceiling
-    elif isinstance(face.type, AirWall):
-        face_type = 'Wall'  # air walls are not a Surface type in EnergyPlus
+    elif isinstance(face.type, AirBoundary):
+        face_type = 'Wall'  # air boundaries are not a Surface type in EnergyPlus
     else:
         face_type = face.type.name
     face_bc_obj = face.boundary_condition.boundary_condition_object if \
@@ -357,7 +356,7 @@ def model_to_idf(model, schedule_directory=None,
     if model.units != 'Meters':
         model = model.duplicate()  # duplicate the model to avoid mutating the input
         model.convert_to_units('Meters')
-    
+
     # write the building object into the string
     model_str = ['!-   =======================================\n'
                  '!-   ================ MODEL ================\n'
@@ -406,7 +405,10 @@ def model_to_idf(model, schedule_directory=None,
             materials.extend(constr.materials)
             construction_strs.append(constr.to_idf())
         except AttributeError:
-            pass  # ShadeConstruction; No need to write to IDF
+            try:  # AirBoundaryConstruction or ShadeConstruction
+                construction_strs.append(constr.to_idf())  # AirBoundaryConstruction
+            except TypeError:
+                pass  # ShadeConstruction; no need to write it
     model_str.append('!-   ============== MATERIALS ==============\n')
     model_str.extend([mat.to_idf() for mat in set(materials)])
     model_str.append('!-   ============ CONSTRUCTIONS ============\n')
@@ -429,6 +431,10 @@ def model_to_idf(model, schedule_directory=None,
         model_str.append(room.to.idf(room))
         for face in room.faces:
             model_str.append(face.to.idf(face))
+            if isinstance(face.type, AirBoundary):  # write the air mixing objects
+                air_constr = face.properties.energy.construction
+                adj_room = face.boundary_condition.boundary_condition_objects[-1]
+                model_str.append(air_constr.to_air_mixing_idf(face, adj_room))
             for ap in face.apertures:
                 model_str.append(ap.to.idf(ap))
                 for shade in ap.outdoor_shades:

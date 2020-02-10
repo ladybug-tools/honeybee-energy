@@ -2,6 +2,7 @@
 from honeybee_energy.construction.opaque import OpaqueConstruction
 from honeybee_energy.construction.window import WindowConstruction
 from honeybee_energy.construction.shade import ShadeConstruction
+from honeybee_energy.construction.air import AirBoundaryConstruction
 from ._loadconstructions import _idf_opaque_constructions, _idf_window_constructions
 import honeybee_energy.lib.materials as _m
 
@@ -33,9 +34,7 @@ _default_prop = {
     'generic_exterior_door':
         (_m.painted_metal, _m.insulation_thin, _m.painted_metal),
     'generic_interior_door':
-        (_m.wood),
-    'air_wall':
-        (_m.air)
+        (_m.wood)
 }
 
 # establish variables for the default constructions used across the library
@@ -144,12 +143,10 @@ except KeyError:
     generic_interior_door.lock()
     _idf_opaque_constructions['Generic Interior Door'] = generic_interior_door
 
-try:
-    air_wall = _idf_opaque_constructions['Air Wall']
-except KeyError:
-    air_wall = OpaqueConstruction('Air Wall', _default_prop['air_wall'])
-    air_wall.lock()
-    _idf_opaque_constructions['Air Wall'] = air_wall
+# add a default air boundary construction to the library
+air_boundary = AirBoundaryConstruction('Generic Air Boundary')
+air_boundary.lock()
+_idf_opaque_constructions['Generic Air Boundary'] = air_boundary
 
 
 # make a dictionary of default shade constructions

@@ -32,8 +32,6 @@ _default_prop = {
         ('Generic Wall Air Gap', 0.1, 0.667, 1.28, 1000, 'Smooth'),
     'ceiling_gap':
         ('Generic Ceiling Air Gap', 0.1, 0.556, 1.28, 1000, 'Smooth'),
-    'air':
-        ('Air Wall Material', 0.01, 0.6, 1.28, 1004, 'Smooth', 0.95, 0.95, 0.95),
     'clear_glass':
         ('Generic Clear Glass', 0.006, 0.77, 0.07, 0.88, 0.08, 0, 0.84, 0.84, 1.0),
     'lowe_glass':
@@ -130,13 +128,6 @@ except KeyError:
     ceiling_gap = EnergyMaterial(*_default_prop['ceiling_gap'])
     ceiling_gap.lock()
     _idf_opaque_materials['Generic Ceiling Air Gap'] = ceiling_gap
-
-try:
-    air = _idf_opaque_materials['Air Wall Material']
-except KeyError:
-    air = EnergyMaterial(*_default_prop['air'])
-    air.lock()
-    _idf_opaque_materials['Air Wall Material'] = air
 
 try:
     clear_glass = _idf_window_materials['Generic Clear Glass']

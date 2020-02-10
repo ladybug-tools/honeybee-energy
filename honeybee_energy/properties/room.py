@@ -283,6 +283,20 @@ class RoomEnergyProperties(object):
             new_hvac.name = '{}_{}'.format(prefix, self._hvac.name)
             self.hvac = new_hvac
 
+    def reset_to_default(self):
+        """Reset all of the properties assigned at the level of this Room to the default.
+        """
+        self._program_type = None
+        self._construction_set = None
+        self._hvac = None
+        self._people = None
+        self._lighting = None
+        self._electric_equipment = None
+        self._gas_equipment = None
+        self._infiltration = None
+        self._ventilation = None
+        self._setpoint = None
+
     @classmethod
     def from_dict(cls, data, host):
         """Create RoomEnergyProperties from a dictionary.

@@ -635,6 +635,11 @@ ScheduleTypeLimits,
 !-   =============  CONSTANT SCHEDULES ==============
 
 Schedule:Constant,
+ Always On,               !- name
+ Fractional,              !- schedule type limits name
+ 1;                       !- hourly value
+
+Schedule:Constant,
  Seated Adult Activity,   !- name
  Activity Level,          !- schedule type limits name
  120;                     !- hourly value
