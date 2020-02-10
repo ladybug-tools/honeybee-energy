@@ -11,6 +11,7 @@ from .material.shade import EnergyWindowMaterialShade, EnergyWindowMaterialBlind
 from .construction.opaque import OpaqueConstruction
 from .construction.window import WindowConstruction
 from .construction.shade import ShadeConstruction
+from .construction.air import AirBoundaryConstruction
 import honeybee_energy.lib.constructions as _lib
 
 from honeybee._lockable import lockable
@@ -22,25 +23,28 @@ class ConstructionSet(object):
     """Set containing all energy constructions needed to create an energy model.
 
     Properties:
-        name
-        wall_set
-        floor_set
-        roof_ceiling_set
-        aperture_set
-        door_set
-        shade_construction
-        constructions
-        modified_constructions
-        constructions_unique
-        modified_constructions_unique
-        materials_unique
-        modified_materials_unique
+        * name
+        * wall_set
+        * floor_set
+        * roof_ceiling_set
+        * aperture_set
+        * door_set
+        * shade_construction
+        * air_boundary_construction
+        * constructions
+        * modified_constructions
+        * constructions_unique
+        * modified_constructions_unique
+        * materials_unique
+        * modified_materials_unique
     """
     __slots__ = ('_name', '_wall_set', '_floor_set', '_roof_ceiling_set',
-                 '_aperture_set', '_door_set', '_shade_construction', '_locked')
+                 '_aperture_set', '_door_set', '_shade_construction',
+                 '_air_boundary_construction', '_locked')
 
     def __init__(self, name, wall_set=None, floor_set=None, roof_ceiling_set=None,
-                 aperture_set=None, door_set=None, shade_construction=None):
+                 aperture_set=None, door_set=None, shade_construction=None,
+                 air_boundary_construction=None):
         """Initialize energy construction set.
 
         Args:
@@ -59,6 +63,9 @@ class ConstructionSet(object):
             shade_construction: An optional ShadeConstruction to set the reflectance
                 properties of all outdoor shades to which this ConstructionSet is
                 assigned. If None, it will be the honyebee generic shade construction.
+            air_boundary_construction: An optional AirBoundaryConstruction to set
+                the properties of Faces with an AirBoundary type. If None, it
+                will be the honyebee generic air boundary construction.
         """
         self._locked = False  # unlocked by default
         self.name = name
@@ -68,6 +75,7 @@ class ConstructionSet(object):
         self.aperture_set = aperture_set
         self.door_set = door_set
         self.shade_construction = shade_construction
+        self.air_boundary_construction = air_boundary_construction
 
     @property
     def name(self):
@@ -162,6 +170,21 @@ class ConstructionSet(object):
                 'Expected ShadeConstruction. Got {}'.format(type(value))
             value.lock()   # lock editing in case construction has multiple references
         self._shade_construction = value
+    
+    @property
+    def air_boundary_construction(self):
+        """Get or set the AirBoundaryConstruction assigned to this ConstructionSet."""
+        if self._air_boundary_construction is None:
+            return _lib.air_boundary
+        return self._air_boundary_construction
+
+    @air_boundary_construction.setter
+    def air_boundary_construction(self, value):
+        if value is not None:
+            assert isinstance(value, AirBoundaryConstruction), \
+                'Expected AirBoundaryConstruction. Got {}'.format(type(value))
+            value.lock()   # lock editing in case construction has multiple references
+        self._air_boundary_construction = value
 
     @property
     def constructions(self):
@@ -171,7 +194,7 @@ class ConstructionSet(object):
             self.roof_ceiling_set.constructions + \
             self.aperture_set.constructions + \
             self.door_set.constructions + \
-            [self.shade_construction]
+            [self.shade_construction, self.air_boundary_construction]
 
     @property
     def modified_constructions(self):
@@ -183,6 +206,8 @@ class ConstructionSet(object):
             self.door_set.modified_constructions
         if self._shade_construction is not None:
             mod_constructions.append(self._shade_construction)
+        if self._air_boundary_construction is not None:
+            mod_constructions.append(self._air_boundary_construction)
         return mod_constructions
 
     @property
@@ -203,7 +228,7 @@ class ConstructionSet(object):
             try:
                 materials.extend(constr.materials)
             except AttributeError:
-                pass  # ShadeConstruction
+                pass  # ShadeConstruction or AirBoundaryConstruction
         return list(set(materials))
 
     @property
@@ -214,7 +239,7 @@ class ConstructionSet(object):
             try:
                 materials.extend(constr.materials)
             except AttributeError:
-                pass  # ShadeConstruction
+                pass  # ShadeConstruction or AirBoundaryConstruction
         return list(set(materials))
 
     def get_face_construction(self, face_type, boundary_condition):
@@ -222,7 +247,7 @@ class ConstructionSet(object):
 
         Args:
             face_type: Text string for the type of face (eg. 'Wall', 'Floor',
-                'Roof', 'AirWall').
+                'Roof', 'AirBoundary').
             boundary_condition: Text string for the boundary condition
                 (eg. 'Outdoors', 'Surface', 'Adiabatic', 'Ground')
         """
@@ -232,8 +257,8 @@ class ConstructionSet(object):
             return self._get_constr_from_set(self.floor_set, boundary_condition)
         elif face_type == 'RoofCeiling':
             return self._get_constr_from_set(self.roof_ceiling_set, boundary_condition)
-        elif face_type == 'AirWall':
-            return _lib.air_wall
+        elif face_type == 'AirBoundary':
+            return self.air_boundary_construction
         else:
             raise NotImplementedError(
                 'Face type {} is not recognized for ConstructionSet'.format(face_type))
@@ -343,17 +368,19 @@ class ConstructionSet(object):
                     WindowConstruction(cnst['name'], mat_layers)
             elif cnst['type'] == 'ShadeConstruction':
                 constructions[cnst['name']] = ShadeConstruction.from_dict(cnst)
+            elif cnstr['type'] == 'AirBoundaryConstruction':
+                constructions[cnstr['name']] = AirBoundaryConstruction.from_dict(cnstr)
             else:
                 raise NotImplementedError(
                     'Construction {} is not supported.'.format(cnst['type']))
         constructions[None] = None
 
         # build each of the sub-construction sets
-        wall_set, floor_set, roof_ceiling_set, aperture_set, door_set, shade_con = \
-            cls._get_subsets_from_abridged(data, constructions)
+        wall_set, floor_set, roof_ceiling_set, aperture_set, door_set, \
+            shade_con, air_con = cls._get_subsets_from_abridged(data, constructions)
 
         return cls(data['name'], wall_set, floor_set, roof_ceiling_set,
-                   aperture_set, door_set, shade_con)
+                   aperture_set, door_set, shade_con, air_con)
 
     @classmethod
     def from_dict_abridged(cls, data, construction_dict):
@@ -367,10 +394,10 @@ class ConstructionSet(object):
         """
         assert data['type'] == 'ConstructionSetAbridged', \
             'Expected ConstructionSetAbridged. Got {}.'.format(data['type'])
-        wall_set, floor_set, roof_ceiling_set, aperture_set, door_set, shade_con = \
-            cls._get_subsets_from_abridged(data, construction_dict)
+        wall_set, floor_set, roof_ceiling_set, aperture_set, door_set, shade_con, \
+            air_con = cls._get_subsets_from_abridged(data, construction_dict)
         return cls(data['name'], wall_set, floor_set, roof_ceiling_set,
-                   aperture_set, door_set, shade_con)
+                   aperture_set, door_set, shade_con, air_con)
 
     def to_dict(self, abridged=False, none_for_defaults=True):
         """Get ConstructionSet as a dictionary.
@@ -396,6 +423,11 @@ class ConstructionSet(object):
                 self._shade_construction is not None else None
         else:
             base['shade_construction'] = self.shade_construction.name
+        if none_for_defaults:
+            base['air_boundary_construction'] = self._air_boundary_construction.name if \
+                self._air_boundary_construction is not None else None
+        else:
+            base['air_boundary_construction'] = self.air_boundary_construction.name
 
         if not abridged:
             constructions = self.modified_constructions_unique if none_for_defaults \
@@ -404,9 +436,9 @@ class ConstructionSet(object):
             materials = []
             for cnst in constructions:
                 try:
-                    base['constructions'].append(cnst.to_dict(True))
                     materials.extend(cnst.materials)
-                except TypeError:  # ShadeConstruction
+                    base['constructions'].append(cnst.to_dict(True))
+                except AttributeError:  # ShadeConstruction or AirBoundaryConstruction
                     base['constructions'].append(cnst.to_dict())
             base['materials'] = [mat.to_dict() for mat in list(set(materials))]
         return base
@@ -455,10 +487,15 @@ class ConstructionSet(object):
             data, ApertureSet(), constructions)
         door_set = ConstructionSet._make_door_subset(data, DoorSet(), constructions)
         if 'shade_construction' in data and data['shade_construction'] is not None:
-            shade_con = constructions[data['shade_construction']]
+            shade = constructions[data['shade_construction']]
         else:
-            shade_con = None
-        return wall_set, floor_set, roof_ceiling_set, aperture_set, door_set, shade_con
+            shade = None
+        if 'air_boundary_construction' in data and \
+                data['air_boundary_construction'] is not None:
+            air = constructions[data['air_boundary_construction']]
+        else:
+            air = None
+        return wall_set, floor_set, roof_ceiling_set, aperture_set, door_set, shade, air
 
     @staticmethod
     def _make_construction_subset(data, sub_set, sub_set_name, constructions):
@@ -537,7 +574,8 @@ class ConstructionSet(object):
                                self.roof_ceiling_set.duplicate(),
                                self.aperture_set.duplicate(),
                                self.door_set.duplicate(),
-                               self._shade_construction)
+                               self._shade_construction,
+                               self._air_boundary_construction)
 
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""

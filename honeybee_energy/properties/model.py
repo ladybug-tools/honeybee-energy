@@ -13,6 +13,7 @@ from ..material.shade import EnergyWindowMaterialShade, EnergyWindowMaterialBlin
 from ..construction.opaque import OpaqueConstruction
 from ..construction.window import WindowConstruction
 from ..construction.shade import ShadeConstruction
+from ..construction.air import AirBoundaryConstruction
 from ..constructionset import ConstructionSet
 from ..schedule.typelimit import ScheduleTypeLimit
 from ..schedule.ruleset import ScheduleRuleset
@@ -205,8 +206,20 @@ class ModelEnergyProperties(object):
         This includes schedules across all ProgramTypes, HVACs, Rooms and Shades.
         """
         all_scheds = self.program_type_schedules + self.hvac_schedules + \
-            self.room_schedules + self.shade_schedules
+            self.room_schedules + self.shade_schedules + self.construcion_schedules
         return list(set(all_scheds))
+
+    @property
+    def construcion_schedules(self):
+        """A list of all unique schedules assigned to constructions in the model.
+
+        This includes schedules on al AirBoundaryConstructions.
+        """
+        schedules = []
+        for constr in self.constructions:
+            if isinstance(constr, AirBoundaryConstruction):
+                self._check_and_add_schedule(constr.air_mixing_schedule, schedules)
+        return list(set(schedules))
 
     @property
     def shade_schedules(self):
@@ -503,10 +516,10 @@ class ModelEnergyProperties(object):
         base['energy']['terrain_type'] = self.terrain_type
 
         # add all materials, constructions and construction sets to the dictionary
-        self._add_constr_type_objs_to_dict(base, include_global_construction_set)
+        schs = self._add_constr_type_objs_to_dict(base, include_global_construction_set)
 
         # add all schedule type limits, schedules, program types and hvacs to the dict
-        self._add_sched_type_objs_to_dict(base)
+        self._add_sched_type_objs_to_dict(base, schs)
 
         return base
 
@@ -553,6 +566,38 @@ class ModelEnergyProperties(object):
         """
         assert 'energy' in data['properties'], \
             'Dictionary possesses no ModelEnergyProperties.'
+
+        # process all schedule type limits in the ModelEnergyProperties dictionary
+        schedule_type_limits = {}
+        if 'schedule_type_limits' in data['properties']['energy'] and \
+                data['properties']['energy']['schedule_type_limits'] is not None:
+            for t_lim in data['properties']['energy']['schedule_type_limits']:
+                schedule_type_limits[t_lim['name']] = ScheduleTypeLimit.from_dict(t_lim)
+
+        # process all schedules in the ModelEnergyProperties dictionary
+        schedules = {}
+        if 'schedules' in data['properties']['energy'] and \
+                data['properties']['energy']['schedules'] is not None:
+            for sched in data['properties']['energy']['schedules']:
+                sched = sched.copy()  # copy original dictionary so we don't edit it
+                # process the schedule type limits
+                typ_lim = None
+                if 'schedule_type_limit' in sched:
+                    typ_lim = sched['schedule_type_limit']
+                    sched['schedule_type_limit'] = None
+                # create the schedule objects
+                if sched['type'] == 'ScheduleRulesetAbridged':
+                    sched['type'] = 'ScheduleRuleset'
+                    schedules[sched['name']] = ScheduleRuleset.from_dict(sched)
+                elif sched['type'] == 'ScheduleFixedIntervalAbridged':
+                    sched['type'] = 'ScheduleFixedInterval'
+                    schedules[sched['name']] = ScheduleFixedInterval.from_dict(sched)
+                else:
+                    raise NotImplementedError(
+                        'Schedule {} is not supported.'.format(sched['type']))
+                # asign the schedule type limits
+                schedules[sched['name']].schedule_type_limit = \
+                    schedule_type_limits[typ_lim] if typ_lim is not None else None
         
         # process all materials in the ModelEnergyProperties dictionary
         materials = {}
@@ -592,6 +637,9 @@ class ModelEnergyProperties(object):
                     WindowConstruction(cnstr['name'], mat_layers)
             elif cnstr['type'] == 'ShadeConstruction':
                 constructions[cnstr['name']] = ShadeConstruction.from_dict(cnstr)
+            elif cnstr['type'] == 'AirBoundaryConstructionAbridged':
+                constructions[cnstr['name']] = \
+                    AirBoundaryConstruction.from_dict_abridged(cnstr, schedules)
             else:
                 raise NotImplementedError(
                     'Construction {} is not supported.'.format(cnstr['type']))
@@ -603,38 +651,6 @@ class ModelEnergyProperties(object):
             for c_set in data['properties']['energy']['construction_sets']:
                 construction_sets[c_set['name']] = \
                     ConstructionSet.from_dict_abridged(c_set, constructions)
-
-        # process all schedule type limits in the ModelEnergyProperties dictionary
-        schedule_type_limits = {}
-        if 'schedule_type_limits' in data['properties']['energy'] and \
-                data['properties']['energy']['schedule_type_limits'] is not None:
-            for t_lim in data['properties']['energy']['schedule_type_limits']:
-                schedule_type_limits[t_lim['name']] = ScheduleTypeLimit.from_dict(t_lim)
-
-        # process all schedules in the ModelEnergyProperties dictionary
-        schedules = {}
-        if 'schedules' in data['properties']['energy'] and \
-                data['properties']['energy']['schedules'] is not None:
-            for sched in data['properties']['energy']['schedules']:
-                sched = sched.copy()  # copy original dictionary so we don't edit it
-                # process the schedule type limits
-                typ_lim = None
-                if 'schedule_type_limit' in sched:
-                    typ_lim = sched['schedule_type_limit']
-                    sched['schedule_type_limit'] = None
-                # create the schedule objects
-                if sched['type'] == 'ScheduleRulesetAbridged':
-                    sched['type'] = 'ScheduleRuleset'
-                    schedules[sched['name']] = ScheduleRuleset.from_dict(sched)
-                elif sched['type'] == 'ScheduleFixedIntervalAbridged':
-                    sched['type'] = 'ScheduleFixedInterval'
-                    schedules[sched['name']] = ScheduleFixedInterval.from_dict(sched)
-                else:
-                    raise NotImplementedError(
-                        'Schedule {} is not supported.'.format(sched['type']))
-                # asign the schedule type limits
-                schedules[sched['name']].schedule_type_limit = \
-                    schedule_type_limits[typ_lim] if typ_lim is not None else None
 
         # process all ProgramType in the ModelEnergyProperties dictionary
         program_types = {}
@@ -664,6 +680,9 @@ class ModelEnergyProperties(object):
                 global_construction_set should be included within the dictionary.
                 This will ensure that all objects lacking a construction
                 specification always have a default construction. Default: True.
+        
+        Returns:
+            A list of of schedules that are assigned to the constructions.
         """
         # add all ConstructionSets to the dictionary
         base['energy']['construction_sets'] = []
@@ -700,11 +719,20 @@ class ModelEnergyProperties(object):
                 pass  # ShadeConstruction
         base['energy']['materials'] = [mat.to_dict() for mat in set(materials)]
 
-    def _add_sched_type_objs_to_dict(self, base):
+        # extract all of the schedules from the constructions
+        schedules = []
+        for constr in constructions:
+            if isinstance(constr, AirBoundaryConstruction):
+                self._check_and_add_schedule(constr.air_mixing_schedule, schedules)
+        return schedules
+
+    def _add_sched_type_objs_to_dict(self, base, schs):
         """Add type limits, schedules, program types, and hvacs to a base dictionary.
 
         Args:
             base: A base dictionary for a Honeybee Model.
+            schs: A list of additional schedules to be serialized to the
+                base dictionary.
         """
         # add all unique hvacs to the dictionary
         hvacs = self.hvacs
@@ -728,7 +756,7 @@ class ModelEnergyProperties(object):
             for sched in hvac.schedules:
                 self._check_and_add_schedule(sched, hvac_scheds)
         all_scheds = hvac_scheds + p_type_scheds + \
-            self.room_schedules + self.shade_schedules
+            self.room_schedules + self.shade_schedules + schs
         schedules = list(set(all_scheds))
         base['energy']['schedules'] = []
         for sched in schedules:

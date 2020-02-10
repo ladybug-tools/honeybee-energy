@@ -144,17 +144,6 @@ Material,
  0.7,                      !- solar absorptance
  0.7;                      !- visible absorptance
 
-Material,
- Air Wall Material,        !- name
- Smooth,                   !- roughness
- 0.01,                     !- thickness {m}
- 0.6,                      !- conductivity {W/m-K}
- 1.28,                     !- density {kg/m3}
- 1004.0,                   !- specific heat {J/kg-K}
- 0.95,                     !- thermal absorptance
- 0.95,                     !- solar absorptance
- 0.95;                     !- visible absorptance
-
 
 !-   ================  WINDOW MATERIALS ================
 
@@ -276,10 +265,6 @@ Construction,              !- opaque
 Construction,              !- opaque
  Generic Interior Door,    !- name
  Generic 25mm Wood;        !- layer 1
-
-Construction,              !- opaque
- Air Wall,                 !- name
- Air Wall Material;        !- layer 1
 
 
 !-   ==============  WINDOW CONSTRUCTIONS ==============

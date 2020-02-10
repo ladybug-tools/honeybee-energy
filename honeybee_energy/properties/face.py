@@ -1,7 +1,10 @@
 # coding=utf-8
 """Face Energy Properties."""
 from ..construction.opaque import OpaqueConstruction
+from ..construction.air import AirBoundaryConstruction
 from ..lib.constructionsets import generic_construction_set
+
+from honeybee.facetype import AirBoundary
 
 
 class FaceEnergyProperties(object):
@@ -55,8 +58,13 @@ class FaceEnergyProperties(object):
     @construction.setter
     def construction(self, value):
         if value is not None:
-            assert isinstance(value, OpaqueConstruction), \
-                'Expected Opaque Construction for face. Got {}'.format(type(value))
+            if isinstance(self.host.type, AirBoundary):
+                assert isinstance(value, AirBoundaryConstruction), 'Expected Air ' \
+                    'Boundary Construction for face with AirBoundary type. ' \
+                    'Got {}'.format(type(value))
+            else:
+                assert isinstance(value, OpaqueConstruction), \
+                    'Expected Opaque Construction for face. Got {}'.format(type(value))
             value.lock()  # lock editing in case construction has multiple references
         self._construction = value
 

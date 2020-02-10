@@ -13,6 +13,7 @@ from honeybee_energy.constructionset import ConstructionSet
 from honeybee_energy.construction.opaque import OpaqueConstruction
 from honeybee_energy.construction.window import WindowConstruction
 from honeybee_energy.construction.shade import ShadeConstruction
+from honeybee_energy.construction.air import AirBoundaryConstruction
 from honeybee_energy.material._base import _EnergyMaterialBase
 from honeybee_energy.material.opaque import EnergyMaterial
 from honeybee_energy.schedule.ruleset import ScheduleRuleset
@@ -31,6 +32,7 @@ from honeybee_energy.lib.constructions import generic_exterior_wall, \
 from ladybug_geometry.geometry3d.pointvector import Point3D, Vector3D
 from ladybug_geometry.geometry3d.plane import Plane
 from ladybug_geometry.geometry3d.face import Face3D
+from ladybug_geometry.geometry3d.polyface import Polyface3D
 
 import random
 import pytest
@@ -58,15 +60,15 @@ def test_energy_properties():
     assert len(model.properties.energy.materials) == 15
     for mat in model.properties.energy.materials:
         assert isinstance(mat, _EnergyMaterialBase)
-    assert len(model.properties.energy.constructions) == 14
+    assert len(model.properties.energy.constructions) == 15
     for cnst in model.properties.energy.constructions:
-        assert isinstance(
-            cnst, (WindowConstruction, OpaqueConstruction, ShadeConstruction))
+        assert isinstance(cnst, (WindowConstruction, OpaqueConstruction,
+                                 ShadeConstruction, AirBoundaryConstruction))
     assert len(model.properties.energy.face_constructions) == 0
     assert len(model.properties.energy.construction_sets) == 0
     assert isinstance(model.properties.energy.global_construction_set, ConstructionSet)
     assert len(model.properties.energy.schedule_type_limits) == 3
-    assert len(model.properties.energy.schedules) == 8
+    assert len(model.properties.energy.schedules) == 9
     assert len(model.properties.energy.shade_schedules) == 1
     assert len(model.properties.energy.room_schedules) == 0
     assert len(model.properties.energy.program_types) == 1
@@ -300,7 +302,7 @@ def test_to_from_dict():
 
     assert new_model.rooms[0].properties.energy.program_type == office_program
     assert len(new_model.properties.energy.schedule_type_limits) == 3
-    assert len(model.properties.energy.schedules) == 8
+    assert len(model.properties.energy.schedules) == 9
     assert new_model.rooms[0].properties.energy.is_conditioned
     assert new_model.rooms[0].properties.energy.hvac == room.properties.energy.hvac
 
@@ -363,7 +365,7 @@ def test_to_dict_single_zone():
     assert 'global_construction_set' in model_dict['properties']['energy']
 
     assert len(model_dict['properties']['energy']['materials']) == 16
-    assert len(model_dict['properties']['energy']['constructions']) == 18
+    assert len(model_dict['properties']['energy']['constructions']) == 19
     assert len(model_dict['properties']['energy']['construction_sets']) == 1
 
     assert model_dict['rooms'][0]['faces'][0]['properties']['energy']['construction'] == \
@@ -439,7 +441,7 @@ def test_to_dict_single_zone_schedule_fixed_interval():
     assert 'program_types' in model_dict['properties']['energy']
 
     assert len(model_dict['properties']['energy']['program_types']) == 1
-    assert len(model_dict['properties']['energy']['schedules']) == 9
+    assert len(model_dict['properties']['energy']['schedules']) == 10
 
     assert 'people' in model_dict['rooms'][0]['properties']['energy']
     assert model_dict['rooms'][0]['properties']['energy']['people']['occupancy_schedule'] \
@@ -576,7 +578,7 @@ def test_to_dict_multizone_house():
     assert 'global_construction_set' in model_dict['properties']['energy']
 
     assert len(model_dict['properties']['energy']['materials']) == 16
-    assert len(model_dict['properties']['energy']['constructions']) == 16
+    assert len(model_dict['properties']['energy']['constructions']) == 17
     assert len(model_dict['properties']['energy']['construction_sets']) == 2
 
     assert model_dict['rooms'][0]['faces'][5]['boundary_condition']['type'] == 'Surface'
@@ -594,6 +596,39 @@ def test_to_dict_multizone_house():
         first_floor.properties.energy.hvac.name
     assert model_dict['rooms'][1]['properties']['energy']['hvac'] == \
         second_floor.properties.energy.hvac.name
+
+
+def test_to_dict_air_walls():
+    """Test the Model to_dict method with a multi-zone house."""
+    pts_1 = [Point3D(0, 0), Point3D(30, 0), Point3D(20, 10), Point3D(10, 10)]
+    pts_2 = [Point3D(0, 0), Point3D(10, 10), Point3D(10, 20), Point3D(0, 30)]
+    pts_3 = [Point3D(10, 20), Point3D(20, 20), Point3D(30, 30), Point3D(0, 30)]
+    pts_4 = [Point3D(30, 0), Point3D(30, 30), Point3D(20, 20), Point3D(20, 10)]
+    verts = [pts_1, pts_2, pts_3, pts_4]
+    rooms = []
+    for i, f_vert in enumerate(verts):
+        pface = Polyface3D.from_offset_face(Face3D(f_vert), 3)
+        room = Room.from_polyface3d('PerimeterRoom{}'.format(i), pface)
+        room.properties.energy.program_type = office_program
+        room.properties.energy.add_default_ideal_air()
+        rooms.append(room)
+    rooms.append(Room.from_box('CoreRoom', 10, 10, 3, origin=Point3D(10, 10)))
+    adj_info = Room.solve_adjacency(rooms, 0.01)
+    for face_pair in adj_info['adjacent_faces']:
+        face_pair[0].type = face_types.air_boundary
+        face_pair[1].type = face_types.air_boundary
+
+    model = Model('CorePerimeterOfficeFloor', rooms)
+    model_dict = model.to_dict()
+    assert model_dict['rooms'][-1]['faces'][1]['face_type'] == 'AirBoundary'
+    new_model = Model.from_dict(model_dict)
+    air_face_type = new_model.rooms[-1].faces[1]
+    assert air_face_type.type == face_types.air_boundary
+    assert isinstance(air_face_type.properties.energy.construction, AirBoundaryConstruction)
+
+    model_idf_str = model.to.idf(model)
+    assert model_idf_str.count('Construction:AirBoundary') == 1
+    assert model_idf_str.count('ZoneMixing') == 16
 
 
 def test_writer_to_idf():

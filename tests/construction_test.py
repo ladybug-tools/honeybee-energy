@@ -8,6 +8,9 @@ from honeybee_energy.material.shade import EnergyWindowMaterialShade, \
 from honeybee_energy.construction.opaque import OpaqueConstruction
 from honeybee_energy.construction.window import WindowConstruction
 from honeybee_energy.construction.shade import ShadeConstruction
+from honeybee_energy.construction.air import AirBoundaryConstruction
+from honeybee_energy.schedule.ruleset import ScheduleRuleset
+import honeybee_energy.lib.scheduletypelimits as schedule_types
 
 import pytest
 
@@ -486,4 +489,66 @@ def test_shade_dict_methods():
     shade_constr = ShadeConstruction('Outdoor Light Shelf', 0.4, 0.6)
     constr_dict = shade_constr.to_dict()
     new_constr = ShadeConstruction.from_dict(constr_dict)
+    assert constr_dict == new_constr.to_dict()
+
+
+def test_air_construction_init():
+    """Test the initalization of AirBoundaryConstruction objects and basic properties."""
+    default_constr = AirBoundaryConstruction('Default Air Construction')
+
+    night_flush = ScheduleRuleset.from_daily_values(
+        'Night Flush', [1, 1, 1, 1, 1, 1, 1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5,
+                        0.5, 0.5, 0.5, 0.5, 0.5, 1, 1, 1])
+    night_flush_constr = AirBoundaryConstruction('Night Flush Boundary', 0.4, night_flush)
+    str(night_flush_constr)  # test the string representation of the construction
+
+    constr_dup = night_flush_constr.duplicate()
+
+    assert night_flush_constr.name == constr_dup.name == 'Night Flush Boundary'
+    assert night_flush_constr.air_mixing_per_area == constr_dup.air_mixing_per_area == 0.4
+    assert night_flush_constr.air_mixing_schedule == constr_dup.air_mixing_schedule
+
+
+def test_shade_construction_to_idf():
+    """Test the initalization of AirBoundaryConstruction objects and basic properties."""
+    night_flush = ScheduleRuleset.from_daily_values(
+        'Night Flush', [1, 1, 1, 1, 1, 1, 1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5,
+                        0.5, 0.5, 0.5, 0.5, 0.5, 1, 1, 1])
+    night_flush_constr = AirBoundaryConstruction('Night Flush Boundary', 0.4, night_flush)
+
+    assert isinstance(night_flush_constr.to_idf(), str)
+
+
+def test_shade_equivalency():
+    """Test the equality of a AirBoundaryConstruction to another."""
+    default_constr = AirBoundaryConstruction('Default Air Construction')
+
+    night_flush = ScheduleRuleset.from_daily_values(
+        'Night Flush', [1, 1, 1, 1, 1, 1, 1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5,
+                        0.5, 0.5, 0.5, 0.5, 0.5, 1, 1, 1])
+    night_flush_constr = AirBoundaryConstruction(
+        'Night Flush Boundary', 0.4, night_flush)
+    night_flush_constr_dup = night_flush_constr.duplicate()
+
+    assert night_flush_constr is night_flush_constr
+    assert night_flush_constr is not night_flush_constr_dup
+    assert night_flush_constr == night_flush_constr_dup
+    assert default_constr != night_flush_constr
+    assert hash(night_flush_constr) == hash(night_flush_constr_dup)
+    assert hash(default_constr) != hash(night_flush_constr)
+
+    collection = [default_constr, night_flush_constr, night_flush_constr_dup]
+    assert len(set(collection)) == 2
+
+
+def test_shade_dict_methods():
+    """Test the to/from dict methods."""
+    night_flush = ScheduleRuleset.from_daily_values(
+        'Night Flush', [1, 1, 1, 1, 1, 1, 1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5,
+                        0.5, 0.5, 0.5, 0.5, 0.5, 1, 1, 1])
+    night_flush_constr = AirBoundaryConstruction('Night Flush Boundary', 0.4, night_flush)
+    
+    constr_dict = night_flush_constr.to_dict()
+    new_constr = AirBoundaryConstruction.from_dict(constr_dict)
+    assert night_flush_constr == new_constr
     assert constr_dict == new_constr.to_dict()

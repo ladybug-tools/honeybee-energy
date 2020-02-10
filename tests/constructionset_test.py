@@ -16,8 +16,8 @@ def test_constructionset_init():
     str(default_set)  # test the string representation of the construction
 
     assert default_set.name == 'Default Set'
-    assert len(default_set.constructions) == 19
-    assert len(default_set.constructions_unique) == 14
+    assert len(default_set.constructions) == 20
+    assert len(default_set.constructions_unique) == 15
     assert len(default_set.materials_unique) == 15
     assert len(default_set.modified_constructions_unique) == 0
     assert len(default_set.modified_materials_unique) == 0
