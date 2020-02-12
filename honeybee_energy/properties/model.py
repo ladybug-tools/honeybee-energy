@@ -579,25 +579,16 @@ class ModelEnergyProperties(object):
         if 'schedules' in data['properties']['energy'] and \
                 data['properties']['energy']['schedules'] is not None:
             for sched in data['properties']['energy']['schedules']:
-                sched = sched.copy()  # copy original dictionary so we don't edit it
-                # process the schedule type limits
-                typ_lim = None
-                if 'schedule_type_limit' in sched:
-                    typ_lim = sched['schedule_type_limit']
-                    sched['schedule_type_limit'] = None
                 # create the schedule objects
                 if sched['type'] == 'ScheduleRulesetAbridged':
-                    sched['type'] = 'ScheduleRuleset'
-                    schedules[sched['name']] = ScheduleRuleset.from_dict(sched)
+                    schedules[sched['name']] = ScheduleRuleset.from_dict_abridged(
+                        sched, schedule_type_limits)
                 elif sched['type'] == 'ScheduleFixedIntervalAbridged':
-                    sched['type'] = 'ScheduleFixedInterval'
-                    schedules[sched['name']] = ScheduleFixedInterval.from_dict(sched)
+                    schedules[sched['name']] = ScheduleFixedInterval.from_dict_abridged(
+                        sched, schedule_type_limits)
                 else:
                     raise NotImplementedError(
                         'Schedule {} is not supported.'.format(sched['type']))
-                # asign the schedule type limits
-                schedules[sched['name']].schedule_type_limit = \
-                    schedule_type_limits[typ_lim] if typ_lim is not None else None
         
         # process all materials in the ModelEnergyProperties dictionary
         materials = {}
@@ -628,13 +619,11 @@ class ModelEnergyProperties(object):
         constructions = {}
         for cnstr in data['properties']['energy']['constructions']:
             if cnstr['type'] == 'OpaqueConstructionAbridged':
-                mat_layers = [materials[mat_name] for mat_name in cnstr['layers']]
                 constructions[cnstr['name']] = \
-                    OpaqueConstruction(cnstr['name'], mat_layers)
+                    OpaqueConstruction.from_dict_abridged(cnstr, materials)
             elif cnstr['type'] == 'WindowConstructionAbridged':
-                mat_layers = [materials[mat_name] for mat_name in cnstr['layers']]
                 constructions[cnstr['name']] = \
-                    WindowConstruction(cnstr['name'], mat_layers)
+                    WindowConstruction.from_dict_abridged(cnstr, materials)
             elif cnstr['type'] == 'ShadeConstruction':
                 constructions[cnstr['name']] = ShadeConstruction.from_dict(cnstr)
             elif cnstr['type'] == 'AirBoundaryConstructionAbridged':

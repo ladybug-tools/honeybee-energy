@@ -3,7 +3,8 @@ from honeybee_energy.construction.opaque import OpaqueConstruction
 from honeybee_energy.construction.window import WindowConstruction
 from honeybee_energy.construction.shade import ShadeConstruction
 from honeybee_energy.construction.air import AirBoundaryConstruction
-from ._loadconstructions import _idf_opaque_constructions, _idf_window_constructions
+from ._loadconstructions import _idf_opaque_constructions, _idf_window_constructions, \
+    _idf_shade_constructions
 import honeybee_energy.lib.materials as _m
 
 
@@ -152,8 +153,8 @@ _idf_opaque_constructions['Generic Air Boundary'] = air_boundary
 # make a dictionary of default shade constructions
 generic_context = ShadeConstruction('Generic Context')
 generic_shade = ShadeConstruction('Generic Shade', 0.35, 0.35)
-_idf_shade_constructions = {generic_context.name: generic_context,
-                            generic_shade.name: generic_shade}
+_idf_shade_constructions[generic_context.name] = generic_context
+_idf_shade_constructions[generic_shade.name] = generic_shade
 
 
 # make lists of construction names to look up items in the library

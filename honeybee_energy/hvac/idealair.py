@@ -426,7 +426,7 @@ class IdealAirSystem(_HVACSystem):
         """
         # check that a setpoint object is assigned
         assert self._parent is not None and \
-            self._parent.properties.energy.setpoint is not None, \
+                self._parent.properties.energy.setpoint is not None, \
             'IdealAirSystem must be assigned to a Room ' \
             'with a setpoint object to use IdealAirSystem.to_idf.'
 

@@ -576,6 +576,29 @@ class ScheduleRuleset(object):
 
         return cls(data['name'], default_sched, rules, sched_type,
                    summer_sched, winter_sched)
+    
+    @classmethod
+    def from_dict_abridged(cls, data, schedule_type_limits):
+        """Create a ScheduleRuleset from an abridged dictionary.
+
+        Args:
+            data: ScheduleRulesetAbridged dictionary.
+            schedule_type_limits: A dictionary with names of schedule type limits
+                as keys and Python schedule type limit objects as values.
+        """
+        assert data['type'] == 'ScheduleRulesetAbridged', \
+            'Expected ScheduleRulesetAbridged. Got {}.'.format(data['type'])
+        
+        data = data.copy()  # copy original dictionary so we don't edit it
+        typ_lim = None
+        if 'schedule_type_limit' in data:
+            typ_lim = data['schedule_type_limit']
+            data['schedule_type_limit'] = None
+        data['type'] = 'ScheduleRuleset'
+        schedule = cls.from_dict(data)
+        schedule.schedule_type_limit = schedule_type_limits[typ_lim] if \
+            typ_lim is not None else None
+        return schedule
 
     def to_rules(self, start_date, end_date):
         """Get all of rules needed to implement this ScheduleRuleset over a date range.

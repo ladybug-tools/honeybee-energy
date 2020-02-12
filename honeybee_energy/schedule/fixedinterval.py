@@ -405,6 +405,29 @@ class ScheduleFixedInterval(object):
         return cls(data['name'], data['values'], sched_type, timestep,
                    start_date, placeholder_value, interpolate)
 
+    @classmethod
+    def from_dict_abridged(cls, data, schedule_type_limits):
+        """Create a ScheduleFixedInterval from an abridged dictionary.
+
+        Args:
+            data: ScheduleFixedIntervalAbridged dictionary.
+            schedule_type_limits: A dictionary with names of schedule type limits
+                as keys and Python schedule type limit objects as values.
+        """
+        assert data['type'] == 'ScheduleFixedIntervalAbridged', \
+            'Expected ScheduleFixedIntervalAbridged. Got {}.'.format(data['type'])
+        
+        data = data.copy()  # copy original dictionary so we don't edit it
+        typ_lim = None
+        if 'schedule_type_limit' in data:
+            typ_lim = data['schedule_type_limit']
+            data['schedule_type_limit'] = None
+        data['type'] = 'ScheduleFixedInterval'
+        schedule = cls.from_dict(data)
+        schedule.schedule_type_limit = schedule_type_limits[typ_lim] if \
+            typ_lim is not None else None
+        return schedule
+
     def to_idf(self, schedule_directory, include_datetimes=False):
         """IDF string representation of the schedule.
 
