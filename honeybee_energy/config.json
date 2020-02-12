@@ -3,5 +3,5 @@
     "energyplus_path": "",
     "openstudio_path": "",
     "energy_model_measure_path": "",
-    "template_library_folder": ""
+    "standards_data_folder": ""
 }

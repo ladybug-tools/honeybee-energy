@@ -16,8 +16,8 @@ def test_config_init():
     assert folders.energy_model_measure_path is None or \
         isinstance(folders.energy_model_measure_path, str)
 
-    assert hasattr(folders, 'template_library_folder')
-    assert isinstance(folders.template_library_folder, str)
+    assert hasattr(folders, 'standards_data_folder')
+    assert isinstance(folders.standards_data_folder, str)
     assert isinstance(folders.construction_lib, str)
     assert isinstance(folders.constructionset_lib, str)
     assert isinstance(folders.schedule_lib, str)

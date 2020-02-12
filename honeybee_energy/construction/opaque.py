@@ -188,6 +188,20 @@ class OpaqueConstruction(_ConstructionBase):
         mat_layers = [materials[mat_name] for mat_name in data['layers']]
         return cls(data['name'], mat_layers)
 
+    @classmethod
+    def from_dict_abridged(cls, data, materials):
+        """Create a OpaqueConstruction from an abridged dictionary.
+
+        Args:
+            data: An OpaqueConstructionAbridged dictionary.
+            materials: A dictionary with names of materials as keys and Python
+                material objects as values.
+        """
+        assert data['type'] == 'OpaqueConstructionAbridged', \
+            'Expected OpaqueConstructionAbridged. Got {}.'.format(data['type'])
+        mat_layers = [materials[mat_name] for mat_name in data['layers']]
+        return cls(data['name'], mat_layers)
+
     def to_idf(self):
         """IDF string representation of construction object.
 

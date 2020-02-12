@@ -35,7 +35,7 @@ class Folders(object):
         * energyplus_path
         * energyplus_exe
         * energy_model_measure_path
-        * template_library_folder
+        * standards_data_folder
         * construction_lib
         * constructionset_lib
         * schedule_lib
@@ -145,8 +145,8 @@ class Folders(object):
                     '{}'.format(self._energy_model_measure_path))
     
     @property
-    def template_library_folder(self):
-        """Get or set the path to the library of templates loaded to honeybee_energy.lib.
+    def standards_data_folder(self):
+        """Get or set the path to the library of standards loaded to honeybee_energy.lib.
         
         This folder must have the following sub-folders in order to be valid:
             * constructions - folder with IDF files for materials + constructions.
@@ -154,12 +154,12 @@ class Folders(object):
             * schedules - folder with IDF files for schedules.
             * programtypes - folder with JSON files of abridged ProgramTypes.
         """
-        return self._template_library_folder
+        return self._standards_data_folder
     
-    @template_library_folder.setter
-    def template_library_folder(self, path):
+    @standards_data_folder.setter
+    def standards_data_folder(self, path):
         if not path:  # check the default locations of the template library
-            path = self._find_template_library_folder()
+            path = self._find_standards_data_folder()
         
         # gather all of the sub folders underneath the master folder
         self._construction_lib = os.path.join(path, 'constructions') if path else None
@@ -178,30 +178,30 @@ class Folders(object):
             assert os.path.isdir(self._programtype_lib), \
                 '{} lacks a "programtypes" folder.'.format(path)
 
-        # set the template_library_folder
-        self._template_library_folder = path
+        # set the standards_data_folder
+        self._standards_data_folder = path
         if path and not self.mute:
-            print('Path to the template_library_folder is set to: '
-                    '{}'.format(self._template_library_folder))
+            print('Path to the standards_data_folder is set to: '
+                    '{}'.format(self._standards_data_folder))
     
     @property
     def construction_lib(self):
-        """Get the path to the construction library in the template_library_folder."""
+        """Get the path to the construction library in the standards_data_folder."""
         return self._construction_lib
     
     @property
     def constructionset_lib(self):
-        """Get the path to the constructionset library in the template_library_folder."""
+        """Get the path to the constructionset library in the standards_data_folder."""
         return self._constructionset_lib
     
     @property
     def schedule_lib(self):
-        """Get the path to the schedule library in the template_library_folder."""
+        """Get the path to the schedule library in the standards_data_folder."""
         return self._schedule_lib
     
     @property
     def programtype_lib(self):
-        """Get the path to the programtype library in the template_library_folder."""
+        """Get the path to the programtype library in the standards_data_folder."""
         return self._programtype_lib
 
     @property 
@@ -236,7 +236,7 @@ class Folders(object):
             "energyplus_path": r'',
             "openstudio_path": r'',
             "energy_model_measure_path": r'',
-            "template_library_folder": r''
+            "standards_data_folder": r''
         }
 
         with open(file_path, 'r') as cfg:
@@ -256,8 +256,8 @@ class Folders(object):
         # set the paths for the energy_model_measure
         self.energy_model_measure_path = default_path["energy_model_measure_path"]
 
-        # set path for the template_library_folder
-        self.template_library_folder = default_path["template_library_folder"]
+        # set path for the standards_data_folder
+        self.standards_data_folder = default_path["standards_data_folder"]
 
     def _find_energyplus_folder(self):
         """Find the most recent EnergyPlus installation in its default location.
@@ -363,21 +363,21 @@ class Folders(object):
         return measure_path
     
     @staticmethod
-    def _find_template_library_folder():
+    def _find_standards_data_folder():
         """Find the the user template library in its default location.
         
-        The default_simulation_folder/energy_library/ folder will be checked first,
+        The HOME/honeybee/honeybee_standards/data folder will be checked first,
         which can conatain libraries that are not overwritten with the update of the
         honeybee_energy package. If no such folder is found, this method defaults to
         the lib/library/ folder within this package.
         """
         # first check the default sim folder folder, where permanent libraries live
-        lib_folder = os.path.join(
-                hb_config.folders.default_simulation_folder, 'energy_library')
+        home_folder = os.getenv('HOME') or os.path.expanduser('~')
+        lib_folder = os.path.join(home_folder, 'honeybee', 'honeybee_standards', 'data')
         if os.path.isdir(lib_folder):
             return lib_folder
         else:  # default to the library folder that installs with this Python package
-            return os.path.join(os.path.dirname(__file__), 'lib', 'library')
+            return os.path.join(os.path.dirname(__file__), 'lib', 'data')
     
     @staticmethod
     def _which(program):

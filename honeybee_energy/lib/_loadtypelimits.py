@@ -3,6 +3,7 @@ from honeybee_energy.config import folders
 from honeybee_energy.schedule.typelimit import ScheduleTypeLimit
 
 import os
+import json
 
 
 # empty dictionaries to hold idf-loaded schedules and schedule types
@@ -10,10 +11,21 @@ _idf_schedule_type_limits = {}
 
 
 # load schedule types from the default and user-supplied files
-schedule_lib = os.path.join(folders.template_library_folder, 'schedules')
-for f in os.listdir(schedule_lib):
-    f_path = os.path.join(schedule_lib, f)
-    if os.path.isfile(f_path) and f_path.endswith('.idf'):
-        schedule_type_limits = ScheduleTypeLimit.extract_all_from_idf_file(f_path)
-        for typ in schedule_type_limits:
-            _idf_schedule_type_limits[typ.name] = typ
+for f in os.listdir(folders.schedule_lib):
+    f_path = os.path.join(folders.schedule_lib, f)
+    if os.path.isfile(f_path):
+        if f_path.endswith('.idf'):
+            schedule_type_limits = ScheduleTypeLimit.extract_all_from_idf_file(f_path)
+            for typ in schedule_type_limits:
+                _idf_schedule_type_limits[typ.name] = typ
+        elif f_path.endswith('.json'):
+            with open(f_path) as json_file:
+                data = json.load(json_file)
+            for stl_name in data:
+                try:
+                    stl_dict = data[stl_name]
+                    if stl_dict['type'] == 'ScheduleTypeLimit':
+                        _idf_schedule_type_limits[stl_dict['name']] = \
+                            ScheduleTypeLimit.from_dict(stl_dict)
+                except KeyError:
+                    pass  # not a Honeybee JSON file with ScheduleTypeLimits
