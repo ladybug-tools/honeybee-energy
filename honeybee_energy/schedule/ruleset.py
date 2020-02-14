@@ -821,8 +821,9 @@ class ScheduleRuleset(object):
                 will be used to assemble all of these into a ScheduleRuleset.
 
         Returns:
-            schedules -- A list of all Schedule:Year objects in the IDF file as
-                honeybee_energy ScheduleRuleset objects.
+            schedules --
+            A list of all Schedule:Year objects in the IDF file as honeybee_energy
+            ScheduleRuleset objects.
         """
         # check the file
         assert os.path.isfile(idf_file), 'Cannot find an idf file at {}'.format(idf_file)

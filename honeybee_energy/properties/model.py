@@ -551,7 +551,7 @@ class ModelEnergyProperties(object):
                 for this method to successfully load the energy properties.
 
         Returns:
-            A tuple with four elements
+            A tuple with seven elements
 
             -   materials -- A dictionary with names of materials as keys and Python
                 material objects as values.

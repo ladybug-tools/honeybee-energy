@@ -170,9 +170,9 @@ class _EnergyWindowMaterialGasBase(_EnergyMaterialWindowBase):
                 which is consistent with NFRC standards.
             angle: An angle in degrees between 0 and 180.
 
-            * 0 = A horizontal cavity with downward heat flow through the layer.
-            * 90 = A vertical cavity
-            * 180 = A horizontal cavity with upward heat flow through the layer.
+                * 0 = A horizontal cavity with downward heat flow through the layer.
+                * 90 = A vertical cavity
+                * 180 = A horizontal cavity with upward heat flow through the layer.
 
             t_kelvin: The average temperature of the gas cavity in Kelvin.
                 Default: 273.15 K (0C).
@@ -231,9 +231,9 @@ class _EnergyWindowMaterialGasBase(_EnergyMaterialWindowBase):
                 which is consistent with NFRC standards.
             angle: An angle in degrees between 0 and 180.
 
-            * 0 = A horizontal cavity with downward heat flow through the layer.
-            * 90 = A vertical cavity
-            * 180 = A horizontal cavity with upward heat flow through the layer.
+                * 0 = A horizontal cavity with downward heat flow through the layer.
+                * 90 = A vertical cavity
+                * 180 = A horizontal cavity with upward heat flow through the layer.
 
             t_kelvin: The average temperature of the gas cavity in Kelvin.
                 Default: 273.15 K (0C).
@@ -633,12 +633,12 @@ class EnergyWindowMaterialGasCustom(_EnergyWindowMaterialGasBase):
     This object allows you to specify specific values for conductivity,
     viscosity and specific heat through the following formula:
 
-        property = A + (B * T) + (C * T ** 2)
+    property = A + (B * T) + (C * T ** 2)
 
-        where:
+    where:
 
-        * A, B, and C = regression coefficients for the gas
-        * T = temperature [K]
+    * A, B, and C = regression coefficients for the gas
+    * T = temperature [K]
 
     Note that setting properties B and C to 0 will mean the property will be
     equal to the A coefficeint.

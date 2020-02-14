@@ -84,13 +84,17 @@ class AirBoundaryConstruction(object):
         """Create a AirBoundaryConstruction from a dictionary.
 
         Args:
-            data: {
-                "type": 'AirBoundaryConstruction',
-                "name": 'Generic Air Boundary Construction',
-                "air_mixing_per_area": 0.2,
-                "air_mixing_schedule": {}  # dictionary of a schedule
-                }
-        """
+            data: A python dictionary in the following format
+
+        .. code-block:: python
+
+            {
+            "type": 'AirBoundaryConstruction',
+            "name": 'Generic Air Boundary Construction',
+            "air_mixing_per_area": 0.2,
+            "air_mixing_schedule": {}  # dictionary of a schedule
+            }
+    """
         assert data['type'] == 'AirBoundaryConstruction', \
             'Expected AirBoundaryConstruction. Got {}.'.format(data['type'])
         a_mix = data['air_mixing_per_area'] if 'air_mixing_per_area' in data else 0.1

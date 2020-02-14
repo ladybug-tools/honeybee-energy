@@ -449,8 +449,8 @@ class ScheduleFixedInterval(object):
                 utilized over all of the previous timestep.
 
         Returns:
-            schedule_file -- Text string representation of the Schedule:File
-                describing this schedule.
+            schedule_file --
+            Text string representation of the Schedule:File describing this schedule.
         """
         # gather all of the data to be written into the CSV
         sched_data = [str(val) for val in self.values_at_timestep(self.timestep)]
@@ -566,8 +566,9 @@ class ScheduleFixedInterval(object):
                 the expected timestep.
 
         Returns:
-            schedule_files -- A list of IDF text string representations of the
-                Schedule:File describing this schedule.
+            schedule_files --
+            A list of IDF text string representations of the Schedule:File describing
+            this schedule.
         """
         # ensure that all is_leap_year values are the same
         init_lp_yr = schedules[0].is_leap_year
@@ -617,8 +618,9 @@ class ScheduleFixedInterval(object):
                 values.
 
         Returns:
-            schedules -- A list of all Schedule:File objects in the IDF file as
-                honeybee_energy ScheduleFixedInterval objects.
+            schedules --
+            A list of all Schedule:File objects in the IDF file as honeybee_energy
+            ScheduleFixedInterval objects.
         """
         # check the file
         assert os.path.isfile(idf_file), 'Cannot find an idf file at {}'.format(idf_file)

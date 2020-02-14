@@ -6,8 +6,8 @@ They can exist in only one of three possible locations in a window construction:
 1) On the innermost material layer.
 2) On the outermost material layer.
 3) In between two glazing materials. In the case of window constructions with
-    multiple glazing surfaces, the shade mateerial must be between the two
-    inner glass layers.
+   multiple glazing surfaces, the shade mateerial must be between the two
+   inner glass layers.
 
 Note that shade materials should never be bounded by gas gap layers in honeybee-energy.
 """
@@ -134,9 +134,9 @@ class _EnergyWindowMaterialShadeBase(_EnergyMaterialWindowBase):
                 glass in meters. Default is 1.0.
             angle: An angle in degrees between 0 and 180.
 
-            * 0 = A horizontal surface with downward heat flow through the layer.
-            * 90 = A vertical surface
-            * 180 = A horizontal surface with upward heat flow through the layer.
+                * 0 = A horizontal surface with downward heat flow through the layer.
+                * 90 = A vertical surface
+                * 180 = A horizontal surface with upward heat flow through the layer.
 
             t_kelvin: The average temperature of the gas cavity in Kelvin.
                 Default: 273.15 K (0C).
@@ -169,9 +169,9 @@ class _EnergyWindowMaterialShadeBase(_EnergyMaterialWindowBase):
                 glass in meters. Default is 1.0.
             angle: An angle in degrees between 0 and 180.
 
-            * 0 = A horizontal surface with downward heat flow through the layer.
-            * 90 = A vertical surface
-            * 180 = A horizontal surface with upward heat flow through the layer.
+                * 0 = A horizontal surface with downward heat flow through the layer.
+                * 90 = A vertical surface
+                * 180 = A horizontal surface with upward heat flow through the layer.
 
             t_kelvin: The average temperature of the gas cavity in Kelvin.
                 Default: 273.15 K (0C).
@@ -203,9 +203,9 @@ class _EnergyWindowMaterialShadeBase(_EnergyMaterialWindowBase):
                 glass in meters. Default is 1.0.
             angle: An angle in degrees between 0 and 180.
 
-            * 0 = A horizontal surface with downward heat flow through the layer.
-            * 90 = A vertical surface
-            * 180 = A horizontal surface with upward heat flow through the layer.
+                * 0 = A horizontal surface with downward heat flow through the layer.
+                * 90 = A vertical surface
+                * 180 = A horizontal surface with upward heat flow through the layer.
 
             t_kelvin: The average temperature of the gas cavity in Kelvin.
                 Default: 273.15 K (0C).

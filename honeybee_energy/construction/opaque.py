@@ -263,7 +263,7 @@ class OpaqueConstruction(_ConstructionBase):
                 constructions and corresponding materials.
 
         Returns:
-            A tuple with four elements
+            A tuple with two elements
 
             -   constructions: A list of all OpaqueConstruction objects in the IDF
                 file as honeybee_energy OpaqueConstruction objects.
