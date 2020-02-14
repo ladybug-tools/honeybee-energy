@@ -11,9 +11,9 @@ def parse_idf_string(idf_string, expected_type=None):
             (ie. WindowMaterial:Glazing). If None, no type check will be performed.
 
     Returns:
-        ep_fields: A list of strings with each item in the list as a separate field.
-            Note that this list does NOT include the string for the start of the IDF
-            object. (ie. WindowMaterial:Glazing)
+        ep_fields -- A list of strings with each item in the list as a separate field.
+        Note that this list does NOT include the string for the start of the IDF
+        object. (ie. WindowMaterial:Glazing)
     """
     idf_string = idf_string.strip()
     if expected_type is not None:

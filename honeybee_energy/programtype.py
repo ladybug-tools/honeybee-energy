@@ -57,7 +57,7 @@ class ProgramType(object):
     """
     __slots__ = ('_name', '_people', '_lighting', '_electric_equipment',
                  '_gas_equipment', '_infiltration', '_ventilation',
-                 '_setpoint', '_locked)
+                 '_setpoint', '_locked')
 
     def __init__(self, name, people=None, lighting=None, electric_equipment=None,
                  gas_equipment=None, infiltration=None, ventilation=None, setpoint=None):

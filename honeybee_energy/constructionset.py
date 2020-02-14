@@ -725,7 +725,7 @@ class WallSet(_FaceSetBase):
     """Set containing all energy constructions needed to for an energy model's Walls.
 
     Properties:
-        *exterior_construction
+        * exterior_construction
         * interior_construction
         * ground_construction
         * constructions
@@ -1091,7 +1091,7 @@ class DoorSet(object):
             doors with an Outdoors boundary condition.
         interior_glass_construction: A WindowConstruction object for all glass
             doors with a Surface boundary condition.
-        overhead_construction: : An OpaqueConstruction object for opaque doors with
+        overhead_construction: An OpaqueConstruction object for opaque doors with
             an Outdoors boundary condition and a RoofCeiling or Floor face type for
             their parent face.
 

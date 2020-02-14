@@ -515,7 +515,7 @@ class ScheduleRule(object):
 
         Returns:
             schedule_rules -- A list of ScheduleRule objects that together describe
-                the Schedule:Week.
+            the Schedule:Week.
         """
         schedule_rules = []
         if week_idf_string.startswith('Schedule:Week:Daily,'):

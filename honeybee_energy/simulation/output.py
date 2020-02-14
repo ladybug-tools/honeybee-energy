@@ -37,8 +37,8 @@ class SimulationOutput(object):
             An empty list or None will result in no summary reports.
             Default: ('AllSummary',). See the Input Output Reference SummaryReports
             section for a full list of all reports that can be requested.
-            (https://bigladdersoftware.com/epx/docs/9-1/input-output-reference/
-            output-table-summaryreports.html#outputtablesummaryreports).
+            (https://bigladdersoftware.com/epx/docs/9-1/input-output-reference/\
+output-table-summaryreports.html#outputtablesummaryreports).
 
     Properties:
         * outputs
