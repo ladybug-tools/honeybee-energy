@@ -538,12 +538,12 @@ class ScheduleRuleset(object):
             {
             "type": 'ScheduleRuleset',
             "name": 'Office Occupancy',
-            "day_schedules": [], // Array of ScheduleDay dictionary representations
-            "default_day_schedule": str, // ScheduleDay name
-            "schedule_rules": [], // list of ScheduleRuleAbridged dictionaries
-            "schedule_type_limit": {}, // ScheduleTypeLimit dictionary representation
-            "summer_designday_schedule": str, // ScheduleDay name
-            "winter_designday_schedule": str// ScheduleDay name
+            "day_schedules": [], # Array of ScheduleDay dictionary representations
+            "default_day_schedule": str, # ScheduleDay name
+            "schedule_rules": [], # list of ScheduleRuleAbridged dictionaries
+            "schedule_type_limit": {}, # ScheduleTypeLimit dictionary representation
+            "summer_designday_schedule": str, # ScheduleDay name
+            "winter_designday_schedule": str # ScheduleDay name
             }
         """
         assert data['type'] == 'ScheduleRuleset', \

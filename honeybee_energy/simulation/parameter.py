@@ -273,12 +273,12 @@ class SimulationParameter(object):
 
             {
             "type": "SimulationParameter",
-            "output": {}, // Honeybee SimulationOutput disctionary
-            "run_period": {}, // Honeybee RunPeriod disctionary
-            "timestep": 6, // Integer for the simulation timestep
-            "simulation_control": {}, // Honeybee SimulationControl dictionary
-            "shadow_calculation": {}, // Honeybee ShadowCalculation dictionary
-            "sizing_parameter": {} // Honeybee SizingParameter dictionary
+            "output": {}, # Honeybee SimulationOutput disctionary
+            "run_period": {}, # Honeybee RunPeriod disctionary
+            "timestep": 6, # Integer for the simulation timestep
+            "simulation_control": {}, # Honeybee SimulationControl dictionary
+            "shadow_calculation": {}, # Honeybee ShadowCalculation dictionary
+            "sizing_parameter": {} # Honeybee SizingParameter dictionary
             }
         """
         assert data['type'] == 'SimulationParameter', \

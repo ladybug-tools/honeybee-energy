@@ -196,11 +196,11 @@ class Lighting(_LoadBase):
             {
             "type": 'Lighting',
             "name": 'Open Office Lighting',
-            "watts_per_area": 10, // lighting watts per square meter of floor area
-            "schedule": {}, // ScheduleRuleset/ScheduleFixedInterval dictionary
-            "return_air_fraction": 0, // fraction of heat going to return air
-            "radiant_fraction": 0.32, // fraction of heat that is long wave radiant
-            "visible_fraction": 0.25 // fraction of heat that is short wave visible
+            "watts_per_area": 10, # lighting watts per square meter of floor area
+            "schedule": {}, # ScheduleRuleset/ScheduleFixedInterval dictionary
+            "return_air_fraction": 0, # fraction of heat going to return air
+            "radiant_fraction": 0.32, # fraction of heat that is long wave radiant
+            "visible_fraction": 0.25 # fraction of heat that is short wave visible
             }
         """
         assert data['type'] == 'Lighting', \
@@ -225,11 +225,11 @@ class Lighting(_LoadBase):
             {
             "type": 'LightingAbridged',
             "name": 'Open Office Lighting',
-            "watts_per_area": 10, // lighting watts per square meter of floor area
-            "schedule": "Office Lighting Schedule", // Schedule name
-            "return_air_fraction": 0, // fraction of heat going to return air
-            "radiant_fraction": 0.32, // fraction of heat that is long wave radiant
-            "visible_fraction": 0.25 // fraction of heat that is short wave visible
+            "watts_per_area": 10, # lighting watts per square meter of floor area
+            "schedule": "Office Lighting Schedule", # Schedule name
+            "return_air_fraction": 0, # fraction of heat going to return air
+            "radiant_fraction": 0.32, # fraction of heat that is long wave radiant
+            "visible_fraction": 0.25 # fraction of heat that is short wave visible
             }
         """
         assert data['type'] == 'LightingAbridged', \

@@ -320,10 +320,10 @@ class Setpoint(_LoadBase):
             {
             "type": 'Setpoint',
             "name": 'Hospital Patient Room Setpoint',
-            "heating_schedule": {}, // ScheduleRuleset/ScheduleFixedInterval dictionary
-            "cooling_schedule": {}, // ScheduleRuleset/ScheduleFixedInterval dictionary
-            "humidifying_schedule": {}, // ScheduleRuleset/ScheduleFixedInterval dictionary
-            "dehumidifying_schedule": {} // ScheduleRuleset/ScheduleFixedInterval dictionary
+            "heating_schedule": {}, # ScheduleRuleset/ScheduleFixedInterval dictionary
+            "cooling_schedule": {}, # ScheduleRuleset/ScheduleFixedInterval dictionary
+            "humidifying_schedule": {}, # ScheduleRuleset/ScheduleFixedInterval dictionary
+            "dehumidifying_schedule": {} # ScheduleRuleset/ScheduleFixedInterval dictionary
             }
         """
         assert data['type'] == 'Setpoint', \
@@ -353,10 +353,10 @@ class Setpoint(_LoadBase):
             {
             "type": 'SetpointAbridged',
             "name": 'Hospital Patient Room Setpoint',
-            "heating_schedule": "Hospital Pat Room Heating", // Schedule name
-            "cooling_schedule": "Hospital Pat Room Cooling", // Schedule name
-            "humidifying_schedule": "Hospital Pat Room Humidify", // Schedule name
-            "dehumidifying_schedule": "Hospital Pat Room Dehumidify" // Schedule name
+            "heating_schedule": "Hospital Pat Room Heating", # Schedule name
+            "cooling_schedule": "Hospital Pat Room Cooling", # Schedule name
+            "humidifying_schedule": "Hospital Pat Room Humidify", # Schedule name
+            "dehumidifying_schedule": "Hospital Pat Room Dehumidify" # Schedule name
             }
         """
         assert data['type'] == 'SetpointAbridged', \

@@ -198,11 +198,11 @@ class People(_LoadBase):
             {
             "type": 'People',
             "name": 'Open Office People',
-            "people_per_area": 0.05, // number of people per square meter of floor area
-            "occupancy_schedule": {}, // ScheduleRuleset/ScheduleFixedInterval dictionary
-            "activity_schedule": {}, // ScheduleRuleset/ScheduleFixedInterval dictionary
-            "radiant_fraction": 0.3, // fraction of sensible heat that is radiant
-            "latent_fraction": 0.2 // fraction of total heat that is latent
+            "people_per_area": 0.05, # number of people per square meter of floor area
+            "occupancy_schedule": {}, # ScheduleRuleset/ScheduleFixedInterval dictionary
+            "activity_schedule": {}, # ScheduleRuleset/ScheduleFixedInterval dictionary
+            "radiant_fraction": 0.3, # fraction of sensible heat that is radiant
+            "latent_fraction": 0.2 # fraction of total heat that is latent
             }
         """
         assert data['type'] == 'People', \
@@ -229,11 +229,11 @@ class People(_LoadBase):
             {
             "type": "PeopleAbridged",
             "name": "Open Office People",
-            "people_per_area": 0.05, // number of people per square meter of floor area
-            "occupancy_schedule": "Office Occupancy", // Schedule name
-            "activity_schedule": "Office Activity", // Schedule name
-            "radiant_fraction": 0.3, // fraction of sensible heat that is radiant
-            "latent_fraction": 0.2 // fraction of total heat that is latent
+            "people_per_area": 0.05, # number of people per square meter of floor area
+            "occupancy_schedule": "Office Occupancy", # Schedule name
+            "activity_schedule": "Office Activity", # Schedule name
+            "radiant_fraction": 0.3, # fraction of sensible heat that is radiant
+            "latent_fraction": 0.2 # fraction of total heat that is latent
             }
         """
         assert data['type'] == 'PeopleAbridged', \

@@ -220,11 +220,11 @@ class Ventilation(_LoadBase):
             {
             "type": 'Ventilation',
             "name": 'Office Ventilation',
-            "flow_per_person": 0.01, // flow per person
-            "flow_per_area": 0.0005, // flow per square meter of floor area
-            "flow_per_zone": 0, // flow per zone
-            "air_changes_per_hour": 0, // air changes per hour
-            "schedule": {} // ScheduleRuleset/ScheduleFixedInterval dictionary
+            "flow_per_person": 0.01, # flow per person
+            "flow_per_area": 0.0005, # flow per square meter of floor area
+            "flow_per_zone": 0, # flow per zone
+            "air_changes_per_hour": 0, # air changes per hour
+            "schedule": {} # ScheduleRuleset/ScheduleFixedInterval dictionary
             }
         """
         assert data['type'] == 'Ventilation', \
@@ -249,11 +249,11 @@ class Ventilation(_LoadBase):
             {
             "type": 'VentilationAbridged',
             "name": 'Office Ventilation',
-            "flow_per_person": 0.01, // flow per person
-            "flow_per_area": 0.0005, // flow per square meter of floor area
-            "flow_per_zone": 0, // flow per zone
-            "air_changes_per_hour": 0, // air changes per hour
-            "schedule": "Office Ventilation Schedule" // Schedule name
+            "flow_per_person": 0.01, # flow per person
+            "flow_per_area": 0.0005, # flow per square meter of floor area
+            "flow_per_zone": 0, # flow per zone
+            "air_changes_per_hour": 0, # air changes per hour
+            "schedule": "Office Ventilation Schedule" # Schedule name
             }
         """
         assert data['type'] == 'VentilationAbridged', \

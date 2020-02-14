@@ -272,7 +272,7 @@ class RunPeriod(object):
             "end_date": (12, 31),
             "start_day_of_week": 'Monday',
             "holidays": [(1, 1), (7, 4)],
-            "daylight_saving_time": {}, // DaylightSavingTime dictionary representation
+            "daylight_saving_time": {}, # DaylightSavingTime dictionary representation
             "leap_year": False
             }
         """
