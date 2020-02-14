@@ -221,11 +221,11 @@ class Infiltration(_LoadBase):
             {
             "type": 'Infiltration',
             "name": 'Residentail Infiltration',
-            "flow_per_exterior_area": 0.0003, // flow per square meter of exterior area
-            "schedule": {}, // ScheduleRuleset/ScheduleFixedInterval dictionary
-            "constant_coefficient": 1, // optional constant coefficient
-            "temperature_coefficient": 0, // optional temperature coefficient
-            "velocity_coefficient": 0 // optional velocity coefficient
+            "flow_per_exterior_area": 0.0003, # flow per square meter of exterior area
+            "schedule": {}, # ScheduleRuleset/ScheduleFixedInterval dictionary
+            "constant_coefficient": 1, # optional constant coefficient
+            "temperature_coefficient": 0, # optional temperature coefficient
+            "velocity_coefficient": 0 # optional velocity coefficient
             }
         """
         assert data['type'] == 'Infiltration', \
@@ -249,11 +249,11 @@ class Infiltration(_LoadBase):
             {
             "type": 'InfiltrationAbridged',
             "name": 'Residentail Infiltration',
-            "flow_per_exterior_area": 0.0003, // flow per square meter of exterior area
-            "schedule": "Residentail Infiltration Schedule", // Schedule name
-            "constant_coefficient": 1, // optional constant coefficient
-            "temperature_coefficient": 0, // optional temperature coefficient
-            "velocity_coefficient": 0 // optional velocity coefficient
+            "flow_per_exterior_area": 0.0003, # flow per square meter of exterior area
+            "schedule": "Residentail Infiltration Schedule", # Schedule name
+            "constant_coefficient": 1, # optional constant coefficient
+            "temperature_coefficient": 0, # optional temperature coefficient
+            "velocity_coefficient": 0 # optional velocity coefficient
             }
         """
         assert data['type'] == 'InfiltrationAbridged', \

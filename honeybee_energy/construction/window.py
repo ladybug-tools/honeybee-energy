@@ -342,7 +342,7 @@ class WindowConstruction(_ConstructionBase):
             {
             "type": 'WindowConstruction',
             "name": 'Generic Double Pane Window',
-            "materials": []  // list of material objects
+            "materials": []  # list of material objects
             }
         """
         assert data['type'] == 'WindowConstruction', \

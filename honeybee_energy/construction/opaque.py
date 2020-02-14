@@ -177,8 +177,8 @@ class OpaqueConstruction(_ConstructionBase):
             {
             "type": 'OpaqueConstruction',
             "name": 'Generic Brick Wall',
-            "layers": [] // list of material names (from outside to inside)
-            "materials": []  // list of unique material objects
+            "layers": [] # list of material names (from outside to inside)
+            "materials": []  # list of unique material objects
             }
         """
         assert data['type'] == 'OpaqueConstruction', \

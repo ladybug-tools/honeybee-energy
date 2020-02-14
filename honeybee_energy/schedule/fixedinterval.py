@@ -376,12 +376,12 @@ class ScheduleFixedInterval(object):
             {
             "type": 'ScheduleFixedInterval',
             "name": 'Automated Awning Transmittance',
-            "values": [], // list of numbers for the values of the schedule
-            "schedule_type_limit": {}, // ScheduleTypeLimit dictionary representation
-            "timestep": 1, // Integer for the timestep of the schedule
-            "start_date": (1, 1), // Date dictionary representation
-            "placeholder_value": 0, // Number for the values out of range
-            "interpolate": False // Boolean noting whether to interpolate between values
+            "values": [], # list of numbers for the values of the schedule
+            "schedule_type_limit": {}, # ScheduleTypeLimit dictionary representation
+            "timestep": 1, # Integer for the timestep of the schedule
+            "start_date": (1, 1), # Date dictionary representation
+            "placeholder_value": 0, # Number for the values out of range
+            "interpolate": False # Boolean noting whether to interpolate between values
             }
         """
         assert data['type'] == 'ScheduleFixedInterval', \

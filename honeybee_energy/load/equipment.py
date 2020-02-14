@@ -329,11 +329,11 @@ class ElectricEquipment(_EquipmentBase):
             {
             "type": 'ElectricEquipment',
             "name": 'Open Office Equipment',
-            "watts_per_area": 5, // equipment watts per square meter of floor area
-            "schedule": {}, // ScheduleRuleset/ScheduleFixedInterval dictionary
-            "radiant_fraction": 0.3, // fraction of heat that is long wave radiant
-            "latent_fraction": 0, // fraction of heat that is latent
-            "lost_fraction": 0 // fraction of heat that is lost
+            "watts_per_area": 5, # equipment watts per square meter of floor area
+            "schedule": {}, # ScheduleRuleset/ScheduleFixedInterval dictionary
+            "radiant_fraction": 0.3, # fraction of heat that is long wave radiant
+            "latent_fraction": 0, # fraction of heat that is latent
+            "lost_fraction": 0 # fraction of heat that is lost
             }
         """
         sched, rad_f, lat_f, lost_f = cls._extract_dict_props(data, 'ElectricEquipment')
@@ -354,11 +354,11 @@ class ElectricEquipment(_EquipmentBase):
             {
             "type": 'ElectricEquipmentAbridged',
             "name": 'Open Office Equipment',
-            "watts_per_area": 5, // equipment watts per square meter of floor area
-            "schedule": "Office Equipment Schedule", // Schedule name
-            "radiant_fraction": 0.3, // fraction of heat that is long wave radiant
-            "latent_fraction": 0, // fraction of heat that is latent
-            "lost_fraction": 0 // fraction of heat that is lost
+            "watts_per_area": 5, # equipment watts per square meter of floor area
+            "schedule": "Office Equipment Schedule", # Schedule name
+            "radiant_fraction": 0.3, # fraction of heat that is long wave radiant
+            "latent_fraction": 0, # fraction of heat that is latent
+            "lost_fraction": 0 # fraction of heat that is lost
             }
         """
         sched, rad_f, lat_f, lost_f = cls._extract_abridged_dict_props(
@@ -522,11 +522,11 @@ class GasEquipment(_EquipmentBase):
             {
             "type": 'GasEquipment',
             "name": 'Kitchen Equipment',
-            "watts_per_area": 20, // equipment watts per square meter of floor area
-            "schedule": {}, // ScheduleRuleset/ScheduleFixedInterval dictionary
-            "radiant_fraction": 0.3, // fraction of heat that is long wave radiant
-            "latent_fraction": 0.2, // fraction of heat that is latent
-            "lost_fraction": 0 // fraction of heat that is lost
+            "watts_per_area": 20, # equipment watts per square meter of floor area
+            "schedule": {}, # ScheduleRuleset/ScheduleFixedInterval dictionary
+            "radiant_fraction": 0.3, # fraction of heat that is long wave radiant
+            "latent_fraction": 0.2, # fraction of heat that is latent
+            "lost_fraction": 0 # fraction of heat that is lost
             }
         """
         sched, rad_f, lat_f, lost_f = cls._extract_dict_props(data, 'GasEquipment')
@@ -547,11 +547,11 @@ class GasEquipment(_EquipmentBase):
             {
             "type": 'GasEquipmentAbridged',
             "name": 'Kitchen Equipment',
-            "watts_per_area": 20, // equipment watts per square meter of floor area
-            "schedule": "Kitchen Equipment Schedule", // Schedule name
-            "radiant_fraction": 0.3, // fraction of heat that is long wave radiant
-            "latent_fraction": 0, // fraction of heat that is latent
-            "lost_fraction": 0 // fraction of heat that is lost
+            "watts_per_area": 20, # equipment watts per square meter of floor area
+            "schedule": "Kitchen Equipment Schedule", # Schedule name
+            "radiant_fraction": 0.3, # fraction of heat that is long wave radiant
+            "latent_fraction": 0,  fraction of heat that is latent
+            "lost_fraction": 0  fraction of heat that is lost
             }
         """
         sched, rad_f, lat_f, lost_f = cls._extract_abridged_dict_props(
