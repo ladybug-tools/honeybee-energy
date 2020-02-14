@@ -10,18 +10,17 @@ from honeybee.typing import valid_ep_string
 class _EnergyMaterialBase(object):
     """Base energy material.
 
+    Args:
+        name: Text string for material name. Must be <= 100 characters.
+            Can include spaces but special characters will be stripped out.
+
     Properties:
-        name
+        * name
     """
     __slots__ = ('_name', '_locked')
 
     def __init__(self, name):
-        """Initialize energy material base.
-
-        Args:
-            name: Text string for material name. Must be <= 100 characters.
-                Can include spaces but special characters will be stripped out.
-        """
+        """Initialize energy material base."""
         self._locked = False
         self.name = name
 

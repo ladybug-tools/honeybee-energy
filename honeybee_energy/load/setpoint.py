@@ -18,6 +18,20 @@ from honeybee.typing import float_in_range
 class Setpoint(_LoadBase):
     """Temperature (thermostat) and humidity (humidistat) setpoints for a thermal zone.
 
+    Args:
+        name: Text string for the Setpoint object. Must be <= 100 characters.
+            Can include spaces but special characters will be stripped out.
+        heating_schedule: A ScheduleRuleset or ScheduleFixedInterval for the
+            heating setpoint.
+        cooling_schedule: A ScheduleRuleset or ScheduleFixedInterval for the
+            cooling setpoint.
+        humidifying_schedule: A ScheduleRuleset or ScheduleFixedInterval for
+            the humidification setpoint. If None, no additional humidification
+            will be applied by the HVAC system. Default: None.
+        dehumidifying_schedule: A ScheduleRuleset or ScheduleFixedInterval for
+            the dehumidification setpoint. If None, no additional dehumidification
+            will be performed by the HVAC system. Default: None.
+
     Properties:
         * name
         * heating_schedule
@@ -42,22 +56,7 @@ class Setpoint(_LoadBase):
 
     def __init__(self, name, heating_schedule, cooling_schedule,
                  humidifying_schedule=None, dehumidifying_schedule=None):
-        """Initialize Setpoint.
-
-        Args:
-            name: Text string for the Setpoint object. Must be <= 100 characters.
-                Can include spaces but special characters will be stripped out.
-            heating_schedule: A ScheduleRuleset or ScheduleFixedInterval for the
-                heating setpoint.
-            cooling_schedule: A ScheduleRuleset or ScheduleFixedInterval for the
-                cooling setpoint.
-            humidifying_schedule: A ScheduleRuleset or ScheduleFixedInterval for
-                the humidification setpoint. If None, no additional humidification
-                will be applied by the HVAC system. Default: None.
-            dehumidifying_schedule: A ScheduleRuleset or ScheduleFixedInterval for
-                the dehumidification setpoint. If None, no additional dehumidification
-                will be performed by the HVAC system. Default: None.
-        """
+        """Initialize Setpoint."""
         _LoadBase.__init__(self, name)
         # defaults that might be overwritten
         self._dehumidifying_schedule = None
@@ -287,7 +286,7 @@ class Setpoint(_LoadBase):
                 the Setpoint object.
 
         Returns:
-            setpoint: A Setpoint object loaded from the idf_string.
+            setpoint -- A Setpoint object loaded from the idf_string.
         """
         # check the inputs
         ep_strs = parse_idf_string(idf_string, 'HVACTemplate:Thermostat,')
@@ -316,7 +315,7 @@ class Setpoint(_LoadBase):
         Args:
             data: A Setpoint dictionary in following the format below.
 
-        .. code-block:: json
+        .. code-block:: python
 
             {
             "type": 'Setpoint',
@@ -349,7 +348,7 @@ class Setpoint(_LoadBase):
                 objects as values (either ScheduleRuleset or ScheduleFixedInterval).
                 These will be used to assign the schedules to the Setpoint object.
 
-        .. code-block:: json
+        .. code-block:: python
 
             {
             "type": 'SetpointAbridged',

@@ -21,6 +21,48 @@ class IdealAirSystem(_HVACSystem):
     access more advanced HVAC systems, a honeybee_energy extension should be
     installed.
 
+    Args:
+        name: Text string for ideal air system name. Must be <= 100 characters.
+            Can include spaces but special characters will be stripped out.
+        economizer_type: Text to indicate the type of air-side economizer used on
+            the ideal air system. Economizers will mix in a greater amount of
+            outdoor air to cool the zone (rather than running the cooling system)
+            when the zone needs cooling and the outdoor air is cooler than the zone.
+            Choose from the options below. Default: DifferentialDryBulb.
+
+            * NoEconomizer
+            * DifferentialDryBulb
+            * DifferentialEnthalpy
+
+        demand_controlled_ventilation: Boolean to note whether demand controlled
+            ventilation should be used on the system, which will vary the amount
+            of ventilation air according to the occupancy schedule of the zone.
+            Default: False.
+        sensible_heat_recovery: A number between 0 and 1 for the effectiveness
+            of sensible heat recovery within the system. Default: 0.
+        latent_heat_recovery: A number between 0 and 1 for the effectiveness
+            of latent heat recovery within the system. Default: 0.
+        heating_air_temperature: A number for the maximum heating supply air
+            temperature [C]. Default: 50, which is typical for many air-based
+            HVAC systems.
+        cooling_air_temperature: A number for the minimum cooling supply air
+            temperature [C]. Default: 13, which is typical for many air-based
+            HVAC systems.
+        heating_limit: A number for the maximum heating capacity in Watts. This
+            can also be an Autosize object to indicate that the capacity should
+            be determined during the EnergyPlus sizing calculation. This can also
+            be a NoLimit object to indicate no upper limit to the heating
+            capacity. Default: autosize.
+        cooling_limit: A number for the maximum cooling capacity in Watts. This
+            can also be an Autosize object to indicate that the capacity should
+            be determined during the EnergyPlus sizing calculation. This can also
+            be a NoLimit object to indicate no upper limit to the cooling
+            capacity.
+        heating_availability: An optional schedule to set the availability of
+            heating over the course of the simulation. Default: None.
+        cooling_availability: An optional schedule to set the availability of
+            cooling over the course of the simulation. Default: None.
+
     Properties:
         * name
         * economizer_type
@@ -47,51 +89,10 @@ class IdealAirSystem(_HVACSystem):
                  heating_air_temperature=50, cooling_air_temperature=13,
                  heating_limit=autosize, cooling_limit=autosize,
                  heating_availability=None, cooling_availability=None):
-        """Initialize IdealAirSystem.
-
-        Args:
-            name: Text string for ideal air system name. Must be <= 100 characters.
-                Can include spaces but special characters will be stripped out.
-            economizer_type: Text to indicate the type of air-side economizer used on
-                the ideal air system. Economizers will mix in a greater amount of
-                outdoor air to cool the zone (rather than running the cooling system)
-                when the zone needs cooling and the outdoor air is cooler than the zone.
-                Choose from the options below. Default: DifferentialDryBulb.
-                    * NoEconomizer
-                    * DifferentialDryBulb
-                    * DifferentialEnthalpy
-            demand_controlled_ventilation: Boolean to note whether demand controlled
-                ventilation should be used on the system, which will vary the amount
-                of ventilation air according to the occupancy schedule of the zone.
-                Default: False.
-            sensible_heat_recovery: A number between 0 and 1 for the effectiveness
-                of sensible heat recovery within the system. Default: 0.
-            latent_heat_recovery: A number between 0 and 1 for the effectiveness
-                of latent heat recovery within the system. Default: 0.
-            heating_air_temperature: A number for the maximum heating supply air
-                temperature [C]. Default: 50, which is typical for many air-based
-                HVAC systems.
-            cooling_air_temperature: A number for the minimum cooling supply air
-                temperature [C]. Default: 13, which is typical for many air-based
-                HVAC systems.
-            heating_limit: A number for the maximum heating capacity in Watts. This
-                can also be an Autosize object to indicate that the capacity should
-                be determined during the EnergyPlus sizing calculation. This can also
-                be a NoLimit object to indicate no upper limit to the heating
-                capacity. Default: autosize.
-            cooling_limit: A number for the maximum cooling capacity in Watts. This
-                can also be an Autosize object to indicate that the capacity should
-                be determined during the EnergyPlus sizing calculation. This can also
-                be a NoLimit object to indicate no upper limit to the cooling
-                capacity.
-            heating_availability: An optional schedule to set the availability of
-                heating over the course of the simulation. Default: None.
-            cooling_availability: An optional schedule to set the availability of
-                cooling over the course of the simulation. Default: None.
-        """
+        """Initialize IdealAirSystem."""
         # initialize base HVAC system properties
         _HVACSystem.__init__(self, name, is_single_room=True)
-        
+
         # set the main features of the HVAC system
         self.economizer_type = economizer_type
         self.demand_controlled_ventilation = demand_controlled_ventilation
@@ -113,9 +114,10 @@ class IdealAirSystem(_HVACSystem):
         """Get or set text to indicate the type of air-side economizer.
 
         Choose from the following options:
-            * NoEconomizer
-            * DifferentialDryBulb
-            * DifferentialEnthalpy
+
+        * NoEconomizer
+        * DifferentialDryBulb
+        * DifferentialEnthalpy
         """
         return self._economizer_type
 
@@ -160,7 +162,7 @@ class IdealAirSystem(_HVACSystem):
     def latent_heat_recovery(self, value):
         self._latent_heat_recovery = float_in_range(
             value, 0.0, 1.0, 'ideal air latent heat recovery')
-    
+
     @property
     def heating_air_temperature(self):
         """Get or set a number for the maximum heating supply air temperature."""
@@ -171,7 +173,7 @@ class IdealAirSystem(_HVACSystem):
         self._heating_air_temperature = float_in_range(
             value, 0, 100, 'ideal air heating air temperature')
         self._air_temperature_check()
-    
+
     @property
     def cooling_air_temperature(self):
         """Get or set a number for the minimum cooling supply air temperature."""
@@ -182,7 +184,7 @@ class IdealAirSystem(_HVACSystem):
         self._cooling_air_temperature = float_in_range(
             value, -100, 50, 'ideal air cooling air temperature')
         self._air_temperature_check()
-    
+
     @property
     def heating_limit(self):
         """Get or set a number for the maximum heating capacity in Watts."""
@@ -212,7 +214,7 @@ class IdealAirSystem(_HVACSystem):
             self._cooling_limit = no_limit
         else:
             self._cooling_limit = float_positive(value, 'ideal air cooling limit')
-    
+
     @property
     def heating_availability(self):
         """Get or set a ScheduleRuleset/ScheduleFixedInterval for heating availability.
@@ -225,7 +227,7 @@ class IdealAirSystem(_HVACSystem):
             self._check_schedule(value, 'heating_availability')
             value.lock()   # lock editing in case schedule has multiple references
         self._heating_availability = value
-    
+
     @property
     def cooling_availability(self):
         """Get or set a ScheduleRuleset/ScheduleFixedInterval for cooling availability.
@@ -238,7 +240,7 @@ class IdealAirSystem(_HVACSystem):
             self._check_schedule(value, 'cooling_availability')
             value.lock()   # lock editing in case schedule has multiple references
         self._cooling_availability = value
-    
+
     @property
     def schedules(self):
         """Get an array of all the schedules assiciated with the HVAC system."""
@@ -262,8 +264,11 @@ class IdealAirSystem(_HVACSystem):
                 the IdealAirSystem object.
 
         Returns:
-            ideal_air_system: An IdealAirSystem object loaded from the idf_string.
-            zone_name: The name of the zone to which the IdealAirSystem object should
+            A tuple with two elements
+
+            -   ideal_air_system: An IdealAirSystem object loaded from the idf_string.
+
+            -   zone_name: The name of the zone to which the IdealAirSystem object should
                 be assigned.
         """
         # check the inputs
@@ -339,18 +344,18 @@ class IdealAirSystem(_HVACSystem):
             "heating_air_temperature": 50,  # Heating supply air temperature
             "cooling_air_temperature": 13,  # Cooling supply air temperature
             "heating_limit": {'type': 'Autosize'},  # Max size of the heating system
-            "cooling_limit": {'type': 'Autosize'},  # Max size of the cooling system 
+            "cooling_limit": {'type': 'Autosize'},  # Max size of the cooling system
             "heating_availability": {},  # Schedule for availability of heat or None
             "cooling_availability": {}  # Schedule for availability of cooling or None
             }
         """
         assert data['type'] == 'IdealAirSystem', \
             'Expected IdealAirSystem dictionary. Got {}.'.format(data['type'])
-        
+
         # extract the key features and properties of the HVAC
         econ, dcv, sensible, latent, heat_temp, cool_temp, heat_limit, cool_limit = \
             cls._properties_from_dict(data)
-        
+
         # extract the schedules
         heat_avail = cls._get_schedule_from_dict(data['heating_availability']) if \
             'heating_availability' in data and data['heating_availability'] is not None \
@@ -358,10 +363,10 @@ class IdealAirSystem(_HVACSystem):
         cool_avail = cls._get_schedule_from_dict(data['cooling_availability']) if \
             'cooling_availability' in data and data['cooling_availability'] is not None \
             else None
-        
+
         return cls(data['name'], econ, dcv, sensible, latent, heat_temp, cool_temp,
                    heat_limit, cool_limit, heat_avail, cool_avail)
-    
+
     @classmethod
     def from_dict_abridged(cls, data, schedule_dict):
         """Create a IdealAirSystem object from an abridged dictionary.
@@ -395,7 +400,7 @@ class IdealAirSystem(_HVACSystem):
         # extract the key features and properties of the HVAC
         econ, dcv, sensible, latent, heat_temp, cool_temp, heat_limit, cool_limit = \
             cls._properties_from_dict(data)
-        
+
         # extract the schedules
         heat_avail = None
         cool_avail = None
@@ -511,7 +516,7 @@ class IdealAirSystem(_HVACSystem):
 
     def to_dict(self, abridged=False):
         """IdealAirSystem dictionary representation.
-        
+
         Args:
             abridged: Boolean to note whether the full dictionary describing the
                 object should be returned (False) or just an abridged version (True),
@@ -545,7 +550,7 @@ class IdealAirSystem(_HVACSystem):
     def ToString(self):
         """Overwrite .NET ToString."""
         return self.__repr__()
-    
+
     def _air_temperature_check(self):
         """Check that heating_air_temperature is greater than cooling_air_temperature."""
         assert self._heating_air_temperature > self._cooling_air_temperature, \

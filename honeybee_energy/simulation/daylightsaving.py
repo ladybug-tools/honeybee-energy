@@ -12,6 +12,14 @@ from ladybug.dt import Date
 class DaylightSavingTime(object):
     """EnergyPlus Daylight Saving Time Period.
 
+    Args:
+        start_date: A ladybug Date object for the start of daylight saving time.
+            Must be before the end date and have a leap_year property matching the
+            end_date. Default: 12 Mar (daylight savings in the US in 2017)
+        end_date: A ladybug Date object for the end of daylight saving time.
+            Must be after the start date and have a leap_year property matching the
+            start_date. Default: 5 Nov (daylight savings in the US in 2017)
+
     Properties:
         * start_date
         * end_date
@@ -19,16 +27,7 @@ class DaylightSavingTime(object):
     __slots__ = ('_start_date', '_end_date')
 
     def __init__(self, start_date=Date(3, 12), end_date=Date(11, 5)):
-        """Initialize DaylightSavingTime.
-
-        Args:
-            start_date: A ladybug Date object for the start of daylight saving time.
-                Must be before the end date and have a leap_year property matching the
-                end_date. Default: 12 Mar (daylight savings in the US in 2017)
-            end_date: A ladybug Date object for the end of daylight saving time.
-                Must be after the start date and have a leap_year property matching the
-                start_date. Default: 5 Nov (daylight savings in the US in 2017)
-        """
+        """Initialize DaylightSavingTime."""
         # process the dates
         if start_date is not None:
             self._check_date(start_date, 'start_date')

@@ -7,6 +7,12 @@ from ..lib.constructionsets import generic_construction_set
 class ApertureEnergyProperties(object):
     """Energy Properties for Honeybee Aperture.
 
+    Args:
+        host: A honeybee_core Aperture object that hosts these properties.
+        construction: An optional Honeybee WindowConstruction object for
+            the aperture. If None, it will be set by the parent Room ConstructionSet
+            or the the Honeybee default generic ConstructionSet.
+
     Properties:
         * host
         * construction
@@ -16,14 +22,7 @@ class ApertureEnergyProperties(object):
     __slots__ = ('_host', '_construction')
 
     def __init__(self, host, construction=None):
-        """Initialize Aperture energy properties.
-
-        Args:
-            host: A honeybee_core Aperture object that hosts these properties.
-            construction: An optional Honeybee WindowConstruction object for
-                the aperture. If None, it will be set by the parent Room ConstructionSet
-                or the the Honeybee default generic ConstructionSet.
-        """
+        """Initialize Aperture energy properties."""
         self._host = host
         self.construction = construction
 
@@ -68,11 +67,11 @@ class ApertureEnergyProperties(object):
     @property
     def is_construction_set_on_object(self):
         """Boolean noting if construction is assigned on the level of this Aperture.
-        
+
         This is opposed to having the construction assigned by a ConstructionSet.
         """
         return self._construction is not None
-    
+
     def reset_to_default(self):
         """Reset a construction assigned at the level of this Aperture to the default.
 

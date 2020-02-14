@@ -10,6 +10,12 @@ from honeybee.facetype import AirBoundary
 class FaceEnergyProperties(object):
     """Energy Properties for Honeybee Face.
 
+    Args:
+        host: A honeybee_core Face object that hosts these properties.
+        construction: An optional Honeybee OpaqueConstruction object for
+            the face. If None, it will be set by the parent Room ConstructionSet
+            or the the Honeybee default generic ConstructionSet.
+
     Properties:
         * host
         * construction
@@ -19,14 +25,7 @@ class FaceEnergyProperties(object):
     __slots__ = ('_host', '_construction')
 
     def __init__(self, host, construction=None):
-        """Initialize Face energy properties.
-
-        Args:
-            host: A honeybee_core Face object that hosts these properties.
-            construction: An optional Honeybee OpaqueConstruction object for
-                the face. If None, it will be set by the parent Room ConstructionSet
-                or the the Honeybee default generic ConstructionSet.
-        """
+        """Initialize Face energy properties."""
         self._host = host
         self.construction = construction
 
@@ -71,11 +70,11 @@ class FaceEnergyProperties(object):
     @property
     def is_construction_set_on_object(self):
         """Boolean noting if construction is assigned on the level of this Face.
-        
+
         This is opposed to having the construction assigned by a ConstructionSet.
         """
         return self._construction is not None
-    
+
     def reset_to_default(self):
         """Reset a construction assigned at the level of this Face to the default.
 
@@ -133,8 +132,9 @@ class FaceEnergyProperties(object):
     def duplicate(self, new_host=None):
         """Get a copy of this object.
 
-        new_host: A new Face object that hosts these properties.
-            If None, the properties will be duplicated with the same host.
+        Args:
+            new_host: A new Face object that hosts these properties.
+                If None, the properties will be duplicated with the same host.
         """
         _host = new_host or self._host
         return FaceEnergyProperties(_host, self._construction)

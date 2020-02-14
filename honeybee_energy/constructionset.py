@@ -22,6 +22,26 @@ from honeybee.typing import valid_ep_string
 class ConstructionSet(object):
     """Set containing all energy constructions needed to create an energy model.
 
+    Args:
+        name: Text string for construction set name. Must be <= 100 characters.
+            Can include spaces but special characters will be stripped out.
+        wall_set: An optional WallSet object for this ConstructionSet.
+            If None, it will be the honeybee generic default WallSet.
+        floor_set: An optional FloorSet object for this ConstructionSet.
+            If None, it will be the honeybee generic default FloorSet.
+        roof_ceiling_set: An optional RoofCeilingSet object for this ConstructionSet.
+            If None, it will be the honeybee generic default RoofCeilingSet.
+        aperture_set: An optional ApertureSet object for this ConstructionSet.
+            If None, it will be the honeybee generic default ApertureSet.
+        door_set: An optional DoorSet object for this ConstructionSet.
+            If None, it will be the honeybee generic default DoorSet.
+        shade_construction: An optional ShadeConstruction to set the reflectance
+            properties of all outdoor shades to which this ConstructionSet is
+            assigned. If None, it will be the honyebee generic shade construction.
+        air_boundary_construction: An optional AirBoundaryConstruction to set
+            the properties of Faces with an AirBoundary type. If None, it
+            will be the honyebee generic air boundary construction.
+
     Properties:
         * name
         * wall_set
@@ -45,28 +65,7 @@ class ConstructionSet(object):
     def __init__(self, name, wall_set=None, floor_set=None, roof_ceiling_set=None,
                  aperture_set=None, door_set=None, shade_construction=None,
                  air_boundary_construction=None):
-        """Initialize energy construction set.
-
-        Args:
-            name: Text string for construction set name. Must be <= 100 characters.
-                Can include spaces but special characters will be stripped out.
-            wall_set: An optional WallSet object for this ConstructionSet.
-                If None, it will be the honeybee generic default WallSet.
-            floor_set: An optional FloorSet object for this ConstructionSet.
-                If None, it will be the honeybee generic default FloorSet.
-            roof_ceiling_set: An optional RoofCeilingSet object for this ConstructionSet.
-                If None, it will be the honeybee generic default RoofCeilingSet.
-            aperture_set: An optional ApertureSet object for this ConstructionSet.
-                If None, it will be the honeybee generic default ApertureSet.
-            door_set: An optional DoorSet object for this ConstructionSet.
-                If None, it will be the honeybee generic default DoorSet.
-            shade_construction: An optional ShadeConstruction to set the reflectance
-                properties of all outdoor shades to which this ConstructionSet is
-                assigned. If None, it will be the honyebee generic shade construction.
-            air_boundary_construction: An optional AirBoundaryConstruction to set
-                the properties of Faces with an AirBoundary type. If None, it
-                will be the honyebee generic air boundary construction.
-        """
+        """Initialize energy construction set."""
         self._locked = False  # unlocked by default
         self.name = name
         self.wall_set = wall_set
@@ -170,7 +169,7 @@ class ConstructionSet(object):
                 'Expected ShadeConstruction. Got {}'.format(type(value))
             value.lock()   # lock editing in case construction has multiple references
         self._shade_construction = value
-    
+
     @property
     def air_boundary_construction(self):
         """Get or set the AirBoundaryConstruction assigned to this ConstructionSet."""
@@ -596,23 +595,23 @@ class ConstructionSet(object):
 
 @lockable
 class _FaceSetBase(object):
-    """Base class for the sets assigned to Faces (WallSet, FloorSet, RoofCeilingSet)."""
+    """Base class for the sets assigned to Faces (WallSet, FloorSet, RoofCeilingSet).
+
+    Args:
+        exterior_construction: An OpaqueConstruction object for faces with an
+            Outdoors boundary condition.
+        interior_construction: An OpaqueConstruction object for faces with a
+            Surface or Adiabatic boundary condition.
+        ground_construction: : An OpaqueConstruction object for faces with a
+            Ground boundary condition.
+    """
 
     __slots__ = ('_exterior_construction', '_interior_construction',
                  '_ground_construction', '_locked')
 
     def __init__(self, exterior_construction=None, interior_construction=None,
                  ground_construction=None):
-        """Initialize set.
-
-        Args:
-            exterior_construction: An OpaqueConstruction object for faces with an
-                Outdoors boundary condition.
-            interior_construction: An OpaqueConstruction object for faces with a
-                Surface or Adiabatic boundary condition.
-            ground_construction: : An OpaqueConstruction object for faces with a
-                Ground boundary condition.
-        """
+        """Initialize set."""
         self._locked = False  # unlocked by default
         self.exterior_construction = exterior_construction
         self.interior_construction = interior_construction
@@ -726,12 +725,12 @@ class WallSet(_FaceSetBase):
     """Set containing all energy constructions needed to for an energy model's Walls.
 
     Properties:
-        exterior_construction
-        interior_construction
-        ground_construction
-        constructions
-        modified_constructions
-        is_modified
+        *exterior_construction
+        * interior_construction
+        * ground_construction
+        * constructions
+        * modified_constructions
+        * is_modified
     """
     __slots__ = ()
 
@@ -786,12 +785,12 @@ class FloorSet(_FaceSetBase):
     """Set containing all energy constructions needed to for an energy model's Floors.
 
     Properties:
-        exterior_construction
-        interior_construction
-        ground_construction
-        constructions
-        modified_constructions
-        is_modified
+        * exterior_construction
+        * interior_construction
+        * ground_construction
+        * constructions
+        * modified_constructions
+        * is_modified
     """
     __slots__ = ()
 
@@ -846,12 +845,12 @@ class RoofCeilingSet(_FaceSetBase):
     """Set containing all energy constructions needed to for an energy model's Roofs.
 
     Properties:
-        exterior_construction
-        interior_construction
-        ground_construction
-        constructions
-        modified_constructions
-        is_modified
+        * exterior_construction
+        * interior_construction
+        * ground_construction
+        * constructions
+        * modified_constructions
+        * is_modified
     """
     __slots__ = ()
 
@@ -905,34 +904,33 @@ class RoofCeilingSet(_FaceSetBase):
 class ApertureSet(object):
     """Set containing all energy constructions needed to for an energy model's Apertures.
 
+    Args:
+        window_construction: A WindowConstruction object for apertures
+            with an Outdoors boundary condition, False is_operable property,
+            and a Wall face type for their parent face.
+        interior_construction: A WindowConstruction object for all apertures
+            with a Surface boundary condition.
+        skylight_construction: : A WindowConstruction object for apertures with a
+            Outdoors boundary condition, False is_operable property, and a
+            RoofCeiling or Floor face type for their parent face.
+        operable_construction: A WindowConstruction object for all apertures
+            with an Outdoors boundary condition and True is_operable property.
+
     Properties:
-        window_construction
-        interior_construction
-        skylight_construction
-        operable_construction
-        constructions
-        modified_constructions
-        is_modified
+        * window_construction
+        * interior_construction
+        * skylight_construction
+        * operable_construction
+        * constructions
+        * modified_constructions
+        * is_modified
     """
     __slots__ = ('_window_construction', '_interior_construction',
                  '_skylight_construction', '_operable_construction', '_locked')
 
     def __init__(self, window_construction=None, interior_construction=None,
                  skylight_construction=None, operable_construction=None):
-        """Initialize aperture set.
-
-        Args:
-            window_construction: A WindowConstruction object for apertures
-                with an Outdoors boundary condition, False is_operable property,
-                and a Wall face type for their parent face.
-            interior_construction: A WindowConstruction object for all apertures
-                with a Surface boundary condition.
-            skylight_construction: : A WindowConstruction object for apertures with a
-                Outdoors boundary condition, False is_operable property, and a
-                RoofCeiling or Floor face type for their parent face.
-            operable_construction: A WindowConstruction object for all apertures
-                with an Outdoors boundary condition and True is_operable property.
-        """
+        """Initialize aperture set."""
         self._locked = False  # unlocked by default
         self.window_construction = window_construction
         self.interior_construction = interior_construction
@@ -1084,15 +1082,28 @@ class ApertureSet(object):
 class DoorSet(object):
     """Set containing all energy constructions needed to for an energy model's Roofs.
 
+    Args:
+        exterior_construction: An OpaqueConstruction object for opaque doors with an
+            Outdoors boundary condition and a Wall face type for their parent face.
+        interior_construction: An OpaqueConstruction object for all opaque doors
+            with a Surface boundary condition.
+        exterior_glass_construction: A WindowConstruction object for all glass
+            doors with an Outdoors boundary condition.
+        interior_glass_construction: A WindowConstruction object for all glass
+            doors with a Surface boundary condition.
+        overhead_construction: : An OpaqueConstruction object for opaque doors with
+            an Outdoors boundary condition and a RoofCeiling or Floor face type for
+            their parent face.
+
     Properties:
-        exterior_construction
-        interior_construction
-        exterior_glass_construction
-        interior_glass_construction
-        overhead_construction
-        constructions
-        modified_constructions
-        is_modified
+        * exterior_construction
+        * interior_construction
+        * exterior_glass_construction
+        * interior_glass_construction
+        * overhead_construction
+        * constructions
+        * modified_constructions
+        * is_modified
     """
     __slots__ = ('_exterior_construction', '_interior_construction',
                  '_exterior_glass_construction', '_interior_glass_construction',
@@ -1101,21 +1112,7 @@ class DoorSet(object):
     def __init__(self, exterior_construction=None, interior_construction=None,
                  exterior_glass_construction=None, interior_glass_construction=None,
                  overhead_construction=None):
-        """Initialize door set.
-
-        Args:
-            exterior_construction: An OpaqueConstruction object for opaque doors with an
-                Outdoors boundary condition and a Wall face type for their parent face.
-            interior_construction: An OpaqueConstruction object for all opaque doors
-                with a Surface boundary condition.
-            exterior_glass_construction: A WindowConstruction object for all glass
-                doors with an Outdoors boundary condition.
-            interior_glass_construction: A WindowConstruction object for all glass
-                doors with a Surface boundary condition.
-            overhead_construction: : An OpaqueConstruction object for opaque doors with
-                an Outdoors boundary condition and a RoofCeiling or Floor face type for
-                their parent face.
-        """
+        """Initialize door set."""
         self._locked = False  # unlocked by default
         self.exterior_construction = exterior_construction
         self.interior_construction = interior_construction

@@ -16,6 +16,38 @@ from honeybee.typing import float_positive
 class Infiltration(_LoadBase):
     """A complete definition of infiltration, including schedules and load.
 
+    Args:
+        name: Text string for the infiltration name. Must be <= 100 characters.
+            Can include spaces but special characters will be stripped out.
+        flow_per_exterior_area: A numerical value for the intensity of infiltration
+            in m3/s per square meter of exterior surface area. Typical values for
+            this property are as follows (note all values are at typical building
+            pressures of ~4 Pa):
+
+            * 0.0001 (m3/s per m2 facade) - Tight building
+            * 0.0003 (m3/s per m2 facade) - Average building
+            * 0.0006 (m3/s per m2 facade) - Leaky building
+
+        schedule: A ScheduleRuleset or ScheduleFixedInterval for the infiltration
+            over the course of the year. The type of this schedule should be
+            Fractional and the fractional values will get multiplied by the
+            flow_per_exterior_area to yield a complete infiltration profile.
+        constant_coefficient: A number for the fraction of the infiltration that
+            remains constant in spite of exterior wind and the difference
+            between interior/exterior temperature. EnergyPlus uses 1 by default but
+            BLAST and DOE-2 (the EnergyPlus predecessors) used 0.606 and 0 for
+            this coefficient respectively. Default: 1.
+        temperature_coefficient: A number that will get multiplied by the difference
+            in interior/exterior temperature (in C) to yeild a coefficient that
+            gets mutiplied by the flow_per_exterior_area. EnergyPlus uses 0 by
+            default but BLAST and DOE-2 (the EnergyPlus predecessors) used 0.03636
+            and 0 for this coefficient respectively. Default: 0.
+        velocity_coefficient: A number that will get multiplied by the hourly
+            exterior wind velocity (in m/s) to yeild a coefficient that gets
+            mutiplied by the flow_per_exterior_area. EnergyPlus uses 0 by default
+            but BLAST and DOE-2 (the EnergyPlus predecessors) used 0.1177 and 0.224
+            for this coefficient respectively. Default: 0.
+
     Properties:
         * name
         * flow_per_exterior_area
@@ -29,38 +61,7 @@ class Infiltration(_LoadBase):
 
     def __init__(self, name, flow_per_exterior_area, schedule, constant_coefficient=1,
                  temperature_coefficient=0, velocity_coefficient=0):
-        """Initialize Infiltration.
-
-        Args:
-            name: Text string for the infiltration name. Must be <= 100 characters.
-                Can include spaces but special characters will be stripped out.
-            flow_per_exterior_area: A numerical value for the intensity of infiltration
-                in m3/s per square meter of exterior surface area. Typical values for
-                this property are as follows (note all values are at typical building
-                pressures of ~4 Pa):
-                    * 0.0001 (m3/s per m2 facade) - Tight building
-                    * 0.0003 (m3/s per m2 facade) - Average building
-                    * 0.0006 (m3/s per m2 facade) - Leaky building
-            schedule: A ScheduleRuleset or ScheduleFixedInterval for the infiltration
-                over the course of the year. The type of this schedule should be
-                Fractional and the fractional values will get multiplied by the
-                flow_per_exterior_area to yield a complete infiltration profile.
-            constant_coefficient: A number for the fraction of the infiltration that
-                remains constant in spite of exterior wind and the difference
-                between interior/exterior temperature. EnergyPlus uses 1 by default but
-                BLAST and DOE-2 (the EnergyPlus predecessors) used 0.606 and 0 for
-                this coefficient respectively. Default: 1.
-            temperature_coefficient: A number that will get multiplied by the difference
-                in interior/exterior temperature (in C) to yeild a coefficient that
-                gets mutiplied by the flow_per_exterior_area. EnergyPlus uses 0 by
-                default but BLAST and DOE-2 (the EnergyPlus predecessors) used 0.03636
-                and 0 for this coefficient respectively. Default: 0.
-            velocity_coefficient: A number that will get multiplied by the hourly
-                exterior wind velocity (in m/s) to yeild a coefficient that gets
-                mutiplied by the flow_per_exterior_area. EnergyPlus uses 0 by default
-                but BLAST and DOE-2 (the EnergyPlus predecessors) used 0.1177 and 0.224
-                for this coefficient respectively. Default: 0.
-        """
+        """Initialize Infiltration."""
         _LoadBase.__init__(self, name)
         self.flow_per_exterior_area = flow_per_exterior_area
         self.schedule = schedule
@@ -73,9 +74,10 @@ class Infiltration(_LoadBase):
         """Get or set the infiltration in m3/s per square meter of exterior surface area.
 
         Typical values for this property are as follows:
-            * 0.0001 (m3/s per m2 facade) - Tight building
-            * 0.0003 (m3/s per m2 facade) - Average building
-            * 0.0006 (m3/s per m2 facade) - Leaky building
+
+        * 0.0001 (m3/s per m2 facade) - Tight building
+        * 0.0003 (m3/s per m2 facade) - Average building
+        * 0.0006 (m3/s per m2 facade) - Leaky building
         """
         return self._flow_per_exterior_area
 
@@ -168,8 +170,11 @@ class Infiltration(_LoadBase):
                 the Infiltration object.
 
         Returns:
-            infiltration: An Infiltration object loaded from the idf_string.
-            zone_name: The name of the zone to which the Infiltration object should
+            A tuple with two elements
+
+            -   infiltration: An Infiltration object loaded from the idf_string.
+
+            -   zone_name: The name of the zone to which the Infiltration object should
                 be assigned.
         """
         # check the inputs
@@ -211,7 +216,7 @@ class Infiltration(_LoadBase):
         Args:
             data: A Infiltration dictionary in following the format below.
 
-        .. code-block:: json
+        .. code-block:: python
 
             {
             "type": 'Infiltration',
@@ -239,7 +244,7 @@ class Infiltration(_LoadBase):
                 objects as values (either ScheduleRuleset or ScheduleFixedInterval).
                 These will be used to assign the schedules to the Infiltration object.
 
-        .. code-block:: json
+        .. code-block:: python
 
             {
             "type": 'InfiltrationAbridged',

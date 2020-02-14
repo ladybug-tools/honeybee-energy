@@ -25,16 +25,32 @@ import os
 class ScheduleRuleset(object):
     """A complete schedule assembled from DaySchedules and ScheduleRules.
 
+    Args:
+        name: Text string for the schedule name. Must be <= 100 characters.
+            Can include spaces but special characters will be stripped out.
+        default_day_schedule: A DaySchedule object that will be used for all
+            days where there is no ScheduleRule applied.
+        schedule_rules: A list of ScheduleRule objects that note exceptions
+            to the default_day_schedule. These rules should be ordered from
+            highest to lowest priority.
+        schedule_type_limit: A ScheduleTypeLimit object that will be used to
+            validate schedule values against upper/lower limits and assign units
+            to the schedule values. If None, no validation will occur.
+        summer_designday_schedule: A DaySchedule object that will be used for
+            the summer design day (used to size the cooling system).
+        winter_designday_schedule: A DaySchedule object that will be used for
+            the winter design day (used to size the heating system).
+
     Properties:
-        name
-        default_day_schedule
-        schedule_rules
-        schedule_type_limit
-        summer_designday_schedule
-        winter_designday_schedule
-        day_schedules
-        is_constant
-        is_single_week
+        * name
+        * default_day_schedule
+        * schedule_rules
+        * schedule_type_limit
+        * summer_designday_schedule
+        * winter_designday_schedule
+        * day_schedules
+        * is_constant
+        * is_single_week
     """
     __slots__ = ('_name', '_default_day_schedule', '_summer_designday_schedule',
                  '_winter_designday_schedule', '_schedule_rules',
@@ -49,24 +65,7 @@ class ScheduleRuleset(object):
     def __init__(self, name, default_day_schedule, schedule_rules=None,
                  schedule_type_limit=None, summer_designday_schedule=None,
                  winter_designday_schedule=None):
-        """Initialize Schedule Ruleset.
-
-        Args:
-            name: Text string for the schedule name. Must be <= 100 characters.
-                Can include spaces but special characters will be stripped out.
-            default_day_schedule: A DaySchedule object that will be used for all
-                days where there is no ScheduleRule applied.
-            schedule_rules: A list of ScheduleRule objects that note exceptions
-                to the default_day_schedule. These rules should be ordered from
-                highest to lowest priority.
-            schedule_type_limit: A ScheduleTypeLimit object that will be used to
-                validate schedule values against upper/lower limits and assign units
-                to the schedule values. If None, no validation will occur.
-            summer_designday_schedule: A DaySchedule object that will be used for
-                the summer design day (used to size the cooling system).
-            winter_designday_schedule: A DaySchedule object that will be used for
-                the winter design day (used to size the heating system).
-        """
+        """Initialize Schedule Ruleset."""
         self._locked = False  # unlocked by default
         self.name = name
         self.default_day_schedule = default_day_schedule
@@ -534,7 +533,7 @@ class ScheduleRuleset(object):
         Args:
             data: ScheduleRuleset dictionary following the format below.
 
-        .. code-block:: json
+        .. code-block:: python
 
             {
             "type": 'ScheduleRuleset',
@@ -549,7 +548,7 @@ class ScheduleRuleset(object):
         """
         assert data['type'] == 'ScheduleRuleset', \
             'Expected ScheduleRuleset. Got {}.'.format(data['type'])
-        
+
         sch_day_dict = {}
         for day_sch in data['day_schedules']:
             sch_day_dict[day_sch['name']] = ScheduleDay.from_dict(day_sch)
@@ -576,7 +575,7 @@ class ScheduleRuleset(object):
 
         return cls(data['name'], default_sched, rules, sched_type,
                    summer_sched, winter_sched)
-    
+
     @classmethod
     def from_dict_abridged(cls, data, schedule_type_limits):
         """Create a ScheduleRuleset from an abridged dictionary.
@@ -588,7 +587,7 @@ class ScheduleRuleset(object):
         """
         assert data['type'] == 'ScheduleRulesetAbridged', \
             'Expected ScheduleRulesetAbridged. Got {}.'.format(data['type'])
-        
+
         data = data.copy()  # copy original dictionary so we don't edit it
         typ_lim = None
         if 'schedule_type_limit' in data:
@@ -667,10 +666,13 @@ class ScheduleRuleset(object):
         where the same ScheduleDay objects are used by multiple ScheduleRulesets.
 
         Returns:
-            year_schedule: Text string representation of the Schedule:Year
+            A tuple with two elements
+
+            -   year_schedule: Text string representation of the Schedule:Year
                 describing this schedule. This will be a Schedule:Constant if this
                 schedule can be described as such.
-            week_schedules: A list of Schedule:Week:Daily test strings that are
+
+            -   week_schedules: A list of Schedule:Week:Daily test strings that are
                 referenced in the year_schedule. Will be None when year_schedule is
                 a Schedule:Constant.
         """
@@ -819,7 +821,7 @@ class ScheduleRuleset(object):
                 will be used to assemble all of these into a ScheduleRuleset.
 
         Returns:
-            schedules: A list of all Schedule:Year objects in the IDF file as
+            schedules -- A list of all Schedule:Year objects in the IDF file as
                 honeybee_energy ScheduleRuleset objects.
         """
         # check the file
@@ -1080,7 +1082,7 @@ class ScheduleRuleset(object):
 
     def _check_schedule_parent(self, schedule, sch_type='child'):
         """Used to ensure that a ScheduleDay object has only one parent ScheduleRuleset.
-        
+
         This is important to ensure ScheduleRulesets remain self-contained units
         and that editing one ScheduleRuleset does not edit another one.
         """

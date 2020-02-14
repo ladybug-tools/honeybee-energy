@@ -15,6 +15,11 @@ import math
 class _ConstructionBase(object):
     """Energy construction.
 
+    Args:
+        name: Text string for construction name. Must be <= 100 characters.
+            Can include spaces but special characters will be stripped out.
+        materials: List of materials in the construction (from outside to inside).
+
     Properties:
         * name
         * materials
@@ -32,13 +37,7 @@ class _ConstructionBase(object):
     __slots__ = ('_name', '_materials', '_locked')
 
     def __init__(self, name, materials):
-        """Initialize energy construction.
-
-        Args:
-            name: Text string for construction name. Must be <= 100 characters.
-                Can include spaces but special characters will be stripped out.
-            materials: List of materials in the construction (from outside to inside).
-        """
+        """Initialize energy construction."""
         self._locked = False  # unlocked by default
         self.name = name
         self.materials = materials
@@ -51,7 +50,7 @@ class _ConstructionBase(object):
     @name.setter
     def name(self, name):
         self._name = valid_ep_string(name, 'construction name')
-    
+
     @property
     def materials(self):
         """Get or set the list of materials in the construction (outside to inside)."""
@@ -73,12 +72,12 @@ class _ConstructionBase(object):
         This is useful when constructions reuse material layers.
         """
         return list(set(self._materials))
-    
+
     @property
     def inside_emissivity(self):
         """"The emissivity of the inside face of the construction."""
         return self.materials[-1].thermal_absorptance
-    
+
     @property
     def outside_emissivity(self):
         """"The emissivity of the outside face of the construction."""
@@ -111,7 +110,7 @@ class _ConstructionBase(object):
         Formulas for film coefficients come from EN673 / ISO10292.
         """
         return 1 / self.r_factor
-    
+
     @property
     def is_symmetric(self):
         """Get a boolean to note whether the construction layers are symmetric.

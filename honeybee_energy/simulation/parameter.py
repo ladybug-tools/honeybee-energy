@@ -18,6 +18,23 @@ import re
 class SimulationParameter(object):
     """Complete set of EnergyPlus Simulation Settings.
 
+    Args:
+        output: A SimulationOutput that lists the desired outputs from the
+            simulation and the format in which to report them. If None, no
+            outputs will be requested. Default: None.
+        run_period: A RunPeriod object to describe the time period over which to
+            run the simulation. Default: Run for the whole year starting on Sunday.
+        timestep: An integer for the number of timesteps per hour at which the
+            calculation will be run. Default: 6.
+        simulation_control: A SimulationControl object that describes which types
+            of calculations to run. Default: perform a sizing calculation but only
+            run the simulation for the RunPeriod.
+        shadow_calculation: A ShadowCalculation object describing settings for
+            the EnergyPlus Shadow Calculation. Default: Average over 30 days with
+            FullInteriorAndExteriorWithReflections.
+        sizing_parameter: A SizingParameter object with criteria for sizing the
+            heating and cooling system.
+
     Properties:
         * output
         * run_period
@@ -33,25 +50,7 @@ class SimulationParameter(object):
 
     def __init__(self, output=None, run_period=None, timestep=6, simulation_control=None,
                  shadow_calculation=None, sizing_parameter=None):
-        """Initialize SimulationParameter.
-
-        Args:
-            output: A SimulationOutput that lists the desired outputs from the
-                simulation and the format in which to report them. If None, no
-                outputs will be requested. Default: None.
-            run_period: A RunPeriod object to describe the time period over which to
-                run the simulation. Default: Run for the whole year starting on Sunday.
-            timestep: An integer for the number of timesteps per hour at which the
-                calculation will be run. Default: 6.
-            simulation_control: A SimulationControl object that describes which types
-                of calculations to run. Default: perform a sizing calculation but only
-                run the simulation for the RunPeriod.
-            shadow_calculation: A ShadowCalculation object describing settings for
-                the EnergyPlus Shadow Calculation. Default: Average over 30 days with
-                FullInteriorAndExteriorWithReflections.
-            sizing_parameter: A SizingParameter object with criteria for sizing the
-                heating and cooling system.
-        """
+        """Initialize SimulationParameter."""
         self.output = output
         self.run_period = run_period
         self.timestep = timestep

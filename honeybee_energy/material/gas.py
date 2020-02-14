@@ -169,9 +169,11 @@ class _EnergyWindowMaterialGasBase(_EnergyMaterialWindowBase):
             height: An optional height for the cavity in meters. Default is 1.0,
                 which is consistent with NFRC standards.
             angle: An angle in degrees between 0 and 180.
-                0 = A horizontal cavity with downward heat flow through the layer.
-                90 = A vertical cavity
-                180 = A horizontal cavity with upward heat flow through the layer.
+
+            * 0 = A horizontal cavity with downward heat flow through the layer.
+            * 90 = A vertical cavity
+            * 180 = A horizontal cavity with upward heat flow through the layer.
+
             t_kelvin: The average temperature of the gas cavity in Kelvin.
                 Default: 273.15 K (0C).
             pressure: The average pressure of the gas cavity in Pa.
@@ -228,9 +230,11 @@ class _EnergyWindowMaterialGasBase(_EnergyMaterialWindowBase):
             height: An optional height for the cavity in meters. Default is 1.0,
                 which is consistent with NFRC standards.
             angle: An angle in degrees between 0 and 180.
-                0 = A horizontal cavity with downward heat flow through the layer.
-                90 = A vertical cavity
-                180 = A horizontal cavity with upward heat flow through the layer.
+
+            * 0 = A horizontal cavity with downward heat flow through the layer.
+            * 90 = A vertical cavity
+            * 180 = A horizontal cavity with upward heat flow through the layer.
+
             t_kelvin: The average temperature of the gas cavity in Kelvin.
                 Default: 273.15 K (0C).
             pressure: The average pressure of the gas cavity in Pa.
@@ -308,30 +312,29 @@ class _EnergyWindowMaterialGasBase(_EnergyMaterialWindowBase):
 class EnergyWindowMaterialGas(_EnergyWindowMaterialGasBase):
     """Gas gap layer.
 
+    Args:
+        name: Text string for material name. Must be <= 100 characters.
+            Can include spaces but special characters will be stripped out.
+        thickness: Number for the thickness of the air gap layer [m].
+            Default: 0.0125
+        gas_type: Text describing the type of gas in the gap.
+            Must be one of the following: 'Air', 'Argon', 'Krypton', 'Xenon'.
+            Default: 'Air'
+
     Properties:
-        name
-        thickness
-        gas_type
-        conductivity
-        viscosity
-        specific_heat
-        density
-        prandtl
+        * name
+        * thickness
+        * gas_type
+        * conductivity
+        * viscosity
+        * specific_heat
+        * density
+        * prandtl
     """
     __slots__ = ('_gas_type',)
 
     def __init__(self, name, thickness=0.0125, gas_type='Air'):
-        """Initialize gas energy material.
-
-        Args:
-            name: Text string for material name. Must be <= 100 characters.
-                Can include spaces but special characters will be stripped out.
-            thickness: Number for the thickness of the air gap layer [m].
-                Default: 0.0125
-            gas_type: Text describing the type of gas in the gap.
-                Must be one of the following: 'Air', 'Argon', 'Krypton', 'Xenon'.
-                Default: 'Air'
-        """
+        """Initialize gas energy material."""
         _EnergyWindowMaterialGasBase.__init__(self, name, thickness)
         self.gas_type = gas_type
 
@@ -378,11 +381,16 @@ class EnergyWindowMaterialGas(_EnergyWindowMaterialGasBase):
         """Create a EnergyWindowMaterialGas from a dictionary.
 
         Args:
-            data: {
-                "type": 'EnergyWindowMaterialGas',
-                "name": 'Argon Gap',
-                "thickness": 0.01,
-                "gas_type": 'Argon'}
+            data: A python dictionary in the following format
+
+        .. code-block:: python
+
+            {
+            "type": 'EnergyWindowMaterialGas',
+            "name": 'Argon Gap',
+            "thickness": 0.01,
+            "gas_type": 'Argon'
+            }
         """
         assert data['type'] == 'EnergyWindowMaterialGas', \
             'Expected EnergyWindowMaterialGas. Got {}.'.format(data['type'])
@@ -436,36 +444,35 @@ class EnergyWindowMaterialGas(_EnergyWindowMaterialGasBase):
 class EnergyWindowMaterialGasMixture(_EnergyWindowMaterialGasBase):
     """Gas gap layer with a mixture of gasses.
 
+    Args:
+        name: Text string for material name. Must be <= 100 characters.
+            Can include spaces but special characters will be stripped out.
+        thickness: Number for the thickness of the air gap layer [m].
+            Default: 0.0125
+        gas_types: A list of text describing the types of gas in the gap.
+            Text must be one of the following: 'Air', 'Argon', 'Krypton', 'Xenon'.
+            Default: ('Argon', 'Air')
+        gas_fractions: A list of fractional numbers describing the volumetric
+            fractions of gas types in the mixture.  This list must align with
+            the gas_types input list and must sum to 1. Default: (0.9, 0.1).
+
     Properties:
-        name
-        thickness
-        gas_types
-        gas_fractions
-        gas_count
-        conductivity
-        viscosity
-        specific_heat
-        density
-        prandtl
+        * name
+        * thickness
+        * gas_types
+        * gas_fractions
+        * gas_count
+        * conductivity
+        * viscosity
+        * specific_heat
+        * density
+        * prandtl
     """
     __slots__ = ('_gas_count', '_gas_types', '_gas_fractions')
 
     def __init__(self, name, thickness=0.0125,
                  gas_types=('Argon', 'Air'), gas_fractions=(0.9, 0.1)):
-        """Initialize gas mixture energy material.
-
-        Args:
-            name: Text string for material name. Must be <= 100 characters.
-                Can include spaces but special characters will be stripped out.
-            thickness: Number for the thickness of the air gap layer [m].
-                Default: 0.0125
-            gas_types: A list of text describing the types of gas in the gap.
-                Text must be one of the following: 'Air', 'Argon', 'Krypton', 'Xenon'.
-                Default: ('Argon', 'Air')
-            gas_fractions: A list of fractional numbers describing the volumetric
-                fractions of gas types in the mixture.  This list must align with
-                the gas_types input list and must sum to 1. Default: (0.9, 0.1).
-        """
+        """Initialize gas mixture energy material."""
         _EnergyWindowMaterialGasBase.__init__(self, name, thickness)
         try:  # check the number of gases
             self._gas_count = len(gas_types)
@@ -545,20 +552,24 @@ class EnergyWindowMaterialGasMixture(_EnergyWindowMaterialGasBase):
         """Create a EnergyWindowMaterialGasMixture from a dictionary.
 
         Args:
-            data: {
-                'type': 'EnergyWindowMaterialGasMixture',
-                'name': 'Argon Mixture',
-                'thickness': 0.01,
-                'gas_types': ['Argon', 'Air'],
-                'gas_fractions': [0.95, 0.05]
-                }
+            data: A python dictionary in the following format
+
+        .. code-block:: python
+
+            {
+            'type': 'EnergyWindowMaterialGasMixture',
+            'name': 'Argon Mixture',
+            'thickness': 0.01,
+            'gas_types': ['Argon', 'Air'],
+            'gas_fractions': [0.95, 0.05]
+            }
         """
         assert data['type'] == 'EnergyWindowMaterialGasMixture', \
             'Expected EnergyWindowMaterialGasMixture. Got {}.'.format(data['type'])
         required_keys = ('gas_types', 'gas_fractions')
         for key in required_keys:
             assert key in data, 'Required key "{}" is missing.'.format(key)
-        
+
         thickness = 0.0125 if 'thickness' not in data else data['thickness']
 
         return cls(data['name'], data['thickness'], data['gas_types'],
@@ -619,25 +630,61 @@ class EnergyWindowMaterialGasMixture(_EnergyWindowMaterialGasBase):
 class EnergyWindowMaterialGasCustom(_EnergyWindowMaterialGasBase):
     """Custom gas gap layer.
 
+    This object allows you to specify specific values for conductivity,
+    viscosity and specific heat through the following formula:
+
+        property = A + (B * T) + (C * T ** 2)
+
+        where:
+
+        * A, B, and C = regression coefficients for the gas
+        * T = temperature [K]
+
+    Note that setting properties B and C to 0 will mean the property will be
+    equal to the A coefficeint.
+
+    Args:
+        name: Text string for material name. Must be <= 100 characters.
+            Can include spaces but special characters will be stripped out.
+        thickness: Number for the thickness of the air gap layer [m].
+            Default: 0.0125
+        conductivity_coeff_a: First conductivity coefficient.
+            Or condictivity in [W/m-K] if b and c coefficients are 0.
+        viscosity_coeff_a: First viscosity coefficient.
+            Or viscosity in [kg/m-s] if b and c coefficients are 0.
+        specific_heat_coeff_a: First specific heat coefficient.
+            Or specific heat in [J/kg-K] if b and c coefficients are 0.
+        conductivity_coeff_b: Second conductivity coefficient. Default = 0.
+        viscosity_coeff_b: Second viscosity coefficient. Default = 0.
+        specific_heat_coeff_b: Second specific heat coefficient. Default = 0.
+        conductivity_coeff_c: Thrid conductivity coefficient. Default = 0.
+        viscosity_coeff_c: Thrid viscosity coefficient. Default = 0.
+        specific_heat_coeff_c: Thrid specific heat coefficient. Default = 0.
+        specific_heat_ratio: A number for the the ratio of the specific heat at
+            contant pressure, to the specific heat at constant volume.
+            Default is 1.0 for Air.
+        molecular_weight: Number between 20 and 200 for the mass of 1 mol of
+            the substance in grams. Default is 20.0.
+
     Properties:
-        name
-        thickness
-        conductivity_coeff_a
-        viscosity_coeff_a
-        specific_heat_coeff_a
-        conductivity_coeff_b
-        viscosity_coeff_b
-        specific_heat_coeff_b
-        conductivity_coeff_c
-        viscosity_coeff_c
-        specific_heat_coeff_c
-        specific_heat_ratio
-        molecular_weight
-        conductivity
-        viscosity
-        specific_heat
-        density
-        prandtl
+        * name
+        * thickness
+        * conductivity_coeff_a
+        * viscosity_coeff_a
+        * specific_heat_coeff_a
+        * conductivity_coeff_b
+        * viscosity_coeff_b
+        * specific_heat_coeff_b
+        * conductivity_coeff_c
+        * viscosity_coeff_c
+        * specific_heat_coeff_c
+        * specific_heat_ratio
+        * molecular_weight
+        * conductivity
+        * viscosity
+        * specific_heat
+        * density
+        * prandtl
 
     Usage:
 
@@ -658,43 +705,7 @@ class EnergyWindowMaterialGasCustom(_EnergyWindowMaterialGasBase):
                  conductivity_coeff_b=0, viscosity_coeff_b=0, specific_heat_coeff_b=0,
                  conductivity_coeff_c=0, viscosity_coeff_c=0, specific_heat_coeff_c=0,
                  specific_heat_ratio=1.0, molecular_weight=20.0):
-        """Initialize custom gas energy material.
-
-        This object allows you to specify specific values for conductivity,
-        viscosity and specific heat through the following formula:
-
-            property = A + (B * T) + (C * T ** 2)
-
-            where:
-                A, B, and C = regression coefficients for the gas
-                T = temperature [K]
-
-        Note that setting properties B and C to 0 will mean the property will be
-        equal to the A coefficeint.
-
-        Args:
-            name: Text string for material name. Must be <= 100 characters.
-                Can include spaces but special characters will be stripped out.
-            thickness: Number for the thickness of the air gap layer [m].
-                Default: 0.0125
-            conductivity_coeff_a: First conductivity coefficient.
-                Or condictivity in [W/m-K] if b and c coefficients are 0.
-            viscosity_coeff_a: First viscosity coefficient.
-                Or viscosity in [kg/m-s] if b and c coefficients are 0.
-            specific_heat_coeff_a: First specific heat coefficient.
-                Or specific heat in [J/kg-K] if b and c coefficients are 0.
-            conductivity_coeff_b: Second conductivity coefficient. Default = 0.
-            viscosity_coeff_b: Second viscosity coefficient. Default = 0.
-            specific_heat_coeff_b: Second specific heat coefficient. Default = 0.
-            conductivity_coeff_c: Thrid conductivity coefficient. Default = 0.
-            viscosity_coeff_c: Thrid viscosity coefficient. Default = 0.
-            specific_heat_coeff_c: Thrid specific heat coefficient. Default = 0.
-            specific_heat_ratio: A number for the the ratio of the specific heat at
-                contant pressure, to the specific heat at constant volume.
-                Default is 1.0 for Air.
-            molecular_weight: Number between 20 and 200 for the mass of 1 mol of
-                the substance in grams. Default is 20.0.
-        """
+        """Initialize custom gas energy material."""
         _EnergyWindowMaterialGasBase.__init__(self, name, thickness)
         self.conductivity_coeff_a = conductivity_coeff_a
         self.viscosity_coeff_a = viscosity_coeff_a
@@ -842,15 +853,20 @@ class EnergyWindowMaterialGasCustom(_EnergyWindowMaterialGasBase):
         """Create a EnergyWindowMaterialGasCustom from a dictionary.
 
         Args:
-            data: {
-                "type": 'EnergyWindowMaterialGasCustom',
-                "name": 'CO2',
-                "thickness": 0.01,
-                "conductivity_coeff_a": 0.0146,
-                "viscosity_coeff_a": 0.000014,
-                "specific_heat_coeff_a": 827.73,
-                "specific_heat_ratio": 1.4
-                "molecular_weight": 44}
+            data: A python dictionary in the following format
+
+        .. code-block:: python
+
+            {
+            "type": 'EnergyWindowMaterialGasCustom',
+            "name": 'CO2',
+            "thickness": 0.01,
+            "conductivity_coeff_a": 0.0146,
+            "viscosity_coeff_a": 0.000014,
+            "specific_heat_coeff_a": 827.73,
+            "specific_heat_ratio": 1.4
+            "molecular_weight": 44
+            }
         """
         assert data['type'] == 'EnergyWindowMaterialGasCustom', \
             'Expected EnergyWindowMaterialGasCustom. Got {}.'.format(data['type'])

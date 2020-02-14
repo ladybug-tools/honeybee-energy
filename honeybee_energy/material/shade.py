@@ -2,6 +2,7 @@
 """Shade materials representing shades, blinds, or screens in a window construction.
 
 They can exist in only one of three possible locations in a window construction:
+
 1) On the innermost material layer.
 2) On the outermost material layer.
 3) In between two glazing materials. In the case of window constructions with
@@ -132,9 +133,11 @@ class _EnergyWindowMaterialShadeBase(_EnergyMaterialWindowBase):
             height: An optional height for the cavity between the shade and the
                 glass in meters. Default is 1.0.
             angle: An angle in degrees between 0 and 180.
-                0 = A horizontal surface with downward heat flow through the layer.
-                90 = A vertical surface
-                180 = A horizontal surface with upward heat flow through the layer.
+
+            * 0 = A horizontal surface with downward heat flow through the layer.
+            * 90 = A vertical surface
+            * 180 = A horizontal surface with upward heat flow through the layer.
+
             t_kelvin: The average temperature of the gas cavity in Kelvin.
                 Default: 273.15 K (0C).
             pressure: The average air pressure in Pa. Default is 101325 Pa for sea level.
@@ -165,9 +168,11 @@ class _EnergyWindowMaterialShadeBase(_EnergyMaterialWindowBase):
             height: An optional height for the cavity between the shade and the
                 glass in meters. Default is 1.0.
             angle: An angle in degrees between 0 and 180.
-                0 = A horizontal surface with downward heat flow through the layer.
-                90 = A vertical surface
-                180 = A horizontal surface with upward heat flow through the layer.
+
+            * 0 = A horizontal surface with downward heat flow through the layer.
+            * 90 = A vertical surface
+            * 180 = A horizontal surface with upward heat flow through the layer.
+
             t_kelvin: The average temperature of the gas cavity in Kelvin.
                 Default: 273.15 K (0C).
             pressure: The average air pressure in Pa. Default is 101325 Pa for sea level.
@@ -197,9 +202,11 @@ class _EnergyWindowMaterialShadeBase(_EnergyMaterialWindowBase):
             height: An optional height for the cavity between the shade and the
                 glass in meters. Default is 1.0.
             angle: An angle in degrees between 0 and 180.
-                0 = A horizontal surface with downward heat flow through the layer.
-                90 = A vertical surface
-                180 = A horizontal surface with upward heat flow through the layer.
+
+            * 0 = A horizontal surface with downward heat flow through the layer.
+            * 90 = A vertical surface
+            * 180 = A horizontal surface with upward heat flow through the layer.
+
             t_kelvin: The average temperature of the gas cavity in Kelvin.
                 Default: 273.15 K (0C).
             pressure: The average air pressure in Pa. Default is 101325 Pa for sea level.
@@ -221,25 +228,58 @@ class EnergyWindowMaterialShade(_EnergyWindowMaterialShadeBase):
     Reflectance and emissivity properties are assumed to be the same on both sides of
     the shade. Shades are considered to be perfect diffusers.
 
+    Args:
+        name: Text string for material name. Must be <= 100 characters.
+            Can include spaces but special characters will be stripped out.
+        thickness: Number for the thickness of the shade layer [m].
+            Default: 0.005 meters (5 mm).
+        solar_transmittance: Number between 0 and 1 for the transmittance
+            of solar radiation through the shade.
+            Default: 0.4, which is typical of a white diffusing shade.
+        solar_reflectance: Number between 0 and 1 for the reflectance of solar
+            radiation off of the shade, averaged over the solar spectrum.
+            Default: 0.5, which is typical of a white diffusing shade.
+        visible_transmittance: Number between 0 and 1 for the transmittance
+            of visible light through the shade.
+            Default: 0.4, which is typical of a white diffusing shade.
+        visible_reflectance: Number between 0 and 1 for the reflectance of
+            visible light off of the shade.
+            Default: 0.4, which is typical of a white diffusing shade.
+        infrared_transmittance: Long-wave hemisperical transmittance of the shade.
+            Default: 0, which is typical of diffusing shades.
+        emissivity: Number between 0 and 1 for the infrared hemispherical
+            emissivity of the front side of the shade.  Default: 0.9, which
+            is typical of most diffusing shade materials.
+        conductivity: Number for the thermal conductivity of the shade [W/m-K].
+            Default: 0.05, typical of cotton shades.
+        distance_to_glass: A number between 0.001 and 1.0 for the distance
+            between the shade and neighboring glass layers [m].
+            Default: 0.05 (50 mm).
+        opening_multiplier: Factor between 0 and 1 that is multiplied by the
+            area at the top, bottom and sides of the shade for air flow
+            calculations. Default: 0.5.
+        airflow_permeability: The fraction of the shade surface that is open to
+            air flow. Must be between 0 and 0.8. Default: 0 for no permeability.
+
     Properties:
-        name
-        thickness
-        solar_transmittance
-        solar_reflectance
-        visible_transmittance
-        visible_reflectance
-        infrared_transmittance
-        emissivity
-        conductivity
-        distance_to_glass
-        top_opening_multiplier
-        bottom_opening_multiplier
-        left_opening_multiplier
-        right_opening_multiplier
-        airflow_permeability
-        resistivity
-        u_value
-        r_value
+        * name
+        * thickness
+        * solar_transmittance
+        * solar_reflectance
+        * visible_transmittance
+        * visible_reflectance
+        * infrared_transmittance
+        * emissivity
+        * conductivity
+        * distance_to_glass
+        * top_opening_multiplier
+        * bottom_opening_multiplier
+        * left_opening_multiplier
+        * right_opening_multiplier
+        * airflow_permeability
+        * resistivity
+        * u_value
+        * r_value
     """
     __slots__ = ('_thickness', '_solar_transmittance', '_solar_reflectance',
                  '_visible_transmittance', '_visible_reflectance',
@@ -251,41 +291,7 @@ class EnergyWindowMaterialShade(_EnergyWindowMaterialShadeBase):
                  infrared_transmittance=0, emissivity=0.9,
                  conductivity=0.05, distance_to_glass=0.05,
                  opening_multiplier=0.5, airflow_permeability=0.0):
-        """Initialize energy window material shade.
-
-        Args:
-            name: Text string for material name. Must be <= 100 characters.
-                Can include spaces but special characters will be stripped out.
-            thickness: Number for the thickness of the shade layer [m].
-                Default: 0.005 meters (5 mm).
-            solar_transmittance: Number between 0 and 1 for the transmittance
-                of solar radiation through the shade.
-                Default: 0.4, which is typical of a white diffusing shade.
-            solar_reflectance: Number between 0 and 1 for the reflectance of solar
-                radiation off of the shade, averaged over the solar spectrum.
-                Default: 0.5, which is typical of a white diffusing shade.
-            visible_transmittance: Number between 0 and 1 for the transmittance
-                of visible light through the shade.
-                Default: 0.4, which is typical of a white diffusing shade.
-            visible_reflectance: Number between 0 and 1 for the reflectance of
-                visible light off of the shade.
-                Default: 0.4, which is typical of a white diffusing shade.
-            infrared_transmittance: Long-wave hemisperical transmittance of the shade.
-                Default: 0, which is typical of diffusing shades.
-            emissivity: Number between 0 and 1 for the infrared hemispherical
-                emissivity of the front side of the shade.  Default: 0.9, which
-                is typical of most diffusing shade materials.
-            conductivity: Number for the thermal conductivity of the shade [W/m-K].
-                Default: 0.05, typical of cotton shades.
-            distance_to_glass: A number between 0.001 and 1.0 for the distance
-                between the shade and neighboring glass layers [m].
-                Default: 0.05 (50 mm).
-            opening_multiplier: Factor between 0 and 1 that is multiplied by the
-                area at the top, bottom and sides of the shade for air flow
-                calculations. Default: 0.5.
-            airflow_permeability: The fraction of the shade surface that is open to
-                air flow. Must be between 0 and 0.8. Default: 0 for no permeability.
-        """
+        """Initialize energy window material shade."""
         _EnergyWindowMaterialShadeBase.__init__(
             self, name, infrared_transmittance, emissivity,
             distance_to_glass, opening_multiplier)
@@ -445,7 +451,11 @@ class EnergyWindowMaterialShade(_EnergyWindowMaterialShadeBase):
         """Create a EnergyWindowMaterialShade from a dictionary.
 
         Args:
-            data: {
+            data: A python dictionary in the following format
+
+        .. code-block:: python
+
+                {
                 "type": 'EnergyWindowMaterialShade',
                 "name": 'Dark Insulating Shade',
                 "thickness": 0.02,
@@ -455,7 +465,8 @@ class EnergyWindowMaterialShade(_EnergyWindowMaterialShadeBase):
                 "visible_reflectance": 0.15,
                 "emissivity": 0.9,
                 "infrared_transmittance": 0,
-                "conductivity": 0.1}
+                "conductivity": 0.1
+                }
         """
         assert data['type'] == 'EnergyWindowMaterialShade', \
             'Expected EnergyWindowMaterialShade. Got {}.'.format(data['type'])
@@ -564,37 +575,74 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
 
     Window blind properties consist of flat, equally-spaced slats.
 
+    Args:
+        name: Text string for material name. Must be <= 100 characters.
+            Can include spaces but special characters will be stripped out.
+        slat_orientation: Text describing the orientation of the slats.
+            Only the following two options are acceptable:
+            "Horizontal", "Vertical". Default: "Horizontal"
+        slat_width: The width of slat measured from edge to edge [m].
+            Default: 0.025 m (25 mm).
+        slat_separation: The distance between each of the slats [m].
+            Default: 0.01875 m (18.75 mm).
+        slat_thickness: A number between 0 and 0.1 for the thickness of the slat [m].
+            Default: 0.001 m (1 mm).
+        slat_angle: A number between 0 and 180 for the angle between the slats
+            and the glazing normal in degrees. 90 signifies slats that are
+            perpendicular to the glass. Default: 45.
+        slat_conductivity: The thermal conductivity of the blind material [W/m-K].
+            Default is 221, which is characteristic of metal blinds.
+        solar_transmittance: Number between 0 and 1 for the transmittance
+            of solar radiation through the blind material. Default: 0.
+        solar_reflectance: Number between 0 and 1 for the front reflectance
+            of solar radiation off of the blind, averaged over the solar
+            spectrum. Default: 0.5.
+        visible_transmittance: Number between 0 and 1 for the transmittance
+            of visible light through the blind material. Default : 0.
+        visible_reflectance: Number between 0 and 1 for the reflectance of
+            visible light off of the blind. Default: 0.5.
+        infrared_transmittance: Long-wave hemisperical transmittance of the blind.
+            Default vallue is 0.
+        emissivity: Number between 0 and 1 for the infrared hemispherical
+            emissivity of the blind.  Default is 0.9.
+        distance_to_glass: A number between 0.001 and 1.0 for the distance from
+            the mid-plane of the blind to the adjacent glass layers [m].
+            Default is 0.05 (50 mm).
+        opening_multiplier: Factor between 0 and 1 that is multiplied by the
+            area at the top, bottom and sides of the shade for air flow
+            calculations. Default: 0.5.
+
     Properties:
-        name
-        slat_orientation
-        slat_width
-        slat_separation
-        slat_thickness
-        slat_angle
-        slat_conductivity
-        beam_solar_transmittance
-        beam_solar_reflectance
-        beam_solar_reflectance_back
-        diffuse_solar_transmittance
-        diffuse_solar_reflectance
-        diffuse_solar_reflectance_back
-        beam_visible_transmittance
-        beam_visible_reflectance
-        beam_visible_reflectance_back
-        diffuse_visible_transmittance
-        diffuse_visible_reflectance
-        diffuse_visible_reflectance_back
-        infrared_transmittance
-        emissivity
-        emissivity_back
-        distance_to_glass
-        top_opening_multiplier
-        bottom_opening_multiplier
-        left_opening_multiplier
-        right_opening_multiplier
-        slat_resistivity
-        u_value
-        r_value
+        * name
+        * slat_orientation
+        * slat_width
+        * slat_separation
+        * slat_thickness
+        * slat_angle
+        * slat_conductivity
+        * beam_solar_transmittance
+        * beam_solar_reflectance
+        * beam_solar_reflectance_back
+        * diffuse_solar_transmittance
+        * diffuse_solar_reflectance
+        * diffuse_solar_reflectance_back
+        * beam_visible_transmittance
+        * beam_visible_reflectance
+        * beam_visible_reflectance_back
+        * diffuse_visible_transmittance
+        * diffuse_visible_reflectance
+        * diffuse_visible_reflectance_back
+        * infrared_transmittance
+        * emissivity
+        * emissivity_back
+        * distance_to_glass
+        * top_opening_multiplier
+        * bottom_opening_multiplier
+        * left_opening_multiplier
+        * right_opening_multiplier
+        * slat_resistivity
+        * u_value
+        * r_value
     """
     ORIENTATIONS = ('Horizontal', 'Vertical')
     __slots__ = ('_slat_orientation', '_slat_width', '_slat_separation',
@@ -613,45 +661,7 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
                  visible_transmittance=0, visible_reflectance=0.5,
                  infrared_transmittance=0, emissivity=0.9,
                  distance_to_glass=0.05, opening_multiplier=0.5):
-        """Initialize energy windoww material glazing.
-
-        Args:
-            name: Text string for material name. Must be <= 100 characters.
-                Can include spaces but special characters will be stripped out.
-            slat_orientation: Text describing the orientation of the slats.
-                Only the following two options are acceptable:
-                "Horizontal", "Vertical". Default: "Horizontal"
-            slat_width: The width of slat measured from edge to edge [m].
-                Default: 0.025 m (25 mm).
-            slat_separation: The distance between each of the slats [m].
-                Default: 0.01875 m (18.75 mm).
-            slat_thickness: A number between 0 and 0.1 for the thickness of the slat [m].
-                Default: 0.001 m (1 mm).
-            slat_angle: A number between 0 and 180 for the angle between the slats
-                and the glazing normal in degrees. 90 signifies slats that are
-                perpendicular to the glass. Default: 45.
-            slat_conductivity: The thermal conductivity of the blind material [W/m-K].
-                Default is 221, which is characteristic of metal blinds.
-            solar_transmittance: Number between 0 and 1 for the transmittance
-                of solar radiation through the blind material. Default: 0.
-            solar_reflectance: Number between 0 and 1 for the front reflectance
-                of solar radiation off of the blind, averaged over the solar
-                spectrum. Default: 0.5.
-            visible_transmittance: Number between 0 and 1 for the transmittance
-                of visible light through the blind material. Default : 0.
-            visible_reflectance: Number between 0 and 1 for the reflectance of
-                visible light off of the blind. Default: 0.5.
-            infrared_transmittance: Long-wave hemisperical transmittance of the blind.
-                Default vallue is 0.
-            emissivity: Number between 0 and 1 for the infrared hemispherical
-                emissivity of the blind.  Default is 0.9.
-            distance_to_glass: A number between 0.001 and 1.0 for the distance from
-                the mid-plane of the blind to the adjacent glass layers [m].
-                Default is 0.05 (50 mm).
-            opening_multiplier: Factor between 0 and 1 that is multiplied by the
-                area at the top, bottom and sides of the shade for air flow
-                calculations. Default: 0.5.
-        """
+        """Initialize energy windoww material glazing."""
         _EnergyWindowMaterialShadeBase.__init__(
             self, name, infrared_transmittance, emissivity,
             distance_to_glass, opening_multiplier)
@@ -1025,15 +1035,20 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
         """Create a EnergyWindowMaterialBlind from a dictionary.
 
         Args:
-            data: {
-                "type": 'EnergyWindowMaterialBlind',
-                "name": 'Plastic Blind',
-                "slat_orientation": 'Horizontal',
-                "slat_width": 0.04,
-                "slat_separation": 0.03,
-                "slat_thickness": 0.002,
-                "slat_angle": 90,
-                "slat_conductivity": 0.2}
+            data: A python dictionary in the following format
+
+        .. code-block:: python
+
+            {
+            "type": 'EnergyWindowMaterialBlind',
+            "name": 'Plastic Blind',
+            "slat_orientation": 'Horizontal',
+            "slat_width": 0.04,
+            "slat_separation": 0.03,
+            "slat_thickness": 0.002,
+            "slat_angle": 90,
+            "slat_conductivity": 0.2
+            }
         """
         assert data['type'] == 'EnergyWindowMaterialBlind', \
             'Expected EnergyWindowMaterialBlind. Got {}.'.format(data['type'])

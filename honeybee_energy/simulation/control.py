@@ -9,6 +9,18 @@ from ..writer import generate_idf_string
 class SimulationControl(object):
     """Simulation controls for which types of calculations to run.
 
+    Args:
+        do_zone_sizing: Boolean for whether the zone sizing calculation
+            should be run. Default: True.
+        do_system_sizing: Boolean for whether the system sizing calculation
+            should be run. Default: True.
+        do_plant_sizing: Boolean for whether the plant sizing calculation
+            should be run. Default: True.
+        run_for_sizing_periods: Boolean for whether the simulation should
+            be run for the sizing periods. Default: False.
+        run_for_run_periods: Boolean for whether the simulation should
+            be run for the run periods. Default: True.
+
     Properties:
         * do_zone_sizing
         * do_system_sizing
@@ -22,20 +34,7 @@ class SimulationControl(object):
     def __init__(self, do_zone_sizing=True, do_system_sizing=True,
                  do_plant_sizing=True, run_for_sizing_periods=False,
                  run_for_run_periods=True):
-        """Initialize SimulationControl.
-
-        Args:
-            do_zone_sizing: Boolean for whether the zone sizing calculation
-                should be run. Default: True.
-            do_system_sizing: Boolean for whether the system sizing calculation
-                should be run. Default: True.
-            do_plant_sizing: Boolean for whether the plant sizing calculation
-                should be run. Default: True.
-            run_for_sizing_periods: Boolean for whether the simulation should
-                be run for the sizing periods. Default: False.
-            run_for_run_periods: Boolean for whether the simulation should
-                be run for the run periods. Default: True.
-        """
+        """Initialize SimulationControl."""
         self.do_zone_sizing = do_zone_sizing
         self.do_system_sizing = do_system_sizing
         self.do_plant_sizing = do_plant_sizing

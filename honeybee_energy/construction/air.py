@@ -15,6 +15,17 @@ from honeybee.typing import valid_ep_string, float_positive
 class AirBoundaryConstruction(object):
     """Construction for Faces with an AirBoundary face type.
 
+    Args:
+        name: Text string for construction name. Must be <= 100 characters.
+            Can include spaces but special characters will be stripped out.
+        air_mixing_per_area: A positive number for the amount of air mixing
+            between Rooms across the air boundary surface [m3/s-m2].
+            Default: 0.1 [m3/s-m2]. This corresponds to average indoor air
+            speeds of 0.1 m/s (roughly 20 fpm), which is typical of what
+            would be induced by a HVAC system.
+        air_mixing_schedule: A fractional schedule for the air mixing schedule
+            across the construction.
+
     Properties:
         * name
         * air_mixing_per_area
@@ -24,19 +35,7 @@ class AirBoundaryConstruction(object):
     __slots__ = ('_name', '_air_mixing_per_area', '_air_mixing_schedule', '_locked')
 
     def __init__(self, name, air_mixing_per_area=0.1, air_mixing_schedule=always_on):
-        """Initialize AirBoundaryConstruction.
-
-        Args:
-            name: Text string for construction name. Must be <= 100 characters.
-                Can include spaces but special characters will be stripped out.
-            air_mixing_per_area: A positive number for the amount of air mixing
-                between Rooms across the air boundary surface [m3/s-m2].
-                Default: 0.1 [m3/s-m2]. This corresponds to average indoor air
-                speeds of 0.1 m/s (roughly 20 fpm), which is typical of what
-                would be induced by a HVAC system.
-            air_mixing_schedule: A fractional schedule for the air mixing schedule
-                across the construction.
-        """
+        """Initialize AirBoundaryConstruction."""
         self._locked = False  # unlocked by default
         self.name = name
         self.air_mixing_per_area = air_mixing_per_area

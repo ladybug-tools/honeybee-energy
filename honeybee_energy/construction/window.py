@@ -51,24 +51,25 @@ class WindowConstruction(_ConstructionBase):
     @materials.setter
     def materials(self, mats):
         """For multi-layer window constructions the following rules apply in E+:
-            -The first and last layer must be a solid layer (glass or shade/screen/blind)
-            -Adjacent glass layers must be separated by one and only one gas layer
-            -Adjacent layers must not be of the same type
-            -Only one shade/screen/blind layer is allowed
-            -An exterior shade/screen/blind must be the first layer
-            -An interior shade/blind must be the last layer
-            -An interior screen is not allowed
-            -For an exterior shade/screen/blind or interior shade/blind, there should
-                not be a gas layer between the shade/screen/blind and adjacent glass
-                (we take care of this for shade materials)
-            -A between-glass screen is not allowed
-            -A between-glass shade/blind is allowed only for double and triple glazing
-            -A between-glass shade/blind must have adjacent gas layers of the same type
-                and width (we take care of this so the user does not specify the gaps)
-            -For triple glazing the between-glass shade/blind must be between the two
-                inner glass layers. (currently no check)
-            -The slat width of a between-glass blind must be less than the sum of the
-                widths of the gas layers adjacent to the blind. (currently no check).
+
+        * The first and last layer must be a solid layer (glass or shade/screen/blind)
+        * Adjacent glass layers must be separated by one and only one gas layer
+        * Adjacent layers must not be of the same type
+        * Only one shade/screen/blind layer is allowed
+        * An exterior shade/screen/blind must be the first layer
+        * An interior shade/blind must be the last layer
+        * An interior screen is not allowed
+        * For an exterior shade/screen/blind or interior shade/blind, there should
+          not be a gas layer between the shade/screen/blind and adjacent glass
+          (we take care of this for shade materials)
+        * A between-glass screen is not allowed
+        * A between-glass shade/blind is allowed only for double and triple glazing
+        * A between-glass shade/blind must have adjacent gas layers of the same type
+          and width (we take care of this so the user does not specify the gaps)
+        * For triple glazing the between-glass shade/blind must be between the two
+          inner glass layers. (currently no check)
+        * The slat width of a between-glass blind must be less than the sum of the
+          widths of the gas layers adjacent to the blind. (currently no check).
         """
         try:
             if not isinstance(mats, tuple):
@@ -262,12 +263,15 @@ class WindowConstruction(_ConstructionBase):
                 Default is 101325 Pa for standard pressure at sea level.
 
         Returns:
-            temperatures: A list of temperature values [C].
+            A tuple with two elements
+
+            -   temperatures: A list of temperature values [C].
                 The first value will always be the outside temperature and the
                 second will be the exterior surface temperature.
                 The last value will always be the inside temperature and the second
                 to last will be the interior surface temperature.
-            r_values: A list of R-values for each of the material layers [m2-K/W].
+
+            -   r_values: A list of R-values for each of the material layers [m2-K/W].
                 The first value will always be the resistance of the exterior air
                 and the last value is the resistance of the interior air.
                 The sum of this list is the R-factor for this construction given
@@ -331,11 +335,15 @@ class WindowConstruction(_ConstructionBase):
         classmethod to work.
 
         Args:
-            data: {
-                "type": 'WindowConstruction',
-                "name": 'Generic Double Pane Window',
-                "materials": []  // list of material objects
-                }
+            data: A python dictionary in the following format
+
+        .. code-block:: python
+
+            {
+            "type": 'WindowConstruction',
+            "name": 'Generic Double Pane Window',
+            "materials": []  // list of material objects
+            }
         """
         assert data['type'] == 'WindowConstruction', \
             'Expected WindowConstruction. Got {}.'.format(data['type'])
@@ -383,7 +391,7 @@ class WindowConstruction(_ConstructionBase):
         must also be written.
 
         Returns:
-            construction_idf: Text string representation of the construction.
+            construction_idf -- Text string representation of the construction.
         """
         construction_idf = self._generate_idf_string('window', self.name, self.materials)
         return construction_idf

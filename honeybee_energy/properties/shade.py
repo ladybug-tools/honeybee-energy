@@ -11,6 +11,17 @@ from ..lib.constructionsets import generic_construction_set
 class ShadeEnergyProperties(object):
     """Energy Properties for Honeybee Shade.
 
+    Args:
+        host_shade: A honeybee_core Shade object that hosts these properties.
+        construction: An optional ShadeConstruction object to set the reflectance
+            and specularity of the Shade. The default is set by a ConstructionSet
+            if the shade is the parent to an object. Otherwise, if it is an
+            orphaned shade, the default is a completely diffuse construction
+            with 0.2 visible and solar reflectance.
+        transmittance_schedule: An optional schedule to set the transmittance
+            of the shade, which can vary throughout the day or year.  Default
+            is a completely opaque object.
+
     Properties:
         * host
         * construction
@@ -21,19 +32,7 @@ class ShadeEnergyProperties(object):
     __slots__ = ('_host', '_construction', '_transmittance_schedule')
 
     def __init__(self, host_shade, construction=None, transmittance_schedule=None):
-        """Initialize Shade energy properties.
-
-        Args:
-            host_shade: A honeybee_core Shade object that hosts these properties.
-            construction: An optional ShadeConstruction object to set the reflectance
-                and specularity of the Shade. The default is set by a ConstructionSet
-                if the shade is the parent to an object. Otherwise, if it is an
-                orphaned shade, the default is a completely diffuse construction
-                with 0.2 visible and solar reflectance.
-            transmittance_schedule: An optional schedule to set the transmittance
-                of the shade, which can vary throughout the day or year.  Default
-                is a completely opaque object.
-        """
+        """Initialize Shade energy properties."""
         self._host = host_shade
         self.construction = construction
         self.transmittance_schedule = transmittance_schedule
@@ -46,7 +45,7 @@ class ShadeEnergyProperties(object):
     @property
     def construction(self):
         """Get or set a ShadeConstruction for the shade.
-        
+
         If the construction is not set on the shade-level, then it will be assigned
         based on the ConstructionSet assigned to the parent Room.  If the parent Room's
         ConstructionSet has no construction for the Shade type, it will be assigned
@@ -92,7 +91,7 @@ class ShadeEnergyProperties(object):
     @property
     def is_construction_set_on_object(self):
         """Boolean noting if construction is assigned on the level of this Shade.
-        
+
         This is opposed to having the construction assigned by a ConstructionSet.
         """
         return self._construction is not None
@@ -176,8 +175,9 @@ class ShadeEnergyProperties(object):
     def duplicate(self, new_host=None):
         """Get a copy of this object.
 
-        new_host: A new Shade object that hosts these properties.
-            If None, the properties will be duplicated with the same host.
+        Args:
+            new_host: A new Shade object that hosts these properties.
+                If None, the properties will be duplicated with the same host.
         """
         _host = new_host or self._host
         return ShadeEnergyProperties(_host, self._construction,

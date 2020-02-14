@@ -23,6 +23,20 @@ from ..lib.programtypes import plenum_program
 class RoomEnergyProperties(object):
     """Energy Properties for Honeybee Room.
 
+    Args:
+        host: A honeybee_core Room object that hosts these properties.
+        program_type: A honeybee ProgramType object to specify all default
+            schedules and loads for the Room. If None, the Room will have a Plenum
+            program (with no loads or setpoints). Default: None.
+        construction_set: A honeybee ConstructionSet object to specify all
+            default constructions for the Faces of the Room. If None, the Room
+            will use the honeybee default construction set, which is not
+            representative of a particular building code or climate zone.
+            Default: None.
+        hvac: A honeybee HVAC object (such as an IdealAirSystem) that specifies
+            how the Room is conditioned. If None, it will be assumed that the
+            Room is not conditioned. Default: None.
+
     Properties:
         * host
         * program_type
@@ -43,22 +57,7 @@ class RoomEnergyProperties(object):
                  '_infiltration', '_ventilation', '_setpoint')
 
     def __init__(self, host, program_type=None, construction_set=None, hvac=None):
-        """Initialize Room energy properties.
-
-        Args:
-            host: A honeybee_core Room object that hosts these properties.
-            program_type: A honeybee ProgramType object to specify all default
-                schedules and loads for the Room. If None, the Room will have a Plenum
-                program (with no loads or setpoints). Default: None.
-            construction_set: A honeybee ConstructionSet object to specify all
-                default constructions for the Faces of the Room. If None, the Room
-                will use the honeybee default construction set, which is not
-                representative of a particular building code or climate zone.
-                Default: None.
-            hvac: A honeybee HVAC object (such as an IdealAirSystem) that specifies
-                how the Room is conditioned. If None, it will be assumed that the
-                Room is not conditioned. Default: None.
-        """
+        """Initialize Room energy properties."""
         # set the main properties of the Room
         self._host = host
         self.program_type = program_type
@@ -260,17 +259,17 @@ class RoomEnergyProperties(object):
     def is_conditioned(self):
         """Boolean to note whether the Room is conditioned."""
         return self._hvac is not None
-    
+
     def add_default_ideal_air(self):
         """Add a default IdealAirSystem to this Room.
-        
+
         The name of this system will be derived from the room name.
         """
         self.hvac = IdealAirSystem('{}_IdealAir'.format(self.host.name))
 
     def add_prefix(self, prefix):
         """Change the name extension attributes unique to this object by adding a prefix.
-        
+
         Notably, this method only adds the prefix to extension attributes that must
         be unique to the Room (eg. single-room HVAC systems) and does not add the
         prefix to attributes that are shared across several Rooms (eg. ConstructionSets).
@@ -437,8 +436,9 @@ class RoomEnergyProperties(object):
     def duplicate(self, new_host=None):
         """Get a copy of this object.
 
-        new_host: A new Room object that hosts these properties.
-            If None, the properties will be duplicated with the same host.
+        Args:
+            new_host: A new Room object that hosts these properties.
+                If None, the properties will be duplicated with the same host.
         """
         _host = new_host or self._host
         new_room = RoomEnergyProperties(

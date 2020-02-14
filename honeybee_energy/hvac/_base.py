@@ -13,6 +13,15 @@ from honeybee.typing import valid_ep_string
 class _HVACSystem(object):
     """Base class to be used for all HVAC systems
 
+    Args:
+        name: Text string for system name. Must be <= 100 characters.
+            Can include spaces but special characters will be stripped out.
+        is_single_room: Boolean to note whether the HVAC system is only assignable
+            to a single Room. If True, an error will be raised if the system
+            is set to more than one Room and if False, no error will be raised
+            in such cases. An example of a single room system is the IdealAirSystem
+            and an example of a multi room system is VAVWithReheat.
+
     Properties:
         * name
         * is_single_room
@@ -21,21 +30,11 @@ class _HVACSystem(object):
     __slots__ = ('_name', '_is_single_room', '_parent', '_locked')
 
     def __init__(self, name, is_single_room=True):
-        """Initialize HVACSystem.
-
-        Args:
-            name: Text string for system name. Must be <= 100 characters.
-                Can include spaces but special characters will be stripped out.
-            is_single_room: Boolean to note whether the HVAC system is only assignable
-                to a single Room. If True, an error will be raised if the system
-                is set to more than one Room and if False, no error will be raised
-                in such cases. An example of a single room system is the IdealAirSystem
-                and an example of a multi room system is VAVWithReheat.
-        """
+        """Initialize HVACSystem."""
         self._is_single_room = bool(is_single_room)
         self._parent = None  # this is only used by single room systems
         self.name = name
-    
+
     @property
     def name(self):
         """Get or set the text string for HVAC system name."""
@@ -44,13 +43,13 @@ class _HVACSystem(object):
     @name.setter
     def name(self, name):
         self._name = valid_ep_string(name, 'HVAC system name')
-    
+
     @property
     def is_single_room(self):
         """Get a boolean noting whether the HVAC system is assignable to only one Room.
         """
         return self._is_single_room
-    
+
     @property
     def schedules(self):
         """Get an array of all the schedules assiciated with the HVAC system.
@@ -58,7 +57,7 @@ class _HVACSystem(object):
         This property should be overwritten in each of the classes inheriting from
         the HVACSystem base class since each HVAC system is likely to have it's
         own unique places where schedules are assigned. At a minimum, this property
-        should return heating/cooling availability schedules. 
+        should return heating/cooling availability schedules.
         """
         return ()
 

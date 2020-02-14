@@ -16,6 +16,24 @@ from honeybee.typing import float_in_range, float_positive
 class _EquipmentBase(_LoadBase):
     """A complete definition of equipment, including schedules and load.
 
+    Args:
+        name: Text string for the equipment definition name. Must be <= 100 characters.
+            Can include spaces but special characters will be stripped out.
+        watts_per_area: A numerical value for the equipment power density in
+            Watts per square meter of floor area.
+        schedule: A ScheduleRuleset or ScheduleFixedInterval for the use of equipment
+            over the course of the year. The type of this schedule should be
+            Fractional and the fractional values will get multiplied by the
+            watts_per_area to yield a complete equipment profile.
+        radiant_fraction: A number between 0 and 1 for the fraction of the total
+            equipment load given off as long wave radiant heat. Default: 0.
+        latent_fraction: A number between 0 and 1 for the fraction of the total
+            equipment load that is latent (as opposed to sensible). Default: 0.
+        lost_fraction: A number between 0 and 1 for the fraction of the total
+            equipment load that is lost outside of the zone and the HVAC system.
+            Typically, this is used to represent heat that is exhausted directly
+            out of a zone (as you would for a stove). Default: 0.
+
     Properties:
         * name
         * watts_per_area
@@ -34,26 +52,7 @@ class _EquipmentBase(_LoadBase):
 
     def __init__(self, name, watts_per_area, schedule, radiant_fraction=0,
                  latent_fraction=0, lost_fraction=0):
-        """Initialize Equipment.
-
-        Args:
-            name: Text string for the equipment definition name. Must be <= 100 characters.
-                Can include spaces but special characters will be stripped out.
-            watts_per_area: A numerical value for the equipment power density in
-                Watts per square meter of floor area.
-            schedule: A ScheduleRuleset or ScheduleFixedInterval for the use of equipment
-                over the course of the year. The type of this schedule should be
-                Fractional and the fractional values will get multiplied by the
-                watts_per_area to yield a complete equipment profile.
-            radiant_fraction: A number between 0 and 1 for the fraction of the total
-                equipment load given off as long wave radiant heat. Default: 0.
-            latent_fraction: A number between 0 and 1 for the fraction of the total
-                equipment load that is latent (as opposed to sensible). Default: 0.
-            lost_fraction: A number between 0 and 1 for the fraction of the total
-                equipment load that is lost outside of the zone and the HVAC system.
-                Typically, this is used to represent heat that is exhausted directly
-                out of a zone (as you would for a stove). Default: 0.
-        """
+        """Initialize Equipment."""
         _LoadBase.__init__(self, name)
         self._latent_fraction = 0  # starting value so that check runs correctly
         self._lost_fraction = 0  # starting value so that check runs correctly
@@ -247,6 +246,24 @@ class _EquipmentBase(_LoadBase):
 class ElectricEquipment(_EquipmentBase):
     """A complete definition of electric equipment, including schedules and load.
 
+    Args:
+        name: Text string for the equipment definition name. Must be <= 100 characters.
+            Can include spaces but special characters will be stripped out.
+        watts_per_area: A numerical value for the equipment power density in
+            Watts per square meter of floor area.
+        schedule: A ScheduleRuleset or ScheduleFixedInterval for the use of equipment
+            over the course of the year. The type of this schedule should be
+            Fractional and the fractional values will get multiplied by the
+            watts_per_area to yield a complete equipment profile.
+        radiant_fraction: A number between 0 and 1 for the fraction of the total
+            equipment load given off as long wave radiant heat. Default: 0.
+        latent_fraction: A number between 0 and 1 for the fraction of the total
+            equipment load that is latent (as opposed to sensible). Default: 0.
+        lost_fraction: A number between 0 and 1 for the fraction of the total
+            equipment load that is lost outside of the zone and the HVAC system.
+            Typically, this is used to represent heat that is exhausted directly
+            out of a zone (as you would for a stove). Default: 0.
+
     Properties:
         * name
         * watts_per_area
@@ -260,26 +277,7 @@ class ElectricEquipment(_EquipmentBase):
 
     def __init__(self, name, watts_per_area, schedule, radiant_fraction=0,
                  latent_fraction=0, lost_fraction=0):
-        """Initialize Electric Equipment.
-
-        Args:
-            name: Text string for the equipment definition name. Must be <= 100 characters.
-                Can include spaces but special characters will be stripped out.
-            watts_per_area: A numerical value for the equipment power density in
-                Watts per square meter of floor area.
-            schedule: A ScheduleRuleset or ScheduleFixedInterval for the use of equipment
-                over the course of the year. The type of this schedule should be
-                Fractional and the fractional values will get multiplied by the
-                watts_per_area to yield a complete equipment profile.
-            radiant_fraction: A number between 0 and 1 for the fraction of the total
-                equipment load given off as long wave radiant heat. Default: 0.
-            latent_fraction: A number between 0 and 1 for the fraction of the total
-                equipment load that is latent (as opposed to sensible). Default: 0.
-            lost_fraction: A number between 0 and 1 for the fraction of the total
-                equipment load that is lost outside of the zone and the HVAC system.
-                Typically, this is used to represent heat that is exhausted directly
-                out of a zone (as you would for a stove). Default: 0.
-        """
+        """Initialize Electric Equipment."""
         _EquipmentBase.__init__(self, name, watts_per_area, schedule,
                                 radiant_fraction, latent_fraction, lost_fraction)
 
@@ -299,8 +297,11 @@ class ElectricEquipment(_EquipmentBase):
                 the ElectricEquipment object.
 
         Returns:
-            equipment: An ElectricEquipment object loaded from the idf_string.
-            zone_name: The name of the zone to which the ElectricEquipment object
+            A tuple with two elements
+
+            -   equipment: An ElectricEquipment object loaded from the idf_string.
+
+            -   zone_name: The name of the zone to which the ElectricEquipment object
                 should be assigned.
         """
         # check the inputs
@@ -323,7 +324,7 @@ class ElectricEquipment(_EquipmentBase):
         Args:
             data: A ElectricEquipment dictionary in following the format below.
 
-        .. code-block:: json
+        .. code-block:: python
 
             {
             "type": 'ElectricEquipment',
@@ -348,7 +349,7 @@ class ElectricEquipment(_EquipmentBase):
                 objects as values (either ScheduleRuleset or ScheduleFixedInterval).
                 These will be used to assign the schedules to the equipment object.
 
-        .. code-block:: json
+        .. code-block:: python
 
             {
             "type": 'ElectricEquipmentAbridged',
@@ -438,6 +439,24 @@ class ElectricEquipment(_EquipmentBase):
 class GasEquipment(_EquipmentBase):
     """A complete definition of gas equipment, including schedules and load.
 
+    Args:
+        name: Text string for the equipment definition name. Must be <= 100 characters.
+            Can include spaces but special characters will be stripped out.
+        watts_per_area: A numerical value for the equipment power density in
+            Watts per square meter of floor area.
+        schedule: A ScheduleRuleset or ScheduleFixedInterval for the use of equipment
+            over the course of the year. The type of this schedule should be
+            Fractional and the fractional values will get multiplied by the
+            watts_per_area to yield a complete equipment profile.
+        radiant_fraction: A number between 0 and 1 for the fraction of the total
+            equipment load given off as long wave radiant heat. Default: 0.
+        latent_fraction: A number between 0 and 1 for the fraction of the total
+            equipment load that is latent (as opposed to sensible). Default: 0.
+        lost_fraction: A number between 0 and 1 for the fraction of the total
+            equipment load that is lost outside of the zone and the HVAC system.
+            Typically, this is used to represent heat that is exhausted directly
+            out of a zone (as you would for a stove). Default: 0.
+
     Properties:
         * name
         * watts_per_area
@@ -451,26 +470,7 @@ class GasEquipment(_EquipmentBase):
 
     def __init__(self, name, watts_per_area, schedule, radiant_fraction=0,
                  latent_fraction=0, lost_fraction=0):
-        """Initialize Gas Equipment.
-
-        Args:
-            name: Text string for the equipment definition name. Must be <= 100 characters.
-                Can include spaces but special characters will be stripped out.
-            watts_per_area: A numerical value for the equipment power density in
-                Watts per square meter of floor area.
-            schedule: A ScheduleRuleset or ScheduleFixedInterval for the use of equipment
-                over the course of the year. The type of this schedule should be
-                Fractional and the fractional values will get multiplied by the
-                watts_per_area to yield a complete equipment profile.
-            radiant_fraction: A number between 0 and 1 for the fraction of the total
-                equipment load given off as long wave radiant heat. Default: 0.
-            latent_fraction: A number between 0 and 1 for the fraction of the total
-                equipment load that is latent (as opposed to sensible). Default: 0.
-            lost_fraction: A number between 0 and 1 for the fraction of the total
-                equipment load that is lost outside of the zone and the HVAC system.
-                Typically, this is used to represent heat that is exhausted directly
-                out of a zone (as you would for a stove). Default: 0.
-        """
+        """Initialize Gas Equipment."""
         _EquipmentBase.__init__(self, name, watts_per_area, schedule,
                                 radiant_fraction, latent_fraction, lost_fraction)
 
@@ -490,8 +490,11 @@ class GasEquipment(_EquipmentBase):
                 the GasEquipment object.
 
         Returns:
-            equipment: An GasEquipment object loaded from the idf_string.
-            zone_name: The name of the zone to which the GasEquipment object
+            A tuple with two elements
+
+            -   equipment: An GasEquipment object loaded from the idf_string.
+
+            -   zone_name: The name of the zone to which the GasEquipment object
                 should be assigned.
         """
         # check the inputs
@@ -514,7 +517,7 @@ class GasEquipment(_EquipmentBase):
         Args:
             data: A GasEquipment dictionary in following the format below.
 
-        .. code-block:: json
+        .. code-block:: python
 
             {
             "type": 'GasEquipment',
@@ -539,7 +542,7 @@ class GasEquipment(_EquipmentBase):
                 objects as values (either ScheduleRuleset or ScheduleFixedInterval).
                 These will be used to assign the schedules to the equipment object.
 
-        .. code-block:: json
+        .. code-block:: python
 
             {
             "type": 'GasEquipmentAbridged',

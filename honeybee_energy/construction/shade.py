@@ -14,6 +14,18 @@ from honeybee.typing import valid_ep_string, float_in_range
 class ShadeConstruction(object):
     """Construction for Shade objects.
 
+    Args:
+        name: Text string for construction name. Must be <= 100 characters.
+            Can include spaces but special characters will be stripped out.
+        solar_reflectance: A number between 0 and 1 for the solar reflectance
+            of the construction. Default: 0.2.
+        visible_reflectance: A number between 0 and 1 for the visible reflectance
+            of the construction. Default: 0.2.
+        is_specular: A boolean to note whether the reflection off the shade
+            should be diffuse (False) or specular (True). Set to True if the
+            construction is representing a glass facade or a mirror material.
+            Default: False.
+
     Properties:
         name
         solar_reflectance
@@ -27,20 +39,7 @@ class ShadeConstruction(object):
 
     def __init__(self, name, solar_reflectance=0.2, visible_reflectance=0.2,
                  is_specular=False):
-        """Initialize shade construction.
-
-        Args:
-            name: Text string for construction name. Must be <= 100 characters.
-                Can include spaces but special characters will be stripped out.
-            solar_reflectance: A number between 0 and 1 for the solar reflectance
-                of the construction. Default: 0.2.
-            visible_reflectance: A number between 0 and 1 for the visible reflectance
-                of the construction. Default: 0.2.
-            is_specular: A boolean to note whether the reflection off the shade
-                should be diffuse (False) or specular (True). Set to True if the
-                construction is representing a glass facade or a mirror material.
-                Default: False.
-        """
+        """Initialize shade construction."""
         self._locked = False  # unlocked by default
         self.name = name
         self.solar_reflectance = solar_reflectance
@@ -112,13 +111,17 @@ class ShadeConstruction(object):
         """Create a ShadeConstruction from a dictionary.
 
         Args:
-            data: {
-                "type": 'ShadeConstruction',
-                "name": 'Generic Overhang Construction',
-                "solar_reflectance": 0.35,
-                "visible_reflectance": 0.35,
-                "is_specular": False
-                }
+            data: A python dictionary in the following format
+
+        .. code-block:: python
+
+            {
+            "type": 'ShadeConstruction',
+            "name": 'Generic Overhang Construction',
+            "solar_reflectance": 0.35,
+            "visible_reflectance": 0.35,
+            "is_specular": False
+            }
         """
         assert data['type'] == 'ShadeConstruction', \
             'Expected ShadeConstruction. Got {}.'.format(data['type'])

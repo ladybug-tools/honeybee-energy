@@ -48,13 +48,13 @@ class Folders(object):
         # set the mute value
         self.mute = bool(mute)
 
-        # load paths from the config JSON file 
+        # load paths from the config JSON file
         self.config_file  = config_file
 
     @property
     def openstudio_path(self):
         """Get or set the path to OpenStudio installation folder.
-        
+
         This is the "bin" directory for OpenStudio installation (the one that
         contains the openstudio executable file).
         """
@@ -79,7 +79,7 @@ class Folders(object):
         self._openstudio_exe = os_exe_file
         if path and not self.mute:
             print("Path to OpenStudio is set to: %s" % path)
-    
+
     @property
     def openstudio_exe(self):
         """Get the path to the executable openstudio file."""
@@ -89,7 +89,7 @@ class Folders(object):
     def energyplus_path(self):
         """Get or set the path to EnergyPlus installation folder."""
         return self._energyplus_path
-    
+
     @energyplus_path.setter
     def energyplus_path(self, path):
         exe_name = 'energyplus.exe' if os.name == 'nt' else 'energyplus'
@@ -99,7 +99,7 @@ class Folders(object):
                 path, ep_exe_file = self._find_energyplus_folder()
         else:
             ep_exe_file = os.path.join(path, exe_name)
-        
+
         if path:  # check that the Energyplus executable exists in the installation
             assert os.path.isfile(ep_exe_file), \
                 '{} is not a valid path to an energyplus installation.'.format(path)
@@ -114,18 +114,19 @@ class Folders(object):
     def energyplus_exe(self):
         """Get the path to the executable energyplus file."""
         return self._energyplus_exe
-    
+
     @property
     def energy_model_measure_path(self):
         """Get or set the path to the energy_model_measure translating to OpenStudio.
-        
+
         This folder must have the following sub-folders in order to be valid:
-            * ladybug - ruby library with modules for model translation to OpenStudio.
-            * measures - folder with the actual measures that run the translation.
-            * files - folder containing the openapi schemas
+
+        * ladybug - ruby library with modules for model translation to OpenStudio.
+        * measures - folder with the actual measures that run the translation.
+        * files - folder containing the openapi schemas
         """
         return self._energy_model_measure_path
-    
+
     @energy_model_measure_path.setter
     def energy_model_measure_path(self, path):
         if not path:  # check the default locations of the energy_model_measure
@@ -143,24 +144,25 @@ class Folders(object):
         if path and not self.mute:
             print('Path to the energy_model_measure is set to: '
                     '{}'.format(self._energy_model_measure_path))
-    
+
     @property
     def standards_data_folder(self):
         """Get or set the path to the library of standards loaded to honeybee_energy.lib.
-        
+
         This folder must have the following sub-folders in order to be valid:
-            * constructions - folder with IDF files for materials + constructions.
-            * constructionsets - folder with JSON files of abridged ConstructionSets.
-            * schedules - folder with IDF files for schedules.
-            * programtypes - folder with JSON files of abridged ProgramTypes.
+
+        * constructions - folder with IDF files for materials + constructions.
+        * constructionsets - folder with JSON files of abridged ConstructionSets.
+        * schedules - folder with IDF files for schedules.
+        * programtypes - folder with JSON files of abridged ProgramTypes.
         """
         return self._standards_data_folder
-    
+
     @standards_data_folder.setter
     def standards_data_folder(self, path):
         if not path:  # check the default locations of the template library
             path = self._find_standards_data_folder()
-        
+
         # gather all of the sub folders underneath the master folder
         self._construction_lib = os.path.join(path, 'constructions') if path else None
         self._constructionset_lib = os.path.join(path, 'constructionsets') if path else None
@@ -183,31 +185,31 @@ class Folders(object):
         if path and not self.mute:
             print('Path to the standards_data_folder is set to: '
                     '{}'.format(self._standards_data_folder))
-    
+
     @property
     def construction_lib(self):
         """Get the path to the construction library in the standards_data_folder."""
         return self._construction_lib
-    
+
     @property
     def constructionset_lib(self):
         """Get the path to the constructionset library in the standards_data_folder."""
         return self._constructionset_lib
-    
+
     @property
     def schedule_lib(self):
         """Get the path to the schedule library in the standards_data_folder."""
         return self._schedule_lib
-    
+
     @property
     def programtype_lib(self):
         """Get the path to the programtype library in the standards_data_folder."""
         return self._programtype_lib
 
-    @property 
+    @property
     def config_file(self):
         """Get or set the path to the config.json file from which folders are loaded.
-        
+
         Setting this to None will result in using the config.json module included
         in this package.
         """
@@ -222,7 +224,7 @@ class Folders(object):
 
     def _load_from_file(self, file_path):
         """Set all of the the properties of this object from a config JSON file.
-        
+
         Args:
             file_path: Path to a JSON file containing the file paths. A sample of this
                 JSON is the config.json file within this package.
@@ -261,7 +263,7 @@ class Folders(object):
 
     def _find_energyplus_folder(self):
         """Find the most recent EnergyPlus installation in its default location.
-        
+
         This method will first attempt to return the path of the EnergyPlus that
         installs with OpenStudio and, if none are found, it will search for a
         standalone installation of EnergyPlus.
@@ -295,13 +297,13 @@ class Folders(object):
                               os.path.isdir('/usr/local/{}'.format(f)))]
         else:  # unknown operating system
             ep_folders = None
-        
+
         if not ep_path and not ep_folders:  # No EnergyPlus installations were found
             return None, None
         elif not ep_path:
             # get the most recent version of energyplus that was found
             ep_path = sorted(ep_folders, key=getversion, reverse=True)[0]
-        
+
         # return the path to the executable
         exec_file = os.path.join(ep_path, 'energyplus.exe') if os.name == 'nt' \
             else os.path.join(ep_path, 'energyplus')
@@ -334,13 +336,13 @@ class Folders(object):
                               os.path.isdir('/usr/local/{}'.format(f)))]
         else:  # unknown operating system
             os_folders = None
-        
+
         if not os_folders:  # No Openstudio installations were found
             return None, None
-        
+
         # get the most recent version of OpenStudio that was found
         os_path = sorted(os_folders, key=getversion, reverse=True)[0]
-        
+
         # return the path to the executable
         exec_file = os.path.join(os_path, 'bin', 'openstudio.exe') if os.name == 'nt' \
             else os.path.join(os_path, 'bin', 'openstudio')
@@ -361,11 +363,11 @@ class Folders(object):
                 if not os.path.isdir(measure_path):
                     return  # No energy model measure is installed
         return measure_path
-    
+
     @staticmethod
     def _find_standards_data_folder():
         """Find the the user template library in its default location.
-        
+
         The HOME/honeybee/honeybee_standards/data folder will be checked first,
         which can conatain libraries that are not overwritten with the update of the
         honeybee_energy package. If no such folder is found, this method defaults to
@@ -378,7 +380,7 @@ class Folders(object):
             return lib_folder
         else:  # default to the library folder that installs with this Python package
             return os.path.join(os.path.dirname(__file__), 'lib', 'data')
-    
+
     @staticmethod
     def _which(program):
         """Find an executable program in the PATH by name.
