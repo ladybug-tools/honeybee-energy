@@ -31,6 +31,12 @@ except ImportError:
 class ModelEnergyProperties(object):
     """Energy Properties for Honeybee Model.
 
+    Args:
+        host: A honeybee_core Model object that hosts these properties.
+        terrain_type: Text for the terrain type in which the model sits.
+            Choose from: 'Ocean', 'Country', 'Suburbs', 'Urban', 'City'.
+            Default: 'City'.
+
     Properties:
         * host
         * terrain_type
@@ -53,14 +59,7 @@ class ModelEnergyProperties(object):
     TERRAIN_TYPES = ('Ocean', 'Country', 'Suburbs', 'Urban', 'City')
 
     def __init__(self, host, terrain_type='City'):
-        """Initialize Model energy properties.
-
-        Args:
-            host: A honeybee_core Model object that hosts these properties.
-            terrain_type: Text for the terrain type in which the model sits.
-                Choose from: 'Ocean', 'Country', 'Suburbs', 'Urban', 'City'.
-                Default: 'City'.
-        """
+        """Initialize Model energy properties."""
         self._host = host
         self.terrain_type = terrain_type
 
@@ -75,11 +74,12 @@ class ModelEnergyProperties(object):
 
         This is used to determine the wind profile over the height of the
         building. Default is 'City'. Choose from the following options:
-            * Ocean
-            * Country
-            * Suburbs
-            * Urban
-            * City
+
+        * Ocean
+        * Country
+        * Suburbs
+        * Urban
+        * City
         """
         return self._terrain_type
 
@@ -118,11 +118,11 @@ class ModelEnergyProperties(object):
         all_constrs = self.global_construction_set.constructions_unique + \
             self.room_constructions + self.face_constructions + self.shade_constructions
         return list(set(all_constrs))
-    
+
     @property
     def room_constructions(self):
         """A list of all unique constructions assigned to Room ConstructionSets.
-        
+
         Note that this does not include constructions in the global_construction_set.
         For these, you can request global_construction_set.constructions_unique.
         """
@@ -280,7 +280,7 @@ class ModelEnergyProperties(object):
                     self._check_and_add_schedule(
                         setpoint.dehumidifying_schedule, scheds)
         return list(set(scheds))
-    
+
     @property
     def program_type_schedules(self):
         """A list of all unique schedules assigned to ProgramTypes in the model."""
@@ -289,7 +289,7 @@ class ModelEnergyProperties(object):
             for sched in p_type.schedules:
                 self._check_and_add_schedule(sched, schedules)
         return list(set(schedules))
-    
+
     @property
     def hvac_schedules(self):
         """A list of all unique HVAC-assigned schedules in the model."""
@@ -309,7 +309,7 @@ class ModelEnergyProperties(object):
                                                program_types):
                     program_types.append(room.properties.energy._program_type)
         return list(set(program_types))  # catch equivalent program types
-    
+
     @property
     def hvacs(self):
         """A list of all unique HVAC systems in the Model."""
@@ -327,11 +327,12 @@ class ModelEnergyProperties(object):
             solar_distribution: Text desribing how EnergyPlus should treat beam solar
                 radiation reflected from surfaces. Default:
                 FullInteriorAndExteriorWithReflections. Choose from the following:
-                    * MinimalShadowing
-                    * FullExterior
-                    * FullInteriorAndExterior
-                    * FullExteriorWithReflections
-                    * FullInteriorAndExteriorWithReflections
+
+                * MinimalShadowing
+                * FullExterior
+                * FullInteriorAndExterior
+                * FullExteriorWithReflections
+                * FullInteriorAndExteriorWithReflections
         """
         values = (self.host.name,
                   self.host.north_angle,
@@ -448,7 +449,7 @@ class ModelEnergyProperties(object):
                     'names:\n{}'.format('\n'.join(duplicate_names)))
             return False
         return True
-    
+
     def check_duplicate_hvac_names(self, raise_exception=True):
         """Check that there are no duplicate HVAC names in the model."""
         hvac_names = set()
@@ -526,12 +527,13 @@ class ModelEnergyProperties(object):
     def duplicate(self, new_host=None):
         """Get a copy of this object.
 
-        new_host: A new Model object that hosts these properties.
-            If None, the properties will be duplicated with the same host.
+        Args:
+            new_host: A new Model object that hosts these properties.
+                If None, the properties will be duplicated with the same host.
         """
         _host = new_host or self._host
         return ModelEnergyProperties(_host, self.terrain_type)
-    
+
     @staticmethod
     def load_properties_from_dict(data):
         """Load model energy properties of a dictionary to Python objects.
@@ -547,21 +549,29 @@ class ModelEnergyProperties(object):
             data: A dictionary representation of an entire honeybee-core Model.
                 Note that this dictionary must have ModelEnergyProperties in order
                 for this method to successfully load the energy properties.
-        
+
         Returns:
-            materials -- A dictionary with names of materials as keys and Python
+            A tuple with four elements
+
+            -   materials -- A dictionary with names of materials as keys and Python
                 material objects as values.
-            constructions -- A dictionary with names of constructions as keys and Python
+
+            -   constructions -- A dictionary with names of constructions as keys and Python
                 construction objects as values.
-            construction_sets -- A dictionary with names of construction sets as keys
+
+            -   construction_sets -- A dictionary with names of construction sets as keys
                 and Python construction set objects as values.
-            schedule_type_limits -- A dictionary with names of schedule type limits
+
+            -   schedule_type_limits -- A dictionary with names of schedule type limits
                 as keys and Python schedule type limit objects as values.
-            schedules -- A dictionary with names of schedules as keys and Python
+
+            -   schedules -- A dictionary with names of schedules as keys and Python
                 schedule objects as values.
-            program_types -- A dictionary with names of program types as keys and Python
+
+            -   program_types -- A dictionary with names of program types as keys and Python
                 program type objects as values.
-            hvacs -- A dictionary with names of HVAC systems as keys and Python
+
+            -   hvacs -- A dictionary with names of HVAC systems as keys and Python
                 HVACSystem objects as values.
         """
         assert 'energy' in data['properties'], \
@@ -589,7 +599,7 @@ class ModelEnergyProperties(object):
                 else:
                     raise NotImplementedError(
                         'Schedule {} is not supported.'.format(sched['type']))
-        
+
         # process all materials in the ModelEnergyProperties dictionary
         materials = {}
         for mat in data['properties']['energy']['materials']:
@@ -648,7 +658,7 @@ class ModelEnergyProperties(object):
             for p_typ in data['properties']['energy']['program_types']:
                 program_types[p_typ['name']] = \
                     ProgramType.from_dict_abridged(p_typ, schedules)
-        
+
         # process all HVAC systems in the ModelEnergyProperties dictionary
         hvacs = {}
         if 'hvacs' in data['properties']['energy']  and \
@@ -656,20 +666,20 @@ class ModelEnergyProperties(object):
             for hvac in data['properties']['energy']['hvacs']:
                 hvac_class = HVAC_TYPES_DICT[hvac['type'].replace('Abridged', '')]
                 hvacs[hvac['name']] = hvac_class.from_dict_abridged(hvac, schedules)
-        
+
         return materials, constructions, construction_sets, schedule_type_limits, \
             schedules, program_types, hvacs
-    
+
     def _add_constr_type_objs_to_dict(self, base, include_global_construction_set=True):
         """Add materials, constructions and construction sets to a base dictionary.
-        
+
         Args:
             base: A base dictionary for a Honeybee Model.
             include_global_construction_set: Boolean to note whether the
                 global_construction_set should be included within the dictionary.
                 This will ensure that all objects lacking a construction
                 specification always have a default construction. Default: True.
-        
+
         Returns:
             A list of of schedules that are assigned to the constructions.
         """

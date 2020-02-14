@@ -111,19 +111,22 @@ class OpaqueConstruction(_ConstructionBase):
                 convective heat transfer coefficient. Default is 6.7 m/s.
             height: An optional height for the surface in meters. Default is 1.0 m.
             angle: An angle in degrees between 0 and 180.
-                0 = A horizontal surface with the outside boundary on the bottom.
-                90 = A vertical surface
-                180 = A horizontal surface with the outside boundary on the top.
+            * 0 = A horizontal surface with the outside boundary on the bottom.
+            * 90 = A vertical surface
+            * 180 = A horizontal surface with the outside boundary on the top.
             pressure: The average pressure of in Pa.
                 Default is 101325 Pa for standard pressure at sea level.
 
         Returns:
-            temperatures: A list of temperature values [C].
+            A tuple with two elements
+
+            -   temperatures: A list of temperature values [C].
                 The first value will always be the outside temperature and the
                 second will be the exterior surface temperature.
                 The last value will always be the inside temperature and the second
                 to last will be the interior surface temperature.
-            r_values: A list of R-values for each of the material layers [m2-K/W].
+
+            -   r_values: A list of R-values for each of the material layers [m2-K/W].
                 The first value will always be the resistance of the exterior air
                 and the last value is the resistance of the interior air.
                 The sum of this list is the R-factor for this construction given
@@ -167,12 +170,16 @@ class OpaqueConstruction(_ConstructionBase):
         classmethod to work.
 
         Args:
-            data: {
-                "type": 'OpaqueConstruction',
-                "name": 'Generic Brick Wall',
-                "layers": [] // list of material names (from outside to inside)
-                "materials": []  // list of unique material objects
-                }
+            data: A python dictionary in the following format
+
+        .. code-block:: python
+
+            {
+            "type": 'OpaqueConstruction',
+            "name": 'Generic Brick Wall',
+            "layers": [] // list of material names (from outside to inside)
+            "materials": []  // list of unique material objects
+            }
         """
         assert data['type'] == 'OpaqueConstruction', \
             'Expected OpaqueConstruction. Got {}.'.format(data['type'])
@@ -210,7 +217,7 @@ class OpaqueConstruction(_ConstructionBase):
         must also be written.
 
         Returns:
-            construction_idf: Text string representation of the construction.
+            construction_idf -- Text string representation of the construction.
         """
         construction_idf = self._generate_idf_string('opaque', self.name, self.materials)
         return construction_idf
@@ -256,9 +263,12 @@ class OpaqueConstruction(_ConstructionBase):
                 constructions and corresponding materials.
 
         Returns:
-            constructions: A list of all OpaqueConstruction objects in the IDF
+            A tuple with four elements
+
+            -   constructions: A list of all OpaqueConstruction objects in the IDF
                 file as honeybee_energy OpaqueConstruction objects.
-            materials: A list of all opaque materials in the IDF file as
+
+            -   materials: A list of all opaque materials in the IDF file as
                 honeybee_energy EnergyMaterial objects.
         """
         # check the file

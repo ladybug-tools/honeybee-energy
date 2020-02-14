@@ -17,21 +17,40 @@ from honeybee.typing import float_in_range, float_positive
 class EnergyMaterial(_EnergyMaterialOpaqueBase):
     """Typical opaque energy material.
 
+    Args:
+        name: Text string for material name. Must be <= 100 characters.
+            Can include spaces but special characters will be stripped out.
+        thickness: Number for the thickness of the material layer [m].
+        conductivity: Number for the thermal conductivity of the material [W/m-K].
+        density: Number for the density of the material [kg/m3].
+        specific_heat: Number for the specific heat of the material [J/kg-K].
+        roughness: Text describing the relative roughness of the material.
+            Must be one of the following: 'VeryRough', 'Rough', 'MediumRough',
+            'MediumSmooth', 'Smooth', 'VerySmooth'. Defailt is 'MediumRough'.
+        thermal_absorptance: A number between 0 aand 1 for the fraction of
+            incident long wavelength radiation that is absorbed by the material.
+            Default value is 0.9.
+        solar_absorptance: A number between 0 and 1 for the fraction of incident
+            solar radiation absorbed by the material. Default value is 0.7.
+        visible_absorptance: A number between 0 and 1 for the fraction of incident
+            visible wavelength radiation absorbed by the material.
+            Default is None, which will yield the same value as solar_absorptance.
+
     Properties:
-        name
-        roughness
-        thickness
-        conductivity
-        density
-        specific_heat
-        thermal_absorptance
-        solar_absorptance
-        visible_absorptance
-        resistivity
-        u_value
-        r_value
-        mass_area_density
-        area_heat_capacity
+        * name
+        * roughness
+        * thickness
+        * conductivity
+        * density
+        * specific_heat
+        * thermal_absorptance
+        * solar_absorptance
+        * visible_absorptance
+        * resistivity
+        * u_value
+        * r_value
+        * mass_area_density
+        * area_heat_capacity
     """
     __slots__ = ('_roughness', '_thickness', '_conductivity',
                  '_density', '_specific_heat', '_thermal_absorptance',
@@ -40,27 +59,7 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
     def __init__(self, name, thickness, conductivity, density, specific_heat,
                  roughness='MediumRough', thermal_absorptance=0.9,
                  solar_absorptance=0.7, visible_absorptance=None):
-        """Initialize energy material.
-
-        Args:
-            name: Text string for material name. Must be <= 100 characters.
-                Can include spaces but special characters will be stripped out.
-            thickness: Number for the thickness of the material layer [m].
-            conductivity: Number for the thermal conductivity of the material [W/m-K].
-            density: Number for the density of the material [kg/m3].
-            specific_heat: Number for the specific heat of the material [J/kg-K].
-            roughness: Text describing the relative roughness of the material.
-                Must be one of the following: 'VeryRough', 'Rough', 'MediumRough',
-                'MediumSmooth', 'Smooth', 'VerySmooth'. Defailt is 'MediumRough'.
-            thermal_absorptance: A number between 0 aand 1 for the fraction of
-                incident long wavelength radiation that is absorbed by the material.
-                Default value is 0.9.
-            solar_absorptance: A number between 0 and 1 for the fraction of incident
-                solar radiation absorbed by the material. Default value is 0.7.
-            visible_absorptance: A number between 0 and 1 for the fraction of incident
-                visible wavelength radiation absorbed by the material.
-                Default is None, which will yield the same value as solar_absorptance.
-        """
+        """Initialize energy material."""
         _EnergyMaterialOpaqueBase.__init__(self, name)
         self.thickness = thickness
         self.conductivity = conductivity
@@ -213,17 +212,22 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
         """Create a EnergyMaterial from a dictionary.
 
         Args:
-            data: {
-                "type": 'EnergyMaterial',
-                "name": 'Concrete_8in',
-                "roughness": 'MediumRough',
-                "thickness": 0.2,
-                "conductivity": 2.31,
-                "density": 2322,
-                "specific_heat": 832,
-                "thermal_absorptance": 0.9,
-                "solar_absorptance": 0.7,
-                "visible_absorptance": 0.7}
+            data: A python dictionary in the following format
+
+        .. code-block:: python
+
+            {
+            "type": 'EnergyMaterial',
+            "name": 'Concrete_8in',
+            "roughness": 'MediumRough',
+            "thickness": 0.2,
+            "conductivity": 2.31,
+            "density": 2322,
+            "specific_heat": 832,
+            "thermal_absorptance": 0.9,
+            "solar_absorptance": 0.7,
+            "visible_absorptance": 0.7
+            }
         """
         assert data['type'] == 'EnergyMaterial', \
             'Expected EnergyMaterial. Got {}.'.format(data['type'])
@@ -316,41 +320,40 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
 class EnergyMaterialNoMass(_EnergyMaterialOpaqueBase):
     """Typical no mass opaque energy material.
 
+    Args:
+        name: Text string for material name. Must be <= 100 characters.
+            Can include spaces but special characters will be stripped out.
+        r_value: Number for the R-value of the material [m2-K/W].
+        roughness: Text describing the relative roughness of the material.
+            Must be one of the following: 'VeryRough', 'Rough', 'MediumRough',
+            'MediumSmooth', 'Smooth', 'VerySmooth'. Default: 'MediumRough'.
+        thermal_absorptance: A number between 0 and 1 for the fraction of
+            incident long wavelength radiation that is absorbed by the material.
+            Default: 0.9.
+        solar_absorptance: A number between 0 and 1 for the fraction of incident
+            solar radiation absorbed by the material. Default: 0.7.
+        visible_absorptance: A number between 0 and 1 for the fraction of incident
+            visible wavelength radiation absorbed by the material.
+            Default value is None, which will use the same value as the
+            solar_absorptance.
+
     Properties:
-        name
-        r_value
-        u_value
-        roughness
-        thermal_absorptance
-        solar_absorptance
-        visible_absorptance
-        mass_area_density
-        area_heat_capacity
+        * name
+        * r_value
+        * u_value
+        * roughness
+        * thermal_absorptance
+        * solar_absorptance
+        * visible_absorptance
+        * mass_area_density
+        * area_heat_capacity
     """
     __slots__ = ('_r_value', '_roughness', '_thermal_absorptance',
                  '_solar_absorptance', '_visible_absorptance')
 
     def __init__(self, name, r_value, roughness='MediumRough', thermal_absorptance=0.9,
                  solar_absorptance=0.7, visible_absorptance=None):
-        """Initialize energy material.
-
-        Args:
-            name: Text string for material name. Must be <= 100 characters.
-                Can include spaces but special characters will be stripped out.
-            r_value: Number for the R-value of the material [m2-K/W].
-            roughness: Text describing the relative roughness of the material.
-                Must be one of the following: 'VeryRough', 'Rough', 'MediumRough',
-                'MediumSmooth', 'Smooth', 'VerySmooth'. Default: 'MediumRough'.
-            thermal_absorptance: A number between 0 and 1 for the fraction of
-                incident long wavelength radiation that is absorbed by the material.
-                Default: 0.9.
-            solar_absorptance: A number between 0 and 1 for the fraction of incident
-                solar radiation absorbed by the material. Default: 0.7.
-            visible_absorptance: A number between 0 and 1 for the fraction of incident
-                visible wavelength radiation absorbed by the material.
-                Default value is None, which will use the same value as the
-                solar_absorptance.
-        """
+        """Initialize energy material."""
         _EnergyMaterialOpaqueBase.__init__(self, name)
         self.r_value = r_value
         self.roughness = roughness
@@ -445,14 +448,19 @@ class EnergyMaterialNoMass(_EnergyMaterialOpaqueBase):
         """Create a EnergyMaterialNoMass from a dictionary.
 
         Args:
-            data: {
-                "type": 'EnergyMaterialNoMass',
-                "name": 'Insulation_R2',
-                "r_value": 2.0,
-                "roughness": 'MediumRough',
-                "thermal_absorptance": 0.9,
-                "solar_absorptance": 0.7,
-                "visible_absorptance": 0.7}
+            data: A python dictionary in the following format
+
+        .. code-block:: python
+
+            {
+            "type": 'EnergyMaterialNoMass',
+            "name": 'Insulation_R2',
+            "r_value": 2.0,
+            "roughness": 'MediumRough',
+            "thermal_absorptance": 0.9,
+            "solar_absorptance": 0.7,
+            "visible_absorptance": 0.7
+            }
         """
         assert data['type'] == 'EnergyMaterialNoMass', \
             'Expected EnergyMaterialNoMass. Got {}.'.format(data['type'])

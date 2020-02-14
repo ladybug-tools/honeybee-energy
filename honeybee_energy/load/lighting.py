@@ -16,6 +16,25 @@ from honeybee.typing import float_in_range, float_positive
 class Lighting(_LoadBase):
     """A complete definition of lighting, including schedules and load.
 
+    Args:
+        name: Text string for the lighting definition name. Must be <= 100 characters.
+            Can include spaces but special characters will be stripped out.
+        watts_per_area: A numerical value for the lighting power density in
+            Watts per square meter of floor area.
+        schedule: A ScheduleRuleset or ScheduleFixedInterval for the use of lights
+            over the course of the year. The type of this schedule should be
+            Fractional and the fractional values will get multiplied by the
+            watts_per_area to yield a complete lighting profile.
+        return_air_fraction: A number between 0 and 1 for the fraction of the total
+            lighting load that goes into the zone return air (into the zone outlet
+            node). Default: 0.0 (representative of pendant lighting).
+        radiant_fraction: A number between 0 and 1 for the fraction of the total
+            lighting load given off as long wave radiant heat.
+            Default: 0.32 (representative of pendant lighting).
+        visible_fraction: A number between 0 and 1 for the fraction of the total
+            lighting load given off as short wave visible light.
+            Default: 0.25  (representative of pendant lighting).
+
     Properties:
         * name
         * watts_per_area
@@ -30,27 +49,7 @@ class Lighting(_LoadBase):
 
     def __init__(self, name, watts_per_area, schedule, return_air_fraction=0.0,
                  radiant_fraction=0.32, visible_fraction=0.25):
-        """Initialize Lighting.
-
-        Args:
-            name: Text string for the lighting definition name. Must be <= 100 characters.
-                Can include spaces but special characters will be stripped out.
-            watts_per_area: A numerical value for the lighting power density in
-                Watts per square meter of floor area.
-            schedule: A ScheduleRuleset or ScheduleFixedInterval for the use of lights
-                over the course of the year. The type of this schedule should be
-                Fractional and the fractional values will get multiplied by the
-                watts_per_area to yield a complete lighting profile.
-            return_air_fraction: A number between 0 and 1 for the fraction of the total
-                lighting load that goes into the zone return air (into the zone outlet
-                node). Default: 0.0 (representative of pendant lighting).
-            radiant_fraction: A number between 0 and 1 for the fraction of the total
-                lighting load given off as long wave radiant heat.
-                Default: 0.32 (representative of pendant lighting).
-            visible_fraction: A number between 0 and 1 for the fraction of the total
-                lighting load given off as short wave visible light.
-                Default: 0.25  (representative of pendant lighting).
-        """
+        """Initialize Lighting."""
         _LoadBase.__init__(self, name)
         self._radiant_fraction = 0  # starting value so that check runs correctly
         self._visible_fraction = 0  # starting value so that check runs correctly
@@ -147,8 +146,11 @@ class Lighting(_LoadBase):
                 the Lighting object.
 
         Returns:
-            lighting: A Lighting object loaded from the idf_string.
-            zone_name: The name of the zone to which the Lighting object should
+            A tuple with two elements
+
+            -   lighting: A Lighting object loaded from the idf_string.
+
+            -   zone_name: The name of the zone to which the Lighting object should
                 be assigned.
         """
         # check the inputs
@@ -189,7 +191,7 @@ class Lighting(_LoadBase):
         Args:
             data: A Lighting dictionary in following the format below.
 
-        .. code-block:: json
+        .. code-block:: python
 
             {
             "type": 'Lighting',
@@ -218,7 +220,7 @@ class Lighting(_LoadBase):
                 objects as values (either ScheduleRuleset or ScheduleFixedInterval).
                 These will be used to assign the schedules to the Lighting object.
 
-        .. code-block:: json
+        .. code-block:: python
 
             {
             "type": 'LightingAbridged',

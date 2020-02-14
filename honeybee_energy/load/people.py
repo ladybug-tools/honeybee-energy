@@ -19,6 +19,30 @@ from honeybee.altnumber import autocalculate
 class People(_LoadBase):
     """A complete definition of people, including schedules and load.
 
+    Args:
+        name: Text string for the people definition name. Must be <= 100 characters.
+            Can include spaces but special characters will be stripped out.
+        people_per_area: A numerical value for the number of people per square
+            meter of floor area.
+        occupancy_schedule: A ScheduleRuleset or ScheduleFixedInterval for the
+            occupancy over the course of the year. The type of this schedule
+            should be Fractional and the fractional values will get multiplied by
+            the people_per_area to yield a complete occupancy profile.
+        activity_schedule: A ScheduleRuleset or ScheduleFixedInterval for the
+            activity of the occupants over the course of the year. The type of
+            this schedule should be Power and the values of the schedule equal
+            to the number of Watts given off by an individual person in the room.
+            If None, it will a default constant schedule with 120 Watts per person
+            will be used, which is typical of awake, adult humans who are seated.
+        radiant_fraction: A number between 0 and 1 for the fraction of the sensible
+            heat given off by people that is radiant (as opposed to convective).
+            Default: 0.3.
+        latent_fraction: A number between 0 and 1 for the fraction of the heat
+            given off by people that is latent (as opposed to sensible). This
+            input can also be an Autocalculate object, which will automatically
+            estimate the latent fraction based on the occupant's activity level.
+            Default: autocalculate.
+
     Properties:
         * name
         * people_per_area
@@ -33,32 +57,7 @@ class People(_LoadBase):
 
     def __init__(self, name, people_per_area, occupancy_schedule, activity_schedule=None,
                  radiant_fraction=0.3, latent_fraction=autocalculate):
-        """Initialize People.
-
-        Args:
-            name: Text string for the people definition name. Must be <= 100 characters.
-                Can include spaces but special characters will be stripped out.
-            people_per_area: A numerical value for the number of people per square
-                meter of floor area.
-            occupancy_schedule: A ScheduleRuleset or ScheduleFixedInterval for the
-                occupancy over the course of the year. The type of this schedule
-                should be Fractional and the fractional values will get multiplied by
-                the people_per_area to yield a complete occupancy profile.
-            activity_schedule: A ScheduleRuleset or ScheduleFixedInterval for the
-                activity of the occupants over the course of the year. The type of
-                this schedule should be Power and the values of the schedule equal
-                to the number of Watts given off by an individual person in the room.
-                If None, it will a default constant schedule with 120 Watts per person
-                will be used, which is typical of awake, adult humans who are seated.
-            radiant_fraction: A number between 0 and 1 for the fraction of the sensible
-                heat given off by people that is radiant (as opposed to convective).
-                Default: 0.3.
-            latent_fraction: A number between 0 and 1 for the fraction of the heat
-                given off by people that is latent (as opposed to sensible). This
-                input can also be an Autocalculate object, which will automatically
-                estimate the latent fraction based on the occupant's activity level.
-                Default: autocalculate.
-        """
+        """Initialize People."""
         _LoadBase.__init__(self, name)
         self.people_per_area = people_per_area
         self.occupancy_schedule = occupancy_schedule
@@ -156,8 +155,11 @@ class People(_LoadBase):
                 the People object.
 
         Returns:
-            people: A People object loaded from the idf_string.
-            zone_name: The name of the zone to which the People object should
+            A tuple with four elements
+
+            -   people: A People object loaded from the idf_string.
+
+            -   zone_name: The name of the zone to which the People object should
                 be assigned.
         """
         # check the inputs
@@ -191,7 +193,7 @@ class People(_LoadBase):
         Args:
             data: A People dictionary in following the format below.
 
-        .. code-block:: json
+        .. code-block:: python
 
             {
             "type": 'People',
@@ -222,7 +224,7 @@ class People(_LoadBase):
                 objects as values (either ScheduleRuleset or ScheduleFixedInterval).
                 These will be used to assign the schedules to the People object.
 
-        .. code-block:: json
+        .. code-block:: python
 
             {
             "type": "PeopleAbridged",

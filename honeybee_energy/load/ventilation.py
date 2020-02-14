@@ -22,6 +22,36 @@ class Ventilation(_LoadBase):
     and air_changes_per_hour) are ultimately added together to yeild the ventilation
     design flow rate used in the simulation.
 
+    Args:
+        name: Text string for the ventilation name. Must be <= 100 characters.
+            Can include spaces but special characters will be stripped out.
+        flow_per_person: A numerical value for the intensity of ventilation
+            in m3/s per person. Note that setting this value here does not mean
+            that ventilation is varied based on real-time occupancy but rather
+            that the design level of ventilation is determined using this value
+            and the People object of the zone. To vary ventilation in real time,
+            the ventilation schedule should be used. Most ventilation standards
+            support that a value of 0.01 m3/s (10 L/s or ~20 cfm) per person is
+            sufficient to remove odors. Accordingly, setting this value to 0.01
+            and using 0 for the following ventilation terms will often be suitable
+            for many applications. Default: 0.
+        flow_per_area: A numerical value for the intensity of ventilation in m3/s
+            per square meter of floor area. Default: 0.
+        flow_per_zone: A numerical value for the design level of ventilation
+            in m3/s for the entire zone. Default: 0.
+        air_changes_per_hour: A numberical value for the design level of ventilation
+            in air changes per hour (ACH) for the entire zone. This is particularly
+            helpful for hospitals, where ventilation standards are often given
+            in ACH. Default: 0.
+        schedule: An optional ScheduleRuleset or ScheduleFixedInterval for the
+            ventilation over the course of the year. The type of this schedule
+            should be Fractional and the fractional values will get multiplied by
+            the total design flow rate (determined from the sum of the other
+            4 fields) to yield a complete ventilation profile. Setting
+            this schedule to be the occupancy schedule of the zone will mimic demand
+            controlled ventilation. If None, the design level of ventilation will
+            be used throughout all timesteps of the simulation. Default: None.
+
     Properties:
         * name
         * flow_per_person
@@ -36,38 +66,7 @@ class Ventilation(_LoadBase):
 
     def __init__(self, name, flow_per_person=0, flow_per_area=0, flow_per_zone=0,
                  air_changes_per_hour=0, schedule=None):
-        """Initialize Ventilation.
-
-        Args:
-            name: Text string for the ventilation name. Must be <= 100 characters.
-                Can include spaces but special characters will be stripped out.
-            flow_per_person: A numerical value for the intensity of ventilation
-                in m3/s per person. Note that setting this value here does not mean
-                that ventilation is varied based on real-time occupancy but rather
-                that the design level of ventilation is determined using this value
-                and the People object of the zone. To vary ventilation in real time,
-                the ventilation schedule should be used. Most ventilation standards
-                support that a value of 0.01 m3/s (10 L/s or ~20 cfm) per person is
-                sufficient to remove odors. Accordingly, setting this value to 0.01
-                and using 0 for the following ventilation terms will often be suitable
-                for many applications. Default: 0.
-            flow_per_area: A numerical value for the intensity of ventilation in m3/s
-                per square meter of floor area. Default: 0.
-            flow_per_zone: A numerical value for the design level of ventilation
-                in m3/s for the entire zone. Default: 0.
-            air_changes_per_hour: A numberical value for the design level of ventilation
-                in air changes per hour (ACH) for the entire zone. This is particularly
-                helpful for hospitals, where ventilation standards are often given
-                in ACH. Default: 0.
-            schedule: An optional ScheduleRuleset or ScheduleFixedInterval for the
-                ventilation over the course of the year. The type of this schedule
-                should be Fractional and the fractional values will get multiplied by
-                the total design flow rate (determined from the sum of the other
-                4 fields) to yield a complete ventilation profile. Setting
-                this schedule to be the occupancy schedule of the zone will mimic demand
-                controlled ventilation. If None, the design level of ventilation will
-                be used throughout all timesteps of the simulation. Default: None.
-        """
+        """Initialize Ventilation."""
         _LoadBase.__init__(self, name)
         self.flow_per_person = flow_per_person
         self.flow_per_area = flow_per_area
@@ -156,7 +155,7 @@ class Ventilation(_LoadBase):
                 the Ventilation object.
 
         Returns:
-            ventilation: An Ventilation object loaded from the idf_string.
+            ventilation -- An Ventilation object loaded from the idf_string.
         """
         # check the inputs
         ep_strs = parse_idf_string(idf_string, 'DesignSpecification:OutdoorAir,')
@@ -216,7 +215,7 @@ class Ventilation(_LoadBase):
         Args:
             data: A Ventilation dictionary in following the format below.
 
-        .. code-block:: json
+        .. code-block:: python
 
             {
             "type": 'Ventilation',
@@ -245,7 +244,7 @@ class Ventilation(_LoadBase):
                 objects as values (either ScheduleRuleset or ScheduleFixedInterval).
                 These will be used to assign the schedules to the Ventilation object.
 
-        .. code-block:: json
+        .. code-block:: python
 
             {
             "type": 'VentilationAbridged',

@@ -20,14 +20,32 @@ class ScheduleTypeLimit(object):
     Schedule types exist for the sole purpose of validating schedule values against
     upper/lower limits and assigning a data type and units to the schedule values.
 
+    Args:
+        name: Text string for schedule type name. Must be <= 100 characters.
+            Can include spaces but special characters will be stripped out.
+        lower_limit: An optional number for the lower limit for values in the
+            schedule. If None or a NoLimit object, there will be no lower limit.
+        upper_limit: An optional number for the upper limit for values in the
+            schedule. If None or a NoLimit object, there will be no upper limit.
+        numeric_type: Either one of two strings: 'Continuous' or 'Discrete'.
+            The latter means that only integers are accepted as schedule values.
+            Default: 'Continuous'.
+        unit_type: Text for an EnergyPlus unit type, which will be used
+            to assign units to the values in the schedule.  Note that this field
+            is not used in the actual calculations of EnergyPlus.
+            Default: 'Dimensionless'. Choose from the following options:
+            'Dimensionless', 'Temperature', 'DeltaTemperature', 'PrecipitationRate',
+            'Angle', 'ConvectionCoefficient', 'ActivityLevel', 'Velocity',
+            'Capacity', 'Power', 'Availability', 'Percent', 'Control', 'Mode'
+
     Properties:
-        name
-        lower_limit
-        upper_limit
-        numeric_type
-        unit_type
-        data_type
-        unit
+        * name
+        * lower_limit
+        * upper_limit
+        * numeric_type
+        * unit_type
+        * data_type
+        * unit
     """
     _default_lb_unit_type = {
         'Dimensionless': (fraction.Fraction(), 'fraction'),
@@ -50,26 +68,7 @@ class ScheduleTypeLimit(object):
 
     def __init__(self, name, lower_limit=no_limit, upper_limit=no_limit,
                  numeric_type='Continuous', unit_type='Dimensionless'):
-        """Initialize ScheduleTypeLimit.
-
-        Args:
-            name: Text string for schedule type name. Must be <= 100 characters.
-                Can include spaces but special characters will be stripped out.
-            lower_limit: An optional number for the lower limit for values in the
-                schedule. If None or a NoLimit object, there will be no lower limit.
-            upper_limit: An optional number for the upper limit for values in the
-                schedule. If None or a NoLimit object, there will be no upper limit.
-            numeric_type: Either one of two strings: 'Continuous' or 'Discrete'.
-                The latter means that only integers are accepted as schedule values.
-                Default: 'Continuous'.
-            unit_type: Text for an EnergyPlus unit type, which will be used
-                to assign units to the values in the schedule.  Note that this field
-                is not used in the actual calculations of EnergyPlus.
-                Default: 'Dimensionless'. Choose from the following options:
-                'Dimensionless', 'Temperature', 'DeltaTemperature', 'PrecipitationRate',
-                'Angle', 'ConvectionCoefficient', 'ActivityLevel', 'Velocity',
-                'Capacity', 'Power', 'Availability', 'Percent', 'Control', 'Mode'
-        """
+        """Initialize ScheduleTypeLimit."""
         # process the name and limits
         self._name = valid_ep_string(name, 'schedule type name')
         self._lower_limit = float_in_range(lower_limit) if lower_limit is not \
@@ -161,7 +160,7 @@ class ScheduleTypeLimit(object):
         Args:
             data: ScheduleTypeLimit dictionary following the format below.
 
-        .. code-block:: json
+        .. code-block:: python
 
             {
             "type": 'ScheduleTypeLimit',
@@ -214,7 +213,7 @@ class ScheduleTypeLimit(object):
             idf_file: A path to an IDF file containing objects for ScheduleTypeLimits.
 
         Returns:
-            schedule_type_limits: A list of all ScheduleTypeLimits objects in the
+            schedule_type_limits -- A list of all ScheduleTypeLimits objects in the
                 IDF file as honeybee_energy ScheduleTypeLimit objects.
         """
         # check the file

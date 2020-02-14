@@ -11,6 +11,32 @@ from honeybee.typing import valid_string, int_in_range
 class ShadowCalculation(object):
     """Settings for the EnergyPlus Shadow Calculation.
 
+
+    Args:
+        solar_distribution: Text desribing how EnergyPlus should treat beam solar
+            radiation and reflectances from surfaces that strike the building surfaces.
+            Default: FullInteriorAndExteriorWithReflections. Choose from the following:
+
+            * MinimalShadowing
+            * FullExterior
+            * FullInteriorAndExterior
+            * FullExteriorWithReflections
+            * FullInteriorAndExteriorWithReflections
+
+        calculation_method: Text describing how the solar and shading models are
+            calculated with respect to the time of calculations during the simulation.
+            Default: AverageOverDaysInFrequency. Choose from the following:
+
+            * AverageOverDaysInFrequency
+            * TimestepFrequency
+
+        calculation_frequency: Integer for the number of days in each period for
+            which a unique shadow calculation will be performed. This field is only
+            used if the AverageOverDaysInFrequency method is used in the previous
+            field. Default: 30.
+        maximum_figures: Integer for the number of figures used in shadow overlaps.
+            Default: 15000.
+
     Properties:
         * solar_distribution
         * calculation_method
@@ -27,29 +53,7 @@ class ShadowCalculation(object):
     def __init__(self, solar_distribution='FullInteriorAndExteriorWithReflections',
                  calculation_method='AverageOverDaysInFrequency',
                  calculation_frequency=30, maximum_figures=15000):
-        """Initialize ShadowCalculation.
-
-        Args:
-            solar_distribution: Text desribing how EnergyPlus should treat beam solar
-                radiation and reflectances from surfaces that strike the building surfaces.
-                Default: FullInteriorAndExteriorWithReflections. Choose from the following:
-                    * MinimalShadowing
-                    * FullExterior
-                    * FullInteriorAndExterior
-                    * FullExteriorWithReflections
-                    * FullInteriorAndExteriorWithReflections
-            calculation_method: Text describing how the solar and shading models are
-                calculated with respect to the time of calculations during the simulation.
-                Default: AverageOverDaysInFrequency. Choose from the following:
-                    * AverageOverDaysInFrequency
-                    * TimestepFrequency
-            calculation_frequency: Integer for the number of days in each period for
-                which a unique shadow calculation will be performed. This field is only
-                used if the AverageOverDaysInFrequency method is used in the previous
-                field. Default: 30.
-            maximum_figures: Integer for the number of figures used in shadow overlaps.
-                Default: 15000.
-        """
+        """Initialize ShadowCalculation."""
         self.solar_distribution = solar_distribution
         self.calculation_method = calculation_method
         self.calculation_frequency = calculation_frequency
@@ -60,11 +64,12 @@ class ShadowCalculation(object):
         """Get or set text for how solar reflectances from surfaces should be treated.
 
         Choose from the options below:
-            * MinimalShadowing
-            * FullExterior
-            * FullInteriorAndExterior
-            * FullExteriorWithReflections
-            * FullInteriorAndExteriorWithReflections
+
+        * MinimalShadowing
+        * FullExterior
+        * FullInteriorAndExterior
+        * FullExteriorWithReflections
+        * FullInteriorAndExteriorWithReflections
         """
         return self._solar_distribution
 
@@ -86,8 +91,9 @@ class ShadowCalculation(object):
         """Get or set text for how the shadows are calculated with respect to time.
 
         Choose from the options below:
-            * AverageOverDaysInFrequency
-            * TimestepFrequency
+
+        * AverageOverDaysInFrequency
+        * TimestepFrequency
         """
         return self._calculation_method
 

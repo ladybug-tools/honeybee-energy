@@ -8,6 +8,14 @@ from ..lib.constructionsets import generic_construction_set
 class DoorEnergyProperties(object):
     """Energy Properties for Honeybee Door.
 
+    Args:
+        host_door: A honeybee_core Door object that hosts these properties.
+        construction: An optional Honeybee OpaqueConstruction or WindowConstruction
+            object for the door. Note that the host Door must have the is_glass
+            property set to True to assign a WindowConstruction. If None, it will
+            be set by the parent Room ConstructionSet or the the Honeybee default
+            generic ConstructionSet.
+
     Properties:
         * host
         * construction
@@ -17,16 +25,7 @@ class DoorEnergyProperties(object):
     __slots__ = ('_host', '_construction')
 
     def __init__(self, host, construction=None):
-        """Initialize Door energy properties.
-
-        Args:
-            host_door: A honeybee_core Door object that hosts these properties.
-            construction: An optional Honeybee OpaqueConstruction or WindowConstruction
-                object for the door. Note that the host Door must have the is_glass
-                property set to True to assign a WindowConstruction. If None, it will
-                be set by the parent Room ConstructionSet or the the Honeybee default
-                generic ConstructionSet.
-        """
+        """Initialize Door energy properties."""
         self._host = host
         self.construction = construction
 
@@ -75,7 +74,7 @@ class DoorEnergyProperties(object):
     @property
     def is_construction_set_on_object(self):
         """Boolean noting if construction is assigned on the level of this Door.
-        
+
         This is opposed to having the construction assigned by a ConstructionSet.
         """
         return self._construction is not None
@@ -142,8 +141,9 @@ class DoorEnergyProperties(object):
     def duplicate(self, new_host=None):
         """Get a copy of this object.
 
-        new_host: A new Door object that hosts these properties.
-            If None, the properties will be duplicated with the same host.
+        Args:
+            new_host: A new Door object that hosts these properties.
+                If None, the properties will be duplicated with the same host.
         """
         _host = new_host or self._host
         return DoorEnergyProperties(_host, self._construction)

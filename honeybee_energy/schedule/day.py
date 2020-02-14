@@ -28,12 +28,32 @@ class ScheduleDay(object):
     must be added to a ScheduleRuleset or a ScheduleRule and then the ScheduleRuleset
     can be applied to such objects.
 
+    Args:
+        name: Text string for day schedule name. Must be <= 100 characters.
+            Can include spaces but special characters will be stripped out.
+        values: A list of floats or integers for the values of the schedule.
+            The length of this list must match the length of the times list.
+        times: A list of ladybug Time objects with the same length as the input
+            values. Each time represents the time of day that the corresponding
+            value begins to take effect. For example [0:00, 9:00, 17:00] in
+            combination with the values [0, 1, 0] denotes a schedule value of
+            0 from 0:00 to 9:00, a value of 1 from 9:00 to 17:00 and 0 from 17:00
+            to the end of the day.
+            If this input is None, the default will be a single time at 0:00,
+            indicating the `values` input should be a single constant value that
+            goes all of the way until the end of the day.
+            Note that these times follow a different convention than EnergyPlus,
+            which uses "time until" instead of "time of beginning".
+        interpolate: Boolean to note whether values in between times should be
+            linearly interpolated or whether successive values should take effect
+            immediately upon the beginning time corrsponding to them. Default: False
+
     Properties:
-        name
-        times
-        values
-        interpolate
-        is_constant
+        * name
+        * times
+        * values
+        * interpolate
+        * is_constant
     """
     __slots__ = ('_name', '_values', '_times', '_interpolate', '_parent', '_locked')
 
@@ -41,28 +61,7 @@ class ScheduleDay(object):
     VALIDTIMESTEPS = (1, 2, 3, 4, 5, 6, 10, 12, 15, 20, 30, 60)
 
     def __init__(self, name, values, times=None, interpolate=False):
-        """Initialize Schedule Day.
-
-        Args:
-            name: Text string for day schedule name. Must be <= 100 characters.
-                Can include spaces but special characters will be stripped out.
-            values: A list of floats or integers for the values of the schedule.
-                The length of this list must match the length of the times list.
-            times: A list of ladybug Time objects with the same length as the input
-                values. Each time represents the time of day that the corresponding
-                value begins to take effect. For example [0:00, 9:00, 17:00] in
-                combination with the values [0, 1, 0] denotes a schedule value of
-                0 from 0:00 to 9:00, a value of 1 from 9:00 to 17:00 and 0 from 17:00
-                to the end of the day.
-                If this input is None, the default will be a single time at 0:00,
-                indicating the `values` input should be a single constant value that
-                goes all of the way until the end of the day.
-                Note that these times follow a different convention than EnergyPlus,
-                which uses "time until" instead of "time of beginning".
-            interpolate: Boolean to note whether values in between times should be
-                linearly interpolated or whether successive values should take effect
-                immediately upon the beginning time corrsponding to them. Default: False
-        """
+        """Initialize Schedule Day."""
         self._locked = False  # unlocked by default
         self._parent = None  # no parent ScheduleRuleset by default
         self.name = name
@@ -365,7 +364,7 @@ class ScheduleDay(object):
         Args:
             data: ScheduleDay dictionary following the format below.
 
-        .. code-block:: json
+        .. code-block:: python
 
             {
             "type": 'ScheduleDay',

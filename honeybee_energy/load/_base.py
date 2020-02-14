@@ -13,18 +13,17 @@ from honeybee.typing import valid_ep_string, tuple_with_length
 class _LoadBase(object):
     """A base object for all load definitions.
 
+    Args:
+        name: Text string for the load definition name. Must be <= 100 characters.
+            Can include spaces but special characters will be stripped out.
+
     Properties:
         * name
     """
     __slots__ = ('_name', '_locked')
 
     def __init__(self, name):
-        """Initialize LoadBase.
-
-        Args:
-            name: Text string for the load definition name. Must be <= 100 characters.
-                Can include spaces but special characters will be stripped out.
-        """
+        """Initialize LoadBase."""
         self._locked = False  # unlocked by default
         self.name = name
 

@@ -60,14 +60,14 @@ def measure_compatible_model_json(model_json_path, destination_directory=None):
     preparedir(dest_dir, remove_content=False)  # create the directory if it's not there
     with open(dest_file_path, 'w') as fp:
         json.dump(model_dict, fp)
-    
+
     return os.path.abspath(dest_file_path)
 
 
 def to_openstudio_osw(osw_directory, model_json_path, sim_par_json_path=None,
                       epw_file=None):
     """Create a .osw to translate honeybee JSONs to an .osm file.
-    
+
     Args:
         osw_directory: The directory into which the .osw should be written and the
             .osm will eventually be written into.
@@ -77,7 +77,7 @@ def to_openstudio_osw(osw_directory, model_json_path, sim_par_json_path=None,
             simulate-able.
         epw_file: Optional file path to an EPW that should be associated with the
             output energy model.
-    
+
     Returns:
         The file path to the .osw written out by this method.
     """
@@ -95,7 +95,7 @@ def to_openstudio_osw(osw_directory, model_json_path, sim_par_json_path=None,
          'measure_dir_name': 'from_honeybee_model'
         }
     osw_dict = {'steps': [model_measure_dict]}
-    
+
     # add a simulation parameter step if it is specified
     if sim_par_json_path is not None:
         sim_par_dict = {
@@ -105,7 +105,7 @@ def to_openstudio_osw(osw_directory, model_json_path, sim_par_json_path=None,
             'measure_dir_name': 'from_honeybee_simulation_parameter'
             }
         osw_dict['steps'].append(sim_par_dict)
-        
+
 
     # assign the measure_paths to the osw_dict
     measure_directory = os.path.join(folders.energy_model_measure_path, 'measures')
@@ -125,19 +125,21 @@ def to_openstudio_osw(osw_directory, model_json_path, sim_par_json_path=None,
 
 def run_osw(osw_json, measures_only=True):
     """Run a .osw file using the OpenStudio CLI on any operating system.
-    
+
     Args:
         osw_json: File path to a OSW file to be run using OpenStudio CLI.
         measures_only: Boolean to note whether only the measures should be applied
             in the runnning of the OSW (True) or the resulting model shoudl be run
             through EnergyPlus after the measures are aplied to it (False).
             Default: True.
-    
+
     Returns:
-        The following files output from the CLI run.
-        osm -- Path to a .osm file containing all simulation results.
+        The following files output from the CLI run
+
+        -   osm -- Path to a .osm file containing all simulation results.
             Will be None if no file exists.
-        idf -- Path to a .idf file containing properties of the model, including
+
+        -   idf -- Path to a .idf file containing properties of the model, including
             the size of HVAC objects. Will be None if no file exists.
     """
     # run the simulation
@@ -163,10 +165,10 @@ def prepare_idf_for_simulation(idf_file_path, epw_file_path):
     Args:
         idf_file_path: The full path to an IDF file.
         epw_file_path: The full path to an EPW file.
-    
+
     Returns:
-        directory: The folder in which the IDF exists and out of which the EnergyPlus
-            simulation will be run.
+        directory -- The folder in which the IDF exists and out of which the EnergyPlus
+        simulation will be run.
     """
     # check the energyplus directory
     if not folders.energyplus_path:
@@ -203,7 +205,7 @@ def prepare_idf_for_simulation(idf_file_path, epw_file_path):
         if os.path.isfile(new_file_name):
             os.remove(new_file_name)
         os.rename(old_file_name, new_file_name)
-    
+
     return directory
 
 
@@ -220,16 +222,21 @@ def run_idf(idf_file_path, epw_file_path, expand_objects=True):
             Default: True.
 
     Returns:
-        A series of file paths to the simulation output files.
-        sql -- Path to a .sqlite file containing all simulation results.
+        A series of file paths to the simulation output files
+
+        -   sql -- Path to a .sqlite file containing all simulation results.
             Will be None if no file exists.
-        eio -- Path to a .eio file containing properties of the model, including
+
+        -   eio -- Path to a .eio file containing properties of the model, including
             the size of HVAC objects. Will be None if no file exists.
-        rdd -- Path to a .rdd file containing all possible outputs that can be
+
+        -   rdd -- Path to a .rdd file containing all possible outputs that can be
             requested from the simulation. Will be None if no file exists.
-        html -- Path to a .html file containing all summary reports.
+
+        -   html -- Path to a .html file containing all summary reports.
             Will be None if no file exists.
-        err -- Path to a .err file containing all errors and warnings from the
+
+        -   err -- Path to a .err file containing all errors and warnings from the
             simulation. Will be None if no file exists.
     """
     # run the simulation
@@ -251,7 +258,7 @@ def _check_osw(osw_json):
     Args:
         osw_json: The full path to an OSW file.
         epw_file_path: The full path to an EPW file.
-    
+
     Returns:
         The folder in which the OSW exists and out of which the OpenStudio CLI
         will operate.
@@ -270,14 +277,14 @@ def _run_osw_windows(osw_json, measures_only=True):
     """Run a .osw file using the OpenStudio CLI on a Windows-based operating system.
 
     A batch file will be used to run the simulation.
-    
+
     Args:
         osw_json: File path to a OSW file to be run using OpenStudio CLI.
         measures_only: Boolean to note whether only the measures should be applied
             in the runnning of the OSW (True) or the resulting model shoudl be run
             through EnergyPlus after the measures are aplied to it (False).
             Default: True.
-    
+
     Returns:
         Path to the folder out of which the OSW was run.
     """
@@ -292,7 +299,7 @@ def _run_osw_windows(osw_json, measures_only=True):
         measure_str, osw_json)
     batch_file = os.path.join(directory, 'run_workflow.bat')
     write_to_file(batch_file, batch, True)
-    
+
     # run the batch file
     os.system(batch_file)
 
@@ -304,14 +311,14 @@ def _run_osw_unix(osw_json, measures_only=True):
 
     This includes both Mac OS and Linux since a shell will be used to run
     the simulation.
-    
+
     Args:
         osw_json: File path to a OSW file to be run using OpenStudio CLI.
         measures_only: Boolean to note whether only the measures should be applied
             in the runnning of the OSW (True) or the resulting model shoudl be run
             through EnergyPlus after the measures are aplied to it (False).
             Default: True.
-    
+
     Returns:
         Path to the folder out of which the OSW was run.
     """
@@ -341,11 +348,13 @@ def _output_openstudio_files(directory):
 
     Args:
         directory: The path to where the OSW was run.
-    
+
     Returns:
-        osm -- Path to a .osm file containing all simulation results.
+
+        -   osm -- Path to a .osm file containing all simulation results.
             Will be None if no file exists.
-        idf -- Path to a .idf file containing properties of the model, including
+
+        -   idf -- Path to a .idf file containing properties of the model, including
             the size of HVAC objects. Will be None if no file exists.
     """
     # generate paths to the OSM and IDF files
@@ -448,17 +457,23 @@ def _output_energyplus_files(directory):
 
     Args:
         directory: The path to where the IDF was run.
-    
+
     Returns:
-        sql -- Path to a .sqlite file containing all simulation results.
+        A tuple with four elements
+
+        -   sql -- Path to a .sqlite file containing all simulation results.
             Will be None if no file exists.
-        eio -- Path to a .eio file containing properties of the model, including
+
+        -   eio -- Path to a .eio file containing properties of the model, including
             the size of HVAC objects. Will be None if no file exists.
-        rdd -- Path to a .rdd file containing all possible outputs that can be
+
+        -   rdd -- Path to a .rdd file containing all possible outputs that can be
             requested from the simulation. Will be None if no file exists.
-        html -- Path to a .html file containing all summary reports.
+
+        -   html -- Path to a .html file containing all summary reports.
             Will be None if no file exists.
-        err -- Path to a .err file containing all errors and warnings from the
+
+        -   err -- Path to a .err file containing all errors and warnings from the
             simulation. Will be None if no file exists.
     """
     # generate paths to the simulation files

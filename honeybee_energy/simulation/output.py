@@ -9,6 +9,37 @@ from ..writer import generate_idf_string
 class SimulationOutput(object):
     """Object to hold EnergyPlus simulation outputs.
 
+
+    Args:
+        outputs: A list of EnergyPlus output names as strings, which are requested
+            from the simulation. If None, no outputs will be requested.
+            Note that this object does not check whether the outputs exist
+            within the EnergyPlus IDD or are request-able from a given Model.
+            (eg. ['Zone Ideal Loads Supply Air Total Cooling Energy']).
+            Default: None.
+        reporting_frequency: Text for the frequency at which the outputs
+            are reported. Default: 'Hourly'.
+            Choose from the following:
+
+            * Annual
+            * Monthly
+            * Daily
+            * Hourly
+            * Timestep
+
+        include_sqlite: Boolean to note whether a SQLite report should be
+            generated from the simulation, which contains all of the outputs and
+            summary_reports. Default: True.
+        include_html: Boolean to note whether an HTML report should be generated
+            from the simulation, which contains all of the summary_reports.
+            Default: False.
+        summary_reports: An array of EnergyPlus summary report names as strings.
+            An empty list or None will result in no summary reports.
+            Default: ('AllSummary',). See the Input Output Reference SummaryReports
+            section for a full list of all reports that can be requested.
+            (https://bigladdersoftware.com/epx/docs/9-1/input-output-reference/
+            output-table-summaryreports.html#outputtablesummaryreports).
+
     Properties:
         * outputs
         * reporting_frequency
@@ -22,36 +53,7 @@ class SimulationOutput(object):
 
     def __init__(self, outputs=None, reporting_frequency='Hourly', include_sqlite=True,
                  include_html=False, summary_reports=('AllSummary',)):
-        """Initialize SimulationOutput.
-
-        Args:
-            outputs: A list of EnergyPlus output names as strings, which are requested
-                from the simulation. If None, no outputs will be requested.
-                Note that this object does not check whether the outputs exist
-                within the EnergyPlus IDD or are request-able from a given Model.
-                (eg. ['Zone Ideal Loads Supply Air Total Cooling Energy']).
-                Default: None.
-            reporting_frequency: Text for the frequency at which the outputs
-                are reported. Default: 'Hourly'.
-                Choose from the following:
-                    * Annual
-                    * Monthly
-                    * Daily
-                    * Hourly
-                    * Timestep
-            include_sqlite: Boolean to note whether a SQLite report should be
-                generated from the simulation, which contains all of the outputs and
-                summary_reports. Default: True.
-            include_html: Boolean to note whether an HTML report should be generated
-                from the simulation, which contains all of the summary_reports.
-                Default: False.
-            summary_reports: An array of EnergyPlus summary report names as strings.
-                An empty list or None will result in no summary reports.
-                Default: ('AllSummary',). See the Input Output Reference SummaryReports
-                section for a full list of all reports that can be requested.
-                (https://bigladdersoftware.com/epx/docs/9-1/input-output-reference/
-                output-table-summaryreports.html#outputtablesummaryreports).
-        """
+        """Initialize SimulationOutput."""
         self.outputs = outputs
         self.reporting_frequency = reporting_frequency
         self.include_sqlite = include_sqlite
@@ -85,11 +87,12 @@ class SimulationOutput(object):
         """Get or set text for the frequency at which the outputs are reported.
 
         Choose from the following:
-            * Annual
-            * Monthly
-            * Daily
-            * Hourly
-            * Timestep
+
+        * Annual
+        * Monthly
+        * Daily
+        * Hourly
+        * Timestep
         """
         return self._reporting_frequency
 
@@ -147,8 +150,8 @@ class SimulationOutput(object):
 
         See the Input Output Reference SummaryReports
         section for a full list of all reports that can be requested.
-        (https://bigladdersoftware.com/epx/docs/9-1/input-output-reference/
-        output-table-summaryreports.html#outputtablesummaryreports)
+        (https://bigladdersoftware.com/epx/docs/9-1/input-output-reference/\
+output-table-summaryreports.html#outputtablesummaryreports)
 
         Args:
             report_name: The name of an EnergyPlus simulation report to be requested
@@ -182,10 +185,11 @@ class SimulationOutput(object):
         Args:
             load_type: A text value to set the type of load outputs requested.
                 Default: 'All'. Choose from the following:
-                    * All - all energy use including heat lost from the zone
-                    * Total - total load added/removed from the zone (sensible + latent)
-                    * Sensible - sensible load added/removed to the zone
-                    * Latent - latent load added/removed to the zone
+
+                * All - all energy use including heat lost from the zone
+                * Total - total load added/removed from the zone (sensible + latent)
+                * Sensible - sensible load added/removed to the zone
+                * Latent - latent load added/removed to the zone
         """
         load_type = load_type.title()
         if load_type == 'All':
@@ -258,9 +262,10 @@ class SimulationOutput(object):
         Args:
             load_type: A text value to set the type of load outputs requested.
                 Default: 'Total'. Choose from the following:
-                    * Total - the total load added to the zone (both sensible and latent)
-                    * Sensible - the sensible load added to the zone
-                    * Latent - the latent load added to the zone
+
+                * Total - the total load added to the zone (both sensible and latent)
+                * Sensible - the sensible load added to the zone
+                * Latent - the latent load added to the zone
         """
         load_type = load_type.title()
         always_sensible = ['Zone Windows Total Transmitted Solar Radiation Energy']
@@ -355,9 +360,10 @@ class SimulationOutput(object):
         Arge:
             load_type: A text value to set the type of load outputs requested.
                 Default: 'Total'. Choose from the following:
-                    * Total - the total load added to the zone (both sensible and latent)
-                    * Sensible - the sensible load added to the zone
-                    * Latent - the latent load added to the zone
+
+                * Total - the total load added to the zone (both sensible and latent)
+                * Sensible - the sensible load added to the zone
+                * Latent - the latent load added to the zone
         """
         self.add_zone_energy_use(load_type)
         self.add_gains_and_losses(load_type)
@@ -457,17 +463,24 @@ class SimulationOutput(object):
         """Get EnergyPlus string representations of the SimulationOutput.
 
         Returns:
-            table_style: An IDF OutputControl:Table:Style string for the simulation.
-            output_variables: A list of IDF Output:Variable strings for the requested
+            A tuple with six elements
+
+            -   table_style: An IDF OutputControl:Table:Style string for the simulation.
+
+            -   output_variables: A list of IDF Output:Variable strings for the requested
                 outputs. Will be None if no outputs have been requested.
-            summary_reports: An IDF Output:Table:SummaryReports string
+
+            -   summary_reports: An IDF Output:Table:SummaryReports string
                 listing the summary reports that are requested. Will be None
                 if no summary reports have not been requested.
-            sqlite: An IDF Output:SQLite string to request the SQLite file from
+
+            -   sqlite: An IDF Output:SQLite string to request the SQLite file from
                 the simulation. Will be None if include_sqlite is False.
-            variable_dictionary: An IDF Output:VariableDictionary string, which
+
+            -   variable_dictionary: An IDF Output:VariableDictionary string, which
                 will ensure that a .rdd file is generated from the simulation.
-            surfaces_list: An IDF Output:Surfaces:List string to ensure surface
+
+            -   surfaces_list: An IDF Output:Surfaces:List string to ensure surface
                 information is written into the ultimate .eio file.
         """
         style = 'CommaAndHTML' if self.include_html else 'Comma'

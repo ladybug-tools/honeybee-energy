@@ -25,7 +25,7 @@ def generate_idf_string(object_type, values, comments=None):
             If None, no comments will be written into the object.
 
     Returns:
-        ep_str: Am EnergyPlus IDF string representing a single object.
+        ep_str -- Am EnergyPlus IDF string representing a single object.
     """
     if comments is not None:
         space_count = tuple((25 - len(str(n))) for n in values)
@@ -314,11 +314,12 @@ def model_to_idf(model, schedule_directory=None,
         solar_distribution: Text desribing how EnergyPlus should treat beam solar
             radiation reflected from surfaces. Default:
             FullInteriorAndExteriorWithReflections. Choose from the following:
-                * MinimalShadowing
-                * FullExterior
-                * FullInteriorAndExterior
-                * FullExteriorWithReflections
-                * FullInteriorAndExteriorWithReflections
+
+            * MinimalShadowing
+            * FullExterior
+            * FullInteriorAndExterior
+            * FullExteriorWithReflections
+            * FullInteriorAndExteriorWithReflections
 
     Usage:
 
@@ -387,7 +388,7 @@ def model_to_idf(model, schedule_directory=None,
                     sched_dir = os.path.join(hb_config.folders.default_simulation_folder,
                                              'unnamed', 'schedules')
                 else:
-                    sched_dir = schedule_directory 
+                    sched_dir = schedule_directory
             sched_strs.append(sched.to_idf(sched_dir))
         t_lim = sched.schedule_type_limit
         if t_lim is not None and not _instance_in_array(t_lim, type_limits):

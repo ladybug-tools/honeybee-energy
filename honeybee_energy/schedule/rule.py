@@ -18,23 +18,38 @@ class ScheduleRule(object):
     ScheduleRule must be added to a ScheduleRuleset and then the ScheduleRuleset
     can be applied to such objects.
 
+    Args:
+        schedule_day: A ScheduleDay object associated with this rule.
+        apply_sunday: Boolean noting whether to apply schedule_day on Sundays.
+        apply_monday: Boolean noting whether to apply schedule_day on Mondays.
+        apply_tuesday: Boolean noting whether to apply schedule_day on Tuesdays.
+        apply_wednesday: Boolean noting whether to apply schedule_day on Wednesdays.
+        apply_thursday: Boolean noting whether to apply schedule_day on Thursdays.
+        apply_friday: Boolean noting whether to apply schedule_day on Fridays.
+        apply_saturday: Boolean noting whether to apply schedule_day on Saturdays.
+        apply_holiday: Boolean noting whether to apply schedule_day on Holidays.
+        start_date: A ladybug Date object for the start of the period over which
+            the schedule_day will be applied. If None, Jan 1 will be used.
+        end_date: A ladybug Date object for the end of the period over which
+            the schedule_day will be applied. If None, Dec 31 will be used.
+
     Properties:
-        schedule_day
-        apply_sunday
-        apply_monday
-        apply_tuesday
-        apply_wednesday
-        apply_thursday
-        apply_friday
-        apply_saturday
-        apply_holiday
-        start_date
-        end_date
-        apply_weekday
-        apply_weekend
-        apply_all
-        days_applied
-        week_apply_tuple
+        * schedule_day
+        * apply_sunday
+        * apply_monday
+        * apply_tuesday
+        * apply_wednesday
+        * apply_thursday
+        * apply_friday
+        * apply_saturday
+        * apply_holiday
+        * start_date
+        * end_date
+        * apply_weekday
+        * apply_weekend
+        * apply_all
+        * days_applied
+        * week_apply_tuple
     """
     __slots__ = ('_schedule_day', '_apply_sunday', '_apply_monday', '_apply_tuesday',
                  '_apply_wednesday', '_apply_thursday', '_apply_friday',
@@ -48,23 +63,7 @@ class ScheduleRule(object):
                  apply_tuesday=False, apply_wednesday=False, apply_thursday=False,
                  apply_friday=False, apply_saturday=False, apply_holiday=False,
                  start_date=None, end_date=None):
-        """Initialize Schedule Rule.
-
-        Args:
-            schedule_day: A ScheduleDay object associated with this rule.
-            apply_sunday: Boolean noting whether to apply schedule_day on Sundays.
-            apply_monday: Boolean noting whether to apply schedule_day on Mondays.
-            apply_tuesday: Boolean noting whether to apply schedule_day on Tuesdays.
-            apply_wednesday: Boolean noting whether to apply schedule_day on Wednesdays.
-            apply_thursday: Boolean noting whether to apply schedule_day on Thursdays.
-            apply_friday: Boolean noting whether to apply schedule_day on Fridays.
-            apply_saturday: Boolean noting whether to apply schedule_day on Saturdays.
-            apply_holiday: Boolean noting whether to apply schedule_day on Holidays.
-            start_date: A ladybug Date object for the start of the period over which
-                the schedule_day will be applied. If None, Jan 1 will be used.
-            end_date: A ladybug Date object for the end of the period over which
-                the schedule_day will be applied. If None, Dec 31 will be used.
-        """
+        """Initialize Schedule Rule."""
         self._locked = False  # unlocked by default
         self.schedule_day = schedule_day
         self.apply_sunday = apply_sunday
@@ -290,14 +289,15 @@ class ScheduleRule(object):
         Args:
             week_day_index: An integer from 1-8 for the day of the week (or the
                 holiday). Values correspond to the following:
-                    1 - Sunday
-                    2 - Monday
-                    3 - Tuesday
-                    4 - Wednesday
-                    5 - Thursday
-                    6 - Friday
-                    7 - Saturday
-                    8 - Holiday
+
+                1 - Sunday
+                2 - Monday
+                3 - Tuesday
+                4 - Wednesday
+                5 - Thursday
+                6 - Friday
+                7 - Saturday
+                8 - Holiday
         """
         if dow == 1:
             self.apply_sunday = True
@@ -391,7 +391,7 @@ class ScheduleRule(object):
         Args:
             data: ScheduleRule dictionary following the format below.
 
-        .. code-block:: json
+        .. code-block:: python
 
             {
             "type": 'ScheduleRule'
@@ -433,7 +433,7 @@ class ScheduleRule(object):
             schedule_day: A honeybee ScheduleDay object that will be assinged to
                 this ScheduleRule.
 
-        .. code-block:: json
+        .. code-block:: python
 
             {
             "type": 'ScheduleRule'
@@ -461,7 +461,7 @@ class ScheduleRule(object):
 
     def to_dict(self, abridged=False):
         """ScheduleRule dictionary representation.
-        
+
         Args:
             abridged: Boolean to note whether the full dictionary describing the
                 object should be returned (False) or just an abridged version (True),
@@ -514,7 +514,7 @@ class ScheduleRule(object):
                 the ScheduleRules apply. If None, Dec 31 will be used.
 
         Returns:
-            schedule_rules: A list of ScheduleRule objects that together describe
+            schedule_rules -- A list of ScheduleRule objects that together describe
                 the Schedule:Week.
         """
         schedule_rules = []

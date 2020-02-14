@@ -15,6 +15,30 @@ from ladybug.dt import Date
 class RunPeriod(object):
     """EnergyPlus Simulation Run Period.
 
+    Args:
+        start_date: A ladybug Date object for the start of the run period.
+            Must be before the end date and have a leap_year property matching the
+            end_date. Default: 1 Jan
+        end_date: A ladybug Date object for the end of the run period.
+            Must be after the start date and have a leap_year property matching the
+            start_date. Default: 31 Dec
+        start_day_of_week: Text for the day of the week on which the simulation
+            starts. Default: 'Sunday'. Choose from the following:
+
+            * Sunday
+            * Monday
+            * Tuesday
+            * Wednesday
+            * Thursday
+            * Friday
+            * Saturday
+
+        holidays: A list of Ladybug Date objects for the holidays within the
+            simulation. If None, no holidays are applied. Default: None.
+        daylight_saving_time: A DaylightSavingTime object to dictate the start and
+            end dates of daylight saving time. If None, no daylight saving time is
+            applied to the simulation. Default: None.
+
     Properties:
         * start_date
         * end_date
@@ -30,30 +54,7 @@ class RunPeriod(object):
 
     def __init__(self, start_date=Date(1, 1), end_date=Date(12, 31),
                  start_day_of_week='Sunday', holidays=None, daylight_saving_time=None):
-        """Initialize RunPeriod.
-
-        Args:
-            start_date: A ladybug Date object for the start of the run period.
-                Must be before the end date and have a leap_year property matching the
-                end_date. Default: 1 Jan
-            end_date: A ladybug Date object for the end of the run period.
-                Must be after the start date and have a leap_year property matching the
-                start_date. Default: 31 Dec
-            start_day_of_week: Text for the day of the week on which the simulation
-                starts. Default: 'Sunday'. Choose from the following:
-                    * Sunday
-                    * Monday
-                    * Tuesday
-                    * Wednesday
-                    * Thursday
-                    * Friday
-                    * Saturday
-            holidays: A list of Ladybug Date objects for the holidays within the
-                simulation. If None, no holidays are applied. Default: None.
-            daylight_saving_time: A DaylightSavingTime object to dictate the start and
-                end dates of daylight saving time. If None, no daylight saving time is
-                applied to the simulation. Default: None.
-        """
+        """Initialize RunPeriod."""
         # process the dates
         if start_date is not None:
             self._check_date(start_date, 'start_date')
@@ -99,13 +100,14 @@ class RunPeriod(object):
         """Get or set text for the day of the week on which the simulation starts.
 
         Choose from the following:
-            * Sunday
-            * Monday
-            * Tuesday
-            * Wednesday
-            * Thursday
-            * Friday
-            * Saturday
+
+        * Sunday
+        * Monday
+        * Tuesday
+        * Wednesday
+        * Thursday
+        * Friday
+        * Saturday
         """
         return self._start_day_of_week
 
@@ -188,13 +190,15 @@ class RunPeriod(object):
                 whole year.
             start_day_of_week: Text for the day of the week on which the simulation
                 starts. Default: 'Sunday'. Choose from the following:
-                    * Sunday
-                    * Monday
-                    * Tuesday
-                    * Wednesday
-                    * Thursday
-                    * Friday
-                    * Saturday
+
+                * Sunday
+                * Monday
+                * Tuesday
+                * Wednesday
+                * Thursday
+                * Friday
+                * Saturday
+
             holidays: A list of Ladybug Date objects for the holidays within the
                 simulation. If None, no folidays are applied. Default: None.
             daylight_saving_time: A DaylightSavingTime object to dictate the start and
@@ -297,18 +301,22 @@ class RunPeriod(object):
             ed_dt = daylight_saving._end_date
             daylight_saving._start_date = Date(st_dt.month, st_dt.day, leap_year)
             daylight_saving._end_date = Date(ed_dt.month, ed_dt.day, leap_year)
-        
+
         return cls(start_date, end_date, start_day_of_week, holidays, daylight_saving)
 
     def to_idf(self):
         """Get an EnergyPlus string representation of the RunPeriod.
 
         Returns:
-            run_period: An IDF string representation of the RunPeriod object.
-            holidays: A list of IDF RunPeriodControl:SpecialDays strings that represent
+            A tuple with three elements
+
+            -   run_period: An IDF string representation of the RunPeriod object.
+
+            -   holidays: A list of IDF RunPeriodControl:SpecialDays strings that represent
                 the holidays applied to the simulation. Will be None if no holidays
                 are applied to this RunPeriod.
-            daylight_saving_time: An IDF RunPeriodControl:DaylightSavingTime string
+
+            -   daylight_saving_time: An IDF RunPeriodControl:DaylightSavingTime string
                 that notes the start and ends dates of Daylight Savings time. Will be
                 None if no daylight_saving_time is applied to this RunPeriod.
         """

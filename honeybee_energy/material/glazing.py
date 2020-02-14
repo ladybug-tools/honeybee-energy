@@ -32,24 +32,52 @@ class _EnergyWindowMaterialGlazingBase(_EnergyMaterialWindowBase):
 class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
     """A single glass pane corresponding to a layer in a window construction.
 
+    Args:
+        name: Text string for material name. Must be <= 100 characters.
+            Can include spaces but special characters will be stripped out.
+        thickness: Number for the thickness of the glass layer [m].
+            Default: 0.003 meters (3 mm).
+        solar_transmittance: Number between 0 and 1 for the transmittance of solar
+            radiation through the glass at normal incidence.
+            Default: 0.85 for clear glass.
+        solar_reflectance: Number between 0 and 1 for the reflectance of solar
+            radiation off of the front side of the glass at normal incidence,
+            averaged over the solar spectrum. Default: 0.075.
+        visible_transmittance: Number between 0 and 1 for the transmittance of
+            visible light through the glass at normal incidence.
+            Default: 0.9 for clear glass.
+        visible_reflectance: Number between 0 and 1 for the reflectance of
+            visible light off of the front side of the glass at normal incidence.
+            Default: 0.075.
+        infrared_transmittance: Long-wave transmittance of the glass at normal
+            incidence. Default: 0.
+        emissivity: Number between 0 and 1 for the infrared hemispherical
+            emissivity of the front side of the glass.  Default: 0.84, which
+            is typical of clear glass.
+        emissivity_back: Number between 0 and 1 for the infrared hemispherical
+            emissivity of the back side of the glass.  Default: 0.84, which
+            is typical of clear glass.
+        conductivity: Number for the thermal conductivity of the glass [W/m-K].
+            Default: 0.9.
+
     Properties:
-        name
-        thickness
-        solar_transmittance
-        solar_reflectance
-        solar_reflectance_back
-        visible_transmittance
-        visible_reflectance
-        visible_reflectance_back
-        infrared_transmittance
-        emissivity
-        emissivity_back
-        conductivity
-        dirt_correction
-        solar_diffusing
-        resistivity
-        u_value
-        r_value
+        * name
+        * thickness
+        * solar_transmittance
+        * solar_reflectance
+        * solar_reflectance_back
+        * visible_transmittance
+        * visible_reflectance
+        * visible_reflectance_back
+        * infrared_transmittance
+        * emissivity
+        * emissivity_back
+        * conductivity
+        * dirt_correction
+        * solar_diffusing
+        * resistivity
+        * u_value
+        * r_value
     """
     __slots__ = ('_thickness', '_solar_transmittance', '_solar_reflectance',
                  '_solar_reflectance_back', '_visible_transmittance',
@@ -62,36 +90,7 @@ class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
                  solar_reflectance=0.075, visible_transmittance=0.9,
                  visible_reflectance=0.075, infrared_transmittance=0,
                  emissivity=0.84, emissivity_back=0.84, conductivity=0.9):
-        """Initialize energy window material glazing.
-
-        Args:
-            name: Text string for material name. Must be <= 100 characters.
-                Can include spaces but special characters will be stripped out.
-            thickness: Number for the thickness of the glass layer [m].
-                Default: 0.003 meters (3 mm).
-            solar_transmittance: Number between 0 and 1 for the transmittance of solar
-                radiation through the glass at normal incidence.
-                Default: 0.85 for clear glass.
-            solar_reflectance: Number between 0 and 1 for the reflectance of solar
-                radiation off of the front side of the glass at normal incidence,
-                averaged over the solar spectrum. Default: 0.075.
-            visible_transmittance: Number between 0 and 1 for the transmittance of
-                visible light through the glass at normal incidence.
-                Default: 0.9 for clear glass.
-            visible_reflectance: Number between 0 and 1 for the reflectance of
-                visible light off of the front side of the glass at normal incidence.
-                Default: 0.075.
-            infrared_transmittance: Long-wave transmittance of the glass at normal
-                incidence. Default: 0.
-            emissivity: Number between 0 and 1 for the infrared hemispherical
-                emissivity of the front side of the glass.  Default: 0.84, which
-                is typical of clear glass.
-            emissivity_back: Number between 0 and 1 for the infrared hemispherical
-                emissivity of the back side of the glass.  Default: 0.84, which
-                is typical of clear glass.
-            conductivity: Number for the thermal conductivity of the glass [W/m-K].
-                Default: 0.9.
-        """
+        """Initialize energy window material glazing."""
         _EnergyWindowMaterialGlazingBase.__init__(self, name)
 
         # default for checking transmittance + reflectance < 1
@@ -331,18 +330,23 @@ class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
         """Create a EnergyWindowMaterialGlazing from a dictionary.
 
         Args:
-            data: {
-                "type": 'EnergyWindowMaterialGlazing',
-                "name": 'Low-e Glazing',
-                "thickness": 0.003,
-                "solar_transmittance": 0.45,
-                "solar_reflectance": 0.36,
-                "visible_transmittance": 0.714,
-                "visible_reflectance": 0.207,
-                "infrared_transmittance": 0,
-                "emissivity": 0.84,
-                "emissivity_back": 0.0466,
-                "conductivity": 0.9}
+            data: A python dictionary in the following format
+
+        .. code-block:: python
+
+            {
+            "type": 'EnergyWindowMaterialGlazing',
+            "name": 'Low-e Glazing',
+            "thickness": 0.003,
+            "solar_transmittance": 0.45,
+            "solar_reflectance": 0.36,
+            "visible_transmittance": 0.714,
+            "visible_reflectance": 0.207,
+            "infrared_transmittance": 0,
+            "emissivity": 0.84,
+            "emissivity_back": 0.0466,
+            "conductivity": 0.9
+            }
         """
         assert data['type'] == 'EnergyWindowMaterialGlazing', \
             'Expected EnergyWindowMaterialGlazing. Got {}.'.format(data['type'])
@@ -447,33 +451,32 @@ class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
 class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
     """A material to describe an entire glazing system, including glass, gaps, and frame.
 
+    Args:
+        name: Text string for material name. Must be <= 100 characters.
+            Can include spaces but special characters will be stripped out.
+        u_factor: A number for the U-factor of the glazing system [W/m2-K]
+            including standard air gap resistances on either side of the system.
+        shgc: A number between 0 and 1 for the solar heat gain coefficient
+            of the glazing system. This includes both directly transmitted solar
+            heat as well as solar heat that is absorbed by the glazing system and
+            conducts towards the interior.
+        vt: A number between 0 and 1 for the visible transmittance of the
+            glazing system. Default: 0.6.
+
     Properties:
-        name
-        u_factor
-        shgc
-        vt
-        r_factor
-        u_value
-        r_value
+        * name
+        * u_factor
+        * shgc
+        * vt
+        * r_factor
+        * u_value
+        * r_value
     """
     __slots__ = ('_u_factor', '_shgc', '_vt')
     _film_resistance = (1 / 23) + (1 / 7)  # interior + exterior films resistance
 
     def __init__(self, name, u_factor, shgc, vt=0.6):
-        """Initialize energy window material simple glazing system.
-
-        Args:
-            name: Text string for material name. Must be <= 100 characters.
-                Can include spaces but special characters will be stripped out.
-            u_factor: A number for the U-factor of the glazing system [W/m2-K]
-                including standard air gap resistances on either side of the system.
-            shgc: A number between 0 and 1 for the solar heat gain coefficient
-                of the glazing system. This includes both directly transmitted solar
-                heat as well as solar heat that is absorbed by the glazing system and
-                conducts towards the interior.
-            vt: A number between 0 and 1 for the visible transmittance of the
-                glazing system. Default: 0.6.
-        """
+        """Initialize energy window material simple glazing system."""
         _EnergyWindowMaterialGlazingBase.__init__(self, name)
         self.u_factor = u_factor
         self.shgc = shgc
@@ -541,12 +544,17 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
         """Create a EnergyWindowMaterialSimpleGlazSys from a dictionary.
 
         Args:
-            data: {
-                "type": 'EnergyWindowMaterialSimpleGlazSys',
-                "name": 'Double Low-e Glazing System',
-                "u_factor": 2.0,
-                "shgc": 0.4,
-                "vt": 0.6}
+            data: A python dictionary in the following format
+
+        .. code-block:: python
+
+            {
+            "type": 'EnergyWindowMaterialSimpleGlazSys',
+            "name": 'Double Low-e Glazing System',
+            "u_factor": 2.0,
+            "shgc": 0.4,
+            "vt": 0.6
+            }
         """
         assert data['type'] == 'EnergyWindowMaterialSimpleGlazSys', \
             'Expected EnergyWindowMaterialSimpleGlazSys. Got {}.'.format(data['type'])
