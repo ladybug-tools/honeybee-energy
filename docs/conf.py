@@ -46,8 +46,8 @@ extensions = [
     'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
     'sphinx.ext.githubpages',
-	'sphinxcontrib.fulltoc',
-	'sphinx.ext.napoleon',
+    'sphinxcontrib.fulltoc',
+    'sphinx.ext.napoleon',
     'sphinx_click.ext'
 ]
 
@@ -100,11 +100,15 @@ html_theme_options = {
     # Fix navigation bar to top of page?
     # Values: "true" (default) or "false"
     'navbar_fixed_top': "true",
-	'navbar_pagenav': True,
+    'navbar_pagenav': True,
     'source_link_position': "nav",
-	'bootswatch_theme': "united",
+    'bootswatch_theme': "united",
     'bootstrap_version': "3",
-	}
+}
+
+# Bootstrap theme custom file paths (relative to this file)
+# Layout.html path (already added above, include if different)
+# templates_path = ['_templates']
 
 # on_rtd is whether we are on readthedocs.org
 # on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
@@ -117,7 +121,7 @@ html_theme_options = {
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-# html_static_path = ['_static']
+html_static_path = ['_static']
 
 # Custom sidebar templates, must be a dictionary that maps document names
 # to template names.
@@ -213,3 +217,20 @@ epub_exclude_files = ['search.html']
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = True
+
+# -- Options for autodoc extension --------------------------------------------
+autodoc_default_options = {
+    'inherited-members': True,
+}
+
+autodoc_member_order = 'groupwise'
+
+
+def setup(app):
+    """Run custom code with access to the Sphinx application object
+    Args:
+        app: the Sphinx application object
+    """
+
+    # Add bootstrap theme custom stylesheet
+    app.add_stylesheet("custom.css")
