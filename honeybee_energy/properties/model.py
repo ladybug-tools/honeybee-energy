@@ -4,20 +4,12 @@ from honeybee.extensionutil import model_extension_dicts
 
 from ..lib.constructionsets import generic_construction_set
 
-from ..material.opaque import EnergyMaterial, EnergyMaterialNoMass
-from ..material.glazing import EnergyWindowMaterialGlazing, \
-    EnergyWindowMaterialSimpleGlazSys
-from ..material.gas import EnergyWindowMaterialGas, \
-    EnergyWindowMaterialGasMixture, EnergyWindowMaterialGasCustom
-from ..material.shade import EnergyWindowMaterialShade, EnergyWindowMaterialBlind
-from ..construction.opaque import OpaqueConstruction
-from ..construction.window import WindowConstruction
-from ..construction.shade import ShadeConstruction
+from ..material.dictutil import dict_to_material
+from ..construction.dictutil import dict_abridged_to_construction
 from ..construction.air import AirBoundaryConstruction
 from ..constructionset import ConstructionSet
 from ..schedule.typelimit import ScheduleTypeLimit
-from ..schedule.ruleset import ScheduleRuleset
-from ..schedule.fixedinterval import ScheduleFixedInterval
+from ..schedule.dictutil import dict_abridged_to_schedule
 from ..programtype import ProgramType
 from ..hvac import HVAC_TYPES_DICT
 from ..writer import generate_idf_string
@@ -589,59 +581,19 @@ class ModelEnergyProperties(object):
         if 'schedules' in data['properties']['energy'] and \
                 data['properties']['energy']['schedules'] is not None:
             for sched in data['properties']['energy']['schedules']:
-                # create the schedule objects
-                if sched['type'] == 'ScheduleRulesetAbridged':
-                    schedules[sched['name']] = ScheduleRuleset.from_dict_abridged(
-                        sched, schedule_type_limits)
-                elif sched['type'] == 'ScheduleFixedIntervalAbridged':
-                    schedules[sched['name']] = ScheduleFixedInterval.from_dict_abridged(
-                        sched, schedule_type_limits)
-                else:
-                    raise NotImplementedError(
-                        'Schedule {} is not supported.'.format(sched['type']))
+                schedules[sched['name']] = dict_abridged_to_schedule(
+                    sched, schedule_type_limits)
 
         # process all materials in the ModelEnergyProperties dictionary
         materials = {}
         for mat in data['properties']['energy']['materials']:
-            if mat['type'] == 'EnergyMaterial':
-                materials[mat['name']] = EnergyMaterial.from_dict(mat)
-            elif mat['type'] == 'EnergyMaterialNoMass':
-                materials[mat['name']] = EnergyMaterialNoMass.from_dict(mat)
-            elif mat['type'] == 'EnergyWindowMaterialSimpleGlazSys':
-                materials[mat['name']] = EnergyWindowMaterialSimpleGlazSys.from_dict(mat)
-            elif mat['type'] == 'EnergyWindowMaterialGlazing':
-                materials[mat['name']] = EnergyWindowMaterialGlazing.from_dict(mat)
-            elif mat['type'] == 'EnergyWindowMaterialGas':
-                materials[mat['name']] = EnergyWindowMaterialGas.from_dict(mat)
-            elif mat['type'] == 'EnergyWindowMaterialGasMixture':
-                materials[mat['name']] = EnergyWindowMaterialGasMixture.from_dict(mat)
-            elif mat['type'] == 'EnergyWindowMaterialGasCustom':
-                materials[mat['name']] = EnergyWindowMaterialGasCustom.from_dict(mat)
-            elif mat['type'] == 'EnergyWindowMaterialShade':
-                materials[mat['name']] = EnergyWindowMaterialShade.from_dict(mat)
-            elif mat['type'] == 'EnergyWindowMaterialBlind':
-                materials[mat['name']] = EnergyWindowMaterialBlind.from_dict(mat)
-            else:
-                raise NotImplementedError(
-                    'Material {} is not supported.'.format(mat['type']))
+            materials[mat['name']] = dict_to_material(mat)
 
         # process all constructions in the ModelEnergyProperties dictionary
         constructions = {}
         for cnstr in data['properties']['energy']['constructions']:
-            if cnstr['type'] == 'OpaqueConstructionAbridged':
-                constructions[cnstr['name']] = \
-                    OpaqueConstruction.from_dict_abridged(cnstr, materials)
-            elif cnstr['type'] == 'WindowConstructionAbridged':
-                constructions[cnstr['name']] = \
-                    WindowConstruction.from_dict_abridged(cnstr, materials)
-            elif cnstr['type'] == 'ShadeConstruction':
-                constructions[cnstr['name']] = ShadeConstruction.from_dict(cnstr)
-            elif cnstr['type'] == 'AirBoundaryConstructionAbridged':
-                constructions[cnstr['name']] = \
-                    AirBoundaryConstruction.from_dict_abridged(cnstr, schedules)
-            else:
-                raise NotImplementedError(
-                    'Construction {} is not supported.'.format(cnstr['type']))
+            constructions[cnstr['name']] = \
+                dict_abridged_to_construction(cnstr, materials, schedules)
 
         # process all construction sets in the ModelEnergyProperties dictionary
         construction_sets = {}

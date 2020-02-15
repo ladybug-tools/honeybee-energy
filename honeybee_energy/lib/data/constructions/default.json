@@ -1,0 +1,22 @@
+{
+    "Generic Air Boundary": {
+        "type": "AirBoundaryConstructionAbridged",
+        "name": "Generic Air Boundary",
+        "air_mixing_per_area": 0.1,
+        "air_mixing_schedule": "Always On"
+    },
+    "Generic Context": {
+        "type": "ShadeConstruction",
+        "name": "Generic Context",
+        "solar_reflectance": 0.2,
+        "visible_reflectance": 0.2,
+        "is_specular": false
+    },
+    "Generic Shade": {
+        "type": "ShadeConstruction",
+        "name": "Generic Shade",
+        "solar_reflectance": 0.35,
+        "visible_reflectance": 0.35,
+        "is_specular": false
+    }
+}
