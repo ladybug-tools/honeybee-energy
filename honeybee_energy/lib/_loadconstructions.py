@@ -2,20 +2,25 @@
 from honeybee_energy.config import folders
 from honeybee_energy.construction.opaque import OpaqueConstruction
 from honeybee_energy.construction.window import WindowConstruction
-from honeybee_energy.construction.shade import ShadeConstruction
 from honeybee_energy.construction.air import AirBoundaryConstruction
+from honeybee_energy.construction.dictutil import dict_abridged_to_construction
 
-from ._loadmaterials import _idf_opaque_materials, _idf_window_materials
-from ._loadschedules import _idf_schedules
+from ._loadmaterials import _opaque_materials, _window_materials
+from ._loadschedules import _schedules
 
 import os
 import json
 
 
+# dictionary of all materials loaded from JSON
+_all_materials = _opaque_materials.copy()  # start with opaque materials
+_all_materials.update(_window_materials)  # add window constructions
+
+
 # empty dictionaries to hold idf-loaded materials and constructions
-_idf_opaque_constructions = {}
-_idf_window_constructions = {}
-_idf_shade_constructions = {}
+_opaque_constructions = {}
+_window_constructions = {}
+_shade_constructions = {}
 
 
 # load materials and constructions from the default and user-supplied files
@@ -26,37 +31,31 @@ for f in os.listdir(folders.construction_lib):
             constructions, materials = OpaqueConstruction.extract_all_from_idf_file(f_path)
             for mat in materials:
                 mat.lock()
-                _idf_opaque_materials[mat.name] = mat
+                _opaque_materials[mat.name] = mat
             for cnstr in constructions:
                 cnstr.lock()
-                _idf_opaque_constructions[cnstr.name] = cnstr
+                _opaque_constructions[cnstr.name] = cnstr
             constructions, materials = WindowConstruction.extract_all_from_idf_file(f_path)
             for mat in materials:
                 mat.lock()
-                _idf_window_materials[mat.name] = mat
+                _window_materials[mat.name] = mat
             for cnstr in constructions:
                 cnstr.lock()
-                _idf_window_constructions[cnstr.name] = cnstr
+                _window_constructions[cnstr.name] = cnstr
         if f_path.endswith('.json'):
             with open(f_path) as json_file:
                 data = json.load(json_file)
             for constr_name in data:
                 try:
-                    constr_dict = data[constr_name]
-                    if constr_dict['type'] == 'OpaqueConstructionAbridged':
-                        _idf_opaque_constructions[constr_dict['name']] = \
-                            OpaqueConstruction.from_dict_abridged(
-                                constr_dict, _idf_opaque_materials)
-                    elif constr_dict['type'] == 'WindowConstructionAbridged':
-                        _idf_window_constructions[constr_dict['name']] = \
-                            WindowConstruction.from_dict_abridged(
-                                constr_dict, _idf_window_materials)
-                    elif constr_dict['type'] == 'ShadeConstruction':
-                        _idf_shade_constructions[constr_dict['name']] = \
-                            ShadeConstruction.from_dict(constr_dict)
-                    elif constr_dict['type'] == 'AirBoundaryConstructionAbridged':
-                        _idf_opaque_constructions[constr_dict['name']] = \
-                            AirBoundaryConstruction.from_dict_abridged(
-                                constr_dict, _idf_schedules)
+                    constr = dict_abridged_to_construction(
+                        data[constr_name], _all_materials, _schedules, False)
+                    if constr:
+                        constr.lock()
+                        if isinstance(constr, (OpaqueConstruction, AirBoundaryConstruction)):
+                            _opaque_constructions[constr_name] = constr
+                        elif isinstance(constr, WindowConstruction):
+                            _window_constructions[constr_name] = constr
+                        else:
+                            _shade_constructions[constr_name] = constr
                 except KeyError:
                     pass  # not a Honeybee JSON file with Constructions

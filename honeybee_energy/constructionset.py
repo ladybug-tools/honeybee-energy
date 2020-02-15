@@ -2,12 +2,8 @@
 """Energy Construction Set."""
 from __future__ import division
 
-from .material.opaque import EnergyMaterial, EnergyMaterialNoMass
-from .material.glazing import EnergyWindowMaterialSimpleGlazSys, \
-    EnergyWindowMaterialGlazing
-from .material.gas import EnergyWindowMaterialGas, EnergyWindowMaterialGasMixture, \
-    EnergyWindowMaterialGasCustom
-from .material.shade import EnergyWindowMaterialShade, EnergyWindowMaterialBlind
+from .material.dictutil import dict_to_material
+from .construction.dictutil import dict_abridged_to_construction
 from .construction.opaque import OpaqueConstruction
 from .construction.window import WindowConstruction
 from .construction.shade import ShadeConstruction
@@ -332,46 +328,12 @@ class ConstructionSet(object):
         # gather all material objects
         materials = {}
         for mat in data['materials']:
-            if mat['type'] == 'EnergyMaterial':
-                materials[mat['name']] = EnergyMaterial.from_dict(mat)
-            elif mat['type'] == 'EnergyMaterialNoMass':
-                materials[mat['name']] = EnergyMaterialNoMass.from_dict(mat)
-            elif mat['type'] == 'EnergyWindowMaterialSimpleGlazSys':
-                materials[mat['name']] = EnergyWindowMaterialSimpleGlazSys.from_dict(mat)
-            elif mat['type'] == 'EnergyWindowMaterialGlazing':
-                materials[mat['name']] = EnergyWindowMaterialGlazing.from_dict(mat)
-            elif mat['type'] == 'EnergyWindowMaterialGas':
-                materials[mat['name']] = EnergyWindowMaterialGas.from_dict(mat)
-            elif mat['type'] == 'EnergyWindowMaterialGasMixture':
-                materials[mat['name']] = EnergyWindowMaterialGasMixture.from_dict(mat)
-            elif mat['type'] == 'EnergyWindowMaterialGasCustom':
-                materials[mat['name']] = EnergyWindowMaterialGasCustom.from_dict(mat)
-            elif mat['type'] == 'EnergyWindowMaterialShade':
-                materials[mat['name']] = EnergyWindowMaterialShade.from_dict(mat)
-            elif mat['type'] == 'EnergyWindowMaterialBlind':
-                materials[mat['name']] = EnergyWindowMaterialBlind.from_dict(mat)
-            else:
-                raise NotImplementedError(
-                    'Material {} is not supported.'.format(mat['type']))
+            materials[mat['name']] = dict_to_material(mat)
 
         # gather all construction objects
         constructions = {}
         for cnst in data['constructions']:
-            if cnst['type'] == 'OpaqueConstructionAbridged':
-                mat_layers = [materials[mat_name] for mat_name in cnst['layers']]
-                constructions[cnst['name']] = \
-                    OpaqueConstruction(cnst['name'], mat_layers)
-            elif cnst['type'] == 'WindowConstructionAbridged':
-                mat_layers = [materials[mat_name] for mat_name in cnst['layers']]
-                constructions[cnst['name']] = \
-                    WindowConstruction(cnst['name'], mat_layers)
-            elif cnst['type'] == 'ShadeConstruction':
-                constructions[cnst['name']] = ShadeConstruction.from_dict(cnst)
-            elif cnstr['type'] == 'AirBoundaryConstruction':
-                constructions[cnstr['name']] = AirBoundaryConstruction.from_dict(cnstr)
-            else:
-                raise NotImplementedError(
-                    'Construction {} is not supported.'.format(cnst['type']))
+            constructions[cnst['name']] = dict_abridged_to_construction(cnst, materials, None)
         constructions[None] = None
 
         # build each of the sub-construction sets

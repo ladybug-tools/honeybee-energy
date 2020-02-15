@@ -219,7 +219,7 @@ Construction,              !- opaque
 
 Construction,              !- opaque
  Generic Exposed Floor,    !- name
- Generic Metal Surface,    !- layer 1
+ Generic Painted Metal,    !- layer 1
  Generic Ceiling Air Gap,  !- layer 2
  Generic 50mm Insulation,  !- layer 3
  Generic LW Concrete;      !- layer 4
@@ -258,9 +258,9 @@ Construction,              !- opaque
 
 Construction,              !- opaque
  Generic Exterior Door,    !- name
- Generic Metal Surface,    !- layer 1
+ Generic Painted Metal,    !- layer 1
  Generic 25mm Insulation,  !- layer 2
- Generic Metal Surface;    !- layer 3
+ Generic Painted Metal;    !- layer 3
 
 Construction,              !- opaque
  Generic Interior Door,    !- name

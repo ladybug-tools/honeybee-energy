@@ -2,14 +2,14 @@
 from honeybee_energy.config import folders
 from honeybee_energy.programtype import ProgramType
 
-from ._loadschedules import _idf_schedules
+from ._loadschedules import _schedules
 
 import os
 import json
 
 
 # empty dictionaries to hold json-loaded program types
-_json_program_types = {}
+_program_types = {}
 
 
 # load program types from the default and user-supplied files
@@ -20,8 +20,8 @@ for f in os.listdir(folders.programtype_lib):
             p_dict = json.load(json_file)
         for p_name in p_dict:
             try:
-                program = ProgramType.from_dict_abridged(p_dict[p_name], _idf_schedules)
+                program = ProgramType.from_dict_abridged(p_dict[p_name], _schedules)
                 program.lock()
-                _json_program_types[program.name] = program
+                _program_types[program.name] = program
             except ValueError:
-                pass  # failed to find the schedule in the schedule library
+                pass  # failed to find schedule in the library; not a valid program

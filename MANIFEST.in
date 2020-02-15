@@ -1,5 +1,7 @@
-include honeybee/config.json
+include honeybee_energy/config.json
 include honeybee_energy/lib/data/constructions/*.idf
+include honeybee_energy/lib/data/constructions/*.json
 include honeybee_energy/lib/data/schedules/*.idf
+include honeybee_energy/lib/data/schedules/*.json
 include honeybee_energy/lib/data/constructionsets/*.json
 include honeybee_energy/lib/data/programtypes/*.json
