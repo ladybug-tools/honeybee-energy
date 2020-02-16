@@ -23,7 +23,6 @@ def test_schedule_rule_init():
     assert sched_rule.apply_thursday
     assert sched_rule.apply_friday
     assert not sched_rule.apply_saturday
-    assert not sched_rule.apply_holiday
     assert sched_rule.apply_weekday
     assert not sched_rule.apply_weekend
 
@@ -95,9 +94,6 @@ def test_schedule_rule_apply():
     assert not sched_rule.apply_saturday
     sched_rule.apply_saturday = True
     assert sched_rule.apply_saturday
-    assert not sched_rule.apply_holiday
-    sched_rule.apply_holiday = True
-    assert sched_rule.apply_holiday
 
     assert sched_rule.apply_weekday
     assert sched_rule.apply_weekend
@@ -131,9 +127,6 @@ def test_schedule_rule_apply_day_by_name():
     assert not sched_rule.apply_saturday
     sched_rule.apply_day_by_name('Saturday')
     assert sched_rule.apply_saturday
-    assert not sched_rule.apply_holiday
-    sched_rule.apply_day_by_name('Holiday')
-    assert sched_rule.apply_holiday
 
     assert sched_rule.apply_weekday
     assert sched_rule.apply_weekend
@@ -167,9 +160,6 @@ def test_schedule_rule_apply_day_by_dow():
     assert not sched_rule.apply_saturday
     sched_rule.apply_day_by_dow(7)
     assert sched_rule.apply_saturday
-    assert not sched_rule.apply_holiday
-    sched_rule.apply_day_by_dow(8)
-    assert sched_rule.apply_holiday
 
     assert sched_rule.apply_weekday
     assert sched_rule.apply_weekend
@@ -189,7 +179,6 @@ def test_schedule_does_rule_apply():
     school_weekday_rule.apply_weekday = True
     school_weekend_rule = ScheduleRule(weekend_school)
     school_weekend_rule.apply_weekend = True
-    school_weekend_rule.apply_holiday = True
 
     summer_weekday_rule = ScheduleRule(
         weekday_summer, start_date=Date(7, 1), end_date=Date(9, 1))
@@ -197,7 +186,6 @@ def test_schedule_does_rule_apply():
     summer_weekend_rule = ScheduleRule(
         weekend_summer, start_date=Date(7, 1), end_date=Date(9, 1))
     summer_weekend_rule.apply_weekend = True
-    summer_weekend_rule.apply_holiday = True
 
     assert school_weekday_rule.does_rule_apply(1, 4)
     assert not school_weekday_rule.does_rule_apply(1, 1)
@@ -228,7 +216,6 @@ def test_schedule_rule_from_days_applied():
     assert sched_rule.apply_thursday
     assert sched_rule.apply_friday
     assert not sched_rule.apply_saturday
-    assert not sched_rule.apply_holiday
     sched_rule = ScheduleRule.from_days_applied(simple_office, ['weekday'])
     assert not sched_rule.apply_sunday
     assert sched_rule.apply_monday
@@ -237,7 +224,6 @@ def test_schedule_rule_from_days_applied():
     assert sched_rule.apply_thursday
     assert sched_rule.apply_friday
     assert not sched_rule.apply_saturday
-    assert not sched_rule.apply_holiday
 
 
 def test_schedule_day_dict_methods():

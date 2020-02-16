@@ -23,12 +23,12 @@ import os
 
 @lockable
 class ScheduleRuleset(object):
-    """A complete schedule assembled from DaySchedules and ScheduleRules.
+    """A complete schedule assembled from ScheduleDay and ScheduleRules.
 
     Args:
         name: Text string for the schedule name. Must be <= 100 characters.
             Can include spaces but special characters will be stripped out.
-        default_day_schedule: A DaySchedule object that will be used for all
+        default_day_schedule: A ScheduleDay object that will be used for all
             days where there is no ScheduleRule applied.
         schedule_rules: A list of ScheduleRule objects that note exceptions
             to the default_day_schedule. These rules should be ordered from
@@ -36,10 +36,11 @@ class ScheduleRuleset(object):
         schedule_type_limit: A ScheduleTypeLimit object that will be used to
             validate schedule values against upper/lower limits and assign units
             to the schedule values. If None, no validation will occur.
-        summer_designday_schedule: A DaySchedule object that will be used for
+        summer_designday_schedule: A ScheduleDay object that will be used for
             the summer design day (used to size the cooling system).
-        winter_designday_schedule: A DaySchedule object that will be used for
+        winter_designday_schedule: A ScheduleDay object that will be used for
             the winter design day (used to size the heating system).
+        holiday_schedule: A ScheduleDay object that will be used for holidays.
 
     Properties:
         * name
@@ -48,12 +49,13 @@ class ScheduleRuleset(object):
         * schedule_type_limit
         * summer_designday_schedule
         * winter_designday_schedule
+        * holiday_schedule
         * day_schedules
         * is_constant
         * is_single_week
     """
-    __slots__ = ('_name', '_default_day_schedule', '_summer_designday_schedule',
-                 '_winter_designday_schedule', '_schedule_rules',
+    __slots__ = ('_name', '_default_day_schedule', '_schedule_rules', '_holiday_schedule',
+                 '_summer_designday_schedule', '_winter_designday_schedule',  
                  '_schedule_type_limit', '_locked')
     _dow_text_to_int = {'sunday': 1, 'monday': 2, 'tuesday': 3, 'wednesday': 4,
                         'thursday': 2, 'friday': 3, 'saturday': 7}
@@ -63,14 +65,15 @@ class ScheduleRuleset(object):
         'custom day 1', 'custom day 2')
 
     def __init__(self, name, default_day_schedule, schedule_rules=None,
-                 schedule_type_limit=None, summer_designday_schedule=None,
-                 winter_designday_schedule=None):
+                 schedule_type_limit=None, holiday_schedule=None,
+                 summer_designday_schedule=None, winter_designday_schedule=None):
         """Initialize Schedule Ruleset."""
         self._locked = False  # unlocked by default
         self.name = name
         self.default_day_schedule = default_day_schedule
         self.schedule_rules = schedule_rules
         self.schedule_type_limit = schedule_type_limit
+        self.holiday_schedule = holiday_schedule
         self.summer_designday_schedule = summer_designday_schedule
         self.winter_designday_schedule = winter_designday_schedule
 
@@ -127,6 +130,24 @@ class ScheduleRuleset(object):
         self._schedule_type_limit = schedule_type
 
     @property
+    def holiday_schedule(self):
+        """Get or set the DaySchedule that will be used for holidays.
+
+        Note that, if this property is None, the default_day_schedule is
+        ultimately written into the IDF for the holidays.
+        """
+        return self._holiday_schedule
+
+    @holiday_schedule.setter
+    def holiday_schedule(self, schedule):
+        if schedule is not None:
+            assert isinstance(schedule, ScheduleDay), 'Expected ScheduleDay for ' \
+                'ScheduleRuleset holiday_schedule. Got {}.'.format(
+                    type(schedule))
+            self._check_schedule_parent(schedule, 'holiday_schedule')
+        self._holiday_schedule = schedule
+
+    @property
     def summer_designday_schedule(self):
         """Get or set the DaySchedule that will be used for the summer design day.
 
@@ -172,6 +193,9 @@ class ScheduleRuleset(object):
         if self._winter_designday_schedule is not None and not \
                 self._instance_in_array(self._winter_designday_schedule, day_scheds):
             day_scheds.append(self._winter_designday_schedule)
+        if self._holiday_schedule is not None and not \
+                self._instance_in_array(self._holiday_schedule, day_scheds):
+            day_scheds.append(self._holiday_schedule)
         for rule in self.schedule_rules:
             if not self._instance_in_array(rule._schedule_day, day_scheds):
                 day_scheds.append(rule._schedule_day)
@@ -182,7 +206,7 @@ class ScheduleRuleset(object):
         """Boolean noting whether the schedule is representable with a single value."""
         return self.default_day_schedule.is_constant and self._schedule_rules == [] and \
             self._summer_designday_schedule is None and \
-            self._winter_designday_schedule is None
+            self._winter_designday_schedule is None and self._holiday_schedule is None
 
     @property
     def is_single_week(self):
@@ -259,6 +283,9 @@ class ScheduleRuleset(object):
         sch_day_vals = [rule.schedule_day.values_at_timestep(timestep)
                         for rule in self._schedule_rules]
         sch_day_vals.append(self.default_day_schedule.values_at_timestep(timestep))
+        hol_vals = None
+        if self.holiday_schedule is not None and holidays is not None:
+            hol_vals = self.holiday_schedule.values_at_timestep(timestep)
         # ensure that everything is consistent across leap years
         if start_date.leap_year is not leap_year:
             start_date = Date(start_date.month, start_date.day, leap_year)
@@ -281,10 +308,10 @@ class ScheduleRuleset(object):
         # generate the full list of annual values
         if not leap_year:
             return self._get_sch_values(
-                sch_day_vals, dow, start_date, end_date, hol_doy)
+                sch_day_vals, dow, start_date, end_date, hol_doy, hol_vals)
         else:
             return self._get_sch_values_leap_year(
-                sch_day_vals, dow, start_date, end_date, hol_doy)
+                sch_day_vals, dow, start_date, end_date, hol_doy, hol_vals)
 
     def data_collection(self, timestep=1, start_date=Date(1, 1), end_date=Date(12, 31),
                         start_dow='Sunday', holidays=None, leap_year=False):
@@ -310,7 +337,8 @@ class ScheduleRuleset(object):
                 leap year (True) or a non-leap year (False). Default: False.
         """
         a_period = AnalysisPeriod(start_date.month, start_date.day, 0,
-                                  end_date.month, end_date.day, 23, timestep, leap_year)
+                                  end_date.month, end_date.day, 23,
+                                  timestep, leap_year)
         if self.schedule_type_limit is not None:
             data_type = self.schedule_type_limit.data_type
             unit = self.schedule_type_limit.unit
@@ -392,11 +420,11 @@ class ScheduleRuleset(object):
                 the winter design day. If None, the daily schedule with the lowest
                 average value will be used.
         """
-        # process the rules for the days of the week and holidays
+        # process the rules for the days of the week
         schedule_rules = []
         applied_day_values = []
         all_vals = (sunday_values, monday_values, tuesday_values, wednesday_values,
-                    thursday_values, friday_values, saturday_values, holiday_values)
+                    thursday_values, friday_values, saturday_values)
         for i, day_vals in enumerate(all_vals):
             if day_vals not in applied_day_values:  # make a new ScheduleDay and rule
                 d_name = '{}_{}'.format(name, cls._schedule_week_comments[i + 1].title())
@@ -411,6 +439,10 @@ class ScheduleRuleset(object):
                         sch_rule_index = count
                 rule = schedule_rules[sch_rule_index]
                 rule.apply_day_by_dow(i + 1)
+
+        # get ScheduleDay for the holidays
+        holiday = ScheduleDay.from_values_at_timestep(
+            '{}_Hol'.format(name), holiday_values, timestep)
 
         # get ScheduleDay for summer and winter design days
         avg_day_vals = [sum(vals) / len(vals) for vals in applied_day_values]
@@ -430,7 +462,7 @@ class ScheduleRuleset(object):
                 '{}_WntrDsn'.format(name), winter_designday_values, timestep)
 
         return cls(name, schedule_rules[0].schedule_day, schedule_rules[1:],
-                   schedule_type_limit, summer, winter)
+                   schedule_type_limit, holiday, summer, winter)
 
     @classmethod
     def from_week_day_schedules(
@@ -461,7 +493,7 @@ class ScheduleRuleset(object):
         applied_day_names = []
         all_sched = (sunday_schedule, monday_schedule, tuesday_schedule,
                      wednesday_schedule, thursday_schedule, friday_schedule,
-                     saturday_schedule, holiday_schedule)
+                     saturday_schedule)
         for i, day_sch in enumerate(all_sched):
             if day_sch.name not in applied_day_names:  # make a new rule
                 rule = ScheduleRule(day_sch)
@@ -472,6 +504,13 @@ class ScheduleRuleset(object):
                 sch_rule_index = applied_day_names.index(day_sch.name)
                 rule = schedule_rules[sch_rule_index]
                 rule.apply_day_by_dow(i + 1)
+
+        # get ScheduleDay for the holidays
+        if holiday_schedule.name in applied_day_names:  # avoid duplicate
+            holiday_schedule = holiday_schedule.duplicate()
+            holiday_schedule.name = '{}_Hol'.format(holiday_schedule.name)
+
+        # get ScheduleDay for summer and winter design days
         if summer_designday_schedule.name in applied_day_names:  # avoid duplicate
             summer_designday_schedule = summer_designday_schedule.duplicate()
             summer_designday_schedule.name = \
@@ -481,7 +520,7 @@ class ScheduleRuleset(object):
             winter_designday_schedule.name = \
                 '{}_WntrDsn'.format(winter_designday_schedule.name)
         return cls(name, schedule_rules[0].schedule_day, schedule_rules[1:],
-                   schedule_type_limit, summer_designday_schedule,
+                   schedule_type_limit, holiday_schedule, summer_designday_schedule,
                    winter_designday_schedule)
 
     @classmethod
@@ -518,9 +557,9 @@ class ScheduleRuleset(object):
                 rule.end_date = end_date
             all_rules.extend(rules)
         default_day_schedule = all_rules[0].schedule_day
-        summer_dd_sch, winter_dd_sch = week_dd_dict[year_sch[2]]
+        holiday_sch, summer_dd_sch, winter_dd_sch = week_dd_dict[year_sch[2]]
         sched = cls(year_sch[0], default_day_schedule, all_rules[1:], schedule_type)
-        cls._apply_designdays_with_check(sched, summer_dd_sch, winter_dd_sch)
+        cls._apply_designdays_with_check(sched, holiday_sch, summer_dd_sch, winter_dd_sch)
         return sched
 
     @classmethod
@@ -542,6 +581,7 @@ class ScheduleRuleset(object):
             "default_day_schedule": str, # ScheduleDay name
             "schedule_rules": [], # list of ScheduleRuleAbridged dictionaries
             "schedule_type_limit": {}, # ScheduleTypeLimit dictionary representation
+            "holiday_schedule": str, # ScheduleDay name
             "summer_designday_schedule": str, # ScheduleDay name
             "winter_designday_schedule": str # ScheduleDay name
             }
@@ -560,6 +600,9 @@ class ScheduleRuleset(object):
             for rule in data['schedule_rules']:
                 sch_day = sch_day_dict[rule['schedule_day']]
                 rules.append(ScheduleRule.from_dict_abridged(rule, sch_day))
+        holiday_sched = None
+        if 'holiday_schedule' in data and data['holiday_schedule'] is not None:
+            holiday_sched = sch_day_dict[data['holiday_schedule']]
         summer_sched = None
         if 'summer_designday_schedule' in data and \
                 data['summer_designday_schedule'] is not None:
@@ -574,7 +617,7 @@ class ScheduleRuleset(object):
             sched_type = ScheduleTypeLimit.from_dict(data['schedule_type_limit'])
 
         return cls(data['name'], default_sched, rules, sched_type,
-                   summer_sched, winter_sched)
+                   holiday_sched, summer_sched, winter_sched)
 
     @classmethod
     def from_dict_abridged(cls, data, schedule_type_limits):
@@ -640,12 +683,6 @@ class ScheduleRuleset(object):
                     break
             else:  # no rule applies; use default_day_schedule.
                 default_rule.apply_day_by_dow(dow + 1)
-        # check rules that apply on holidays
-        for rule in rules:  # see if rules apply
-            if rule.apply_holiday:
-                break
-        else:  # no rule applies; use default_day_schedule.
-            default_rule.apply_holiday = True
         rules.append(default_rule)
 
         return rules
@@ -720,7 +757,7 @@ class ScheduleRuleset(object):
                     self._idf_week_schedule_from_week_list(week_list, i + 1)
                 week_schedules.append(wk_schedule)
                 week_sched_names.append(wk_sch_name)
-            # create a disctionary mapping unique rule index lists to week schedule names
+            # create a dictionary mapping unique rule index lists to week schedule names
             rule_set_map = {}
             for rule_i, week_list in zip(unique_rule_sets, week_tuples):
                 unique_week_i = unique_week_tuples.index(week_list)
@@ -772,6 +809,8 @@ class ScheduleRuleset(object):
         # optional properties
         if len(self._schedule_rules) != 0:
             base['schedule_rules'] = [rule.to_dict(True) for rule in self._schedule_rules]
+        if self._holiday_schedule is not None:
+            base['holiday_schedule'] = self._holiday_schedule.name
         if self._summer_designday_schedule is not None:
             base['summer_designday_schedule'] = self._summer_designday_schedule.name
         if self._winter_designday_schedule is not None:
@@ -793,6 +832,8 @@ class ScheduleRuleset(object):
         """The lock() method also locks the ScheduleDay and ScheduleRule objects."""
         self._locked = True
         self._default_day_schedule.lock()
+        if self._holiday_schedule is not None:
+            self._holiday_schedule.lock()
         if self._summer_designday_schedule is not None:
             self._summer_designday_schedule.lock()
         if self._winter_designday_schedule is not None:
@@ -804,6 +845,8 @@ class ScheduleRuleset(object):
         """The unlock() method also unlocks the ScheduleDay and ScheduleRule objects."""
         self._locked = False
         self._default_day_schedule.unlock()
+        if self._holiday_schedule is not None:
+            self._holiday_schedule.unlock()
         if self._summer_designday_schedule is not None:
             self._summer_designday_schedule.unlock()
         if self._winter_designday_schedule is not None:
@@ -868,12 +911,14 @@ class ScheduleRuleset(object):
                     rule.end_date = end_date
                 all_rules.extend(rules)
             # gather the other day schedules
-            summer_dd_sch, winter_dd_sch = week_dd_dict[year_sch[2]]
+            holiday_sch, summer_dd_sch, winter_dd_sch = week_dd_dict[year_sch[2]]
             schedule_type = sch_type_dict[year_sch[1]] if year_sch[1] != '' else None
             # check to be sure the schedule days don't already have a parent
             for rule in all_rules:
                 if rule.schedule_day._parent is not None:
                     rule.schedule_day = rule.schedule_day.duplicate()
+            if holiday_sch._parent is not None:
+                holiday_sch = holiday_sch.duplicate()
             if summer_dd_sch._parent is not None:
                 summer_dd_sch = summer_dd_sch.duplicate()
             if winter_dd_sch._parent is not None:
@@ -883,7 +928,7 @@ class ScheduleRuleset(object):
             sch_ruleset = ScheduleRuleset(
                 year_sch[0], default_day_schedule, all_rules[1:], schedule_type)
             ScheduleRuleset._apply_designdays_with_check(
-                sch_ruleset, summer_dd_sch, winter_dd_sch)
+                sch_ruleset, holiday_sch, summer_dd_sch, winter_dd_sch)
             schedules.append(sch_ruleset)
         for const_sch in constant_props:
             sched_val = float(const_sch[2]) if const_sch[2] != '' else 0
@@ -971,24 +1016,25 @@ class ScheduleRuleset(object):
 
             # add all rules to a final average SheduleRuleset
             default_day_schedule = final_rules[0].schedule_day
+            holiday_sch = yr_wk_scheds[0].holiday_schedule.duplicate()
             summer_dd_sch = yr_wk_scheds[0].summer_designday_schedule.duplicate()
             winter_dd_sch = yr_wk_scheds[0].winter_designday_schedule.duplicate()
             schedule_type = schedules[0].schedule_type_limit
-            return ScheduleRuleset(name, default_day_schedule, final_rules[1:],
-                                   schedule_type, summer_dd_sch, winter_dd_sch)
+            return ScheduleRuleset(
+                name, default_day_schedule, final_rules[1:], schedule_type,
+                holiday_sch, summer_dd_sch, winter_dd_sch)
 
-    def _get_sch_values(self, sch_day_vals, dow, start_date, end_date, hol_doy):
+    def _get_sch_values(self, sch_day_vals, dow, start_date, end_date,
+                        hol_doy, hol_vals):
         """Get a list of values over a date range for a typical year."""
         values = []
         for doy in range(start_date.doy, end_date.doy + 1):
             if dow > 7:  # reset the day of the week to sunday
                 dow = 1
             if doy in hol_doy:
-                for i, rule in enumerate(self._schedule_rules):  # see if rules apply
-                    if rule.apply_holiday and rule.does_rule_apply_doy(doy):
-                        values.extend(sch_day_vals[i])
-                        break
-                else:  # no rule applies; use default_day_schedule.
+                if hol_vals is not None:
+                    values.extend(hol_vals)
+                else:  # no holiday values; use default_day_schedule.
                     values.extend(sch_day_vals[-1])
             else:
                 for i, rule in enumerate(self._schedule_rules):  # see if rules apply
@@ -1000,19 +1046,17 @@ class ScheduleRuleset(object):
             dow += 1
         return values
 
-    def _get_sch_values_leap_year(self, sch_day_vals, dow,
-                                  start_date, end_date, hol_doy):
+    def _get_sch_values_leap_year(self, sch_day_vals, dow, start_date, end_date,
+                                  hol_doy, hol_vals):
         """Get a list of values over a date range for a leap year."""
         values = []
         for doy in range(start_date.doy, end_date.doy + 1):
             if dow > 7:  # reset the day of the week to sunday
                 dow = 1
             if doy in hol_doy:
-                for i, rule in enumerate(self._schedule_rules):  # see if rules apply
-                    if rule.apply_holiday and rule.does_rule_apply_doy_leap_year(doy):
-                        values.extend(sch_day_vals[i])
-                        break
-                else:  # no rule applies; use default_day_schedule.
+                if hol_vals is not None:
+                    values.extend(hol_vals)
+                else:  # no holiday values; use default_day_schedule.
                     values.extend(sch_day_vals[-1])
             else:
                 for i, rule in enumerate(self._schedule_rules):  # see if rules apply
@@ -1034,19 +1078,16 @@ class ScheduleRuleset(object):
                     break
             else:  # no rule applies; use default_day_schedule.
                 week_list.append(self.default_day_schedule.name)
-        # check rules that apply on holidays
-        for i, rule in enumerate(self._schedule_rules):  # see if rules apply
-            if rule.apply_holiday:
-                week_list.append(self._schedule_rules[i].schedule_day.name)
-                break
-        else:  # no rule applies; use default_day_schedule.
-            week_list.append(self.default_day_schedule.name)
         return week_list
 
     def _get_extra_week_fields(self):
         """Get schedule names of extra days in Schedule:Week."""
         # add summer and winter design days
         week_fields = []
+        if self._holiday_schedule is not None:
+            week_fields.append(self._holiday_schedule.name)
+        else:
+            week_fields.append(self._default_day_schedule.name)
         if self._summer_designday_schedule is not None:
             week_fields.append(self._summer_designday_schedule.name)
         else:
@@ -1118,8 +1159,14 @@ class ScheduleRuleset(object):
             'Expected ScheduleRule for ScheduleRuleset. Got {}.'.format(type(rule))
 
     @staticmethod
-    def _apply_designdays_with_check(sched, summer_dd_sch, winter_dd_sch):
+    def _apply_designdays_with_check(sched, holiday_sch, summer_dd_sch, winter_dd_sch):
         """Apply summer + winter design day schedules with a check for duplicates."""
+        try:
+            sched.holiday_schedule = holiday_sch
+        except ValueError:  # summer design day schedule is not unique
+            holiday_sch = holiday_sch.duplicate()
+            holiday_sch.name = '{}_Hol'.format(holiday_sch.name)
+            sched.holiday_schedule = holiday_sch
         try:
             sched.summer_designday_schedule = summer_dd_sch
         except ValueError:  # summer design day schedule is not unique
@@ -1153,20 +1200,23 @@ class ScheduleRuleset(object):
             rules = ScheduleRule.extract_all_from_schedule_week(sch_str, day_sch_dict)
             if sch_str.startswith('Schedule:Week:Daily,'):
                 ep_strs = parse_idf_string(sch_str)
+                holiday = day_sch_dict[ep_strs[8]]
                 summer_dd = day_sch_dict[ep_strs[9]]
                 winter_dd = day_sch_dict[ep_strs[10]]
             else:
                 ep_strs = parse_idf_string(sch_str, 'Schedule:Week:Compact,')
-                summer_dd = winter_dd = rules[-1].schedule_day
+                holiday = summer_dd = winter_dd = rules[-1].schedule_day
                 for i in range(1, len(ep_strs), 2):
                     day_type, day_sch_name = ep_strs[i].lower(), ep_strs[i + 1]
-                    if 'summerdesignday' in day_type:
+                    if 'holiday' in day_type:
+                        holiday = day_sch_dict[day_sch_name]
+                    elif 'summerdesignday' in day_type:
                         summer_dd = day_sch_dict[day_sch_name]
                     elif 'winterdesignday' in day_type:
                         winter_dd = day_sch_dict[day_sch_name]
             sch_week_name = ep_strs[0]
             week_schedule_dict[sch_week_name] = rules
-            week_designday_dict[sch_week_name] = [summer_dd, winter_dd]
+            week_designday_dict[sch_week_name] = [holiday, summer_dd, winter_dd]
         return week_schedule_dict, week_designday_dict
 
     @staticmethod
@@ -1194,14 +1244,11 @@ class ScheduleRuleset(object):
                         break
                 else:  # no rule applies; use default_day_schedule.
                     week_list.append(sched.default_day_schedule)
-            # check rules that apply on holidays
-            for i in rule_indices[s_i]:  # see if rules apply
-                if sched[i].apply_holiday:
-                    week_list.append(sched[i].schedule_day)
-                    break
-            else:  # no rule applies; use default_day_schedule.
-                week_list.append(sched.default_day_schedule)
-            # check the rules applied for summer and winter design days
+
+            # check the rules applied for holidays + summer and winter design days
+            holiday = sched.default_day_schedule if sched._holiday_schedule \
+                is None else sched._holiday_schedule
+            week_list.append(holiday)
             summer = sched.default_day_schedule if sched._summer_designday_schedule \
                 is None else sched._summer_designday_schedule
             week_list.append(summer)
@@ -1249,7 +1296,7 @@ class ScheduleRuleset(object):
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""
         return (self.name, hash(self.default_day_schedule),
-                hash(self.summer_designday_schedule),
+                hash(self.holiday_schedule), hash(self.summer_designday_schedule),
                 hash(self.winter_designday_schedule), hash(self.schedule_type_limit)) + \
             tuple(hash(rule) for rule in self.schedule_rules)
 
@@ -1263,6 +1310,8 @@ class ScheduleRuleset(object):
         return not self.__eq__(other)
 
     def __copy__(self):
+        holiday = self._holiday_schedule.duplicate() if \
+            self._holiday_schedule is not None else None
         summer = self._summer_designday_schedule.duplicate() if \
             self._summer_designday_schedule is not None else None
         winter = self._winter_designday_schedule.duplicate() if \
@@ -1270,7 +1319,7 @@ class ScheduleRuleset(object):
         return ScheduleRuleset(
             self.name, self.default_day_schedule.duplicate(),
             [rule.duplicate() for rule in self._schedule_rules],
-            self._schedule_type_limit, summer, winter)
+            self._schedule_type_limit, holiday, summer, winter)
 
     def ToString(self):
         """Overwrite .NET ToString."""
