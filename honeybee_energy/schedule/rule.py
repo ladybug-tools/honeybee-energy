@@ -27,7 +27,6 @@ class ScheduleRule(object):
         apply_thursday: Boolean noting whether to apply schedule_day on Thursdays.
         apply_friday: Boolean noting whether to apply schedule_day on Fridays.
         apply_saturday: Boolean noting whether to apply schedule_day on Saturdays.
-        apply_holiday: Boolean noting whether to apply schedule_day on Holidays.
         start_date: A ladybug Date object for the start of the period over which
             the schedule_day will be applied. If None, Jan 1 will be used.
         end_date: A ladybug Date object for the end of the period over which
@@ -42,7 +41,6 @@ class ScheduleRule(object):
         * apply_thursday
         * apply_friday
         * apply_saturday
-        * apply_holiday
         * start_date
         * end_date
         * apply_weekday
@@ -53,16 +51,15 @@ class ScheduleRule(object):
     """
     __slots__ = ('_schedule_day', '_apply_sunday', '_apply_monday', '_apply_tuesday',
                  '_apply_wednesday', '_apply_thursday', '_apply_friday',
-                 '_apply_saturday', '_apply_holiday', '_start_date', '_end_date',
-                 '_start_doy', '_end_doy', '_locked')
+                 '_apply_saturday', '_start_date', '_end_date', '_start_doy',
+                 '_end_doy', '_locked')
 
     _year_start = Date(1, 1)
     _year_end = Date(12, 31)
 
     def __init__(self, schedule_day, apply_sunday=False, apply_monday=False,
                  apply_tuesday=False, apply_wednesday=False, apply_thursday=False,
-                 apply_friday=False, apply_saturday=False, apply_holiday=False,
-                 start_date=None, end_date=None):
+                 apply_friday=False, apply_saturday=False, start_date=None, end_date=None):
         """Initialize Schedule Rule."""
         self._locked = False  # unlocked by default
         self.schedule_day = schedule_day
@@ -73,7 +70,6 @@ class ScheduleRule(object):
         self.apply_thursday = apply_thursday
         self.apply_friday = apply_friday
         self.apply_saturday = apply_saturday
-        self.apply_holiday = apply_holiday
 
         # process the start date and end date
         if start_date is not None:
@@ -159,15 +155,6 @@ class ScheduleRule(object):
         self._apply_saturday = bool(value)
 
     @property
-    def apply_holiday(self):
-        """Get or set a boolean noting whether to apply schedule_day on Holidays."""
-        return self._apply_holiday
-
-    @apply_holiday.setter
-    def apply_holiday(self, value):
-        self._apply_holiday = bool(value)
-
-    @property
     def apply_weekday(self):
         """Get or set a boolean noting whether to apply schedule_day on week days."""
         return self._apply_monday and self._apply_tuesday and self._apply_wednesday and \
@@ -192,13 +179,13 @@ class ScheduleRule(object):
         """Get or set a boolean noting whether to apply schedule_day on all days."""
         return self._apply_sunday and self._apply_monday and self._apply_tuesday and \
             self._apply_wednesday and self._apply_thursday and self._apply_friday and \
-            self._apply_saturday and self._apply_holiday
+            self._apply_saturday
 
     @apply_all.setter
     def apply_all(self, value):
         self._apply_sunday = self._apply_monday = self._apply_tuesday = \
             self._apply_wednesday = self._apply_thursday = self._apply_friday = \
-            self._apply_saturday = self._apply_holiday = bool(value)
+            self._apply_saturday = bool(value)
 
     @property
     def start_date(self):
@@ -236,8 +223,6 @@ class ScheduleRule(object):
         day_names = ('sunday', 'monday', 'tuesday', 'wednesday', 'thursday',
                      'friday', 'saturday')
         days = [name for name, apply in zip(day_names, self.week_apply_tuple) if apply]
-        if self.apply_holiday:
-            days.append('holiday')
         return days
 
     @property
@@ -248,13 +233,13 @@ class ScheduleRule(object):
                 self._apply_saturday)
 
     def apply_day_by_name(self, day_name):
-        """Set the rule to apply to the day of the week (or holidays) by its name.
+        """Set the rule to apply to the day of the week by its name.
 
         Args:
             day_name: A text string for the day on which this rule should be applied.
                 The following options are acceptable:
                 'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday',
-                'saturday', 'holiday', 'weekday', 'weekend', 'all'
+                'saturday', 'weekday', 'weekend', 'all'
         """
         day_name = day_name.lower()
         if day_name == 'sunday':
@@ -271,8 +256,6 @@ class ScheduleRule(object):
             self.apply_friday = True
         elif day_name == 'saturday':
             self.apply_saturday = True
-        elif day_name == 'holiday':
-            self.apply_holiday = True
         elif day_name == 'weekday':
             self.apply_weekday = True
         elif day_name == 'weekend':
@@ -284,11 +267,11 @@ class ScheduleRule(object):
                              'day name.'.format(day_name))
 
     def apply_day_by_dow(self, dow):
-        """Set the rule to apply to the day of the week (or holidays) by its dow integer.
+        """Set the rule to apply to the day of the week by its dow integer.
 
         Args:
-            week_day_index: An integer from 1-8 for the day of the week (or the
-                holiday). Values correspond to the following:
+            week_day_index: An integer from 1-8 for the day of the week. Values
+                correspond to the following:
 
                 1 - Sunday
                 2 - Monday
@@ -297,7 +280,6 @@ class ScheduleRule(object):
                 5 - Thursday
                 6 - Friday
                 7 - Saturday
-                8 - Holiday
         """
         if dow == 1:
             self.apply_sunday = True
@@ -313,8 +295,6 @@ class ScheduleRule(object):
             self.apply_friday = True
         elif dow == 7:
             self.apply_saturday = True
-        elif dow == 8:
-            self.apply_holiday = True
         else:
             raise ValueError('ScheduleRule input "{}" is not an acceptable '
                              'dow integer.'.format(dow))
@@ -369,10 +349,10 @@ class ScheduleRule(object):
         Args:
             schedule_day: A ScheduleDay object associated with this rule.
             applicable_days: A list of text strings for the days when theScheduleRule
-                will be applied. For example ['holiday', 'weekend'].
+                will be applied. For example ['monday', 'weekend'].
                 The following options are acceptable:
                 'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday',
-                'saturday', 'holiday', 'weekday', 'weekend', 'all'
+                'saturday', 'weekday', 'weekend', 'all'
             start_date: A ladybug Date object for the start of the period over which
                 the schedule_day will be applied. If None, Jan 1 will be used.
             end_date: A ladybug Date object for the end of the period over which
@@ -409,7 +389,6 @@ class ScheduleRule(object):
             "apply_thursday": True,
             "apply_friday": True,
             "apply_saturday": False,
-            "apply_holiday": False,
             "start_date": (1, 1),
             "end_date": (12, 31)
             }
@@ -418,11 +397,10 @@ class ScheduleRule(object):
             'Expected ScheduleRule. Got {}.'.format(data['type'])
 
         schedule_day = ScheduleDay.from_dict(data['schedule_day'])
-        sun, mon, tues, wed, thurs, fri, sat, hol, start, end = \
+        sun, mon, tues, wed, thurs, fri, sat, start, end = \
             cls._extract_apply_from_dict(data)
 
-        return cls(schedule_day, sun, mon, tues, wed, thurs, fri, sat, hol,
-                   start, end)
+        return cls(schedule_day, sun, mon, tues, wed, thurs, fri, sat, start, end)
 
     @classmethod
     def from_dict_abridged(cls, data, schedule_day):
@@ -445,7 +423,6 @@ class ScheduleRule(object):
             "apply_thursday": True,
             "apply_friday": True,
             "apply_saturday": False,
-            "apply_holiday": False,
             "start_date": (1, 1),
             "end_date": (12, 31)
             }
@@ -453,11 +430,10 @@ class ScheduleRule(object):
         assert data['type'] == 'ScheduleRuleAbridged', \
             'Expected ScheduleRuleAbridged dictionary. Got {}.'.format(data['type'])
 
-        sun, mon, tues, wed, thurs, fri, sat, hol, start, end = \
+        sun, mon, tues, wed, thurs, fri, sat, start, end = \
             cls._extract_apply_from_dict(data)
 
-        return cls(schedule_day, sun, mon, tues, wed, thurs, fri, sat, hol,
-                   start, end)
+        return cls(schedule_day, sun, mon, tues, wed, thurs, fri, sat, start, end)
 
     def to_dict(self, abridged=False):
         """ScheduleRule dictionary representation.
@@ -478,7 +454,6 @@ class ScheduleRule(object):
         base['apply_thursday'] = self.apply_thursday
         base['apply_friday'] = self.apply_friday
         base['apply_saturday'] = self.apply_saturday
-        base['apply_holiday'] = self.apply_holiday
         base['start_date'] = self.start_date.to_array()
         base['end_date'] = self.end_date.to_array()
         return base
@@ -521,7 +496,7 @@ class ScheduleRule(object):
         if week_idf_string.startswith('Schedule:Week:Daily,'):
             ep_strs = parse_idf_string(week_idf_string)
             applied_day_names = []
-            for i, day_sch_name in enumerate(ep_strs[1:9]):
+            for i, day_sch_name in enumerate(ep_strs[1:8]):
                 if day_sch_name not in applied_day_names:  # make a new rule
                     rule = ScheduleRule(day_schedule_dict[day_sch_name],
                                         start_date=start_date, end_date=end_date)
@@ -557,16 +532,11 @@ class ScheduleRule(object):
                     rule.apply_friday = True
                 elif 'saturday' in day_type:
                     rule.apply_saturday = True
-                elif 'holiday' in day_type:
-                    rule.apply_holiday = True
                 elif 'allotherdays' in day_type:
                     apply_mtx = [rul.week_apply_tuple for rul in schedule_rules]
                     for j, dow in enumerate(zip(*apply_mtx)):
                         if not any(dow):
                             rule.apply_day_by_dow(j + 1)
-                    apply_hol = [rul.apply_holiday for rul in schedule_rules]
-                    if not any(apply_hol):
-                        rule.apply_holiday = True
                 if len(rule.days_applied) != 0:
                     schedule_rules.append(rule)
         return schedule_rules
@@ -586,15 +556,13 @@ class ScheduleRule(object):
         apply_thursday = data['apply_thursday'] if 'apply_thursday' in data else False
         apply_friday = data['apply_friday'] if 'apply_friday' in data else False
         apply_saturday = data['apply_saturday'] if 'apply_saturday' in data else False
-        apply_holiday = data['apply_holiday'] if 'apply_holiday' in data else False
         start_date = Date.from_array(data['start_date']) if \
             'start_date' in data else ScheduleRule._year_start
         end_date = Date.from_array(data['end_date']) if \
             'end_date' in data else ScheduleRule._year_end
 
         return apply_sunday, apply_monday, apply_tuesday, apply_wednesday, \
-            apply_thursday, apply_friday, apply_saturday, apply_holiday, \
-            start_date, end_date
+            apply_thursday, apply_friday, apply_saturday, start_date, end_date
 
     @staticmethod
     def _check_date(date, date_name='date'):
@@ -614,7 +582,7 @@ class ScheduleRule(object):
         return (hash(self.schedule_day), self.schedule_day, self.apply_sunday,
                 self.apply_monday, self.apply_tuesday, self.apply_wednesday,
                 self.apply_thursday, self.apply_friday, self.apply_saturday,
-                self.apply_holiday, hash(self.start_date), hash(self.end_date))
+                hash(self.start_date), hash(self.end_date))
 
     def __hash__(self):
         return hash(self.__key())
@@ -630,7 +598,7 @@ class ScheduleRule(object):
             self.schedule_day.duplicate(), self.apply_sunday,
             self.apply_monday, self.apply_tuesday, self.apply_wednesday,
             self.apply_thursday, self.apply_friday, self.apply_saturday,
-            self.apply_holiday, self.start_date, self.end_date)
+            self.start_date, self.end_date)
 
     def ToString(self):
         """Overwrite .NET ToString."""

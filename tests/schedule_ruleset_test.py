@@ -26,15 +26,17 @@ def test_schedule_ruleset_init():
     winter_office = ScheduleDay('Winter Office Occupancy', [0])
     schedule = ScheduleRuleset('Office Occupancy', weekday_office,
                                [sat_rule, sun_rule], schedule_types.fractional,
-                               summer_office, winter_office)
+                               sunday_office, summer_office, winter_office)
     str(schedule)  # test the string representation
 
     assert schedule.name == 'Office Occupancy'
     assert schedule.default_day_schedule == weekday_office
+    assert schedule.holiday_schedule == sunday_office
     assert schedule.summer_designday_schedule == summer_office
     assert schedule.winter_designday_schedule == winter_office
     assert schedule.schedule_type_limit == schedule_types.fractional
     assert len(schedule.schedule_rules) == 2
+    assert len(schedule.day_schedules) == 5
 
     schedule.remove_rule(1)
     assert len(schedule.schedule_rules) == 1
@@ -316,10 +318,8 @@ def test_schedule_ruleset_to_idf_date_range():
     summer_weekend_rule = ScheduleRule(
         weekend_summer, start_date=Date(7, 1), end_date=Date(9, 1))
     summer_weekend_rule.apply_weekend = True
-    summer_weekend_rule.apply_holiday = True
     school_weekend_rule = ScheduleRule(weekend_school)
     school_weekend_rule.apply_weekend = True
-    school_weekend_rule.apply_holiday = True
 
     summer_design = ScheduleDay('School Summer Design', [0, 1, 0.25],
                                 [Time(0, 0), Time(6, 0), Time(18, 0)])
@@ -447,10 +447,8 @@ def test_schedule_ruleset_average_schedules_date_range():
     summer_weekend_rule = ScheduleRule(
         weekend_summer, start_date=Date(7, 1), end_date=Date(9, 1))
     summer_weekend_rule.apply_weekend = True
-    summer_weekend_rule.apply_holiday = True
     school_weekend_rule = ScheduleRule(weekend_school)
     school_weekend_rule.apply_weekend = True
-    school_weekend_rule.apply_holiday = True
 
     summer_design = ScheduleDay('School Summer Design', [0, 1, 0.25],
                                 [Time(0, 0), Time(6, 0), Time(18, 0)])
