@@ -123,7 +123,7 @@ class Folders(object):
 
         This folder must have the following sub-folders in order to be valid:
 
-        * ladybug - ruby library with modules for model translation to OpenStudio.
+        * from_honeybee - ruby library with modules for model translation to OpenStudio.
         * measures - folder with the actual measures that run the translation.
         * files - folder containing the openapi schemas
         """

@@ -90,8 +90,21 @@ class FaceEnergyProperties(object):
         classmethod to work.
 
         Args:
-            data: A dictionary representation of FaceEnergyProperties.
+            data: A dictionary representation of FaceEnergyProperties with the
+                format below.
             host: A Face object that hosts these properties.
+
+        .. code-block:: python
+
+            {
+            "type": 'FaceEnergyProperties',
+            "construction": {
+                "type": 'OpaqueConstruction',
+                "name": str, "Construction name"
+                "layers": [], # list of material names (from outside to inside)
+                "materials": []  # list of unique material objects
+                }
+            }
         """
         assert data['type'] == 'FaceEnergyProperties', \
             'Expected FaceEnergyProperties. Got {}.'.format(data['type'])

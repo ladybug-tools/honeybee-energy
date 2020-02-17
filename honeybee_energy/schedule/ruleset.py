@@ -55,7 +55,7 @@ class ScheduleRuleset(object):
         * is_single_week
     """
     __slots__ = ('_name', '_default_day_schedule', '_schedule_rules', '_holiday_schedule',
-                 '_summer_designday_schedule', '_winter_designday_schedule',  
+                 '_summer_designday_schedule', '_winter_designday_schedule',
                  '_schedule_type_limit', '_locked')
     _dow_text_to_int = {'sunday': 1, 'monday': 2, 'tuesday': 3, 'wednesday': 4,
                         'thursday': 2, 'friday': 3, 'saturday': 7}
@@ -627,6 +627,20 @@ class ScheduleRuleset(object):
             data: ScheduleRulesetAbridged dictionary.
             schedule_type_limits: A dictionary with names of schedule type limits
                 as keys and Python schedule type limit objects as values.
+
+        .. code-block:: python
+
+            {
+            "type": 'ScheduleRulesetAbridged',
+            "name": 'Office Occupancy',
+            "day_schedules": [], # Array of ScheduleDay dictionary representations
+            "default_day_schedule": str, # ScheduleDay name
+            "schedule_rules": [], # list of ScheduleRuleAbridged dictionaries
+            "schedule_type_limit": str, # ScheduleTypeLimit name
+            "holiday_schedule": str, # ScheduleDay name
+            "summer_designday_schedule": str, # ScheduleDay name
+            "winter_designday_schedule": str # ScheduleDay name
+            }
         """
         assert data['type'] == 'ScheduleRulesetAbridged', \
             'Expected ScheduleRulesetAbridged. Got {}.'.format(data['type'])

@@ -304,8 +304,25 @@ class RoomEnergyProperties(object):
         classmethod to work.
 
         Args:
-            data: A dictionary representation of RoomEnergyProperties.
+            data: A dictionary representation of RoomEnergyProperties with the
+                format below.
             host: A Room object that hosts these properties.
+
+        .. code-block:: python
+
+            {
+            "type": 'RoomEnergyProperties',
+            "construction_set": {},  # A ConstructionSet dictionary
+            "program_type": {},  # A ProgramType dictionary
+            "hvac": {}, # A HVACSystem dictionary
+            "people":{},  # A People dictionary
+            "lighting": {},  # A Lighting dictionary
+            "electric_equipment": {},  # A ElectricEquipment dictionary
+            "gas_equipment": {},  # A GasEquipment dictionary
+            "infiltration": {},  # A Infiltration dictionary
+            "ventilation": {},  # A Ventilation dictionary
+            "setpoint": {}  # A Setpoint dictionary
+            }
         """
         assert data['type'] == 'RoomEnergyProperties', \
             'Expected RoomEnergyProperties. Got {}.'.format(data['type'])

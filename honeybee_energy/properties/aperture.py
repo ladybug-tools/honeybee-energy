@@ -87,8 +87,20 @@ class ApertureEnergyProperties(object):
         classmethod to work.
 
         Args:
-            data: A dictionary representation of ApertureEnergyProperties.
+            data: A dictionary representation of ApertureEnergyProperties in the
+                format below.
             host: A Aperture object that hosts these properties.
+
+        .. code-block:: python
+
+            {
+            "type": 'ApertureEnergyProperties',
+            "construction": {
+                "type": 'WindowConstruction',
+                "name": 'Generic Double Pane Window',
+                "materials": []  # list of material objects
+                }
+            }
         """
         assert data['type'] == 'ApertureEnergyProperties', \
             'Expected ApertureEnergyProperties. Got {}.'.format(data['type'])
