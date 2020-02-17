@@ -203,7 +203,25 @@ class ProgramType(object):
         classmethod to work.
 
         Args:
-            data: Dictionary describing the ProgramType.
+            data: Dictionary describing the ProgramType with the format below.
+
+        .. code-block:: python
+
+            {
+            "type": 'ProgramType',
+            "name": str,  # ProgramType name
+            'people': {},  # A People dictionary
+            'lighting': {},  # A Lighting dictionary
+            'electric_equipment': {},  # A ElectricEquipment dictionary
+            'gas_equipment': {},  # A GasEquipment dictionary
+            'infiltration': {},  # A Infliltration dictionary
+            'ventilation': {},  # A Ventilation dictionary
+            'setpoint': {},  # A Setpoint dictionary
+            "schedule_type_limits": [],  # list of ScheduleTypeLimit dictionaries
+            "schedules": []  # list of ScheduleRuleset/ScheduleFixedInterval dictionaries
+            }
+
+
         """
         assert data['type'] == 'ProgramType', \
             'Expected ProgramType. Got {}.'.format(data['type'])
@@ -257,6 +275,20 @@ class ProgramType(object):
             schedule_dict: A dictionary with schedule names as keys and honeybee schedule
                 objects as values (either ScheduleRuleset or ScheduleFixedInterval).
                 These will be used to assign the schedules to the ProgramType object.
+
+        .. code-block:: python
+
+            {
+            "type": 'ProgramTypeAbridged',
+            "name": str,  # ProgramType name
+            'people': {},  # A People dictionary
+            'lighting': {},  # A Lighting dictionary
+            'electric_equipment': {},  # A ElectricEquipment dictionary
+            'gas_equipment': {},  # A GasEquipment dictionary
+            'infiltration': {},  # A Infliltration dictionary
+            'ventilation': {},  # A Ventilation dictionary
+            'setpoint': {}  # A Setpoint dictionary
+            }
         """
         assert data['type'] == 'ProgramTypeAbridged', \
             'Expected ProgramTypeAbridged dictionary. Got {}.'.format(data['type'])

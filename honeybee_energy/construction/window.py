@@ -58,18 +58,14 @@ class WindowConstruction(_ConstructionBase):
         * Only one shade/screen/blind layer is allowed
         * An exterior shade/screen/blind must be the first layer
         * An interior shade/blind must be the last layer
-        * An interior screen is not allowed
-        * For an exterior shade/screen/blind or interior shade/blind, there should
-          not be a gas layer between the shade/screen/blind and adjacent glass
-          (we take care of this for shade materials)
-        * A between-glass screen is not allowed
-        * A between-glass shade/blind is allowed only for double and triple glazing
-        * A between-glass shade/blind must have adjacent gas layers of the same type
-          and width (we take care of this so the user does not specify the gaps)
+        * Shades/screens should always be adjacent to glass layers and should never
+          be adjacent to gas layers(honeybee takes care of adding the additional gas
+          gaps needed by EnergyPlus using the material's distance_to_shade property
+          to set the gap thickness).
         * For triple glazing the between-glass shade/blind must be between the two
           inner glass layers. (currently no check)
-        * The slat width of a between-glass blind must be less than the sum of the
-          widths of the gas layers adjacent to the blind. (currently no check).
+        * The slat width of a between-glass blind must be less than 2 times the
+          blind's distance_to_glass.(currently no check).
         """
         try:
             if not isinstance(mats, tuple):
@@ -343,6 +339,7 @@ class WindowConstruction(_ConstructionBase):
             "type": 'WindowConstruction',
             "name": 'Generic Double Pane Window',
             "materials": []  # list of material objects
+            "layers": [],  # list of material names (from outside to inside)
             }
         """
         assert data['type'] == 'WindowConstruction', \
@@ -374,9 +371,17 @@ class WindowConstruction(_ConstructionBase):
         """Create a WindowConstruction from an abridged dictionary.
 
         Args:
-            data: An WindowConstructionAbridged dictionary.
+            data: An WindowConstructionAbridged dictionary with the format below.
             materials: A dictionary with names of materials as keys and Python
                 material objects as values.
+
+        .. code-block:: python
+
+            {
+            "type": 'WindowConstructionAbridged',
+            "name": 'Generic Double Pane Window',
+            "layers": [],  # list of material names (from outside to inside)
+            }
         """
         assert data['type'] == 'WindowConstructionAbridged', \
             'Expected WindowConstructionAbridged. Got {}.'.format(data['type'])

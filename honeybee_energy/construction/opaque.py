@@ -177,7 +177,7 @@ class OpaqueConstruction(_ConstructionBase):
             {
             "type": 'OpaqueConstruction',
             "name": 'Generic Brick Wall',
-            "layers": [] # list of material names (from outside to inside)
+            "layers": [],  # list of material names (from outside to inside)
             "materials": []  # list of unique material objects
             }
         """
@@ -203,6 +203,14 @@ class OpaqueConstruction(_ConstructionBase):
             data: An OpaqueConstructionAbridged dictionary.
             materials: A dictionary with names of materials as keys and Python
                 material objects as values.
+
+        .. code-block:: python
+
+            {
+            "type": 'OpaqueConstructionAbridged',
+            "name": 'Generic Brick Wall',
+            "layers": [],  # list of material names (from outside to inside)
+            }
         """
         assert data['type'] == 'OpaqueConstructionAbridged', \
             'Expected OpaqueConstructionAbridged. Got {}.'.format(data['type'])

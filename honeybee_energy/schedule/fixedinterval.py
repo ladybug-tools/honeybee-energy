@@ -411,9 +411,22 @@ class ScheduleFixedInterval(object):
         """Create a ScheduleFixedInterval from an abridged dictionary.
 
         Args:
-            data: ScheduleFixedIntervalAbridged dictionary.
+            data: ScheduleFixedIntervalAbridged dictionary with format below.
             schedule_type_limits: A dictionary with names of schedule type limits
                 as keys and Python schedule type limit objects as values.
+
+        .. code-block:: python
+
+            {
+            "type": 'ScheduleFixedIntervalAbridged',
+            "name": 'Automated Awning Transmittance',
+            "values": [], # list of numbers for the values of the schedule
+            "schedule_type_limit": "", # ScheduleTypeLimit name
+            "timestep": 1, # Integer for the timestep of the schedule
+            "start_date": (1, 1), # Date dictionary representation
+            "placeholder_value": 0, # Number for the values out of range
+            "interpolate": False # Boolean noting whether to interpolate between values
+            }
         """
         assert data['type'] == 'ScheduleFixedIntervalAbridged', \
             'Expected ScheduleFixedIntervalAbridged. Got {}.'.format(data['type'])

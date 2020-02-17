@@ -320,7 +320,24 @@ class ConstructionSet(object):
         classmethod to work.
 
         Args:
-            data: Dictionary describing the ConstructionSet.
+            data: Dictionary describing the ConstructionSet with the
+                format below.
+
+        .. code-block:: python
+
+            {
+            "type": 'ConstructionSet',
+            "name": str,  # ConstructionSet name
+            "wall_set": {},  # A WallSet dictionary
+            "floor_set": {},  # A FloorSet dictionary
+            "roof_ceiling_set": {},  # A RoofCeilingSet dictionary
+            "aperture_set": {},  # A ApertureSet dictionary
+            "door_set": {},  # A DoorSet dictionary
+            "shade_construction": {},  # A ShadeConstruction dictionary
+            "air_boundary_construction": {},  # A AirBoundaryConstruction dictionary
+            "materials": [],  # list of material dictionaries
+            "constructions": []  # list of abridged construction dictionaries
+            }
         """
         assert data['type'] == 'ConstructionSet', \
             'Expected ConstructionSet. Got {}.'.format(data['type'])
@@ -352,6 +369,20 @@ class ConstructionSet(object):
             construction_dict: A dictionary with construction names as keys and
                 honeybee construction objects as values. These will be used to
                 assign the constructions to the ConstructionSet object.
+
+        .. code-block:: python
+
+            {
+            "type": 'ConstructionSetAbridged',
+            "name": str,  # ConstructionSet name
+            "wall_set": {},  # A WallSet dictionary
+            "floor_set": {},  # A FloorSet dictionary
+            "roof_ceiling_set": {},  # A RoofCeilingSet dictionary
+            "aperture_set": {},  # A ApertureSet dictionary
+            "door_set": {},  # A DoorSet dictionary
+            "shade_construction": {},  # A ShadeConstruction dictionary
+            "air_boundary_construction": {}  # A AirBoundaryConstruction dictionary
+            }
         """
         assert data['type'] == 'ConstructionSetAbridged', \
             'Expected ConstructionSetAbridged. Got {}.'.format(data['type'])

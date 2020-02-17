@@ -110,8 +110,17 @@ class ShadeEnergyProperties(object):
         classmethod to work.
 
         Args:
-            data: A dictionary representation of ShadeEnergyProperties.
+            data: A dictionary representation of ShadeEnergyProperties with the
+                format below.
             host: A Shade object that hosts these properties.
+
+        .. code-block:: python
+
+            {
+            "type": 'ShadeEnergyProperties',
+            "construction": {},  # A ShadeConstruction dictionary
+            "transmittance_schedule": {}  # A transmittance schedule dictionary
+            }
         """
         assert data['type'] == 'ShadeEnergyProperties', \
             'Expected ShadeEnergyProperties. Got {}.'.format(data['type'])

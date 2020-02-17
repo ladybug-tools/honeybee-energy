@@ -111,10 +111,19 @@ class AirBoundaryConstruction(object):
         """Create a AirBoundaryConstruction from an abridged dictionary.
 
         Args:
-            data: A AirBoundaryConstructionAbridged dictionary.
+            data: A AirBoundaryConstructionAbridged dictionary with the format below.
             schedule_dict: A dictionary with schedule names as keys and
                 honeybee schedule objects as values. These will be used to
                 assign the schedule to the AirBoundaryConstruction object.
+
+        .. code-block:: python
+
+            {
+            "type": 'AirBoundaryConstructionAbridged',
+            "name": 'Generic Air Boundary Construction',
+            "air_mixing_per_area": 0.2,
+            "air_mixing_schedule": ""  # Name of a schedule
+            }
         """
         assert data['type'] == 'AirBoundaryConstructionAbridged', \
             'Expected AirBoundaryConstructionAbridged. Got {}.'.format(data['type'])

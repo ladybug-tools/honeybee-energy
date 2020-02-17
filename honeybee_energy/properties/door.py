@@ -94,8 +94,21 @@ class DoorEnergyProperties(object):
         classmethod to work.
 
         Args:
-            data: A dictionary representation of DoorEnergyProperties.
+            data: A dictionary representation of DoorEnergyProperties in the
+                format below.
             host: A Door object that hosts these properties.
+
+        .. code-block:: python
+
+            {
+            "type": 'DoorEnergyProperties',
+            "construction": {
+                "type": 'OpaqueConstruction',
+                "name": str,  # Construction name
+                "layers": [],  # list of material names (from outside to inside)
+                "materials": []  # list of unique material objects
+                }
+            }
         """
         assert data['type'] == 'DoorEnergyProperties', \
             'Expected DoorEnergyProperties. Got {}.'.format(data['type'])
