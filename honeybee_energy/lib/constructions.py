@@ -4,8 +4,11 @@ from honeybee_energy.construction.window import WindowConstruction
 from honeybee_energy.construction.shade import ShadeConstruction
 from honeybee_energy.construction.air import AirBoundaryConstruction
 from ._loadconstructions import _opaque_constructions, _window_constructions, \
-    _shade_constructions
+    _shade_constructions, _opaque_constr_standards_dict, _window_constr_standards_dict, \
+    _shade_constr_standards_dict
+
 import honeybee_energy.lib.materials as _m
+import honeybee_energy.lib.schedules as _s
 
 
 # materials of all default constructions; used when they are not found in default.idf
@@ -170,9 +173,12 @@ except KeyError:
 
 
 # make lists of construction names to look up items in the library
-OPAQUE_CONSTRUCTIONS = tuple(_opaque_constructions.keys())
-WINDOW_CONSTRUCTIONS = tuple(_window_constructions.keys())
-SHADE_CONSTRUCTIONS = tuple(_shade_constructions.keys())
+OPAQUE_CONSTRUCTIONS = tuple(_opaque_constructions.keys()) + \
+    tuple(_opaque_constr_standards_dict.keys())
+WINDOW_CONSTRUCTIONS = tuple(_window_constructions.keys()) + \
+    tuple(_window_constr_standards_dict.keys())
+SHADE_CONSTRUCTIONS = tuple(_shade_constructions.keys()) + \
+    tuple(_shade_constr_standards_dict.keys())
 
 
 def opaque_construction_by_name(construction_name):
@@ -184,9 +190,24 @@ def opaque_construction_by_name(construction_name):
     try:
         return _opaque_constructions[construction_name]
     except KeyError:
-        raise ValueError(
-            '"{}" was not found in the opaque energy construction library.'.format(
-                construction_name))
+        try:  # search the extension data
+            constr_dict = _opaque_constr_standards_dict[construction_name]
+            if constr_dict['type'] == 'OpaqueConstructionAbridged':
+                mats = {}
+                for mat in constr_dict['layers']:
+                    mats[mat] = _m.opaque_material_by_name(mat)
+                return OpaqueConstruction.from_dict_abridged(constr_dict, mats)
+            else:  # AirBoundaryConstruction
+                try:
+                    sch_name = constr_dict['air_mixing_schedule']
+                    schs = {sch_name: _s.schedule_by_name(sch_name)}
+                except KeyError:  # no air mixing key provided
+                    schs = {}
+                return AirBoundaryConstruction.from_dict_abridged(constr_dict, sch_name)
+        except KeyError:  # construction is nowhere to be found; raise an error
+            raise ValueError(
+                '"{}" was not found in the opaque energy construction library.'.format(
+                    construction_name))
 
 
 def window_construction_by_name(construction_name):
@@ -198,9 +219,16 @@ def window_construction_by_name(construction_name):
     try:
         return _window_constructions[construction_name]
     except KeyError:
-        raise ValueError(
-            '"{}" was not found in the window energy construction library.'.format(
-                construction_name))
+        try:  # search the extension data
+            constr_dict = _window_constr_standards_dict[construction_name]
+            mats = {}
+            for mat in constr_dict['layers']:
+                mats[mat] = _m.window_material_by_name(mat)
+            return WindowConstruction.from_dict_abridged(constr_dict, mats)
+        except KeyError:  # construction is nowhere to be found; raise an error
+            raise ValueError(
+                '"{}" was not found in the window energy construction library.'.format(
+                    construction_name))
 
 
 def shade_construction_by_name(construction_name):
@@ -212,6 +240,10 @@ def shade_construction_by_name(construction_name):
     try:
         return _shade_constructions[construction_name]
     except KeyError:
-        raise ValueError(
-            '"{}" was not found in the shade energy construction library.'.format(
-                construction_name))
+        try:  # search the extension data
+            constr_dict = _shade_constr_standards_dict[construction_name]
+            return ShadeConstruction.from_dict(constr_dict)
+        except KeyError:  # construction is nowhere to be found; raise an error
+            raise ValueError(
+                '"{}" was not found in the shade energy construction library.'.format(
+                    construction_name))

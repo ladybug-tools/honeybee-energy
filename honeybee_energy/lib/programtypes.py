@@ -7,7 +7,7 @@ from honeybee_energy.load.infiltration import Infiltration
 from honeybee_energy.load.ventilation import Ventilation
 from honeybee_energy.load.setpoint import Setpoint
 
-from ._loadprogramtypes import _program_types
+from ._loadprogramtypes import _program_types, _program_types_standards_dict
 import honeybee_energy.lib.schedules as _s
 
 
@@ -45,7 +45,8 @@ except KeyError:
 
 
 # make lists of program types to look up items in the library
-PROGRAM_TYPES = tuple(_program_types.keys())
+PROGRAM_TYPES = tuple(_program_types.keys()) + \
+    tuple(_program_types_standards_dict.keys())
 
 
 def program_type_by_name(program_type_name):
@@ -57,5 +58,34 @@ def program_type_by_name(program_type_name):
     try:
         return _program_types[program_type_name]
     except KeyError:
-        raise ValueError('"{}" was not found in the program type library.'.format(
-            program_type_name))
+        try:  # search the extension data
+            p_type_dict = _program_types_standards_dict[program_type_name]
+            scheds = _scheds_from_ptype_dict(p_type_dict)
+            return ProgramType.from_dict_abridged(p_type_dict, scheds)
+        except KeyError:  # construction is nowhere to be found; raise an error
+            raise ValueError('"{}" was not found in the program type library.'.format(
+                program_type_name))
+
+
+def _scheds_from_ptype_dict(p_type_dict):
+    """Get a dictionary of schedules used in a ProgramTypeAbridged dictionary."""
+    def add_schedule(scheds, p_type_dict, load_name, sch_name):
+        try:
+            sch_name = p_type_dict[load_name][sch_name]
+            scheds[sch_name] = _s.schedule_by_name(sch_name)
+        except KeyError:
+            pass  # key is not included
+
+    scheds = {}
+    add_schedule(scheds, p_type_dict, 'people', 'occupancy_schedule')
+    add_schedule(scheds, p_type_dict, 'people', 'activity_schedule')
+    add_schedule(scheds, p_type_dict, 'lighting', 'schedule')
+    add_schedule(scheds, p_type_dict, 'electric_equipment', 'schedule')
+    add_schedule(scheds, p_type_dict, 'gas_equipment', 'schedule')
+    add_schedule(scheds, p_type_dict, 'infiltration', 'schedule')
+    add_schedule(scheds, p_type_dict, 'ventilation', 'schedule')
+    add_schedule(scheds, p_type_dict, 'setpoint', 'heating_schedule')
+    add_schedule(scheds, p_type_dict, 'setpoint', 'cooling_schedule')
+    add_schedule(scheds, p_type_dict, 'setpoint', 'humidifying_schedule')
+    add_schedule(scheds, p_type_dict, 'setpoint', 'dehumidifying_schedule')
+    return scheds

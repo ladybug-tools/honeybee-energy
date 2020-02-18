@@ -31,3 +31,15 @@ for f in os.listdir(folders.constructionset_lib):
                 _construction_sets[constructionset.name] = constructionset
             except ValueError:
                 pass  # failed to find the construction in the construction library
+
+
+# empty dictionaries to hold extension data
+_construction_set_standards_dict = {}
+
+for ext_folder in folders.standards_extension_folders:
+    _data_dir = os.path.join(ext_folder, 'constructionsets')
+    for _c_set_json in os.listdir(_data_dir):
+        if _c_set_json.endswith('.json'):
+            _c_set_dir = os.path.join(_data_dir, _c_set_json)
+            with open(_c_set_dir, 'r') as f:
+                _construction_set_standards_dict.update(json.load(f))

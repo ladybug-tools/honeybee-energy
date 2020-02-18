@@ -25,3 +25,15 @@ for f in os.listdir(folders.programtype_lib):
                 _program_types[program.name] = program
             except ValueError:
                 pass  # failed to find schedule in the library; not a valid program
+
+
+# empty dictionaries to hold extension data
+_program_types_standards_dict = {}
+
+for ext_folder in folders.standards_extension_folders:
+    _data_dir = os.path.join(ext_folder, 'programtypes')
+    for _p_type_json in os.listdir(_data_dir):
+        if _p_type_json.endswith('.json'):
+            _p_type_dir = os.path.join(_data_dir, _p_type_json)
+            with open(_p_type_dir, 'r') as f:
+                _program_types_standards_dict.update(json.load(f))

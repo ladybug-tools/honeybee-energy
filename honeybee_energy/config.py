@@ -16,6 +16,7 @@ import honeybee.config as hb_config
 import os
 import platform
 import json
+import pkgutil
 
 
 class Folders(object):
@@ -40,6 +41,7 @@ class Folders(object):
         * constructionset_lib
         * schedule_lib
         * programtype_lib
+        * standards_extension_folders
         * config_file
         * mute
     """
@@ -164,27 +166,43 @@ class Folders(object):
             path = self._find_standards_data_folder()
 
         # gather all of the sub folders underneath the master folder
-        self._construction_lib = os.path.join(path, 'constructions') if path else None
-        self._constructionset_lib = os.path.join(path, 'constructionsets') if path else None
-        self._schedule_lib = os.path.join(path, 'schedules') if path else None
-        self._programtype_lib = os.path.join(path, 'programtypes') if path else None
-
-        # check that the library's sub-folders exist
-        if path:
-            assert os.path.isdir(self._construction_lib), \
-                '{} lacks a "constructions" folder.'.format(path)
-            assert os.path.isdir(self._constructionset_lib), \
-                '{} lacks a "constructionsets" folder.'.format(path)
-            assert os.path.isdir(self._schedule_lib), \
-                '{} lacks a "schedules" folder.'.format(path)
-            assert os.path.isdir(self._programtype_lib), \
-                '{} lacks a "programtypes" folder.'.format(path)
+        self._construction_lib, self._constructionset_lib, self._schedule_lib, \
+            self._programtype_lib = self._check_standards_folder(path)
 
         # set the standards_data_folder
         self._standards_data_folder = path
         if path and not self.mute:
             print('Path to the standards_data_folder is set to: '
                     '{}'.format(self._standards_data_folder))
+
+    @property
+    def standards_extension_folders(self):
+        """Get or set an array of paths to standards extensions loaded to the lib.
+
+        Each extension folder folder must have the following sub-folders:
+
+        * constructions - folder with honeybee JSON files for materials + constructions.
+            It should have the following 4 JSON files:
+            opaque_material, opaque_construction, window_material, window_construction.
+        * constructionsets - folder with honeybee JSON files of abridged ConstructionSets.
+        * schedules - folder with honeybee JSON files for schedules.
+        * programtypes - folder with honeybee JSON files of abridged ProgramTypes.
+        """
+        return tuple(self._standards_extension_folders)
+
+    @standards_extension_folders.setter
+    def standards_extension_folders(self, folders):
+        if not folders:  # check the default locations
+            folders = self._find_standards_extension_folders()
+
+        # check that any extensions have the proper sub-folders
+        for path in folders:
+            self._check_standards_folder(path)
+            if not self.mute:
+                print('Standards extension folder found: {}'.format(path))
+
+        # set the standards_data_folder
+        self._standards_extension_folders = folders
 
     @property
     def construction_lib(self):
@@ -238,7 +256,8 @@ class Folders(object):
             "energyplus_path": r'',
             "openstudio_path": r'',
             "energy_model_measure_path": r'',
-            "standards_data_folder": r''
+            "standards_data_folder": r'',
+            "standards_extension_folders": []
         }
 
         with open(file_path, 'r') as cfg:
@@ -248,8 +267,11 @@ class Folders(object):
                 print('Failed to load paths from {}.\n{}'.format(file_path, e))
             else:
                 for key, p in paths.items():
-                    if not key.startswith('__') and p.strip():
-                        default_path[key] = p.strip()
+                    if isinstance(key, list) or not key.startswith('__'):
+                        try:
+                            default_path[key] = p.strip()
+                        except AttributeError:
+                            default_path[key] = p
 
         # set paths for energyplus and openstudio installations
         self.openstudio_path = default_path["openstudio_path"]
@@ -260,6 +282,9 @@ class Folders(object):
 
         # set path for the standards_data_folder
         self.standards_data_folder = default_path["standards_data_folder"]
+
+        # set path for the standards_extension_folders
+        self.standards_extension_folders = default_path["standards_extension_folders"]
 
     def _find_energyplus_folder(self):
         """Find the most recent EnergyPlus installation in its default location.
@@ -366,7 +391,7 @@ class Folders(object):
 
     @staticmethod
     def _find_standards_data_folder():
-        """Find the the user template library in its default location.
+        """Find the user template library in its default location.
 
         The HOME/honeybee/honeybee_standards/data folder will be checked first,
         which can conatain libraries that are not overwritten with the update of the
@@ -380,6 +405,60 @@ class Folders(object):
             return lib_folder
         else:  # default to the library folder that installs with this Python package
             return os.path.join(os.path.dirname(__file__), 'lib', 'data')
+
+    @staticmethod
+    def _find_standards_extension_folders():
+        """Find the standards extension folders in their default locations.
+
+        Extension folders are expected to start with the words "honeybee_energy"
+        and end with the words "standards" (eg. honeybee_energy_cibse_standards).
+
+        The HOME/honeybee/ folder will be checked first, which can conatain libraries
+        that are not overwritten with the update of the honeybee_energy package.
+        If no folders are found, this method will look for any Python packages
+        sitting next to honeybee_energy that follow the naming criteria above.
+        """
+        standards_extensions = []
+        # first check the default sim folder folder, where permanent libraries live
+        home_folder = os.getenv('HOME') or os.path.expanduser('~')
+        hb_folder = os.path.join(home_folder, 'honeybee')
+        for folder in os.listdir(hb_folder):
+            if folder.endswith('standards') and folder.startswith('honeybee_energy'):
+                lib_folder = os.path.join(hb_folder, folder, 'data')
+                if os.path.isdir(lib_folder):
+                    standards_extensions.append(lib_folder)
+        # then check next to the Python library
+        if len(standards_extensions) == 0:
+            for finder, name, ispkg in pkgutil.iter_modules():
+                if name.endswith('standards') and name.startswith('honeybee_energy'):
+                    lib_folder = os.path.join(finder.path, name, 'data')
+                    if os.path.isdir(lib_folder):
+                        standards_extensions.append(lib_folder)
+        return standards_extensions
+
+    @staticmethod
+    def _check_standards_folder(path):
+        """Check that a standards data sub-folders exist."""
+        if not path:  # first check that a path exists
+            return [None] * 4
+
+        # gather all of the sub folders underneath the master folder
+        _construction_lib = os.path.join(path, 'constructions') if path else None
+        _constructionset_lib = os.path.join(path, 'constructionsets') if path else None
+        _schedule_lib = os.path.join(path, 'schedules') if path else None
+        _programtype_lib = os.path.join(path, 'programtypes') if path else None
+
+        if path:
+            assert os.path.isdir(_construction_lib), \
+                '{} lacks a "constructions" folder.'.format(path)
+            assert os.path.isdir(_constructionset_lib), \
+                '{} lacks a "constructionsets" folder.'.format(path)
+            assert os.path.isdir(_schedule_lib), \
+                '{} lacks a "schedules" folder.'.format(path)
+            assert os.path.isdir(_programtype_lib), \
+                '{} lacks a "programtypes" folder.'.format(path)
+
+        return _construction_lib, _constructionset_lib, _schedule_lib, _programtype_lib
 
     @staticmethod
     def _which(program):
