@@ -42,7 +42,7 @@ def dict_to_construction(constr_dict, raise_exception=True):
 
 def dict_abridged_to_construction(constr_dict, materials, schedules,
                                   raise_exception=True):
-    """Get a Python object of any Construction from a dictionary.
+    """Get a Python object of any Construction from an abridged dictionary.
 
     Args:
         constr_dict: An abridged dictionary of any Honeybee energy construction.

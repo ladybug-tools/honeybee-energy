@@ -34,3 +34,13 @@ for f in os.listdir(folders.schedule_lib):
                         _schedules[sch_name] = sch_obj
                 except KeyError:
                     pass  # not a Honeybee JSON file with Schedules
+
+
+# empty dictionaries to hold extension data
+_schedule_standards_dict = {}
+
+for ext_folder in folders.standards_extension_folders:
+    _data_dir = os.path.join(ext_folder, 'schedules', 'schedule.json')
+    if os.path.isfile(_data_dir):
+        with open(_data_dir, 'r') as f:
+            _schedule_standards_dict.update(json.load(f))
