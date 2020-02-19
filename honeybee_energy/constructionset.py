@@ -333,8 +333,8 @@ class ConstructionSet(object):
             "roof_ceiling_set": {},  # A RoofCeilingSet dictionary
             "aperture_set": {},  # A ApertureSet dictionary
             "door_set": {},  # A DoorSet dictionary
-            "shade_construction": {},  # A ShadeConstruction dictionary
-            "air_boundary_construction": {},  # A AirBoundaryConstruction dictionary
+            "shade_construction": str,  # ShadeConstruction name
+            "air_boundary_construction": str,  # AirBoundaryConstruction name
             "materials": [],  # list of material dictionaries
             "constructions": []  # list of abridged construction dictionaries
             }
@@ -380,8 +380,8 @@ class ConstructionSet(object):
             "roof_ceiling_set": {},  # A RoofCeilingSet dictionary
             "aperture_set": {},  # A ApertureSet dictionary
             "door_set": {},  # A DoorSet dictionary
-            "shade_construction": {},  # A ShadeConstruction dictionary
-            "air_boundary_construction": {}  # A AirBoundaryConstruction dictionary
+            "shade_construction": str,  # ShadeConstruction name
+            "air_boundary_construction": str  # AirBoundaryConstruction name
             }
         """
         assert data['type'] == 'ConstructionSetAbridged', \

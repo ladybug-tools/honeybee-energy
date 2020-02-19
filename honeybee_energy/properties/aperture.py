@@ -98,6 +98,7 @@ class ApertureEnergyProperties(object):
             "construction": {
                 "type": 'WindowConstruction',
                 "name": 'Generic Double Pane Window',
+                "layers": [],  # list of material names (from outside to inside)
                 "materials": []  # list of material objects
                 }
             }
