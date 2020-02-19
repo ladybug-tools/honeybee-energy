@@ -59,7 +59,7 @@ class WindowConstruction(_ConstructionBase):
         * An exterior shade/screen/blind must be the first layer
         * An interior shade/blind must be the last layer
         * Shades/screens should always be adjacent to glass layers and should never
-          be adjacent to gas layers(honeybee takes care of adding the additional gas
+          be adjacent to gas layers (honeybee takes care of adding the additional gas
           gaps needed by EnergyPlus using the material's distance_to_shade property
           to set the gap thickness).
         * For triple glazing the between-glass shade/blind must be between the two
