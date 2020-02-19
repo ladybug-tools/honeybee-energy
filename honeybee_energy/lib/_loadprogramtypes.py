@@ -29,6 +29,7 @@ for f in os.listdir(folders.programtype_lib):
 
 # empty dictionaries to hold extension data
 _program_types_standards_dict = {}
+_program_types_standards_registry = {}
 
 for ext_folder in folders.standards_extension_folders:
     _data_dir = os.path.join(ext_folder, 'programtypes')
@@ -37,3 +38,14 @@ for ext_folder in folders.standards_extension_folders:
             _p_type_dir = os.path.join(_data_dir, _p_type_json)
             with open(_p_type_dir, 'r') as f:
                 _program_types_standards_dict.update(json.load(f))
+    _data_dir = os.path.join(ext_folder, 'programtypes_registry')
+    if os.path.isdir(_data_dir):
+        for _p_type_json in os.listdir(_data_dir):
+            if _p_type_json.endswith('_registry.json'):
+                _p_type_dir = os.path.join(_data_dir, _p_type_json)
+                vintage = _p_type_json.split('_registry.json')[0]
+                try:
+                    with open(_p_type_dir, 'r') as f:
+                        _program_types_standards_registry[vintage] = json.load(f)
+                except FileNotFoundError:
+                    pass

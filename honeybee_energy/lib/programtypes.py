@@ -7,7 +7,8 @@ from honeybee_energy.load.infiltration import Infiltration
 from honeybee_energy.load.ventilation import Ventilation
 from honeybee_energy.load.setpoint import Setpoint
 
-from ._loadprogramtypes import _program_types, _program_types_standards_dict
+from ._loadprogramtypes import _program_types, _program_types_standards_dict, \
+    _program_types_standards_registry
 import honeybee_energy.lib.schedules as _s
 
 
@@ -47,6 +48,7 @@ except KeyError:
 # make lists of program types to look up items in the library
 PROGRAM_TYPES = tuple(_program_types.keys()) + \
     tuple(_program_types_standards_dict.keys())
+STANDARDS_REGISTRY = _program_types_standards_registry
 
 
 def program_type_by_name(program_type_name):
