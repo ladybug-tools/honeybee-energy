@@ -1,9 +1,5 @@
 # coding=utf-8
-"""Module for running IDF files through EnergyPlus.
-
-NOTE: This module is only temporary and will eventually be replaced with
-the use of queenbee and workerbee.
-"""
+"""Module for running IDF files through EnergyPlus."""
 from __future__ import division
 
 import os
@@ -227,8 +223,9 @@ def run_idf(idf_file_path, epw_file_path, expand_objects=True):
         -   sql -- Path to a .sqlite file containing all simulation results.
             Will be None if no file exists.
 
-        -   eio -- Path to a .eio file containing properties of the model, including
-            the size of HVAC objects. Will be None if no file exists.
+        -   zsz -- Path to a .csv file containing detailed zone load information
+            recorded over the course of the design days. Will be None if no
+            file exists.
 
         -   rdd -- Path to a .rdd file containing all possible outputs that can be
             requested from the simulation. Will be None if no file exists.
@@ -464,8 +461,9 @@ def _output_energyplus_files(directory):
         -   sql -- Path to a .sqlite file containing all simulation results.
             Will be None if no file exists.
 
-        -   eio -- Path to a .eio file containing properties of the model, including
-            the size of HVAC objects. Will be None if no file exists.
+        -   zsz -- Path to a .csv file containing detailed zone load information
+            recorded over the course of the design days. Will be None if no
+            file exists.
 
         -   rdd -- Path to a .rdd file containing all possible outputs that can be
             requested from the simulation. Will be None if no file exists.
@@ -478,16 +476,16 @@ def _output_energyplus_files(directory):
     """
     # generate paths to the simulation files
     sql_file = os.path.join(directory, 'eplusout.sql')
-    eio_file = os.path.join(directory, 'eplusout.eio')
+    zsz_file = os.path.join(directory, 'epluszsz.csv')
     rdd_file = os.path.join(directory, 'eplusout.rdd')
     html_file = os.path.join(directory, 'eplusout.html')
     err_file = os.path.join(directory, 'eplusout.err')
 
     # check that the simulation files exist
     sql = sql_file if os.path.isfile(sql_file) else None
-    eio = eio_file if os.path.isfile(eio_file) else None
+    zsz = zsz_file if os.path.isfile(zsz_file) else None
     rdd = rdd_file if os.path.isfile(rdd_file) else None
     html = html_file if os.path.isfile(html_file) else None
     err = err_file if os.path.isfile(err_file) else None
 
-    return sql, eio, rdd, html, err
+    return sql, zsz, rdd, html, err

@@ -145,7 +145,7 @@ class DaylightSavingTime(object):
         """Check that the start_date is before the end_date."""
         assert self.start_date.leap_year is self.end_date.leap_year, \
             'DaylightSavingTime start_date.leap_year must match the end_date.leap_year'
-        assert self._start_date < self._end_date, 'DaylightSavingTime start_date must ' \
+        assert self._start_date <= self._end_date, 'DaylightSavingTime start_date must ' \
             'be before end_date. {} is after {}.'.format(self.start_date, self.end_date)
 
     @staticmethod
