@@ -360,7 +360,7 @@ class RunPeriod(object):
         """Check that the start_date is before the end_date."""
         assert self.start_date.leap_year is self.end_date.leap_year, \
             'RunPeriod start_date.leap_year must match the end_date.leap_year'
-        assert self._start_date < self._end_date, 'RunPeriod start_date must come ' \
+        assert self._start_date <= self._end_date, 'RunPeriod start_date must come ' \
             'before end_date. {} comes after {}.'.format(self.start_date, self.end_date)
 
     @staticmethod
