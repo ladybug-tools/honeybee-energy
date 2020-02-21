@@ -64,7 +64,7 @@ class Folders(object):
 
     @openstudio_path.setter
     def openstudio_path(self, path):
-        exe_name = 'openstudio.exe' if os.name == 'nt' else 'openstudio'
+        exe_name = 'openstudio.exe'
         if not path:  # check the PATH and then the default installation location
             path, os_exe_file = self._which(exe_name)
             if path is None:  # search within the default installation location
@@ -94,7 +94,7 @@ class Folders(object):
 
     @energyplus_path.setter
     def energyplus_path(self, path):
-        exe_name = 'energyplus.exe' if os.name == 'nt' else 'energyplus'
+        exe_name = 'energyplus.exe'
         if not path:  # check the PATH and then the default installation location
             path, ep_exe_file = self._which(exe_name)
             if path is None:  # search within the default installation location

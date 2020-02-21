@@ -4,6 +4,15 @@ python:
   - "2.7"
   - "3.6"
 
+before_install:
+# install openstudio
+- wget http://security.ubuntu.com/ubuntu/pool/universe/w/wxwidgets3.0/libwxbase3.0-0_3.0.0-2_amd64.deb
+- sudo apt install ./libwxbase3.0-0_3.0.0-2_amd64.deb
+- wget http://security.ubuntu.com/ubuntu/pool/universe/w/wxwidgets3.0/libwxgtk3.0-0_3.0.0-2_amd64.deb
+- sudo apt install ./libwxgtk3.0-0_3.0.0-2_amd64.deb
+- wget https://github.com/NREL/OpenStudio/releases/download/v2.9.1/OpenStudio-2.9.1.3472e8b799-Linux.deb
+- sudo dpkg -i ./OpenStudio-2.9.1.3472e8b799-Linux.deb
+
 install:
   - pip install -r dev-requirements.txt
   - pip install -r requirements.txt
