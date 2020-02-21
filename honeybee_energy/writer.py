@@ -331,7 +331,7 @@ def model_to_idf(model, schedule_directory=None,
         from honeybee.room import Room
         from honeybee.config import folders
         from honeybee_energy.lib.programtypes import office_program
-        from honeybee_energy.idealair import IdealAirSystem
+        from honeybee_energy.hvac.idealair import IdealAirSystem
         from honeybee_energy.simulation.parameter import SimulationParameter
 
         # Get input Model

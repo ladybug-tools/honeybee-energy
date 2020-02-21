@@ -291,8 +291,8 @@ def _run_osw_windows(osw_json, measures_only=True):
     # Write the batch file to call OpenStudio CLI
     working_drive = directory[:2]
     measure_str = '-m ' if measures_only else ''
-    batch = '{}\ncd {}\n"openstudio.exe" -I {} run {}-w {}'.format(
-        working_drive, folders.openstudio_path, folders.energy_model_measure_path,
+    batch = '{}\n"{}" -I {} run {}-w {}'.format(
+        working_drive, folders.openstudio_exe, folders.energy_model_measure_path,
         measure_str, osw_json)
     batch_file = os.path.join(directory, 'run_workflow.bat')
     write_to_file(batch_file, batch, True)
@@ -324,8 +324,8 @@ def _run_osw_unix(osw_json, measures_only=True):
 
     # Write the shell script to call OpenStudio CLI
     measure_str = '-m ' if measures_only else ''
-    shell = '#!/usr/bin/env bash\n\ncd {}\n"openstudio" -I {} run {}-w {}'.format(
-        folders.openstudio_path, folders.energy_model_measure_path,
+    shell = '#!/usr/bin/env bash\n"{}" -I {} run {}-w {}'.format(
+        folders.openstudio_exe, folders.energy_model_measure_path,
         measure_str, osw_json)
     shell_file = os.path.join(directory, 'run_workflow.sh')
     write_to_file(shell_file, shell, True)
@@ -434,7 +434,7 @@ def _run_idf_unix(idf_file_path, epw_file_path, expand_objects=True):
         exp_str = ''
 
     # write a shell file
-    run_path = os.path.join(folders.energyplus_path, 'EnergyPlus')
+    run_path = os.path.join(folders.energyplus_path, 'energyplus')
     shell = '#!/usr/bin/env bash\n\ncd {}\n{}{}'.format(directory, exp_str, run_path)
     shell_file = os.path.join(directory, 'in.sh')
     write_to_file(shell_file, shell, True)
