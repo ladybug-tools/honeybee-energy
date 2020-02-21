@@ -483,17 +483,24 @@ class ModelEnergyProperties(object):
 
         # apply energy properties to objects using the energy property dictionaries
         for room, r_dict in zip(self.host.rooms, room_e_dicts):
-            room.properties.energy.apply_properties_from_dict(
-                r_dict, construction_sets, program_types, hvacs, schedules)
+            if r_dict is not None:
+                room.properties.energy.apply_properties_from_dict(
+                    r_dict, construction_sets, program_types, hvacs, schedules)
         for face, f_dict in zip(self.host.faces, face_e_dicts):
-            face.properties.energy.apply_properties_from_dict(f_dict, constructions)
+            if f_dict is not None:
+                face.properties.energy.apply_properties_from_dict(f_dict, constructions)
         for shade, s_dict in zip(self.host.shades, shd_e_dicts):
-            shade.properties.energy.apply_properties_from_dict(
-                s_dict, constructions, schedules)
+            if s_dict is not None:
+                shade.properties.energy.apply_properties_from_dict(
+                    s_dict, constructions, schedules)
         for aperture, a_dict in zip(self.host.apertures, ap_e_dicts):
-            aperture.properties.energy.apply_properties_from_dict(a_dict, constructions)
+            if a_dict is not None:
+                aperture.properties.energy.apply_properties_from_dict(
+                    a_dict, constructions)
         for door, d_dict in zip(self.host.doors, dr_e_dicts):
-            door.properties.energy.apply_properties_from_dict(d_dict, constructions)
+            if d_dict is not None:
+                door.properties.energy.apply_properties_from_dict(
+                    d_dict, constructions)
 
     def to_dict(self, include_global_construction_set=True):
         """Return Model energy properties as a dictionary.

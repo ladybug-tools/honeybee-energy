@@ -99,7 +99,7 @@ def simulate_model(model_json, epw_file, sim_par_json, folder, check_model, log_
                 log_file.write('OpenStudio CLI Model translation successful.\n')
                 log_file.write('Running IDF file through EnergyPlus.\n')
                 sql, eio, rdd, html, err = run_idf(idf, epw_file)
-                if os.path.isfile(eio):
+                if os.path.isfile(err):
                     log_file.write('EnergyPlus simulation successful.\n')
                 else:
                     raise Exception('Running EnergyPlus failed.')
