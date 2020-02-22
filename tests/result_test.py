@@ -61,6 +61,20 @@ def test_sqlite_data_collections_by_output_name():
         'Zone Ideal Loads Supply Air Total Cooling Energy')
 
 
+def test_sqlite_data_collections_by_output_names():
+    """Test the data_collections_by_output_name method with multiple names."""
+    sql_path = './tests/result/eplusout_hourly.sql'
+    sql_obj = SQLiteResult(sql_path)
+
+    data_colls = sql_obj.data_collections_by_output_name(
+        ('Zone Lights Electric Energy', 'Zone Mean Radiant Temperature'))
+    assert len(data_colls) == 14
+    for coll in data_colls:
+        assert isinstance(coll, HourlyContinuousCollection)
+        assert len(coll) == len(coll.header.analysis_period.hoys)
+        assert isinstance(coll.header.data_type, (Energy, Temperature))
+
+
 def test_sqlite_data_collections_by_output_name_timestep():
     """Test the data_collections_by_output_name method with timestep values."""
     sql_path = './tests/result/eplusout_timestep.sql'

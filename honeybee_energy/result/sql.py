@@ -82,7 +82,8 @@ class SQLiteResult(object):
 
         Args:
             output_name: The name of an EnergyPlus output to be retrieved from
-                the SQLite result file.
+                the SQLite result file. This can also be an array of output names
+                for which all data collections should be retrieved.
 
         Returns:
             An array of data collections of the requested output type. This will
@@ -93,7 +94,12 @@ class SQLiteResult(object):
         try:
             # extract all indices in the ReportDataDictionary with the output_name
             c = conn.cursor()
-            c.execute('SELECT * FROM ReportDataDictionary WHERE Name=?', (output_name,))
+            if isinstance(output_name, str):
+                c.execute('SELECT * FROM ReportDataDictionary WHERE Name=?',
+                          (output_name,))
+            else:
+                c.execute('SELECT * FROM ReportDataDictionary WHERE Name IN {}'.format(
+                    output_name))
             header_rows = c.fetchall()
 
             # if nothing was found, return an empty list
