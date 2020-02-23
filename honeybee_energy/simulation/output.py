@@ -202,17 +202,13 @@ output-table-summaryreports.html#outputtablesummaryreports)
         elif load_type == 'Total':
             outputs = ['Zone Ideal Loads Supply Air Total Cooling Energy',
                        'Zone Ideal Loads Supply Air Total Heating Energy',
-                       'Zone Lights Radiant Heating Energy',
-                       'Zone Lights Visible Radiation Heating Energy',
-                       'Zone Lights Convective Heating Energy',
+                       'Zone Lights Total Heating Energy',
                        'Zone Electric Equipment Total Heating Energy',
                        'Zone Gas Equipment Total Heating Energy']
         elif load_type == 'Sensible':
             outputs = ['Zone Ideal Loads Supply Air Sensible Cooling Energy',
                        'Zone Ideal Loads Supply Air Sensible Heating Energy',
-                       'Zone Lights Radiant Heating Energy',
-                       'Zone Lights Visible Radiation Heating Energy',
-                       'Zone Lights Convective Heating Energy',
+                       'Zone Lights Total Heating Energy',
                        'Zone Electric Equipment Radiant Heating Energy',
                        'Zone Electric Equipment Convective Heating Energy',
                        'Zone Gas Equipment Radiant Heating Energy',

@@ -69,11 +69,11 @@ def test_simulation_output_add_zone_energy_use():
 
     sim_output = SimulationOutput()
     sim_output.add_zone_energy_use('total')
-    assert len(sim_output.outputs) == 7
+    assert len(sim_output.outputs) == 5
 
     sim_output = SimulationOutput()
     sim_output.add_zone_energy_use('sensible')
-    assert len(sim_output.outputs) == 9
+    assert len(sim_output.outputs) == 7
 
     sim_output = SimulationOutput()
     sim_output.add_zone_energy_use('latent')
@@ -147,7 +147,7 @@ def test_simulation_output_add_energy_balance_variables():
     """Test the SimulationOutput add_energy_balance_variables methods."""
     sim_output = SimulationOutput()
     sim_output.add_energy_balance_variables()
-    assert len(sim_output.outputs) == 18
+    assert len(sim_output.outputs) == 16
 
 
 def test_simulation_output_add_comfort_map_variables():
