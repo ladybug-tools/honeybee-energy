@@ -45,7 +45,7 @@ class SQLiteResult(object):
 
     @property
     def location(self):
-        """Geta Ladybug Location object derived from the SQL data.
+        """Get a Ladybug Location object derived from the SQL data.
         
         This will be None if there was no AllSummary report requested from the
         simulation.

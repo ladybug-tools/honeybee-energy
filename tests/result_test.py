@@ -1,5 +1,6 @@
 # coding=utf-8
 from honeybee_energy.result.sql import SQLiteResult
+from honeybee_energy.result.rdd import RDD
 
 from ladybug.datatype.energy import Energy
 from ladybug.datatype.temperature import Temperature
@@ -17,6 +18,7 @@ def test_sqlite_init():
     sql_obj = SQLiteResult(sql_path)
     str(sql_obj)  # test the string representation
 
+    assert isinstance(sql_obj.file_path, str)
     assert isinstance(sql_obj.location, Location)
     assert sql_obj.location.latitude == 42.37
     assert isinstance(sql_obj.run_period, AnalysisPeriod)
@@ -119,3 +121,14 @@ def test_sqlite_data_collections_by_output_name_monthly():
         print (coll.header.analysis_period)
         assert coll.header.analysis_period.is_annual
         assert len(coll) == 12
+
+
+def test_rdd_init():
+    """Test the initialization of RDD and basic properties."""
+    rdd_path = './tests/result/eplusout.rdd'
+    rdd_obj = RDD(rdd_path)
+    str(rdd_obj)  # test the string representation
+
+    assert isinstance(rdd_obj.file_path, str)
+    assert len(rdd_obj.output_names) == 461
+    assert len(rdd_obj.filter_outputs_by_keywords(['Lights'])) == 27
