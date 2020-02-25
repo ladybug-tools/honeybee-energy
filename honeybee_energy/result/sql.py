@@ -23,8 +23,6 @@ class SQLiteResult(object):
     Properties:
         * file_path
         * location
-        * run_period
-        * reporting_frequency
     """
     _interval_codes = ('Timestep', 'Hourly', 'Daily', 'Monthly', 'Annual')
 
@@ -35,8 +33,6 @@ class SQLiteResult(object):
             '{} is not an SQL file ending in .sql or .db.'.format(file_path)
         self._file_path = file_path
         self._location = None  # compute it as soon as it's requested
-        self._run_period = None  # compute it as soon as it's requested
-        self._reporting_frequency = None  # compute it as soon as it's requested
 
     @property
     def file_path(self):
@@ -53,29 +49,6 @@ class SQLiteResult(object):
         if not self._location:
             self._extract_location()
         return self._location
-
-    @property
-    def run_period(self):
-        """Get a Ladybug AnalysisPeriod object for simulation run period."""
-        if not self._run_period:
-            self._extract_run_period()
-        return self._run_period
-
-    @property
-    def reporting_frequency(self):
-        """Get text for the interval at which the data is reported.
-
-        This will be one of the following:
-
-        * Annual
-        * Monthly
-        * Daily
-        * Hourly
-        * [Integer indicating timesteps per hour]
-        """
-        if not self._reporting_frequency:
-            self._extract_run_period()
-        return self._reporting_frequency
 
     def data_collections_by_output_name(self, output_name):
         """Get an array of Ladybug DataCollections for a specified output.
@@ -109,13 +82,17 @@ class SQLiteResult(object):
 
             # extract all data of the relevant type from ReportData
             rel_indices = tuple(row[0] for row in header_rows)
-            c.execute('SELECT Value FROM ReportData WHERE ReportDataDictionaryIndex '
-                      'IN {}'.format(rel_indices))
+            c.execute('SELECT Value, TimeIndex FROM ReportData WHERE '
+                      'ReportDataDictionaryIndex IN {}'.format(rel_indices))
             data = c.fetchall()
             conn.close()  # ensure connection is always closed
         except Exception as e:
             conn.close()  # ensure connection is always closed
             raise Exception(str(e))
+
+        # get the analysis period and the reporting frequency from the time table
+        st_time, end_time = data[0][1], data[-1][1]
+        run_period, reporting_frequency = self._extract_run_period(st_time, end_time)
 
         # create the header objects to be used for the resulting data collections
         units = header_rows[0][-1] if header_rows[0][-1] != 'J' else 'kWh'
@@ -123,7 +100,7 @@ class SQLiteResult(object):
         headers = []
         for row in header_rows:
             metadata = {'type': row[6], row[3]: row[5]}
-            headers.append(Header(data_type, units, self.run_period, metadata))
+            headers.append(Header(data_type, units, run_period, metadata))
 
         # format the data such that we have one list for each of the header rows
         n_lists = len(header_rows)
@@ -134,14 +111,14 @@ class SQLiteResult(object):
 
         # create the final data collections
         data_colls = []
-        if self.reporting_frequency == 'Hourly' or isinstance(self.reporting_frequency, int):
+        if reporting_frequency == 'Hourly' or isinstance(reporting_frequency, int):
             for head, values in zip(headers, all_values):
                 data_colls.append(HourlyContinuousCollection(head, values))
-        elif self.reporting_frequency == 'Daily':
+        elif reporting_frequency == 'Daily':
             for head, values in zip(headers, all_values):
                 data_colls.append(DailyCollection(
                     head, values, head.analysis_period.doys_int))
-        elif self.reporting_frequency == 'Monthly':
+        elif reporting_frequency == 'Monthly':
             for head, values in zip(headers, all_values):
                 data_colls.append(MonthlyCollection(
                     head, values, head.analysis_period.months_int))
@@ -187,49 +164,53 @@ class SQLiteResult(object):
             latitude=general[3][0], longitude=general[4][0],
             time_zone=general[6][0], elevation=general[5][0])
 
-    def _extract_run_period(self):
-        """Extract a Location object from the SQLite file."""
+    def _extract_run_period(self, st_time, end_time):
+        """Extract the run period object and frequency from the SQLite file.
+        
+        Args:
+            st_time: Index for the start time of the data.
+            end_time: Index for the end time of the data.
+
+        Returns:
+            A tuple with run_period and reporting_frequency.
+        """
         conn = sqlite3.connect(self.file_path)
         try:
-            # extract all of the data from the Time table in AllSummary
+            # extract all of the data from the Time table
             c = conn.cursor()
-            c.execute('SELECT * FROM Time ORDER BY TimeIndex ASC')
+            c.execute('SELECT * FROM Time WHERE TimeIndex=?', (st_time,))
             start = c.fetchone()
-            c.execute('SELECT * FROM Time ORDER BY TimeIndex DESC')
+            c.execute('SELECT * FROM Time WHERE TimeIndex=?', (end_time,))
             end = c.fetchone()
             conn.close()  # ensure connection is always closed
         except Exception as e:
             conn.close()  # ensure connection is always closed
             raise Exception(str(e))
 
-        # check to be sure there's no design days in the report
-        des_days_absent = self._check_desdays_in_report()
-        # TODO: Parse the Time table into multiple AnalysisPeriods for design days
-        assert des_days_absent, 'Analysis Periods cannot be generated when ' \
-            'Simulation Control "Run for Sizing Periods" is True.'
-
         # set the reporting frequency by the interval type
         interval_typ = start[8]
         if interval_typ <= 1:
             min_per_step = start[7]
             aper_timestep = int(60 / min_per_step)
-            self._reporting_frequency = aper_timestep
+            reporting_frequency = aper_timestep
         else:
-            self._reporting_frequency = self._interval_codes[interval_typ]
+            reporting_frequency = self._interval_codes[interval_typ]
             aper_timestep = 1
             min_per_step = 60
 
         # convert the extracted data into an AnalysisPeriod object
         leap_year = True if start[1] % 4 == 0 else False
-        if self._reporting_frequency == 'Monthly':
+        if reporting_frequency == 'Monthly':
             st_date = DateTime(start[2], 1, 0)
         else:
             st_date = DateTime(start[2], start[3], 0)
         end_date = DateTime(end[2], end[3], 0)
         end_date = end_date.add_minute(1440 - min_per_step)
-        self._run_period = AnalysisPeriod(
+        run_period = AnalysisPeriod(
             st_date.month, st_date.day, st_date.hour, end_date.month, end_date.day,
             end_date.hour, aper_timestep, leap_year)
+
+        return run_period, reporting_frequency
 
     def _check_desdays_in_report(self):
         """Check the Simulation Control object to see if design days are reported."""

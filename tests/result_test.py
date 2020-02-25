@@ -22,12 +22,6 @@ def test_sqlite_init():
     assert isinstance(sql_obj.file_path, str)
     assert isinstance(sql_obj.location, Location)
     assert sql_obj.location.latitude == 42.37
-    assert isinstance(sql_obj.run_period, AnalysisPeriod)
-    assert sql_obj.run_period.st_month == sql_obj.run_period.end_month == 1
-    assert sql_obj.run_period.st_day == 6
-    assert sql_obj.run_period.end_day == 12
-    assert sql_obj.run_period.st_hour == 0
-    assert sql_obj.run_period.end_hour == 23
 
 
 def test_sqlite_data_collections_by_output_name():
@@ -78,17 +72,31 @@ def test_sqlite_data_collections_by_output_names():
         assert isinstance(coll.header.data_type, (Energy, Temperature))
 
 
+def test_sqlite_data_collections_by_output_name_openstudio():
+    """Test the data_collections_by_output_name method with openstudio values."""
+    sql_path = './tests/result/eplusout_openstudio.sql'
+    sql_obj = SQLiteResult(sql_path)
+
+    data_colls = sql_obj.data_collections_by_output_name(
+        'Zone Lights Electric Energy')
+    for coll in data_colls:
+        assert isinstance(coll, HourlyContinuousCollection)
+        assert len(coll) == len(coll.header.analysis_period.hoys)
+        assert isinstance(coll.header.data_type, Energy)
+        assert coll.header.unit == 'kWh'
+
+    data_colls = sql_obj.data_collections_by_output_name(
+        'Zone Electric Equipment Electric Energy')
+    data_colls = sql_obj.data_collections_by_output_name(
+        'Zone Ideal Loads Supply Air Total Heating Energy')
+    data_colls = sql_obj.data_collections_by_output_name(
+        'Zone Ideal Loads Supply Air Total Cooling Energy')
+
+
 def test_sqlite_data_collections_by_output_name_timestep():
     """Test the data_collections_by_output_name method with timestep values."""
     sql_path = './tests/result/eplusout_timestep.sql'
     sql_obj = SQLiteResult(sql_path)
-
-    assert sql_obj.run_period.st_month == sql_obj.run_period.end_month == 1
-    assert sql_obj.run_period.st_day == 6
-    assert sql_obj.run_period.end_day == 12
-    assert sql_obj.run_period.st_hour == 0
-    assert sql_obj.run_period.end_hour == 23
-    assert sql_obj.run_period.timestep == 6
 
     data_colls = sql_obj.data_collections_by_output_name(
         'Zone Lights Electric Energy')
