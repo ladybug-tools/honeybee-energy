@@ -1,0 +1,14 @@
+Program Version,EnergyPlus, Version 9.2.0-921312fa1d, YMD=2020.02.24 13:56,
+   ** Severe  ** Duplicate name found. name: "FloorSIM_EXT_GRD_FLRFLR01__c07061ec-d436-4dd5-89ce-27c3de503318". Overwriting existing object.
+   ** Severe  ** Duplicate name found. name: "FloorSIM_EXT_GRD_FLRFLR01__ef03cb3b-c67f-4e91-9af5-456e62ba95da". Overwriting existing object.
+   ** Severe  ** Duplicate name found. name: "BasicRoofSIM_EXT_SLD_RoofDA01__e46ed4dc-8eba-4809-b4ca-af65865c218c". Overwriting existing object.
+   ** Severe  ** Duplicate name found. name: "BasicRoofSIM_EXT_SLD_RoofDA01__7f2017dc-4ba0-44f4-ba70-c47d86374855". Overwriting existing object.
+   **  Fatal  ** Errors occurred on processing input file. Preceding condition(s) cause termination.
+   ...Summary of Errors that led to program termination:
+   ..... Reference severe error count=4
+   ..... Last severe error=Duplicate name found. name: "BasicRoofSIM_EXT_SLD_RoofDA01__7f2017dc-4ba0-44f4-ba70-c47d86374855". Overwriting existing object.
+   ************* Warning:  Node connection errors not checked - most system input has not been read (see previous warning).
+   ************* Fatal error -- final processing.  Program exited before simulations began.  See previous error messages.
+   ************* EnergyPlus Warmup Error Summary. During Warmup: 0 Warning; 0 Severe Errors.
+   ************* EnergyPlus Sizing Error Summary. During Sizing: 0 Warning; 0 Severe Errors.
+   ************* EnergyPlus Terminated--Fatal Error Detected. 0 Warning; 4 Severe Errors; Elapsed Time=00hr 00min  0.25sec

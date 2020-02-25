@@ -1,6 +1,7 @@
 # coding=utf-8
 from honeybee_energy.result.sql import SQLiteResult
 from honeybee_energy.result.rdd import RDD
+from honeybee_energy.result.err import Err
 
 from ladybug.datatype.energy import Energy
 from ladybug.datatype.temperature import Temperature
@@ -132,3 +133,29 @@ def test_rdd_init():
     assert isinstance(rdd_obj.file_path, str)
     assert len(rdd_obj.output_names) == 461
     assert len(rdd_obj.filter_outputs_by_keywords(['Lights'])) == 27
+
+
+def test_err_init():
+    """Test the initialization of error files and basic properties."""
+    err_path = './tests/result/eplusout_normal.err'
+    err_obj = Err(err_path)
+    str(err_obj)  # test the string representation
+
+    assert isinstance(err_obj.file_path, str)
+    assert isinstance(err_obj.file_contents, str)
+    assert len(err_obj.warnings) == 23
+    assert len(err_obj.severe_errors) == 0
+    assert len(err_obj.fatal_errors) == 0
+
+
+def test_err_severe():
+    """Test the initialization of error files with severe errors."""
+    err_path = './tests/result/eplusout_severe.err'
+    err_obj = Err(err_path)
+    str(err_obj)  # test the string representation
+
+    assert isinstance(err_obj.file_path, str)
+    assert isinstance(err_obj.file_contents, str)
+    assert len(err_obj.warnings) == 0
+    assert len(err_obj.severe_errors) == 4
+    assert len(err_obj.fatal_errors) == 1
