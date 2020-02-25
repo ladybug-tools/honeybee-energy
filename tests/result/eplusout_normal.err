@@ -1,0 +1,84 @@
+Program Version,EnergyPlus, Version 9.2.0-921312fa1d, YMD=2020.02.23 16:41,
+   ** Warning ** Version: missing in IDF, processing for EnergyPlus version="9.2"
+   ************* Beginning Zone Sizing Calculations
+   ** Warning ** ProcessScheduleInput: Schedule:Day:Interval="APARTMENTMIDRISE INF_APT_SCH_DEFAULT", Blank Schedule Type Limits Name input -- will not be validated.
+   ** Warning ** ProcessScheduleInput: Schedule:Day:Interval="APARTMENTMIDRISE INF_APT_SCH_SMRDSN", Blank Schedule Type Limits Name input -- will not be validated.
+   ** Warning ** ProcessScheduleInput: Schedule:Day:Interval="APARTMENTMIDRISE INF_APT_SCH_WNTRDSN", Blank Schedule Type Limits Name input -- will not be validated.
+   ** Warning ** ProcessScheduleInput: Schedule:Day:Interval="APARTMENTMIDRISE LTG_APT_SCH_DEFAULT", Blank Schedule Type Limits Name input -- will not be validated.
+   ** Warning ** ProcessScheduleInput: Schedule:Day:Interval="APARTMENTMIDRISE LTG_APT_SCH_SMRDSN", Blank Schedule Type Limits Name input -- will not be validated.
+   ** Warning ** ProcessScheduleInput: Schedule:Day:Interval="APARTMENTMIDRISE LTG_APT_SCH_WNTRDSN", Blank Schedule Type Limits Name input -- will not be validated.
+   ** Warning ** ProcessScheduleInput: Schedule:Year="APARTMENTMIDRISE INF_APT_SCH", Blank Schedule Type Limits Name input -- will not be validated.
+   ** Warning ** ProcessScheduleInput: Schedule:Year="APARTMENTMIDRISE LTG_APT_SCH", Blank Schedule Type Limits Name input -- will not be validated.
+   ** Warning ** GetHTSurfaceData: Surfaces with interface to Ground found but no "Ground Temperatures" were input.
+   **   ~~~   ** Found first in surface=RESIDENCE_1..FACE1
+   **   ~~~   ** Defaults, constant throughout the year of (18.0) will be used.
+   ** Warning ** GetSurfaceData: There are 1 coincident/collinear vertices; These have been deleted unless the deletion would bring the number of surface sides < 3.
+   **   ~~~   ** For explicit details on each problem surface, use Output:Diagnostics,DisplayExtraWarnings;
+   ** Warning ** CheckUsedConstructions: There are 9 nominally unused constructions in input.
+   **   ~~~   ** For explicit details on each unused construction, use Output:Diagnostics,DisplayExtraWarnings;
+   ** Warning ** ZoneHVAC:IdealLoadsAirSystem "RESIDENCE_1 IDEAL LOADS AIR SYSTEM" Requested outdoor air flow rate = 5.30936E-003 [m3/s] exceeds limit.
+   **   ~~~   **  Will be reduced to the Maximum Cooling Air Flow Rate = -99999.00000 [m3/s]
+   **   ~~~   **  During Sizing, Environment=BOSTON LOGAN INTL ARPT ANN CLG .4% CONDNS ENTH=>MDB, at Simulation time=07/21 24:00 - 24:10
+   ** Warning ** Temperature out of range [-100. to 200.] (PsyPsatFnTemp)
+   **   ~~~   **  Routine=CalcPurchAirLoads, During Sizing, Environment=BOSTON LOGAN INTL ARPT ANN CLG .4% CONDNS ENTH=>MDB, at Simulation time=07/21 24:00 - 24:10
+   **   ~~~   **  Input Temperature=3527.94
+   ** Warning ** ZoneHVAC:IdealLoadsAirSystem "RESIDENCE_2 IDEAL LOADS AIR SYSTEM" Requested outdoor air flow rate = 4.66700E-003 [m3/s] exceeds limit.
+   **   ~~~   **  Will be reduced to the Maximum Cooling Air Flow Rate = -99999.00000 [m3/s]
+   **   ~~~   **  During Sizing, Environment=BOSTON LOGAN INTL ARPT ANN CLG .4% CONDNS ENTH=>MDB, at Simulation time=07/21 24:00 - 24:10
+   ** Warning ** ZoneHVAC:IdealLoadsAirSystem "RESIDENCE_3 IDEAL LOADS AIR SYSTEM" Requested outdoor air flow rate = 4.66700E-003 [m3/s] exceeds limit.
+   **   ~~~   **  Will be reduced to the Maximum Cooling Air Flow Rate = -99999.00000 [m3/s]
+   **   ~~~   **  During Sizing, Environment=BOSTON LOGAN INTL ARPT ANN CLG .4% CONDNS ENTH=>MDB, at Simulation time=07/21 24:00 - 24:10
+   ** Warning ** ZoneHVAC:IdealLoadsAirSystem "RESIDENCE_4 IDEAL LOADS AIR SYSTEM" Requested outdoor air flow rate = 4.84889E-003 [m3/s] exceeds limit.
+   **   ~~~   **  Will be reduced to the Maximum Cooling Air Flow Rate = -99999.00000 [m3/s]
+   **   ~~~   **  During Sizing, Environment=BOSTON LOGAN INTL ARPT ANN CLG .4% CONDNS ENTH=>MDB, at Simulation time=07/21 24:00 - 24:10
+   ** Warning ** ZoneHVAC:IdealLoadsAirSystem "RESIDENCE_5 IDEAL LOADS AIR SYSTEM" Requested outdoor air flow rate = 4.84879E-003 [m3/s] exceeds limit.
+   **   ~~~   **  Will be reduced to the Maximum Cooling Air Flow Rate = -99999.00000 [m3/s]
+   **   ~~~   **  During Sizing, Environment=BOSTON LOGAN INTL ARPT ANN CLG .4% CONDNS ENTH=>MDB, at Simulation time=07/21 24:00 - 24:10
+   ** Warning ** ZoneHVAC:IdealLoadsAirSystem "RESIDENCE_6 IDEAL LOADS AIR SYSTEM" Requested outdoor air flow rate = 4.15641E-003 [m3/s] exceeds limit.
+   **   ~~~   **  Will be reduced to the Maximum Cooling Air Flow Rate = -99999.00000 [m3/s]
+   **   ~~~   **  During Sizing, Environment=BOSTON LOGAN INTL ARPT ANN CLG .4% CONDNS ENTH=>MDB, at Simulation time=07/21 24:00 - 24:10
+   ** Warning ** ZoneHVAC:IdealLoadsAirSystem "RESIDENCE_7 IDEAL LOADS AIR SYSTEM" Requested outdoor air flow rate = 1.38128E-002 [m3/s] exceeds limit.
+   **   ~~~   **  Will be reduced to the Maximum Cooling Air Flow Rate = -99999.00000 [m3/s]
+   **   ~~~   **  During Sizing, Environment=BOSTON LOGAN INTL ARPT ANN CLG .4% CONDNS ENTH=>MDB, at Simulation time=07/21 24:00 - 24:10
+   ** Warning ** ManageSizing: For a plant sizing run, there must be at least 1 Sizing:Plant object input. SimulationControl Plant Sizing option ignored.
+   ************* Testing Individual Branch Integrity
+   ************* All Branches passed integrity testing
+   ************* Testing Individual Supply Air Path Integrity
+   ************* All Supply Air Paths passed integrity testing
+   ************* Testing Individual Return Air Path Integrity
+   ************* All Return Air Paths passed integrity testing
+   ************* No node connection errors were found.
+   ************* Beginning Simulation
+   ************* Simulation Error Summary *************
+   ** Warning ** The following Report Variables were requested but not generated -- check.rdd file
+   **   ~~~   ** Either the IDF did not contain these elements, the variable name is misspelled,
+   **   ~~~   ** or the requested variable is an advanced output which requires Output : Diagnostics, DisplayAdvancedReportVariables;
+   ************* Key=*, VarName=ZONE GAS EQUIPMENT CONVECTIVE HEATING ENERGY, Frequency=Hourly
+   ************* Key=*, VarName=ZONE GAS EQUIPMENT RADIANT HEATING ENERGY, Frequency=Hourly
+   ************* Key=*, VarName=ZONE VENTILATION SENSIBLE HEAT GAIN ENERGY, Frequency=Hourly
+   ************* Key=*, VarName=ZONE VENTILATION SENSIBLE HEAT LOSS ENERGY, Frequency=Hourly
+   ************* There are 1 unused schedules in input.
+   ************* There are 1 unused week schedules in input.
+   ************* There are 1 unused day schedules in input.
+   ************* Use Output:Diagnostics,DisplayUnusedSchedules; to see them.
+   *************
+   ************* ===== Recurring Error Summary =====
+   ************* The following recurring error messages occurred.
+   *************
+   *************  ** Warning ** Temperature out of range [-100. to 200.] (PsyPsatFnTemp)
+   *************  **   ~~~   **   This error occurred 7 total times;
+   *************  **   ~~~   **   during Warmup 0 times;
+   *************  **   ~~~   **   during Sizing 7 times.
+   *************  **   ~~~   **   Max=5937.146973 C  Min=2290.371338 C
+   *************
+   *************
+   ************* ===== Final Error Summary =====
+   ************* The following error categories occurred.  Consider correcting or noting.
+   ************* Nominally Unused Constructions
+   ************* ..The nominally unused constructions warning is provided to alert you to potential conditions that can cause
+   ************* ..extra time during simulation. Each construction is calculated by the algorithm indicated in the HeatBalanceAlgorithm
+   ************* ..object. You may remove the constructions indicated (when you use the DisplayExtraWarnings option).
+   *************
+   ************* EnergyPlus Warmup Error Summary. During Warmup: 0 Warning; 0 Severe Errors.
+   ************* EnergyPlus Sizing Error Summary. During Sizing: 18 Warning; 0 Severe Errors.
+   ************* EnergyPlus Completed Successfully-- 28 Warning; 0 Severe Errors; Elapsed Time=00hr 00min  4.05sec
