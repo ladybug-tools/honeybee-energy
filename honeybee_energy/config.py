@@ -18,6 +18,39 @@ import platform
 import json
 import pkgutil
 
+# Matrix matching OpenStudio version to EnergyPlus + Radiance version
+# https://github.com/NREL/OpenStudio/wiki/OpenStudio-Version-Compatibility-Matrix
+OPENSTUDIO_VERSIONS = {
+    (2, 9, 1): (9, 2, 0),
+    (2, 9, 0): (9, 2, 0),
+    (2, 8, 1): (9, 1, 0),
+    (2, 8, 0): (9, 1, 0),
+    (2, 7, 1): (9, 0, 1),
+    (2, 7, 0): (9, 0, 1),
+    (2, 6, 1): (8, 9, 0),
+    (2, 6, 0): (8, 9, 0),
+    (2, 5, 2): (8, 9, 0),
+    (2, 5, 1): (8, 9, 0),
+    (2, 5, 0): (8, 9, 0),
+    (2, 4, 3): (8, 9, 0),
+    (2, 4, 1): (8, 8, 0),
+    (2, 4, 0): (8, 8, 0),
+    (2, 3, 1): (8, 8, 0),
+    (2, 3, 0): (8, 8, 0),
+    (2, 2, 2): (8, 8, 0),
+    (2, 2, 1): (8, 7, 0),
+    (2, 2, 0): (8, 7, 0),
+    (2, 1, 2): (8, 7, 0),
+    (2, 1, 1): (8, 7, 0),
+    (2, 1, 0): (8, 7, 0),
+    (2, 0, 5): (8, 7, 0),
+    (2, 0, 4): (8, 6, 0),
+    (2, 0, 3): (8, 6, 0),
+    (2, 0, 2): (8, 6, 0),
+    (2, 0, 1): (8, 6, 0),
+    (2, 0, 0): (8, 6, 0)
+}
+
 
 class Folders(object):
     """Honeybee_energy folders.
@@ -33,8 +66,10 @@ class Folders(object):
     Properties:
         * openstudio_path
         * openstudio_exe
+        * openstudio_version
         * energyplus_path
         * energyplus_exe
+        * energyplus_version
         * energy_model_measure_path
         * standards_data_folder
         * construction_lib
@@ -79,6 +114,7 @@ class Folders(object):
         #set the openstudio_path
         self._openstudio_path = path
         self._openstudio_exe = os_exe_file
+        self._openstudio_version = self._os_version_from_path(path)
         if path and not self.mute:
             print("Path to OpenStudio is set to: %s" % path)
 
@@ -86,6 +122,15 @@ class Folders(object):
     def openstudio_exe(self):
         """Get the path to the executable openstudio file."""
         return self._openstudio_exe
+    
+    @property
+    def openstudio_version(self):
+        """Get a tuple for the version of openstudio (eg. (2, 9, 1)).
+
+        This will be None if the version could not be sensed or if no OpenStudio
+        installation was found.
+        """
+        return self._openstudio_version
 
     @property
     def energyplus_path(self):
@@ -94,6 +139,7 @@ class Folders(object):
 
     @energyplus_path.setter
     def energyplus_path(self, path):
+        self._energyplus_version = None
         exe_name = 'energyplus.exe'
         if not path:  # check the PATH and then the default installation location
             path, ep_exe_file = self._which(exe_name)
@@ -116,6 +162,15 @@ class Folders(object):
     def energyplus_exe(self):
         """Get the path to the executable energyplus file."""
         return self._energyplus_exe
+
+    @property
+    def energyplus_version(self):
+        """Get a tuple for the version of energyplus (eg. (9, 2, 0)).
+
+        This will be None if the version could not be sensed or if no EnergyPlus
+        installation was found.
+        """
+        return self._energyplus_version
 
     @property
     def energy_model_measure_path(self):
@@ -295,7 +350,7 @@ class Folders(object):
 
         Returns:
             File directory and full path to executable in case of success.
-            None, None in case of failure.
+            None in case of failure.
         """
         def getversion(energyplus_path):
             """Get digits for the version of EnergyPlus."""
@@ -307,6 +362,11 @@ class Folders(object):
         if self.openstudio_path is not None and os.path.isdir(os.path.join(
                 os.path.split(self.openstudio_path)[0], 'EnergyPlus')):
             ep_path = os.path.join(os.path.split(self.openstudio_path)[0], 'EnergyPlus')
+            if self.openstudio_version:
+                try:
+                    self._energyplus_version = OPENSTUDIO_VERSIONS[self.openstudio_version]
+                except KeyError:
+                    pass  # Newer version and matrix hasn't been updated
         # then check the default location where standalone EnergyPlus is installed
         elif os.name == 'nt':  # search the C:/ drive on Windows
             ep_folders = ['C:\\{}'.format(f) for f in os.listdir('C:\\')
@@ -325,9 +385,9 @@ class Folders(object):
 
         if not ep_path and not ep_folders:  # No EnergyPlus installations were found
             return None, None
-        elif not ep_path:
-            # get the most recent version of energyplus that was found
+        elif not ep_path: # get the most recent version of energyplus that was found
             ep_path = sorted(ep_folders, key=getversion, reverse=True)[0]
+            self._energyplus_version = self._ep_version_from_path(ep_path)
 
         # return the path to the executable
         exec_file = os.path.join(ep_path, 'energyplus.exe') if os.name == 'nt' \
@@ -335,12 +395,30 @@ class Folders(object):
         return ep_path, exec_file
 
     @staticmethod
+    def _ep_version_from_path(ep_path):
+        """Extract a tuple for the version of EnergyPlus from the path.
+
+        Args:
+            ep_path: File directory to EnergyPlus.
+
+        Returns:
+            Tuple of integers for the version in case of success.
+            None, None in case of failure.
+        """
+        if not ep_path:
+            return None
+        ver = ''.join(s for s in ep_path if (s.isdigit() or s == '-'))
+        if ver:  # version was found in the file path name
+            return tuple(int(d) for d in ver.split('-'))
+        return None
+
+    @staticmethod
     def _find_openstudio_folder():
         """Find the most recent OpenStudio installation in its default location.
 
         Returns:
             File directory and full path to executable in case of success.
-            None, None in case of failure.
+            None in case of failure.
         """
         def getversion(openstudio_path):
             """Get digits for the version of OpenStudio."""
@@ -372,6 +450,24 @@ class Folders(object):
         exec_file = os.path.join(os_path, 'bin', 'openstudio.exe') if os.name == 'nt' \
             else os.path.join(os_path, 'bin', 'openstudio')
         return os.path.join(os_path, 'bin'), exec_file
+
+    @staticmethod
+    def _os_version_from_path(os_path):
+        """Extract a tuple for the version of OpenStudio from the path.
+
+        Args:
+            os_path: File directory to OpenStudio.
+
+        Returns:
+            Tuple of integers for the version in case of success.
+            None, None in case of failure.
+        """
+        if not os_path:
+            return None
+        ver = ''.join(s for s in os_path if (s.isdigit() or s == '.'))
+        if ver:  # version was found in the file path name
+            return tuple(int(d) for d in ver.split('.'))
+        return None
 
     @staticmethod
     def _find_energy_model_measure_path():

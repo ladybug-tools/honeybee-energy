@@ -1,5 +1,7 @@
 # coding=utf-8
 """Methods to write to idf."""
+from .config import folders
+
 from honeybee.room import Room
 from honeybee.face import Face
 from honeybee.boundarycondition import Outdoors, Surface, Ground
@@ -455,6 +457,26 @@ def model_to_idf(model, schedule_directory=None,
         model_str.append(shade.to.idf(shade))
 
     return '\n\n'.join(model_str)
+
+
+def energyplus_idf_version(version_array=None):
+    """Get IDF text for the version of EnergyPlus.
+
+    This will match the version of EnergyPlus found in the config if it it exists.
+    It will be None otherwise.
+
+    Args:
+        version_array: An array of up to 3 integers for the version of EnergyPlus
+            for which an IDF string should be generated. If None, the energyplus_version
+            from the config will be used if it exists.
+    """
+    if version_array:
+        ver_str = '.'.join((str(d) for d in version_array))
+        return generate_idf_string('Version', [ver_str], ['version identifier'])
+    elif folders.energyplus_version:
+        ver_str = '.'.join((str(d) for d in folders.energyplus_version))
+        return generate_idf_string('Version', [ver_str], ['version identifier'])
+    return None
 
 
 def _instance_in_array(object_instance, object_array):
