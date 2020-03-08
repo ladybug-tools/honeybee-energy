@@ -31,7 +31,7 @@ def simulate():
 @click.option('--sim-par-json', help='Simulation Parameter JSON to decribe the type '
               'of simulation to run. If None, an annual simulation will be run.',
               default=None, show_default=True)
-@click.option('--folder', help='Output folder.', default='.', show_default=True)
+@click.option('--folder', help='Output folder.', default=None, show_default=True)
 @click.option('--check-model', help='Boolean to note whether the Model should be '
               're-serialized to Python and checked before it is translated to .osm. ',
               default=True, show_default=True)
@@ -48,7 +48,8 @@ def simulate_model(model_json, epw_file, sim_par_json, folder, check_model, log_
             that describes all of the settings for the simulation. If None,
             some default simulation parameters will automatically be used.
         folder: An optional folder on this computer, into which the IDF and result
-            files will be written.
+            files will be written. If None, the files will be output in the
+            same location as the model_json. Defaut: None.
         check_model: Boolean to note whether the Model should be re-serialized to
             Python and checked before it is translated to .osm.
         log_file: Optional log file to output the progress of the translation.
@@ -60,7 +61,11 @@ def simulate_model(model_json, epw_file, sim_par_json, folder, check_model, log_
             'No Model JSON file found at {}.'.format(model_json)
         assert os.path.isfile(epw_file), \
             'No EPW file found at {}.'.format(epw_file)
-        
+
+        # set the default folder if it's not specified
+        if folder is None:
+            folder = os.path.split(model_json)[0]
+
         # process the simulation parameters
         if sim_par_json is None:  # generate some default simulation parameters
             sim_par = SimulationParameter()
