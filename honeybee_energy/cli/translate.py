@@ -28,7 +28,7 @@ def translate():
 @click.argument('model-json')
 @click.option('--sim-par-json', help='Optional Simulation Parameter JSON to be '
               'included as part of the tranlsated OSM.', default=None, show_default=True)
-@click.option('--folder', help='Output folder.', default='.', show_default=True)
+@click.option('--folder', help='Output folder.', default=None, show_default=True)
 @click.option('--check-model', help='Boolean to note whether the Model should be '
               're-serialized to Python and checked before it is translated to .osm. ',
               default=True, show_default=True)
@@ -43,7 +43,8 @@ def translate_model_to_osm(model_json, sim_par_json, folder, check_model, log_fi
         sim_par_json: Full path to a honeybee Energy SimulationParameter JSON
             that describes all of the settings for the simulation.
         folder: An optional folder on this computer, into which the IDF and result
-            files will be written.
+            files will be written. If None, the files will be output in the
+            same location as the model_json. Defaut: None.
         check_model: Boolean to note whether the Model should be re-serialized to
             Python and checked before it is translated to .osm.
         log_file: Optional log file to output the progress of the translation.
@@ -53,6 +54,10 @@ def translate_model_to_osm(model_json, sim_par_json, folder, check_model, log_fi
         # check that the model JSON is there
         assert os.path.isfile(model_json), \
             'No Model JSON file found at {}.'.format(model_json)
+
+        # set the default folder if it's not specified
+        if folder is None:
+            folder = os.path.split(model_json)[0]
         
         # check that the simulation parameters are there
         if sim_par_json is not None:
