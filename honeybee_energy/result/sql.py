@@ -82,8 +82,12 @@ class SQLiteResult(object):
 
             # extract all data of the relevant type from ReportData
             rel_indices = tuple(row[0] for row in header_rows)
-            c.execute('SELECT Value, TimeIndex FROM ReportData WHERE '
-                      'ReportDataDictionaryIndex IN {}'.format(rel_indices))
+            if len(rel_indices) == 1:
+                c.execute('SELECT Value, TimeIndex FROM ReportData WHERE '
+                          'ReportDataDictionaryIndex=?', rel_indices)
+            else:
+                c.execute('SELECT Value, TimeIndex FROM ReportData WHERE '
+                        'ReportDataDictionaryIndex IN {}'.format(rel_indices))
             data = c.fetchall()
             conn.close()  # ensure connection is always closed
         except Exception as e:
