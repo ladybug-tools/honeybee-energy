@@ -354,13 +354,19 @@ def _output_openstudio_files(directory):
         -   idf -- Path to a .idf file containing properties of the model, including
             the size of HVAC objects. Will be None if no file exists.
     """
-    # generate paths to the OSM and IDF files
+    # generate and check paths to the OSM and IDF files
     osm_file = os.path.join(directory, 'run', 'in.osm')
-    idf_file = os.path.join(directory, 'run', 'in.idf')
-
-    # check that the OSM and IDF files exist
     osm = osm_file if os.path.isfile(osm_file) else None
-    idf = idf_file if os.path.isfile(idf_file) else None
+
+    # check the pre-process idf and replace the other in.idf with it
+    idf_file_right = os.path.join(directory, 'run', 'pre-preprocess.idf')
+    idf_file_wrong = os.path.join(directory, 'run', 'in.idf')
+    if os.path.isfile(idf_file_right) and os.path.isfile(idf_file_wrong):
+        os.remove(idf_file_wrong)
+        os.rename(idf_file_right, idf_file_wrong)
+        idf = idf_file_wrong
+    else:
+        idf = None
 
     return osm, idf
 
