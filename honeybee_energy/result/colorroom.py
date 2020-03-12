@@ -211,7 +211,7 @@ class ColorRoom(object):
                 vals = []
                 for obj, f_area in zip(self._matched_objects, self.matched_floor_areas):
                     try:
-                        vals.append(obj[1][self._simulation_step] / f_area)
+                        vals.append(obj[1][self._simulation_step] / (f_area * obj[2]))
                     except ZeroDivisionError:  # no floor faces in the Room
                         vals.append(0)
                 return vals
@@ -226,7 +226,7 @@ class ColorRoom(object):
                 if self._base_type.cumulative:  # divide total values by floor area
                     for obj, f_area in zip(self._matched_objects, self.matched_floor_areas):
                         try:
-                            vals.append(obj[1].total / f_area)
+                            vals.append(obj[1].total / (f_area * obj[2]))
                         except ZeroDivisionError:  # no floor faces in the Room
                             vals.append(0)
                 else:  # divide average values by floor area
@@ -379,12 +379,16 @@ class ColorRoom(object):
 
         # extract the zone name from each of the data collections
         zone_names = []
+        use_mult = False
         for data in self._data_collections:
             if 'Zone' in data.header.metadata:
                 zone_names.append(data.header.metadata['Zone'])
             else:  # it's HVAC system data and we need to see if it's matchable
                 hvac_name = data.header.metadata['System']
-                if ' IDEAL LOADS AIR SYSTEM' in hvac_name:
+                use_mult = True
+                if '_IDEALAIR' in hvac_name:
+                    zone_names.append(hvac_name.split('_IDEALAIR')[0])
+                elif ' IDEAL LOADS AIR SYSTEM' in hvac_name:
                     zone_names.append(hvac_name.split(' IDEAL LOADS AIR SYSTEM')[0])
                 else:
                     zone_names.append(hvac_name)
@@ -394,7 +398,8 @@ class ColorRoom(object):
             rm_name = room.name.upper()
             for i, data_name in enumerate(zone_names):
                 if data_name == rm_name:
-                    self._matched_objects.append((room, self._data_collections[i]))
+                    mult = 1 if not use_mult else room.multiplier
+                    self._matched_objects.append((room, self._data_collections[i], mult))
                     break
 
     def __repr__(self):
