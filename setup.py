@@ -1,6 +1,6 @@
 import re
 import setuptools
-import sys
+
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
@@ -21,7 +21,7 @@ setuptools.setup(
     packages=setuptools.find_packages(exclude=["tests"]),
     include_package_data=True,
     install_requires=requirements,
-    extra_requires={
+    extras_require={
         'cli': ['click>=5.1', 'honeybee-schema>=1.9.0']
     },
     entry_points={
