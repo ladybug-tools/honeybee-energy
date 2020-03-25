@@ -132,11 +132,11 @@ def run_osw(osw_json, measures_only=True):
     Returns:
         The following files output from the CLI run
 
-        -   osm -- Path to a .osm file containing all simulation results.
+        -   osm -- Path to a .osm file representing the output model.
             Will be None if no file exists.
 
-        -   idf -- Path to a .idf file containing properties of the model, including
-            the size of HVAC objects. Will be None if no file exists.
+        -   idf -- Path to a .idf file representing the model.
+            Will be None if no file exists.
     """
     # run the simulation
     if os.name == 'nt':  # we are on Windows
