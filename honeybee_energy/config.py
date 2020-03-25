@@ -344,14 +344,14 @@ class Folders(object):
         # first check if there's a version installed in the OpenStudio folder
         if self.openstudio_path:
             os_root = os.path.split(self.openstudio_path)[0]
-            measure_path = os.path.join(os_root, 'energy_model_measure')
+            measure_path = os.path.join(os_root, 'energy_model_measure', 'lib')
             if os.path.isdir(measure_path):
                 return measure_path
 
         # then, check the root of the ladybug_tools folder
         lb_install = lb_config.folders.ladybug_tools_folder
         if os.path.isdir(lb_install):
-            measure_path = os.path.join(lb_install, 'energy_model_measure')
+            measure_path = os.path.join(lb_install, 'energy_model_measure', 'lib')
             if os.path.isdir(measure_path):
                 return measure_path
 
