@@ -11,6 +11,7 @@ Usage:
     print(folders.openstudio_path)
     folders.energyplus_path = "C:/EnergyPlusV9-0-1"
 """
+import ladybug.config as lb_config
 import honeybee.config as hb_config
 
 import os
@@ -82,11 +83,8 @@ class Folders(object):
     """
 
     def __init__(self, config_file=None, mute=True):
-        # set the mute value
-        self.mute = bool(mute)
-
-        # load paths from the config JSON file
-        self.config_file  = config_file
+        self.mute = bool(mute)  # set the mute value
+        self.config_file  = config_file  # load paths from the config JSON file
 
     @property
     def openstudio_path(self):
@@ -99,13 +97,10 @@ class Folders(object):
 
     @openstudio_path.setter
     def openstudio_path(self, path):
-        exe_name = 'openstudio.exe'
-        if not path:  # check the PATH and then the default installation location
-            path, os_exe_file = self._which(exe_name)
-            if path is None:  # search within the default installation location
-                path, os_exe_file = self._find_openstudio_folder()
-        else:
-            os_exe_file = os.path.join(path, exe_name)
+        if not path:  # check the default installation location
+            path = self._find_openstudio_folder()
+        exe_name = 'openstudio.exe' if os.name == 'nt'  else 'openstudio'
+        os_exe_file = os.path.join(path, exe_name) if path is not None else None
 
         if path:  # check that the OpenStudio executable exists in the path
             assert os.path.isfile(os_exe_file), \
@@ -140,13 +135,10 @@ class Folders(object):
     @energyplus_path.setter
     def energyplus_path(self, path):
         self._energyplus_version = None
-        exe_name = 'energyplus.exe'
-        if not path:  # check the PATH and then the default installation location
-            path, ep_exe_file = self._which(exe_name)
-            if path is None:  # search within the default installation location
-                path, ep_exe_file = self._find_energyplus_folder()
-        else:
-            ep_exe_file = os.path.join(path, exe_name)
+        if not path:  # check the default installation location
+            path = self._find_energyplus_folder()
+        exe_name = 'energyplus.exe' if os.name == 'nt'  else 'energyplus'
+        ep_exe_file = os.path.join(path, exe_name) if path is not None else None
 
         if path:  # check that the Energyplus executable exists in the installation
             assert os.path.isfile(ep_exe_file), \
@@ -341,6 +333,30 @@ class Folders(object):
         # set path for the standards_extension_folders
         self.standards_extension_folders = default_path["standards_extension_folders"]
 
+    def _find_energy_model_measure_path(self):
+        """Find the energy_model_measure_path in its default location.
+
+        First, the OpenStudio installation will be checked to see if there is a
+        compatible version of the measure installed for that version of OpenStudio.
+        If nothing is found there, the root of the ladybug_tools folder will be
+        checked for an energy_model_measure directory.
+        """
+        # first check if there's a version installed in the OpenStudio folder
+        if self.openstudio_path:
+            os_root = os.path.split(self.openstudio_path)[0]
+            measure_path = os.path.join(os_root, 'energy_model_measure')
+            if os.path.isdir(measure_path):
+                return measure_path
+
+        # then, check the root of the ladybug_tools folder
+        lb_install = lb_config.folders.ladybug_tools_folder
+        if os.path.isdir(lb_install):
+            measure_path = os.path.join(lb_install, 'energy_model_measure')
+            if os.path.isdir(measure_path):
+                return measure_path
+
+        return None  # No energy model measure is installed
+
     def _find_energyplus_folder(self):
         """Find the most recent EnergyPlus installation in its default location.
 
@@ -367,6 +383,7 @@ class Folders(object):
                     self._energyplus_version = OPENSTUDIO_VERSIONS[self.openstudio_version]
                 except KeyError:
                     pass  # Newer version and matrix hasn't been updated
+
         # then check the default location where standalone EnergyPlus is installed
         elif os.name == 'nt':  # search the C:/ drive on Windows
             ep_folders = ['C:\\{}'.format(f) for f in os.listdir('C:\\')
@@ -384,15 +401,11 @@ class Folders(object):
             ep_folders = None
 
         if not ep_path and not ep_folders:  # No EnergyPlus installations were found
-            return None, None
+            return None
         elif not ep_path: # get the most recent version of energyplus that was found
             ep_path = sorted(ep_folders, key=getversion, reverse=True)[0]
             self._energyplus_version = self._ep_version_from_path(ep_path)
-
-        # return the path to the executable
-        exec_file = os.path.join(ep_path, 'energyplus.exe') if os.name == 'nt' \
-            else os.path.join(ep_path, 'energyplus')
-        return ep_path, exec_file
+        return ep_path
 
     @staticmethod
     def _ep_version_from_path(ep_path):
@@ -425,7 +438,18 @@ class Folders(object):
             ver = ''.join(s for s in openstudio_path if (s.isdigit() or s == '.'))
             return sum(int(d) * (10 ** i) for i, d in enumerate(reversed(ver.split('.'))))
 
-        if os.name == 'nt':  # search the C:/ drive on Windows
+        # first check if there's a version installed in the ladybug_tools folder
+        lb_install = lb_config.folders.ladybug_tools_folder
+        os_folders = []
+        if os.path.isdir(lb_install):
+            os_folders = [os.path.join(lb_install, f) for f in os.listdir(lb_install)
+                          if (f.lower().startswith('openstudio') and
+                              os.path.isdir(os.path.join(lb_install, f)))]
+
+        # then check the default installation folders
+        if len(os_folders) != 0:
+            pass  # we found a version of openstudio in the ladybug_tools folder
+        elif os.name == 'nt':  # search the C:/ drive on Windows
             os_folders = ['C:\\{}'.format(f) for f in os.listdir('C:\\')
                           if (f.lower().startswith('openstudio') and
                               os.path.isdir('C:\\{}'.format(f)))]
@@ -441,15 +465,12 @@ class Folders(object):
             os_folders = None
 
         if not os_folders:  # No Openstudio installations were found
-            return None, None
+            return None
 
         # get the most recent version of OpenStudio that was found
         os_path = sorted(os_folders, key=getversion, reverse=True)[0]
 
-        # return the path to the executable
-        exec_file = os.path.join(os_path, 'bin', 'openstudio.exe') if os.name == 'nt' \
-            else os.path.join(os_path, 'bin', 'openstudio')
-        return os.path.join(os_path, 'bin'), exec_file
+        return os.path.join(os_path, 'bin')
 
     @staticmethod
     def _os_version_from_path(os_path):
@@ -470,37 +491,24 @@ class Folders(object):
         return None
 
     @staticmethod
-    def _find_energy_model_measure_path():
-        """Find the energy_model_measure_path in its default location.
-
-        This is usually the OpenStudio BCL Measures path .
-        """
-        home_folder = os.getenv('HOME') or os.path.expanduser('~')
-        bcl_folder = os.path.join(home_folder, 'OpenStudio', 'Measures')
-        measure_path = os.path.join(bcl_folder, 'energy_model_measure', 'lib')
-        if not os.path.isdir(measure_path):
-            if not os.path.isdir(measure_path):
-                measure_path = os.path.join(bcl_folder, 'energy-model-measure', 'lib')
-                if not os.path.isdir(measure_path):
-                    return  # No energy model measure is installed
-        return measure_path
-
-    @staticmethod
     def _find_standards_data_folder():
         """Find the user template library in its default location.
 
-        The HOME/honeybee/honeybee_standards/data folder will be checked first,
-        which can conatain libraries that are not overwritten with the update of the
-        honeybee_energy package. If no such folder is found, this method defaults to
-        the lib/library/ folder within this package.
+        The ladybug_tools/resources/standards/honeybee_standards folder will be
+        checked first, which can conatain libraries that are not overwritten
+        with the update of the honeybee_energy package. If no such folder is found,
+        this method defaults to the lib/library/ folder within this package.
         """
-        # first check the default sim folder folder, where permanent libraries live
-        home_folder = os.getenv('HOME') or os.path.expanduser('~')
-        lib_folder = os.path.join(home_folder, 'honeybee', 'honeybee_standards', 'data')
-        if os.path.isdir(lib_folder):
-            return lib_folder
-        else:  # default to the library folder that installs with this Python package
-            return os.path.join(os.path.dirname(__file__), 'lib', 'data')
+        # first check the ladybug_tools installation folder were permanent lib is
+        lb_install = lb_config.folders.ladybug_tools_folder
+        if os.path.isdir(lb_install):
+            lib_folder = os.path.join(
+                lb_install, 'resources', 'standards', 'honeybee_standards')
+            if os.path.isdir(lib_folder):
+                return lib_folder
+
+        # default to the library folder that installs with this Python package
+        return os.path.join(os.path.dirname(__file__), 'lib', 'data')
 
     @staticmethod
     def _find_standards_extension_folders():
@@ -509,20 +517,22 @@ class Folders(object):
         Extension folders are expected to start with the words "honeybee_energy"
         and end with the words "standards" (eg. honeybee_energy_cibse_standards).
 
-        The HOME/honeybee/ folder will be checked first, which can conatain libraries
-        that are not overwritten with the update of the honeybee_energy package.
+        The ladybug_tools/resources/standards folder will be checked first, which
+        can conatain libraries that are not overwritten with the update of the
+        honeybee_energy package.
         If no folders are found, this method will look for any Python packages
         sitting next to honeybee_energy that follow the naming criteria above.
         """
         standards_extensions = []
-        # first check the default sim folder folder, where permanent libraries live
-        home_folder = os.getenv('HOME') or os.path.expanduser('~')
-        hb_folder = os.path.join(home_folder, 'honeybee')
-        for folder in os.listdir(hb_folder):
-            if folder.endswith('standards') and folder.startswith('honeybee_energy'):
-                lib_folder = os.path.join(hb_folder, folder, 'data')
-                if os.path.isdir(lib_folder):
-                    standards_extensions.append(lib_folder)
+        # first check the ladybug_tools installation folder were permanent lib is
+        lb_install = lb_config.folders.ladybug_tools_folder
+        std_folder = os.path.join(lb_install, 'resources', 'standards')
+        if os.path.isdir(std_folder):
+            for folder in os.listdir(std_folder):
+                if folder.endswith('standards') and folder.startswith('honeybee_energy'):
+                    lib_folder = os.path.join(std_folder, folder)
+                    if os.path.isdir(lib_folder):
+                        standards_extensions.append(lib_folder)
         # then check next to the Python library
         if len(standards_extensions) == 0:
             for finder, name, ispkg in pkgutil.iter_modules():
@@ -555,30 +565,6 @@ class Folders(object):
                 '{} lacks a "programtypes" folder.'.format(path)
 
         return _construction_lib, _constructionset_lib, _schedule_lib, _programtype_lib
-
-    @staticmethod
-    def _which(program):
-        """Find an executable program in the PATH by name.
-
-        Args:
-            program: Full file name for the program (e.g. energyplus.exe)
-
-        Returns:
-            File directory and full path to program in case of success.
-            None, None in case of failure.
-        """
-        def is_exe(fpath):
-            # Return true if the file exists and is executable
-            return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
-
-        # check for the file in all path in environment
-        for path in os.environ["PATH"].split(os.pathsep):
-            exe_file = os.path.join(path.strip('"'), program)  # strip "" in Windows
-            if is_exe(exe_file):
-                return path, exe_file
-
-        # couldn't find it in the PATH! return None :|
-        return None, None
 
 
 """Object possesing all key folders within the configuration."""
