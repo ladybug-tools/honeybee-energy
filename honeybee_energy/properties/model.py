@@ -5,11 +5,13 @@ from honeybee.extensionutil import model_extension_dicts
 from ..lib.constructionsets import generic_construction_set
 
 from ..material.dictutil import dict_to_material
-from ..construction.dictutil import dict_abridged_to_construction
+from ..construction.dictutil import CONSTRUCTION_TYPES, dict_to_construction, \
+    dict_abridged_to_construction
 from ..construction.air import AirBoundaryConstruction
 from ..constructionset import ConstructionSet
 from ..schedule.typelimit import ScheduleTypeLimit
-from ..schedule.dictutil import dict_abridged_to_schedule
+from ..schedule.dictutil import SCHEDULE_TYPES, dict_to_schedule, \
+    dict_abridged_to_schedule
 from ..programtype import ProgramType
 from ..hvac import HVAC_TYPES_DICT
 from ..writer import generate_idf_string
@@ -588,8 +590,11 @@ class ModelEnergyProperties(object):
         if 'schedules' in data['properties']['energy'] and \
                 data['properties']['energy']['schedules'] is not None:
             for sched in data['properties']['energy']['schedules']:
-                schedules[sched['name']] = dict_abridged_to_schedule(
-                    sched, schedule_type_limits)
+                if sched['type'] in SCHEDULE_TYPES:
+                    schedules[sched['name']] = dict_to_schedule(sched)
+                else:
+                    schedules[sched['name']] = dict_abridged_to_schedule(
+                        sched, schedule_type_limits)
 
         # process all materials in the ModelEnergyProperties dictionary
         materials = {}
@@ -599,24 +604,33 @@ class ModelEnergyProperties(object):
         # process all constructions in the ModelEnergyProperties dictionary
         constructions = {}
         for cnstr in data['properties']['energy']['constructions']:
-            constructions[cnstr['name']] = \
-                dict_abridged_to_construction(cnstr, materials, schedules)
+            if cnstr['type'] in CONSTRUCTION_TYPES:
+                constructions[cnstr['name']] = dict_to_construction(cnstr)
+            else:
+                constructions[cnstr['name']] = \
+                    dict_abridged_to_construction(cnstr, materials, schedules)
 
         # process all construction sets in the ModelEnergyProperties dictionary
         construction_sets = {}
         if 'construction_sets' in data['properties']['energy'] and \
                 data['properties']['energy']['construction_sets'] is not None:
             for c_set in data['properties']['energy']['construction_sets']:
-                construction_sets[c_set['name']] = \
-                    ConstructionSet.from_dict_abridged(c_set, constructions)
+                if c_set['type'] == 'ConstructionSet':
+                    construction_sets[c_set['name']] = ConstructionSet.from_dict(c_set)
+                else:
+                    construction_sets[c_set['name']] = \
+                        ConstructionSet.from_dict_abridged(c_set, constructions)
 
         # process all ProgramType in the ModelEnergyProperties dictionary
         program_types = {}
         if 'program_types' in data['properties']['energy'] and \
                 data['properties']['energy']['program_types'] is not None:
             for p_typ in data['properties']['energy']['program_types']:
-                program_types[p_typ['name']] = \
-                    ProgramType.from_dict_abridged(p_typ, schedules)
+                if p_typ['type'] == 'ProgramType':
+                    program_types[p_typ['name']] = ProgramType.from_dict(p_typ)
+                else:
+                    program_types[p_typ['name']] = \
+                        ProgramType.from_dict_abridged(p_typ, schedules)
 
         # process all HVAC systems in the ModelEnergyProperties dictionary
         hvacs = {}

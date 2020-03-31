@@ -103,7 +103,8 @@ class SQLiteResult(object):
         data_type = self._data_type_from_unit(units)
         headers = []
         for row in header_rows:
-            metadata = {'type': row[6], row[3]: row[5]}
+            obj_type = row[3] if 'Surface' not in output_name else 'Surface'
+            metadata = {'type': row[6], obj_type: row[5]}
             headers.append(Header(data_type, units, run_period, metadata))
 
         # format the data such that we have one list for each of the header rows

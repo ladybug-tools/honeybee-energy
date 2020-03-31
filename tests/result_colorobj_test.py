@@ -1,6 +1,6 @@
 # coding=utf-8
 from honeybee_energy.result.sql import SQLiteResult
-from honeybee_energy.result.colorroom import ColorRoom
+from honeybee_energy.result.colorobj import ColorRoom, ColorFace
 
 from honeybee.room import Room
 from ladybug_geometry.geometry3d.pointvector import Point3D
@@ -11,6 +11,8 @@ from ladybug.datacollection import HourlyContinuousCollection
 from ladybug.datatype.energyintensity import EnergyIntensity
 from ladybug.datatype.energy import Energy
 from ladybug.datatype.temperature import Temperature
+from ladybug.analysisperiod import AnalysisPeriod
+from ladybug.header import Header
 
 import pytest
 
@@ -158,3 +160,51 @@ def test_colorrooms_monthly():
 
     color_obj.simulation_step = 0
     assert color_obj.title_text == 'Zone Lights Electric Energy Intensity (kWh/m2)\nJan'
+
+
+def test_colorfaces_init():
+    """Test the initialization of ColorFace and basic properties."""
+    data = []
+    names = ['Bottom', 'Front', 'Right', 'Back', 'Left', 'Top']
+    for name in names:
+        metadata = {'type': 'Surface Inside Face Temperature',
+                    'Surface': 'RESIDENCE_{}'.format(name.upper())}
+        head = Header(Temperature(), 'C', AnalysisPeriod(1, 1, 0, 1, 1, 23), metadata)
+        data.append(HourlyContinuousCollection(head, [22] * 24))
+
+    room = Room.from_box('Residence', 3, 6, 3.2)
+    color_obj = ColorFace(data, room.faces)
+    
+    str(color_obj)
+    assert len(color_obj.data_collections) == 6
+    for coll in color_obj.data_collections:
+        assert isinstance(coll, HourlyContinuousCollection)
+        assert coll.header.unit == 'C'
+    assert isinstance(color_obj.legend_parameters, LegendParameters)
+    assert color_obj.simulation_step is None
+    assert color_obj.normalize
+    assert color_obj.geo_unit == 'm'
+    assert len(color_obj.matched_flat_faces) == 6
+    assert len(color_obj.matched_values) == 6
+    for val in color_obj.matched_values:
+        assert isinstance(val, (float, int))
+    assert len(color_obj.matched_flat_geometry) == 6
+    for face3d in color_obj.matched_flat_geometry:
+        assert isinstance(face3d, Face3D)
+    assert len(color_obj.matched_flat_areas) == 6
+    for val in color_obj.matched_flat_areas:
+        assert isinstance(val, (float, int))
+    assert isinstance(color_obj.graphic_container, GraphicContainer)
+    assert len(color_obj.graphic_container.value_colors) == 6
+    assert color_obj.unit == 'C'
+    assert isinstance(color_obj.data_type, Temperature)
+    assert color_obj.data_type_text == 'Surface Inside Face Temperature'
+    assert color_obj.title_text == 'Average Surface Inside Face Temperature ' \
+        '(C)\n1/1 to 1/1 between 0 and 23 '
+
+    color_obj.simulation_step = 0
+    assert color_obj.title_text == 'Surface Inside Face Temperature ' \
+        '(C)\n01 Jan 00:00'
+
+    with pytest.raises(AssertionError):
+        color_obj.simulation_step = 8760
