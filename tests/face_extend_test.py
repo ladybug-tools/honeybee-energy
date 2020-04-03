@@ -29,11 +29,11 @@ def test_default_constructions():
     vertices_roof = [[10, 0, 3], [10, 10, 3], [0, 10, 3], [0, 0, 3]]
 
     wf = Face.from_vertices('wall', vertices_wall)
-    assert wf.properties.energy.construction.name == 'Generic Exterior Wall'
+    assert wf.properties.energy.construction.identifier == 'Generic Exterior Wall'
     rf = Face.from_vertices('roof', vertices_roof)
-    assert rf.properties.energy.construction.name == 'Generic Roof'
+    assert rf.properties.energy.construction.identifier == 'Generic Roof'
     ff = Face.from_vertices('floor', vertices_floor)
-    assert ff.properties.energy.construction.name == 'Generic Ground Slab'
+    assert ff.properties.energy.construction.identifier == 'Generic Ground Slab'
 
 
 def test_set_construction():
@@ -141,4 +141,4 @@ def test_adiabatic_bc():
     verts = [Point3D(0, 0, 0), Point3D(10, 0, 0), Point3D(10, 0, 10), Point3D(0, 0, 10)]
     face = Face('wall_face', Face3D(verts),
                 boundary_condition=boundary_conditions.adiabatic)
-    assert face.properties.energy.construction.name == 'Generic Interior Wall'
+    assert face.properties.energy.construction.identifier == 'Generic Interior Wall'

@@ -409,27 +409,27 @@ class ColorRoom(_ColorObject):
         """Match the object's rooms to the data_collections."""
         self._matched_objects = []  # list of matched rooms and data collections
 
-        # extract the zone name from each of the data collections
-        zone_names = []
+        # extract the zone identifier from each of the data collections
+        zone_ids = []
         use_mult = False
         for data in self._data_collections:
             if 'Zone' in data.header.metadata:
-                zone_names.append(data.header.metadata['Zone'])
+                zone_ids.append(data.header.metadata['Zone'])
             else:  # it's HVAC system data and we need to see if it's matchable
-                hvac_name = data.header.metadata['System']
+                hvac_id = data.header.metadata['System']
                 use_mult = True
-                if '_IDEALAIR' in hvac_name:
-                    zone_names.append(hvac_name.split('_IDEALAIR')[0])
-                elif ' IDEAL LOADS AIR SYSTEM' in hvac_name:
-                    zone_names.append(hvac_name.split(' IDEAL LOADS AIR SYSTEM')[0])
+                if '_IDEALAIR' in hvac_id:
+                    zone_ids.append(hvac_id.split('_IDEALAIR')[0])
+                elif ' IDEAL LOADS AIR SYSTEM' in hvac_id:
+                    zone_ids.append(hvac_id.split(' IDEAL LOADS AIR SYSTEM')[0])
                 else:
-                    zone_names.append(hvac_name)
+                    zone_ids.append(hvac_id)
 
         # loop through the rooms and match the data to them
         for room in self._rooms:
-            rm_name = room.name.upper()
-            for i, data_name in enumerate(zone_names):
-                if data_name == rm_name:
+            rm_id = room.identifier.upper()
+            for i, data_id in enumerate(zone_ids):
+                if data_id == rm_id:
                     mult = 1 if not use_mult else room.multiplier
                     self._matched_objects.append((room, self._data_collections[i], mult))
                     break
@@ -616,17 +616,17 @@ class ColorFace(_ColorObject):
         """Match the object's faces/sub-faces to the data_collections."""
         self._matched_objects = []  # list of matched rooms and data collections
 
-        # extract the surface name from each of the data collections
-        srf_names = []
+        # extract the surface id from each of the data collections
+        srf_ids = []
         for data in self._data_collections:
             if 'Surface' in data.header.metadata:
-                srf_names.append(data.header.metadata['Surface'])
+                srf_ids.append(data.header.metadata['Surface'])
 
         # loop through the faces and match the data to them
         for face in flat_f:
-            f_name = face.name.upper()
-            for i, data_name in enumerate(srf_names):
-                if data_name == f_name:
+            f_id = face.identifier.upper()
+            for i, data_id in enumerate(srf_ids):
+                if data_id == f_id:
                     self._matched_objects.append((face, self._data_collections[i]))
                     break
 

@@ -155,7 +155,6 @@ class ShadowCalculation(object):
         except IndexError:
             pass  # shorter ShadowCalculation definition
 
-        # return the object and the zone name for the object
         return cls(solar_distribution, calculation_method, calculation_frequency,
                    maximum_figures)
 

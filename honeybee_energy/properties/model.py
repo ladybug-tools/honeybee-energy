@@ -328,7 +328,7 @@ class ModelEnergyProperties(object):
                 * FullExteriorWithReflections
                 * FullInteriorAndExteriorWithReflections
         """
-        values = (self.host.name,
+        values = (self.host.identifier,
                   self.host.north_angle,
                   self.terrain_type,
                   '',
@@ -342,122 +342,123 @@ class ModelEnergyProperties(object):
                     'solar distribution')
         return generate_idf_string('Building', values, comments)
 
-    def check_duplicate_material_names(self, raise_exception=True):
-        """Check that there are no duplicate Material names in the model."""
-        material_names = set()
-        duplicate_names = set()
+    def check_duplicate_material_identifiers(self, raise_exception=True):
+        """Check that there are no duplicate Material identifiers in the model."""
+        material_identifiers = set()
+        duplicate_identifiers = set()
         for mat in self.materials:
-            if mat.name not in material_names:
-                material_names.add(mat.name)
+            if mat.identifier not in material_identifiers:
+                material_identifiers.add(mat.identifier)
             else:
-                duplicate_names.add(mat.name)
-        if len(duplicate_names) != 0:
+                duplicate_identifiers.add(mat.identifier)
+        if len(duplicate_identifiers) != 0:
             if raise_exception:
                 raise ValueError(
                     'The model has the following duplicated Material '
-                    'names:\n{}'.format('\n'.join(duplicate_names)))
+                    'identifiers:\n{}'.format('\n'.join(duplicate_identifiers)))
             return False
         return True
 
-    def check_duplicate_construction_names(self, raise_exception=True):
-        """Check that there are no duplicate Construction names in the model."""
-        cnstr_names = set()
-        duplicate_names = set()
+    def check_duplicate_construction_identifiers(self, raise_exception=True):
+        """Check that there are no duplicate Construction identifiers in the model."""
+        cnstr_identifiers = set()
+        duplicate_identifiers = set()
         for cnstr in self.constructions:
-            if cnstr.name not in cnstr_names:
-                cnstr_names.add(cnstr.name)
+            if cnstr.identifier not in cnstr_identifiers:
+                cnstr_identifiers.add(cnstr.identifier)
             else:
-                duplicate_names.add(cnstr.name)
-        if len(duplicate_names) != 0:
+                duplicate_identifiers.add(cnstr.identifier)
+        if len(duplicate_identifiers) != 0:
             if raise_exception:
                 raise ValueError(
                     'The model has the following duplicated Construction '
-                    'names:\n{}'.format('\n'.join(duplicate_names)))
+                    'identifiers:\n{}'.format('\n'.join(duplicate_identifiers)))
             return False
         return True
 
-    def check_duplicate_construction_set_names(self, raise_exception=True):
-        """Check that there are no duplicate ConstructionSet names in the model."""
-        con_set_names = set()
-        duplicate_names = set()
+    def check_duplicate_construction_set_identifiers(self, raise_exception=True):
+        """Check that there are no duplicate ConstructionSet identifiers in the model."""
+        con_set_identifiers = set()
+        duplicate_identifiers = set()
         for con_set in self.construction_sets + [self.global_construction_set]:
-            if con_set.name not in con_set_names:
-                con_set_names.add(con_set.name)
+            if con_set.identifier not in con_set_identifiers:
+                con_set_identifiers.add(con_set.identifier)
             else:
-                duplicate_names.add(con_set.name)
-        if len(duplicate_names) != 0:
+                duplicate_identifiers.add(con_set.identifier)
+        if len(duplicate_identifiers) != 0:
             if raise_exception:
                 raise ValueError(
                     'The model has the following duplicated ConstructionSet '
-                    'names:\n{}'.format('\n'.join(duplicate_names)))
+                    'identifiers:\n{}'.format('\n'.join(duplicate_identifiers)))
             return False
         return True
 
-    def check_duplicate_schedule_type_limit_names(self, raise_exception=True):
-        """Check that there are no duplicate ScheduleTypeLimit names in the model."""
-        sched_type_limit_names = set()
-        duplicate_names = set()
+    def check_duplicate_schedule_type_limit_identifiers(self, raise_exception=True):
+        """Check that there are no duplicate ScheduleTypeLimit identifiers in the model.
+        """
+        sched_type_limit_identifiers = set()
+        duplicate_identifiers = set()
         for t_lim in self.schedule_type_limits:
-            if t_lim.name not in sched_type_limit_names:
-                sched_type_limit_names.add(t_lim.name)
+            if t_lim.identifier not in sched_type_limit_identifiers:
+                sched_type_limit_identifiers.add(t_lim.identifier)
             else:
-                duplicate_names.add(t_lim.name)
-        if len(duplicate_names) != 0:
+                duplicate_identifiers.add(t_lim.identifier)
+        if len(duplicate_identifiers) != 0:
             if raise_exception:
                 raise ValueError(
                     'The model has the following duplicated ScheduleTypeLimit '
-                    'names:\n{}'.format('\n'.join(duplicate_names)))
+                    'identifiers:\n{}'.format('\n'.join(duplicate_identifiers)))
             return False
         return True
 
-    def check_duplicate_schedule_names(self, raise_exception=True):
-        """Check that there are no duplicate Schedule names in the model."""
-        sched_names = set()
-        duplicate_names = set()
+    def check_duplicate_schedule_identifiers(self, raise_exception=True):
+        """Check that there are no duplicate Schedule identifiers in the model."""
+        sched_identifiers = set()
+        duplicate_identifiers = set()
         for sched in self.schedules:
-            if sched.name not in sched_names:
-                sched_names.add(sched.name)
+            if sched.identifier not in sched_identifiers:
+                sched_identifiers.add(sched.identifier)
             else:
-                duplicate_names.add(sched.name)
-        if len(duplicate_names) != 0:
+                duplicate_identifiers.add(sched.identifier)
+        if len(duplicate_identifiers) != 0:
             if raise_exception:
                 raise ValueError(
                     'The model has the following duplicated Schedule '
-                    'names:\n{}'.format('\n'.join(duplicate_names)))
+                    'identifiers:\n{}'.format('\n'.join(duplicate_identifiers)))
             return False
         return True
 
-    def check_duplicate_program_type_names(self, raise_exception=True):
-        """Check that there are no duplicate ProgramType names in the model."""
-        p_type_names = set()
-        duplicate_names = set()
+    def check_duplicate_program_type_identifiers(self, raise_exception=True):
+        """Check that there are no duplicate ProgramType identifiers in the model."""
+        p_type_identifiers = set()
+        duplicate_identifiers = set()
         for p_type in self.program_types:
-            if p_type.name not in p_type_names:
-                p_type_names.add(p_type.name)
+            if p_type.identifier not in p_type_identifiers:
+                p_type_identifiers.add(p_type.identifier)
             else:
-                duplicate_names.add(p_type.name)
-        if len(duplicate_names) != 0:
+                duplicate_identifiers.add(p_type.identifier)
+        if len(duplicate_identifiers) != 0:
             if raise_exception:
                 raise ValueError(
                     'The model has the following duplicated ProgramType '
-                    'names:\n{}'.format('\n'.join(duplicate_names)))
+                    'identifiers:\n{}'.format('\n'.join(duplicate_identifiers)))
             return False
         return True
 
-    def check_duplicate_hvac_names(self, raise_exception=True):
-        """Check that there are no duplicate HVAC names in the model."""
-        hvac_names = set()
-        duplicate_names = set()
+    def check_duplicate_hvac_identifiers(self, raise_exception=True):
+        """Check that there are no duplicate HVAC identifiers in the model."""
+        hvac_identifiers = set()
+        duplicate_identifiers = set()
         for hvac in self.hvacs:
-            if hvac.name not in hvac_names:
-                hvac_names.add(hvac.name)
+            if hvac.identifier not in hvac_identifiers:
+                hvac_identifiers.add(hvac.identifier)
             else:
-                duplicate_names.add(hvac.name)
-        if len(duplicate_names) != 0:
+                duplicate_identifiers.add(hvac.identifier)
+        if len(duplicate_identifiers) != 0:
             if raise_exception:
                 raise ValueError(
                     'The model has the following duplicated HVAC system '
-                    'names:\n{}'.format('\n'.join(duplicate_names)))
+                    'identifiers:\n{}'.format('\n'.join(duplicate_identifiers)))
             return False
         return True
 
@@ -554,26 +555,26 @@ class ModelEnergyProperties(object):
         Returns:
             A tuple with seven elements
 
-            -   materials -- A dictionary with names of materials as keys and Python
-                material objects as values.
+            -   materials -- A dictionary with identifiers of materials as keys
+                and Python material objects as values.
 
-            -   constructions -- A dictionary with names of constructions as keys and Python
-                construction objects as values.
+            -   constructions -- A dictionary with identifiers of constructions
+                as keys and Python construction objects as values.
 
-            -   construction_sets -- A dictionary with names of construction sets as keys
-                and Python construction set objects as values.
+            -   construction_sets -- A dictionary with identifiers of construction
+                sets as keys and Python construction set objects as values.
 
-            -   schedule_type_limits -- A dictionary with names of schedule type limits
-                as keys and Python schedule type limit objects as values.
+            -   schedule_type_limits -- A dictionary with identifiers of schedule
+                type limits as keys and Python schedule type limit objects as values.
 
-            -   schedules -- A dictionary with names of schedules as keys and Python
-                schedule objects as values.
+            -   schedules -- A dictionary with identifiers of schedules as keys
+                and Python schedule objects as values.
 
-            -   program_types -- A dictionary with names of program types as keys and Python
-                program type objects as values.
+            -   program_types -- A dictionary with identifiers of program types
+                as keys and Python program type objects as values.
 
-            -   hvacs -- A dictionary with names of HVAC systems as keys and Python
-                HVACSystem objects as values.
+            -   hvacs -- A dictionary with identifiers of HVAC systems as keys
+                and Python HVACSystem objects as values.
         """
         assert 'energy' in data['properties'], \
             'Dictionary possesses no ModelEnergyProperties.'
@@ -583,7 +584,8 @@ class ModelEnergyProperties(object):
         if 'schedule_type_limits' in data['properties']['energy'] and \
                 data['properties']['energy']['schedule_type_limits'] is not None:
             for t_lim in data['properties']['energy']['schedule_type_limits']:
-                schedule_type_limits[t_lim['name']] = ScheduleTypeLimit.from_dict(t_lim)
+                schedule_type_limits[t_lim['identifier']] = \
+                    ScheduleTypeLimit.from_dict(t_lim)
 
         # process all schedules in the ModelEnergyProperties dictionary
         schedules = {}
@@ -591,23 +593,23 @@ class ModelEnergyProperties(object):
                 data['properties']['energy']['schedules'] is not None:
             for sched in data['properties']['energy']['schedules']:
                 if sched['type'] in SCHEDULE_TYPES:
-                    schedules[sched['name']] = dict_to_schedule(sched)
+                    schedules[sched['identifier']] = dict_to_schedule(sched)
                 else:
-                    schedules[sched['name']] = dict_abridged_to_schedule(
+                    schedules[sched['identifier']] = dict_abridged_to_schedule(
                         sched, schedule_type_limits)
 
         # process all materials in the ModelEnergyProperties dictionary
         materials = {}
         for mat in data['properties']['energy']['materials']:
-            materials[mat['name']] = dict_to_material(mat)
+            materials[mat['identifier']] = dict_to_material(mat)
 
         # process all constructions in the ModelEnergyProperties dictionary
         constructions = {}
         for cnstr in data['properties']['energy']['constructions']:
             if cnstr['type'] in CONSTRUCTION_TYPES:
-                constructions[cnstr['name']] = dict_to_construction(cnstr)
+                constructions[cnstr['identifier']] = dict_to_construction(cnstr)
             else:
-                constructions[cnstr['name']] = \
+                constructions[cnstr['identifier']] = \
                     dict_abridged_to_construction(cnstr, materials, schedules)
 
         # process all construction sets in the ModelEnergyProperties dictionary
@@ -616,9 +618,10 @@ class ModelEnergyProperties(object):
                 data['properties']['energy']['construction_sets'] is not None:
             for c_set in data['properties']['energy']['construction_sets']:
                 if c_set['type'] == 'ConstructionSet':
-                    construction_sets[c_set['name']] = ConstructionSet.from_dict(c_set)
+                    construction_sets[c_set['identifier']] = \
+                        ConstructionSet.from_dict(c_set)
                 else:
-                    construction_sets[c_set['name']] = \
+                    construction_sets[c_set['identifier']] = \
                         ConstructionSet.from_dict_abridged(c_set, constructions)
 
         # process all ProgramType in the ModelEnergyProperties dictionary
@@ -627,9 +630,9 @@ class ModelEnergyProperties(object):
                 data['properties']['energy']['program_types'] is not None:
             for p_typ in data['properties']['energy']['program_types']:
                 if p_typ['type'] == 'ProgramType':
-                    program_types[p_typ['name']] = ProgramType.from_dict(p_typ)
+                    program_types[p_typ['identifier']] = ProgramType.from_dict(p_typ)
                 else:
-                    program_types[p_typ['name']] = \
+                    program_types[p_typ['identifier']] = \
                         ProgramType.from_dict_abridged(p_typ, schedules)
 
         # process all HVAC systems in the ModelEnergyProperties dictionary
@@ -638,7 +641,7 @@ class ModelEnergyProperties(object):
                 data['properties']['energy']['hvacs'] is not None:
             for hvac in data['properties']['energy']['hvacs']:
                 hvac_class = HVAC_TYPES_DICT[hvac['type'].replace('Abridged', '')]
-                hvacs[hvac['name']] = hvac_class.from_dict_abridged(hvac, schedules)
+                hvacs[hvac['identifier']] = hvac_class.from_dict_abridged(hvac, schedules)
 
         return materials, constructions, construction_sets, schedule_type_limits, \
             schedules, program_types, hvacs
@@ -659,7 +662,8 @@ class ModelEnergyProperties(object):
         # add all ConstructionSets to the dictionary
         base['energy']['construction_sets'] = []
         if include_global_construction_set:
-            base['energy']['global_construction_set'] = self.global_construction_set.name
+            base['energy']['global_construction_set'] = \
+                self.global_construction_set.identifier
             base['energy']['construction_sets'].append(
                 self.global_construction_set.to_dict(abridged=True,
                                                      none_for_defaults=False))
@@ -780,4 +784,4 @@ class ModelEnergyProperties(object):
         return self.__repr__()
 
     def __repr__(self):
-        return 'Model Energy Properties:\n host: {}'.format(self.host.name)
+        return 'Model Energy Properties:\n host: {}'.format(self.host.identifier)

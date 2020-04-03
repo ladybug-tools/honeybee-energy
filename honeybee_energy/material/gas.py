@@ -36,9 +36,9 @@ class _EnergyWindowMaterialGasBase(_EnergyMaterialWindowBase):
                         'Krypton': 83.8, 'Xenon': 131.3}
     __slots__ = ('_thickness',)
 
-    def __init__(self, name, thickness=0.0125):
+    def __init__(self, identifier, thickness=0.0125):
         """Initialize gas base material."""
-        _EnergyMaterialWindowBase.__init__(self, name)
+        _EnergyMaterialWindowBase.__init__(self, identifier)
         self.thickness = thickness
 
     @property
@@ -313,8 +313,9 @@ class EnergyWindowMaterialGas(_EnergyWindowMaterialGasBase):
     """Gas gap layer.
 
     Args:
-        name: Text string for material name. Must be <= 100 characters.
-            Can include spaces but special characters will be stripped out.
+        identifier: Text string for a unique Material ID. Must be < 100 characters
+            and not contain any EnergyPlus special characters. This will be used to
+            identify the object across a model and in the exported IDF.
         thickness: Number for the thickness of the air gap layer [m].
             Default: 0.0125
         gas_type: Text describing the type of gas in the gap.
@@ -322,7 +323,8 @@ class EnergyWindowMaterialGas(_EnergyWindowMaterialGasBase):
             Default: 'Air'
 
     Properties:
-        * name
+        * identifier
+        * display_name
         * thickness
         * gas_type
         * conductivity
@@ -333,9 +335,9 @@ class EnergyWindowMaterialGas(_EnergyWindowMaterialGasBase):
     """
     __slots__ = ('_gas_type',)
 
-    def __init__(self, name, thickness=0.0125, gas_type='Air'):
+    def __init__(self, identifier, thickness=0.0125, gas_type='Air'):
         """Initialize gas energy material."""
-        _EnergyWindowMaterialGasBase.__init__(self, name, thickness)
+        _EnergyWindowMaterialGasBase.__init__(self, identifier, thickness)
         self.gas_type = gas_type
 
     @property
@@ -387,7 +389,8 @@ class EnergyWindowMaterialGas(_EnergyWindowMaterialGasBase):
 
             {
             "type": 'EnergyWindowMaterialGas',
-            "name": 'Argon Gap',
+            "identifier": 'Argon_Gap_0010',
+            "display_name": 'Argon Gap',
             "thickness": 0.01,
             "gas_type": 'Argon'
             }
@@ -396,22 +399,28 @@ class EnergyWindowMaterialGas(_EnergyWindowMaterialGasBase):
             'Expected EnergyWindowMaterialGas. Got {}.'.format(data['type'])
         thickness = 0.0125 if 'thickness' not in data else data['thickness']
         gas_type = 'Air' if 'gas_type' not in data else data['gas_type']
-        return cls(data['name'], thickness, gas_type)
+        new_obj = cls(data['identifier'], thickness, gas_type)
+        if 'display_name' in data and data['display_name'] is not None:
+            new_obj.display_name = data['display_name']
+        return new_obj
 
     def to_idf(self):
         """Get an EnergyPlus string representation of the material."""
-        values = (self.name, self.gas_type, self.thickness)
+        values = (self.identifier, self.gas_type, self.thickness)
         comments = ('name', 'gas type', 'thickness {m}')
         return generate_idf_string('WindowMaterial:Gas', values, comments)
 
     def to_dict(self):
         """Energy Material Gas dictionary representation."""
-        return {
+        base = {
             'type': 'EnergyWindowMaterialGas',
-            'name': self.name,
+            'identifier': self.identifier,
             'thickness': self.thickness,
             'gas_type': self.gas_type
         }
+        if self._display_name is not None:
+            base['display_name'] = self.display_name
+        return base
 
     def _coeff_property(self, dictionary, t_kelvin):
         """Get a property given a dictionary of coefficients and kelvin temperature."""
@@ -421,7 +430,7 @@ class EnergyWindowMaterialGas(_EnergyWindowMaterialGasBase):
 
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""
-        return (self.name, self.thickness, self.gas_type)
+        return (self.identifier, self.thickness, self.gas_type)
 
     def __hash__(self):
         return hash(self.__key())
@@ -437,7 +446,9 @@ class EnergyWindowMaterialGas(_EnergyWindowMaterialGasBase):
         return self.to_idf()
 
     def __copy__(self):
-        return EnergyWindowMaterialGas(self.name, self.thickness, self.gas_type)
+        new_obj = EnergyWindowMaterialGas(self.identifier, self.thickness, self.gas_type)
+        new_obj._display_name = self._display_name
+        return new_obj
 
 
 @lockable
@@ -445,8 +456,9 @@ class EnergyWindowMaterialGasMixture(_EnergyWindowMaterialGasBase):
     """Gas gap layer with a mixture of gasses.
 
     Args:
-        name: Text string for material name. Must be <= 100 characters.
-            Can include spaces but special characters will be stripped out.
+        identifier: Text string for a unique Material ID. Must be < 100 characters
+            and not contain any EnergyPlus special characters. This will be used to
+            identify the object across a model and in the exported IDF.
         thickness: Number for the thickness of the air gap layer [m].
             Default: 0.0125
         gas_types: A list of text describing the types of gas in the gap.
@@ -457,7 +469,8 @@ class EnergyWindowMaterialGasMixture(_EnergyWindowMaterialGasBase):
             the gas_types input list and must sum to 1. Default: (0.9, 0.1).
 
     Properties:
-        * name
+        * identifier
+        * display_name
         * thickness
         * gas_types
         * gas_fractions
@@ -470,10 +483,10 @@ class EnergyWindowMaterialGasMixture(_EnergyWindowMaterialGasBase):
     """
     __slots__ = ('_gas_count', '_gas_types', '_gas_fractions')
 
-    def __init__(self, name, thickness=0.0125,
+    def __init__(self, identifier, thickness=0.0125,
                  gas_types=('Argon', 'Air'), gas_fractions=(0.9, 0.1)):
         """Initialize gas mixture energy material."""
-        _EnergyWindowMaterialGasBase.__init__(self, name, thickness)
+        _EnergyWindowMaterialGasBase.__init__(self, identifier, thickness)
         try:  # check the number of gases
             self._gas_count = len(gas_types)
         except (TypeError, ValueError):
@@ -558,7 +571,8 @@ class EnergyWindowMaterialGasMixture(_EnergyWindowMaterialGasBase):
 
             {
             'type': 'EnergyWindowMaterialGasMixture',
-            'name': 'Argon Mixture',
+            'identifier': 'Argon_Mixture_001_095_005',
+            'display_name': 'Argon Mixture',
             'thickness': 0.01,
             'gas_types': ['Argon', 'Air'],
             'gas_fractions': [0.95, 0.05]
@@ -572,12 +586,15 @@ class EnergyWindowMaterialGasMixture(_EnergyWindowMaterialGasBase):
 
         thickness = 0.0125 if 'thickness' not in data else data['thickness']
 
-        return cls(data['name'], data['thickness'], data['gas_types'],
-                   data['gas_fractions'])
+        new_obj = cls(data['identifier'], data['thickness'], data['gas_types'],
+                      data['gas_fractions'])
+        if 'display_name' in data and data['display_name'] is not None:
+            new_obj.display_name = data['display_name']
+        return new_obj
 
     def to_idf(self):
         """Get an EnergyPlus string representation of the material."""
-        values = [self.name, self.thickness, len(self.gas_types)]
+        values = [self.identifier, self.thickness, len(self.gas_types)]
         comments = ['name', 'thickness {m}', 'number of gases']
         for i in range(len(self.gas_types)):
             values.append(self.gas_types[i])
@@ -588,13 +605,16 @@ class EnergyWindowMaterialGasMixture(_EnergyWindowMaterialGasBase):
 
     def to_dict(self):
         """Energy Material Gas Mixture dictionary representation."""
-        return {
+        base = {
             'type': 'EnergyWindowMaterialGasMixture',
-            'name': self.name,
+            'identifier': self.identifier,
             'thickness': self.thickness,
             'gas_types': self.gas_types,
             'gas_fractions': self.gas_fractions
         }
+        if self._display_name is not None:
+            base['display_name'] = self.display_name
+        return base
 
     def _weighted_avg_coeff_property(self, dictionary, t_kelvin):
         """Get a weighted average property given a dictionary of coefficients."""
@@ -606,7 +626,7 @@ class EnergyWindowMaterialGasMixture(_EnergyWindowMaterialGasBase):
 
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""
-        return (self.name, self.thickness, self.gas_types, self.gas_fractions)
+        return (self.identifier, self.thickness, self.gas_types, self.gas_fractions)
 
     def __hash__(self):
         return hash(self.__key())
@@ -622,8 +642,10 @@ class EnergyWindowMaterialGasMixture(_EnergyWindowMaterialGasBase):
         return self.to_idf()
 
     def __copy__(self):
-        return EnergyWindowMaterialGasMixture(
-            self.name, self.thickness, self.gas_types, self.gas_fractions)
+        new_obj = EnergyWindowMaterialGasMixture(
+            self.identifier, self.thickness, self.gas_types, self.gas_fractions)
+        new_obj._display_name = self._display_name
+        return new_obj
 
 
 @lockable
@@ -644,8 +666,9 @@ class EnergyWindowMaterialGasCustom(_EnergyWindowMaterialGasBase):
     equal to the A coefficeint.
 
     Args:
-        name: Text string for material name. Must be <= 100 characters.
-            Can include spaces but special characters will be stripped out.
+        identifier: Text string for a unique Material ID. Must be < 100 characters
+            and not contain any EnergyPlus special characters. This will be used to
+            identify the object across a model and in the exported IDF.
         thickness: Number for the thickness of the air gap layer [m].
             Default: 0.0125
         conductivity_coeff_a: First conductivity coefficient.
@@ -667,7 +690,8 @@ class EnergyWindowMaterialGasCustom(_EnergyWindowMaterialGasBase):
             the substance in grams. Default is 20.0.
 
     Properties:
-        * name
+        * identifier
+        * display_name
         * thickness
         * conductivity_coeff_a
         * viscosity_coeff_a
@@ -700,13 +724,13 @@ class EnergyWindowMaterialGasCustom(_EnergyWindowMaterialGasBase):
                  '_conductivity_coeff_c', '_viscosity_coeff_c', '_specific_heat_coeff_c',
                  '_specific_heat_ratio', '_molecular_weight')
 
-    def __init__(self, name, thickness,
+    def __init__(self, identifier, thickness,
                  conductivity_coeff_a, viscosity_coeff_a, specific_heat_coeff_a,
                  conductivity_coeff_b=0, viscosity_coeff_b=0, specific_heat_coeff_b=0,
                  conductivity_coeff_c=0, viscosity_coeff_c=0, specific_heat_coeff_c=0,
                  specific_heat_ratio=1.0, molecular_weight=20.0):
         """Initialize custom gas energy material."""
-        _EnergyWindowMaterialGasBase.__init__(self, name, thickness)
+        _EnergyWindowMaterialGasBase.__init__(self, identifier, thickness)
         self.conductivity_coeff_a = conductivity_coeff_a
         self.viscosity_coeff_a = viscosity_coeff_a
         self.specific_heat_coeff_a = specific_heat_coeff_a
@@ -859,7 +883,8 @@ class EnergyWindowMaterialGasCustom(_EnergyWindowMaterialGasBase):
 
             {
             "type": 'EnergyWindowMaterialGasCustom',
-            "name": 'CO2',
+            "identifier": 'CO2_0010_00146_0000014_82773_140_44',
+            "display_name": 'CO2'
             "thickness": 0.01,
             "conductivity_coeff_a": 0.0146,
             "viscosity_coeff_a": 0.000014,
@@ -878,13 +903,16 @@ class EnergyWindowMaterialGasCustom(_EnergyWindowMaterialGasBase):
         sph_c = 0 if 'specific_heat_coeff_c' not in data else data['specific_heat_coeff_c']
         sphr = 1.0 if 'specific_heat_ratio' not in data else data['specific_heat_ratio']
         mw = 20.0 if 'molecular_weight' not in data else data['molecular_weight']
-        return cls(data['name'], data['thickness'], data['conductivity_coeff_a'],
-                   data['viscosity_coeff_a'], data['specific_heat_coeff_a'],
-                   con_b, vis_b, sph_b, con_c, vis_c, sph_c, sphr, mw)
+        new_obj = cls(data['identifier'], data['thickness'], data['conductivity_coeff_a'],
+                      data['viscosity_coeff_a'], data['specific_heat_coeff_a'],
+                      con_b, vis_b, sph_b, con_c, vis_c, sph_c, sphr, mw)
+        if 'display_name' in data and data['display_name'] is not None:
+            new_obj.display_name = data['display_name']
+        return new_obj
 
     def to_idf(self):
         """Get an EnergyPlus string representation of the material."""
-        values = (self.name, 'Custom', self.thickness, self.conductivity_coeff_a,
+        values = (self.identifier, 'Custom', self.thickness, self.conductivity_coeff_a,
                   self.conductivity_coeff_b, self.conductivity_coeff_c,
                   self.viscosity_coeff_a, self.viscosity_coeff_b,
                   self.viscosity_coeff_c, self.specific_heat_coeff_a,
@@ -899,9 +927,9 @@ class EnergyWindowMaterialGasCustom(_EnergyWindowMaterialGasBase):
 
     def to_dict(self):
         """Energy Material Gas Custom dictionary representation."""
-        return {
+        base = {
             'type': 'EnergyWindowMaterialGasCustom',
-            'name': self.name,
+            'identifier': self.identifier,
             'thickness': self.thickness,
             'conductivity_coeff_a': self.conductivity_coeff_a,
             'viscosity_coeff_a': self.viscosity_coeff_a,
@@ -915,10 +943,13 @@ class EnergyWindowMaterialGasCustom(_EnergyWindowMaterialGasBase):
             'specific_heat_ratio': self.specific_heat_ratio,
             'molecular_weight': self.molecular_weight
         }
+        if self._display_name is not None:
+            base['display_name'] = self.display_name
+        return base
 
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""
-        return (self.name, self.thickness, self.conductivity_coeff_a,
+        return (self.identifier, self.thickness, self.conductivity_coeff_a,
                 self.viscosity_coeff_a, self.specific_heat_coeff_a,
                 self.conductivity_coeff_b, self.viscosity_coeff_b,
                 self.specific_heat_coeff_b, self.conductivity_coeff_c,
@@ -939,10 +970,12 @@ class EnergyWindowMaterialGasCustom(_EnergyWindowMaterialGasBase):
         return self.to_idf()
 
     def __copy__(self):
-        return EnergyWindowMaterialGasCustom(
-            self.name, self.thickness, self.conductivity_coeff_a,
+        new_obj = EnergyWindowMaterialGasCustom(
+            self.identifier, self.thickness, self.conductivity_coeff_a,
             self.viscosity_coeff_a, self.specific_heat_coeff_a,
             self.conductivity_coeff_b, self.viscosity_coeff_b,
             self.specific_heat_coeff_b, self.conductivity_coeff_c,
             self.viscosity_coeff_c, self.specific_heat_coeff_c,
             self.specific_heat_ratio, self.molecular_weight)
+        new_obj._display_name = self._display_name
+        return new_obj

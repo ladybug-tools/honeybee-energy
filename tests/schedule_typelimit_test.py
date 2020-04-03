@@ -11,7 +11,7 @@ def test_schedule_typelimit_init():
     fractional = ScheduleTypeLimit('Fractional', 0, 1, 'Continuous', 'Dimensionless')
     str(fractional)  # test the string representation
 
-    assert fractional.name == 'Fractional'
+    assert fractional.identifier == 'Fractional'
     assert fractional.lower_limit == 0
     assert fractional.upper_limit == 1
     assert fractional.numeric_type == 'Continuous'

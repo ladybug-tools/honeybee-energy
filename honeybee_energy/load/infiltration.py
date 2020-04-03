@@ -17,8 +17,9 @@ class Infiltration(_LoadBase):
     """A complete definition of infiltration, including schedules and load.
 
     Args:
-        name: Text string for the infiltration name. Must be <= 100 characters.
-            Can include spaces but special characters will be stripped out.
+        identifier: Text string for a unique Infiltration ID. Must be < 100 characters
+            and not contain any EnergyPlus special characters. This will be used to
+            identify the object across a model and in the exported IDF.
         flow_per_exterior_area: A numerical value for the intensity of infiltration
             in m3/s per square meter of exterior surface area. Typical values for
             this property are as follows (note all values are at typical building
@@ -49,7 +50,8 @@ class Infiltration(_LoadBase):
             for this coefficient respectively. Default: 0.
 
     Properties:
-        * name
+        * identifier
+        * display_name
         * flow_per_exterior_area
         * schedule
         * constant_coefficient
@@ -59,10 +61,11 @@ class Infiltration(_LoadBase):
     __slots__ = ('_flow_per_exterior_area', '_schedule', '_constant_coefficient',
                  '_temperature_coefficient', '_velocity_coefficient')
 
-    def __init__(self, name, flow_per_exterior_area, schedule, constant_coefficient=1,
+    def __init__(self, identifier, flow_per_exterior_area, schedule,
+                 constant_coefficient=1,
                  temperature_coefficient=0, velocity_coefficient=0):
         """Initialize Infiltration."""
-        _LoadBase.__init__(self, name)
+        _LoadBase.__init__(self, identifier)
         self.flow_per_exterior_area = flow_per_exterior_area
         self.schedule = schedule
         self.constant_coefficient = constant_coefficient
@@ -164,7 +167,7 @@ class Infiltration(_LoadBase):
         Args:
             idf_string: A text string fully describing an EnergyPlus
                 ZoneInfiltration:DesignFlowRate definition.
-            schedule_dict: A dictionary with schedule names as keys and honeybee
+            schedule_dict: A dictionary with schedule identifiers as keys and honeybee
                 schedule objects as values (either ScheduleRuleset or
                 ScheduleFixedInterval). These will be used to assign the schedules to
                 the Infiltration object.
@@ -174,8 +177,8 @@ class Infiltration(_LoadBase):
 
             -   infiltration: An Infiltration object loaded from the idf_string.
 
-            -   zone_name: The name of the zone to which the Infiltration object should
-                be assigned.
+            -   zone_identifier: The identifier of the zone to which the Infiltration
+                object should be assigned.
         """
         # check the inputs
         ep_strs = parse_idf_string(idf_string, 'ZoneInfiltration:DesignFlowRate,')
@@ -200,11 +203,11 @@ class Infiltration(_LoadBase):
         except KeyError as e:
             raise ValueError('Failed to find {} in the schedule_dict.'.format(e))
 
-        # return the object and the zone name for the object
-        obj_name = ep_strs[0].split('..')[0]
-        zone_name = ep_strs[1]
-        infiltration = cls(obj_name, ep_strs[6], sched, const, temp, vel)
-        return infiltration, zone_name
+        # return the object and the zone identifier for the object
+        obj_id = ep_strs[0].split('..')[0]
+        zone_id = ep_strs[1]
+        infiltration = cls(obj_id, ep_strs[6], sched, const, temp, vel)
+        return infiltration, zone_id
 
     @classmethod
     def from_dict(cls, data):
@@ -220,7 +223,8 @@ class Infiltration(_LoadBase):
 
             {
             "type": 'Infiltration',
-            "name": 'Residentail Infiltration',
+            "identifier": 'Residentail_Infiltration_000030_1_0_0',
+            "display_name": 'Residentail Infiltration',
             "flow_per_exterior_area": 0.0003, # flow per square meter of exterior area
             "schedule": {}, # ScheduleRuleset/ScheduleFixedInterval dictionary
             "constant_coefficient": 1, # optional constant coefficient
@@ -232,7 +236,11 @@ class Infiltration(_LoadBase):
             'Expected Infiltration dictionary. Got {}.'.format(data['type'])
         sched = cls._get_schedule_from_dict(data['schedule'])
         const, tem, vel = cls._optional_dict_keys(data)
-        return cls(data['name'], data['flow_per_exterior_area'], sched, const, tem, vel)
+        new_obj = cls(data['identifier'], data['flow_per_exterior_area'],
+                      sched, const, tem, vel)
+        if 'display_name' in data and data['display_name'] is not None:
+            new_obj.display_name = data['display_name']
+        return new_obj
 
     @classmethod
     def from_dict_abridged(cls, data, schedule_dict):
@@ -240,17 +248,19 @@ class Infiltration(_LoadBase):
 
         Args:
             data: A InfiltrationAbridged dictionary in following the format below.
-            schedule_dict: A dictionary with schedule names as keys and honeybee schedule
-                objects as values (either ScheduleRuleset or ScheduleFixedInterval).
-                These will be used to assign the schedules to the Infiltration object.
+            schedule_dict: A dictionary with schedule identifiers as keys and
+                honeybee schedule objects as values (either ScheduleRuleset or
+                ScheduleFixedInterval). These will be used to assign the schedules
+                to the Infiltration object.
 
         .. code-block:: python
 
             {
             "type": 'InfiltrationAbridged',
-            "name": 'Residentail Infiltration',
+            "identifier": 'Residentail_Infiltration_000030_1_0_0',
+            "display_name": 'Residentail Infiltration',
             "flow_per_exterior_area": 0.0003, # flow per square meter of exterior area
-            "schedule": "Residentail Infiltration Schedule", # Schedule name
+            "schedule": "Residentail Infiltration Schedule", # Schedule identifier
             "constant_coefficient": 1, # optional constant coefficient
             "temperature_coefficient": 0, # optional temperature coefficient
             "velocity_coefficient": 0 # optional velocity coefficient
@@ -263,9 +273,13 @@ class Infiltration(_LoadBase):
         except KeyError as e:
             raise ValueError('Failed to find {} in the schedule_dict.'.format(e))
         const, tem, vel = cls._optional_dict_keys(data)
-        return cls(data['name'], data['flow_per_exterior_area'], sched, const, tem, vel)
+        new_obj = cls(data['identifier'], data['flow_per_exterior_area'],
+                      sched, const, tem, vel)
+        if 'display_name' in data and data['display_name'] is not None:
+            new_obj.display_name = data['display_name']
+        return new_obj
 
-    def to_idf(self, zone_name):
+    def to_idf(self, zone_identifier):
         """IDF string representation of Infiltration object.
 
         Note that this method only outputs a single string for the ZoneInfiltration:
@@ -273,13 +287,13 @@ class Infiltration(_LoadBase):
         object into an IDF, this object's schedule must also be written.
 
         Args:
-            zone_name: Text for the zone name that the ZoneInfiltration:DesignFlowRate
-                object is assigned to.
+            zone_identifier: Text for the zone identifier that the ZoneInfiltration:
+                DesignFlowRate object is assigned to.
         """
-        values = ('{}..{}'.format(self.name, zone_name), zone_name, self.schedule.name,
-                  'Flow/ExteriorArea', '', '', self.flow_per_exterior_area, '',
-                  self.constant_coefficient, self.temperature_coefficient,
-                  self.velocity_coefficient, '')
+        values = ('{}..{}'.format(self.identifier, zone_identifier), zone_identifier,
+                  self.schedule.identifier, 'Flow/ExteriorArea', '', '',
+                  self.flow_per_exterior_area, '', self.constant_coefficient,
+                  self.temperature_coefficient, self.velocity_coefficient, '')
         comments = ('name', 'zone name', 'schedule name', 'flow rate method',
                     'flow rate {m3/s}', 'flow per floor area {m3/s-m2}',
                     'flow per exterior area {m3/s-m2}', 'air changes per hour {1/hr}',
@@ -293,28 +307,33 @@ class Infiltration(_LoadBase):
         Args:
             abridged: Boolean to note whether the full dictionary describing the
                 object should be returned (False) or just an abridged version (True),
-                which only specifies the names of schedules. Default: False.
+                which only specifies the identifiers of schedules. Default: False.
         """
         base = {'type': 'Infiltration'} if not abridged \
             else {'type': 'InfiltrationAbridged'}
-        base['name'] = self.name
+        base['identifier'] = self.identifier
         base['flow_per_exterior_area'] = self.flow_per_exterior_area
         base['schedule'] = self.schedule.to_dict() if not \
-            abridged else self.schedule.name
+            abridged else self.schedule.identifier
         if self.constant_coefficient != 1:
             base['constant_coefficient'] = self.constant_coefficient
         if self.temperature_coefficient != 0:
             base['temperature_coefficient'] = self.temperature_coefficient
         if self.velocity_coefficient != 0:
             base['velocity_coefficient'] = self.velocity_coefficient
+        if self._display_name is not None:
+            base['display_name'] = self.display_name
         return base
 
     @staticmethod
-    def average(name, infiltrations, weights=None, timestep_resolution=1):
+    def average(identifier, infiltrations, weights=None, timestep_resolution=1):
         """Get an Infiltration object that's an average between other Infiltrations.
 
         Args:
-            name: A name for the new averaged Infiltration object.
+            identifier: Text string for a unique ID for the new averaged Infiltration.
+                Must be < 100 characters and not contain any EnergyPlus special
+                characters. This will be used to identify the object across a model
+                and in the exported IDF.
             infiltrations: A list of Infiltration objects that will be averaged
                 together to make a new Infiltration.
             weights: An optional list of fractional numbers with the same length
@@ -343,11 +362,11 @@ class Infiltration(_LoadBase):
 
         # calculate the average schedules
         sched = Infiltration._average_schedule(
-            '{} Schedule'.format(name), [inf.schedule for inf in infiltrations],
+            '{} Schedule'.format(identifier), [inf.schedule for inf in infiltrations],
             u_weights, timestep_resolution)
 
         # return the averaged infiltration object
-        return Infiltration(name, fd, sched, const, temp, vel)
+        return Infiltration(identifier, fd, sched, const, temp, vel)
 
     @staticmethod
     def _optional_dict_keys(data):
@@ -359,7 +378,7 @@ class Infiltration(_LoadBase):
 
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""
-        return (self.name, self.flow_per_exterior_area, hash(self.schedule),
+        return (self.identifier, self.flow_per_exterior_area, hash(self.schedule),
                 self.constant_coefficient, self.temperature_coefficient,
                 self.velocity_coefficient)
 
@@ -373,11 +392,14 @@ class Infiltration(_LoadBase):
         return not self.__eq__(other)
 
     def __copy__(self):
-        return Infiltration(
-            self.name, self.flow_per_exterior_area, self.schedule,
+        new_obj = Infiltration(
+            self.identifier, self.flow_per_exterior_area, self.schedule,
             self.constant_coefficient, self.temperature_coefficient,
             self.velocity_coefficient)
+        new_obj._display_name = self._display_name
+        return new_obj
 
     def __repr__(self):
         return 'Infiltration:\n name: {}\n flow per exterior area: {}\n schedule: ' \
-            '{}'.format(self.name, self.flow_per_exterior_area, self.schedule.name)
+            '{}'.format(self.identifier, self.flow_per_exterior_area,
+                        self.schedule.identifier)

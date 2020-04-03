@@ -13,7 +13,7 @@ def test_shade_init():
     str(shade_mat)  # test the string representation of the material
     shade_dup = shade_mat.duplicate()
 
-    assert shade_mat.name == shade_dup.name == 'Low-e Diffusing Shade'
+    assert shade_mat.identifier == shade_dup.identifier == 'Low-e Diffusing Shade'
     assert shade_mat.thickness == shade_dup.thickness == 0.025
     assert shade_mat.solar_transmittance == shade_dup.solar_transmittance == 0.15
     assert shade_mat.solar_reflectance == shade_dup.solar_reflectance == 0.5
@@ -61,7 +61,7 @@ def test_shade_invalid():
     shade_mat = EnergyWindowMaterialShade('Diffusing Shade')
 
     with pytest.raises(TypeError):
-        shade_mat.name = ['test_name']
+        shade_mat.identifier = ['test_identifier']
     with pytest.raises(AssertionError):
         shade_mat.thickness = -1
     with pytest.raises(AssertionError):
@@ -141,7 +141,7 @@ def test_blind_init():
     str(shade_mat)  # test the string representation of the material
     shade_dup = shade_mat.duplicate()
 
-    assert shade_mat.name == shade_dup.name == 'Plastic Blind'
+    assert shade_mat.identifier == shade_dup.identifier == 'Plastic Blind'
     assert shade_mat.slat_orientation == shade_dup.slat_orientation == 'Vertical'
     assert shade_mat.slat_width == shade_dup.slat_width == 0.025
     assert shade_mat.slat_separation == shade_dup.slat_separation == 0.01875
@@ -210,7 +210,7 @@ def test_blind_invalid():
     shade_mat = EnergyWindowMaterialBlind('Metalic Blind')
 
     with pytest.raises(TypeError):
-        shade_mat.name = ['test_name']
+        shade_mat.identifier = ['test_identifier']
     with pytest.raises(AssertionError):
         shade_mat.slat_orientation = 'Diagonal'
     with pytest.raises(AssertionError):

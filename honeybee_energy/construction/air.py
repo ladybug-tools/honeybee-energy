@@ -16,8 +16,9 @@ class AirBoundaryConstruction(object):
     """Construction for Faces with an AirBoundary face type.
 
     Args:
-        name: Text string for construction name. Must be <= 100 characters.
-            Can include spaces but special characters will be stripped out.
+        identifier: Text string for a unique Construction ID. Must be < 100 characters
+            and not contain any EnergyPlus special characters. This will be used to
+            identify the object across a model and in the exported IDF.
         air_mixing_per_area: A positive number for the amount of air mixing
             between Rooms across the air boundary surface [m3/s-m2].
             Default: 0.1 [m3/s-m2]. This corresponds to average indoor air
@@ -27,28 +28,49 @@ class AirBoundaryConstruction(object):
             across the construction.
 
     Properties:
-        * name
+        * identifier
+        * display_name
         * air_mixing_per_area
         * air_mixing_schedule
     """
 
-    __slots__ = ('_name', '_air_mixing_per_area', '_air_mixing_schedule', '_locked')
+    __slots__ = ('_identifier', '_display_name', '_air_mixing_per_area',
+                 '_air_mixing_schedule', '_locked')
 
-    def __init__(self, name, air_mixing_per_area=0.1, air_mixing_schedule=always_on):
+    def __init__(self, identifier, air_mixing_per_area=0.1,
+                 air_mixing_schedule=always_on):
         """Initialize AirBoundaryConstruction."""
         self._locked = False  # unlocked by default
-        self.name = name
+        self.identifier = identifier
+        self._display_name = None
         self.air_mixing_per_area = air_mixing_per_area
         self.air_mixing_schedule = air_mixing_schedule
 
     @property
-    def name(self):
-        """Get or set the text string for construction name."""
-        return self._name
+    def identifier(self):
+        """Get or set the text string for construction identifier."""
+        return self._identifier
 
-    @name.setter
-    def name(self, name):
-        self._name = valid_ep_string(name, 'construction name')
+    @identifier.setter
+    def identifier(self, identifier):
+        self._identifier = valid_ep_string(identifier, 'construction identifier')
+
+    @property
+    def display_name(self):
+        """Get or set a string for the object name without any character restrictions.
+
+        If not set, this will be equal to the identifier.
+        """
+        if self._display_name is None:
+            return self._identifier
+        return self._display_name
+
+    @display_name.setter
+    def display_name(self, value):
+        try:
+            self._display_name = str(value)
+        except UnicodeEncodeError:  # Python 2 machine lacking the character set
+            self._display_name = value  # keep it as unicode
 
     @property
     def air_mixing_per_area(self):
@@ -90,7 +112,8 @@ class AirBoundaryConstruction(object):
 
             {
             "type": 'AirBoundaryConstruction',
-            "name": 'Generic Air Boundary Construction',
+            "identifier": 'Generic Air Boundary Construction 020',
+            "display_name": 'Air Boundary',
             "air_mixing_per_area": 0.2,
             "air_mixing_schedule": {}  # dictionary of a schedule
             }
@@ -104,7 +127,10 @@ class AirBoundaryConstruction(object):
                 ScheduleFixedInterval.from_dict(data['air_mixing_schedule'])
         else:
             a_sch = always_on
-        return cls(data['name'], a_mix, a_sch)
+        new_obj = cls(data['identifier'], a_mix, a_sch)
+        if 'display_name' in data and data['display_name'] is not None:
+            new_obj.display_name = data['display_name']
+        return new_obj
 
     @classmethod
     def from_dict_abridged(cls, data, schedule_dict):
@@ -112,7 +138,7 @@ class AirBoundaryConstruction(object):
 
         Args:
             data: A AirBoundaryConstructionAbridged dictionary with the format below.
-            schedule_dict: A dictionary with schedule names as keys and
+            schedule_dict: A dictionary with schedule identifiers as keys and
                 honeybee schedule objects as values. These will be used to
                 assign the schedule to the AirBoundaryConstruction object.
 
@@ -120,9 +146,9 @@ class AirBoundaryConstruction(object):
 
             {
             "type": 'AirBoundaryConstructionAbridged',
-            "name": 'Generic Air Boundary Construction',
-            "air_mixing_per_area": 0.2,
-            "air_mixing_schedule": ""  # Name of a schedule
+            "identifier": 'Generic Air Boundary Construction',
+            "display_name": 'Air Boundary',
+            "air_mixing_schedule": ""  # identifier of a schedule
             }
         """
         assert data['type'] == 'AirBoundaryConstructionAbridged', \
@@ -130,7 +156,10 @@ class AirBoundaryConstruction(object):
         a_mix = data['air_mixing_per_area'] if 'air_mixing_per_area' in data else 0.1
         a_sch = schedule_dict[data['air_mixing_schedule']] if \
             'air_mixing_schedule' in data else always_on
-        return cls(data['name'], a_mix, a_sch)
+        new_obj = cls(data['identifier'], a_mix, a_sch)
+        if 'display_name' in data and data['display_name'] is not None:
+            new_obj.display_name = data['display_name']
+        return new_obj
 
     def to_idf(self):
         """IDF string for the Construction:AirBoundary of this object.
@@ -139,23 +168,23 @@ class AirBoundaryConstruction(object):
         mixing objects into the IDF for each Face that has the construction
         assigned to it.
         """
-        values = [self.name, 'GroupedZones', 'GroupedZones', 'None']
+        values = [self.identifier, 'GroupedZones', 'GroupedZones', 'None']
         comments = ('construction name', 'solar and daylight method',
                     'radiant exchange method', 'air exchange method')
         return generate_idf_string('Construction:AirBoundary', values, comments)
 
-    def to_air_mixing_idf(self, face, room_name):
+    def to_air_mixing_idf(self, face, room_identifier):
         """IDF string for the ZoneMixing of this object.
 
         Args:
             face: A Face object to which this construction is assigned. This
                 Face must have a parent Room.
-            room_name: A name for the Room to which the Face is adjacent.
+            room_identifier: A identifier for the Room to which the Face is adjacent.
         """
         flow_rate = face.area * self.air_mixing_per_area
-        values = ['{}_Mixing'.format(face.name), face.parent.name,
-                  self.air_mixing_schedule.name, 'Flow/Zone',
-                  flow_rate, '', '', '', room_name]
+        values = ['{}_Mixing'.format(face.identifier), face.parent.identifier,
+                  self.air_mixing_schedule.identifier, 'Flow/Zone',
+                  flow_rate, '', '', '', room_identifier]
         comments = ('name', 'zone name', 'schedule name', 'flow method', 'flow rate',
                     'flow per floor area', 'flow per person', 'ach', 'source zone name')
         return generate_idf_string('ZoneMixing', values, comments)
@@ -164,10 +193,12 @@ class AirBoundaryConstruction(object):
         """Air boundary construction dictionary representation."""
         base = {'type': 'AirBoundaryConstruction'} if not \
             abridged else {'type': 'AirBoundaryConstructionAbridged'}
-        base['name'] = self.name
+        base['identifier'] = self.identifier
         base['air_mixing_per_area'] = self.air_mixing_per_area
-        base['air_mixing_schedule'] = self.air_mixing_schedule.name if abridged \
+        base['air_mixing_schedule'] = self.air_mixing_schedule.identifier if abridged \
             else self.air_mixing_schedule.to_dict()
+        if self._display_name is not None:
+            base['display_name'] = self.display_name
         return base
 
     def duplicate(self):
@@ -175,12 +206,15 @@ class AirBoundaryConstruction(object):
         return self.__copy__()
 
     def __copy__(self):
-        return AirBoundaryConstruction(
-            self.name, self._air_mixing_per_area, self._air_mixing_schedule)
+        new_con = AirBoundaryConstruction(
+            self.identifier, self._air_mixing_per_area, self._air_mixing_schedule)
+        new_con._display_name = self._display_name
+        return new_con
 
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""
-        return (self.name, self._air_mixing_per_area, hash(self._air_mixing_schedule))
+        return (self._identifier, self._air_mixing_per_area,
+                hash(self._air_mixing_schedule))
 
     def __hash__(self):
         return hash(self.__key())
@@ -197,6 +231,6 @@ class AirBoundaryConstruction(object):
         return self.__repr__()
 
     def __repr__(self):
-        return 'AirBoundaryConstruction,\n name: {}\n mixing per area: {}\n ' \
+        return 'AirBoundaryConstruction,\n identifier: {}\n mixing per area: {}\n ' \
             'schedule: {}'.format(
-                self.name, self.air_mixing_per_area, self.air_mixing_schedule)
+                self.identifier, self.air_mixing_per_area, self.air_mixing_schedule)

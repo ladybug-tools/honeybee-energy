@@ -17,8 +17,9 @@ class Lighting(_LoadBase):
     """A complete definition of lighting, including schedules and load.
 
     Args:
-        name: Text string for the lighting definition name. Must be <= 100 characters.
-            Can include spaces but special characters will be stripped out.
+        identifier: Text string for a unique Lighting ID. Must be < 100 characters
+            and not contain any EnergyPlus special characters. This will be used to
+            identify the object across a model and in the exported IDF.
         watts_per_area: A numerical value for the lighting power density in
             Watts per square meter of floor area.
         schedule: A ScheduleRuleset or ScheduleFixedInterval for the use of lights
@@ -36,7 +37,8 @@ class Lighting(_LoadBase):
             Default: 0.25  (representative of pendant lighting).
 
     Properties:
-        * name
+        * identifier
+        * display_name
         * watts_per_area
         * schedule
         * return_air_fraction
@@ -47,10 +49,10 @@ class Lighting(_LoadBase):
     __slots__ = ('_watts_per_area', '_schedule', '_return_air_fraction',
                  '_radiant_fraction', '_visible_fraction')
 
-    def __init__(self, name, watts_per_area, schedule, return_air_fraction=0.0,
+    def __init__(self, identifier, watts_per_area, schedule, return_air_fraction=0.0,
                  radiant_fraction=0.32, visible_fraction=0.25):
         """Initialize Lighting."""
-        _LoadBase.__init__(self, name)
+        _LoadBase.__init__(self, identifier)
         self._radiant_fraction = 0  # starting value so that check runs correctly
         self._visible_fraction = 0  # starting value so that check runs correctly
 
@@ -140,7 +142,7 @@ class Lighting(_LoadBase):
 
         Args:
             idf_string: A text string fully describing an EnergyPlus lighting definition.
-            schedule_dict: A dictionary with schedule names as keys and honeybee
+            schedule_dict: A dictionary with schedule identifiers as keys and honeybee
                 schedule objects as values (either ScheduleRuleset or
                 ScheduleFixedInterval). These will be used to assign the schedules to
                 the Lighting object.
@@ -150,8 +152,8 @@ class Lighting(_LoadBase):
 
             -   lighting: A Lighting object loaded from the idf_string.
 
-            -   zone_name: The name of the zone to which the Lighting object should
-                be assigned.
+            -   zone_identifier: The identifier of the zone to which the Lighting
+                object should be assigned.
         """
         # check the inputs
         ep_strs = parse_idf_string(idf_string, 'Lights,')
@@ -175,11 +177,11 @@ class Lighting(_LoadBase):
         except KeyError as e:
             raise ValueError('Failed to find {} in the schedule_dict.'.format(e))
 
-        # return the lighting object and the zone name for the lighting object
-        obj_name = ep_strs[0].split('..')[0]
-        zone_name = ep_strs[1]
-        lighting = cls(obj_name, ep_strs[5], sched, return_fract, rad_fract, vis_fract)
-        return lighting, zone_name
+        # return the lighting object and the zone id for the lighting object
+        obj_id = ep_strs[0].split('..')[0]
+        zone_id = ep_strs[1]
+        lighting = cls(obj_id, ep_strs[5], sched, return_fract, rad_fract, vis_fract)
+        return lighting, zone_id
 
     @classmethod
     def from_dict(cls, data):
@@ -195,7 +197,8 @@ class Lighting(_LoadBase):
 
             {
             "type": 'Lighting',
-            "name": 'Open Office Lighting',
+            "identifier": 'Open_Office_Lighting_100_0_032_025',
+            "display_name": 'Office Lighting',
             "watts_per_area": 10, # lighting watts per square meter of floor area
             "schedule": {}, # ScheduleRuleset/ScheduleFixedInterval dictionary
             "return_air_fraction": 0, # fraction of heat going to return air
@@ -207,8 +210,11 @@ class Lighting(_LoadBase):
             'Expected Lighting dictionary. Got {}.'.format(data['type'])
         sched = cls._get_schedule_from_dict(data['schedule'])
         ret_fract, rad_fract, vis_fract = cls._optional_dict_keys(data)
-        return cls(data['name'], data['watts_per_area'], sched,
-                   ret_fract, rad_fract, vis_fract)
+        new_obj = cls(data['identifier'], data['watts_per_area'], sched,
+                      ret_fract, rad_fract, vis_fract)
+        if 'display_name' in data and data['display_name'] is not None:
+            new_obj.display_name = data['display_name']
+        return new_obj
 
     @classmethod
     def from_dict_abridged(cls, data, schedule_dict):
@@ -216,17 +222,19 @@ class Lighting(_LoadBase):
 
         Args:
             data: A LightingAbridged dictionary in following the format below.
-            schedule_dict: A dictionary with schedule names as keys and honeybee schedule
-                objects as values (either ScheduleRuleset or ScheduleFixedInterval).
-                These will be used to assign the schedules to the Lighting object.
+            schedule_dict: A dictionary with schedule identifiers as keys and
+                honeybee schedule objects as values (either ScheduleRuleset or
+                ScheduleFixedInterval). These will be used to assign the schedules
+                to the Lighting object.
 
         .. code-block:: python
 
             {
             "type": 'LightingAbridged',
-            "name": 'Open Office Lighting',
+            "identifier": 'Open_Office_Lighting_100_0_032_025',
+            "display_name": 'Office Lighting',
             "watts_per_area": 10, # lighting watts per square meter of floor area
-            "schedule": "Office Lighting Schedule", # Schedule name
+            "schedule": "Office Lighting Schedule", # Schedule identifier
             "return_air_fraction": 0, # fraction of heat going to return air
             "radiant_fraction": 0.32, # fraction of heat that is long wave radiant
             "visible_fraction": 0.25 # fraction of heat that is short wave visible
@@ -239,10 +247,13 @@ class Lighting(_LoadBase):
         except KeyError as e:
             raise ValueError('Failed to find {} in the schedule_dict.'.format(e))
         ret_fract, rad_fract, vis_fract = cls._optional_dict_keys(data)
-        return cls(data['name'], data['watts_per_area'], sched,
-                   ret_fract, rad_fract, vis_fract)
+        new_obj = cls(data['identifier'], data['watts_per_area'], sched,
+                      ret_fract, rad_fract, vis_fract)
+        if 'display_name' in data and data['display_name'] is not None:
+            new_obj.display_name = data['display_name']
+        return new_obj
 
-    def to_idf(self, zone_name):
+    def to_idf(self, zone_identifier):
         """IDF string representation of Lighting object.
 
         Note that this method only outputs a single string for the Lights object and,
@@ -252,11 +263,12 @@ class Lighting(_LoadBase):
         used by multiple Lighting objects and write the schedule into the IDF only once.
 
         Args:
-            zone_name: Text for the zone name that the Lights object is assigned to.
+            zone_identifier: Text for the zone identifier that the Lights object
+                is assigned to.
         """
-        values = ('{}..{}'.format(self.name, zone_name), zone_name, self.schedule.name,
-                  'Watts/Area', '', self.watts_per_area, '', self.return_air_fraction,
-                  self.radiant_fraction, self.visible_fraction)
+        values = ('{}..{}'.format(self.identifier, zone_identifier), zone_identifier,
+                  self.schedule.identifier, 'Watts/Area', '', self.watts_per_area, '',
+                  self.return_air_fraction, self.radiant_fraction, self.visible_fraction)
         comments = ('name', 'zone name', 'schedule name', 'lighting level method',
                     'lighting power level {W}', 'lighting per floor area {W/m2}',
                     'lighting per person {W/ppl}', 'return air fraction',
@@ -269,24 +281,29 @@ class Lighting(_LoadBase):
         Args:
             abridged: Boolean to note whether the full dictionary describing the
                 object should be returned (False) or just an abridged version (True),
-                which only specifies the names of schedules. Default: False.
+                which only specifies the identifiers of schedules. Default: False.
         """
         base = {'type': 'Lighting'} if not abridged else {'type': 'LightingAbridged'}
-        base['name'] = self.name
+        base['identifier'] = self.identifier
         base['watts_per_area'] = self.watts_per_area
         base['return_air_fraction'] = self.return_air_fraction
         base['radiant_fraction'] = self.radiant_fraction
         base['visible_fraction'] = self.visible_fraction
         base['schedule'] = self.schedule.to_dict() if not \
-            abridged else self.schedule.name
+            abridged else self.schedule.identifier
+        if self._display_name is not None:
+            base['display_name'] = self.display_name
         return base
 
     @staticmethod
-    def average(name, lightings, weights=None, timestep_resolution=1):
+    def average(identifier, lightings, weights=None, timestep_resolution=1):
         """Get a Lighting object that's a weighted average between other Lighting objects.
 
         Args:
-            name: A name for the new averaged Lighting object.
+            identifier: Text string for a unique ID for the new averaged Lighting.
+                Must be < 100 characters and not contain any EnergyPlus special
+                characters. This will be used to identify the object across a model
+                and in the exported IDF.
             lightings: A list of Lighting objects that will be averaged together to make
                 a new Lighting.
             weights: An optional list of fractional numbers with the same length
@@ -310,11 +327,11 @@ class Lighting(_LoadBase):
 
         # calculate the average schedules
         sched = Lighting._average_schedule(
-            '{} Schedule'.format(name), [li.schedule for li in lightings],
+            '{} Schedule'.format(identifier), [li.schedule for li in lightings],
             u_weights, timestep_resolution)
 
         # return the averaged lighting object
-        return Lighting(name, lpd, sched, ret_fract, rad_fract, vis_fract)
+        return Lighting(identifier, lpd, sched, ret_fract, rad_fract, vis_fract)
 
     def _check_fractions(self):
         tot = (self._return_air_fraction, self._radiant_fraction, self._visible_fraction)
@@ -332,7 +349,7 @@ class Lighting(_LoadBase):
 
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""
-        return (self.name, self.watts_per_area, hash(self.schedule),
+        return (self.identifier, self.watts_per_area, hash(self.schedule),
                 self.return_air_fraction, self.radiant_fraction, self.visible_fraction)
 
     def __hash__(self):
@@ -345,10 +362,12 @@ class Lighting(_LoadBase):
         return not self.__eq__(other)
 
     def __copy__(self):
-        return Lighting(
-            self.name, self.watts_per_area, self.schedule, self.return_air_fraction,
-            self.radiant_fraction, self.visible_fraction)
+        new_obj = Lighting(
+            self.identifier, self.watts_per_area, self.schedule,
+            self.return_air_fraction, self.radiant_fraction, self.visible_fraction)
+        new_obj._display_name = self._display_name
+        return new_obj
 
     def __repr__(self):
         return 'Lighting:\n name: {}\n watts per area: {}\n schedule: ' \
-            '{}'.format(self.name, self.watts_per_area, self.schedule.name)
+            '{}'.format(self.identifier, self.watts_per_area, self.schedule.identifier)

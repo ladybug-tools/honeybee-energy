@@ -24,7 +24,7 @@ def test_program_type_init():
     occ_schedule = ScheduleRuleset('Office Occupancy Schedule', simple_office,
                                    None, schedule_types.fractional)
     light_schedule = occ_schedule.duplicate()
-    light_schedule.name = 'Office Lighting-Equip Schedule'
+    light_schedule.identifier = 'Office Lighting-Equip Schedule'
     light_schedule.default_day_schedule.values = [0.25, 1, 0.25]
     equip_schedule = light_schedule.duplicate()
     inf_schedule = ScheduleRuleset.from_constant_value(
@@ -45,7 +45,7 @@ def test_program_type_init():
 
     str(office_program)  # test the string representation
 
-    assert office_program.name == 'Open Office Program'
+    assert office_program.identifier == 'Open Office Program'
     assert isinstance(office_program.people, People)
     assert office_program.people == people
     assert isinstance(office_program.lighting, Lighting)
@@ -70,7 +70,7 @@ def test_program_type_setability():
     occ_schedule = ScheduleRuleset('Office Occupancy Schedule', simple_office,
                                    None, schedule_types.fractional)
     light_schedule = occ_schedule.duplicate()
-    light_schedule.name = 'Office Lighting-Equip Schedule'
+    light_schedule.identifier = 'Office Lighting-Equip Schedule'
     light_schedule.default_day_schedule.values = [0.25, 1, 0.25]
     equip_schedule = light_schedule.duplicate()
     inf_schedule = ScheduleRuleset.from_constant_value(
@@ -88,9 +88,9 @@ def test_program_type_setability():
     setpoint = Setpoint('Office Setpoints', heat_setpt, cool_setpt)
     office_program = ProgramType('Open Office Program')
 
-    assert office_program.name == 'Open Office Program'
-    office_program.name = 'Office Program'
-    assert office_program.name == 'Office Program'
+    assert office_program.identifier == 'Open Office Program'
+    office_program.identifier = 'Office Program'
+    assert office_program.identifier == 'Office Program'
     assert office_program.people is None
     office_program.people = people
     assert office_program.people == people
@@ -131,7 +131,7 @@ def test_program_type_equality():
     occ_schedule = ScheduleRuleset('Office Occupancy Schedule', simple_office,
                                    None, schedule_types.fractional)
     light_schedule = occ_schedule.duplicate()
-    light_schedule.name = 'Office Lighting-Equip Schedule'
+    light_schedule.identifier = 'Office Lighting-Equip Schedule'
     light_schedule.default_day_schedule.values = [0.25, 1, 0.25]
     equip_schedule = light_schedule.duplicate()
     inf_schedule = ScheduleRuleset.from_constant_value(
@@ -191,7 +191,7 @@ def test_program_type_dict_methods():
     occ_schedule = ScheduleRuleset('Office Occupancy Schedule', simple_office,
                                    None, schedule_types.fractional)
     light_schedule = occ_schedule.duplicate()
-    light_schedule.name = 'Office Lighting-Equip Schedule'
+    light_schedule.identifier = 'Office Lighting-Equip Schedule'
     light_schedule.default_day_schedule.values = [0.25, 1, 0.25]
     equip_schedule = light_schedule.duplicate()
     inf_schedule = ScheduleRuleset.from_constant_value(
@@ -223,7 +223,7 @@ def test_program_type_average():
     occ_schedule = ScheduleRuleset('Office Occupancy Schedule', simple_office,
                                    None, schedule_types.fractional)
     light_schedule = occ_schedule.duplicate()
-    light_schedule.name = 'Office Lighting-Equip Schedule'
+    light_schedule.identifier = 'Office Lighting-Equip Schedule'
     light_schedule.default_day_schedule.values = [0.25, 1, 0.25]
     equip_schedule = light_schedule.duplicate()
     inf_schedule = ScheduleRuleset.from_constant_value(

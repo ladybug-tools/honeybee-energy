@@ -45,22 +45,23 @@ except KeyError:  # the office program isn't critical for the rest of the librar
 SCHEDULES = tuple(_schedules.keys()) + tuple(_schedule_standards_dict.keys())
 
 
-def schedule_by_name(schedule_name):
-    """Get a schedule from the library given its name.
+def schedule_by_identifier(schedule_identifier):
+    """Get a schedule from the library given its identifier.
 
     Args:
-        schedule_name: A text string for the name of the schedule.
+        schedule_identifier: A text string for the identifier of the schedule.
     """
     try:  # first check the default data
-        return _schedules[schedule_name]
+        return _schedules[schedule_identifier]
     except KeyError:
         try:  # search the extension data
-            _sch_dict = _schedule_standards_dict[schedule_name]
+            _sch_dict = _schedule_standards_dict[schedule_identifier]
             try:
-                _tl = _stl.schedule_type_limit_by_name(_sch_dict['schedule_type_limit'])
+                _tl = _stl.schedule_type_limit_by_identifier(
+                    _sch_dict['schedule_type_limit'])
             except KeyError:
                 _tl = _stl.fractional
-            return dict_abridged_to_schedule(_sch_dict, {_tl.name: _tl})
+            return dict_abridged_to_schedule(_sch_dict, {_tl.identifier: _tl})
         except KeyError:  # schedule is nowhere to be found; raise an error
             raise ValueError('"{}" was not found in the schedule library.'.format(
-                schedule_name))
+                schedule_identifier))

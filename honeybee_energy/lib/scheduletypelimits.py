@@ -72,14 +72,15 @@ except KeyError:
 SCHEDULE_TYPE_LIMITS = tuple(_schedule_type_limits.keys())
 
 
-def schedule_type_limit_by_name(schedule_type_limit_name):
-    """Get a schedule type from the library given its name.
+def schedule_type_limit_by_identifier(schedule_type_limit_identifier):
+    """Get a schedule type from the library given its identifier.
 
     Args:
-        schedule_type_limit_name: A text string for the name of the schedule type.
+        schedule_type_limit_identifier: A text string for the identifier of the
+            schedule type.
     """
     try:
-        return _schedule_type_limits[schedule_type_limit_name]
+        return _schedule_type_limits[schedule_type_limit_identifier]
     except KeyError:
         raise ValueError('"{}" was not found in the schedule type limits '
-                         'library.'.format(schedule_type_limit_name))
+                         'library.'.format(schedule_type_limit_identifier))

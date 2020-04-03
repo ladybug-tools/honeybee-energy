@@ -16,7 +16,7 @@ def test_ventilation_init():
     ventilation = Ventilation('Office Ventilation', 0.0025, 0.0006)
     str(ventilation)  # test the string representation
 
-    assert ventilation.name == 'Office Ventilation'
+    assert ventilation.identifier == 'Office Ventilation'
     assert ventilation.flow_per_person == 0.0025
     assert ventilation.flow_per_area == 0.0006
     assert ventilation.flow_per_zone == 0
@@ -33,12 +33,12 @@ def test_ventilation_init_schedule():
     ventilation = Ventilation('Office Ventilation', 0.0025, 0.0006, 0, 0, schedule)
     str(ventilation)  # test the string representation
 
-    assert ventilation.name == 'Office Ventilation'
+    assert ventilation.identifier == 'Office Ventilation'
     assert ventilation.flow_per_person == 0.0025
     assert ventilation.flow_per_area == 0.0006
     assert ventilation.flow_per_zone == 0
     assert ventilation.air_changes_per_hour == 0
-    assert ventilation.schedule.name == 'Office Ventilation Schedule'
+    assert ventilation.schedule.identifier == 'Office Ventilation Schedule'
     assert ventilation.schedule.schedule_type_limit == schedule_types.fractional
     assert ventilation.schedule == schedule
 
@@ -51,8 +51,8 @@ def test_ventilation_setability():
                                None, schedule_types.fractional)
     ventilation = Ventilation('Office Ventilation', 0.0025, 0.0006)
 
-    ventilation.name = 'Office Zone Ventilation'
-    assert ventilation.name == 'Office Zone Ventilation'
+    ventilation.identifier = 'Office Zone Ventilation'
+    assert ventilation.identifier == 'Office Zone Ventilation'
     ventilation.flow_per_person = 0.01
     assert ventilation.flow_per_person == 0.01
     ventilation.flow_per_area = 0
@@ -104,7 +104,7 @@ def test_ventilation_init_from_idf():
                                None, schedule_types.fractional)
     ventilation = Ventilation('Office Ventilation', 0.0025, 0.0006)
     ventilation.schedule = schedule
-    sched_dict = {schedule.name: schedule}
+    sched_dict = {schedule.identifier: schedule}
 
     idf_str = ventilation.to_idf('Test Zone')
     rebuilt_ventilation = Ventilation.from_idf(idf_str, sched_dict)

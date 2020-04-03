@@ -112,7 +112,6 @@ class SimulationControl(object):
         except IndexError:
             pass  # shorter SimulationControl definition
 
-        # return the object and the zone name for the object
         return cls(do_zone_sizing, do_system_sizing, do_plant_sizing,
                    run_for_sizing_periods, run_for_run_periods)
 

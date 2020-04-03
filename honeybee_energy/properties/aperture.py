@@ -97,8 +97,8 @@ class ApertureEnergyProperties(object):
             "type": 'ApertureEnergyProperties',
             "construction": {
                 "type": 'WindowConstruction',
-                "name": 'Generic Double Pane Window',
-                "layers": [],  # list of material names (from outside to inside)
+                "identifier": 'Generic Double Pane Window',
+                "layers": [],  # list of material identifiers (from outside to inside)
                 "materials": []  # list of material objects
                 }
             }
@@ -117,7 +117,7 @@ class ApertureEnergyProperties(object):
         Args:
             abridged_data: A ApertureEnergyPropertiesAbridged dictionary (typically
                 coming from a Model).
-            constructions: A dictionary of constructions with constructions names
+            constructions: A dictionary of constructions with constructions identifiers
                 as keys, which will be used to re-assign constructions.
         """
         if 'construction' in abridged_data and abridged_data['construction'] is not None:
@@ -136,7 +136,7 @@ class ApertureEnergyProperties(object):
             abridged else 'ApertureEnergyPropertiesAbridged'
         if self._construction is not None:
             base['energy']['construction'] = \
-                self._construction.name if abridged else self._construction.to_dict()
+                self._construction.identifier if abridged else self._construction.to_dict()
         return base
 
     def duplicate(self, new_host=None):
@@ -152,4 +152,4 @@ class ApertureEnergyProperties(object):
         return self.__repr__()
 
     def __repr__(self):
-        return 'Aperture Energy Properties:\n host: {}'.format(self.host.name)
+        return 'Aperture Energy Properties:\n host: {}'.format(self.host.identifier)

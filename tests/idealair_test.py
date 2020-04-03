@@ -20,7 +20,7 @@ def test_ideal_air_system_init():
     ideal_air = IdealAirSystem('Test System')
     str(ideal_air)  # test the string representation
 
-    assert ideal_air.name == 'Test System'
+    assert ideal_air.identifier == 'Test System'
     assert ideal_air.economizer_type == 'DifferentialDryBulb'
     assert not ideal_air.demand_controlled_ventilation
     assert ideal_air.sensible_heat_recovery == 0
@@ -37,8 +37,8 @@ def test_ideal_air_system_setability():
     """Test the setting of properties of IdealAirSystem."""
     ideal_air = IdealAirSystem('Test System')
 
-    ideal_air.name = 'Test System2'
-    assert ideal_air.name == 'Test System2'
+    ideal_air.identifier = 'Test System2'
+    assert ideal_air.identifier == 'Test System2'
     ideal_air.economizer_type = 'DifferentialEnthalpy'
     assert ideal_air.economizer_type == 'DifferentialEnthalpy'
     ideal_air.sensible_heat_recovery = 0.75
@@ -79,9 +79,9 @@ def test_ideal_air_system_equality():
 
 def test_single_room():
     """Test that each IdealAirSystem can be assigned to only one Room."""
-    first_floor = Room.from_box('First Floor', 10, 10, 3, origin=Point3D(0, 0, 0))
-    second_floor = Room.from_box('Second Floor', 10, 10, 3, origin=Point3D(0, 0, 3))
-    ideal_air = IdealAirSystem('Test System')
+    first_floor = Room.from_box('First_Floor', 10, 10, 3, origin=Point3D(0, 0, 0))
+    second_floor = Room.from_box('Second_Floor', 10, 10, 3, origin=Point3D(0, 0, 3))
+    ideal_air = IdealAirSystem('Test_System')
 
     first_floor.properties.energy.hvac = ideal_air
     with pytest.raises(ValueError):
@@ -90,12 +90,12 @@ def test_single_room():
 
 def test_ideal_air_init_from_idf():
     """Test the initialization of IdealAirSystem from_idf."""
-    ideal_air = IdealAirSystem('Test System')
+    ideal_air = IdealAirSystem('Test_System')
     with pytest.raises(AssertionError):
         ideal_air.to_idf()
 
-    zone_name = 'ShoeBox'
-    room = Room.from_box(zone_name, 5, 10, 3, 90, Point3D(0, 0, 3))
+    zone_id = 'ShoeBox'
+    room = Room.from_box(zone_id, 5, 10, 3, 90, Point3D(0, 0, 3))
     room.properties.energy.add_default_ideal_air()
     ideal_air = room.properties.energy.hvac
     with pytest.raises(AssertionError):
@@ -110,9 +110,9 @@ def test_ideal_air_init_from_idf():
 
     idf_str = ideal_air.to_idf()
     schedule_dict = {}
-    rebuilt_ideal_air, rebuilt_zone_name = IdealAirSystem.from_idf(idf_str, schedule_dict)
+    rebuilt_ideal_air, rebuilt_zone_id = IdealAirSystem.from_idf(idf_str, schedule_dict)
     assert ideal_air == rebuilt_ideal_air
-    assert zone_name == rebuilt_zone_name
+    assert zone_id == rebuilt_zone_id
 
 
 def test_ideal_air_to_dict():

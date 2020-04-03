@@ -31,32 +31,32 @@ for f in os.listdir(folders.construction_lib):
             constructions, materials = OpaqueConstruction.extract_all_from_idf_file(f_path)
             for mat in materials:
                 mat.lock()
-                _opaque_materials[mat.name] = mat
+                _opaque_materials[mat.identifier] = mat
             for cnstr in constructions:
                 cnstr.lock()
-                _opaque_constructions[cnstr.name] = cnstr
+                _opaque_constructions[cnstr.identifier] = cnstr
             constructions, materials = WindowConstruction.extract_all_from_idf_file(f_path)
             for mat in materials:
                 mat.lock()
-                _window_materials[mat.name] = mat
+                _window_materials[mat.identifier] = mat
             for cnstr in constructions:
                 cnstr.lock()
-                _window_constructions[cnstr.name] = cnstr
+                _window_constructions[cnstr.identifier] = cnstr
         if f_path.endswith('.json'):
             with open(f_path) as json_file:
                 data = json.load(json_file)
-            for constr_name in data:
+            for constr_identifier in data:
                 try:
                     constr = dict_abridged_to_construction(
-                        data[constr_name], _all_materials, _schedules, False)
+                        data[constr_identifier], _all_materials, _schedules, False)
                     if constr:
                         constr.lock()
                         if isinstance(constr, (OpaqueConstruction, AirBoundaryConstruction)):
-                            _opaque_constructions[constr_name] = constr
+                            _opaque_constructions[constr_identifier] = constr
                         elif isinstance(constr, WindowConstruction):
-                            _window_constructions[constr_name] = constr
+                            _window_constructions[constr_identifier] = constr
                         else:
-                            _shade_constructions[constr_name] = constr
+                            _shade_constructions[constr_identifier] = constr
                 except KeyError:
                     pass  # not a Honeybee JSON file with Constructions
 

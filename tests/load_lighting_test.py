@@ -20,9 +20,9 @@ def test_lighting_init():
     lighting = Lighting('Open Office Zone Lighting', 10, schedule)
     str(lighting)  # test the string representation
 
-    assert lighting.name == 'Open Office Zone Lighting'
+    assert lighting.identifier == 'Open Office Zone Lighting'
     assert lighting.watts_per_area == 10
-    assert lighting.schedule.name == 'Office Lighting'
+    assert lighting.schedule.identifier == 'Office Lighting'
     assert lighting.schedule.schedule_type_limit == schedule_types.fractional
     assert lighting.schedule == schedule
     assert lighting.return_air_fraction == 0
@@ -40,8 +40,8 @@ def test_lighting_setability():
         'Constant Light', 1, schedule_types.fractional)
     lighting = Lighting('Open Office Zone Lighting', 10, schedule)
 
-    lighting.name = 'Office Zone Lighting'
-    assert lighting.name == 'Office Zone Lighting'
+    lighting.identifier = 'Office Zone Lighting'
+    assert lighting.identifier == 'Office Zone Lighting'
     lighting.watts_per_area = 6
     assert lighting.watts_per_area == 6
     lighting.schedule = constant
@@ -114,13 +114,13 @@ def test_lighting_init_from_idf():
     schedule = ScheduleRuleset('Office Lighting', weekday_office,
                                [weekend_rule], schedule_types.fractional)
     lighting = Lighting('Open Office Zone Lighting', 10, schedule)
-    sched_dict = {schedule.name: schedule}
+    sched_dict = {schedule.identifier: schedule}
 
-    zone_name = 'Test Zone'
-    idf_str = lighting.to_idf(zone_name)
-    rebuilt_lighting, rebuilt_zone_name = Lighting.from_idf(idf_str, sched_dict)
+    zone_id = 'Test Zone'
+    idf_str = lighting.to_idf(zone_id)
+    rebuilt_lighting, rebuilt_zone_id = Lighting.from_idf(idf_str, sched_dict)
     assert lighting == rebuilt_lighting
-    assert zone_name == rebuilt_zone_name
+    assert zone_id == rebuilt_zone_id
 
 
 def test_lighting_dict_methods():

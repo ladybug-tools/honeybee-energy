@@ -33,8 +33,9 @@ class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
     """A single glass pane corresponding to a layer in a window construction.
 
     Args:
-        name: Text string for material name. Must be <= 100 characters.
-            Can include spaces but special characters will be stripped out.
+        identifier: Text string for a unique Material ID. Must be < 100 characters
+            and not contain any EnergyPlus special characters. This will be used to
+            identify the object across a model and in the exported IDF.
         thickness: Number for the thickness of the glass layer [m].
             Default: 0.003 meters (3 mm).
         solar_transmittance: Number between 0 and 1 for the transmittance of solar
@@ -61,7 +62,8 @@ class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
             Default: 0.9.
 
     Properties:
-        * name
+        * identifier
+        * display_name
         * thickness
         * solar_transmittance
         * solar_reflectance
@@ -86,12 +88,12 @@ class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
                  '_conductivity', '_dirt_correction', '_dirt_correction',
                  '_solar_diffusing')
 
-    def __init__(self, name, thickness=0.003, solar_transmittance=0.85,
+    def __init__(self, identifier, thickness=0.003, solar_transmittance=0.85,
                  solar_reflectance=0.075, visible_transmittance=0.9,
                  visible_reflectance=0.075, infrared_transmittance=0,
                  emissivity=0.84, emissivity_back=0.84, conductivity=0.9):
         """Initialize energy window material glazing."""
-        _EnergyWindowMaterialGlazingBase.__init__(self, name)
+        _EnergyWindowMaterialGlazingBase.__init__(self, identifier)
 
         # default for checking transmittance + reflectance < 1
         self._solar_reflectance = 0
@@ -336,7 +338,8 @@ class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
 
             {
             "type": 'EnergyWindowMaterialGlazing',
-            "name": 'Low-e Glazing',
+            "identifier": 'Lowe_Glazing_00030_045_090',
+            "display_name": 'Low-e Glazing',
             "thickness": 0.003,
             "solar_transmittance": 0.45,
             "solar_reflectance": 0.36,
@@ -362,7 +365,7 @@ class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
             if key not in data:
                 data[key] = val
 
-        new_mat = cls(data['name'], data['thickness'],
+        new_mat = cls(data['identifier'], data['thickness'],
                       data['solar_transmittance'], data['solar_reflectance'],
                       data['visible_transmittance'], data['visible_reflectance'],
                       data['infrared_transmittance'], data['emissivity'],
@@ -371,12 +374,14 @@ class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
         new_mat.visible_reflectance_back = data['visible_reflectance_back']
         new_mat.dirt_correction = data['dirt_correction']
         new_mat.solar_diffusing = data['solar_diffusing']
+        if 'display_name' in data and data['display_name'] is not None:
+            new_mat.display_name = data['display_name']
         return new_mat
 
     def to_idf(self):
         """Get an EnergyPlus string representation of the material."""
         solar_diffusing = 'Yes' if self.solar_diffusing is True else 'No'
-        values = (self.name, 'SpectralAverage', '',
+        values = (self.identifier, 'SpectralAverage', '',
                   self.thickness, self.solar_transmittance,
                   self.solar_reflectance, self.solar_reflectance_back,
                   self.visible_transmittance, self.visible_reflectance,
@@ -394,9 +399,9 @@ class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
 
     def to_dict(self):
         """Energy Window Material Glazing dictionary representation."""
-        return {
+        base = {
             'type': 'EnergyWindowMaterialGlazing',
-            'name': self.name,
+            'identifier': self.identifier,
             'thickness': self.thickness,
             'solar_transmittance': self.solar_transmittance,
             'solar_reflectance': self.solar_reflectance,
@@ -411,10 +416,14 @@ class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
             'dirt_correction': self.dirt_correction,
             'solar_diffusing': self.solar_diffusing
         }
+        if self._display_name is not None:
+            base['display_name'] = self.display_name
+        return base
+
 
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""
-        return (self.name, self.thickness, self.solar_transmittance,
+        return (self.identifier, self.thickness, self.solar_transmittance,
                 self.solar_reflectance, self.solar_reflectance_back,
                 self.visible_transmittance, self.visible_reflectance,
                 self.visible_reflectance_back, self.infrared_transmittance,
@@ -436,14 +445,15 @@ class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
 
     def __copy__(self):
         new_material = EnergyWindowMaterialGlazing(
-            self.name, self.thickness, self.solar_transmittance, self.solar_reflectance,
-            self.visible_transmittance, self.visible_reflectance,
+            self.identifier, self.thickness, self.solar_transmittance,
+            self.solar_reflectance, self.visible_transmittance, self.visible_reflectance,
             self.infrared_transmittance, self.emissivity, self._emissivity_back,
             self.conductivity)
         new_material._solar_reflectance_back = self._solar_reflectance_back
         new_material._visible_reflectance_back = self._visible_reflectance_back
         new_material._dirt_correction = self._dirt_correction
         new_material._solar_diffusing = self._solar_diffusing
+        new_material._display_name = self._display_name
         return new_material
 
 
@@ -452,8 +462,9 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
     """A material to describe an entire glazing system, including glass, gaps, and frame.
 
     Args:
-        name: Text string for material name. Must be <= 100 characters.
-            Can include spaces but special characters will be stripped out.
+        identifier: Text string for a unique Material ID. Must be < 100 characters
+            and not contain any EnergyPlus special characters. This will be used to
+            identify the object across a model and in the exported IDF.
         u_factor: A number for the U-factor of the glazing system [W/m2-K]
             including standard air gap resistances on either side of the system.
         shgc: A number between 0 and 1 for the solar heat gain coefficient
@@ -464,7 +475,8 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
             glazing system. Default: 0.6.
 
     Properties:
-        * name
+        * identifier
+        * display_name
         * u_factor
         * shgc
         * vt
@@ -475,9 +487,9 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
     __slots__ = ('_u_factor', '_shgc', '_vt')
     _film_resistance = (1 / 23) + (1 / 7)  # interior + exterior films resistance
 
-    def __init__(self, name, u_factor, shgc, vt=0.6):
+    def __init__(self, identifier, u_factor, shgc, vt=0.6):
         """Initialize energy window material simple glazing system."""
-        _EnergyWindowMaterialGlazingBase.__init__(self, name)
+        _EnergyWindowMaterialGlazingBase.__init__(self, identifier)
         self.u_factor = u_factor
         self.shgc = shgc
         self.vt = vt
@@ -550,7 +562,8 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
 
             {
             "type": 'EnergyWindowMaterialSimpleGlazSys',
-            "name": 'Double Low-e Glazing System',
+            "identifier": 'Double_Lowe_Glazing_200_040_060',
+            "display_name": 'Double Low-e Glazing System',
             "u_factor": 2.0,
             "shgc": 0.4,
             "vt": 0.6
@@ -560,28 +573,34 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
             'Expected EnergyWindowMaterialSimpleGlazSys. Got {}.'.format(data['type'])
         if 'vt' not in data:
             data['vt'] = 0.6
-        return cls(data['name'], data['u_factor'], data['shgc'], data['vt'])
+        new_obj = cls(data['identifier'], data['u_factor'], data['shgc'], data['vt'])
+        if 'display_name' in data and data['display_name'] is not None:
+            new_obj.display_name = data['display_name']
+        return new_obj
 
     def to_idf(self):
         """Get an EnergyPlus string representation of the material."""
-        values = (self.name, self.u_factor, self.shgc, self.vt)
+        values = (self.identifier, self.u_factor, self.shgc, self.vt)
         comments = ('name', 'u-factor {W/m2-K}', 'shgc', 'vt')
         return generate_idf_string(
             'WindowMaterial:SimpleGlazingSystem', values, comments)
 
     def to_dict(self):
         """Energy Window Material Simple Glazing System dictionary representation."""
-        return {
+        base = {
             'type': 'EnergyWindowMaterialSimpleGlazSys',
-            'name': self.name,
+            'identifier': self.identifier,
             'u_factor': self.u_factor,
             'shgc': self.shgc,
             'vt': self.vt
         }
+        if self._display_name is not None:
+            base['display_name'] = self.display_name
+        return base
 
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""
-        return (self.name, self.u_factor, self.shgc, self.vt)
+        return (self.identifier, self.u_factor, self.shgc, self.vt)
 
     def __hash__(self):
         return hash(self.__key())
@@ -597,5 +616,7 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
         return self.to_idf()
 
     def __copy__(self):
-        return EnergyWindowMaterialSimpleGlazSys(
-            self.name, self.u_factor, self.shgc, self.vt)
+        new_material = EnergyWindowMaterialSimpleGlazSys(
+            self.identifier, self.u_factor, self.shgc, self.vt)
+        new_material._display_name = self._display_name
+        return new_material

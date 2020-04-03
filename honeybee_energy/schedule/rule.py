@@ -377,7 +377,7 @@ class ScheduleRule(object):
             "type": 'ScheduleRule'
             "schedule_day": {
                 "type": 'ScheduleDay',
-                "name": 'Office Occupancy',
+                "identifier": 'Office Occupancy',
                 "values": [0, 1, 0],
                 "times": [(0, 0), (9, 0), (17, 0)],
                 "interpolate": False
@@ -415,7 +415,7 @@ class ScheduleRule(object):
 
             {
             "type": 'ScheduleRule'
-            "schedule_day": str, // ScheduleDay name
+            "schedule_day": str, // ScheduleDay identifier
             "apply_sunday": False,
             "apply_monday": True,
             "apply_tuesday": True,
@@ -441,12 +441,12 @@ class ScheduleRule(object):
         Args:
             abridged: Boolean to note whether the full dictionary describing the
                 object should be returned (False) or just an abridged version (True),
-                which only specifies the name of the schedule_day. Default: False.
+                which only specifies the identifier of the schedule_day. Default: False.
         """
         base = {'type': 'ScheduleRule'} if not abridged \
             else {'type': 'ScheduleRuleAbridged'}
         base['schedule_day'] = self.schedule_day.to_dict() if not abridged \
-            else self.schedule_day.name
+            else self.schedule_day.identifier
         base['apply_sunday'] = self.apply_sunday
         base['apply_monday'] = self.apply_monday
         base['apply_tuesday'] = self.apply_tuesday
@@ -480,8 +480,8 @@ class ScheduleRule(object):
         Args:
             week_idf_string: A text string fully describing an EnergyPlus
                 Schedule:Week:Daily or Schedule:Week:Compact.
-            day_schedule_dict: A dictionary with the names of ScheduleDay objects as
-                keys and the corresponding ScheduleDay objects as values. These objects
+            day_schedule_dict: A dictionary with the identifiers of ScheduleDay objects
+                as keys and the corresponding ScheduleDay objects as values. These objects
                 will be used to build the ScheduleRules using the week_idf_string.
             start_date: A ladybug Date object for the start of the period over which
                 the ScheduleRules apply. If None, Jan 1 will be used.
@@ -495,23 +495,23 @@ class ScheduleRule(object):
         schedule_rules = []
         if week_idf_string.startswith('Schedule:Week:Daily,'):
             ep_strs = parse_idf_string(week_idf_string)
-            applied_day_names = []
-            for i, day_sch_name in enumerate(ep_strs[1:8]):
-                if day_sch_name not in applied_day_names:  # make a new rule
-                    rule = ScheduleRule(day_schedule_dict[day_sch_name],
+            applied_day_ids = []
+            for i, day_sch_id in enumerate(ep_strs[1:8]):
+                if day_sch_id not in applied_day_ids:  # make a new rule
+                    rule = ScheduleRule(day_schedule_dict[day_sch_id],
                                         start_date=start_date, end_date=end_date)
                     rule.apply_day_by_dow(i + 1)
                     schedule_rules.append(rule)
-                    applied_day_names.append(day_sch_name)
+                    applied_day_ids.append(day_sch_id)
                 else:  # edit one of the existing rules to apply it to the new day
-                    sch_rule_index = applied_day_names.index(day_sch_name)
+                    sch_rule_index = applied_day_ids.index(day_sch_id)
                     rule = schedule_rules[sch_rule_index]
                     rule.apply_day_by_dow(i + 1)
         else:
             ep_strs = parse_idf_string(week_idf_string, 'Schedule:Week:Compact,')
             for i in range(1, len(ep_strs), 2):
-                day_type, day_sch_name = ep_strs[i].lower(), ep_strs[i + 1]
-                rule = ScheduleRule(day_schedule_dict[day_sch_name])
+                day_type, day_sch_id = ep_strs[i].lower(), ep_strs[i + 1]
+                rule = ScheduleRule(day_schedule_dict[day_sch_id])
                 if 'alldays' in day_type:
                     rule.apply_all = True
                 elif 'weekdays' in day_type:
@@ -605,5 +605,6 @@ class ScheduleRule(object):
         return self.__repr__()
 
     def __repr__(self):
-        return 'ScheduleRule:\n schedule_day: {}\n days applied: {}\n date_range: {} - {}'.format(
-            self.schedule_day.name, ', '.join(self.days_applied), self.start_date, self.end_date)
+        return 'ScheduleRule:\n schedule_day: {}\n days applied: {}\n date_range: ' \
+            '{} - {}'.format(self.schedule_day.identifier, ', '.join(self.days_applied),
+                             self.start_date, self.end_date)

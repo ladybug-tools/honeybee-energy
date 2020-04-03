@@ -62,10 +62,10 @@ def door_to_idf(door):
     """
     door_bc_obj = door.boundary_condition.boundary_condition_object if \
         isinstance(door.boundary_condition, Surface) else ''
-    values = (door.name,
+    values = (door.identifier,
               'Door' if not door.is_glass else 'GlassDoor',
-              door.properties.energy.construction.name,
-              door.parent.name if door.has_parent else 'unknown',
+              door.properties.energy.construction.identifier,
+              door.parent.identifier if door.has_parent else 'unknown',
               door_bc_obj,
               door.boundary_condition.view_factor,
               '',  # TODO: Implement Frame and Divider objects on WindowConstructions
@@ -100,10 +100,10 @@ def aperture_to_idf(aperture):
     """
     ap_bc_obj = aperture.boundary_condition.boundary_condition_object if \
         isinstance(aperture.boundary_condition, Surface) else ''
-    values = (aperture.name,
+    values = (aperture.identifier,
               'Window',
-              aperture.properties.energy.construction.name,
-              aperture.parent.name if aperture.has_parent else 'unknown',
+              aperture.properties.energy.construction.identifier,
+              aperture.parent.identifier if aperture.has_parent else 'unknown',
               ap_bc_obj,
               aperture.boundary_condition.view_factor,
               '',  # TODO: Implement Frame and Divider objects on WindowConstructions
@@ -135,17 +135,17 @@ def shade_to_idf(shade):
         shade: A honeyee Shade for which an IDF representation will be returned.
     """
     # create the Shading:Detailed IDF string
-    trans_sched = shade.properties.energy.transmittance_schedule.name if \
+    trans_sched = shade.properties.energy.transmittance_schedule.identifier if \
         shade.properties.energy.transmittance_schedule is not None else ''
     if shade.has_parent and not isinstance(shade.parent, Room):
         if isinstance(shade.parent, Face):
-            base_srf = shade.parent.name
+            base_srf = shade.parent.identifier
         else:  # Aperture or Door for parent
             try:
-                base_srf = shade.parent.parent.name
+                base_srf = shade.parent.parent.identifier
             except AttributeError:
                 base_srf = 'unknown'  # aperture without a parent (not simulate-able)
-        values = (shade.name,
+        values = (shade.identifier,
                   base_srf,
                   trans_sched,
                   len(shade.vertices),
@@ -158,7 +158,7 @@ def shade_to_idf(shade):
                     '')
         shade_str = generate_idf_string('Shading:Zone:Detailed', values, comments)
     else:
-        values = (shade.name,
+        values = (shade.identifier,
                   trans_sched,
                   len(shade.vertices),
                   ',\n '.join('%.3f, %.3f, %.3f' % (v.x, v.y, v.z)
@@ -174,14 +174,14 @@ def shade_to_idf(shade):
     if construction.is_default:
         return shade_str
     else:
-        values = (shade.name,
+        values = (shade.identifier,
                   construction.solar_reflectance,
                   construction.visible_reflectance)
         comments = ('shading surface name',
                     'diffuse solar reflectance',
                     'diffuse visible reflectance')
         if construction.is_specular:
-            values = values + (1, construction.name)
+            values = values + (1, construction.identifier)
             comments = comments + ('glazed fraction of surface', 'glazing construction')
         constr_str = generate_idf_string('ShadingProperty:Reflectance', values, comments)
     return '\n\n'.join((shade_str, constr_str))
@@ -210,10 +210,10 @@ def face_to_idf(face):
         face_type = face.type.name
     face_bc_obj = face.boundary_condition.boundary_condition_object if \
         isinstance(face.boundary_condition, Surface) else ''
-    values = (face.name,
+    values = (face.identifier,
               face_type,
-              face.properties.energy.construction.name,
-              face.parent.name if face.has_parent else 'unknown',
+              face.properties.energy.construction.identifier,
+              face.parent.identifier if face.has_parent else 'unknown',
               face.boundary_condition.name,
               face_bc_obj,
               face.boundary_condition.sun_exposure_idf,
@@ -258,7 +258,7 @@ def room_to_idf(room):
     zone_str = ['!-   ________ZONE:{}________\n'.format(room.display_name)]
 
     # write the zone defintiion
-    zone_values = (room.name,)
+    zone_values = (room.identifier,)
     zone_comments = ('name',)
     if room.multiplier != 1:
         zone_values = zone_values + ('', '', '', '', '', room.multiplier)
@@ -274,22 +274,22 @@ def room_to_idf(room):
     ventilation = room.properties.energy.ventilation
 
     if people is not None:
-        zone_str.append(people.to_idf(room.name))
+        zone_str.append(people.to_idf(room.identifier))
     if lighting is not None:
-        zone_str.append(lighting.to_idf(room.name))
+        zone_str.append(lighting.to_idf(room.identifier))
     if electric_equipment is not None:
-        zone_str.append(electric_equipment.to_idf(room.name))
+        zone_str.append(electric_equipment.to_idf(room.identifier))
     if gas_equipment is not None:
-        zone_str.append(gas_equipment.to_idf(room.name))
+        zone_str.append(gas_equipment.to_idf(room.identifier))
     if infiltration is not None:
-        zone_str.append(infiltration.to_idf(room.name))
+        zone_str.append(infiltration.to_idf(room.identifier))
 
     # write the ventilation, thermostat, and ideal air system
     if ventilation is not None:
-        zone_str.append(ventilation.to_idf(room.name))
+        zone_str.append(ventilation.to_idf(room.identifier))
     if room.properties.energy.is_conditioned:
-        zone_str.append(room.properties.energy.setpoint.to_idf(room.name))
-        humidistat = room.properties.energy.setpoint.to_idf_humidistat(room.name)
+        zone_str.append(room.properties.energy.setpoint.to_idf(room.identifier))
+        humidistat = room.properties.energy.setpoint.to_idf_humidistat(room.identifier)
         if humidistat is not None:
             zone_str.append(humidistat)
 
@@ -369,7 +369,7 @@ def model_to_idf(model, schedule_directory=None,
     # write all of the schedules and type limits
     sched_strs = []
     type_limits = []
-    used_day_sched_names = []
+    used_day_sched_ids = []
     sched_dir = None
     for sched in model.properties.energy.schedules:
         try:  # ScheduleRuleset
@@ -380,9 +380,9 @@ def model_to_idf(model, schedule_directory=None,
                 # check that day schedules aren't referenced by other model schedules
                 day_scheds = []
                 for day in sched.day_schedules:
-                    if day.name not in used_day_sched_names:
+                    if day.identifier not in used_day_sched_ids:
                         day_scheds.append(day.to_idf(sched.schedule_type_limit))
-                        used_day_sched_names.append(day.name)
+                        used_day_sched_ids.append(day.identifier)
                 sched_strs.extend([year_schedule] + week_schedules + day_scheds)
         except AttributeError:  # ScheduleFixedInterval
             if sched_dir is None:

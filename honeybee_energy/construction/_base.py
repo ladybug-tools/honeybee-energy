@@ -16,12 +16,14 @@ class _ConstructionBase(object):
     """Energy construction.
 
     Args:
-        name: Text string for construction name. Must be <= 100 characters.
-            Can include spaces but special characters will be stripped out.
+        identifier: Text string for a unique Construction ID. Must be < 100 characters
+            and not contain any EnergyPlus special characters. This will be used to
+            identify the object across a model and in the exported IDF.
         materials: List of materials in the construction (from outside to inside).
 
     Properties:
-        * name
+        * identifier
+        * display_name
         * materials
         * layers
         * unique_materials
@@ -34,22 +36,40 @@ class _ConstructionBase(object):
     # generic air material used to compute indoor film coefficients.
     _air = EnergyWindowMaterialGas('generic air', gas_type='Air')
 
-    __slots__ = ('_name', '_materials', '_locked')
+    __slots__ = ('_identifier', '_display_name', '_materials', '_locked')
 
-    def __init__(self, name, materials):
+    def __init__(self, identifier, materials):
         """Initialize energy construction."""
         self._locked = False  # unlocked by default
-        self.name = name
+        self.identifier = identifier
+        self._display_name = None
         self.materials = materials
 
     @property
-    def name(self):
-        """Get or set the text string for construction name."""
-        return self._name
+    def identifier(self):
+        """Get or set the text string for unique construction identifier."""
+        return self._identifier
 
-    @name.setter
-    def name(self, name):
-        self._name = valid_ep_string(name, 'construction name')
+    @identifier.setter
+    def identifier(self, identifier):
+        self._identifier = valid_ep_string(identifier, 'construction identifier')
+
+    @property
+    def display_name(self):
+        """Get or set a string for the object name without any character restrictions.
+
+        If not set, this will be equal to the identifier.
+        """
+        if self._display_name is None:
+            return self._identifier
+        return self._display_name
+
+    @display_name.setter
+    def display_name(self, value):
+        try:
+            self._display_name = str(value)
+        except UnicodeEncodeError:  # Python 2 machine lacking the character set
+            self._display_name = value  # keep it as unicode
 
     @property
     def materials(self):
@@ -62,8 +82,8 @@ class _ConstructionBase(object):
 
     @property
     def layers(self):
-        """A list of material names in the construction (outside to inside)."""
-        return [mat.name for mat in self._materials]
+        """A list of material identifiers in the construction (outside to inside)."""
+        return [mat.identifier for mat in self._materials]
 
     @property
     def unique_materials(self):
@@ -230,14 +250,17 @@ class _ConstructionBase(object):
         return temperatures
 
     @staticmethod
-    def _generate_idf_string(constr_type, name, materials):
+    def _generate_idf_string(constr_type, identifier, materials):
         """Get an EnergyPlus string representation from values and comments."""
-        values = (name,) + tuple(mat.name for mat in materials)
+        values = (identifier,) + tuple(mat.identifier for mat in materials)
         comments = ('name',) + tuple('layer %s' % (i + 1) for i in range(len(materials)))
         return generate_idf_string('Construction', values, comments)
 
     def __copy__(self):
-        return self.__class__(self.name, [mat.duplicate() for mat in self.materials])
+        new_con = self.__class__(
+            self.identifier, [mat.duplicate() for mat in self.materials])
+        new_con._display_name = self._display_name
+        return new_con
 
     def __len__(self):
         return len(self._materials)
@@ -250,7 +273,7 @@ class _ConstructionBase(object):
 
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""
-        return (self.name,) + tuple(hash(mat) for mat in self.materials)
+        return (self.identifier,) + tuple(hash(mat) for mat in self.materials)
 
     def __hash__(self):
         return hash(self.__key())
@@ -267,4 +290,4 @@ class _ConstructionBase(object):
 
     def __repr__(self):
         return 'Construction,\n {},\n {}'.format(
-            self.name, '\n '.join(tuple(mat.name for mat in self.materials)))
+            self.identifier, '\n '.join(tuple(mat.identifier for mat in self.materials)))

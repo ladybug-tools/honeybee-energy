@@ -19,8 +19,9 @@ class Setpoint(_LoadBase):
     """Temperature (thermostat) and humidity (humidistat) setpoints for a thermal zone.
 
     Args:
-        name: Text string for the Setpoint object. Must be <= 100 characters.
-            Can include spaces but special characters will be stripped out.
+        identifier: Text string for a unique Setpoint ID. Must be < 100 characters
+            and not contain any EnergyPlus special characters. This will be used to
+            identify the object across a model and in the exported IDF.
         heating_schedule: A ScheduleRuleset or ScheduleFixedInterval for the
             heating setpoint.
         cooling_schedule: A ScheduleRuleset or ScheduleFixedInterval for the
@@ -33,7 +34,8 @@ class Setpoint(_LoadBase):
             will be performed by the HVAC system. Default: None.
 
     Properties:
-        * name
+        * identifier
+        * display_name
         * heating_schedule
         * cooling_schedule
         * humidifying_schedule
@@ -54,10 +56,10 @@ class Setpoint(_LoadBase):
     _dehumidifying_schedule_no_limit = ScheduleRuleset.from_constant_value(
         'DeHumidNoLimit', 100, _type_lib.humidity)
 
-    def __init__(self, name, heating_schedule, cooling_schedule,
+    def __init__(self, identifier, heating_schedule, cooling_schedule,
                  humidifying_schedule=None, dehumidifying_schedule=None):
         """Initialize Setpoint."""
-        _LoadBase.__init__(self, name)
+        _LoadBase.__init__(self, identifier)
         # defaults that might be overwritten
         self._dehumidifying_schedule = None
 
@@ -139,7 +141,7 @@ class Setpoint(_LoadBase):
     def heating_setpoint(self, value):
         value = float_in_range(value, -273.15, input_name='heating setpoint')
         schedule = ScheduleRuleset.from_constant_value(
-            '{}_HtgSetp'.format(self.name), value, _type_lib.temperature)
+            '{}_HtgSetp'.format(self.identifier), value, _type_lib.temperature)
         self.heating_schedule = schedule
 
     @property
@@ -155,7 +157,7 @@ class Setpoint(_LoadBase):
     def cooling_setpoint(self, value):
         value = float_in_range(value, -273.15, input_name='cooling setpoint')
         schedule = ScheduleRuleset.from_constant_value(
-            '{}_ClgSetp'.format(self.name), value, _type_lib.temperature)
+            '{}_ClgSetp'.format(self.identifier), value, _type_lib.temperature)
         self.cooling_schedule = schedule
 
     @property
@@ -173,7 +175,7 @@ class Setpoint(_LoadBase):
         if value is not None:
             value = float_in_range(value, 0, 100, 'humidifying setpoint')
             schedule = ScheduleRuleset.from_constant_value(
-                '{}_DeHumidSetp'.format(self.name), value, _type_lib.humidity)
+                '{}_DeHumidSetp'.format(self.identifier), value, _type_lib.humidity)
             self.humidifying_schedule = schedule
         else:
             self.humidifying_schedule = None
@@ -193,7 +195,7 @@ class Setpoint(_LoadBase):
         if value is not None:
             value = float_in_range(value, 0, 100, 'dehumidifying setpoint')
             schedule = ScheduleRuleset.from_constant_value(
-                '{}_DeHumidSetp'.format(self.name), value, _type_lib.humidity)
+                '{}_DeHumidSetp'.format(self.identifier), value, _type_lib.humidity)
             self.dehumidifying_schedule = schedule
         else:
             self.dehumidifying_schedule = None
@@ -247,7 +249,7 @@ class Setpoint(_LoadBase):
         Args:
             idf_string: A text string fully describing an EnergyPlus
                 ZoneControl:Humidistat definition.
-            schedule_dict: A dictionary with schedule names as keys and honeybee
+            schedule_dict: A dictionary with schedule identifiers as keys and honeybee
                 schedule objects as values (either ScheduleRuleset or
                 ScheduleFixedInterval). These will be used to assign the schedules to
                 the Setpoint object.
@@ -280,7 +282,7 @@ class Setpoint(_LoadBase):
         Args:
             idf_string: A text string fully describing an EnergyPlus
                 HVACTemplate:Thermostat definition.
-            schedule_dict: A dictionary with schedule names as keys and honeybee
+            schedule_dict: A dictionary with schedule identifiers as keys and honeybee
                 schedule objects as values (either ScheduleRuleset or
                 ScheduleFixedInterval). These will be used to assign the schedules to
                 the Setpoint object.
@@ -291,8 +293,8 @@ class Setpoint(_LoadBase):
         # check the inputs
         ep_strs = parse_idf_string(idf_string, 'HVACTemplate:Thermostat,')
 
-        # remove the zone name from the thermostat
-        setp_obj_name = ep_strs[0].split('..')[0]
+        # remove the zone id from the thermostat
+        setp_obj_id = ep_strs[0].split('..')[0]
 
         # extract the schedules from the string
         try:
@@ -301,8 +303,8 @@ class Setpoint(_LoadBase):
         except KeyError as e:
             raise ValueError('Failed to find {} in the schedule_dict.'.format(e))
 
-        # return the object and the zone name for the object
-        setpoint = cls(setp_obj_name, heat_sched, cool_sched)
+        # return the object and the zone id for the object
+        setpoint = cls(setp_obj_id, heat_sched, cool_sched)
         return setpoint
 
     @classmethod
@@ -319,7 +321,8 @@ class Setpoint(_LoadBase):
 
             {
             "type": 'Setpoint',
-            "name": 'Hospital Patient Room Setpoint',
+            "identifier": 'Hospital_Patient_Room_Setpoint_210_230',
+            "display_name": 'Patient Room Setpoint',
             "heating_schedule": {}, # ScheduleRuleset/ScheduleFixedInterval dictionary
             "cooling_schedule": {}, # ScheduleRuleset/ScheduleFixedInterval dictionary
             "humidifying_schedule": {}, # ScheduleRuleset/ScheduleFixedInterval dictionary
@@ -336,7 +339,11 @@ class Setpoint(_LoadBase):
         dehumid_sched = cls._get_schedule_from_dict(data['dehumidifying_schedule']) if \
             'dehumidifying_schedule' in data and \
             data['dehumidifying_schedule'] is not None else None
-        return cls(data['name'], heat_sched, cool_sched, humid_sched, dehumid_sched)
+        new_obj = cls(data['identifier'], heat_sched, cool_sched,
+                      humid_sched, dehumid_sched)
+        if 'display_name' in data and data['display_name'] is not None:
+            new_obj.display_name = data['display_name']
+        return new_obj
 
     @classmethod
     def from_dict_abridged(cls, data, schedule_dict):
@@ -344,19 +351,21 @@ class Setpoint(_LoadBase):
 
         Args:
             data: A SetpointAbridged dictionary in following the format below.
-            schedule_dict: A dictionary with schedule names as keys and honeybee schedule
-                objects as values (either ScheduleRuleset or ScheduleFixedInterval).
-                These will be used to assign the schedules to the Setpoint object.
+            schedule_dict: A dictionary with schedule identifiers as keys and
+                honeybee schedule objects as values (either ScheduleRuleset or
+                ScheduleFixedInterval). These will be used to assign the schedules
+                to the Setpoint object.
 
         .. code-block:: python
 
             {
             "type": 'SetpointAbridged',
-            "name": 'Hospital Patient Room Setpoint',
-            "heating_schedule": "Hospital Pat Room Heating", # Schedule name
-            "cooling_schedule": "Hospital Pat Room Cooling", # Schedule name
-            "humidifying_schedule": "Hospital Pat Room Humidify", # Schedule name
-            "dehumidifying_schedule": "Hospital Pat Room Dehumidify" # Schedule name
+            "identifier": 'Hospital_Patient_Room_Setpoint_210_230',
+            "display_name": 'Patient Room Setpoint',
+            "heating_schedule": "Hospital Pat Room Heating", # Schedule identifier
+            "cooling_schedule": "Hospital Pat Room Cooling", # Schedule identifier
+            "humidifying_schedule": "Hospital Pat Room Humidify", # Schedule identifier
+            "dehumidifying_schedule": "Hospital Pat Room Dehumidify" # Schedule identifier
             }
         """
         assert data['type'] == 'SetpointAbridged', \
@@ -379,9 +388,13 @@ class Setpoint(_LoadBase):
                 dehumid_sched = schedule_dict[data['dehumidifying_schedule']]
             except KeyError as e:
                 raise ValueError('Failed to find {} in the schedule_dict.'.format(e))
-        return cls(data['name'], heat_sched, cool_sched, humid_sched, dehumid_sched)
+        new_obj = cls(data['identifier'], heat_sched, cool_sched,
+                      humid_sched, dehumid_sched)
+        if 'display_name' in data and data['display_name'] is not None:
+            new_obj.display_name = data['display_name']
+        return new_obj
 
-    def to_idf(self, zone_name):
+    def to_idf(self, zone_identifier):
         """IDF string representation of Setpoint object's thermostat.
 
         Note that this method only outputs a string for the HVACTemplate:Thermostat
@@ -391,15 +404,17 @@ class Setpoint(_LoadBase):
         be used to write the humidistat.
 
         Args:
-            zone_name: Text for the zone name that the Setpoint object is assigned to.
+            zone_identifier: Text for the zone identifier that the Setpoint
+                object is assigned to.
         """
-        values = ('{}..{}'.format(self.name, zone_name), self.heating_schedule.name, '',
-                  self.cooling_schedule.name, '')
+        values = ('{}..{}'.format(self.identifier, zone_identifier),
+                  self.heating_schedule.identifier, '',
+                  self.cooling_schedule.identifier, '')
         comments = ('name', 'heating setpoint schedule', 'heating setpoint {C}',
                     'cooling setpoint schedule', 'cooling setpoint {C}')
         return generate_idf_string('HVACTemplate:Thermostat', values, comments)
 
-    def to_idf_humidistat(self, zone_name):
+    def to_idf_humidistat(self, zone_identifier):
         """IDF string representation of Setpoint object's humidistat.
 
         Note that this method only outputs strings for the ZoneControl:Humidistat
@@ -410,11 +425,13 @@ class Setpoint(_LoadBase):
         have been assigned.
 
         Args:
-            zone_name: Text for the zone name that the Setpoint object is assigned to.
+            zone_identifier: Text for the zone identifier that the Setpoint
+                object is assigned to.
         """
         if self.humidifying_schedule is not None:
-            values = ('{}_{}'.format(self.name, zone_name), zone_name,
-                      self.humidifying_schedule.name, self.dehumidifying_schedule.name)
+            values = ('{}_{}'.format(self.identifier, zone_identifier), zone_identifier,
+                      self.humidifying_schedule.identifier,
+                      self.dehumidifying_schedule.identifier)
             comments = ('name', 'zone name', 'humidifying setpoint schedule',
                         'dehumidifying setpoint schedule')
             return generate_idf_string('ZoneControl:Humidistat', values, comments)
@@ -426,10 +443,10 @@ class Setpoint(_LoadBase):
         Args:
             abridged: Boolean to note whether the full dictionary describing the
                 object should be returned (False) or just an abridged version (True),
-                which only specifies the names of schedules. Default: False.
+                which only specifies the identifiers of schedules. Default: False.
         """
         base = {'type': 'Setpoint'} if not abridged else {'type': 'SetpointAbridged'}
-        base['name'] = self.name
+        base['identifier'] = self.identifier
         if not abridged:
             base['heating_schedule'] = self.heating_schedule.to_dict()
             base['cooling_schedule'] = self.cooling_schedule.to_dict()
@@ -437,19 +454,24 @@ class Setpoint(_LoadBase):
                 base['humidifying_schedule'] = self.humidifying_schedule.to_dict()
                 base['dehumidifying_schedule'] = self.dehumidifying_schedule.to_dict()
         else:
-            base['heating_schedule'] = self.heating_schedule.name
-            base['cooling_schedule'] = self.cooling_schedule.name
+            base['heating_schedule'] = self.heating_schedule.identifier
+            base['cooling_schedule'] = self.cooling_schedule.identifier
             if self.humidifying_schedule is not None:
-                base['humidifying_schedule'] = self.humidifying_schedule.name
-                base['dehumidifying_schedule'] = self.dehumidifying_schedule.name
+                base['humidifying_schedule'] = self.humidifying_schedule.identifier
+                base['dehumidifying_schedule'] = self.dehumidifying_schedule.identifier
+        if self._display_name is not None:
+            base['display_name'] = self.display_name
         return base
 
     @staticmethod
-    def average(name, setpoints, weights=None, timestep_resolution=1):
+    def average(identifier, setpoints, weights=None, timestep_resolution=1):
         """Get an Setpoint object that's an average between other Setpoints.
 
         Args:
-            name: A name for the new averaged Setpoint object.
+            identifier: Text string for a unique ID for the new averaged Setpoint.
+                Must be < 100 characters and not contain any EnergyPlus special
+                characters. This will be used to identify the object across a model
+                and in the exported IDF.
             setpoints: A list of Setpoint objects that will be averaged
                 together to make a new Setpoint.
             weights: An optional list of fractional numbers with the same length
@@ -467,10 +489,10 @@ class Setpoint(_LoadBase):
 
         # calculate the average thermostat schedules
         heat_sched = Setpoint._average_schedule(
-            '{}_HtgSetp Schedule'.format(name),
+            '{}_HtgSetp Schedule'.format(identifier),
             [setp.heating_schedule for setp in setpoints], u_weights, timestep_resolution)
         cool_sched = Setpoint._average_schedule(
-            '{}_ClgSetp Schedule'.format(name),
+            '{}_ClgSetp Schedule'.format(identifier),
             [setp.cooling_schedule for setp in setpoints], u_weights, timestep_resolution)
 
         # calculate the average humidistat schedules
@@ -480,19 +502,19 @@ class Setpoint(_LoadBase):
             dehumid_sched = None
         else:
             dehumid_scheds = [vent.dehumidifying_schedule for vent in setpoints]
-            humid_sch_name = '{}_Humid Schedule'.format(name)
-            dehumid_sch_name = '{}_Deumid Schedule'.format(name)
+            humid_sch_id = '{}_Humid Schedule'.format(identifier)
+            dehumid_sch_id = '{}_Deumid Schedule'.format(identifier)
             for i, sch in enumerate(humid_scheds):
                 if sch is None:
                     humid_scheds[i] = Setpoint._humidifying_schedule_no_limit
                     dehumid_scheds[i] = Setpoint._dehumidifying_schedule_no_limit
             humid_sched = Setpoint._average_schedule(
-                humid_sch_name, humid_scheds, u_weights, timestep_resolution)
+                humid_sch_id, humid_scheds, u_weights, timestep_resolution)
             dehumid_sched = Setpoint._average_schedule(
-                dehumid_sch_name, dehumid_scheds, u_weights, timestep_resolution)
+                dehumid_sch_id, dehumid_scheds, u_weights, timestep_resolution)
 
         # return the averaged object
-        return Setpoint(name, heat_sched, cool_sched, humid_sched, dehumid_sched)
+        return Setpoint(identifier, heat_sched, cool_sched, humid_sched, dehumid_sched)
 
     def _check_temperature_schedule_type(self, schedule, obj_name=''):
         """Check that the type limit of an input schedule is temperature."""
@@ -536,7 +558,7 @@ class Setpoint(_LoadBase):
 
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""
-        return (self.name, hash(self.heating_schedule), hash(self.cooling_schedule),
+        return (self.identifier, hash(self.heating_schedule), hash(self.cooling_schedule),
                 hash(self.humidifying_schedule), hash(self.dehumidifying_schedule))
 
     def __hash__(self):
@@ -549,12 +571,14 @@ class Setpoint(_LoadBase):
         return not self.__eq__(other)
 
     def __copy__(self):
-        return Setpoint(
-            self.name, self.heating_schedule, self.cooling_schedule,
+        new_obj = Setpoint(
+            self.identifier, self.heating_schedule, self.cooling_schedule,
             self.humidifying_schedule, self.dehumidifying_schedule)
+        new_obj._display_name = self._display_name
+        return new_obj
 
     def __repr__(self):
         return 'Setpoint:\n name: {}\n heating: {}\n cooling: ' \
             '{}\n humidifying: {}\n dehumidifying: {}'.format(
-                self.name, self.heating_setpoint, self.cooling_setpoint,
+                self.identifier, self.heating_setpoint, self.cooling_setpoint,
                 self.humidifying_setpoint, self.dehumidifying_setpoint)

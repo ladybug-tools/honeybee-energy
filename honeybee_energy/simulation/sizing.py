@@ -215,7 +215,6 @@ class SizingParameter(object):
             except IndexError:
                 pass  # shorter SizingParameters definition
 
-        # return the object and the zone name for the object
         return cls(des_day_objs, heating_factor, cooling_factor)
 
     @classmethod

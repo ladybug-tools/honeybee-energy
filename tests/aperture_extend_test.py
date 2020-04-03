@@ -33,23 +33,23 @@ def test_default_constructions():
     vertices_floor = [[0, 0, 0], [0, 10, 0], [10, 10, 0], [10, 0, 0]]
     vertices_roof = [[10, 0, 3], [10, 10, 3], [0, 10, 3], [0, 0, 3]]
 
-    wf = Face.from_vertices('wall face', vertices_parent_wall)
-    wa = Aperture.from_vertices('wall window', vertices_wall)
+    wf = Face.from_vertices('wall_face', vertices_parent_wall)
+    wa = Aperture.from_vertices('wall_window', vertices_wall)
     wf.add_aperture(wa)
-    Room('Test Room 1', [wf])
-    assert wa.properties.energy.construction.name == 'Generic Double Pane'
+    Room('Test_Room_1', [wf])
+    assert wa.properties.energy.construction.identifier == 'Generic Double Pane'
 
-    wf2 = Face.from_vertices('wall face2', vertices_parent_wall_2)
-    wa2 = Aperture.from_vertices('wall window2', vertices_wall_2)
+    wf2 = Face.from_vertices('wall_face2', vertices_parent_wall_2)
+    wa2 = Aperture.from_vertices('wall_window2', vertices_wall_2)
     wf2.add_aperture(wa2)
-    Room('Test Room 2', [wf2])
+    Room('Test_Room_2', [wf2])
     wa.set_adjacency(wa2)
-    assert wa.properties.energy.construction.name == 'Generic Single Pane'
+    assert wa.properties.energy.construction.identifier == 'Generic Single Pane'
 
-    ra = Aperture.from_vertices('roof window', vertices_roof)
-    assert ra.properties.energy.construction.name == 'Generic Double Pane'
-    fa = Aperture.from_vertices('floor window', vertices_floor)
-    assert fa.properties.energy.construction.name == 'Generic Double Pane'
+    ra = Aperture.from_vertices('roof_window', vertices_roof)
+    assert ra.properties.energy.construction.identifier == 'Generic Double Pane'
+    fa = Aperture.from_vertices('floor_window', vertices_floor)
+    assert fa.properties.energy.construction.identifier == 'Generic Double Pane'
 
 
 def test_set_construction():
@@ -62,7 +62,7 @@ def test_set_construction():
     triple_pane = WindowConstruction(
         'Triple Pane', [clear_glass, gap, clear_glass, gap, clear_glass])
 
-    aperture = Aperture.from_vertices('wall window', vertices_wall)
+    aperture = Aperture.from_vertices('wall_window', vertices_wall)
     aperture.properties.energy.construction = triple_pane
 
     assert aperture.properties.energy.construction == triple_pane
@@ -82,7 +82,7 @@ def test_duplicate():
     triple_pane = WindowConstruction(
         'Triple Pane', [clear_glass, gap, clear_glass, gap, clear_glass])
 
-    aperture_original = Aperture('wall window', Face3D(verts))
+    aperture_original = Aperture('wall_window', Face3D(verts))
     aperture_dup_1 = aperture_original.duplicate()
 
     assert aperture_original.properties.energy.host is aperture_original

@@ -14,8 +14,9 @@ class _HVACSystem(object):
     """Base class to be used for all HVAC systems
 
     Args:
-        name: Text string for system name. Must be <= 100 characters.
-            Can include spaces but special characters will be stripped out.
+        identifier: Text string for system identifier. Must be < 100 characters
+            and not contain any EnergyPlus special characters. This will be used to
+            identify the object across a model and in the exported IDF.
         is_single_room: Boolean to note whether the HVAC system is only assignable
             to a single Room. If True, an error will be raised if the system
             is set to more than one Room and if False, no error will be raised
@@ -23,26 +24,46 @@ class _HVACSystem(object):
             and an example of a multi room system is VAVWithReheat.
 
     Properties:
-        * name
+        * identifier
+        * display_name
         * is_single_room
         * schedules
     """
-    __slots__ = ('_name', '_is_single_room', '_parent', '_locked')
+    __slots__ = ('_identifier', '_display_name', '_is_single_room', '_parent',
+                 '_locked')
 
-    def __init__(self, name, is_single_room=True):
+    def __init__(self, identifier, is_single_room=True):
         """Initialize HVACSystem."""
         self._is_single_room = bool(is_single_room)
         self._parent = None  # this is only used by single room systems
-        self.name = name
+        self.identifier = identifier
+        self._display_name = None
 
     @property
-    def name(self):
-        """Get or set the text string for HVAC system name."""
-        return self._name
+    def identifier(self):
+        """Get or set the text string for HVAC system identifier."""
+        return self._identifier
 
-    @name.setter
-    def name(self, name):
-        self._name = valid_ep_string(name, 'HVAC system name')
+    @identifier.setter
+    def identifier(self, identifier):
+        self._identifier = valid_ep_string(identifier, 'HVAC system identifier')
+
+    @property
+    def display_name(self):
+        """Get or set a string for the object name without any character restrictions.
+
+        If not set, this will be equal to the identifier.
+        """
+        if self._display_name is None:
+            return self._identifier
+        return self._display_name
+
+    @display_name.setter
+    def display_name(self, value):
+        try:
+            self._display_name = str(value)
+        except UnicodeEncodeError:  # Python 2 machine lacking the character set
+            self._display_name = value  # keep it as unicode
 
     @property
     def is_single_room(self):
@@ -88,7 +109,9 @@ class _HVACSystem(object):
                 'Schedule {} is not supported.'.format(sch_dict['type']))
 
     def __copy__(self):
-        return _HVACSystem(self.is_single_room)
+        new_obj = _HVACSystem(self.is_single_room)
+        new_obj._display_name = self._display_name
+        return new_obj
 
     def __repr__(self):
         return 'HVACSystem:\n is single room: {}'.format(self.is_single_room)

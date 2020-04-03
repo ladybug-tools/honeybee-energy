@@ -10,7 +10,7 @@ from ..reader import parse_idf_string
 from ..writer import generate_idf_string
 
 from honeybee._lockable import lockable
-from honeybee.typing import float_in_range, float_positive
+from honeybee.typing import float_in_range, float_positive, clean_rad_string
 
 
 @lockable
@@ -18,8 +18,9 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
     """Typical opaque energy material.
 
     Args:
-        name: Text string for material name. Must be <= 100 characters.
-            Can include spaces but special characters will be stripped out.
+        identifier: Text string for a unique Material ID. Must be < 100 characters
+            and not contain any EnergyPlus special characters. This will be used to
+            identify the object across a model and in the exported IDF.
         thickness: Number for the thickness of the material layer [m].
         conductivity: Number for the thermal conductivity of the material [W/m-K].
         density: Number for the density of the material [kg/m3].
@@ -37,7 +38,8 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
             Default is None, which will yield the same value as solar_absorptance.
 
     Properties:
-        * name
+        * identifier
+        * display_name
         * roughness
         * thickness
         * conductivity
@@ -56,11 +58,11 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
                  '_density', '_specific_heat', '_thermal_absorptance',
                  '_solar_absorptance', '_visible_absorptance')
 
-    def __init__(self, name, thickness, conductivity, density, specific_heat,
+    def __init__(self, identifier, thickness, conductivity, density, specific_heat,
                  roughness='MediumRough', thermal_absorptance=0.9,
                  solar_absorptance=0.7, visible_absorptance=None):
         """Initialize energy material."""
-        _EnergyMaterialOpaqueBase.__init__(self, name)
+        _EnergyMaterialOpaqueBase.__init__(self, identifier)
         self.thickness = thickness
         self.conductivity = conductivity
         self.density = density
@@ -218,7 +220,8 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
 
             {
             "type": 'EnergyMaterial',
-            "name": 'Concrete_8in',
+            "identifier": 'Concrete_020_231_2322_832',
+            "display_name": 'Concrete Slab',
             "roughness": 'MediumRough',
             "thickness": 0.2,
             "conductivity": 2.31,
@@ -239,14 +242,17 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
             if key not in data:
                 data[key] = val
 
-        return cls(data['name'], data['thickness'], data['conductivity'],
-                   data['density'], data['specific_heat'], data['roughness'],
-                   data['thermal_absorptance'], data['solar_absorptance'],
-                   data['visible_absorptance'])
+        new_mat = cls(data['identifier'], data['thickness'], data['conductivity'],
+                      data['density'], data['specific_heat'], data['roughness'],
+                      data['thermal_absorptance'], data['solar_absorptance'],
+                      data['visible_absorptance'])
+        if 'display_name' in data and data['display_name'] is not None:
+            new_mat.display_name = data['display_name']
+        return new_mat
 
     def to_idf(self):
         """Get an EnergyPlus string representation of the material."""
-        values = (self.name, self.roughness, self.thickness, self.conductivity,
+        values = (self.identifier, self.roughness, self.thickness, self.conductivity,
                   self.density, self.specific_heat, self.thermal_absorptance,
                   self.solar_absorptance, self.visible_absorptance)
         comments = ('name', 'roughness', 'thickness {m}', 'conductivity {W/m-K}',
@@ -262,7 +268,7 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
             raise ImportError('honeybee_radiance library must be installed to use '
                               'to_radiance_solar() method. {}'.format(e))
         return Plastic.from_single_reflectance(
-            self.name, 1 - self.solar_absorptance, specularity,
+            clean_rad_string(self.identifier), 1 - self.solar_absorptance, specularity,
             self.RADIANCEROUGHTYPES[self.roughness])
 
     def to_radiance_visible(self, specularity=0.0):
@@ -273,14 +279,14 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
             raise ImportError('honeybee_radiance library must be installed to use '
                               'to_radiance_solar() method. {}'.format(e))
         return Plastic.from_single_reflectance(
-            self.name, 1 - self.visible_absorptance, specularity,
+            clean_rad_string(self.identifier), 1 - self.visible_absorptance, specularity,
             self.RADIANCEROUGHTYPES[self.roughness])
 
     def to_dict(self):
         """Energy Material dictionary representation."""
-        return {
+        base = {
             'type': 'EnergyMaterial',
-            'name': self.name,
+            'identifier': self.identifier,
             'roughness': self.roughness,
             'thickness': self.thickness,
             'conductivity': self.conductivity,
@@ -290,10 +296,13 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
             'solar_absorptance': self.solar_absorptance,
             'visible_absorptance': self.visible_absorptance
         }
+        if self._display_name is not None:
+            base['display_name'] = self.display_name
+        return base
 
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""
-        return (self.name, self.roughness, self.thickness, self.conductivity,
+        return (self.identifier, self.roughness, self.thickness, self.conductivity,
                 self.density, self.specific_heat, self.thermal_absorptance,
                 self.solar_absorptance, self.visible_absorptance)
 
@@ -310,10 +319,12 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
         return self.to_idf()
 
     def __copy__(self):
-        return self.__class__(
-            self.name, self.thickness, self.conductivity, self.density,
+        new_material = self.__class__(
+            self.identifier, self.thickness, self.conductivity, self.density,
             self.specific_heat, self.roughness, self.thermal_absorptance,
             self.solar_absorptance, self._visible_absorptance)
+        new_material._display_name = self._display_name
+        return new_material
 
 
 @lockable
@@ -321,8 +332,9 @@ class EnergyMaterialNoMass(_EnergyMaterialOpaqueBase):
     """Typical no mass opaque energy material.
 
     Args:
-        name: Text string for material name. Must be <= 100 characters.
-            Can include spaces but special characters will be stripped out.
+        identifier: Text string for a unique Material ID. Must be < 100 characters
+            and not contain any EnergyPlus special characters. This will be used to
+            identify the object across a model and in the exported IDF.
         r_value: Number for the R-value of the material [m2-K/W].
         roughness: Text describing the relative roughness of the material.
             Must be one of the following: 'VeryRough', 'Rough', 'MediumRough',
@@ -338,7 +350,8 @@ class EnergyMaterialNoMass(_EnergyMaterialOpaqueBase):
             solar_absorptance.
 
     Properties:
-        * name
+        * identifier
+        * display_name
         * r_value
         * u_value
         * roughness
@@ -351,10 +364,11 @@ class EnergyMaterialNoMass(_EnergyMaterialOpaqueBase):
     __slots__ = ('_r_value', '_roughness', '_thermal_absorptance',
                  '_solar_absorptance', '_visible_absorptance')
 
-    def __init__(self, name, r_value, roughness='MediumRough', thermal_absorptance=0.9,
-                 solar_absorptance=0.7, visible_absorptance=None):
+    def __init__(self, identifier, r_value, roughness='MediumRough',
+                 thermal_absorptance=0.9, solar_absorptance=0.7,
+                 visible_absorptance=None):
         """Initialize energy material."""
-        _EnergyMaterialOpaqueBase.__init__(self, name)
+        _EnergyMaterialOpaqueBase.__init__(self, identifier)
         self.r_value = r_value
         self.roughness = roughness
         self.thermal_absorptance = thermal_absorptance
@@ -454,7 +468,8 @@ class EnergyMaterialNoMass(_EnergyMaterialOpaqueBase):
 
             {
             "type": 'EnergyMaterialNoMass',
-            "name": 'Insulation_R2',
+            "identifier": 'Insulation_R20_MediumRough_090_070_070',
+            "display_name": 'Insulation R2',
             "r_value": 2.0,
             "roughness": 'MediumRough',
             "thermal_absorptance": 0.9,
@@ -472,13 +487,16 @@ class EnergyMaterialNoMass(_EnergyMaterialOpaqueBase):
             if key not in data:
                 data[key] = val
 
-        return cls(data['name'], data['r_value'], data['roughness'],
-                   data['thermal_absorptance'], data['solar_absorptance'],
-                   data['visible_absorptance'])
+        new_mat = cls(data['identifier'], data['r_value'], data['roughness'],
+                      data['thermal_absorptance'], data['solar_absorptance'],
+                      data['visible_absorptance'])
+        if 'display_name' in data and data['display_name'] is not None:
+            new_mat.display_name = data['display_name']
+        return new_mat
 
     def to_idf(self):
         """Get an EnergyPlus string representation of the material."""
-        values = (self.name, self.roughness, self.r_value, self.thermal_absorptance,
+        values = (self.identifier, self.roughness, self.r_value, self.thermal_absorptance,
                   self.solar_absorptance, self.visible_absorptance)
         comments = ('name', 'roughness', 'r-value {m2-K/W}', 'thermal absorptance',
                     'solar absorptance', 'visible absorptance')
@@ -492,7 +510,7 @@ class EnergyMaterialNoMass(_EnergyMaterialOpaqueBase):
             raise ImportError('honeybee_radiance library must be installed to use '
                               'to_radiance_solar() method. {}'.format(e))
         return Plastic.from_single_reflectance(
-            self.name, 1 - self.solar_absorptance, specularity,
+            clean_rad_string(self.identifier), 1 - self.solar_absorptance, specularity,
             self.RADIANCEROUGHTYPES[self.roughness])
 
     def to_radiance_visible(self, specularity=0.0):
@@ -503,23 +521,26 @@ class EnergyMaterialNoMass(_EnergyMaterialOpaqueBase):
             raise ImportError('honeybee_radiance library must be installed to use '
                               'to_radiance_solar() method. {}'.format(e))
         return Plastic.from_single_reflectance(
-            self.name, 1 - self.visible_absorptance, specularity,
+            clean_rad_string(self.identifier), 1 - self.visible_absorptance, specularity,
             self.RADIANCEROUGHTYPES[self.roughness])
 
     def to_dict(self):
         """Energy Material No Mass dictionary representation."""
-        return {
+        base = {
             'type': 'EnergyMaterialNoMass',
-            'name': self.name,
+            'identifier': self.identifier,
             'r_value': self.r_value,
             'roughness': self.roughness,
             'thermal_absorptance': self.thermal_absorptance,
             'solar_absorptance': self.solar_absorptance,
             'visible_absorptance': self.visible_absorptance
         }
+        if self._display_name is not None:
+            base['display_name'] = self.display_name
+        return base
 
     def __key(self):
-        return (self.name, self.r_value, self.roughness, self.thermal_absorptance,
+        return (self.identifier, self.r_value, self.roughness, self.thermal_absorptance,
                 self.solar_absorptance, self.visible_absorptance)
 
     def __hash__(self):
@@ -536,6 +557,8 @@ class EnergyMaterialNoMass(_EnergyMaterialOpaqueBase):
         return self.to_idf()
 
     def __copy__(self):
-        return self.__class__(
-            self.name, self.r_value, self.roughness, self.thermal_absorptance,
+        new_material = self.__class__(
+            self.identifier, self.r_value, self.roughness, self.thermal_absorptance,
             self.solar_absorptance, self._visible_absorptance)
+        new_material._display_name = self._display_name
+        return new_material

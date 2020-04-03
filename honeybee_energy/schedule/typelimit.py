@@ -21,8 +21,9 @@ class ScheduleTypeLimit(object):
     upper/lower limits and assigning a data type and units to the schedule values.
 
     Args:
-        name: Text string for schedule type name. Must be <= 100 characters.
-            Can include spaces but special characters will be stripped out.
+        identifier: Text string for a unique Schedule Type ID. Must be < 100 characters
+            and not contain any EnergyPlus special characters. This will be used to
+            identify the object across a model and in the exported IDF.
         lower_limit: An optional number for the lower limit for values in the
             schedule. If None or a NoLimit object, there will be no lower limit.
         upper_limit: An optional number for the upper limit for values in the
@@ -39,7 +40,8 @@ class ScheduleTypeLimit(object):
             'Capacity', 'Power', 'Availability', 'Percent', 'Control', 'Mode'
 
     Properties:
-        * name
+        * identifier
+        * display_name
         * lower_limit
         * upper_limit
         * numeric_type
@@ -66,11 +68,12 @@ class ScheduleTypeLimit(object):
     UNIT_TYPES = tuple(_default_lb_unit_type.keys())
     NUMERIC_TYPES = ('Continuous', 'Discrete')
 
-    def __init__(self, name, lower_limit=no_limit, upper_limit=no_limit,
+    def __init__(self, identifier, lower_limit=no_limit, upper_limit=no_limit,
                  numeric_type='Continuous', unit_type='Dimensionless'):
         """Initialize ScheduleTypeLimit."""
-        # process the name and limits
-        self._name = valid_ep_string(name, 'schedule type name')
+        # process the identifier and limits
+        self._identifier = valid_ep_string(identifier, 'schedule type identifier')
+        self._display_name = None
         self._lower_limit = float_in_range(lower_limit) if lower_limit is not \
             None and lower_limit != no_limit else no_limit
         self._upper_limit = float_in_range(upper_limit) if upper_limit is not \
@@ -104,9 +107,26 @@ class ScheduleTypeLimit(object):
             self._unit_type = unit_type
 
     @property
-    def name(self):
-        """Get the text string for schedule type name."""
-        return self._name
+    def identifier(self):
+        """Get the text string for unique schedule type identifier."""
+        return self._identifier
+
+    @property
+    def display_name(self):
+        """Get or set a string for the object name without any character restrictions.
+
+        If not set, this will be equal to the identifier.
+        """
+        if self._display_name is None:
+            return self._identifier
+        return self._display_name
+
+    @display_name.setter
+    def display_name(self, value):
+        try:
+            self._display_name = str(value)
+        except UnicodeEncodeError:  # Python 2 machine lacking the character set
+            self._display_name = value  # keep it as unicode
 
     @property
     def lower_limit(self):
@@ -164,7 +184,8 @@ class ScheduleTypeLimit(object):
 
             {
             "type": 'ScheduleTypeLimit',
-            "name": 'Fractional',
+            "identifier": 'Fractional',
+            "display_name": 'Fractional',
             "lower_limit": 0,
             "upper_limit": 1,
             "numeric_type": False,
@@ -179,11 +200,15 @@ class ScheduleTypeLimit(object):
             data['upper_limit'] == no_limit.to_dict()  else data['upper_limit']
         numeric_type = data['numeric_type'] if 'numeric_type' in data else 'Continuous'
         unit_type = data['unit_type'] if 'unit_type' in data else 'Dimensionless'
-        return cls(data['name'], lower_limit, upper_limit, numeric_type, unit_type)
+        new_obj = cls(data['identifier'], lower_limit, upper_limit,
+                      numeric_type, unit_type)
+        if 'display_name' in data and data['display_name'] is not None:
+            new_obj.display_name = data['display_name']
+        return new_obj
 
     def to_idf(self):
         """IDF string for the ScheduleTypeLimits of this object."""
-        values = [self.name, self.lower_limit, self.upper_limit,
+        values = [self.identifier, self.lower_limit, self.upper_limit,
                   self.numeric_type, self.unit_type]
         if values[1] == no_limit:
             values[1] = ''
@@ -196,13 +221,15 @@ class ScheduleTypeLimit(object):
     def to_dict(self):
         """Shade construction dictionary representation."""
         base = {'type': 'ScheduleTypeLimit'}
-        base['name'] = self.name
+        base['identifier'] = self.identifier
         base['lower_limit'] = self.lower_limit if \
             isinstance(self.lower_limit, float) else self.lower_limit.to_dict()
         base['upper_limit'] = self.upper_limit if \
             isinstance(self.upper_limit, float) else self.upper_limit.to_dict()
         base['numeric_type'] = self.numeric_type
         base['unit_type'] = self.unit_type
+        if self._display_name is not None:
+            base['display_name'] = self.display_name
         return base
 
     @staticmethod
@@ -234,12 +261,15 @@ class ScheduleTypeLimit(object):
         return self.__copy__()
 
     def __copy__(self):
-        return ScheduleTypeLimit(self.name, self._lower_limit, self._upper_limit,
-                                 self._numeric_type, self._unit_type)
+        new_obj = ScheduleTypeLimit(
+            self.identifier, self._lower_limit, self._upper_limit, self._numeric_type,
+            self._unit_type)
+        new_obj._display_name = self._display_name
+        return new_obj
 
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""
-        return (self.name, str(self._lower_limit), str(self._upper_limit),
+        return (self.identifier, str(self._lower_limit), str(self._upper_limit),
                 self._numeric_type, self._unit_type)
 
     def __hash__(self):

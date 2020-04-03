@@ -26,7 +26,7 @@ import pytest
 
 def test_energy_properties():
     """Test the existence of the Room energy properties."""
-    room = Room.from_box('Shoe Box', 5, 10, 3, 90, Point3D(0, 0, 3))
+    room = Room.from_box('ShoeBox', 5, 10, 3, 90, Point3D(0, 0, 3))
     room.properties.energy.program_type = office_program
     room.properties.energy.add_default_ideal_air()
 
@@ -48,11 +48,11 @@ def test_energy_properties():
 
 def test_default_properties():
     """Test the auto-assigning of Room properties."""
-    room = Room.from_box('Shoe Box', 5, 10, 3, 90, Point3D(0, 0, 3))
+    room = Room.from_box('ShoeBox', 5, 10, 3, 90, Point3D(0, 0, 3))
 
-    assert room.properties.energy.construction_set.name == \
+    assert room.properties.energy.construction_set.identifier == \
         'Default Generic Construction Set'
-    assert room.properties.energy.program_type.name == 'Plenum'
+    assert room.properties.energy.program_type.identifier == 'Plenum'
     assert room.properties.energy.hvac is None
     assert not room.properties.energy.is_conditioned
     assert room.properties.energy.people is None
@@ -66,7 +66,7 @@ def test_default_properties():
 
 def test_set_construction_set():
     """Test the setting of a ConstructionSet on a Room."""
-    room = Room.from_box('Shoe Box', 5, 10, 3)
+    room = Room.from_box('ShoeBox', 5, 10, 3)
     door_verts = [[1, 0, 0.1], [2, 0, 0.1], [2, 0, 3], [1, 0, 3]]
     room[3].add_door(Door.from_vertices('test_door', door_verts))
     room[1].apertures_by_ratio(0.4, 0.01)
@@ -116,7 +116,7 @@ def test_set_program_type():
     lab_ventilation = ScheduleRuleset('Lab Ventilation', lab_vent_day,
                                       None, schedule_types.fractional)
     lab_program = office_program.duplicate()
-    lab_program.name = 'Bio Laboratory'
+    lab_program.identifier = 'Bio Laboratory'
     lab_program.electric_equipment.watts_per_area = 50
     lab_program.electric_equipment.schedule = lab_equipment
     lab_program.ventilation.flow_per_person = 0
@@ -124,10 +124,10 @@ def test_set_program_type():
     lab_program.ventilation.air_changes_per_hour = 6
     lab_program.ventilation.schedule = lab_ventilation
 
-    room = Room.from_box('Shoe Box', 5, 10, 3)
+    room = Room.from_box('ShoeBox', 5, 10, 3)
     room.properties.energy.program_type = lab_program
 
-    assert room.properties.energy.program_type.name == 'Bio Laboratory'
+    assert room.properties.energy.program_type.identifier == 'Bio Laboratory'
     assert room.properties.energy.program_type == lab_program
     assert room.properties.energy.electric_equipment.watts_per_area == 50
     assert room.properties.energy.electric_equipment.schedule == lab_equipment
@@ -148,7 +148,7 @@ def test_set_loads():
     lab_ventilation = ScheduleRuleset('Lab Ventilation', lab_vent_day,
                                       None, schedule_types.fractional)
 
-    room = Room.from_box('Bio Laboratory Zone', 5, 10, 3)
+    room = Room.from_box('BioLaboratoryZone', 5, 10, 3)
     room.properties.energy.program_type = office_program
     lab_equip = ElectricEquipment('Lab Equipment', 50, lab_equipment)
     lav_vent = Ventilation('Lab Ventilation', 0, 0, 0, 6, lab_ventilation)
@@ -175,7 +175,7 @@ def test_set_loads():
 def test_duplicate():
     """Test what happens to energy properties when duplicating a Room."""
     mass_set = ConstructionSet('Thermal Mass Construction Set')
-    room_original = Room.from_box('Shoe Box', 5, 10, 3)
+    room_original = Room.from_box('ShoeBox', 5, 10, 3)
     room_original.properties.energy.program_type = office_program
     room_original.properties.energy.add_default_ideal_air()
 
@@ -199,8 +199,8 @@ def test_duplicate():
 
     prefix ='Opt1'
     room_dup_1.add_prefix('Opt1')
-    assert room_dup_1.name.startswith('Opt1')
-    assert room_dup_1.properties.energy.hvac.name.startswith('Opt1')
+    assert room_dup_1.identifier.startswith('Opt1')
+    assert room_dup_1.properties.energy.hvac.identifier.startswith('Opt1')
 
     room_dup_2 = room_dup_1.duplicate()
 
@@ -214,7 +214,7 @@ def test_duplicate():
 def test_to_dict():
     """Test the Room to_dict method with energy properties."""
     mass_set = ConstructionSet('Thermal Mass Construction Set')
-    room = Room.from_box('Shoe Box', 5, 10, 3)
+    room = Room.from_box('ShoeBox', 5, 10, 3)
 
     rd = room.to_dict()
     assert 'properties' in rd
@@ -250,12 +250,12 @@ def test_to_dict():
 def test_from_dict():
     """Test the Room from_dict method with energy properties."""
     mass_set = ConstructionSet('Thermal Mass Construction Set')
-    room = Room.from_box('Shoe Box', 5, 10, 3)
+    room = Room.from_box('ShoeBox', 5, 10, 3)
     room.properties.energy.construction_set = mass_set
 
     rd = room.to_dict()
     new_room = Room.from_dict(rd)
-    assert new_room.properties.energy.construction_set.name == \
+    assert new_room.properties.energy.construction_set.identifier == \
         'Thermal Mass Construction Set'
     assert new_room.to_dict() == rd
 

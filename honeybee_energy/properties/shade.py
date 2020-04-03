@@ -149,9 +149,9 @@ class ShadeEnergyProperties(object):
         Args:
             abridged_data: A ShadeEnergyPropertiesAbridged dictionary (typically
                 coming from a Model).
-            constructions: A dictionary of constructions with constructions names
+            constructions: A dictionary of constructions with constructions identifiers
                 as keys, which will be used to re-assign constructions.
-            schedules: A dictionary of schedules with schedule names as keys,
+            schedules: A dictionary of schedules with schedule identifiers as keys,
                 which will be used to re-assign schedules.
         """
         if 'construction' in abridged_data and abridged_data['construction'] is not None:
@@ -174,10 +174,11 @@ class ShadeEnergyProperties(object):
             abridged else 'ShadeEnergyPropertiesAbridged'
         if self._construction is not None:
             base['energy']['construction'] = \
-                self._construction.name if abridged else self._construction.to_dict()
+                self._construction.identifier if abridged else \
+                self._construction.to_dict()
         if self.transmittance_schedule is not None:
             base['energy']['transmittance_schedule'] = \
-                self.transmittance_schedule.name if abridged else \
+                self.transmittance_schedule.identifier if abridged else \
                 self.transmittance_schedule.to_dict()
         return base
 
@@ -209,4 +210,4 @@ class ShadeEnergyProperties(object):
         return self.__repr__()
 
     def __repr__(self):
-        return 'Shade Energy Properties:\n host: {}'.format(self.host.name)
+        return 'Shade Energy Properties:\n host: {}'.format(self.host.identifier)

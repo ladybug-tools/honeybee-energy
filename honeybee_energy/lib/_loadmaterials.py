@@ -16,15 +16,15 @@ for f in os.listdir(folders.construction_lib):
     if os.path.isfile(f_path) and f_path.endswith('.json'):
         with open(f_path) as json_file:
             data = json.load(json_file)
-        for mat_name in data:
+        for mat_id in data:
             try:
-                mat_obj = dict_to_material(data[mat_name], False)
+                mat_obj = dict_to_material(data[mat_id], False)
                 if mat_obj:
                     mat_obj.lock()
                     if mat_obj.is_window_material:
-                        _window_materials[mat_name] = mat_obj
+                        _window_materials[mat_id] = mat_obj
                     else:
-                        _opaque_materials[mat_name] = mat_obj
+                        _opaque_materials[mat_id] = mat_obj
             except KeyError:
                 pass  # not a Honeybee JSON file with Materials
 

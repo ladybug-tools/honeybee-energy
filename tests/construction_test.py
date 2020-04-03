@@ -28,7 +28,7 @@ def test_opaque_construction_init():
     str(wall_constr)  # test the string representation of the construction
     constr_dup = wall_constr.duplicate()
 
-    assert wall_constr.name == constr_dup.name == 'Generic Wall Construction'
+    assert wall_constr.identifier == constr_dup.identifier == 'Generic Wall Construction'
     assert len(wall_constr.materials) == len(constr_dup.materials) == 4
     assert wall_constr.r_value == constr_dup.r_value == \
         pytest.approx(3.29356, rel=1e-2)
@@ -97,7 +97,7 @@ def test_opaque_equivalency():
     assert wall_constr_1 != wall_constr_3
     assert wall_constr_1 != wall_constr_4
 
-    wall_constr_2.name = 'Roof Construction'
+    wall_constr_2.identifier = 'Roof Construction'
     assert wall_constr_1 != wall_constr_2
 
 
@@ -202,7 +202,7 @@ def test_window_construction_init():
     double_low_e_dup = double_low_e.duplicate()
     str(double_low_e)  # test the string representation of the construction
 
-    assert double_low_e.name == double_low_e_dup.name == 'Double Low-E Window'
+    assert double_low_e.identifier == double_low_e_dup.identifier == 'Double Low-E Window'
     assert len(double_low_e.materials) == len(double_low_e_dup.materials) == 3
     assert double_low_e.r_value == double_low_e_dup.r_value == \
         pytest.approx(0.41984, rel=1e-2)
@@ -270,7 +270,7 @@ def test_window_equivalency():
     assert double_clear != triple_clear
     assert double_clear != double_clear_3
 
-    double_clear_2.name = 'Cool Window'
+    double_clear_2.identifier = 'Cool Window'
     assert double_clear != double_clear_2
 
 
@@ -317,11 +317,11 @@ def test_window_construction_init_shade():
     double_low_e_ext_shade = WindowConstruction(
         'Double Low-E Outside Shade', [shade_mat, lowe_glass, gap, clear_glass])
 
-    assert double_low_e_shade.name == 'Double Low-E with Shade'
+    assert double_low_e_shade.identifier == 'Double Low-E with Shade'
     assert double_low_e_shade.u_factor == pytest.approx(0.9091, rel=1e-2)
-    assert double_low_e_between_shade.name == 'Double Low-E Between Shade'
+    assert double_low_e_between_shade.identifier == 'Double Low-E Between Shade'
     assert double_low_e_between_shade.u_factor == pytest.approx(1.13374, rel=1e-2)
-    assert double_low_e_ext_shade.name == 'Double Low-E Outside Shade'
+    assert double_low_e_ext_shade.identifier == 'Double Low-E Outside Shade'
     assert double_low_e_ext_shade.u_factor == pytest.approx(0.97678, rel=1e-2)
 
 
@@ -344,11 +344,11 @@ def test_window_construction_init_blind():
     double_low_e_ext_shade = WindowConstruction(
         'Double Low-E Outside Shade', [shade_mat, lowe_glass, gap, clear_glass])
 
-    assert double_low_e_shade.name == 'Double Low-E with Shade'
+    assert double_low_e_shade.identifier == 'Double Low-E with Shade'
     assert double_low_e_shade.u_factor == pytest.approx(1.26296, rel=1e-2)
-    assert double_low_e_between_shade.name == 'Double Low-E Between Shade'
+    assert double_low_e_between_shade.identifier == 'Double Low-E Between Shade'
     assert double_low_e_between_shade.u_factor == pytest.approx(1.416379, rel=1e-2)
-    assert double_low_e_ext_shade.name == 'Double Low-E Outside Shade'
+    assert double_low_e_ext_shade.identifier == 'Double Low-E Outside Shade'
     assert double_low_e_ext_shade.u_factor == pytest.approx(1.2089, rel=1e-2)
 
 
@@ -406,7 +406,7 @@ def test_window_construction_init_from_idf_file():
     new_glaz_constr = WindowConstruction.from_idf(constr_str, mat_str)
     new_constr_str = new_glaz_constr.to_idf()
 
-    assert glaz_constr.name == new_glaz_constr.name == 'GlzSys_5'
+    assert glaz_constr.identifier == new_glaz_constr.identifier == 'GlzSys_5'
     assert glaz_constr.u_factor == new_glaz_constr.u_factor == \
         pytest.approx(1.75728, rel=1e-2)
     assert glaz_constr.thickness == new_glaz_constr.thickness == \
@@ -437,7 +437,7 @@ def test_shade_construction_init():
 
     constr_dup = light_shelf_out.duplicate()
 
-    assert light_shelf_out.name == constr_dup.name == 'Outdoor Light Shelf'
+    assert light_shelf_out.identifier == constr_dup.identifier == 'Outdoor Light Shelf'
     assert light_shelf_out.solar_reflectance == constr_dup.solar_reflectance == 0.5
     assert light_shelf_out.visible_reflectance == constr_dup.visible_reflectance == 0.6
     assert light_shelf_out.is_specular is constr_dup.is_specular
@@ -480,7 +480,7 @@ def test_shade_equivalency():
     assert shade_constr_1 != shade_constr_3
     assert shade_constr_1 != shade_constr_4
 
-    shade_constr_2.name = 'Indoor Light Shelf'
+    shade_constr_2.identifier = 'Indoor Light Shelf'
     assert shade_constr_1 != shade_constr_2
 
 
@@ -504,7 +504,7 @@ def test_air_construction_init():
 
     constr_dup = night_flush_constr.duplicate()
 
-    assert night_flush_constr.name == constr_dup.name == 'Night Flush Boundary'
+    assert night_flush_constr.identifier == constr_dup.identifier == 'Night Flush Boundary'
     assert night_flush_constr.air_mixing_per_area == constr_dup.air_mixing_per_area == 0.4
     assert night_flush_constr.air_mixing_schedule == constr_dup.air_mixing_schedule
 

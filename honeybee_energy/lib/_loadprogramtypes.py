@@ -18,11 +18,11 @@ for f in os.listdir(folders.programtype_lib):
     if os.path.isfile(f_path) and f_path.endswith('.json'):
         with open(f_path, 'r') as json_file:
             p_dict = json.load(json_file)
-        for p_name in p_dict:
+        for p_id in p_dict:
             try:
-                program = ProgramType.from_dict_abridged(p_dict[p_name], _schedules)
+                program = ProgramType.from_dict_abridged(p_dict[p_id], _schedules)
                 program.lock()
-                _program_types[program.name] = program
+                _program_types[program.identifier] = program
             except ValueError:
                 pass  # failed to find schedule in the library; not a valid program
 

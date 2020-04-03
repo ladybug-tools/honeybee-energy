@@ -11,7 +11,7 @@ def test_material_init():
     str(concrete)  # test the string representation of the material
     concrete_dup = concrete.duplicate()
 
-    assert concrete.name == concrete_dup.name == 'Concrete'
+    assert concrete.identifier == concrete_dup.identifier == 'Concrete'
     assert concrete.thickness == concrete_dup.thickness == 0.2
     assert concrete.conductivity == concrete_dup.conductivity == 0.5
     assert concrete.density == concrete_dup.density == 800
@@ -64,7 +64,7 @@ def test_material_defaults():
     """Test the EnergyMaterial default properties."""
     concrete = EnergyMaterial('Concrete [HW]', 0.2, 0.5, 800, 0.75)
 
-    assert concrete.name == 'Concrete [HW]'
+    assert concrete.identifier == 'Concrete [HW]'
     assert concrete.roughness == 'MediumRough'
     assert concrete.thermal_absorptance == 0.9
     assert concrete.solar_absorptance == concrete.visible_absorptance == 0.7
@@ -75,7 +75,7 @@ def test_material_invalid():
     concrete = EnergyMaterial('Concrete', 0.2, 0.5, 800, 0.75)
 
     with pytest.raises(TypeError):
-        concrete.name = ['test_name']
+        concrete.identifier = ['test_identifier']
     with pytest.raises(AssertionError):
         concrete.thickness = -1
     with pytest.raises(AssertionError):
@@ -123,7 +123,7 @@ def test_material_to_from_idf():
         "0.1016, 0.89, 1920, 790;"
     mat_3 = EnergyMaterial.from_idf(ep_str_3)
 
-    assert mat_1.name == mat_2.name == mat_3.name
+    assert mat_1.identifier == mat_2.identifier == mat_3.identifier
 
     idf_str = mat_1.to_idf()
     new_mat_1 = EnergyMaterial.from_idf(idf_str)
@@ -145,7 +145,7 @@ def test_material_nomass_init():
     str(insul_r2)  # test the string representation of the material
     insul_r2_dup = insul_r2.duplicate()
 
-    assert insul_r2.name == insul_r2_dup.name == 'Insulation R-2'
+    assert insul_r2.identifier == insul_r2_dup.identifier == 'Insulation R-2'
     assert insul_r2.r_value == insul_r2_dup.r_value == 2
     assert insul_r2.roughness == insul_r2_dup.roughness == 'MediumSmooth'
     assert insul_r2.thermal_absorptance == insul_r2_dup.thermal_absorptance == 0.95
@@ -163,7 +163,7 @@ def test_material_nomass_defaults():
     """Test the EnergyMaterialNoMass default properties."""
     insul_r2 = EnergyMaterialNoMass('Insulation [R-2]', 2)
 
-    assert insul_r2.name == 'Insulation [R-2]'
+    assert insul_r2.identifier == 'Insulation [R-2]'
     assert insul_r2.roughness == 'MediumRough'
     assert insul_r2.thermal_absorptance == 0.9
     assert insul_r2.solar_absorptance == insul_r2.visible_absorptance == 0.7
@@ -174,7 +174,7 @@ def test_material_nomass_invalid():
     insul_r2 = EnergyMaterialNoMass('Insulation [R-2]', 2)
 
     with pytest.raises(TypeError):
-        insul_r2.name = ['test_name']
+        insul_r2.identifier = ['test_identifier']
     with pytest.raises(AssertionError):
         insul_r2.r_value = -1
     with pytest.raises(AssertionError):

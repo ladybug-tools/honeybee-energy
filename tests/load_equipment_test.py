@@ -20,9 +20,9 @@ def test_equipment_init():
     equipment = ElectricEquipment('Open Office Zone Equip', 8, schedule)
     str(equipment)  # test the string representation
 
-    assert equipment.name == 'Open Office Zone Equip'
+    assert equipment.identifier == 'Open Office Zone Equip'
     assert equipment.watts_per_area == 8
-    assert equipment.schedule.name == 'Office Equip'
+    assert equipment.schedule.identifier == 'Office Equip'
     assert equipment.schedule.schedule_type_limit == schedule_types.fractional
     assert equipment.schedule == schedule
     assert equipment.radiant_fraction == 0
@@ -40,9 +40,9 @@ def test_gas_equipment_init():
     equipment = GasEquipment('Kitchen Stove Equip', 8, schedule)
     str(equipment)  # test the string representation
 
-    assert equipment.name == 'Kitchen Stove Equip'
+    assert equipment.identifier == 'Kitchen Stove Equip'
     assert equipment.watts_per_area == 8
-    assert equipment.schedule.name == 'Kitchen Equip'
+    assert equipment.schedule.identifier == 'Kitchen Equip'
     assert equipment.schedule.schedule_type_limit == schedule_types.fractional
     assert equipment.schedule == schedule
     assert equipment.radiant_fraction == 0
@@ -61,8 +61,8 @@ def test_equipment_setability():
         'Constant Equip', 1, schedule_types.fractional)
     equipment = ElectricEquipment('Open Office Zone Equip', 8, schedule)
 
-    equipment.name = 'Office Zone Equip'
-    assert equipment.name == 'Office Zone Equip'
+    equipment.identifier = 'Office Zone Equip'
+    assert equipment.identifier == 'Office Zone Equip'
     equipment.watts_per_area = 6
     assert equipment.watts_per_area == 6
     equipment.schedule = constant
@@ -135,13 +135,13 @@ def test_equipment_init_from_idf():
     schedule = ScheduleRuleset('Office Equip', weekday_office,
                                [weekend_rule], schedule_types.fractional)
     equipment = ElectricEquipment('Open Office Zone Equip', 10, schedule)
-    sched_dict = {schedule.name: schedule}
+    sched_dict = {schedule.identifier: schedule}
 
-    zone_name = 'Test Zone'
-    idf_str = equipment.to_idf(zone_name)
-    rebuilt_equipment, rebuilt_zone_name = ElectricEquipment.from_idf(idf_str, sched_dict)
+    zone_id = 'Test Zone'
+    idf_str = equipment.to_idf(zone_id)
+    rebuilt_equipment, rebuilt_zone_id = ElectricEquipment.from_idf(idf_str, sched_dict)
     assert equipment == rebuilt_equipment
-    assert zone_name == rebuilt_zone_name
+    assert zone_id == rebuilt_zone_id
 
 
 def test_equipment_dict_methods():

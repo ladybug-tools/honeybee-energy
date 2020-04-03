@@ -19,10 +19,10 @@ import pytest
 
 def test_measure_compatible_model_json():
     """Test measure_compatible_model_json."""
-    room = Room.from_box('Tiny House Zone', 120, 240, 96)
+    room = Room.from_box('TinyHouseZone', 120, 240, 96)
     inches_conversion = Model.conversion_factor_to_meters('Inches')
 
-    model = Model('Tiny House', [room], units='Inches')
+    model = Model('TinyHouse', [room], units='Inches')
     model_json_path = './tests/simulation/model_inches.json'
     with open(model_json_path, 'w') as fp:
         json.dump(model.to_dict(included_prop=['energy']), fp)
@@ -48,10 +48,10 @@ def test_measure_compatible_model_json():
 def test_run_idf():
     """Test the prepare_idf_for_simulation and run_idf methods."""
     # Get input Model
-    room = Room.from_box('Tiny House Zone', 5, 10, 3)
+    room = Room.from_box('TinyHouseZone', 5, 10, 3)
     room.properties.energy.program_type = office_program
     room.properties.energy.add_default_ideal_air()
-    model = Model('Tiny House', [room])
+    model = Model('TinyHouse', [room])
 
     # Get the input SimulationParameter
     sim_par = SimulationParameter()

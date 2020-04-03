@@ -21,8 +21,9 @@ class ProgramType(object):
     """Program Type object possessing all schedules and loads defining a program.
 
     Args:
-        name: Text string for ProgramType. Must be <= 100 characters.
-            Can include spaces but special characters will be stripped out.
+        identifier: Text string for a unique ProgramType ID. Must be < 100 characters
+            and not contain any EnergyPlus special characters. This will be used to
+            identify the object across a model and in the exported IDF.
         people: A People object to describe the occupancy of the program. If None,
             no occupancy will be assumed for the program. Default: None.
         lighting: A Lighting object to describe the lighting usage of the program.
@@ -44,7 +45,8 @@ class ProgramType(object):
             to a Room that is conditioned. Default: None.
 
     Properties:
-        * name
+        * identifier
+        * display_name
         * people
         * lighting
         * electric_equipment
@@ -55,15 +57,16 @@ class ProgramType(object):
         * schedules
         * schedules_unique
     """
-    __slots__ = ('_name', '_people', '_lighting', '_electric_equipment',
-                 '_gas_equipment', '_infiltration', '_ventilation',
-                 '_setpoint', '_locked')
+    __slots__ = ('_identifier', '_display_name', '_people', '_lighting',
+                 '_electric_equipment',  '_gas_equipment', '_infiltration',
+                 '_ventilation', '_setpoint', '_locked')
 
-    def __init__(self, name, people=None, lighting=None, electric_equipment=None,
+    def __init__(self, identifier, people=None, lighting=None, electric_equipment=None,
                  gas_equipment=None, infiltration=None, ventilation=None, setpoint=None):
         """Initialize ProgramType"""
         self._locked = False  # unlocked by default
-        self.name = name
+        self.identifier = identifier
+        self._display_name = None
         self.people = people
         self.lighting = lighting
         self.electric_equipment = electric_equipment
@@ -73,13 +76,30 @@ class ProgramType(object):
         self.setpoint = setpoint
 
     @property
-    def name(self):
-        """Get or set the text string for program type name."""
-        return self._name
+    def identifier(self):
+        """Get or set the text string for a unique program type identifier."""
+        return self._identifier
 
-    @name.setter
-    def name(self, name):
-        self._name = valid_ep_string(name, 'program type name')
+    @identifier.setter
+    def identifier(self, identifier):
+        self._identifier = valid_ep_string(identifier, 'program type identifier')
+
+    @property
+    def display_name(self):
+        """Get or set a string for the object name without any character restrictions.
+
+        If not set, this will be equal to the identifier.
+        """
+        if self._display_name is None:
+            return self._identifier
+        return self._display_name
+
+    @display_name.setter
+    def display_name(self, value):
+        try:
+            self._display_name = str(value)
+        except UnicodeEncodeError:  # Python 2 machine lacking the character set
+            self._display_name = value  # keep it as unicode
 
     @property
     def people(self):
@@ -209,78 +229,8 @@ class ProgramType(object):
 
             {
             "type": 'ProgramType',
-            "name": str,  # ProgramType name
-            'people': {},  # A People dictionary
-            'lighting': {},  # A Lighting dictionary
-            'electric_equipment': {},  # A ElectricEquipment dictionary
-            'gas_equipment': {},  # A GasEquipment dictionary
-            'infiltration': {},  # A Infliltration dictionary
-            'ventilation': {},  # A Ventilation dictionary
-            'setpoint': {},  # A Setpoint dictionary
-            "schedule_type_limits": [],  # list of ScheduleTypeLimit dictionaries
-            "schedules": []  # list of ScheduleRuleset/ScheduleFixedInterval dictionaries
-            }
-
-
-        """
-        assert data['type'] == 'ProgramType', \
-            'Expected ProgramType. Got {}.'.format(data['type'])
-
-        # gather all schedule type limits
-        schedule_type_limits = {}
-        for sched_typ in data['schedule_type_limits']:
-            if sched_typ['type'] == 'ScheduleTypeLimit':
-                schedule_type_limits[sched_typ['name']] = \
-                    ScheduleTypeLimit.from_dict(sched_typ)
-            else:
-                raise NotImplementedError(
-                    'ScheduleTypeLimit {} is not supported.'.format(sched_typ['type']))
-
-        # gather all schedule objects
-        schedules = {}
-        for sched in data['schedules']:
-            sched = sched.copy()  # copy the original dictionary so that we don't edit it
-            # process the schedule type limits
-            typ_lim = None
-            if 'schedule_type_limit' in sched:
-                typ_lim = sched['schedule_type_limit']
-                sched['schedule_type_limit'] = None
-            # create the schedule objects
-            if sched['type'] == 'ScheduleRulesetAbridged':
-                sched['type'] = 'ScheduleRuleset'
-                schedules[sched['name']] = ScheduleRuleset.from_dict(sched)
-            elif sched['type'] == 'ScheduleFixedIntervalAbridged':
-                sched['type'] = 'ScheduleFixedInterval'
-                schedules[sched['name']] = ScheduleFixedInterval.from_dict(sched)
-            else:
-                raise NotImplementedError(
-                    'Schedule {} is not supported.'.format(sched['type']))
-            # asign the schedule type limits
-            schedules[sched['name']].schedule_type_limit = \
-                schedule_type_limits[typ_lim] if typ_lim is not None else None
-        schedules[None] = None
-
-        # build each of the load objects
-        people, lighting, electric_equipment, gas_equipment, infiltration, \
-            ventilation, setpoint = cls._get_loads_from_abridged(data, schedules)
-        return cls(data['name'], people, lighting, electric_equipment,
-                   gas_equipment, infiltration, ventilation, setpoint)
-
-    @classmethod
-    def from_dict_abridged(cls, data, schedule_dict):
-        """Create a ProgramType object from an abridged dictionary.
-
-        Args:
-            data: A ProgramTypeAbridged dictionary.
-            schedule_dict: A dictionary with schedule names as keys and honeybee schedule
-                objects as values (either ScheduleRuleset or ScheduleFixedInterval).
-                These will be used to assign the schedules to the ProgramType object.
-
-        .. code-block:: python
-
-            {
-            "type": 'ProgramTypeAbridged',
-            "name": str,  # ProgramType name
+            "identifier": str,  # ProgramType identifier
+            "display_name": str,  # ProgramType display name
             'people': {},  # A People dictionary
             'lighting': {},  # A Lighting dictionary
             'electric_equipment': {},  # A ElectricEquipment dictionary
@@ -289,6 +239,60 @@ class ProgramType(object):
             'ventilation': {},  # A Ventilation dictionary
             'setpoint': {}  # A Setpoint dictionary
             }
+
+        """
+        assert data['type'] == 'ProgramType', \
+            'Expected ProgramType. Got {}.'.format(data['type'])
+
+        # build each of the load objects
+        people = People.from_dict(data['people']) if 'people' in data and \
+            data['people'] is not None else None
+        lighting = Lighting.from_dict(data['lighting']) if 'lighting' in data and \
+            data['lighting'] is not None else None
+        electric_equipment = ElectricEquipment.from_dict(data['electric_equipment']) \
+            if 'electric_equipment' in data and \
+            data['electric_equipment'] is not None else None
+        gas_equipment = GasEquipment.from_dict(data['gas_equipment']) \
+            if 'gas_equipment' in data and \
+            data['gas_equipment'] is not None else None
+        infiltration = Infiltration.from_dict(data['infiltration']) if 'infiltration' \
+            in data and data['infiltration'] is not None else None
+        ventilation = Ventilation.from_dict(data['ventilation']) if 'ventilation' \
+            in data and data['ventilation'] is not None else None
+        setpoint = Setpoint.from_dict(data['setpoint']) if 'setpoint' in data and \
+            data['setpoint'] is not None else None
+
+        new_obj = cls(data['identifier'], people, lighting, electric_equipment,
+                      gas_equipment, infiltration, ventilation, setpoint)
+        if 'display_name' in data and data['display_name'] is not None:
+            new_obj.display_name = data['display_name']
+        return new_obj
+
+    @classmethod
+    def from_dict_abridged(cls, data, schedule_dict):
+        """Create a ProgramType object from an abridged dictionary.
+
+        Args:
+            data: A ProgramTypeAbridged dictionary.
+            schedule_dict: A dictionary with schedule identifiers as keys and
+                honeybee schedule objects as values (either ScheduleRuleset or
+                ScheduleFixedInterval). These will be used to assign the schedules
+                to the ProgramType object.
+
+        .. code-block:: python
+
+            {
+            "type": 'ProgramTypeAbridged',
+            "identifier": str,  # ProgramType identifier
+            "display_name": str,  # ProgramType display name
+            'people': {},  # A PeopleAbridged dictionary
+            'lighting': {},  # A LightingAbridged dictionary
+            'electric_equipment': {},  # A ElectricEquipmentAbridged dictionary
+            'gas_equipment': {},  # A GasEquipmentAbridged dictionary
+            'infiltration': {},  # A InfliltrationAbridged dictionary
+            'ventilation': {},  # A VentilationAbridged dictionary
+            'setpoint': {}  # A SetpointAbridged dictionary
+            }
         """
         assert data['type'] == 'ProgramTypeAbridged', \
             'Expected ProgramTypeAbridged dictionary. Got {}.'.format(data['type'])
@@ -296,8 +300,11 @@ class ProgramType(object):
         # build each of the load objects
         people, lighting, electric_equipment, gas_equipment, infiltration, \
             ventilation, setpoint = cls._get_loads_from_abridged(data, schedule_dict)
-        return cls(data['name'], people, lighting, electric_equipment,
-                   gas_equipment, infiltration, ventilation, setpoint)
+        new_obj = cls(data['identifier'], people, lighting, electric_equipment,
+                      gas_equipment, infiltration, ventilation, setpoint)
+        if 'display_name' in data and data['display_name'] is not None:
+            new_obj.display_name = data['display_name']
+        return new_obj
 
     def to_dict(self, abridged=False):
         """Get ProgramType as a dictionary.
@@ -305,46 +312,39 @@ class ProgramType(object):
         Args:
             abridged: Boolean noting whether detailed schedule objects should be
                 written into the ProgramType (False) or just an abridged version (True)
-                that refrences the schedules by name. Default: False.
+                that refrences the schedules by identifier. Default: False.
         """
         base = {'type': 'ProgramType'} if not \
             abridged else {'type': 'ProgramTypeAbridged'}
-        base['name'] = self.name
+        base['identifier'] = self.identifier
         if self.people is not None:
-            base['people'] = self.people.to_dict(True)
+            base['people'] = self.people.to_dict(abridged)
         if self.lighting is not None:
-            base['lighting'] = self.lighting.to_dict(True)
+            base['lighting'] = self.lighting.to_dict(abridged)
         if self.electric_equipment is not None:
-            base['electric_equipment'] = self.electric_equipment.to_dict(True)
+            base['electric_equipment'] = self.electric_equipment.to_dict(abridged)
         if self.gas_equipment is not None:
-            base['gas_equipment'] = self.gas_equipment.to_dict(True)
+            base['gas_equipment'] = self.gas_equipment.to_dict(abridged)
         if self.infiltration is not None:
-            base['infiltration'] = self.infiltration.to_dict(True)
+            base['infiltration'] = self.infiltration.to_dict(abridged)
         if self.ventilation is not None:
-            base['ventilation'] = self.ventilation.to_dict(True)
+            base['ventilation'] = self.ventilation.to_dict(abridged)
         if self.setpoint is not None:
-            base['setpoint'] = self.setpoint.to_dict(True)
+            base['setpoint'] = self.setpoint.to_dict(abridged)
 
-        if not abridged:
-            schedules = self.schedules_unique
-            base['schedules'] = []
-            type_limits = []
-            for sched in schedules:
-                base['schedules'].append(sched.to_dict(True))
-                t_lim = sched.schedule_type_limit
-                if t_lim is not None and not self._instance_in_array(t_lim, type_limits):
-                    type_limits.append(t_lim)
-            base['schedule_type_limits'] = \
-                [t_lim.to_dict() for t_lim in list(set(type_limits))]
-
+        if self._display_name is not None:
+            base['display_name'] = self.display_name
         return base
 
     @staticmethod
-    def average(name, program_types, weights=None, timestep_resolution=1):
+    def average(identifier, program_types, weights=None, timestep_resolution=1):
         """Get a ProgramType object that's a weighted average between other objects.
 
         Args:
-            name: A name for the new averaged ProgramType object.
+            identifier: A unique ID text string for the new averaged ProgramType.
+                Must be < 100 characters and not contain any EnergyPlus special
+                characters. This will be used to identify the object across a model
+                and in the exported IDF.
             program_types: A list of ProgramType objects that will be averaged
                 together to make a new ProgramType.
             weights: An optional list of fractional numbers with the same length
@@ -386,45 +386,45 @@ class ProgramType(object):
         people = None
         if len(people_mtx) != 0:
             t_people_mtx = tuple(zip(*people_mtx))
-            people = People.average('{}_People'.format(name), t_people_mtx[0],
+            people = People.average('{}_People'.format(identifier), t_people_mtx[0],
                                     t_people_mtx[1], timestep_resolution)
         lighting = None
         if len(lighting_mtx) != 0:
             t_lighting_mtx = tuple(zip(*lighting_mtx))
-            lighting = Lighting.average('{}_Lighting'.format(name), t_lighting_mtx[0],
+            lighting = Lighting.average('{}_Lighting'.format(identifier), t_lighting_mtx[0],
                                         t_lighting_mtx[1], timestep_resolution)
         electric_equipment = None
         if len(e_equip_mtx) != 0:
             t_e_equip_mtx = tuple(zip(*e_equip_mtx))
             electric_equipment = ElectricEquipment.average(
-                '{}_Electric Equipment'.format(name), t_e_equip_mtx[0],
+                '{}_Electric Equipment'.format(identifier), t_e_equip_mtx[0],
                 t_e_equip_mtx[1], timestep_resolution)
         gas_equipment = None
         if len(g_equip_mtx) != 0:
             t_g_equip_mtx = tuple(zip(*g_equip_mtx))
             gas_equipment = GasEquipment.average(
-                '{}_Gas Equipment'.format(name), t_g_equip_mtx[0],
+                '{}_Gas Equipment'.format(identifier), t_g_equip_mtx[0],
                 t_g_equip_mtx[1], timestep_resolution)
         infiltration = None
         if len(inf_mtx) != 0:
             t_inf_mtx = tuple(zip(*inf_mtx))
             infiltration = Infiltration.average(
-                '{}_Infiltration'.format(name), t_inf_mtx[0],
+                '{}_Infiltration'.format(identifier), t_inf_mtx[0],
                 t_inf_mtx[1], timestep_resolution)
         ventilation = None
         if len(vent_mtx) != 0:
             t_vent_mtx = tuple(zip(*vent_mtx))
             ventilation = Ventilation.average(
-                '{}_Ventilation'.format(name), t_vent_mtx[0],
+                '{}_Ventilation'.format(identifier), t_vent_mtx[0],
                 t_vent_mtx[1], timestep_resolution)
         setpoint = None
         if len(setp_mtx) != 0:
             t_setp_mtx = tuple(zip(*setp_mtx))
-            setpoint = Setpoint.average('{}_Setpoint'.format(name), t_setp_mtx[0],
+            setpoint = Setpoint.average('{}_Setpoint'.format(identifier), t_setp_mtx[0],
                                         t_setp_mtx[1], timestep_resolution)
 
         # return the averaged object
-        return ProgramType(name, people, lighting, electric_equipment, gas_equipment,
+        return ProgramType(identifier, people, lighting, electric_equipment, gas_equipment,
                            infiltration, ventilation, setpoint)
 
     def duplicate(self):
@@ -528,12 +528,14 @@ class ProgramType(object):
         ventilation = self.ventilation.duplicate() if \
             self.ventilation is not None else None
         setpoint = self.setpoint.duplicate() if self.setpoint is not None else None
-        return ProgramType(self.name, people, lighting, electric_equipment,
-                           gas_equipment, infiltration, ventilation, setpoint)
+        new_obj = ProgramType(self.identifier, people, lighting, electric_equipment,
+                              gas_equipment, infiltration, ventilation, setpoint)
+        new_obj._display_name = self._display_name
+        return new_obj
 
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""
-        return (self.name, hash(self.people), hash(self.lighting),
+        return (self.identifier, hash(self.people), hash(self.lighting),
                 hash(self.electric_equipment), hash(self.gas_equipment),
                 hash(self.infiltration), hash(self.ventilation), hash(self.setpoint))
 
@@ -547,4 +549,4 @@ class ProgramType(object):
         return not self.__eq__(other)
 
     def __repr__(self):
-        return 'Program Type:\n name: {}'.format(self.name)
+        return 'Program Type: {}'.format(self.identifier)

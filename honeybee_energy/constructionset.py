@@ -19,8 +19,10 @@ class ConstructionSet(object):
     """Set containing all energy constructions needed to create an energy model.
 
     Args:
-        name: Text string for construction set name. Must be <= 100 characters.
-            Can include spaces but special characters will be stripped out.
+        identifier: Text string for a unique ConstructionSet ID. Must be < 100
+            characters and not contain any EnergyPlus special characters. This
+            will be used to identify the object across a model and in the
+            exported IDF.
         wall_set: An optional WallSet object for this ConstructionSet.
             If None, it will be the honeybee generic default WallSet.
         floor_set: An optional FloorSet object for this ConstructionSet.
@@ -39,7 +41,8 @@ class ConstructionSet(object):
             will be the honyebee generic air boundary construction.
 
     Properties:
-        * name
+        * identifier
+        * display_name
         * wall_set
         * floor_set
         * roof_ceiling_set
@@ -54,16 +57,17 @@ class ConstructionSet(object):
         * materials_unique
         * modified_materials_unique
     """
-    __slots__ = ('_name', '_wall_set', '_floor_set', '_roof_ceiling_set',
-                 '_aperture_set', '_door_set', '_shade_construction',
-                 '_air_boundary_construction', '_locked')
+    __slots__ = ('_identifier', '_display_name', '_wall_set', '_floor_set',
+                 '_roof_ceiling_set', '_aperture_set', '_door_set',
+                 '_shade_construction', '_air_boundary_construction', '_locked')
 
-    def __init__(self, name, wall_set=None, floor_set=None, roof_ceiling_set=None,
+    def __init__(self, identifier, wall_set=None, floor_set=None, roof_ceiling_set=None,
                  aperture_set=None, door_set=None, shade_construction=None,
                  air_boundary_construction=None):
         """Initialize energy construction set."""
         self._locked = False  # unlocked by default
-        self.name = name
+        self.identifier = identifier
+        self._display_name = None
         self.wall_set = wall_set
         self.floor_set = floor_set
         self.roof_ceiling_set = roof_ceiling_set
@@ -73,13 +77,30 @@ class ConstructionSet(object):
         self.air_boundary_construction = air_boundary_construction
 
     @property
-    def name(self):
-        """Get or set a text string for construction set name."""
-        return self._name
+    def identifier(self):
+        """Get or set a text string for a unique construction set identifier."""
+        return self._identifier
 
-    @name.setter
-    def name(self, name):
-        self._name = valid_ep_string(name, 'construction set name')
+    @identifier.setter
+    def identifier(self, identifier):
+        self._identifier = valid_ep_string(identifier, 'construction set identifier')
+
+    @property
+    def display_name(self):
+        """Get or set a string for the object name without any character restrictions.
+
+        If not set, this will be equal to the identifier.
+        """
+        if self._display_name is None:
+            return self._identifier
+        return self._display_name
+
+    @display_name.setter
+    def display_name(self, value):
+        try:
+            self._display_name = str(value)
+        except UnicodeEncodeError:  # Python 2 machine lacking the character set
+            self._display_name = value  # keep it as unicode
 
     @property
     def wall_set(self):
@@ -327,14 +348,15 @@ class ConstructionSet(object):
 
             {
             "type": 'ConstructionSet',
-            "name": str,  # ConstructionSet name
+            "identifier": str,  # ConstructionSet identifier
+            "display_name": str,  # ConstructionSet display name
             "wall_set": {},  # A WallSet dictionary
             "floor_set": {},  # A FloorSet dictionary
             "roof_ceiling_set": {},  # A RoofCeilingSet dictionary
             "aperture_set": {},  # A ApertureSet dictionary
             "door_set": {},  # A DoorSet dictionary
-            "shade_construction": str,  # ShadeConstruction name
-            "air_boundary_construction": str,  # AirBoundaryConstruction name
+            "shade_construction": str,  # ShadeConstruction identifier
+            "air_boundary_construction": str,  # AirBoundaryConstruction identifier
             "materials": [],  # list of material dictionaries
             "constructions": []  # list of abridged construction dictionaries
             }
@@ -345,20 +367,24 @@ class ConstructionSet(object):
         # gather all material objects
         materials = {}
         for mat in data['materials']:
-            materials[mat['name']] = dict_to_material(mat)
+            materials[mat['identifier']] = dict_to_material(mat)
 
         # gather all construction objects
         constructions = {}
         for cnst in data['constructions']:
-            constructions[cnst['name']] = dict_abridged_to_construction(cnst, materials, None)
+            constructions[cnst['identifier']] = \
+                dict_abridged_to_construction(cnst, materials, None)
         constructions[None] = None
 
         # build each of the sub-construction sets
         wall_set, floor_set, roof_ceiling_set, aperture_set, door_set, \
             shade_con, air_con = cls._get_subsets_from_abridged(data, constructions)
 
-        return cls(data['name'], wall_set, floor_set, roof_ceiling_set,
-                   aperture_set, door_set, shade_con, air_con)
+        new_obj = cls(data['identifier'], wall_set, floor_set, roof_ceiling_set,
+                      aperture_set, door_set, shade_con, air_con)
+        if 'display_name' in data and data['display_name'] is not None:
+            new_obj.display_name = data['display_name']
+        return new_obj
 
     @classmethod
     def from_dict_abridged(cls, data, construction_dict):
@@ -366,7 +392,7 @@ class ConstructionSet(object):
 
         Args:
             data: A ConstructionSetAbridged dictionary.
-            construction_dict: A dictionary with construction names as keys and
+            construction_dict: A dictionary with construction identifiers as keys and
                 honeybee construction objects as values. These will be used to
                 assign the constructions to the ConstructionSet object.
 
@@ -374,22 +400,26 @@ class ConstructionSet(object):
 
             {
             "type": 'ConstructionSetAbridged',
-            "name": str,  # ConstructionSet name
+            "identifier": str,  # ConstructionSet identifier
+            "display_name": str,  # ConstructionSet display name
             "wall_set": {},  # A WallSet dictionary
             "floor_set": {},  # A FloorSet dictionary
             "roof_ceiling_set": {},  # A RoofCeilingSet dictionary
             "aperture_set": {},  # A ApertureSet dictionary
             "door_set": {},  # A DoorSet dictionary
-            "shade_construction": str,  # ShadeConstruction name
-            "air_boundary_construction": str  # AirBoundaryConstruction name
+            "shade_construction": str,  # ShadeConstruction identifier
+            "air_boundary_construction": str  # AirBoundaryConstruction identifier
             }
         """
         assert data['type'] == 'ConstructionSetAbridged', \
             'Expected ConstructionSetAbridged. Got {}.'.format(data['type'])
         wall_set, floor_set, roof_ceiling_set, aperture_set, door_set, shade_con, \
             air_con = cls._get_subsets_from_abridged(data, construction_dict)
-        return cls(data['name'], wall_set, floor_set, roof_ceiling_set,
-                   aperture_set, door_set, shade_con, air_con)
+        new_obj = cls(data['identifier'], wall_set, floor_set, roof_ceiling_set,
+                      aperture_set, door_set, shade_con, air_con)
+        if 'display_name' in data and data['display_name'] is not None:
+            new_obj.display_name = data['display_name']
+        return new_obj
 
     def to_dict(self, abridged=False, none_for_defaults=True):
         """Get ConstructionSet as a dictionary.
@@ -404,22 +434,23 @@ class ConstructionSet(object):
         """
         base = {'type': 'ConstructionSet'} if not \
             abridged else {'type': 'ConstructionSetAbridged'}
-        base['name'] = self.name
+        base['identifier'] = self.identifier
         base['wall_set'] = self.wall_set._to_dict(none_for_defaults)
         base['floor_set'] = self.floor_set._to_dict(none_for_defaults)
         base['roof_ceiling_set'] = self.roof_ceiling_set._to_dict(none_for_defaults)
         base['aperture_set'] = self.aperture_set._to_dict(none_for_defaults)
         base['door_set'] = self.door_set._to_dict(none_for_defaults)
         if none_for_defaults:
-            base['shade_construction'] = self._shade_construction.name if \
+            base['shade_construction'] = self._shade_construction.identifier if \
                 self._shade_construction is not None else None
         else:
-            base['shade_construction'] = self.shade_construction.name
+            base['shade_construction'] = self.shade_construction.identifier
         if none_for_defaults:
-            base['air_boundary_construction'] = self._air_boundary_construction.name if \
+            base['air_boundary_construction'] = \
+                self._air_boundary_construction.identifier if \
                 self._air_boundary_construction is not None else None
         else:
-            base['air_boundary_construction'] = self.air_boundary_construction.name
+            base['air_boundary_construction'] = self.air_boundary_construction.identifier
 
         if not abridged:
             constructions = self.modified_constructions_unique if none_for_defaults \
@@ -433,6 +464,9 @@ class ConstructionSet(object):
                 except AttributeError:  # ShadeConstruction or AirBoundaryConstruction
                     base['constructions'].append(cnst.to_dict())
             base['materials'] = [mat.to_dict() for mat in list(set(materials))]
+
+        if self._display_name is not None:
+            base['display_name'] = self.display_name
         return base
 
     def duplicate(self):
@@ -490,21 +524,21 @@ class ConstructionSet(object):
         return wall_set, floor_set, roof_ceiling_set, aperture_set, door_set, shade, air
 
     @staticmethod
-    def _make_construction_subset(data, sub_set, sub_set_name, constructions):
+    def _make_construction_subset(data, sub_set, sub_set_id, constructions):
         """Make a WallSet, FloorSet, or RoofCeilingSet from dictionary."""
-        if sub_set_name in data:
-            if 'exterior_construction' in data[sub_set_name] and \
-                    data[sub_set_name]['exterior_construction'] is not None:
+        if sub_set_id in data:
+            if 'exterior_construction' in data[sub_set_id] and \
+                    data[sub_set_id]['exterior_construction'] is not None:
                 sub_set.exterior_construction = \
-                    constructions[data[sub_set_name]['exterior_construction']]
-            if 'interior_construction' in data[sub_set_name] and \
-                    data[sub_set_name]['interior_construction'] is not None:
+                    constructions[data[sub_set_id]['exterior_construction']]
+            if 'interior_construction' in data[sub_set_id] and \
+                    data[sub_set_id]['interior_construction'] is not None:
                 sub_set.interior_construction = \
-                    constructions[data[sub_set_name]['interior_construction']]
-            if 'ground_construction' in data[sub_set_name] and \
-                    data[sub_set_name]['ground_construction'] is not None:
+                    constructions[data[sub_set_id]['interior_construction']]
+            if 'ground_construction' in data[sub_set_id] and \
+                    data[sub_set_id]['ground_construction'] is not None:
                 sub_set.ground_construction = \
-                    constructions[data[sub_set_name]['ground_construction']]
+                    constructions[data[sub_set_id]['ground_construction']]
         return sub_set
 
     @staticmethod
@@ -560,18 +594,20 @@ class ConstructionSet(object):
         return self.__repr__()
 
     def __copy__(self):
-        return ConstructionSet(self.name,
-                               self.wall_set.duplicate(),
-                               self.floor_set.duplicate(),
-                               self.roof_ceiling_set.duplicate(),
-                               self.aperture_set.duplicate(),
-                               self.door_set.duplicate(),
-                               self._shade_construction,
-                               self._air_boundary_construction)
+        new_obj = ConstructionSet(self.identifier,
+                                  self.wall_set.duplicate(),
+                                  self.floor_set.duplicate(),
+                                  self.roof_ceiling_set.duplicate(),
+                                  self.aperture_set.duplicate(),
+                                  self.door_set.duplicate(),
+                                  self._shade_construction,
+                                  self._air_boundary_construction)
+        new_obj._display_name = self._display_name
+        return new_obj
 
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""
-        return (self.name,) + tuple(hash(cnstr) for cnstr in self.constructions)
+        return (self.identifier,) + tuple(hash(cnstr) for cnstr in self.constructions)
 
     def __hash__(self):
         return hash(self.__key())
@@ -583,7 +619,7 @@ class ConstructionSet(object):
         return not self.__eq__(other)
 
     def __repr__(self):
-        return 'Energy Construction Set: {}'.format(self.name)
+        return 'Energy Construction Set: {}'.format(self.identifier)
 
 
 @lockable
@@ -673,16 +709,16 @@ class _FaceSetBase(object):
         """
         base = {'type': self.__class__.__name__ + 'Abridged'}
         if none_for_defaults:
-            base['exterior_construction'] = self._exterior_construction.name if \
+            base['exterior_construction'] = self._exterior_construction.identifier if \
                 self._exterior_construction is not None else None
-            base['interior_construction'] = self._interior_construction.name if \
+            base['interior_construction'] = self._interior_construction.identifier if \
                 self._interior_construction is not None else None
-            base['ground_construction'] = self._ground_construction.name if \
+            base['ground_construction'] = self._ground_construction.identifier if \
                 self._ground_construction is not None else None
         else:
-            base['exterior_construction'] = self.exterior_construction.name
-            base['interior_construction'] = self.interior_construction.name
-            base['ground_construction'] = self.ground_construction.name
+            base['exterior_construction'] = self.exterior_construction.identifier
+            base['interior_construction'] = self.interior_construction.identifier
+            base['ground_construction'] = self.ground_construction.identifier
         return base
 
     def duplicate(self):
@@ -768,9 +804,9 @@ class WallSet(_FaceSetBase):
 
     def __repr__(self):
         return 'Wall Construction Set:\n Exterior: {}\n Interior: {}' \
-            '\n Ground: {}'.format(self.exterior_construction.name,
-                                   self.interior_construction.name,
-                                   self.ground_construction.name)
+            '\n Ground: {}'.format(self.exterior_construction.identifier,
+                                   self.interior_construction.identifier,
+                                   self.ground_construction.identifier)
 
 
 @lockable
@@ -828,9 +864,9 @@ class FloorSet(_FaceSetBase):
 
     def __repr__(self):
         return 'Floor Construction Set:\n Exterior: {}\n Interior: {}' \
-            '\n Ground: {}'.format(self.exterior_construction.name,
-                                   self.interior_construction.name,
-                                   self.ground_construction.name)
+            '\n Ground: {}'.format(self.exterior_construction.identifier,
+                                   self.interior_construction.identifier,
+                                   self.ground_construction.identifier)
 
 
 @lockable
@@ -888,9 +924,9 @@ class RoofCeilingSet(_FaceSetBase):
 
     def __repr__(self):
         return 'RoofCeiling Construction Set:\n Exterior: {}\n Interior: {}' \
-            '\n Ground: {}'.format(self.exterior_construction.name,
-                                   self.interior_construction.name,
-                                   self.ground_construction.name)
+            '\n Ground: {}'.format(self.exterior_construction.identifier,
+                                   self.interior_construction.identifier,
+                                   self.ground_construction.identifier)
 
 
 @lockable
@@ -1022,21 +1058,21 @@ class ApertureSet(object):
         """
         base = {'type': 'ApertureSetAbridged'}
         if none_for_defaults:
-            base['window_construction'] = self._window_construction.name if \
+            base['window_construction'] = self._window_construction.identifier if \
                 self._window_construction is not None else None
-            base['interior_construction'] = self._interior_construction.name if \
+            base['interior_construction'] = self._interior_construction.identifier if \
                 self._interior_construction is not None else None
-            base['skylight_construction'] = self._skylight_construction.name if \
+            base['skylight_construction'] = self._skylight_construction.identifier if \
                 self._skylight_construction is not None else None
             base['operable_construction'] = \
-                self._operable_construction.name if \
+                self._operable_construction.identifier if \
                 self._operable_construction is not None else None
         else:
-            base['window_construction'] = self.window_construction.name
-            base['interior_construction'] = self.interior_construction.name
-            base['skylight_construction'] = self.skylight_construction.name
+            base['window_construction'] = self.window_construction.identifier
+            base['interior_construction'] = self.interior_construction.identifier
+            base['skylight_construction'] = self.skylight_construction.identifier
             base['operable_construction'] = \
-                self.operable_construction.name
+                self.operable_construction.identifier
         return base
 
     def duplicate(self):
@@ -1067,8 +1103,8 @@ class ApertureSet(object):
     def __repr__(self):
         return 'Aperture Construction Set:\n Window: {}\n Interior: {}' \
             '\n Skylight: {}\n Operable: {}'.format(
-                self.window_construction.name, self.interior_construction.name,
-                self.skylight_construction.name, self.operable_construction.name)
+                self.window_construction.identifier, self.interior_construction.identifier,
+                self.skylight_construction.identifier, self.operable_construction.identifier)
 
 
 @lockable
@@ -1223,24 +1259,26 @@ class DoorSet(object):
         """
         base = {'type': 'DoorSetAbridged'}
         if none_for_defaults:
-            base['exterior_construction'] = self._exterior_construction.name if \
+            base['exterior_construction'] = self._exterior_construction.identifier if \
                 self._exterior_construction is not None else None
-            base['interior_construction'] = self._interior_construction.name if \
+            base['interior_construction'] = self._interior_construction.identifier if \
                 self._interior_construction is not None else None
             base['exterior_glass_construction'] = \
-                self._exterior_glass_construction.name if \
+                self._exterior_glass_construction.identifier if \
                 self._exterior_glass_construction is not None else None
             base['interior_glass_construction'] = \
-                self._interior_glass_construction.name if \
+                self._interior_glass_construction.identifier if \
                 self._interior_glass_construction is not None else None
-            base['overhead_construction'] = self._overhead_construction.name if \
+            base['overhead_construction'] = self._overhead_construction.identifier if \
                 self._overhead_construction is not None else None
         else:
-            base['exterior_construction'] = self.exterior_construction.name
-            base['interior_construction'] = self.interior_construction.name
-            base['exterior_glass_construction'] = self.exterior_glass_construction.name
-            base['interior_glass_construction'] = self.interior_glass_construction.name
-            base['overhead_construction'] = self.overhead_construction.name
+            base['exterior_construction'] = self.exterior_construction.identifier
+            base['interior_construction'] = self.interior_construction.identifier
+            base['exterior_glass_construction'] = \
+                self.exterior_glass_construction.identifier
+            base['interior_glass_construction'] = \
+                self.interior_glass_construction.identifier
+            base['overhead_construction'] = self.overhead_construction.identifier
         return base
 
     def duplicate(self):
@@ -1278,6 +1316,8 @@ class DoorSet(object):
     def __repr__(self):
         return 'Door Construction Set:\n Exterior: {}\n Interior: {}' \
             '\n Exterior Glass: {}\n Interior Glass: {}\n Overhead: {}'.format(
-                self.exterior_construction.name, self.interior_construction.name,
-                self.exterior_glass_construction.name,
-                self.interior_glass_construction.name, self.overhead_construction.name)
+                self.exterior_construction.identifier,
+                self.interior_construction.identifier,
+                self.exterior_glass_construction.identifier,
+                self.interior_glass_construction.identifier,
+                self.overhead_construction.identifier)

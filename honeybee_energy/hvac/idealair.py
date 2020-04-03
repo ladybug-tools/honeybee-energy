@@ -22,8 +22,9 @@ class IdealAirSystem(_HVACSystem):
     installed.
 
     Args:
-        name: Text string for ideal air system name. Must be <= 100 characters.
-            Can include spaces but special characters will be stripped out.
+        identifier: Text string for ideal air system identifier. Must be < 100 characters
+            and not contain any EnergyPlus special characters. This will be used to
+            identify the object across a model and in the exported IDF.
         economizer_type: Text to indicate the type of air-side economizer used on
             the ideal air system. Economizers will mix in a greater amount of
             outdoor air to cool the zone (rather than running the cooling system)
@@ -64,7 +65,8 @@ class IdealAirSystem(_HVACSystem):
             cooling over the course of the simulation. Default: None.
 
     Properties:
-        * name
+        * identifier
+        * display_name
         * economizer_type
         * demand_controlled_ventilation
         * sensible_heat_recovery
@@ -83,7 +85,7 @@ class IdealAirSystem(_HVACSystem):
                  '_cooling_availability')
     ECONOMIZER_TYPES = ('NoEconomizer', 'DifferentialDryBulb', 'DifferentialEnthalpy')
 
-    def __init__(self, name, economizer_type='DifferentialDryBulb',
+    def __init__(self, identifier, economizer_type='DifferentialDryBulb',
                  demand_controlled_ventilation=False,
                  sensible_heat_recovery=0, latent_heat_recovery=0,
                  heating_air_temperature=50, cooling_air_temperature=13,
@@ -91,7 +93,7 @@ class IdealAirSystem(_HVACSystem):
                  heating_availability=None, cooling_availability=None):
         """Initialize IdealAirSystem."""
         # initialize base HVAC system properties
-        _HVACSystem.__init__(self, name, is_single_room=True)
+        _HVACSystem.__init__(self, identifier, is_single_room=True)
 
         # set the main features of the HVAC system
         self.economizer_type = economizer_type
@@ -258,7 +260,7 @@ class IdealAirSystem(_HVACSystem):
         Args:
             idf_string: A text string fully describing an EnergyPlus
                 HVACTemplate:Zone:IdealLoadsAirSystem definition.
-            schedule_dict: A dictionary with schedule names as keys and honeybee
+            schedule_dict: A dictionary with schedule identifiers as keys and honeybee
                 schedule objects as values (either ScheduleRuleset or
                 ScheduleFixedInterval). These will be used to assign the schedules to
                 the IdealAirSystem object.
@@ -268,14 +270,14 @@ class IdealAirSystem(_HVACSystem):
 
             -   ideal_air_system: An IdealAirSystem object loaded from the idf_string.
 
-            -   zone_name: The name of the zone to which the IdealAirSystem object should
-                be assigned.
+            -   zone_identifier: The identifier of the zone to which the IdealAirSystem
+                object should be assigned.
         """
         # check the inputs
         ep_strs = parse_idf_string(idf_string, 'HVACTemplate:Zone:IdealLoadsAirSystem,')
 
         # set defaults for anything not included
-        name = '{}_IdealAir'.format(ep_strs[0])
+        identifier = '{}_IdealAir'.format(ep_strs[0])
         econ = 'DifferentialDryBulb'
         dcv = False
         sensible = 0
@@ -319,11 +321,12 @@ class IdealAirSystem(_HVACSystem):
         except IndexError:
             pass  # shorter Ideal air loads definition
 
-        # return the object and the zone name for the object
-        ideal_air_system = cls(name, econ, dcv, sensible, latent, heat_temp, cool_temp,
-                               heat_limit, cool_limit, heat_sch, cool_sch)
-        zone_name = ep_strs[0]
-        return ideal_air_system, zone_name
+        # return the object and the zone identifier for the object
+        ideal_air_system = cls(
+            identifier, econ, dcv, sensible, latent, heat_temp, cool_temp,
+            heat_limit, cool_limit, heat_sch, cool_sch)
+        zone_identifier = ep_strs[0]
+        return ideal_air_system, zone_identifier
 
     @classmethod
     def from_dict(cls, data):
@@ -336,7 +339,8 @@ class IdealAirSystem(_HVACSystem):
 
             {
             "type": "IdealAirSystem",
-            "name": "Classroom1_IdealAir",  # name for the HVAC
+            "identifier": "Classroom1_IdealAir",  # identifier for the HVAC
+            "display_name": "Standard IdealAir",  # name for the HVAC
             "economizer_type": 'DifferentialDryBulb',  # Economizer type
             "demand_controlled_ventilation": True,  # Demand controlled ventilation
             "sensible_heat_recovery": 0.75,  # Sensible heat recovery effectiveness
@@ -364,8 +368,11 @@ class IdealAirSystem(_HVACSystem):
             'cooling_availability' in data and data['cooling_availability'] is not None \
             else None
 
-        return cls(data['name'], econ, dcv, sensible, latent, heat_temp, cool_temp,
-                   heat_limit, cool_limit, heat_avail, cool_avail)
+        new_obj = cls(data['identifier'], econ, dcv, sensible, latent, heat_temp,
+                      cool_temp, heat_limit, cool_limit, heat_avail, cool_avail)
+        if 'display_name' in data and data['display_name'] is not None:
+            new_obj.display_name = data['display_name']
+        return new_obj
 
     @classmethod
     def from_dict_abridged(cls, data, schedule_dict):
@@ -373,15 +380,16 @@ class IdealAirSystem(_HVACSystem):
 
         Args:
             data: A IdealAirSystemAbridged dictionary in following the format below.
-            schedule_dict: A dictionary with schedule names as keys and honeybee schedule
-                objects as values (either ScheduleRuleset or ScheduleFixedInterval).
-                These will be used to assign the schedules to the Setpoint object.
+            schedule_dict: A dictionary with schedule identifiers as keys and honeybee
+                schedule objects as values (either ScheduleRuleset or
+                ScheduleFixedInterval). These will be used to assign the schedules
+                to the Setpoint object.
 
         .. code-block:: python
 
             {
             "type": 'IdealAirSystemAbridged',
-            "name": 'Warehouse1_IdealAir',  # name for the HVAC
+            "identifier": 'Warehouse1_IdealAir',  # identifier for the HVAC
             "economizer_type": 'DifferentialDryBulb',  # Economizer type
             "demand_controlled_ventilation": True,  # Demand controlled ventilation
             "sensible_heat_recovery": 0.75,  # Sensible heat recovery effectiveness
@@ -390,8 +398,8 @@ class IdealAirSystem(_HVACSystem):
             "cooling_air_temperature": 15,  # Cooling supply air temperature
             "heating_limit": 'autosize',  # Max size of the heating system in Watts
             "cooling_limit": 'autosize',  # Max size of the cooling system in Watts
-            "heating_availability": "Warehouse Heating Control",  # Name of schedule
-            "cooling_availability": "Warehouse Cooling Control",  # Name of schedule
+            "heating_availability": "Warehouse Heating Control",  # identifier of schedule
+            "cooling_availability": "Warehouse Cooling Control",  # identifier of schedule
             }
         """
         assert data['type'] == 'IdealAirSystemAbridged', \
@@ -415,8 +423,11 @@ class IdealAirSystem(_HVACSystem):
             except KeyError as e:
                 raise ValueError('Failed to find {} in the schedule_dict.'.format(e))
 
-        return cls(data['name'], econ, dcv, sensible, latent, heat_temp, cool_temp,
-                   heat_limit, cool_limit, heat_avail, cool_avail)
+        new_obj = cls(data['identifier'], econ, dcv, sensible, latent, heat_temp,
+                      cool_temp, heat_limit, cool_limit, heat_avail, cool_avail)
+        if 'display_name' in data and data['display_name'] is not None:
+            new_obj.display_name = data['display_name']
+        return new_obj
 
     def to_idf(self):
         """IDF string representation of IdealAirSystem object.
@@ -452,9 +463,9 @@ class IdealAirSystem(_HVACSystem):
             c_lim_type = 'NoLimit'
             air_limit = cool_limit = ''
         # availability schedules
-        heat_avail = self.heating_availability.name if \
+        heat_avail = self.heating_availability.identifier if \
             self.heating_availability is not None else ''
-        cool_avail = self.cooling_availability.name if \
+        cool_avail = self.cooling_availability.identifier if \
             self.cooling_availability is not None else ''
         # humidifying setpoint
         if self._parent.properties.energy.setpoint.humidifying_setpoint is not None:
@@ -473,11 +484,11 @@ class IdealAirSystem(_HVACSystem):
         # ventilation requirements
         if self._parent.properties.energy.ventilation is not None:
             oa_method = 'DetailedSpecification'
-            oa_name = '{}..{}'.format(self._parent.properties.energy.ventilation.name,
-                                      self._parent.name)
+            oa_id = '{}..{}'.format(self._parent.properties.energy.ventilation.identifier,
+                                      self._parent.identifier)
         else:
             oa_method = 'None'
-            oa_name = ''
+            oa_id = ''
         # demand controlled ventilation
         dcv = 'OccupancySchedule' if self.demand_controlled_ventilation else 'None'
         # heat recovery
@@ -489,13 +500,13 @@ class IdealAirSystem(_HVACSystem):
             heat_recovery = 'Sensible'
 
         # return a full IDF string
-        thermostat = '{}..{}'.format(self._parent.properties.energy.setpoint.name,
-                                     self._parent.name)
-        values = (self._parent.name, thermostat,
+        thermostat = '{}..{}'.format(self._parent.properties.energy.setpoint.identifier,
+                                     self._parent.identifier)
+        values = (self._parent.identifier, thermostat,
                   '', self.heating_air_temperature, self.cooling_air_temperature,
                   '', '', h_lim_type, '', heat_limit, c_lim_type, air_limit, cool_limit,
                   heat_avail, cool_avail, dehumid_type, '', dehumid_setpt,
-                  humid_type, humid_setpt, oa_method, '', '', '', oa_name, dcv,
+                  humid_type, humid_setpt, oa_method, '', '', '', oa_id, dcv,
                   self.economizer_type, heat_recovery, self.sensible_heat_recovery,
                   self.latent_heat_recovery)
         comments = (
@@ -520,11 +531,11 @@ class IdealAirSystem(_HVACSystem):
         Args:
             abridged: Boolean to note whether the full dictionary describing the
                 object should be returned (False) or just an abridged version (True),
-                which only specifies the names of schedules. Default: False.
+                which only specifies the identifiers of schedules. Default: False.
         """
         base = {'type': 'IdealAirSystem'} if not \
             abridged else {'type': 'IdealAirSystemAbridged'}
-        base['name'] = self.name
+        base['identifier'] = self.identifier
         base['economizer_type'] = self.economizer_type
         base['demand_controlled_ventilation'] = self.demand_controlled_ventilation
         base['sensible_heat_recovery'] = self.sensible_heat_recovery
@@ -536,11 +547,13 @@ class IdealAirSystem(_HVACSystem):
         base['cooling_limit'] = self.cooling_limit if \
             isinstance(self.cooling_limit, float) else self.cooling_limit.to_dict()
         if self.heating_availability is not None:
-            base['heating_availability'] = self.heating_availability.name if abridged \
-                else self.heating_availability.to_dict()
+            base['heating_availability'] = self.heating_availability.identifier if \
+                abridged else self.heating_availability.to_dict()
         if self.cooling_availability is not None:
-            base['cooling_availability'] = self.cooling_availability.name if abridged \
-                else self.cooling_availability.to_dict()
+            base['cooling_availability'] = self.cooling_availability.identifier if \
+                abridged else self.cooling_availability.to_dict()
+        if self._display_name is not None:
+            base['display_name'] = self.display_name
         return base
 
     def duplicate(self):
@@ -591,17 +604,19 @@ class IdealAirSystem(_HVACSystem):
         return econ, dcv, sensible, latent, heat_temp, cool_temp, heat_limit, cool_limit
 
     def __copy__(self):
-        return IdealAirSystem(
-            self._name, self._economizer_type, self._demand_controlled_ventilation,
+        new_obj = IdealAirSystem(
+            self._identifier, self._economizer_type, self._demand_controlled_ventilation,
             self._sensible_heat_recovery, self._latent_heat_recovery,
             self._heating_air_temperature, self._cooling_air_temperature,
             self._heating_limit, self._cooling_limit, self._heating_availability,
             self._cooling_availability)
+        new_obj._display_name = self._display_name
+        return new_obj
 
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""
         return (
-            self._name, self._economizer_type, self._demand_controlled_ventilation,
+            self._identifier, self._economizer_type, self._demand_controlled_ventilation,
             self._sensible_heat_recovery, self._latent_heat_recovery,
             self._heating_air_temperature, self._cooling_air_temperature,
             str(self._heating_limit), str(self._cooling_limit),
@@ -619,5 +634,5 @@ class IdealAirSystem(_HVACSystem):
     def __repr__(self):
         return 'IdealAirSystem: {}\n economizer: {}\n dcv: {}\n sensible recovery: {}' \
             '\n latent recovery: {}'.format(
-                self.name, self.economizer_type, self.demand_controlled_ventilation,
+                self.identifier, self.economizer_type, self.demand_controlled_ventilation,
                 self.sensible_heat_recovery, self.latent_heat_recovery)

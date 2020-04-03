@@ -17,15 +17,15 @@ for f in os.listdir(folders.schedule_lib):
         if f_path.endswith('.idf'):
             schedule_type_limits = ScheduleTypeLimit.extract_all_from_idf_file(f_path)
             for typ in schedule_type_limits:
-                _schedule_type_limits[typ.name] = typ
+                _schedule_type_limits[typ.identifier] = typ
         elif f_path.endswith('.json'):
             with open(f_path) as json_file:
                 data = json.load(json_file)
-            for stl_name in data:
+            for stl_id in data:
                 try:
-                    stl_dict = data[stl_name]
+                    stl_dict = data[stl_id]
                     if stl_dict['type'] == 'ScheduleTypeLimit':
-                        _schedule_type_limits[stl_dict['name']] = \
+                        _schedule_type_limits[stl_dict['identifier']] = \
                             ScheduleTypeLimit.from_dict(stl_dict)
                 except KeyError:
                     pass  # not a Honeybee JSON file with ScheduleTypeLimits

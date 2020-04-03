@@ -20,8 +20,9 @@ class People(_LoadBase):
     """A complete definition of people, including schedules and load.
 
     Args:
-        name: Text string for the people definition name. Must be <= 100 characters.
-            Can include spaces but special characters will be stripped out.
+        identifier: Text string for a unique People ID. Must be < 100 characters
+            and not contain any EnergyPlus special characters. This will be used to
+            identify the object across a model and in the exported IDF.
         people_per_area: A numerical value for the number of people per square
             meter of floor area.
         occupancy_schedule: A ScheduleRuleset or ScheduleFixedInterval for the
@@ -44,7 +45,8 @@ class People(_LoadBase):
             Default: autocalculate.
 
     Properties:
-        * name
+        * identifier
+        * display_name
         * people_per_area
         * area_per_person
         * occupancy_schedule
@@ -55,10 +57,11 @@ class People(_LoadBase):
     __slots__ = ('_people_per_area', '_occupancy_schedule', '_activity_schedule',
                  '_radiant_fraction', '_latent_fraction')
 
-    def __init__(self, name, people_per_area, occupancy_schedule, activity_schedule=None,
+    def __init__(self, identifier, people_per_area, occupancy_schedule,
+                 activity_schedule=None,
                  radiant_fraction=0.3, latent_fraction=autocalculate):
         """Initialize People."""
-        _LoadBase.__init__(self, name)
+        _LoadBase.__init__(self, identifier)
         self.people_per_area = people_per_area
         self.occupancy_schedule = occupancy_schedule
         self.activity_schedule = activity_schedule
@@ -149,7 +152,7 @@ class People(_LoadBase):
 
         Args:
             idf_string: A text string fully describing an EnergyPlus people definition.
-            schedule_dict: A dictionary with schedule names as keys and honeybee
+            schedule_dict: A dictionary with schedule identifiers as keys and honeybee
                 schedule objects as values (either ScheduleRuleset or
                 ScheduleFixedInterval). These will be used to assign the schedules to
                 the People object.
@@ -159,8 +162,8 @@ class People(_LoadBase):
 
             -   people: A People object loaded from the idf_string.
 
-            -   zone_name: The name of the zone to which the People object should
-                be assigned.
+            -   zone_identifier: The identifier of the zone to which the People
+                object should be assigned.
         """
         # check the inputs
         ep_strs = parse_idf_string(idf_string, 'People,')
@@ -176,12 +179,12 @@ class People(_LoadBase):
         occ_sched, activity_sched = cls._get_occ_act_schedules_from_dict(
             schedule_dict, ep_strs[2], ep_strs[9])
 
-        # return the people object and the zone name for the people object
-        obj_name = ep_strs[0].split('..')[0]
-        zone_name = ep_strs[1]
-        people = cls(obj_name, ep_strs[5], occ_sched, activity_sched,
+        # return the people object and the zone id for the people object
+        obj_id = ep_strs[0].split('..')[0]
+        zone_id = ep_strs[1]
+        people = cls(obj_id, ep_strs[5], occ_sched, activity_sched,
                      rad_fract, lat_fract)
-        return people, zone_name
+        return people, zone_id
 
     @classmethod
     def from_dict(cls, data):
@@ -197,7 +200,8 @@ class People(_LoadBase):
 
             {
             "type": 'People',
-            "name": 'Open Office People',
+            "identifier": 'Open_Office_People_005_03_02',
+            "display_name": 'Office People',
             "people_per_area": 0.05, # number of people per square meter of floor area
             "occupancy_schedule": {}, # ScheduleRuleset/ScheduleFixedInterval dictionary
             "activity_schedule": {}, # ScheduleRuleset/ScheduleFixedInterval dictionary
@@ -211,8 +215,11 @@ class People(_LoadBase):
         act_sched = cls._get_schedule_from_dict(data['activity_schedule']) if \
             'activity_schedule' in data and data['activity_schedule'] is not None else None
         rad_fract, lat_fract = cls._optional_dict_keys(data)
-        return cls(data['name'], data['people_per_area'], occ_sched, act_sched,
-                   rad_fract, lat_fract)
+        new_obj = cls(data['identifier'], data['people_per_area'], occ_sched, act_sched,
+                      rad_fract, lat_fract)
+        if 'display_name' in data and data['display_name'] is not None:
+            new_obj.display_name = data['display_name']
+        return new_obj
 
     @classmethod
     def from_dict_abridged(cls, data, schedule_dict):
@@ -220,33 +227,38 @@ class People(_LoadBase):
 
         Args:
             data: A PeopleAbridged dictionary in following the format below.
-            schedule_dict: A dictionary with schedule names as keys and honeybee schedule
-                objects as values (either ScheduleRuleset or ScheduleFixedInterval).
-                These will be used to assign the schedules to the People object.
+            schedule_dict: A dictionary with schedule identifiers as keys and
+                honeybee schedule objects as values (either ScheduleRuleset or
+                ScheduleFixedInterval). These will be used to assign the schedules
+                to the People object.
 
         .. code-block:: python
 
             {
             "type": "PeopleAbridged",
-            "name": "Open Office People",
+            "identifier": 'Open_Office_People_005_03_02',
+            "display_name": 'Office People',
             "people_per_area": 0.05, # number of people per square meter of floor area
-            "occupancy_schedule": "Office Occupancy", # Schedule name
-            "activity_schedule": "Office Activity", # Schedule name
+            "occupancy_schedule": "Office Occupancy", # Schedule identifier
+            "activity_schedule": "Office Activity", # Schedule identifier
             "radiant_fraction": 0.3, # fraction of sensible heat that is radiant
             "latent_fraction": 0.2 # fraction of total heat that is latent
             }
         """
         assert data['type'] == 'PeopleAbridged', \
             'Expected PeopleAbridged dictionary. Got {}.'.format(data['type'])
-        act_sch_name = data['activity_schedule'] if 'activity_schedule' in data and \
+        act_sch_id = data['activity_schedule'] if 'activity_schedule' in data and \
             data['activity_schedule'] is not None else ''
         occ_sched, activity_sched = cls._get_occ_act_schedules_from_dict(
-            schedule_dict, data['occupancy_schedule'], act_sch_name)
+            schedule_dict, data['occupancy_schedule'], act_sch_id)
         rad_fract, lat_fract = cls._optional_dict_keys(data)
-        return cls(data['name'], data['people_per_area'], occ_sched, activity_sched,
-                   rad_fract, lat_fract)
+        new_obj = cls(data['identifier'], data['people_per_area'], occ_sched,
+                      activity_sched, rad_fract, lat_fract)
+        if 'display_name' in data and data['display_name'] is not None:
+            new_obj.display_name = data['display_name']
+        return new_obj
 
-    def to_idf(self, zone_name):
+    def to_idf(self, zone_identifier):
         """IDF string representation of People object.
 
         Note that this method only outputs a single string for the People object and,
@@ -257,14 +269,15 @@ class People(_LoadBase):
         schedule into the IDF only once.
 
         Args:
-            zone_name: Text for the zone name that the People object is assigned to.
+            zone_identifier: Text for the zone identifier that the People object
+                is assigned to.
         """
         sens_fract = 'autocalculate' if self.latent_fraction == autocalculate else \
             1 - float(self.latent_fraction)
-        values = ('{}..{}'.format(self.name, zone_name), zone_name,
-                  self.occupancy_schedule.name, 'People/Area',
+        values = ('{}..{}'.format(self.identifier, zone_identifier), zone_identifier,
+                  self.occupancy_schedule.identifier, 'People/Area',
                   '', self.people_per_area, '', self.radiant_fraction, sens_fract,
-                  self.activity_schedule.name)
+                  self.activity_schedule.identifier)
         comments = ('name', 'zone name', 'occupancy schedule name', 'occupancy method',
                     'number of people {ppl}', 'people per floor area {ppl/m2}',
                     'floor area per person {m2/ppl}', 'radiant fration',
@@ -277,10 +290,10 @@ class People(_LoadBase):
         Args:
             abridged: Boolean to note whether the full dictionary describing the
                 object should be returned (False) or just an abridged version (True),
-                which only specifies the names of schedules. Default: False.
+                which only specifies the identifiers of schedules. Default: False.
         """
         base = {'type': 'People'} if not abridged else {'type': 'PeopleAbridged'}
-        base['name'] = self.name
+        base['identifier'] = self.identifier
         base['people_per_area'] = self.people_per_area
         base['radiant_fraction'] = self.radiant_fraction
         base['latent_fraction'] = self.latent_fraction if \
@@ -289,16 +302,21 @@ class People(_LoadBase):
             base['occupancy_schedule'] = self.occupancy_schedule.to_dict()
             base['activity_schedule'] = self.activity_schedule.to_dict()
         else:
-            base['occupancy_schedule'] = self.occupancy_schedule.name
-            base['activity_schedule'] = self.activity_schedule.name
+            base['occupancy_schedule'] = self.occupancy_schedule.identifier
+            base['activity_schedule'] = self.activity_schedule.identifier
+        if self._display_name is not None:
+            base['display_name'] = self.display_name
         return base
 
     @staticmethod
-    def average(name, peoples, weights=None, timestep_resolution=1):
+    def average(identifier, peoples, weights=None, timestep_resolution=1):
         """Get a People object that's a weighted average between other People objects.
 
         Args:
-            name: A name for the new averaged People object.
+            identifier: Text string for a unique ID for the new averaged People.
+                Must be < 100 characters and not contain any EnergyPlus special
+                characters. This will be used to identify the object across a model
+                and in the exported IDF.
             peoples: A list of People objects that will be averaged together to make
                 a new People.
             weights: An optional list of fractional numbers with the same length
@@ -328,14 +346,14 @@ class People(_LoadBase):
 
         # calculate the average schedules
         occ_sched = People._average_schedule(
-            '{}_Occ Schedule'.format(name),
+            '{}_Occ Schedule'.format(identifier),
             [ppl.occupancy_schedule for ppl in peoples], u_weights, timestep_resolution)
         act_sched = People._average_schedule(
-            '{}_Act Schedule'.format(name),
+            '{}_Act Schedule'.format(identifier),
             [ppl.activity_schedule for ppl in peoples], u_weights, timestep_resolution)
 
         # return the averaged people object
-        return People(name, ppl_area, occ_sched, act_sched, rad_fract, lat_fract)
+        return People(identifier, ppl_area, occ_sched, act_sched, rad_fract, lat_fract)
 
     def _check_activity_schedule_type(self, schedule):
         """Check that the type limit of an input schedule is fractional."""
@@ -353,24 +371,24 @@ class People(_LoadBase):
         return rad_fract, lat_fract
 
     @staticmethod
-    def _get_occ_act_schedules_from_dict(schedule_dict, occ_sch_name, act_sch_name):
+    def _get_occ_act_schedules_from_dict(schedule_dict, occ_sch_id, act_sch_id):
         """Get schedule objects from a dictionary."""
         try:
-            occ_sched = schedule_dict[occ_sch_name]
+            occ_sched = schedule_dict[occ_sch_id]
         except KeyError as e:
             raise ValueError('Failed to find {} in the schedule_dict.'.format(e))
-        if act_sch_name.lower() == 'seated adult activity':
+        if act_sch_id.lower() == 'seated adult activity':
             activity_sched = None
         else:
             try:
-                activity_sched = schedule_dict[act_sch_name]
+                activity_sched = schedule_dict[act_sch_id]
             except KeyError as e:
                 raise ValueError('Failed to find {} in the People schedule_dict.'.format(e))
         return occ_sched, activity_sched
 
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""
-        return (self.name, self.people_per_area, hash(self.occupancy_schedule),
+        return (self.identifier, self.people_per_area, hash(self.occupancy_schedule),
                 hash(self.activity_schedule), self.radiant_fraction,
                 str(self.latent_fraction))
 
@@ -384,10 +402,13 @@ class People(_LoadBase):
         return not self.__eq__(other)
 
     def __copy__(self):
-        return People(
-            self.name, self.people_per_area, self.occupancy_schedule,
+        new_obj = People(
+            self.identifier, self.people_per_area, self.occupancy_schedule,
             self.activity_schedule, self.radiant_fraction, self.latent_fraction)
+        new_obj._display_name = self._display_name
+        return new_obj
 
     def __repr__(self):
         return 'People:\n name: {}\n people per area: {}\n schedule: ' \
-            '{}'.format(self.name, self.people_per_area, self.occupancy_schedule.name)
+            '{}'.format(self.identifier, self.people_per_area,
+                        self.occupancy_schedule.identifier)
