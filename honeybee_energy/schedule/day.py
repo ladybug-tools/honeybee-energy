@@ -29,8 +29,9 @@ class ScheduleDay(object):
     can be applied to such objects.
 
     Args:
-        name: Text string for day schedule name. Must be <= 100 characters.
-            Can include spaces but special characters will be stripped out.
+        identifier: Text string for a unique ScheduleDay ID. Must be < 100 characters
+            and not contain any EnergyPlus special characters. This will be used to
+            identify the object across a model and in the exported IDF.
         values: A list of floats or integers for the values of the schedule.
             The length of this list must match the length of the times list.
         times: A list of ladybug Time objects with the same length as the input
@@ -49,22 +50,25 @@ class ScheduleDay(object):
             immediately upon the beginning time corrsponding to them. Default: False
 
     Properties:
-        * name
+        * identifier
+        * display_name
         * times
         * values
         * interpolate
         * is_constant
     """
-    __slots__ = ('_name', '_values', '_times', '_interpolate', '_parent', '_locked')
+    __slots__ = ('_identifier', '_display_name', '_values', '_times',
+                 '_interpolate', '_parent', '_locked')
 
     _start_of_day = Time(0, 0)
     VALIDTIMESTEPS = (1, 2, 3, 4, 5, 6, 10, 12, 15, 20, 30, 60)
 
-    def __init__(self, name, values, times=None, interpolate=False):
+    def __init__(self, identifier, values, times=None, interpolate=False):
         """Initialize Schedule Day."""
         self._locked = False  # unlocked by default
         self._parent = None  # no parent ScheduleRuleset by default
-        self.name = name
+        self.identifier = identifier
+        self._display_name = None
 
         # assign the times and values
         if times is None:
@@ -91,13 +95,30 @@ class ScheduleDay(object):
         self.interpolate = interpolate
 
     @property
-    def name(self):
-        """Get or set the text string for schedule day name."""
-        return self._name
+    def identifier(self):
+        """Get or set a text string for a unique schedule day identifier."""
+        return self._identifier
 
-    @name.setter
-    def name(self, name):
-        self._name = valid_ep_string(name, 'schedule day')
+    @identifier.setter
+    def identifier(self, identifier):
+        self._identifier = valid_ep_string(identifier, 'schedule day identifier')
+
+    @property
+    def display_name(self):
+        """Get or set a string for the object name without any character restrictions.
+
+        If not set, this will be equal to the identifier.
+        """
+        if self._display_name is None:
+            return self._identifier
+        return self._display_name
+
+    @display_name.setter
+    def display_name(self, value):
+        try:
+            self._display_name = str(value)
+        except UnicodeEncodeError:  # Python 2 machine lacking the character set
+            self._display_name = value  # keep it as unicode
 
     @property
     def values(self):
@@ -270,16 +291,18 @@ class ScheduleDay(object):
         a_period = AnalysisPeriod(date.month, date.day, 0, date.month, date.day, 23,
                                   timestep, date.leap_year)
         header = Header(schedule_type_limit.data_type, schedule_type_limit.unit,
-                        a_period, metadata={'schedule': self.name})
+                        a_period, metadata={'schedule': self.identifier})
         return HourlyContinuousCollection(header, self.values_at_timestep(timestep))
 
     @classmethod
-    def from_values_at_timestep(cls, name, values, timestep=1, remove_repeated=True):
+    def from_values_at_timestep(cls, identifier, values, timestep=1,
+                                remove_repeated=True):
         """Make a ScheduleDay from a list of values at a certain timestep.
 
         Args:
-            name: Text string for day schedule name. Must be <= 100 characters.
-                Can include spaces but special characters will be stripped out.
+            identifier: Text string for a unique Schedule ID. Must be < 100 characters
+                and not contain any EnergyPlus special characters. This will be used to
+                identify the object across a model and in the exported IDF.
             values: A list of numerical values with a length equal to 24 * timestep.
             timestep: An integer for the number of steps per hour that the input
                 values correspond to.  For example, if each value represents 30
@@ -317,7 +340,7 @@ class ScheduleDay(object):
                 schedule_times.append(Time.from_mod(mod))
                 mod += minute_delta
 
-        return cls(name, schedule_values, schedule_times)
+        return cls(identifier, schedule_values, schedule_times)
 
     @classmethod
     def from_idf(cls, idf_string):
@@ -368,7 +391,8 @@ class ScheduleDay(object):
 
             {
             "type": 'ScheduleDay',
-            "name": 'Office Occupancy',
+            "identifier": 'Office_Occ_900_1700',
+            "display_name": 'Office Occupancy',
             "values": [0, 1, 0],
             "times": [(0, 0), (9, 0), (17, 0)],
             "interpolate": False
@@ -383,7 +407,10 @@ class ScheduleDay(object):
             times = None
         interpolate = data['interpolate'] if 'interpolate' in data else None
 
-        return cls(data['name'], data['values'], times, interpolate)
+        new_obj = cls(data['identifier'], data['values'], times, interpolate)
+        if 'display_name' in data and data['display_name'] is not None:
+            new_obj.display_name = data['display_name']
+        return new_obj
 
     def to_idf(self, schedule_type_limit=None):
         """IDF string representation of ScheduleDay object.
@@ -393,8 +420,8 @@ class ScheduleDay(object):
                 be written into the IDFstring in order to validate the values
                 within the schedule during the EnergyPlus run.
         """
-        fields = [self.name, ''] if schedule_type_limit is None else \
-            [self.name, schedule_type_limit.name]
+        fields = [self.identifier, ''] if schedule_type_limit is None else \
+            [self.identifier, schedule_type_limit.identifier]
         fields.append('No' if not self.interpolate else 'Linear')
         comments = ['schedule name', 'schedule type limits', 'interpolate to timestep']
         for i in range(len(self._values)):
@@ -411,10 +438,12 @@ class ScheduleDay(object):
     def to_dict(self):
         """ScheduleDay dictionary representation."""
         base = {'type': 'ScheduleDay'}
-        base['name'] = self.name
+        base['identifier'] = self.identifier
         base['values'] = self.values
         base['times'] = [time.to_array() for time in self.times]
         base['interpolate'] = self.interpolate
+        if self._display_name is not None:
+            base['display_name'] = self.display_name
         return base
 
     def duplicate(self):
@@ -422,11 +451,14 @@ class ScheduleDay(object):
         return self.__copy__()
 
     @staticmethod
-    def average_schedules(name, schedules, weights=None, timestep_resolution=1):
+    def average_schedules(identifier, schedules, weights=None, timestep_resolution=1):
         """Create a ScheduleDay that is a weighted average between other ScheduleDays.
 
         Args:
-            name: A name for the new averaged ScheduleDay.
+            identifier: Text string for a unique ID for the new unique ScheduleDay.
+                Must be < 100 characters and not contain any EnergyPlus special
+                characters. This will be used to identify the object across a
+                model and in the exported IDF.
             schedules: A list of ScheduleDay objects that will be averaged together
                 to make a new ScheduleDay.
             weights: An optional list of fractioanl numbers with the same length
@@ -456,7 +488,7 @@ class ScheduleDay(object):
                     for values in zip(*all_values)]
 
         # return the final list
-        return ScheduleDay.from_values_at_timestep(name, sch_vals, timestep_resolution)
+        return ScheduleDay.from_values_at_timestep(identifier, sch_vals, timestep_resolution)
 
     def _get_until_mod(self, time_index):
         """Get the minute of the day until a value is applied given a time_index."""
@@ -528,7 +560,7 @@ class ScheduleDay(object):
 
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""
-        return (self.name,) + self.values + tuple(hash(t) for t in self.times) + \
+        return (self.identifier,) + self.values + tuple(hash(t) for t in self.times) + \
             (self.interpolate,)
 
     def __hash__(self):
@@ -541,7 +573,9 @@ class ScheduleDay(object):
         return not self.__eq__(other)
 
     def __copy__(self):
-        return ScheduleDay(self.name, self.values, self.times, self.interpolate)
+        new_obj = ScheduleDay(self.identifier, self.values, self.times, self.interpolate)
+        new_obj._display_name = self._display_name
+        return new_obj
 
     def ToString(self):
         """Overwrite .NET ToString."""

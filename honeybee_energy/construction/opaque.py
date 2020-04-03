@@ -18,7 +18,8 @@ class OpaqueConstruction(_ConstructionBase):
     """Opaque energy construction.
 
     Properties:
-        * name
+        * identifier
+        * display_name
         * materials
         * layers
         * unique_materials
@@ -176,8 +177,9 @@ class OpaqueConstruction(_ConstructionBase):
 
             {
             "type": 'OpaqueConstruction',
-            "name": 'Generic Brick Wall',
-            "layers": [],  # list of material names (from outside to inside)
+            "identifier": 'Generic Brick Wall R-10',
+            "display_name": 'Brick Wall',
+            "layers": [],  # list of material identifiers (from outside to inside)
             "materials": []  # list of unique material objects
             }
         """
@@ -186,14 +188,17 @@ class OpaqueConstruction(_ConstructionBase):
         materials = {}
         for mat in data['materials']:
             if mat['type'] == 'EnergyMaterial':
-                materials[mat['name']] = EnergyMaterial.from_dict(mat)
+                materials[mat['identifier']] = EnergyMaterial.from_dict(mat)
             elif mat['type'] == 'EnergyMaterialNoMass':
-                materials[mat['name']] = EnergyMaterialNoMass.from_dict(mat)
+                materials[mat['identifier']] = EnergyMaterialNoMass.from_dict(mat)
             else:
                 raise NotImplementedError(
                     'Material {} is not supported.'.format(mat['type']))
-        mat_layers = [materials[mat_name] for mat_name in data['layers']]
-        return cls(data['name'], mat_layers)
+        mat_layers = [materials[mat_id] for mat_id in data['layers']]
+        new_obj = cls(data['identifier'], mat_layers)
+        if 'display_name' in data and data['display_name'] is not None:
+            new_obj.display_name = data['display_name']
+        return new_obj
 
     @classmethod
     def from_dict_abridged(cls, data, materials):
@@ -201,21 +206,25 @@ class OpaqueConstruction(_ConstructionBase):
 
         Args:
             data: An OpaqueConstructionAbridged dictionary.
-            materials: A dictionary with names of materials as keys and Python
+            materials: A dictionary with identifiers of materials as keys and Python
                 material objects as values.
 
         .. code-block:: python
 
             {
             "type": 'OpaqueConstructionAbridged',
-            "name": 'Generic Brick Wall',
-            "layers": [],  # list of material names (from outside to inside)
+            "identifier": 'Generic Brick Wall R-10',
+            "display_name": 'Brick Wall',
+            "layers": [],  # list of material identifiers (from outside to inside)
             }
         """
         assert data['type'] == 'OpaqueConstructionAbridged', \
             'Expected OpaqueConstructionAbridged. Got {}.'.format(data['type'])
-        mat_layers = [materials[mat_name] for mat_name in data['layers']]
-        return cls(data['name'], mat_layers)
+        mat_layers = [materials[mat_id] for mat_id in data['layers']]
+        new_obj = cls(data['identifier'], mat_layers)
+        if 'display_name' in data and data['display_name'] is not None:
+            new_obj.display_name = data['display_name']
+        return new_obj
 
     def to_idf(self):
         """IDF string representation of construction object.
@@ -227,8 +236,7 @@ class OpaqueConstruction(_ConstructionBase):
         Returns:
             construction_idf -- Text string representation of the construction.
         """
-        construction_idf = self._generate_idf_string('opaque', self.name, self.materials)
-        return construction_idf
+        return self._generate_idf_string('opaque', self.identifier, self.materials)
 
     def to_radiance_solar_interior(self, specularity=0.0):
         """Honeybee Radiance material with the interior solar reflectance."""
@@ -252,14 +260,16 @@ class OpaqueConstruction(_ConstructionBase):
         Args:
             abridged: Boolean to note whether the full dictionary describing the
                 object should be returned (False) or just an abridged version (True),
-                which only specifies the names of material layers. Default: False.
+                which only specifies the identifiers of material layers. Default: False.
         """
         base = {'type': 'OpaqueConstruction'} if not \
             abridged else {'type': 'OpaqueConstructionAbridged'}
-        base['name'] = self.name
+        base['identifier'] = self.identifier
         base['layers'] = self.layers
         if not abridged:
             base['materials'] = [m.to_dict() for m in self.unique_materials]
+        if self._display_name is not None:
+            base['display_name'] = self.display_name
         return base
 
     @staticmethod
@@ -312,12 +322,12 @@ class OpaqueConstruction(_ConstructionBase):
             mat_str = mat_str.strip()
             if mat_str.startswith('Material:NoMass,'):
                 mat_obj = EnergyMaterialNoMass.from_idf(mat_str)
-                materials_dict[mat_obj.name] = mat_obj
+                materials_dict[mat_obj.identifier] = mat_obj
             elif mat_str.startswith('Material,'):
                 mat_obj = EnergyMaterial.from_idf(mat_str)
-                materials_dict[mat_obj.name] = mat_obj
+                materials_dict[mat_obj.identifier] = mat_obj
         return materials_dict
 
     def __repr__(self):
         """Represent opaque energy construction."""
-        return self._generate_idf_string('opaque', self.name, self.materials)
+        return self._generate_idf_string('opaque', self.identifier, self.materials)

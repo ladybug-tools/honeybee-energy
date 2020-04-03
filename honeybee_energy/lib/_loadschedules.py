@@ -21,17 +21,17 @@ for f in os.listdir(folders.schedule_lib):
             schedule_rulesets = ScheduleRuleset.extract_all_from_idf_file(f_path)
             for sch in schedule_rulesets:
                 sch.lock()
-                _schedules[sch.name] = sch
+                _schedules[sch.identifier] = sch
         elif f_path.endswith('.json'):  # parse as a honeybee JSON
             with open(f_path) as json_file:
                 data = json.load(json_file)
-            for sch_name in data:
+            for sch_id in data:
                 try:
                     sch_obj = dict_abridged_to_schedule(
-                        data[sch_name], _schedule_type_limits, False)
+                        data[sch_id], _schedule_type_limits, False)
                     if sch_obj:
                         sch_obj.lock()
-                        _schedules[sch_name] = sch_obj
+                        _schedules[sch_id] = sch_obj
                 except KeyError:
                     pass  # not a Honeybee JSON file with Schedules
 

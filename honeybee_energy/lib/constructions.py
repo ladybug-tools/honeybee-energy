@@ -162,17 +162,17 @@ try:
 except KeyError:
     generic_context = ShadeConstruction('Generic Context')
     generic_context.lock()
-    _shade_constructions[generic_context.name] = generic_context
+    _shade_constructions[generic_context.identifier] = generic_context
 
 try:
     generic_shade = _shade_constructions['Generic Shade']
 except KeyError:
     generic_shade = ShadeConstruction('Generic Shade', 0.35, 0.35)
     generic_shade.lock()
-    _shade_constructions[generic_shade.name] = generic_shade
+    _shade_constructions[generic_shade.identifier] = generic_shade
 
 
-# make lists of construction names to look up items in the library
+# make lists of construction identifiers to look up items in the library
 OPAQUE_CONSTRUCTIONS = tuple(_opaque_constructions.keys()) + \
     tuple(_opaque_constr_standards_dict.keys())
 WINDOW_CONSTRUCTIONS = tuple(_window_constructions.keys()) + \
@@ -181,69 +181,69 @@ SHADE_CONSTRUCTIONS = tuple(_shade_constructions.keys()) + \
     tuple(_shade_constr_standards_dict.keys())
 
 
-def opaque_construction_by_name(construction_name):
-    """Get an opaque construction from the library given the construction name.
+def opaque_construction_by_identifier(construction_identifier):
+    """Get an opaque construction from the library given the construction identifier.
 
     Args:
-        construction_name: A text string for the name of the construction.
+        construction_identifier: A text string for the identifier of the construction.
     """
     try:
-        return _opaque_constructions[construction_name]
+        return _opaque_constructions[construction_identifier]
     except KeyError:
         try:  # search the extension data
-            constr_dict = _opaque_constr_standards_dict[construction_name]
+            constr_dict = _opaque_constr_standards_dict[construction_identifier]
             if constr_dict['type'] == 'OpaqueConstructionAbridged':
                 mats = {}
                 for mat in constr_dict['layers']:
-                    mats[mat] = _m.opaque_material_by_name(mat)
+                    mats[mat] = _m.opaque_material_by_identifier(mat)
                 return OpaqueConstruction.from_dict_abridged(constr_dict, mats)
             else:  # AirBoundaryConstruction
                 try:
-                    sch_name = constr_dict['air_mixing_schedule']
-                    schs = {sch_name: _s.schedule_by_name(sch_name)}
+                    sch_id = constr_dict['air_mixing_schedule']
+                    schs = {sch_id: _s.schedule_by_identifier(sch_id)}
                 except KeyError:  # no air mixing key provided
                     schs = {}
-                return AirBoundaryConstruction.from_dict_abridged(constr_dict, sch_name)
+                return AirBoundaryConstruction.from_dict_abridged(constr_dict, sch_id)
         except KeyError:  # construction is nowhere to be found; raise an error
             raise ValueError(
                 '"{}" was not found in the opaque energy construction library.'.format(
-                    construction_name))
+                    construction_identifier))
 
 
-def window_construction_by_name(construction_name):
-    """Get an window construction from the library given the construction name.
+def window_construction_by_identifier(construction_identifier):
+    """Get an window construction from the library given the construction identifier.
 
     Args:
-        construction_name: A text string for the name of the construction.
+        construction_identifier: A text string for the identifier of the construction.
     """
     try:
-        return _window_constructions[construction_name]
+        return _window_constructions[construction_identifier]
     except KeyError:
         try:  # search the extension data
-            constr_dict = _window_constr_standards_dict[construction_name]
+            constr_dict = _window_constr_standards_dict[construction_identifier]
             mats = {}
             for mat in constr_dict['layers']:
-                mats[mat] = _m.window_material_by_name(mat)
+                mats[mat] = _m.window_material_by_identifier(mat)
             return WindowConstruction.from_dict_abridged(constr_dict, mats)
         except KeyError:  # construction is nowhere to be found; raise an error
             raise ValueError(
                 '"{}" was not found in the window energy construction library.'.format(
-                    construction_name))
+                    construction_identifier))
 
 
-def shade_construction_by_name(construction_name):
-    """Get an shade construction from the library given the construction name.
+def shade_construction_by_identifier(construction_identifier):
+    """Get an shade construction from the library given the construction identifier.
 
     Args:
-        construction_name: A text string for the name of the construction.
+        construction_identifier: A text string for the identifier of the construction.
     """
     try:
-        return _shade_constructions[construction_name]
+        return _shade_constructions[construction_identifier]
     except KeyError:
         try:  # search the extension data
-            constr_dict = _shade_constr_standards_dict[construction_name]
+            constr_dict = _shade_constr_standards_dict[construction_identifier]
             return ShadeConstruction.from_dict(constr_dict)
         except KeyError:  # construction is nowhere to be found; raise an error
             raise ValueError(
                 '"{}" was not found in the shade energy construction library.'.format(
-                    construction_name))
+                    construction_identifier))

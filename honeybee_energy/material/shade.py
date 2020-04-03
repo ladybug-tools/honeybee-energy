@@ -29,10 +29,10 @@ class _EnergyWindowMaterialShadeBase(_EnergyMaterialWindowBase):
                  '_top_opening_multiplier', '_bottom_opening_multiplier',
                  '_left_opening_multiplier', '_right_opening_multiplier')
 
-    def __init__(self, name, infrared_transmittance=0, emissivity=0.9,
+    def __init__(self, identifier, infrared_transmittance=0, emissivity=0.9,
                  distance_to_glass=0.05, opening_multiplier=0.5):
         """Initialize base shade energy material."""
-        _EnergyMaterialWindowBase.__init__(self, name)
+        _EnergyMaterialWindowBase.__init__(self, identifier)
         self.infrared_transmittance = infrared_transmittance
         self.emissivity = emissivity
         self.distance_to_glass = distance_to_glass
@@ -146,7 +146,8 @@ class _EnergyWindowMaterialShadeBase(_EnergyMaterialWindowBase):
         # https://bigladdersoftware.com/epx/docs/9-0/engineering-reference/
         # window-heat-balance-calculation.html#solving-for-gap-airflow-and-temperature
         _gap = EnergyWindowMaterialGas(
-            name='Generic Shade Gap', thickness=self.distance_to_glass, gas_type='Air')
+            identifier='Generic Shade Gap', thickness=self.distance_to_glass,
+            gas_type='Air')
         try:
             _shade_e = self.emissivity_back
         except AttributeError:
@@ -181,7 +182,8 @@ class _EnergyWindowMaterialShadeBase(_EnergyMaterialWindowBase):
         # https://bigladdersoftware.com/epx/docs/9-0/engineering-reference/
         # window-heat-balance-calculation.html#solving-for-gap-airflow-and-temperature
         _gap = EnergyWindowMaterialGas(
-            name='Generic Shade Gap', thickness=self.distance_to_glass, gas_type='Air')
+            identifier='Generic Shade Gap', thickness=self.distance_to_glass,
+            gas_type='Air')
         _shade_e = self.emissivity
         _r_gap = 1 / _gap.u_value_at_angle(delta_t, _shade_e, emissivity,
                                            height, angle, t_kelvin, pressure)
@@ -212,7 +214,8 @@ class _EnergyWindowMaterialShadeBase(_EnergyMaterialWindowBase):
             pressure: The average air pressure in Pa. Default is 101325 Pa for sea level.
         """
         _gap = EnergyWindowMaterialGas(
-            name='Generic Shade Gap', thickness=self.distance_to_glass, gas_type='Air')
+            identifier='Generic Shade Gap', thickness=self.distance_to_glass,
+            gas_type='Air')
         _shade_e = self.emissivity
         _r_gap_1 = 1 / _gap.u_value_at_angle(delta_t, _shade_e, emissivity_1,
                                              height, angle, t_kelvin, pressure)
@@ -229,8 +232,9 @@ class EnergyWindowMaterialShade(_EnergyWindowMaterialShadeBase):
     the shade. Shades are considered to be perfect diffusers.
 
     Args:
-        name: Text string for material name. Must be <= 100 characters.
-            Can include spaces but special characters will be stripped out.
+        identifier: Text string for a unique Material ID. Must be < 100 characters
+            and not contain any EnergyPlus special characters. This will be used to
+            identify the object across a model and in the exported IDF.
         thickness: Number for the thickness of the shade layer [m].
             Default: 0.005 meters (5 mm).
         solar_transmittance: Number between 0 and 1 for the transmittance
@@ -262,7 +266,8 @@ class EnergyWindowMaterialShade(_EnergyWindowMaterialShadeBase):
             air flow. Must be between 0 and 0.8. Default: 0 for no permeability.
 
     Properties:
-        * name
+        * identifier
+        * display_name
         * thickness
         * solar_transmittance
         * solar_reflectance
@@ -285,7 +290,7 @@ class EnergyWindowMaterialShade(_EnergyWindowMaterialShadeBase):
                  '_visible_transmittance', '_visible_reflectance',
                  '_conductivity', '_airflow_permeability')
 
-    def __init__(self, name, thickness=0.005, solar_transmittance=0.4,
+    def __init__(self, identifier, thickness=0.005, solar_transmittance=0.4,
                  solar_reflectance=0.5,
                  visible_transmittance=0.4, visible_reflectance=0.4,
                  infrared_transmittance=0, emissivity=0.9,
@@ -293,7 +298,7 @@ class EnergyWindowMaterialShade(_EnergyWindowMaterialShadeBase):
                  opening_multiplier=0.5, airflow_permeability=0.0):
         """Initialize energy window material shade."""
         _EnergyWindowMaterialShadeBase.__init__(
-            self, name, infrared_transmittance, emissivity,
+            self, identifier, infrared_transmittance, emissivity,
             distance_to_glass, opening_multiplier)
 
         # default for checking transmittance + reflectance < 1
@@ -457,7 +462,8 @@ class EnergyWindowMaterialShade(_EnergyWindowMaterialShadeBase):
 
                 {
                 "type": 'EnergyWindowMaterialShade',
-                "name": 'Dark Insulating Shade',
+                "identifier": 'Insulating_Shade_0020_005_020_010',
+                "identifier": 'Dark Insulating Shade',
                 "thickness": 0.02,
                 "solar_transmittance": 0.05,
                 "solar_reflectance": 0.2,
@@ -484,7 +490,7 @@ class EnergyWindowMaterialShade(_EnergyWindowMaterialShadeBase):
             if key not in data:
                 data[key] = val
 
-        new_mat = cls(data['name'], data['thickness'], data['solar_transmittance'],
+        new_mat = cls(data['identifier'], data['thickness'], data['solar_transmittance'],
                       data['solar_reflectance'],
                       data['visible_transmittance'], data['visible_reflectance'],
                       data['infrared_transmittance'], data['emissivity'],
@@ -493,11 +499,13 @@ class EnergyWindowMaterialShade(_EnergyWindowMaterialShadeBase):
         new_mat.bottom_opening_multiplier = data['bottom_opening_multiplier']
         new_mat.left_opening_multiplier = data['left_opening_multiplier']
         new_mat.right_opening_multiplier = data['right_opening_multiplier']
+        if 'display_name' in data and data['display_name'] is not None:
+            new_mat.display_name = data['display_name']
         return new_mat
 
     def to_idf(self):
         """Get an EnergyPlus string representation of the material."""
-        values = (self.name, self.solar_transmittance, self.solar_reflectance,
+        values = (self.identifier, self.solar_transmittance, self.solar_reflectance,
                   self.visible_transmittance, self.visible_reflectance,
                   self.emissivity, self.infrared_transmittance, self.thickness,
                   self.conductivity, self.top_opening_multiplier,
@@ -513,9 +521,9 @@ class EnergyWindowMaterialShade(_EnergyWindowMaterialShadeBase):
 
     def to_dict(self):
         """Energy Window Material Shade dictionary representation."""
-        return {
+        base = {
             'type': 'EnergyWindowMaterialShade',
-            'name': self.name,
+            'identifier': self.identifier,
             'thickness': self.thickness,
             'solar_transmittance': self.solar_transmittance,
             'solar_reflectance': self.solar_reflectance,
@@ -531,10 +539,13 @@ class EnergyWindowMaterialShade(_EnergyWindowMaterialShadeBase):
             'right_opening_multiplier': self.right_opening_multiplier,
             'airflow_permeability': self.airflow_permeability
         }
+        if self._display_name is not None:
+            base['display_name'] = self.display_name
+        return base
 
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""
-        return (self.name, self.thickness, self.solar_transmittance,
+        return (self.identifier, self.thickness, self.solar_transmittance,
                 self.solar_reflectance, self.visible_transmittance,
                 self.visible_reflectance, self.infrared_transmittance,
                 self.emissivity, self.conductivity, self.distance_to_glass,
@@ -557,8 +568,8 @@ class EnergyWindowMaterialShade(_EnergyWindowMaterialShadeBase):
 
     def __copy__(self):
         new_material = EnergyWindowMaterialShade(
-            self.name, self.thickness, self.solar_transmittance, self.solar_reflectance,
-            self.visible_transmittance, self.visible_reflectance,
+            self.identifier, self.thickness, self.solar_transmittance,
+            self.solar_reflectance, self.visible_transmittance, self.visible_reflectance,
             self.infrared_transmittance, self.emissivity,
             self.conductivity, self.distance_to_glass,
             self.top_opening_multiplier, self.airflow_permeability)
@@ -566,6 +577,7 @@ class EnergyWindowMaterialShade(_EnergyWindowMaterialShadeBase):
         new_material._bottom_opening_multiplier = self._bottom_opening_multiplier
         new_material._left_opening_multiplier = self._left_opening_multiplier
         new_material._right_opening_multiplier = self._right_opening_multiplier
+        new_material._display_name = self._display_name
         return new_material
 
 
@@ -576,8 +588,9 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
     Window blind properties consist of flat, equally-spaced slats.
 
     Args:
-        name: Text string for material name. Must be <= 100 characters.
-            Can include spaces but special characters will be stripped out.
+        identifier: Text string for a unique Material ID. Must be < 100 characters
+            and not contain any EnergyPlus special characters. This will be used to
+            identify the object across a model and in the exported IDF.
         slat_orientation: Text describing the orientation of the slats.
             Only the following two options are acceptable:
             "Horizontal", "Vertical". Default: "Horizontal"
@@ -613,7 +626,8 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
             calculations. Default: 0.5.
 
     Properties:
-        * name
+        * identifier
+        * display_name
         * slat_orientation
         * slat_width
         * slat_separation
@@ -655,7 +669,7 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
                  '_diffuse_visible_reflectance', '_diffuse_visible_reflectance_back',
                  '_emissivity_back')
 
-    def __init__(self, name, slat_orientation='Horizontal', slat_width=0.025,
+    def __init__(self, identifier, slat_orientation='Horizontal', slat_width=0.025,
                  slat_separation=0.01875, slat_thickness=0.001, slat_angle=45,
                  slat_conductivity=221, solar_transmittance=0, solar_reflectance=0.5,
                  visible_transmittance=0, visible_reflectance=0.5,
@@ -663,7 +677,7 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
                  distance_to_glass=0.05, opening_multiplier=0.5):
         """Initialize energy windoww material glazing."""
         _EnergyWindowMaterialShadeBase.__init__(
-            self, name, infrared_transmittance, emissivity,
+            self, identifier, infrared_transmittance, emissivity,
             distance_to_glass, opening_multiplier)
 
         # default for checking transmittance + reflectance < 1
@@ -1041,7 +1055,8 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
 
             {
             "type": 'EnergyWindowMaterialBlind',
-            "name": 'Plastic Blind',
+            "identifier": 'Plastic_Blind_Horiz_0040_0030_0002_90',
+            "display_name": 'Plastic Blind',
             "slat_orientation": 'Horizontal',
             "slat_width": 0.04,
             "slat_separation": 0.03,
@@ -1073,7 +1088,7 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
                 data[key] = val
 
         new_mat = cls(
-            data['name'], data['slat_orientation'], data['slat_width'],
+            data['identifier'], data['slat_orientation'], data['slat_width'],
             data['slat_separation'], data['slat_thickness'],
             data['slat_angle'], data['slat_conductivity'],
             data['beam_solar_transmittance'], data['beam_solar_reflectance'],
@@ -1094,11 +1109,13 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
         new_mat.bottom_opening_multiplier = data['bottom_opening_multiplier']
         new_mat.left_opening_multiplier = data['left_opening_multiplier']
         new_mat.right_opening_multiplier = data['right_opening_multiplier']
+        if 'display_name' in data and data['display_name'] is not None:
+            new_mat.display_name = data['display_name']
         return new_mat
 
     def to_idf(self):
         """Get an EnergyPlus string representation of the material."""
-        values = (self.name, self.slat_orientation, self.slat_width,
+        values = (self.identifier, self.slat_orientation, self.slat_width,
                   self.slat_separation, self.slat_thickness, self.slat_angle,
                   self.slat_conductivity, self.beam_solar_transmittance,
                   self.beam_solar_reflectance, self.beam_solar_reflectance_back,
@@ -1128,9 +1145,9 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
 
     def to_dict(self):
         """Energy Window Material Blind dictionary representation."""
-        return {
+        base = {
             'type': 'EnergyWindowMaterialBlind',
-            'name': self.name,
+            'identifier': self.identifier,
             'slat_orientation': self.slat_orientation,
             'slat_width': self.slat_width,
             'slat_separation': self.slat_separation,
@@ -1158,10 +1175,13 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
             'left_opening_multiplier': self.left_opening_multiplier,
             'right_opening_multiplier': self.right_opening_multiplier
         }
+        if self._display_name is not None:
+            base['display_name'] = self.display_name
+        return base
 
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""
-        return (self.name, self.slat_orientation, self.slat_width,
+        return (self.identifier, self.slat_orientation, self.slat_width,
                 self.slat_separation, self.slat_thickness, self.slat_angle,
                 self.slat_conductivity, self.beam_solar_transmittance,
                 self.beam_solar_reflectance, self.beam_solar_reflectance_back,
@@ -1189,7 +1209,7 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
 
     def __copy__(self):
         new_m = EnergyWindowMaterialBlind(
-            self.name, self.slat_orientation, self.slat_width, self.slat_separation,
+            self.identifier, self.slat_orientation, self.slat_width, self.slat_separation,
             self.slat_thickness, self.slat_angle, self.slat_conductivity,
             self.beam_solar_transmittance, self.beam_solar_reflectance,
             self.beam_visible_transmittance, self.beam_visible_reflectance,
@@ -1207,4 +1227,5 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
         new_m._bottom_opening_multiplier = self._bottom_opening_multiplier
         new_m._left_opening_multiplier = self._left_opening_multiplier
         new_m._right_opening_multiplier = self._right_opening_multiplier
+        new_m._display_name = self._display_name
         return new_m

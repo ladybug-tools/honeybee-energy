@@ -13,6 +13,7 @@ from ..material.shade import _EnergyWindowMaterialShadeBase, EnergyWindowMateria
 from ..reader import parse_idf_string
 
 from honeybee._lockable import lockable
+from honeybee.typing import clean_rad_string
 
 import re
 import os
@@ -23,7 +24,8 @@ class WindowConstruction(_ConstructionBase):
     """Window energy construction.
 
     Properties:
-        * name
+        * identifier
+        * display_name
         * materials
         * layers
         * unique_materials
@@ -337,9 +339,10 @@ class WindowConstruction(_ConstructionBase):
 
             {
             "type": 'WindowConstruction',
-            "name": 'Generic Double Pane Window',
+            "identifier": 'Generic Double Pane U-250 SHGC-035',
+            "display_name": 'Double Pane Window',
             "materials": []  # list of material objects
-            "layers": [],  # list of material names (from outside to inside)
+            "layers": [],  # list of material identifiers (from outside to inside)
             }
         """
         assert data['type'] == 'WindowConstruction', \
@@ -347,24 +350,34 @@ class WindowConstruction(_ConstructionBase):
         materials = {}
         for mat in data['materials']:
             if mat['type'] == 'EnergyWindowMaterialSimpleGlazSys':
-                materials[mat['name']] = EnergyWindowMaterialSimpleGlazSys.from_dict(mat)
+                materials[mat['identifier']] = \
+                    EnergyWindowMaterialSimpleGlazSys.from_dict(mat)
             elif mat['type'] == 'EnergyWindowMaterialGlazing':
-                materials[mat['name']] = EnergyWindowMaterialGlazing.from_dict(mat)
+                materials[mat['identifier']] = \
+                    EnergyWindowMaterialGlazing.from_dict(mat)
             elif mat['type'] == 'EnergyWindowMaterialGas':
-                materials[mat['name']] = EnergyWindowMaterialGas.from_dict(mat)
+                materials[mat['identifier']] = \
+                    EnergyWindowMaterialGas.from_dict(mat)
             elif mat['type'] == 'EnergyWindowMaterialGasMixture':
-                materials[mat['name']] = EnergyWindowMaterialGasMixture.from_dict(mat)
+                materials[mat['identifier']] = \
+                    EnergyWindowMaterialGasMixture.from_dict(mat)
             elif mat['type'] == 'EnergyWindowMaterialGasCustom':
-                materials[mat['name']] = EnergyWindowMaterialGasCustom.from_dict(mat)
+                materials[mat['identifier']] = \
+                    EnergyWindowMaterialGasCustom.from_dict(mat)
             elif mat['type'] == 'EnergyWindowMaterialShade':
-                materials[mat['name']] = EnergyWindowMaterialShade.from_dict(mat)
+                materials[mat['identifier']] = \
+                    EnergyWindowMaterialShade.from_dict(mat)
             elif mat['type'] == 'EnergyWindowMaterialBlind':
-                materials[mat['name']] = EnergyWindowMaterialBlind.from_dict(mat)
+                materials[mat['identifier']] = \
+                    EnergyWindowMaterialBlind.from_dict(mat)
             else:
                 raise NotImplementedError(
                     'Material {} is not supported.'.format(mat['type']))
-        mat_layers = [materials[mat_name] for mat_name in data['layers']]
-        return cls(data['name'], mat_layers)
+        mat_layers = [materials[mat_id] for mat_id in data['layers']]
+        new_obj = cls(data['identifier'], mat_layers)
+        if 'display_name' in data and data['display_name'] is not None:
+            new_obj.display_name = data['display_name']
+        return new_obj
 
     @classmethod
     def from_dict_abridged(cls, data, materials):
@@ -372,21 +385,25 @@ class WindowConstruction(_ConstructionBase):
 
         Args:
             data: An WindowConstructionAbridged dictionary with the format below.
-            materials: A dictionary with names of materials as keys and Python
-                material objects as values.
+            materials: A dictionary with identifiers of materials as keys and
+                Python material objects as values.
 
         .. code-block:: python
 
             {
             "type": 'WindowConstructionAbridged',
-            "name": 'Generic Double Pane Window',
-            "layers": [],  # list of material names (from outside to inside)
+            "identifier": 'Generic Double Pane U-250 SHGC-035',
+            "display_name": 'Double Pane Window',
+            "layers": [],  # list of material identifiers (from outside to inside)
             }
         """
         assert data['type'] == 'WindowConstructionAbridged', \
             'Expected WindowConstructionAbridged. Got {}.'.format(data['type'])
-        mat_layers = [materials[mat_name] for mat_name in data['layers']]
-        return cls(data['name'], mat_layers)
+        mat_layers = [materials[mat_id] for mat_id in data['layers']]
+        new_obj = cls(data['identifier'], mat_layers)
+        if 'display_name' in data and data['display_name'] is not None:
+            new_obj.display_name = data['display_name']
+        return new_obj
 
     def to_idf(self):
         """IDF string representation of construction object.
@@ -398,8 +415,7 @@ class WindowConstruction(_ConstructionBase):
         Returns:
             construction_idf -- Text string representation of the construction.
         """
-        construction_idf = self._generate_idf_string('window', self.name, self.materials)
-        return construction_idf
+        return self._generate_idf_string('window', self.identifier, self.materials)
 
     def to_radiance_solar(self):
         """Honeybee Radiance material with the solar transmittance."""
@@ -424,14 +440,15 @@ class WindowConstruction(_ConstructionBase):
                 raise NotImplementedError('to_radiance_solar() is not supported for '
                                           'window constructions with blind materials.')
         if diffusing is False:
-            return Glass.from_single_transmittance(self.name, trans)
+            return Glass.from_single_transmittance(
+                clean_rad_string(self.identifier), trans)
         else:
             try:
                 ref = self.materials[-1].solar_reflectance_back
             except AttributeError:
                 ref = self.materials[-1].solar_reflectance
             return Trans.from_single_reflectance(
-                self.name, rgb_reflectance=ref,
+                clean_rad_string(self.identifier), rgb_reflectance=ref,
                 transmitted_diff=trans, transmitted_spec=0)
 
     def to_radiance_visible(self, specularity=0.0):
@@ -457,14 +474,15 @@ class WindowConstruction(_ConstructionBase):
                 raise NotImplementedError('to_radiance_visible() is not supported for '
                                           'window constructions with blind materials.')
         if diffusing is False:
-            return Glass.from_single_transmittance(self.name, trans)
+            return Glass.from_single_transmittance(
+                clean_rad_string(self.identifier), trans)
         else:
             try:
                 ref = self.materials[-1].solar_reflectance_back
             except AttributeError:
                 ref = self.materials[-1].solar_reflectance
             return Trans.from_single_reflectance(
-                self.name, rgb_reflectance=ref,
+                clean_rad_string(self.identifier), rgb_reflectance=ref,
                 transmitted_diff=trans, transmitted_spec=0)
 
     def to_dict(self, abridged=False):
@@ -473,14 +491,16 @@ class WindowConstruction(_ConstructionBase):
         Args:
             abridged: Boolean to note whether the full dictionary describing the
                 object should be returned (False) or just an abridged version (True),
-                which only specifies the names of material layers. Default: False.
+                which only specifies the identifiers of material layers. Default: False.
         """
         base = {'type': 'WindowConstruction'} if not \
             abridged else {'type': 'WindowConstructionAbridged'}
-        base['name'] = self.name
+        base['identifier'] = self.identifier
         base['layers'] = self.layers
         if not abridged:
             base['materials'] = [m.to_dict() for m in self.unique_materials]
+        if self._display_name is not None:
+            base['display_name'] = self.display_name
         return base
 
     @staticmethod
@@ -534,7 +554,7 @@ class WindowConstruction(_ConstructionBase):
             elif mat_str.startswith('WindowMaterial:Blind,'):
                 mat_obj = EnergyWindowMaterialBlind.from_idf(mat_str)
             if mat_obj is not None:
-                materials_dict[mat_obj.name] = mat_obj
+                materials_dict[mat_obj.identifier] = mat_obj
         return materials_dict
 
     def _solve_r_values(self, r_vals, emissivities):
@@ -620,4 +640,4 @@ class WindowConstruction(_ConstructionBase):
 
     def __repr__(self):
         """Represent window energy construction."""
-        return self._generate_idf_string('window', self.name, self.materials)
+        return self._generate_idf_string('window', self.identifier, self.materials)

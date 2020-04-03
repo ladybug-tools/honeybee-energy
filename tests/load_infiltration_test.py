@@ -20,9 +20,9 @@ def test_infiltration_init():
     infiltration = Infiltration('Lobby Infiltration', 0.0003, schedule)
     str(infiltration)  # test the string representation
 
-    assert infiltration.name == 'Lobby Infiltration'
+    assert infiltration.identifier == 'Lobby Infiltration'
     assert infiltration.flow_per_exterior_area == 0.0003
-    assert infiltration.schedule.name == 'Lobby Infiltration Schedule'
+    assert infiltration.schedule.identifier == 'Lobby Infiltration Schedule'
     assert infiltration.schedule.schedule_type_limit == schedule_types.fractional
     assert infiltration.schedule == schedule
     assert infiltration.constant_coefficient == 1
@@ -40,8 +40,8 @@ def test_infiltration_setability():
         'Constant Infiltration', 1, schedule_types.fractional)
     infiltration = Infiltration('Lobby Infiltration', 0.0003, schedule)
 
-    infiltration.name = 'Lobby Zone Infiltration'
-    assert infiltration.name == 'Lobby Zone Infiltration'
+    infiltration.identifier = 'Lobby Zone Infiltration'
+    assert infiltration.identifier == 'Lobby Zone Infiltration'
     infiltration.flow_per_exterior_area = 0.0006
     assert infiltration.flow_per_exterior_area == 0.0006
     infiltration.schedule = constant
@@ -103,13 +103,13 @@ def test_infiltration_init_from_idf():
     schedule = ScheduleRuleset('Lobby Infiltration Schedule', simple_lobby,
                                None, schedule_types.fractional)
     infiltration = Infiltration('Lobby Infiltration', 0.0003, schedule)
-    sched_dict = {schedule.name: schedule}
+    sched_dict = {schedule.identifier: schedule}
 
-    zone_name = 'Test Zone'
-    idf_str = infiltration.to_idf(zone_name)
-    rebuilt_infiltration, rebuilt_zone_name = Infiltration.from_idf(idf_str, sched_dict)
+    zone_id = 'Test Zone'
+    idf_str = infiltration.to_idf(zone_id)
+    rebuilt_infiltration, rebuilt_zone_id = Infiltration.from_idf(idf_str, sched_dict)
     assert infiltration == rebuilt_infiltration
-    assert zone_name == rebuilt_zone_name
+    assert zone_id == rebuilt_zone_id
 
 
 def test_infiltration_dict_methods():

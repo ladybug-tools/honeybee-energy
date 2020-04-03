@@ -29,7 +29,7 @@ def test_default_properties():
     shade = Shade.from_vertices(
         'overhang', [[0, 0, 3], [1, 0, 3], [1, 1, 3], [0, 1, 3]])
     aperture = Aperture.from_vertices(
-        'parent aperture', [[0, 0, 0], [0, 10, 0], [0, 10, 3], [0, 0, 3]])
+        'ParentAperture', [[0, 0, 0], [0, 10, 0], [0, 10, 3], [0, 0, 3]])
 
     assert shade.properties.energy.transmittance_schedule is None
     assert shade.properties.energy.construction.solar_reflectance == 0.2

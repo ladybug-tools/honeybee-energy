@@ -165,10 +165,10 @@ def test_colorrooms_monthly():
 def test_colorfaces_init():
     """Test the initialization of ColorFace and basic properties."""
     data = []
-    names = ['Bottom', 'Front', 'Right', 'Back', 'Left', 'Top']
-    for name in names:
+    identifiers = ['Bottom', 'Front', 'Right', 'Back', 'Left', 'Top']
+    for identifier in identifiers:
         metadata = {'type': 'Surface Inside Face Temperature',
-                    'Surface': 'RESIDENCE_{}'.format(name.upper())}
+                    'Surface': 'RESIDENCE_{}'.format(identifier.upper())}
         head = Header(Temperature(), 'C', AnalysisPeriod(1, 1, 0, 1, 1, 23), metadata)
         data.append(HourlyContinuousCollection(head, [22] * 24))
 

@@ -11,7 +11,7 @@ def test_gas_init():
     str(air)  # test the string representation of the material
     air_dup = air.duplicate()
 
-    assert air.name == air_dup.name == 'Air Gap'
+    assert air.identifier == air_dup.identifier == 'Air Gap'
     assert air.thickness == air_dup.thickness == 0.0125
     assert air.gas_type == air_dup.gas_type == 'Air'
     assert air.conductivity == air_dup.conductivity == pytest.approx(0.024069, rel=1e-2)
@@ -45,7 +45,7 @@ def test_gas_invalid():
     air = EnergyWindowMaterialGas('Air Gap', 0.0125, 'Air')
 
     with pytest.raises(TypeError):
-        air.name = ['test_name']
+        air.identifier = ['test_identifier']
     with pytest.raises(AssertionError):
         air.thickness = -1
     with pytest.raises(AssertionError):
@@ -60,7 +60,7 @@ def test_gas_init_from_idf():
         "0.05;                      !- Thickness"
     air = EnergyWindowMaterialGas.from_idf(ep_str_1)
 
-    assert air.name == 'Gap_1_W_0_0127'
+    assert air.identifier == 'Gap_1_W_0_0127'
     assert air.thickness == 0.05
     assert air.gas_type == 'Air'
 
@@ -80,7 +80,7 @@ def test_gas_mixture_init():
     str(air_argon)  # test the string representation of the material
     aa_dup = air_argon.duplicate()
 
-    assert air_argon.name == aa_dup.name == 'Air Argon Gap'
+    assert air_argon.identifier == aa_dup.identifier == 'Air Argon Gap'
     assert air_argon.thickness == aa_dup.thickness == 0.0125
     assert air_argon.gas_types == aa_dup.gas_types == ('Air', 'Argon')
     assert air_argon.gas_fractions == aa_dup.gas_fractions == (0.1, 0.9)
@@ -118,7 +118,7 @@ def test_gas_mixture_invalid():
         'Air Argon Gap', 0.0125, ('Air', 'Argon'), (0.1, 0.9))
 
     with pytest.raises(TypeError):
-        air_argon.name = ['test_name']
+        air_argon.identifier = ['test_identifier']
     with pytest.raises(AssertionError):
         air_argon.thickness = -1
     with pytest.raises(AssertionError):
@@ -139,7 +139,7 @@ def test_gas_mixture_init_from_idf():
         "0.2;                      !- Gas 2 Fraction"
     gas_mix = EnergyWindowMaterialGasMixture.from_idf(ep_str_1)
 
-    assert gas_mix.name == 'Argon Mixture'
+    assert gas_mix.identifier == 'Argon Mixture'
     assert gas_mix.thickness == 0.01
     assert gas_mix.gas_types == ('Argon', 'Air')
     assert gas_mix.gas_fractions == (0.8, 0.2)
@@ -162,7 +162,7 @@ def test_gas_custom_init():
     str(co2_gap)  # test the string representation of the material
     co2_dup = co2_gap.duplicate()
 
-    assert co2_gap.name == co2_dup.name == 'CO2'
+    assert co2_gap.identifier == co2_dup.identifier == 'CO2'
     assert co2_gap.thickness == co2_dup.thickness == 0.0125
     assert co2_gap.conductivity == co2_dup.conductivity == pytest.approx(0.0146, rel=1e-2)
     assert co2_gap.viscosity == co2_dup.viscosity == pytest.approx(0.000014, rel=1e-2)

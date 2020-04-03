@@ -51,30 +51,30 @@ PROGRAM_TYPES = tuple(_program_types.keys()) + \
 STANDARDS_REGISTRY = _program_types_standards_registry
 
 
-def program_type_by_name(program_type_name):
-    """Get a program_type from the library given its name.
+def program_type_by_identifier(program_type_identifier):
+    """Get a program_type from the library given its identifier.
 
     Args:
-        program_type_name: A text string for the name of the ProgramType.
+        program_type_identifier: A text string for the identifier of the ProgramType.
     """
     try:
-        return _program_types[program_type_name]
+        return _program_types[program_type_identifier]
     except KeyError:
         try:  # search the extension data
-            p_type_dict = _program_types_standards_dict[program_type_name]
+            p_type_dict = _program_types_standards_dict[program_type_identifier]
             scheds = _scheds_from_ptype_dict(p_type_dict)
             return ProgramType.from_dict_abridged(p_type_dict, scheds)
         except KeyError:  # construction is nowhere to be found; raise an error
             raise ValueError('"{}" was not found in the program type library.'.format(
-                program_type_name))
+                program_type_identifier))
 
 
 def _scheds_from_ptype_dict(p_type_dict):
     """Get a dictionary of schedules used in a ProgramTypeAbridged dictionary."""
-    def add_schedule(scheds, p_type_dict, load_name, sch_name):
+    def add_schedule(scheds, p_type_dict, load_id, sch_id):
         try:
-            sch_name = p_type_dict[load_name][sch_name]
-            scheds[sch_name] = _s.schedule_by_name(sch_name)
+            sch_id = p_type_dict[load_id][sch_id]
+            scheds[sch_id] = _s.schedule_by_identifier(sch_id)
         except KeyError:
             pass  # key is not included
 

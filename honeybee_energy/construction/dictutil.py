@@ -47,9 +47,9 @@ def dict_abridged_to_construction(constr_dict, materials, schedules,
     Args:
         constr_dict: An abridged dictionary of any Honeybee energy construction.
         materials: Dictionary of all material objects that might be used in the
-            construction with the material names as the keys.
+            construction with the material identifiers as the keys.
         schedules: Dictionary of all schedule objects that might be used in the
-            construction with the schedule names as the keys.
+            construction with the schedule identifiers as the keys.
         raise_exception: Boolean to note whether an excpetion should be raised
             if the object is not identified as a construction. Default: True.
     

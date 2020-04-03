@@ -23,7 +23,7 @@ def test_schedule_fixedinterval_init():
         schedule_types.fractional)
     str(trans_sched)  # test the string representation
 
-    assert trans_sched.name == 'Custom Transmittance'
+    assert trans_sched.identifier == 'Custom Transmittance'
     assert len(trans_sched.values) == 8760
     assert trans_sched[0] == 0
     assert trans_sched[1] == 1 / 8760
@@ -49,7 +49,7 @@ def test_schedule_fixedinterval_single_day():
         'Solstice Increasing', [round(x / 23, 4) for x in range(24)],
         schedule_types.fractional, start_date=Date(6, 21))
 
-    assert increase_sched.name == 'Solstice Increasing'
+    assert increase_sched.identifier == 'Solstice Increasing'
     assert len(increase_sched.values) == 24
     assert increase_sched[0] == 0
     assert increase_sched[-1] == 1
@@ -66,7 +66,7 @@ def test_schedule_fixedinterval_single_day_fine_timestep():
         'Solstice Increasing', [round(x / 143, 4) for x in range(144)],
         schedule_types.fractional, start_date=Date(6, 21), timestep=6,)
 
-    assert increase_sched.name == 'Solstice Increasing'
+    assert increase_sched.identifier == 'Solstice Increasing'
     assert len(increase_sched.values) == 144
     assert increase_sched[0] == 0
     assert increase_sched[-1] == 1
@@ -90,7 +90,7 @@ def test_schedule_fixedinterval_equality():
     assert trans_sched is trans_sched
     assert trans_sched is not trans_sched_dup
     assert trans_sched == trans_sched_dup
-    trans_sched_dup.name = 'Transmittance'
+    trans_sched_dup.identifier = 'Transmittance'
     assert trans_sched != trans_sched_dup
     assert trans_sched != occ_sched
 
@@ -251,7 +251,7 @@ def test_schedule_fixedinterval_from_idf():
         """
     ec_schedule = ScheduleFixedInterval.from_idf(idf_str)
 
-    assert ec_schedule.name == 'Electrochromic Control'
+    assert ec_schedule.identifier == 'Electrochromic Control'
     assert len(ec_schedule.values) == 8760
     assert ec_schedule[0] == 0
     assert ec_schedule.schedule_type_limit is None
@@ -270,10 +270,10 @@ def test_schedule_fixedinterval_from_idf_file():
 
     assert len(ec_scheds) == 4
 
-    assert ec_scheds[0].name == 'Electrochromic Control 0'
-    assert ec_scheds[1].name == 'Electrochromic Control 90'
-    assert ec_scheds[2].name == 'Electrochromic Control 180'
-    assert ec_scheds[3].name == 'Electrochromic Control 270'
+    assert ec_scheds[0].identifier == 'Electrochromic Control 0'
+    assert ec_scheds[1].identifier == 'Electrochromic Control 90'
+    assert ec_scheds[2].identifier == 'Electrochromic Control 180'
+    assert ec_scheds[3].identifier == 'Electrochromic Control 270'
     assert len(ec_scheds[0].values) == 8760
     assert len(ec_scheds[1].values) == 8760
     assert len(ec_scheds[2].values) == 8760
@@ -339,7 +339,7 @@ def test_schedule_fixedinterval_average_schedules():
 
     avg_trans = ScheduleFixedInterval.average_schedules(
         'Transmittance Avg', [trans_sched_1, trans_sched_2])
-    assert avg_trans.name == 'Transmittance Avg'
+    assert avg_trans.identifier == 'Transmittance Avg'
     assert avg_trans.schedule_type_limit == schedule_types.fractional
     assert len(avg_trans.values) == 8760
     assert list(avg_trans.values) == [0.5] * 8760
@@ -362,7 +362,7 @@ def test_schedule_fixedinterval_average_schedules_ruleset():
 
     avg_trans = ScheduleFixedInterval.average_schedules(
         'Transmittance Avg', [trans_sched_1, trans_sched_2])
-    assert avg_trans.name == 'Transmittance Avg'
+    assert avg_trans.identifier == 'Transmittance Avg'
     assert avg_trans.schedule_type_limit == schedule_types.fractional
     assert len(avg_trans.values) == 8760
     assert list(avg_trans.values) == [0.5] * 8760

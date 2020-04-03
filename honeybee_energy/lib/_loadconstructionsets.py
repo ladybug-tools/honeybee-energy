@@ -23,12 +23,12 @@ for f in os.listdir(folders.constructionset_lib):
     if os.path.isfile(f_path) and f_path.endswith('.json'):
         with open(f_path, 'r') as json_file:
             c_dict = json.load(json_file)
-        for c_name in c_dict:
+        for c_id in c_dict:
             try:
                 constructionset = ConstructionSet.from_dict_abridged(
-                    c_dict[c_name], _all_constructions)
+                    c_dict[c_id], _all_constructions)
                 constructionset.lock()
-                _construction_sets[constructionset.name] = constructionset
+                _construction_sets[constructionset.identifier] = constructionset
             except ValueError:
                 pass  # failed to find the construction in the construction library
 

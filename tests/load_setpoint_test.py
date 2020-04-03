@@ -19,7 +19,7 @@ def test_setpoint_init():
     setpoint = Setpoint('Office Setpoint', heat_setpt, cool_setpt)
     str(setpoint)  # test the string representation
 
-    assert setpoint.name == 'Office Setpoint'
+    assert setpoint.identifier == 'Office Setpoint'
     assert setpoint.heating_schedule == heat_setpt
     assert setpoint.heating_setpoint == 21
     assert setpoint.heating_setback == 21
@@ -46,7 +46,7 @@ def test_setpoint_init_with_setback():
                                  None, schedule_types.temperature)
     setpoint = Setpoint('Office Setpoint', heat_setpt, cool_setpt)
 
-    assert setpoint.name == 'Office Setpoint'
+    assert setpoint.identifier == 'Office Setpoint'
     assert setpoint.heating_schedule == heat_setpt
     assert setpoint.heating_setpoint == 21
     assert setpoint.heating_setback == 18
@@ -66,7 +66,7 @@ def test_setpoint_init_humidity():
     setpoint.dehumidifying_setpoint = 60
     str(setpoint)  # test the string representation
 
-    assert setpoint.name == 'Office Setpoint'
+    assert setpoint.identifier == 'Office Setpoint'
     assert setpoint.heating_schedule == heat_setpt
     assert setpoint.heating_setpoint == 21
     assert setpoint.heating_setback == 21
@@ -89,8 +89,8 @@ def test_setpoint_setability():
         'Office Cooling', 24, schedule_types.temperature)
     setpoint = Setpoint('Office Setpoint', heat_setpt, cool_setpt)
 
-    setpoint.name = 'Office Zone Setpoint'
-    assert setpoint.name == 'Office Zone Setpoint'
+    setpoint.identifier = 'Office Zone Setpoint'
+    assert setpoint.identifier == 'Office Zone Setpoint'
     setpoint.heating_setpoint = 20
     assert setpoint.heating_setpoint == 20
     assert setpoint.heating_setback == 20
@@ -159,7 +159,7 @@ def test_setpoint_init_from_idf():
     cool_setpt = ScheduleRuleset('Office Cooling', simple_cool,
                                  None, schedule_types.temperature)
     setpoint = Setpoint('Office Setpoint', heat_setpt, cool_setpt)
-    sched_dict = {heat_setpt.name: heat_setpt, cool_setpt.name: cool_setpt}
+    sched_dict = {heat_setpt.identifier: heat_setpt, cool_setpt.identifier: cool_setpt}
 
     idf_str = setpoint.to_idf('Test Zone')
     rebuilt_setpoint = Setpoint.from_idf(idf_str, sched_dict)
@@ -182,12 +182,13 @@ def test_setpoint_init_from_idf_humidity():
         'Office Dehumid', 60, schedule_types.humidity)
     setpoint = Setpoint('Office Setpoint', heat_setpt, cool_setpt,
                         humid_setpt, dehumid_setpt)
-    sched_dict = {heat_setpt.name: heat_setpt, cool_setpt.name: cool_setpt,
-                  humid_setpt.name: humid_setpt, dehumid_setpt.name: dehumid_setpt}
+    sched_dict = {heat_setpt.identifier: heat_setpt, cool_setpt.identifier: cool_setpt,
+                  humid_setpt.identifier: humid_setpt,
+                  dehumid_setpt.identifier: dehumid_setpt}
 
-    zone_name = 'Test Zone'
-    idf_str = setpoint.to_idf(zone_name)
-    humid_idf_str = setpoint.to_idf_humidistat(zone_name)
+    zone_id = 'Test Zone'
+    idf_str = setpoint.to_idf(zone_id)
+    humid_idf_str = setpoint.to_idf_humidistat(zone_id)
     rebuilt_setpoint = Setpoint.from_idf(idf_str, sched_dict)
     rebuilt_setpoint.add_humidity_from_idf(humid_idf_str, sched_dict)
     assert setpoint == rebuilt_setpoint
@@ -224,7 +225,7 @@ def test_setpoint_average():
         'Office Cooling', 24, schedule_types.temperature)
     office_setpoint = Setpoint('Office Setpoint', heat_setpt, cool_setpt)
     lobby_setpoint = office_setpoint.duplicate()
-    lobby_setpoint.name = 'Lobby Setpoint'
+    lobby_setpoint.identifier = 'Lobby Setpoint'
     lobby_setpoint.heating_setpoint = 18
     lobby_setpoint.cooling_setpoint = 28
 

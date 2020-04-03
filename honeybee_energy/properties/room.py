@@ -132,14 +132,14 @@ class RoomEnergyProperties(object):
             if value.is_single_room:
                 if value._parent is None:
                     value._parent = self.host
-                elif value._parent.name != self.host.name:
+                elif value._parent.identifier != self.host.identifier:
                     raise ValueError(
                         '{0} objects can be assigned to a only one Room.\n'
                         '{0} "{1}" cannot be assigned to Room "{2}" since it is '
                         'already assigned to "{3}".\nTry duplicating the {0}, '
                         'and then assigning it to this Room.'.format(
-                            value.__class__.__name__, value.name,
-                            self.host.name, value._parent.name))
+                            value.__class__.__name__, value.identifier,
+                            self.host.identifier, value._parent.identifier))
             value.lock()   # lock in case hvac has multiple references
         self._hvac = value
 
@@ -263,23 +263,24 @@ class RoomEnergyProperties(object):
     def add_default_ideal_air(self):
         """Add a default IdealAirSystem to this Room.
 
-        The name of this system will be derived from the room name.
+        The identifier of this system will be derived from the room identifier.
         """
-        self.hvac = IdealAirSystem('{}_IdealAir'.format(self.host.name))
+        self.hvac = IdealAirSystem('{}_IdealAir'.format(self.host.identifier))
 
     def add_prefix(self, prefix):
-        """Change the name extension attributes unique to this object by adding a prefix.
+        """Change the identifier attributes unique to this object by adding a prefix.
 
         Notably, this method only adds the prefix to extension attributes that must
         be unique to the Room (eg. single-room HVAC systems) and does not add the
         prefix to attributes that are shared across several Rooms (eg. ConstructionSets).
 
         Args:
-            prefix: Text that will be inserted at the start of extension attribute names.
+            prefix: Text that will be inserted at the start of extension
+                attribute identifiers.
         """
         if self._hvac is not None and self._hvac.is_single_room:
             new_hvac = self._hvac.duplicate()
-            new_hvac.name = '{}_{}'.format(prefix, self._hvac.name)
+            new_hvac.identifier = '{}_{}'.format(prefix, self._hvac.identifier)
             self.hvac = new_hvac
 
     def reset_to_default(self):
@@ -362,13 +363,13 @@ class RoomEnergyProperties(object):
         Args:
             abridged_data: A RoomEnergyPropertiesAbridged dictionary (typically
                 coming from a Model).
-            construction_sets: A dictionary of ConstructionSets with names of the sets
-                as keys, which will be used to re-assign construction_sets.
-            program_types: A dictionary of ProgramTypes with names of the types as
+            construction_sets: A dictionary of ConstructionSets with identifiers
+                of the sets as keys, which will be used to re-assign construction_sets.
+            program_types: A dictionary of ProgramTypes with identifiers of the types as
                 keys, which will be used to re-assign program_types.
-            hvacs: A dictionary of HVACSystems with the names of the systems as
+            hvacs: A dictionary of HVACSystems with the identifiers of the systems as
                 keys, which will be used to re-assign hvac to the Room.
-            schedules: A dictionary of Schedules with names of the schedules ask
+            schedules: A dictionary of Schedules with identifiers of the schedules ask
                 keys, which will be used to re-assign schedules.
         """
         if 'construction_set' in abridged_data and \
@@ -408,7 +409,7 @@ class RoomEnergyProperties(object):
 
         Args:
             abridged: Boolean for whether the full dictionary of the Room should
-                be written (False) or just the name of the the individual
+                be written (False) or just the identifier of the the individual
                 properties (True). Default: False.
         """
         base = {'energy': {}}
@@ -418,18 +419,19 @@ class RoomEnergyProperties(object):
         # write the ProgramType into the dictionary
         if self._program_type is not None:
             base['energy']['program_type'] = \
-                self._program_type.name if abridged else self._program_type.to_dict()
+                self._program_type.identifier if abridged else \
+                self._program_type.to_dict()
 
         # write the ConstructionSet into the dictionary
         if self._construction_set is not None:
             base['energy']['construction_set'] = \
-                self._construction_set.name if abridged else \
+                self._construction_set.identifier if abridged else \
                 self._construction_set.to_dict()
 
         # write the hvac into the dictionary
         if self._hvac is not None:
             base['energy']['hvac'] = \
-                self._hvac.name if abridged else self._hvac.to_dict()
+                self._hvac.identifier if abridged else self._hvac.to_dict()
 
         # write any room-specific overriding properties into the dictionary
         if self._people is not None:
@@ -473,4 +475,4 @@ class RoomEnergyProperties(object):
         return self.__repr__()
 
     def __repr__(self):
-        return 'Room Energy Properties:\n host: {}'.format(self.host.name)
+        return 'Room Energy Properties:\n host: {}'.format(self.host.identifier)

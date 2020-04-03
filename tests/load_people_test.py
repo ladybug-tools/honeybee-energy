@@ -22,10 +22,10 @@ def test_people_init():
     people = People('Open Office Zone People', 0.05, occ_schedule)
     str(people)  # test the string representation
 
-    assert people.name == 'Open Office Zone People'
+    assert people.identifier == 'Open Office Zone People'
     assert people.people_per_area == 0.05
     assert people.area_per_person == 20
-    assert people.occupancy_schedule.name == 'Office Occupancy'
+    assert people.occupancy_schedule.identifier == 'Office Occupancy'
     assert people.occupancy_schedule.schedule_type_limit == schedule_types.fractional
     assert people.occupancy_schedule == occ_schedule
     assert people.activity_schedule.is_constant
@@ -47,8 +47,8 @@ def test_people_setability():
         'Sleeping Activity', 95, schedule_types.activity_level)
     people = People('Open Office Zone People', 0.05, occ_schedule)
 
-    people.name = 'Office Zone People'
-    assert people.name == 'Office Zone People'
+    people.identifier = 'Office Zone People'
+    assert people.identifier == 'Office Zone People'
     people.people_per_area = 0.1
     assert people.people_per_area == 0.1
     assert people.area_per_person == 10
@@ -125,13 +125,13 @@ def test_people_init_from_idf():
     occ_schedule = ScheduleRuleset('Office Occupancy', weekday_office,
                                    [weekend_rule], schedule_types.fractional)
     people = People('Open Office Zone People', 0.05, occ_schedule)
-    sched_dict = {occ_schedule.name: occ_schedule}
+    sched_dict = {occ_schedule.identifier: occ_schedule}
 
-    zone_name = 'Test Zone'
-    idf_str = people.to_idf(zone_name)
-    rebuilt_people, rebuilt_zone_name = People.from_idf(idf_str, sched_dict)
+    zone_id = 'Test Zone'
+    idf_str = people.to_idf(zone_id)
+    rebuilt_people, rebuilt_zone_id = People.from_idf(idf_str, sched_dict)
     assert people == rebuilt_people
-    assert zone_name == rebuilt_zone_name
+    assert zone_id == rebuilt_zone_id
 
 
 def test_people_dict_methods():

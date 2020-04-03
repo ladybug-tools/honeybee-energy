@@ -104,8 +104,8 @@ class DoorEnergyProperties(object):
             "type": 'DoorEnergyProperties',
             "construction": {
                 "type": 'OpaqueConstruction',
-                "name": str,  # Construction name
-                "layers": [],  # list of material names (from outside to inside)
+                "identifier": str,  # construction identifier
+                "layers": [],  # list of material identifiers (from outside to inside)
                 "materials": []  # list of unique material objects
                 }
             }
@@ -129,7 +129,7 @@ class DoorEnergyProperties(object):
         Args:
             abridged_data: A DoorEnergyPropertiesAbridged dictionary (typically
                 coming from a Model).
-            constructions: A dictionary of constructions with constructions names
+            constructions: A dictionary of constructions with constructions identifiers
                 as keys, which will be used to re-assign constructions.
         """
         if 'construction' in abridged_data and abridged_data['construction'] is not None:
@@ -148,7 +148,8 @@ class DoorEnergyProperties(object):
             abridged else 'DoorEnergyPropertiesAbridged'
         if self._construction is not None:
             base['energy']['construction'] = \
-                self._construction.name if abridged else self._construction.to_dict()
+                self._construction.identifier if abridged else \
+                self._construction.to_dict()
         return base
 
     def duplicate(self, new_host=None):
@@ -165,4 +166,4 @@ class DoorEnergyProperties(object):
         return self.__repr__()
 
     def __repr__(self):
-        return 'Door Energy Properties:\n host: {}'.format(self.host.name)
+        return 'Door Energy Properties:\n host: {}'.format(self.host.identifier)

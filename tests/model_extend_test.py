@@ -40,7 +40,7 @@ import pytest
 
 def test_energy_properties():
     """Test the existence of the Model energy properties."""
-    room = Room.from_box('Tiny House Zone', 5, 10, 3)
+    room = Room.from_box('Tiny_House_Zone', 5, 10, 3)
     room.properties.energy.program_type = office_program
     room.properties.energy.add_default_ideal_air()
     south_face = room[3]
@@ -52,7 +52,7 @@ def test_energy_properties():
         'Fritted Glass', 0.5, schedule_types.fractional)
     south_face.apertures[0].outdoor_shades[0].properties.energy.transmittance_schedule = \
         fritted_glass_trans
-    model = Model('Tiny House', [room])
+    model = Model('Tiny_House', [room])
 
     assert hasattr(model.properties, 'energy')
     assert isinstance(model.properties.energy, ModelEnergyProperties)
@@ -74,10 +74,10 @@ def test_energy_properties():
     assert len(model.properties.energy.program_types) == 1
 
 
-def test_check_duplicate_construction_set_names():
-    """Test the check_duplicate_construction_set_names method."""
-    first_floor = Room.from_box('First Floor', 10, 10, 3, origin=Point3D(0, 0, 0))
-    second_floor = Room.from_box('Second Floor', 10, 10, 3, origin=Point3D(0, 0, 3))
+def test_check_duplicate_construction_set_identifiers():
+    """Test the check_duplicate_construction_set_identifiers method."""
+    first_floor = Room.from_box('First_Floor', 10, 10, 3, origin=Point3D(0, 0, 0))
+    second_floor = Room.from_box('Second_Floor', 10, 10, 3, origin=Point3D(0, 0, 3))
     for face in first_floor[1:5]:
         face.apertures_by_ratio(0.2, 0.01)
     for face in second_floor[1:5]:
@@ -88,11 +88,11 @@ def test_check_duplicate_construction_set_names():
     pts_3 = [Point3D(10, 0, 6), Point3D(10, 10, 6), Point3D(5, 10, 9), Point3D(5, 0, 9)]
     pts_4 = [Point3D(0, 0, 6), Point3D(10, 0, 6), Point3D(5, 0, 9)]
     pts_5 = [Point3D(10, 10, 6), Point3D(0, 10, 6), Point3D(5, 10, 9)]
-    face_1 = Face('Attic Face 1', Face3D(pts_1))
-    face_2 = Face('Attic Face 2', Face3D(pts_2))
-    face_3 = Face('Attic Face 3', Face3D(pts_3))
-    face_4 = Face('Attic Face 4', Face3D(pts_4))
-    face_5 = Face('Attic Face 5', Face3D(pts_5))
+    face_1 = Face('AtticFace1', Face3D(pts_1))
+    face_2 = Face('AtticFace2', Face3D(pts_2))
+    face_3 = Face('AtticFace3', Face3D(pts_3))
+    face_4 = Face('AtticFace4', Face3D(pts_4))
+    face_5 = Face('AtticFace5', Face3D(pts_5))
     attic = Room('Attic', [face_1, face_2, face_3, face_4, face_5], 0.01, 1)
 
     constr_set = ConstructionSet('Attic Construction Set')
@@ -107,20 +107,20 @@ def test_check_duplicate_construction_set_names():
 
     Room.solve_adjacency([first_floor, second_floor, attic], 0.01)
 
-    model = Model('Multi Zone Single Family House', [first_floor, second_floor, attic])
+    model = Model('MultiZoneSingleFamilyHouse', [first_floor, second_floor, attic])
 
-    assert model.properties.energy.check_duplicate_construction_set_names(False)
+    assert model.properties.energy.check_duplicate_construction_set_identifiers(False)
     constr_set.unlock()
-    constr_set.name = 'Default Generic Construction Set'
+    constr_set.identifier = 'Default Generic Construction Set'
     constr_set.lock()
-    assert not model.properties.energy.check_duplicate_construction_set_names(False)
+    assert not model.properties.energy.check_duplicate_construction_set_identifiers(False)
     with pytest.raises(ValueError):
-        model.properties.energy.check_duplicate_construction_set_names(True)
+        model.properties.energy.check_duplicate_construction_set_identifiers(True)
 
 
-def test_check_duplicate_construction_names():
-    """Test the check_duplicate_construction_names method."""
-    room = Room.from_box('Tiny House Zone', 5, 10, 3)
+def test_check_duplicate_construction_identifiers():
+    """Test the check_duplicate_construction_identifiers method."""
+    room = Room.from_box('TinyHouseZone', 5, 10, 3)
 
     stone = EnergyMaterial('Thick Stone', 0.3, 2.31, 2322, 832, 'Rough',
                            0.95, 0.75, 0.8)
@@ -130,27 +130,27 @@ def test_check_duplicate_construction_names():
     north_face = room[1]
     aperture_verts = [Point3D(4.5, 10, 1), Point3D(2.5, 10, 1),
                       Point3D(2.5, 10, 2.5), Point3D(4.5, 10, 2.5)]
-    aperture = Aperture('Front Aperture', Face3D(aperture_verts))
+    aperture = Aperture('FrontAperture', Face3D(aperture_verts))
     aperture.is_operable = True
     triple_pane = WindowConstruction(
-        'Custom Window Construction', [clear_glass, air_gap, clear_glass, air_gap, clear_glass])
+        'CustomWindowConstruction', [clear_glass, air_gap, clear_glass, air_gap, clear_glass])
     aperture.properties.energy.construction = triple_pane
     north_face.add_aperture(aperture)
 
-    model = Model('Tiny House', [room])
+    model = Model('TinyHouse', [room])
 
-    assert model.properties.energy.check_duplicate_construction_names(False)
+    assert model.properties.energy.check_duplicate_construction_identifiers(False)
     triple_pane.unlock()
-    triple_pane.name = 'Custom Construction'
+    triple_pane.identifier = 'Custom Construction'
     triple_pane.lock()
-    assert not model.properties.energy.check_duplicate_construction_names(False)
+    assert not model.properties.energy.check_duplicate_construction_identifiers(False)
     with pytest.raises(ValueError):
-        model.properties.energy.check_duplicate_construction_names(True)
+        model.properties.energy.check_duplicate_construction_identifiers(True)
 
 
-def test_check_duplicate_material_names():
-    """Test the check_duplicate_material_names method."""
-    room = Room.from_box('Tiny House Zone', 5, 10, 3)
+def test_check_duplicate_material_identifiers():
+    """Test the check_duplicate_material_identifiers method."""
+    room = Room.from_box('TinyHouseZone', 5, 10, 3)
 
     stone = EnergyMaterial('Stone', 0.3, 2.31, 2322, 832, 'Rough',
                            0.95, 0.75, 0.8)
@@ -163,24 +163,24 @@ def test_check_duplicate_material_names():
     north_face = room[1]
     door_verts = [Point3D(2, 10, 0.1), Point3D(1, 10, 0.1),
                   Point3D(1, 10, 2.5), Point3D(2, 10, 2.5)]
-    door = Door('Front Door', Face3D(door_verts))
+    door = Door('FrontDoor', Face3D(door_verts))
     door.properties.energy.construction = door_constr
     north_face.add_door(door)
 
-    model = Model('Tiny House', [room])
+    model = Model('TinyHouse', [room])
 
-    assert model.properties.energy.check_duplicate_material_names(False)
+    assert model.properties.energy.check_duplicate_material_identifiers(False)
     thin_stone.unlock()
-    thin_stone.name = 'Stone'
+    thin_stone.identifier = 'Stone'
     thin_stone.lock()
-    assert not model.properties.energy.check_duplicate_material_names(False)
+    assert not model.properties.energy.check_duplicate_material_identifiers(False)
     with pytest.raises(ValueError):
-        model.properties.energy.check_duplicate_material_names(True)
+        model.properties.energy.check_duplicate_material_identifiers(True)
 
 
-def test_check_duplicate_schedule_names():
-    """Test the check_duplicate_schedule_names method."""
-    room = Room.from_box('Tiny House Zone', 5, 10, 3)
+def test_check_duplicate_schedule_identifiers():
+    """Test the check_duplicate_schedule_identifiers method."""
+    room = Room.from_box('TinyHouseZone', 5, 10, 3)
     room.properties.energy.program_type = office_program
     room.properties.energy.add_default_ideal_air()
     south_face = room[3]
@@ -195,20 +195,20 @@ def test_check_duplicate_schedule_names():
     south_face.apertures[0].outdoor_shades[0].properties.energy.transmittance_schedule = \
         fritted_glass_trans
     room.properties.energy.people = People('Office Occ', 0.05, half_occ)
-    model = Model('Tiny House', [room])
+    model = Model('TinyHouse', [room])
 
-    assert model.properties.energy.check_duplicate_schedule_names(False)
+    assert model.properties.energy.check_duplicate_schedule_identifiers(False)
     half_occ.unlock()
-    half_occ.name = 'Fritted Glass'
+    half_occ.identifier = 'Fritted Glass'
     half_occ.lock()
-    assert not model.properties.energy.check_duplicate_schedule_names(False)
+    assert not model.properties.energy.check_duplicate_schedule_identifiers(False)
     with pytest.raises(ValueError):
-        model.properties.energy.check_duplicate_schedule_names(True)
+        model.properties.energy.check_duplicate_schedule_identifiers(True)
 
 
-def test_check_duplicate_schedule_type_limit_names():
-    """Test the check_duplicate_schedule_type_limit_names method."""
-    room = Room.from_box('Tiny House Zone', 5, 10, 3)
+def test_check_duplicate_schedule_type_limit_identifiers():
+    """Test the check_duplicate_schedule_type_limit_identifiers method."""
+    room = Room.from_box('TinyHouseZone', 5, 10, 3)
     room.properties.energy.program_type = office_program
     room.properties.energy.add_default_ideal_air()
     south_face = room[3]
@@ -223,21 +223,21 @@ def test_check_duplicate_schedule_type_limit_names():
     south_face.apertures[0].outdoor_shades[0].properties.energy.transmittance_schedule = \
         fritted_glass_trans
     room.properties.energy.people = People('Office Occ', 0.05, full_occ)
-    model = Model('Tiny House', [room])
+    model = Model('TinyHouse', [room])
 
-    assert model.properties.energy.check_duplicate_schedule_type_limit_names(False)
+    assert model.properties.energy.check_duplicate_schedule_type_limit_identifiers(False)
     full_occ.unlock()
     new_sch_type = ScheduleTypeLimit('Fractional', 0, 1, 'Discrete')
     full_occ.schedule_type_limit = new_sch_type
     full_occ.lock()
-    assert not model.properties.energy.check_duplicate_schedule_type_limit_names(False)
+    assert not model.properties.energy.check_duplicate_schedule_type_limit_identifiers(False)
     with pytest.raises(ValueError):
-        model.properties.energy.check_duplicate_schedule_type_limit_names(True)
+        model.properties.energy.check_duplicate_schedule_type_limit_identifiers(True)
 
 
 def test_to_from_dict():
     """Test the Model to_dict and from_dict method with a single zone model."""
-    room = Room.from_box('Tiny House Zone', 5, 10, 3)
+    room = Room.from_box('TinyHouseZone', 5, 10, 3)
     room.properties.energy.program_type = office_program
     room.properties.energy.add_default_ideal_air()
 
@@ -251,20 +251,20 @@ def test_to_from_dict():
     south_face.apertures[0].overhang(0.5, indoor=False)
     south_face.apertures[0].overhang(0.5, indoor=True)
     south_face.apertures[0].move_shades(Vector3D(0, 0, -0.5))
-    light_shelf_out = ShadeConstruction('Outdoor Light Shelf', 0.5, 0.5)
-    light_shelf_in = ShadeConstruction('Indoor Light Shelf', 0.7, 0.7)
+    light_shelf_out = ShadeConstruction('OutdoorLightShelf', 0.5, 0.5)
+    light_shelf_in = ShadeConstruction('IndoorLightShelf', 0.7, 0.7)
     south_face.apertures[0].shades[0].properties.energy.construction = light_shelf_out
     south_face.apertures[0].shades[1].properties.energy.construction = light_shelf_in
 
     north_face = room[1]
     door_verts = [Point3D(2, 10, 0.1), Point3D(1, 10, 0.1),
                   Point3D(1, 10, 2.5), Point3D(2, 10, 2.5)]
-    door = Door('Front Door', Face3D(door_verts))
+    door = Door('FrontDoor', Face3D(door_verts))
     north_face.add_door(door)
 
     aperture_verts = [Point3D(4.5, 10, 1), Point3D(2.5, 10, 1),
                       Point3D(2.5, 10, 2.5), Point3D(4.5, 10, 2.5)]
-    aperture = Aperture('Front Aperture', Face3D(aperture_verts))
+    aperture = Aperture('FrontAperture', Face3D(aperture_verts))
     aperture.is_operable = True
     triple_pane = WindowConstruction(
         'Triple Pane Window', [clear_glass, air_gap, clear_glass, air_gap, clear_glass])
@@ -273,12 +273,12 @@ def test_to_from_dict():
 
     tree_canopy_geo = Face3D.from_regular_polygon(
         6, 2, Plane(Vector3D(0, 0, 1), Point3D(5, -3, 4)))
-    tree_canopy = Shade('Tree Canopy', tree_canopy_geo)
+    tree_canopy = Shade('TreeCanopy', tree_canopy_geo)
     tree_trans = ScheduleRuleset.from_constant_value(
         'Tree Transmittance', 0.75, schedule_types.fractional)
     tree_canopy.properties.energy.transmittance_schedule = tree_trans
 
-    model = Model('Tiny House', [room], orphaned_shades=[tree_canopy])
+    model = Model('TinyHouse', [room], orphaned_shades=[tree_canopy])
     model.north_angle = 15
     model_dict = model.to_dict()
     new_model = Model.from_dict(model_dict)
@@ -311,7 +311,7 @@ def test_to_from_dict():
 
 def test_to_dict_single_zone():
     """Test the Model to_dict method with a single zone model."""
-    room = Room.from_box('Tiny House Zone', 5, 10, 3)
+    room = Room.from_box('TinyHouseZone', 5, 10, 3)
     room.properties.energy.program_type = office_program
     room.properties.energy.add_default_ideal_air()
 
@@ -325,8 +325,8 @@ def test_to_dict_single_zone():
     south_face.apertures[0].overhang(0.5, indoor=False)
     south_face.apertures[0].overhang(0.5, indoor=True)
     south_face.move_shades(Vector3D(0, 0, -0.5))
-    light_shelf_out = ShadeConstruction('Outdoor Light Shelf', 0.5, 0.5)
-    light_shelf_in = ShadeConstruction('Indoor Light Shelf', 0.7, 0.7)
+    light_shelf_out = ShadeConstruction('OutdoorLightShelf', 0.5, 0.5)
+    light_shelf_in = ShadeConstruction('IndoorLightShelf', 0.7, 0.7)
     south_face.apertures[0].outdoor_shades[0].properties.energy.construction = light_shelf_out
     south_face.apertures[0].indoor_shades[0].properties.energy.construction = light_shelf_in
 
@@ -334,12 +334,12 @@ def test_to_dict_single_zone():
     north_face.overhang(0.25, indoor=False)
     door_verts = [Point3D(2, 10, 0.1), Point3D(1, 10, 0.1),
                   Point3D(1, 10, 2.5), Point3D(2, 10, 2.5)]
-    door = Door('Front Door', Face3D(door_verts))
+    door = Door('FrontDoor', Face3D(door_verts))
     north_face.add_door(door)
 
     aperture_verts = [Point3D(4.5, 10, 1), Point3D(2.5, 10, 1),
                       Point3D(2.5, 10, 2.5), Point3D(4.5, 10, 2.5)]
-    aperture = Aperture('Front Aperture', Face3D(aperture_verts))
+    aperture = Aperture('FrontAperture', Face3D(aperture_verts))
     triple_pane = WindowConstruction(
         'Triple Pane Window', [clear_glass, air_gap, clear_glass, air_gap, clear_glass])
     aperture.properties.energy.construction = triple_pane
@@ -347,13 +347,13 @@ def test_to_dict_single_zone():
 
     tree_canopy_geo = Face3D.from_regular_polygon(
         6, 2, Plane(Vector3D(0, 0, 1), Point3D(5, -3, 4)))
-    tree_canopy = Shade('Tree Canopy', tree_canopy_geo)
+    tree_canopy = Shade('TreeCanopy', tree_canopy_geo)
 
     table_geo = Face3D.from_rectangle(2, 2, Plane(o=Point3D(1.5, 4, 1)))
     table = Shade('Table', table_geo)
     room.add_indoor_shade(table)
 
-    model = Model('Tiny House', [room], orphaned_shades=[tree_canopy])
+    model = Model('TinyHouse', [room], orphaned_shades=[tree_canopy])
     model.north_angle = 15
 
     model_dict = model.to_dict()
@@ -369,24 +369,24 @@ def test_to_dict_single_zone():
     assert len(model_dict['properties']['energy']['construction_sets']) == 1
 
     assert model_dict['rooms'][0]['faces'][0]['properties']['energy']['construction'] == \
-        thermal_mass_constr.name
+        thermal_mass_constr.identifier
     south_ap_dict = model_dict['rooms'][0]['faces'][3]['apertures'][0]
     assert south_ap_dict['outdoor_shades'][0]['properties']['energy']['construction'] == \
-        light_shelf_out.name
+        light_shelf_out.identifier
     assert south_ap_dict['indoor_shades'][0]['properties']['energy']['construction'] == \
-        light_shelf_in.name
+        light_shelf_in.identifier
     assert model_dict['rooms'][0]['faces'][1]['apertures'][0]['properties']['energy']['construction'] == \
-        triple_pane.name
+        triple_pane.identifier
 
     assert model_dict['rooms'][0]['properties']['energy']['program_type'] == \
-        office_program.name
+        office_program.identifier
     assert model_dict['rooms'][0]['properties']['energy']['hvac'] == \
-        room.properties.energy.hvac.name
+        room.properties.energy.hvac.identifier
 
 
 def test_to_dict_single_zone_schedule_fixed_interval():
     """Test the Model to_dict method with a single zone model and fixed interval schedules."""
-    room = Room.from_box('Tiny House Zone', 5, 10, 3)
+    room = Room.from_box('TinyHouseZone', 5, 10, 3)
     room.properties.energy.program_type = office_program
     room.properties.energy.add_default_ideal_air()
 
@@ -402,8 +402,8 @@ def test_to_dict_single_zone_schedule_fixed_interval():
     south_face.apertures[0].overhang(0.5, indoor=False)
     south_face.apertures[0].overhang(0.5, indoor=True)
     south_face.move_shades(Vector3D(0, 0, -0.5))
-    light_shelf_out = ShadeConstruction('Outdoor Light Shelf', 0.5, 0.5)
-    light_shelf_in = ShadeConstruction('Indoor Light Shelf', 0.7, 0.7)
+    light_shelf_out = ShadeConstruction('OutdoorLightShelf', 0.5, 0.5)
+    light_shelf_in = ShadeConstruction('IndoorLightShelf', 0.7, 0.7)
     south_face.apertures[0].outdoor_shades[0].properties.energy.construction = light_shelf_out
     south_face.apertures[0].indoor_shades[0].properties.energy.construction = light_shelf_in
 
@@ -411,17 +411,17 @@ def test_to_dict_single_zone_schedule_fixed_interval():
     north_face.overhang(0.25, indoor=False)
     door_verts = [Point3D(2, 10, 0.1), Point3D(1, 10, 0.1),
                   Point3D(1, 10, 2.5), Point3D(2, 10, 2.5)]
-    door = Door('Front Door', Face3D(door_verts))
+    door = Door('FrontDoor', Face3D(door_verts))
     north_face.add_door(door)
 
     aperture_verts = [Point3D(4.5, 10, 1), Point3D(2.5, 10, 1),
                       Point3D(2.5, 10, 2.5), Point3D(4.5, 10, 2.5)]
-    aperture = Aperture('Front Aperture', Face3D(aperture_verts))
+    aperture = Aperture('FrontAperture', Face3D(aperture_verts))
     north_face.add_aperture(aperture)
 
     tree_canopy_geo = Face3D.from_regular_polygon(
         6, 2, Plane(Vector3D(0, 0, 1), Point3D(5, -3, 4)))
-    tree_canopy = Shade('Tree Canopy', tree_canopy_geo)
+    tree_canopy = Shade('TreeCanopy', tree_canopy_geo)
     winter = [0.75] * 2190
     spring = [0.75 - ((x / 2190) * 0.5) for x in range(2190)]
     summer = [0.25] * 2190
@@ -431,7 +431,7 @@ def test_to_dict_single_zone_schedule_fixed_interval():
         schedule_types.fractional)
     tree_canopy.properties.energy.transmittance_schedule = trans_sched
 
-    model = Model('Tiny House', [room], orphaned_shades=[tree_canopy])
+    model = Model('TinyHouse', [room], orphaned_shades=[tree_canopy])
     model.north_angle = 15
 
     model_dict = model.to_dict()
@@ -450,12 +450,12 @@ def test_to_dict_single_zone_schedule_fixed_interval():
         == 'Seasonal Tree Transmittance'
 
     assert model_dict['rooms'][0]['properties']['energy']['program_type'] == \
-        office_program.name
+        office_program.identifier
 
 
 def test_to_dict_single_zone_detailed_loads():
     """Test the Model to_dict method with detailed, room-level loads."""
-    room = Room.from_box('Office Test Box', 5, 10, 3)
+    room = Room.from_box('OfficeTestBox', 5, 10, 3)
     room.properties.energy.program_type = plenum_program
     room.properties.energy.add_default_ideal_air()
 
@@ -472,33 +472,33 @@ def test_to_dict_single_zone_detailed_loads():
     room[4].boundary_condition = boundary_conditions.adiabatic
     room[5].boundary_condition = boundary_conditions.adiabatic
 
-    model = Model('Office Model', [room])
+    model = Model('OfficeModel', [room])
 
     model_dict = model.to_dict()
 
     assert 'people' in model_dict['rooms'][0]['properties']['energy']
-    assert model_dict['rooms'][0]['properties']['energy']['people']['name'] == \
-        office_program.people.name
+    assert model_dict['rooms'][0]['properties']['energy']['people']['identifier'] == \
+        office_program.people.identifier
     assert 'lighting' in model_dict['rooms'][0]['properties']['energy']
-    assert model_dict['rooms'][0]['properties']['energy']['lighting']['name'] == \
-        office_program.lighting.name
+    assert model_dict['rooms'][0]['properties']['energy']['lighting']['identifier'] == \
+        office_program.lighting.identifier
     assert 'electric_equipment' in model_dict['rooms'][0]['properties']['energy']
-    assert model_dict['rooms'][0]['properties']['energy']['electric_equipment']['name'] == \
-        office_program.electric_equipment.name
+    assert model_dict['rooms'][0]['properties']['energy']['electric_equipment']['identifier'] == \
+        office_program.electric_equipment.identifier
     assert 'infiltration' in model_dict['rooms'][0]['properties']['energy']
-    assert model_dict['rooms'][0]['properties']['energy']['infiltration']['name'] == \
-        office_program.infiltration.name
+    assert model_dict['rooms'][0]['properties']['energy']['infiltration']['identifier'] == \
+        office_program.infiltration.identifier
     assert 'ventilation' in model_dict['rooms'][0]['properties']['energy']
-    assert model_dict['rooms'][0]['properties']['energy']['ventilation']['name'] == \
-        office_program.ventilation.name
+    assert model_dict['rooms'][0]['properties']['energy']['ventilation']['identifier'] == \
+        office_program.ventilation.identifier
     assert 'setpoint' in model_dict['rooms'][0]['properties']['energy']
-    assert model_dict['rooms'][0]['properties']['energy']['setpoint']['name'] == \
-        office_program.setpoint.name
+    assert model_dict['rooms'][0]['properties']['energy']['setpoint']['identifier'] == \
+        office_program.setpoint.identifier
 
 
 def test_to_dict_shoe_box():
     """Test the Model to_dict method with a shoebox zone model."""
-    room = Room.from_box('Simple Shoe Box Zone', 5, 10, 3)
+    room = Room.from_box('SimpleShoeBoxZone', 5, 10, 3)
     room[0].boundary_condition = boundary_conditions.adiabatic
     for face in room[2:]:
         face.boundary_condition = boundary_conditions.adiabatic
@@ -514,7 +514,7 @@ def test_to_dict_shoe_box():
     constr_set.aperture_set.window_construction = generic_double_pane
     room.properties.energy.construction_set = constr_set
 
-    model = Model('Shoe Box', [room])
+    model = Model('ShoeBox', [room])
     model_dict = model.to_dict()
     model_dict['properties']['energy'] = model.properties.energy.to_dict(
         include_global_construction_set=False)['energy']
@@ -533,8 +533,8 @@ def test_to_dict_shoe_box():
 
 def test_to_dict_multizone_house():
     """Test the Model to_dict method with a multi-zone house."""
-    first_floor = Room.from_box('First Floor', 10, 10, 3, origin=Point3D(0, 0, 0))
-    second_floor = Room.from_box('Second Floor', 10, 10, 3, origin=Point3D(0, 0, 3))
+    first_floor = Room.from_box('FirstFloor', 10, 10, 3, origin=Point3D(0, 0, 0))
+    second_floor = Room.from_box('SecondFloor', 10, 10, 3, origin=Point3D(0, 0, 3))
     first_floor.properties.energy.program_type = office_program
     second_floor.properties.energy.program_type = office_program
     first_floor.properties.energy.add_default_ideal_air()
@@ -549,11 +549,11 @@ def test_to_dict_multizone_house():
     pts_3 = [Point3D(10, 0, 6), Point3D(10, 10, 6), Point3D(5, 10, 9), Point3D(5, 0, 9)]
     pts_4 = [Point3D(0, 0, 6), Point3D(10, 0, 6), Point3D(5, 0, 9)]
     pts_5 = [Point3D(10, 10, 6), Point3D(0, 10, 6), Point3D(5, 10, 9)]
-    face_1 = Face('Attic Face 1', Face3D(pts_1))
-    face_2 = Face('Attic Face 2', Face3D(pts_2))
-    face_3 = Face('Attic Face 3', Face3D(pts_3))
-    face_4 = Face('Attic Face 4', Face3D(pts_4))
-    face_5 = Face('Attic Face 5', Face3D(pts_5))
+    face_1 = Face('AtticFace1', Face3D(pts_1))
+    face_2 = Face('AtticFace2', Face3D(pts_2))
+    face_3 = Face('AtticFace3', Face3D(pts_3))
+    face_4 = Face('AtticFace4', Face3D(pts_4))
+    face_5 = Face('AtticFace5', Face3D(pts_5))
     attic = Room('Attic', [face_1, face_2, face_3, face_4, face_5], 0.01, 1)
 
     constr_set = ConstructionSet('Attic Construction Set')
@@ -568,7 +568,7 @@ def test_to_dict_multizone_house():
 
     Room.solve_adjacency([first_floor, second_floor, attic], 0.01)
 
-    model = Model('Multi Zone Single Family House', [first_floor, second_floor, attic])
+    model = Model('MultiZoneSingleFamilyHouse', [first_floor, second_floor, attic])
     model_dict = model.to_dict()
 
     assert 'energy' in model_dict['properties']
@@ -587,15 +587,15 @@ def test_to_dict_multizone_house():
     assert model_dict['rooms'][2]['faces'][0]['boundary_condition']['type'] == 'Surface'
 
     assert model_dict['rooms'][2]['properties']['energy']['construction_set'] == \
-        constr_set.name
+        constr_set.identifier
 
     assert model_dict['rooms'][0]['properties']['energy']['program_type'] == \
         model_dict['rooms'][1]['properties']['energy']['program_type'] == \
-        office_program.name
+        office_program.identifier
     assert model_dict['rooms'][0]['properties']['energy']['hvac'] == \
-        first_floor.properties.energy.hvac.name
+        first_floor.properties.energy.hvac.identifier
     assert model_dict['rooms'][1]['properties']['energy']['hvac'] == \
-        second_floor.properties.energy.hvac.name
+        second_floor.properties.energy.hvac.identifier
 
 
 def test_to_dict_air_walls():
@@ -633,8 +633,8 @@ def test_to_dict_air_walls():
 
 def test_from_dict_non_abridged():
     """Test the Model from_dict method with non-abridged objects."""
-    first_floor = Room.from_box('First Floor', 10, 10, 3, origin=Point3D(0, 0, 0))
-    second_floor = Room.from_box('Second Floor', 10, 10, 3, origin=Point3D(0, 0, 3))
+    first_floor = Room.from_box('FirstFloor', 10, 10, 3, origin=Point3D(0, 0, 0))
+    second_floor = Room.from_box('SecondFloor', 10, 10, 3, origin=Point3D(0, 0, 3))
     first_floor.properties.energy.program_type = office_program
     second_floor.properties.energy.program_type = office_program
     first_floor.properties.energy.add_default_ideal_air()
@@ -649,11 +649,11 @@ def test_from_dict_non_abridged():
     pts_3 = [Point3D(10, 0, 6), Point3D(10, 10, 6), Point3D(5, 10, 9), Point3D(5, 0, 9)]
     pts_4 = [Point3D(0, 0, 6), Point3D(10, 0, 6), Point3D(5, 0, 9)]
     pts_5 = [Point3D(10, 10, 6), Point3D(0, 10, 6), Point3D(5, 10, 9)]
-    face_1 = Face('Attic Face 1', Face3D(pts_1))
-    face_2 = Face('Attic Face 2', Face3D(pts_2))
-    face_3 = Face('Attic Face 3', Face3D(pts_3))
-    face_4 = Face('Attic Face 4', Face3D(pts_4))
-    face_5 = Face('Attic Face 5', Face3D(pts_5))
+    face_1 = Face('AtticFace1', Face3D(pts_1))
+    face_2 = Face('AtticFace2', Face3D(pts_2))
+    face_3 = Face('AtticFace3', Face3D(pts_3))
+    face_4 = Face('AtticFace4', Face3D(pts_4))
+    face_5 = Face('AtticFace5', Face3D(pts_5))
     attic = Room('Attic', [face_1, face_2, face_3, face_4, face_5], 0.01, 1)
 
     constr_set = ConstructionSet('Attic Construction Set')
@@ -668,7 +668,7 @@ def test_from_dict_non_abridged():
 
     Room.solve_adjacency([first_floor, second_floor, attic], 0.01)
 
-    model = Model('Multi Zone Single Family House', [first_floor, second_floor, attic])
+    model = Model('MultiZoneSingleFamilyHouse', [first_floor, second_floor, attic])
     model_dict = model.to_dict()
 
     model_dict['properties']['energy']['program_types'][0] = office_program.to_dict()
@@ -681,7 +681,7 @@ def test_from_dict_non_abridged():
 
 def test_writer_to_idf():
     """Test the Model to.idf method."""
-    room = Room.from_box('Tiny House Zone', 5, 10, 3)
+    room = Room.from_box('TinyHouseZone', 5, 10, 3)
     room.properties.energy.program_type = office_program
     room.properties.energy.add_default_ideal_air()
 
@@ -695,8 +695,8 @@ def test_writer_to_idf():
     south_face.apertures[0].overhang(0.5, indoor=False)
     south_face.apertures[0].overhang(0.5, indoor=True)
     south_face.move_shades(Vector3D(0, 0, -0.5))
-    light_shelf_out = ShadeConstruction('Outdoor Light Shelf', 0.5, 0.5)
-    light_shelf_in = ShadeConstruction('Indoor Light Shelf', 0.7, 0.7)
+    light_shelf_out = ShadeConstruction('OutdoorLightShelf', 0.5, 0.5)
+    light_shelf_in = ShadeConstruction('IndoorLightShelf', 0.7, 0.7)
     south_face.apertures[0].outdoor_shades[0].properties.energy.construction = light_shelf_out
     south_face.apertures[0].indoor_shades[0].properties.energy.construction = light_shelf_in
 
@@ -704,12 +704,12 @@ def test_writer_to_idf():
     north_face.overhang(0.25, indoor=False)
     door_verts = [Point3D(2, 10, 0.1), Point3D(1, 10, 0.1),
                   Point3D(1, 10, 2.5), Point3D(2, 10, 2.5)]
-    door = Door('Front Door', Face3D(door_verts))
+    door = Door('FrontDoor', Face3D(door_verts))
     north_face.add_door(door)
 
     aperture_verts = [Point3D(4.5, 10, 1), Point3D(2.5, 10, 1),
                       Point3D(2.5, 10, 2.5), Point3D(4.5, 10, 2.5)]
-    aperture = Aperture('Front Aperture', Face3D(aperture_verts))
+    aperture = Aperture('FrontAperture', Face3D(aperture_verts))
     triple_pane = WindowConstruction(
         'Triple Pane Window', [clear_glass, air_gap, clear_glass, air_gap, clear_glass])
     aperture.properties.energy.construction = triple_pane
@@ -717,7 +717,7 @@ def test_writer_to_idf():
 
     tree_canopy_geo = Face3D.from_regular_polygon(
         6, 2, Plane(Vector3D(0, 0, 1), Point3D(5, -3, 4)))
-    tree_canopy = Shade('Tree Canopy', tree_canopy_geo)
+    tree_canopy = Shade('TreeCanopy', tree_canopy_geo)
 
     table_geo = Face3D.from_rectangle(2, 2, Plane(o=Point3D(1.5, 4, 1)))
     table = Shade('Table', table_geo)

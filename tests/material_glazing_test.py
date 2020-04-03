@@ -13,7 +13,7 @@ def test_glazing_init():
     str(lowe)  # test the string representation of the material
     lowe_dup = lowe.duplicate()
 
-    assert lowe.name == lowe_dup.name == 'Low-e Glass'
+    assert lowe.identifier == lowe_dup.identifier == 'Low-e Glass'
     assert lowe.thickness == lowe_dup.thickness == 0.00318
     assert lowe.solar_transmittance == lowe_dup.solar_transmittance == 0.4517
     assert lowe.solar_reflectance == lowe_dup.solar_reflectance == 0.359
@@ -40,7 +40,7 @@ def test_glazing_defaults():
     """Test the EnergyWindowMaterialGlazing default properties."""
     clear = EnergyWindowMaterialGlazing('Clear Glass')
 
-    assert clear.name == 'Clear Glass'
+    assert clear.identifier == 'Clear Glass'
     assert clear.thickness == 0.003
     assert clear.solar_transmittance == 0.85
     assert clear.solar_reflectance == 0.075
@@ -61,7 +61,7 @@ def test_glazing_invalid():
     clear = EnergyWindowMaterialGlazing('Clear Glass')
 
     with pytest.raises(TypeError):
-        clear.name = ['test_name']
+        clear.identifier = ['test_identifier']
     with pytest.raises(AssertionError):
         clear.thickness = -1
     with pytest.raises(AssertionError):
@@ -132,7 +132,7 @@ def test_simple_sys_init():
     str(lowe_sys)  # test the string representation of the material
     lowe_sys_dup = lowe_sys.duplicate()
 
-    assert lowe_sys.name == lowe_sys_dup.name == 'Double Pane Low-e'
+    assert lowe_sys.identifier == lowe_sys_dup.identifier == 'Double Pane Low-e'
     assert lowe_sys.u_factor == lowe_sys_dup.u_factor == 1.8
     assert lowe_sys.shgc == lowe_sys_dup.shgc == 0.35
     assert lowe_sys.vt == lowe_sys_dup.vt == 0.55
@@ -153,7 +153,7 @@ def test_simple_sys_invalid():
     clear = EnergyWindowMaterialSimpleGlazSys('Clear Window', 5.5, 0.8)
 
     with pytest.raises(TypeError):
-        clear.name = ['test_name']
+        clear.identifier = ['test_identifier']
     with pytest.raises(AssertionError):
         clear.u_factor = 20
     with pytest.raises(AssertionError):
@@ -171,7 +171,7 @@ def test_simple_sys_init_from_idf():
         "0.35;                                   !- Visible Transmittance"
     glaz_sys = EnergyWindowMaterialSimpleGlazSys.from_idf(ep_str_1)
 
-    assert glaz_sys.name == 'Fixed Window 2.00-0.40-0.31'
+    assert glaz_sys.identifier == 'Fixed Window 2.00-0.40-0.31'
     assert glaz_sys.u_factor == 1.987
     assert glaz_sys.shgc == 0.45
     assert glaz_sys.vt == 0.35

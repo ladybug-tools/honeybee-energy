@@ -15,7 +15,7 @@ def test_constructionset_init():
     default_set = ConstructionSet('Default Set')
     str(default_set)  # test the string representation of the construction
 
-    assert default_set.name == 'Default Set'
+    assert default_set.identifier == 'Default Set'
     assert len(default_set.constructions) == 20
     assert len(default_set.constructions_unique) == 15
     assert len(default_set.materials_unique) == 15
@@ -176,7 +176,7 @@ def test_constructionset_equality():
     assert cnstr_set_list[0] is not cnstr_set_list[2]
     assert cnstr_set_list[0] == cnstr_set_list[2]
 
-    new_default_set.name = 'ASHRAE 90.1 Construction Set'
+    new_default_set.identifier = 'ASHRAE 90.1 Construction Set'
     assert cnstr_set_list[0] != cnstr_set_list[2]
 
 

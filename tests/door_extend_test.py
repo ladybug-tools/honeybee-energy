@@ -16,7 +16,7 @@ import pytest
 def test_energy_properties():
     """Test the existence of the Door energy properties."""
     door = Door.from_vertices(
-        'wall door', [[0, 0, 0], [1, 0, 0], [1, 0, 3], [0, 0, 3]])
+        'wall_door', [[0, 0, 0], [1, 0, 0], [1, 0, 3], [0, 0, 3]])
     assert hasattr(door.properties, 'energy')
     assert isinstance(door.properties.energy, DoorEnergyProperties)
     assert isinstance(door.properties.energy.construction, OpaqueConstruction)
@@ -32,23 +32,23 @@ def test_default_constructions():
     vertices_floor = [[0, 0, 0], [0, 1, 0], [1, 1, 0], [1, 0, 0]]
     vertices_roof = [[1, 0, 3], [1, 1, 3], [0, 1, 3], [0, 0, 3]]
 
-    wf = Face.from_vertices('wall face', vertices_parent_wall)
-    wdr = Door.from_vertices('wall door', vertices_wall)
+    wf = Face.from_vertices('wall_face', vertices_parent_wall)
+    wdr = Door.from_vertices('wall_door', vertices_wall)
     wf.add_door(wdr)
-    Room('Test Room 1', [wf])
-    assert wdr.properties.energy.construction.name == 'Generic Exterior Door'
+    Room('Test_Room_1', [wf])
+    assert wdr.properties.energy.construction.identifier == 'Generic Exterior Door'
 
-    wf2 = Face.from_vertices('wall face2', vertices_parent_wall_2)
-    wdr2 = Door.from_vertices('wall door2', vertices_wall_2)
+    wf2 = Face.from_vertices('wall_face2', vertices_parent_wall_2)
+    wdr2 = Door.from_vertices('wall_door2', vertices_wall_2)
     wf2.add_door(wdr2)
-    Room('Test Room 2', [wf2])
+    Room('Test_Room_2', [wf2])
     wdr.set_adjacency(wdr2)
-    assert wdr.properties.energy.construction.name == 'Generic Interior Door'
+    assert wdr.properties.energy.construction.identifier == 'Generic Interior Door'
 
-    ra = Door.from_vertices('roof door', vertices_roof)
-    assert ra.properties.energy.construction.name == 'Generic Exterior Door'
-    fa = Door.from_vertices('floor door', vertices_floor)
-    assert fa.properties.energy.construction.name == 'Generic Exterior Door'
+    ra = Door.from_vertices('roof_door', vertices_roof)
+    assert ra.properties.energy.construction.identifier == 'Generic Exterior Door'
+    fa = Door.from_vertices('floor_door', vertices_floor)
+    assert fa.properties.energy.construction.identifier == 'Generic Exterior Door'
 
 
 def test_set_construction():
@@ -58,7 +58,7 @@ def test_set_construction():
                                'MediumRough', 0.95, 0.75, 0.8)
     mass_constr = OpaqueConstruction('Concrete Door', [concrete5])
 
-    door = Door.from_vertices('wall door', vertices_wall)
+    door = Door.from_vertices('wall_door', vertices_wall)
     door.properties.energy.construction = mass_constr
 
     assert door.properties.energy.construction == mass_constr
@@ -75,7 +75,7 @@ def test_duplicate():
                                'MediumRough', 0.95, 0.75, 0.8)
     mass_constr = OpaqueConstruction('Concrete Door', [concrete5])
 
-    door_original = Door('wall door', Face3D(verts))
+    door_original = Door('wall_door', Face3D(verts))
     door_dup_1 = door_original.duplicate()
 
     assert door_original.properties.energy.host is door_original
@@ -101,7 +101,7 @@ def test_duplicate():
 def test_to_dict():
     """Test the Door to_dict method with energy properties."""
     door = Door.from_vertices(
-        'front door', [[0, 0, 0], [10, 0, 0], [10, 0, 10], [0, 0, 10]])
+        'front_door', [[0, 0, 0], [10, 0, 0], [10, 0, 10], [0, 0, 10]])
     concrete5 = EnergyMaterial('5cm Concrete', 0.05, 2.31, 2322, 832,
                                'MediumRough', 0.95, 0.75, 0.8)
     mass_constr = OpaqueConstruction('Concrete Door', [concrete5])
@@ -121,7 +121,7 @@ def test_to_dict():
 def test_from_dict():
     """Test the Door from_dict method with energy properties."""
     door = Door.from_vertices(
-        'front door', [[0, 0, 0], [10, 0, 0], [10, 0, 10], [0, 0, 10]])
+        'front_door', [[0, 0, 0], [10, 0, 0], [10, 0, 10], [0, 0, 10]])
     concrete5 = EnergyMaterial('5cm Concrete', 0.05, 2.31, 2322, 832,
                                'MediumRough', 0.95, 0.75, 0.8)
     mass_constr = OpaqueConstruction('Concrete Door', [concrete5])

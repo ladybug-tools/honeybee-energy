@@ -17,8 +17,9 @@ class _EquipmentBase(_LoadBase):
     """A complete definition of equipment, including schedules and load.
 
     Args:
-        name: Text string for the equipment definition name. Must be <= 100 characters.
-            Can include spaces but special characters will be stripped out.
+        identifier: Text string for a unique Equipment ID. Must be < 100 characters
+            and not contain any EnergyPlus special characters. This will be used to
+            identify the object across a model and in the exported IDF.
         watts_per_area: A numerical value for the equipment power density in
             Watts per square meter of floor area.
         schedule: A ScheduleRuleset or ScheduleFixedInterval for the use of equipment
@@ -35,7 +36,8 @@ class _EquipmentBase(_LoadBase):
             out of a zone (as you would for a stove). Default: 0.
 
     Properties:
-        * name
+        * identifier
+        * display_name
         * watts_per_area
         * schedule
         * radiant_fraction
@@ -50,10 +52,10 @@ class _EquipmentBase(_LoadBase):
                      'equipment per person {W/ppl}', 'latent fraction',
                      'radiant fration', 'lost fraction')
 
-    def __init__(self, name, watts_per_area, schedule, radiant_fraction=0,
+    def __init__(self, identifier, watts_per_area, schedule, radiant_fraction=0,
                  latent_fraction=0, lost_fraction=0):
         """Initialize Equipment."""
-        _LoadBase.__init__(self, name)
+        _LoadBase.__init__(self, identifier)
         self._latent_fraction = 0  # starting value so that check runs correctly
         self._lost_fraction = 0  # starting value so that check runs correctly
 
@@ -130,21 +132,23 @@ class _EquipmentBase(_LoadBase):
         assert sum(tot) <= 1 + 1e-9, 'Sum of equipment radiant_fraction, ' \
             'latent_fraction and lost_fraction ({}) is greater than 1.'.format(sum(tot))
 
-    def _get_idf_values(self, zone_name):
+    def _get_idf_values(self, zone_identifier):
         """Get the properties of this object ordered as they are in an IDF."""
-        return ('{}..{}'.format(self.name, zone_name), zone_name, self.schedule.name,
-                'Watts/Area', '', self.watts_per_area, '', self.latent_fraction,
-                self.radiant_fraction, self.lost_fraction)
+        return ('{}..{}'.format(self.identifier, zone_identifier), zone_identifier,
+                self.schedule.identifier, 'Watts/Area', '', self.watts_per_area, '',
+                self.latent_fraction, self.radiant_fraction, self.lost_fraction)
 
     def _add_dict_keys(self, base, abridged):
         """Add keys to a base dictionary."""
-        base['name'] = self.name
+        base['identifier'] = self.identifier
         base['watts_per_area'] = self.watts_per_area
         base['radiant_fraction'] = self.radiant_fraction
         base['latent_fraction'] = self.latent_fraction
         base['lost_fraction'] = self.lost_fraction
         base['schedule'] = self.schedule.to_dict() if not \
-            abridged else self.schedule.name
+            abridged else self.schedule.identifier
+        if self._display_name is not None:
+            base['display_name'] = self.display_name
         return base
 
     @staticmethod
@@ -200,7 +204,7 @@ class _EquipmentBase(_LoadBase):
         return rad_fract, lat_fract, lost_fract
 
     @staticmethod
-    def _average_properties(name, equipments, weights, timestep_resolution):
+    def _average_properties(identifier, equipments, weights, timestep_resolution):
         """Get average properties across several equipment objects."""
         weights, u_weights = \
             _EquipmentBase._check_avg_weights(equipments, weights, 'Equipment')
@@ -213,14 +217,14 @@ class _EquipmentBase(_LoadBase):
 
         # calculate the average schedules
         sched = _EquipmentBase._average_schedule(
-            '{} Schedule'.format(name), [eq.schedule for eq in equipments],
+            '{} Schedule'.format(identifier), [eq.schedule for eq in equipments],
             u_weights, timestep_resolution)
 
         return pd, sched, rad_fract, lat_fract, lost_fract
 
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""
-        return (self.name, self.watts_per_area, hash(self.schedule),
+        return (self.identifier, self.watts_per_area, hash(self.schedule),
                 self.radiant_fraction, self.latent_fraction, self.lost_fraction)
 
     def __hash__(self):
@@ -233,13 +237,15 @@ class _EquipmentBase(_LoadBase):
         return not self.__eq__(other)
 
     def __copy__(self):
-        return _EquipmentBase(
-            self.name, self.watts_per_area, self.schedule,
+        new_obj = _EquipmentBase(
+            self.identifier, self.watts_per_area, self.schedule,
             self.radiant_fraction, self.latent_fraction, self.lost_fraction)
+        new_obj._display_name = self._display_name
+        return new_obj
 
     def __repr__(self):
         return 'Equipment:\n name: {}\n watts per area: {}\n schedule: ' \
-            '{}'.format(self.name, self.watts_per_area, self.schedule.name)
+            '{}'.format(self.identifier, self.watts_per_area, self.schedule.identifier)
 
 
 @lockable
@@ -247,8 +253,9 @@ class ElectricEquipment(_EquipmentBase):
     """A complete definition of electric equipment, including schedules and load.
 
     Args:
-        name: Text string for the equipment definition name. Must be <= 100 characters.
-            Can include spaces but special characters will be stripped out.
+        identifier: Text string for a unique ElectricEquipment ID. Must be < 100
+            characters and not contain any EnergyPlus special characters. This will
+            be used to identify the object across a model and in the exported IDF.
         watts_per_area: A numerical value for the equipment power density in
             Watts per square meter of floor area.
         schedule: A ScheduleRuleset or ScheduleFixedInterval for the use of equipment
@@ -265,7 +272,8 @@ class ElectricEquipment(_EquipmentBase):
             out of a zone (as you would for a stove). Default: 0.
 
     Properties:
-        * name
+        * identifier
+        * display_name
         * watts_per_area
         * schedule
         * radiant_fraction
@@ -275,10 +283,10 @@ class ElectricEquipment(_EquipmentBase):
     """
     __slots__ = ()
 
-    def __init__(self, name, watts_per_area, schedule, radiant_fraction=0,
+    def __init__(self, identifier, watts_per_area, schedule, radiant_fraction=0,
                  latent_fraction=0, lost_fraction=0):
         """Initialize Electric Equipment."""
-        _EquipmentBase.__init__(self, name, watts_per_area, schedule,
+        _EquipmentBase.__init__(self, identifier, watts_per_area, schedule,
                                 radiant_fraction, latent_fraction, lost_fraction)
 
     @classmethod
@@ -291,7 +299,7 @@ class ElectricEquipment(_EquipmentBase):
         Args:
             idf_string: A text string fully describing an EnergyPlus
                 ElectricEquipment definition.
-            schedule_dict: A dictionary with schedule names as keys and honeybee
+            schedule_dict: A dictionary with schedule identifiers as keys and honeybee
                 schedule objects as values (either ScheduleRuleset or
                 ScheduleFixedInterval). These will be used to assign the schedules to
                 the ElectricEquipment object.
@@ -301,18 +309,18 @@ class ElectricEquipment(_EquipmentBase):
 
             -   equipment: An ElectricEquipment object loaded from the idf_string.
 
-            -   zone_name: The name of the zone to which the ElectricEquipment object
-                should be assigned.
+            -   zone_identifier: The identifier of the zone to which the
+                ElectricEquipment object should be assigned.
         """
         # check the inputs
         ep_strs = parse_idf_string(idf_string, 'ElectricEquipment,')
         # get the relevant properties
         sched, rad_f, lat_f, lost_f = cls._extract_ep_properties(ep_strs, schedule_dict)
-        # return the equipment object and the zone name for the equip object
-        obj_name = ep_strs[0].split('..')[0]
-        zone_name = ep_strs[1]
-        equipment = cls(obj_name, ep_strs[5], sched, rad_f, lat_f, lost_f)
-        return equipment, zone_name
+        # return the equipment object and the zone identifier for the equip object
+        obj_id = ep_strs[0].split('..')[0]
+        zone_id = ep_strs[1]
+        equipment = cls(obj_id, ep_strs[5], sched, rad_f, lat_f, lost_f)
+        return equipment, zone_id
 
     @classmethod
     def from_dict(cls, data):
@@ -328,7 +336,8 @@ class ElectricEquipment(_EquipmentBase):
 
             {
             "type": 'ElectricEquipment',
-            "name": 'Open Office Equipment',
+            "identifier": 'Open_Office_Equipment_50_03',
+            "display_name": 'Office Equipment',
             "watts_per_area": 5, # equipment watts per square meter of floor area
             "schedule": {}, # ScheduleRuleset/ScheduleFixedInterval dictionary
             "radiant_fraction": 0.3, # fraction of heat that is long wave radiant
@@ -337,7 +346,11 @@ class ElectricEquipment(_EquipmentBase):
             }
         """
         sched, rad_f, lat_f, lost_f = cls._extract_dict_props(data, 'ElectricEquipment')
-        return cls(data['name'], data['watts_per_area'], sched, rad_f, lat_f, lost_f)
+        new_obj = cls(data['identifier'], data['watts_per_area'],
+                      sched, rad_f, lat_f, lost_f)
+        if 'display_name' in data and data['display_name'] is not None:
+            new_obj.display_name = data['display_name']
+        return new_obj
 
     @classmethod
     def from_dict_abridged(cls, data, schedule_dict):
@@ -345,17 +358,19 @@ class ElectricEquipment(_EquipmentBase):
 
         Args:
             data: A ElectricEquipmentAbridged dictionary in following the format below.
-            schedule_dict: A dictionary with schedule names as keys and honeybee schedule
-                objects as values (either ScheduleRuleset or ScheduleFixedInterval).
-                These will be used to assign the schedules to the equipment object.
+            schedule_dict: A dictionary with schedule identifiers as keys and honeybee
+                schedule objects as values (either ScheduleRuleset or
+                ScheduleFixedInterval). These will be used to assign the schedules
+                to the equipment object.
 
         .. code-block:: python
 
             {
             "type": 'ElectricEquipmentAbridged',
-            "name": 'Open Office Equipment',
+            "identifier": 'Open_Office_Equipment_50_03',
+            "display_name": 'Office Equipment',
             "watts_per_area": 5, # equipment watts per square meter of floor area
-            "schedule": "Office Equipment Schedule", # Schedule name
+            "schedule": "Office Equipment Schedule", # Schedule identifier
             "radiant_fraction": 0.3, # fraction of heat that is long wave radiant
             "latent_fraction": 0, # fraction of heat that is latent
             "lost_fraction": 0 # fraction of heat that is lost
@@ -363,9 +378,13 @@ class ElectricEquipment(_EquipmentBase):
         """
         sched, rad_f, lat_f, lost_f = cls._extract_abridged_dict_props(
             data, 'ElectricEquipmentAbridged', schedule_dict)
-        return cls(data['name'], data['watts_per_area'], sched, rad_f, lat_f, lost_f)
+        new_obj = cls(data['identifier'], data['watts_per_area'],
+                      sched, rad_f, lat_f, lost_f)
+        if 'display_name' in data and data['display_name'] is not None:
+            new_obj.display_name = data['display_name']
+        return new_obj
 
-    def to_idf(self, zone_name):
+    def to_idf(self, zone_identifier):
         """IDF string representation of ElectricEquipment object.
 
         Note that this method only outputs a single string for the ElectricEquipment
@@ -373,11 +392,12 @@ class ElectricEquipment(_EquipmentBase):
         this object's schedule must also be written.
 
         Args:
-            zone_name: Text for the zone name that the ElectricEquipment object
-                is assigned to.
+            zone_identifier: Text for the zone identifier that the ElectricEquipment
+                object is assigned to.
         """
-        return generate_idf_string('ElectricEquipment', self._get_idf_values(zone_name),
-                                   self._idf_comments)
+        return generate_idf_string(
+            'ElectricEquipment', self._get_idf_values(zone_identifier),
+            self._idf_comments)
 
     def to_dict(self, abridged=False):
         """ElectricEquipment dictionary representation.
@@ -385,18 +405,21 @@ class ElectricEquipment(_EquipmentBase):
         Args:
             abridged: Boolean to note whether the full dictionary describing the
                 object should be returned (False) or just an abridged version (True),
-                which only specifies the names of schedules. Default: False.
+                which only specifies the identifiers of schedules. Default: False.
         """
         base = {'type': 'ElectricEquipment'} if not abridged else \
             {'type': 'ElectricEquipmentAbridged'}
         return self._add_dict_keys(base, abridged)
 
     @staticmethod
-    def average(name, equipments, weights=None, timestep_resolution=1):
+    def average(identifier, equipments, weights=None, timestep_resolution=1):
         """Get an ElectricEquipment object that's an average between other objects.
 
         Args:
-            name: A name for the new averaged ElectricEquipment object.
+            identifier: Text string for a unique ID for the new averaged ElectricEquipment.
+                Must be < 100 characters and not contain any EnergyPlus special
+                characters. This will be used to identify the object across a model
+                and in the exported IDF.
             equipments: A list of ElectricEquipment objects that will be averaged
                 together to make a new ElectricEquipment.
             weights: An optional list of fractional numbers with the same length
@@ -411,12 +434,12 @@ class ElectricEquipment(_EquipmentBase):
                 Default: 1.
         """
         pd, sched, rad_f, lat_f, lost_f = ElectricEquipment._average_properties(
-            name, equipments, weights, timestep_resolution)
-        return ElectricEquipment(name, pd, sched, rad_f, lat_f, lost_f)
+            identifier, equipments, weights, timestep_resolution)
+        return ElectricEquipment(identifier, pd, sched, rad_f, lat_f, lost_f)
 
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""
-        return (self.name, self.watts_per_area, hash(self.schedule),
+        return (self.identifier, self.watts_per_area, hash(self.schedule),
                 self.radiant_fraction, self.latent_fraction, self.lost_fraction)
 
     def __hash__(self):
@@ -426,13 +449,15 @@ class ElectricEquipment(_EquipmentBase):
         return isinstance(other, ElectricEquipment) and self.__key() == other.__key()
 
     def __copy__(self):
-        return ElectricEquipment(
-            self.name, self.watts_per_area, self.schedule,
+        new_obj = ElectricEquipment(
+            self.identifier, self.watts_per_area, self.schedule,
             self.radiant_fraction, self.latent_fraction, self.lost_fraction)
+        new_obj._display_name = self._display_name
+        return new_obj
 
     def __repr__(self):
         return 'ElectricEquipment:\n name: {}\n watts per area: {}\n schedule: ' \
-            '{}'.format(self.name, self.watts_per_area, self.schedule.name)
+            '{}'.format(self.identifier, self.watts_per_area, self.schedule.identifier)
 
 
 @lockable
@@ -440,8 +465,9 @@ class GasEquipment(_EquipmentBase):
     """A complete definition of gas equipment, including schedules and load.
 
     Args:
-        name: Text string for the equipment definition name. Must be <= 100 characters.
-            Can include spaces but special characters will be stripped out.
+        identifier: Text string for a unique GasEquipment ID. Must be < 100
+            characters and not contain any EnergyPlus special characters. This will
+            be used to identify the object across a model and in the exported IDF.
         watts_per_area: A numerical value for the equipment power density in
             Watts per square meter of floor area.
         schedule: A ScheduleRuleset or ScheduleFixedInterval for the use of equipment
@@ -458,7 +484,8 @@ class GasEquipment(_EquipmentBase):
             out of a zone (as you would for a stove). Default: 0.
 
     Properties:
-        * name
+        * identifier
+        * display_name
         * watts_per_area
         * schedule
         * radiant_fraction
@@ -468,10 +495,10 @@ class GasEquipment(_EquipmentBase):
     """
     __slots__ = ()
 
-    def __init__(self, name, watts_per_area, schedule, radiant_fraction=0,
+    def __init__(self, identifier, watts_per_area, schedule, radiant_fraction=0,
                  latent_fraction=0, lost_fraction=0):
         """Initialize Gas Equipment."""
-        _EquipmentBase.__init__(self, name, watts_per_area, schedule,
+        _EquipmentBase.__init__(self, identifier, watts_per_area, schedule,
                                 radiant_fraction, latent_fraction, lost_fraction)
 
     @classmethod
@@ -484,7 +511,7 @@ class GasEquipment(_EquipmentBase):
         Args:
             idf_string: A text string fully describing an EnergyPlus
                 GasEquipment definition.
-            schedule_dict: A dictionary with schedule names as keys and honeybee
+            schedule_dict: A dictionary with schedule identifiers as keys and honeybee
                 schedule objects as values (either ScheduleRuleset or
                 ScheduleFixedInterval). These will be used to assign the schedules to
                 the GasEquipment object.
@@ -494,18 +521,18 @@ class GasEquipment(_EquipmentBase):
 
             -   equipment: An GasEquipment object loaded from the idf_string.
 
-            -   zone_name: The name of the zone to which the GasEquipment object
-                should be assigned.
+            -   zone_identifier: The identifier of the zone to which the GasEquipment
+                object should be assigned.
         """
         # check the inputs
         ep_strs = parse_idf_string(idf_string, 'GasEquipment,')
         # get the relevant properties
         sched, rad_f, lat_f, lost_f = cls._extract_ep_properties(ep_strs, schedule_dict)
-        # return the equipment object and the zone name for the equip object
-        obj_name = ep_strs[0].split('..')[0]
-        zone_name = ep_strs[1]
-        equipment = cls(obj_name, ep_strs[5], sched, rad_f, lat_f, lost_f)
-        return equipment, zone_name
+        # return the equipment object and the zone identifier for the equip object
+        obj_id = ep_strs[0].split('..')[0]
+        zone_id = ep_strs[1]
+        equipment = cls(obj_id, ep_strs[5], sched, rad_f, lat_f, lost_f)
+        return equipment, zone_id
 
     @classmethod
     def from_dict(cls, data):
@@ -521,7 +548,8 @@ class GasEquipment(_EquipmentBase):
 
             {
             "type": 'GasEquipment',
-            "name": 'Kitchen Equipment',
+            "identifier": 'Kitchen_Equipment_200_03_02_0',
+            "display_name": 'Kitchen Equipment',
             "watts_per_area": 20, # equipment watts per square meter of floor area
             "schedule": {}, # ScheduleRuleset/ScheduleFixedInterval dictionary
             "radiant_fraction": 0.3, # fraction of heat that is long wave radiant
@@ -530,7 +558,11 @@ class GasEquipment(_EquipmentBase):
             }
         """
         sched, rad_f, lat_f, lost_f = cls._extract_dict_props(data, 'GasEquipment')
-        return cls(data['name'], data['watts_per_area'], sched, rad_f, lat_f, lost_f)
+        new_obj = cls(data['identifier'], data['watts_per_area'],
+                      sched, rad_f, lat_f, lost_f)
+        if 'display_name' in data and data['display_name'] is not None:
+            new_obj.display_name = data['display_name']
+        return new_obj
 
     @classmethod
     def from_dict_abridged(cls, data, schedule_dict):
@@ -538,17 +570,19 @@ class GasEquipment(_EquipmentBase):
 
         Args:
             data: A GasEquipmentAbridged dictionary in following the format below.
-            schedule_dict: A dictionary with schedule names as keys and honeybee schedule
-                objects as values (either ScheduleRuleset or ScheduleFixedInterval).
-                These will be used to assign the schedules to the equipment object.
+            schedule_dict: A dictionary with schedule identifiers as keys and honeybee
+                schedule objects as values (either ScheduleRuleset or
+                ScheduleFixedInterval). These will be used to assign the schedules to
+                the equipment object.
 
         .. code-block:: python
 
             {
             "type": 'GasEquipmentAbridged',
-            "name": 'Kitchen Equipment',
+            "identifier": 'Kitchen_Equipment_200_03_02_0',
+            "display_name": 'Kitchen Equipment',
             "watts_per_area": 20, # equipment watts per square meter of floor area
-            "schedule": "Kitchen Equipment Schedule", # Schedule name
+            "schedule": "Kitchen Equipment Schedule", # Schedule identifier
             "radiant_fraction": 0.3, # fraction of heat that is long wave radiant
             "latent_fraction": 0,  fraction of heat that is latent
             "lost_fraction": 0  fraction of heat that is lost
@@ -556,9 +590,13 @@ class GasEquipment(_EquipmentBase):
         """
         sched, rad_f, lat_f, lost_f = cls._extract_abridged_dict_props(
             data, 'GasEquipmentAbridged', schedule_dict)
-        return cls(data['name'], data['watts_per_area'], sched, rad_f, lat_f, lost_f)
+        new_obj = cls(data['identifier'], data['watts_per_area'],
+                      sched, rad_f, lat_f, lost_f)
+        if 'display_name' in data and data['display_name'] is not None:
+            new_obj.display_name = data['display_name']
+        return new_obj
 
-    def to_idf(self, zone_name):
+    def to_idf(self, zone_identifier):
         """IDF string representation of GasEquipment object.
 
         Note that this method only outputs a single string for the GasEquipment
@@ -566,10 +604,10 @@ class GasEquipment(_EquipmentBase):
         this object's schedule must also be written.
 
         Args:
-            zone_name: Text for the zone name that the GasEquipment object
+            zone_identifier: Text for the zone identifier that the GasEquipment object
                 is assigned to.
         """
-        return generate_idf_string('GasEquipment', self._get_idf_values(zone_name),
+        return generate_idf_string('GasEquipment', self._get_idf_values(zone_identifier),
                                    self._idf_comments)
 
     def to_dict(self, abridged=False):
@@ -578,18 +616,21 @@ class GasEquipment(_EquipmentBase):
         Args:
             abridged: Boolean to note whether the full dictionary describing the
                 object should be returned (False) or just an abridged version (True),
-                which only specifies the names of schedules. Default: False.
+                which only specifies the identifiers of schedules. Default: False.
         """
         base = {'type': 'GasEquipment'} if not abridged else \
             {'type': 'GasEquipmentAbridged'}
         return self._add_dict_keys(base, abridged)
 
     @staticmethod
-    def average(name, equipments, weights=None, timestep_resolution=1):
+    def average(identifier, equipments, weights=None, timestep_resolution=1):
         """Get a GasEquipment object that's an average between other objects.
 
         Args:
-            name: A name for the new averaged GasEquipment object.
+            identifier: Text string for a unique ID for the new averaged GasEquipment.
+                Must be < 100 characters and not contain any EnergyPlus special
+                characters. This will be used to identify the object across a model
+                and in the exported IDF.
             equipments: A list of GasEquipment objects that will be averaged
                 together to make a new GasEquipment.
             weights: An optional list of fractional numbers with the same length
@@ -604,12 +645,12 @@ class GasEquipment(_EquipmentBase):
                 Default: 1.
         """
         pd, sched, rad_f, lat_f, lost_f = GasEquipment._average_properties(
-            name, equipments, weights, timestep_resolution)
-        return GasEquipment(name, pd, sched, rad_f, lat_f, lost_f)
+            identifier, equipments, weights, timestep_resolution)
+        return GasEquipment(identifier, pd, sched, rad_f, lat_f, lost_f)
 
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""
-        return (self.name, self.watts_per_area, hash(self.schedule),
+        return (self.identifier, self.watts_per_area, hash(self.schedule),
                 self.radiant_fraction, self.latent_fraction, self.lost_fraction)
 
     def __hash__(self):
@@ -619,10 +660,12 @@ class GasEquipment(_EquipmentBase):
         return isinstance(other, GasEquipment) and self.__key() == other.__key()
 
     def __copy__(self):
-        return GasEquipment(
-            self.name, self.watts_per_area, self.schedule,
+        new_obj = GasEquipment(
+            self.identifier, self.watts_per_area, self.schedule,
             self.radiant_fraction, self.latent_fraction, self.lost_fraction)
+        new_obj._display_name = self._display_name
+        return new_obj
 
     def __repr__(self):
         return 'GasEquipment:\n name: {}\n watts per area: {}\n schedule: ' \
-            '{}'.format(self.name, self.watts_per_area, self.schedule.name)
+            '{}'.format(self.identifier, self.watts_per_area, self.schedule.identifier)

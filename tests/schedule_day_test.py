@@ -15,7 +15,7 @@ def test_schedule_day_init():
                                 [Time(0, 0), Time(9, 0), Time(17, 0)])
     str(simple_office)  # test the string representation
 
-    assert simple_office.name == 'Simple Office Occupancy'
+    assert simple_office.identifier == 'Simple Office Occupancy'
     assert len(simple_office.values) == 3
     assert len(simple_office.times) == 3
     for t in simple_office.times:

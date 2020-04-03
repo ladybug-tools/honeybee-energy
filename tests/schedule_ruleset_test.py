@@ -29,7 +29,7 @@ def test_schedule_ruleset_init():
                                sunday_office, summer_office, winter_office)
     str(schedule)  # test the string representation
 
-    assert schedule.name == 'Office Occupancy'
+    assert schedule.identifier == 'Office Occupancy'
     assert schedule.default_day_schedule == weekday_office
     assert schedule.holiday_schedule == sunday_office
     assert schedule.summer_designday_schedule == summer_office
@@ -142,7 +142,7 @@ def test_schedule_ruleset_from_constant_value():
     """Test the initialization of ScheduleRuleset from_constant_value."""
     sched = ScheduleRuleset.from_constant_value('Shade Transmittance', 0.5)
 
-    assert sched.name == 'Shade Transmittance'
+    assert sched.identifier == 'Shade Transmittance'
     assert len(sched.default_day_schedule.values) == 1
     assert sched.default_day_schedule.values[0] == 0.5
     assert len(sched.schedule_rules) == 0
@@ -160,7 +160,7 @@ def test_schedule_ruleset_from_daily_values():
         [Time(0, 0), Time(6, 0), Time(12, 0), Time(16, 0), Time(20, 0)])
     sched_alt = ScheduleRuleset('Simple Repeating', day_sched)
 
-    assert sched.name == 'Simple Repeating'
+    assert sched.identifier == 'Simple Repeating'
     assert len(sched.schedule_rules) == 0
     assert sched.summer_designday_schedule is None
     assert sched.winter_designday_schedule is None
@@ -179,7 +179,7 @@ def test_schedule_ruleset_from_week_daily_values():
         'Office Occ', sun, weekday, weekday, weekday, weekday, weekday, sat, sun,
         schedule_type_limit=schedule_types.fractional)
 
-    assert schedule.name == 'Office Occ'
+    assert schedule.identifier == 'Office Occ'
     assert len(schedule.schedule_rules) == 2
     assert schedule.summer_designday_schedule.values_at_timestep() == weekday
     assert schedule.winter_designday_schedule.values_at_timestep() == sun
@@ -203,7 +203,7 @@ def test_schedule_ruleset_from_week_day_schedules():
         'Office Occ', sun, weekday, weekday, weekday, weekday, weekday, sat, sun,
         weekday, sun, schedule_types.fractional)
 
-    assert schedule.name == 'Office Occ'
+    assert schedule.identifier == 'Office Occ'
     assert len(schedule.schedule_rules) == 2
     assert schedule.summer_designday_schedule.values_at_timestep() == weekday_vals
     assert schedule.winter_designday_schedule.values_at_timestep() == sun_vals
@@ -220,18 +220,18 @@ def test_schedule_ruleset_from_idf_file():
 
     office_occ = office_scheds[0]
 
-    assert office_occ.name == 'Medium Office Bldg Occ'
+    assert office_occ.identifier == 'Medium Office Bldg Occ'
     assert isinstance(office_occ.default_day_schedule, ScheduleDay)
-    assert office_occ.default_day_schedule.name == \
+    assert office_occ.default_day_schedule.identifier == \
         'Medium Office Bldg Occ Sunday Schedule'
-    assert office_occ.summer_designday_schedule.name == \
+    assert office_occ.summer_designday_schedule.identifier == \
         'Medium Office Bldg Occ Summer Design Day'
-    assert office_occ.winter_designday_schedule.name == \
+    assert office_occ.winter_designday_schedule.identifier == \
         'Medium Office Bldg Occ Winter Design Day'
     assert len(office_occ.schedule_rules) == 2
-    assert office_occ.schedule_rules[0].schedule_day.name == \
+    assert office_occ.schedule_rules[0].schedule_day.identifier == \
         'Medium Office Bldg Occ Default Schedule'
-    assert office_occ.schedule_rules[1].schedule_day.name == \
+    assert office_occ.schedule_rules[1].schedule_day.identifier == \
         'Medium Office Bldg Occ Saturday Schedule'
 
     assert isinstance(office_occ.schedule_type_limit, ScheduleTypeLimit)
@@ -244,18 +244,18 @@ def test_schedule_ruleset_from_idf_file_compact():
 
     office_occ = office_scheds[0]
 
-    assert office_occ.name == 'Medium Office Bldg Occ'
+    assert office_occ.identifier == 'Medium Office Bldg Occ'
     assert isinstance(office_occ.default_day_schedule, ScheduleDay)
-    assert office_occ.default_day_schedule.name == \
+    assert office_occ.default_day_schedule.identifier == \
         'Medium Office Bldg Occ Default Schedule'
-    assert office_occ.summer_designday_schedule.name == \
+    assert office_occ.summer_designday_schedule.identifier == \
         'Medium Office Bldg Occ Summer Design Day'
-    assert office_occ.winter_designday_schedule.name == \
+    assert office_occ.winter_designday_schedule.identifier == \
         'Medium Office Bldg Occ Winter Design Day'
     assert len(office_occ.schedule_rules) == 2
-    assert office_occ.schedule_rules[0].schedule_day.name == \
+    assert office_occ.schedule_rules[0].schedule_day.identifier == \
         'Medium Office Bldg Occ Saturday Schedule'
-    assert office_occ.schedule_rules[1].schedule_day.name == \
+    assert office_occ.schedule_rules[1].schedule_day.identifier == \
         'Medium Office Bldg Occ Sunday Schedule'
 
     assert isinstance(office_occ.schedule_type_limit, ScheduleTypeLimit)

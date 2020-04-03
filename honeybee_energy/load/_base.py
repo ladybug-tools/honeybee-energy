@@ -14,27 +14,47 @@ class _LoadBase(object):
     """A base object for all load definitions.
 
     Args:
-        name: Text string for the load definition name. Must be <= 100 characters.
-            Can include spaces but special characters will be stripped out.
+        identifier: Text string for a unique Load ID. Must be < 100 characters
+            and not contain any EnergyPlus special characters. This will be used to
+            identify the object across a model and in the exported IDF.
 
     Properties:
-        * name
+        * identifier
+        * display_name
     """
-    __slots__ = ('_name', '_locked')
+    __slots__ = ('_identifier', '_display_name', '_locked')
 
-    def __init__(self, name):
+    def __init__(self, identifier):
         """Initialize LoadBase."""
         self._locked = False  # unlocked by default
-        self.name = name
+        self.identifier = identifier
+        self._display_name = None
 
     @property
-    def name(self):
-        """Get or set the text string for object name."""
-        return self._name
+    def identifier(self):
+        """Get or set the text string for object identifier."""
+        return self._identifier
 
-    @name.setter
-    def name(self, name):
-        self._name = valid_ep_string(name)
+    @identifier.setter
+    def identifier(self, identifier):
+        self._identifier = valid_ep_string(identifier)
+
+    @property
+    def display_name(self):
+        """Get or set a string for the object name without any character restrictions.
+
+        If not set, this will be equal to the identifier.
+        """
+        if self._display_name is None:
+            return self._identifier
+        return self._display_name
+
+    @display_name.setter
+    def display_name(self, value):
+        try:
+            self._display_name = str(value)
+        except UnicodeEncodeError:  # Python 2 machine lacking the character set
+            self._display_name = value  # keep it as unicode
 
     def duplicate(self):
         """Get a copy of this object."""
@@ -64,12 +84,12 @@ class _LoadBase(object):
         return weights, unity_weights
 
     @staticmethod
-    def _average_schedule(name, scheds, weights, timestep):
+    def _average_schedule(identifier, scheds, weights, timestep):
         """Average a set of schedules together (no matter their type)."""
         try:
-            return ScheduleRuleset.average_schedules(name, scheds, weights, timestep)
+            return ScheduleRuleset.average_schedules(identifier, scheds, weights, timestep)
         except AttributeError:
-            return ScheduleFixedInterval.average_schedules(name, scheds, weights)
+            return ScheduleFixedInterval.average_schedules(identifier, scheds, weights)
 
     @staticmethod
     def _get_schedule_from_dict(sch_dict):
@@ -83,11 +103,13 @@ class _LoadBase(object):
                 'Schedule {} is not supported.'.format(sch_dict['type']))
 
     def __copy__(self):
-        return _LoadBase(self.name)
+        new_obj = _LoadBase(self.identifier)
+        new_obj._display_name = self._display_name
+        return new_obj
 
     def ToString(self):
         """Overwrite .NET ToString."""
         return self.__repr__()
 
     def __repr__(self):
-        return 'Load Base:\n name: {}'.format(self.name)
+        return 'Load Base: {}'.format(self.identifier)

@@ -23,8 +23,9 @@ class Ventilation(_LoadBase):
     design flow rate used in the simulation.
 
     Args:
-        name: Text string for the ventilation name. Must be <= 100 characters.
-            Can include spaces but special characters will be stripped out.
+        identifier: Text string for a unique Ventilation ID. Must be < 100 characters
+            and not contain any EnergyPlus special characters. This will be used to
+            identify the object across a model and in the exported IDF.
         flow_per_person: A numerical value for the intensity of ventilation
             in m3/s per person. Note that setting this value here does not mean
             that ventilation is varied based on real-time occupancy but rather
@@ -53,7 +54,8 @@ class Ventilation(_LoadBase):
             be used throughout all timesteps of the simulation. Default: None.
 
     Properties:
-        * name
+        * identifier
+        * display_name
         * flow_per_person
         * flow_per_area
         * flow_per_zone
@@ -64,10 +66,10 @@ class Ventilation(_LoadBase):
                  '_air_changes_per_hour', '_schedule')
     CALCULATION_METHODS = ('Sum', 'Maximum')
 
-    def __init__(self, name, flow_per_person=0, flow_per_area=0, flow_per_zone=0,
+    def __init__(self, identifier, flow_per_person=0, flow_per_area=0, flow_per_zone=0,
                  air_changes_per_hour=0, schedule=None):
         """Initialize Ventilation."""
-        _LoadBase.__init__(self, name)
+        _LoadBase.__init__(self, identifier)
         self.flow_per_person = flow_per_person
         self.flow_per_area = flow_per_area
         self.flow_per_zone = flow_per_zone
@@ -149,7 +151,7 @@ class Ventilation(_LoadBase):
         Args:
             idf_string: A text string fully describing an EnergyPlus
                 DesignSpecification:OutdoorAir definition.
-            schedule_dict: A dictionary with schedule names as keys and honeybee
+            schedule_dict: A dictionary with schedule identifiers as keys and honeybee
                 schedule objects as values (either ScheduleRuleset or
                 ScheduleFixedInterval). These will be used to assign the schedules to
                 the Ventilation object.
@@ -200,9 +202,9 @@ class Ventilation(_LoadBase):
         except IndexError:  # No schedule given
             sched = None
 
-        # return the object and the zone name for the object
-        obj_name = ep_strs[0].split('..')[0]
-        ventilation = cls(obj_name, person, area, zone, ach, sched)
+        # return the object and the zone id for the object
+        obj_id = ep_strs[0].split('..')[0]
+        ventilation = cls(obj_id, person, area, zone, ach, sched)
         return ventilation
 
     @classmethod
@@ -219,7 +221,8 @@ class Ventilation(_LoadBase):
 
             {
             "type": 'Ventilation',
-            "name": 'Office Ventilation',
+            "identifier": 'Office_Ventilation_0010_000050_0_0',
+            "display_name": 'Office Ventilation',
             "flow_per_person": 0.01, # flow per person
             "flow_per_area": 0.0005, # flow per square meter of floor area
             "flow_per_zone": 0, # flow per zone
@@ -232,7 +235,10 @@ class Ventilation(_LoadBase):
         person, area, zone, ach = cls._optional_dict_keys(data)
         sched = cls._get_schedule_from_dict(data['schedule']) if 'schedule' in data and \
             data['schedule'] is not None else None
-        return cls(data['name'], person, area, zone, ach, sched)
+        new_obj = cls(data['identifier'], person, area, zone, ach, sched)
+        if 'display_name' in data and data['display_name'] is not None:
+            new_obj.display_name = data['display_name']
+        return new_obj
 
     @classmethod
     def from_dict_abridged(cls, data, schedule_dict):
@@ -240,20 +246,22 @@ class Ventilation(_LoadBase):
 
         Args:
             data: A VentilationAbridged dictionary in following the format below.
-            schedule_dict: A dictionary with schedule names as keys and honeybee schedule
-                objects as values (either ScheduleRuleset or ScheduleFixedInterval).
-                These will be used to assign the schedules to the Ventilation object.
+            schedule_dict: A dictionary with schedule identifiers as keys and
+                honeybee schedule objects as values (either ScheduleRuleset or
+                ScheduleFixedInterval). These will be used to assign the schedules
+                to the Ventilation object.
 
         .. code-block:: python
 
             {
             "type": 'VentilationAbridged',
-            "name": 'Office Ventilation',
+            "identifier": 'Office_Ventilation_0010_000050_0_0',
+            "display_name": 'Office Ventilation',
             "flow_per_person": 0.01, # flow per person
             "flow_per_area": 0.0005, # flow per square meter of floor area
             "flow_per_zone": 0, # flow per zone
             "air_changes_per_hour": 0, # air changes per hour
-            "schedule": "Office Ventilation Schedule" # Schedule name
+            "schedule": "Office Ventilation Schedule" # Schedule identifier
             }
         """
         assert data['type'] == 'VentilationAbridged', \
@@ -265,9 +273,12 @@ class Ventilation(_LoadBase):
                 sched = schedule_dict[data['schedule']]
             except KeyError as e:
                 raise ValueError('Failed to find {} in the schedule_dict.'.format(e))
-        return cls(data['name'], person, area, zone, ach, sched)
+        new_obj = cls(data['identifier'], person, area, zone, ach, sched)
+        if 'display_name' in data and data['display_name'] is not None:
+            new_obj.display_name = data['display_name']
+        return new_obj
 
-    def to_idf(self, zone_name):
+    def to_idf(self, zone_identifier):
         """IDF string representation of Ventilation object.
 
         Note that this method only outputs a single string for the DesignSpecification:
@@ -275,11 +286,12 @@ class Ventilation(_LoadBase):
         into an IDF, this object's schedule must also be written.
 
         Args:
-            zone_name: Text for the zone name that the Ventilation object is assigned to.
+            zone_identifier: Text for the zone identifier that the Ventilation
+                object is assigned to.
         """
-        sched = self.schedule.name if self.schedule is not None else ''
-        vent_obj_name = '{}..{}'.format(self.name, zone_name)
-        values = (vent_obj_name, 'Sum', self.flow_per_person, self.flow_per_area,
+        sched = self.schedule.identifier if self.schedule is not None else ''
+        vent_obj_identifier = '{}..{}'.format(self.identifier, zone_identifier)
+        values = (vent_obj_identifier, 'Sum', self.flow_per_person, self.flow_per_area,
                   self.flow_per_zone, self.air_changes_per_hour, sched)
         comments = ('name', 'flow rate method', 'flow per person {m3/s-person}',
                     'flow per floor area {m3/s-m2}', 'flow per zone {m3/s}',
@@ -292,11 +304,11 @@ class Ventilation(_LoadBase):
         Args:
             abridged: Boolean to note whether the full dictionary describing the
                 object should be returned (False) or just an abridged version (True),
-                which only specifies the names of schedules. Default: False.
+                which only specifies the identifiers of schedules. Default: False.
         """
         base = {'type': 'Ventilation'} if not abridged \
             else {'type': 'VentilationAbridged'}
-        base['name'] = self.name
+        base['identifier'] = self.identifier
         if self.flow_per_person != 0:
             base['flow_per_person'] = self.flow_per_person
         if self.flow_per_area != 0:
@@ -307,15 +319,20 @@ class Ventilation(_LoadBase):
             base['air_changes_per_hour'] = self.air_changes_per_hour
         if self.schedule is not None:
             base['schedule'] = self.schedule.to_dict() if not \
-                abridged else self.schedule.name
+                abridged else self.schedule.identifier
+        if self._display_name is not None:
+            base['display_name'] = self.display_name
         return base
 
     @staticmethod
-    def average(name, ventilations, weights=None, timestep_resolution=1):
+    def average(identifier, ventilations, weights=None, timestep_resolution=1):
         """Get an Ventilation object that's an average between other Ventilations.
 
         Args:
-            name: A name for the new averaged Ventilation object.
+            identifier: Text string for a unique ID for the new averaged Ventilation.
+                Must be < 100 characters and not contain any EnergyPlus special
+                characters. This will be used to identify the object across a model
+                and in the exported IDF.
             ventilations: A list of Ventilation objects that will be averaged
                 together to make a new Ventilation.
             weights: An optional list of fractional numbers with the same length
@@ -352,10 +369,10 @@ class Ventilation(_LoadBase):
                 if sch is None:
                     scheds[i] = full_vent
             sched = Ventilation._average_schedule(
-                '{} Schedule'.format(name), scheds, u_weights, timestep_resolution)
+                '{} Schedule'.format(identifier), scheds, u_weights, timestep_resolution)
 
         # return the averaged object
-        return Ventilation(name, person, area, zone, ach, sched)
+        return Ventilation(identifier, person, area, zone, ach, sched)
 
     @staticmethod
     def _optional_dict_keys(data):
@@ -368,8 +385,8 @@ class Ventilation(_LoadBase):
 
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""
-        return (self.name, self.flow_per_person, self.flow_per_area, self.flow_per_zone,
-                self.air_changes_per_hour, hash(self.schedule))
+        return (self.identifier, self.flow_per_person, self.flow_per_area,
+                self.flow_per_zone, self.air_changes_per_hour, hash(self.schedule))
 
     def __hash__(self):
         return hash(self.__key())
@@ -381,12 +398,14 @@ class Ventilation(_LoadBase):
         return not self.__eq__(other)
 
     def __copy__(self):
-        return Ventilation(
-            self.name, self.flow_per_person, self.flow_per_area, self.flow_per_zone,
-            self.air_changes_per_hour, self.schedule)
+        new_obj = Ventilation(
+            self.identifier, self.flow_per_person, self.flow_per_area,
+            self.flow_per_zone, self.air_changes_per_hour, self.schedule)
+        new_obj._display_name = self._display_name
+        return new_obj
 
     def __repr__(self):
         return 'Ventilation:\n name: {}\n flow per person: {}\n flow per area: ' \
             '{}\n flow per zone: {}\n ACH: {}'.format(
-                self.name, self.flow_per_person, self.flow_per_area, self.flow_per_zone,
-                self.air_changes_per_hour)
+                self.identifier, self.flow_per_person, self.flow_per_area,
+                self.flow_per_zone, self.air_changes_per_hour)

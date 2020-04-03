@@ -11,41 +11,63 @@ class _EnergyMaterialBase(object):
     """Base energy material.
 
     Args:
-        name: Text string for material name. Must be <= 100 characters.
-            Can include spaces but special characters will be stripped out.
+        identifier: Text string for a unique Material ID. Must be < 100 characters
+            and not contain any EnergyPlus special characters. This will be used to
+            identify the object across a model and in the exported IDF.
 
     Properties:
-        * name
+        * identifier
+        * display_name
     """
-    __slots__ = ('_name', '_locked')
+    __slots__ = ('_identifier', '_display_name', '_locked')
 
-    def __init__(self, name):
+    def __init__(self, identifier):
         """Initialize energy material base."""
         self._locked = False
-        self.name = name
+        self.identifier = identifier
+        self._display_name = None
 
     @property
-    def name(self):
-        """Get or set the text string for material name."""
-        return self._name
+    def identifier(self):
+        """Get or set the text string for material identifier."""
+        return self._identifier
 
-    @name.setter
-    def name(self, name):
-        self._name = valid_ep_string(name, 'material name')
+    @identifier.setter
+    def identifier(self, identifier):
+        self._identifier = valid_ep_string(identifier, 'material identifier')
+
+    @property
+    def display_name(self):
+        """Get or set a string for the object name without any character restrictions.
+
+        If not set, this will be equal to the identifier.
+        """
+        if self._display_name is None:
+            return self._identifier
+        return self._display_name
+
+    @display_name.setter
+    def display_name(self, value):
+        try:
+            self._display_name = str(value)
+        except UnicodeEncodeError:  # Python 2 machine lacking the character set
+            self._display_name = value  # keep it as unicode
 
     def duplicate(self):
         """Get a copy of this construction."""
         return self.__copy__()
 
     def __copy__(self):
-        return self.__class__(self.name)
+        new_obj = self.__class__(self.identifier)
+        new_obj._display_name = self._display_name
+        return new_obj
 
     def ToString(self):
         """Overwrite .NET ToString."""
         return self.__repr__()
 
     def __repr__(self):
-        return 'Base Energy Material:\n{}'.format(self.name)
+        return 'Base Energy Material:\n{}'.format(self.identifier)
 
 
 @lockable
@@ -63,7 +85,7 @@ class _EnergyMaterialOpaqueBase(_EnergyMaterialBase):
         return False
 
     def __repr__(self):
-        return 'Base Opaque Energy Material:\n{}'.format(self.name)
+        return 'Base Opaque Energy Material:\n{}'.format(self.identifier)
 
 
 @lockable
@@ -92,4 +114,4 @@ class _EnergyMaterialWindowBase(_EnergyMaterialBase):
         return False
 
     def __repr__(self):
-        return 'Base Window Energy Material:\n{}'.format(self.name)
+        return 'Base Window Energy Material:\n{}'.format(self.identifier)

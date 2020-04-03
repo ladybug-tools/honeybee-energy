@@ -160,44 +160,44 @@ except KeyError:
     _window_materials['Generic Window Argon Gap'] = argon_gap
 
 
-# make lists of material names to look up items in the library
+# make lists of material identifiers to look up items in the library
 OPAQUE_MATERIALS = tuple(_opaque_materials.keys()) + \
     tuple(_opaque_mat_standards_dict.keys())
 WINDOW_MATERIALS = tuple(_window_materials.keys()) + \
     tuple(_window_mat_standards_dict.keys())
 
 
-def opaque_material_by_name(material_name):
-    """Get an opaque material from the library given the material name.
+def opaque_material_by_identifier(material_identifier):
+    """Get an opaque material from the library given the material identifier.
 
     Args:
-        material_name: A text string for the name of the material.
+        material_identifier: A text string for the identifier of the material.
     """
     try:  # first check the default data
-        return _opaque_materials[material_name]
+        return _opaque_materials[material_identifier]
     except KeyError:
         try:  # search the extension data
-            _mat_dict = _opaque_mat_standards_dict[material_name]
+            _mat_dict = _opaque_mat_standards_dict[material_identifier]
             return dict_to_material(_mat_dict)
         except KeyError:  # material is nowhere to be found; raise an error
             raise ValueError(
                 '"{}" was not found in the opaque energy material library.'.format(
-                    material_name))
+                    material_identifier))
 
 
-def window_material_by_name(material_name):
-    """Get an window material from the library given the material name.
+def window_material_by_identifier(material_identifier):
+    """Get an window material from the library given the material identifier.
 
     Args:
-        material_name: A text string for the name of the material.
+        material_identifier: A text string for the identifier of the material.
     """
     try:  # first check the default data
-        return _window_materials[material_name]
+        return _window_materials[material_identifier]
     except KeyError:
         try:  # search the extension data
-            _mat_dict = _window_mat_standards_dict[material_name]
+            _mat_dict = _window_mat_standards_dict[material_identifier]
             return dict_to_material(_mat_dict)
         except KeyError:  # material is nowhere to be found; raise an error
             raise ValueError(
                 '"{}" was not found in the window energy material library.'.format(
-                    material_name))
+                    material_identifier))

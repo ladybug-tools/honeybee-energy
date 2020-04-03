@@ -34,8 +34,9 @@ class ScheduleFixedInterval(object):
     """An annual schedule defined by a list of values at a fixed interval or timestep.
 
     Args:
-        name: Text string for the schedule name. Must be <= 100 characters.
-            Can include spaces but special characters will be stripped out.
+        identifier: Text string for a unique Schedule ID. Must be < 100 characters
+            and not contain any EnergyPlus special characters. This will be used to
+            identify the object across a model and in the exported IDF.
         values: A list of values occuring at a fixed interval over the simulation.
             Typically, this should be a list of 8760 values for each hour of the
             year but it can be a shorter list if you don't plan on using it in
@@ -66,7 +67,8 @@ class ScheduleFixedInterval(object):
             immediately upon the beginning time corrsponding to them. Default: False
 
     Properties:
-        * name
+        * identifier
+        * display_name
         * values
         * schedule_type_limit
         * timestep
@@ -77,15 +79,16 @@ class ScheduleFixedInterval(object):
         * is_leap_year
         * data_collection
     """
-    __slots__ = ('_name', '_values', '_schedule_type_limit', '_start_date',
-                 '_placeholder_value', '_timestep', '_interpolate', '_locked')
+    __slots__ = ('_identifier', '_display_name', '_values', '_schedule_type_limit',
+                 '_start_date', '_placeholder_value', '_timestep', '_interpolate',
+                 '_locked')
     _schedule_file_comments = \
         ('schedule name', 'schedule type limits', 'file name', 'column number',
          'rows to skip', 'number of hours of data', 'column separator',
          'interpolate to timestep', 'minutes per item')
     VALIDTIMESTEPS = (1, 2, 3, 4, 5, 6, 10, 12, 15, 20, 30, 60)
 
-    def __init__(self, name, values, schedule_type_limit=None, timestep=1,
+    def __init__(self, identifier, values, schedule_type_limit=None, timestep=1,
                  start_date=Date(1, 1), placeholder_value=0, interpolate=False):
         """Initialize Schedule FixedInterval."""
         self._locked = False  # unlocked by default
@@ -101,20 +104,39 @@ class ScheduleFixedInterval(object):
         self._start_date = start_date
 
         # set the values and all properties that can be re-set
-        self.name = name
+        self.identifier = identifier
+        self._display_name = None
         self.values = values
         self.schedule_type_limit = schedule_type_limit
         self.placeholder_value = placeholder_value
         self.interpolate = interpolate
 
     @property
-    def name(self):
-        """Get or set the text string for schedule name."""
-        return self._name
+    def identifier(self):
+        """Get or set the text string for unique schedule identifier."""
+        return self._identifier
 
-    @name.setter
-    def name(self, name):
-        self._name = valid_ep_string(name, 'schedule fixed interval name')
+    @identifier.setter
+    def identifier(self, identifier):
+        self._identifier = valid_ep_string(
+            identifier, 'schedule fixed interval identifier')
+
+    @property
+    def display_name(self):
+        """Get or set a string for the object name without any character restrictions.
+
+        If not set, this will be equal to the identifier.
+        """
+        if self._display_name is None:
+            return self._identifier
+        return self._display_name
+
+    @display_name.setter
+    def display_name(self, value):
+        try:
+            self._display_name = str(value)
+        except UnicodeEncodeError:  # Python 2 machine lacking the character set
+            self._display_name = value  # keep it as unicode
 
     @property
     def values(self):
@@ -201,7 +223,7 @@ class ScheduleFixedInterval(object):
                                   end_dt.month, end_dt.day, end_dt.hour, self.timestep,
                                   self.is_leap_year)
         data_type, unit = self._get_lb_data_type_and_unit()
-        header = Header(data_type, unit, a_period, metadata={'schedule': self.name})
+        header = Header(data_type, unit, a_period, metadata={'schedule': self.identifier})
         return HourlyContinuousCollection(header, self._values)
 
     def values_at_timestep(
@@ -328,7 +350,7 @@ class ScheduleFixedInterval(object):
                                   end_date.month, end_date.day, 23, timestep,
                                   self.is_leap_year)
         data_type, unit = self._get_lb_data_type_and_unit()
-        header = Header(data_type, unit, a_period, metadata={'schedule': self.name})
+        header = Header(data_type, unit, a_period, metadata={'schedule': self.identifier})
         values = self.values_at_timestep(timestep, start_date, end_date)
         return HourlyContinuousCollection(header, values)
 
@@ -375,7 +397,8 @@ class ScheduleFixedInterval(object):
 
             {
             "type": 'ScheduleFixedInterval',
-            "name": 'Automated Awning Transmittance',
+            "identifier": 'Awning_Transmittance_X45NF23U',
+            "display_name": 'Automated Awning Transmittance',
             "values": [], # list of numbers for the values of the schedule
             "schedule_type_limit": {}, # ScheduleTypeLimit dictionary representation
             "timestep": 1, # Integer for the timestep of the schedule
@@ -403,8 +426,11 @@ class ScheduleFixedInterval(object):
         if 'interpolate' in data and data['interpolate'] is not None:
             interpolate = data['interpolate']
 
-        return cls(data['name'], data['values'], sched_type, timestep,
-                   start_date, placeholder_value, interpolate)
+        new_obj = cls(data['identifier'], data['values'], sched_type, timestep,
+                      start_date, placeholder_value, interpolate)
+        if 'display_name' in data and data['display_name'] is not None:
+            new_obj.display_name = data['display_name']
+        return new_obj
 
     @classmethod
     def from_dict_abridged(cls, data, schedule_type_limits):
@@ -412,16 +438,17 @@ class ScheduleFixedInterval(object):
 
         Args:
             data: ScheduleFixedIntervalAbridged dictionary with format below.
-            schedule_type_limits: A dictionary with names of schedule type limits
+            schedule_type_limits: A dictionary with identifiers of schedule type limits
                 as keys and Python schedule type limit objects as values.
 
         .. code-block:: python
 
             {
             "type": 'ScheduleFixedIntervalAbridged',
-            "name": 'Automated Awning Transmittance',
+            "identifier": 'Awning_Transmittance_X45NF23U',
+            "display_name": 'Automated Awning Transmittance',
             "values": [], # list of numbers for the values of the schedule
-            "schedule_type_limit": "", # ScheduleTypeLimit name
+            "schedule_type_limit": "", # ScheduleTypeLimit identifier
             "timestep": 1, # Integer for the timestep of the schedule
             "start_date": (1, 1), # Date dictionary representation
             "placeholder_value": 0, # Number for the values out of range
@@ -440,6 +467,8 @@ class ScheduleFixedInterval(object):
         schedule = cls.from_dict(data)
         schedule.schedule_type_limit = schedule_type_limits[typ_lim] if \
             typ_lim is not None else None
+        if 'display_name' in data and data['display_name'] is not None:
+            schedule.display_name = data['display_name']
         return schedule
 
     def to_idf(self, schedule_directory, include_datetimes=False):
@@ -473,19 +502,19 @@ class ScheduleFixedInterval(object):
             sched_data = ('{},{}'.format(dt, val) for dt, val in
                           zip(sched_a_per.datetimes, sched_data))
         file_path = os.path.join(schedule_directory,
-                                 '{}.csv'.format(self.name.replace(' ', '_')))
+                                 '{}.csv'.format(self.identifier.replace(' ', '_')))
 
         # write the data into the file
         write_to_file(file_path, ',\n'.join(sched_data), True)
 
         # generate the IDF strings
-        shc_typ = self._schedule_type_limit.name if \
+        shc_typ = self._schedule_type_limit.identifier if \
             self._schedule_type_limit is not None else ''
         col_num = 1 if not include_datetimes else 2
         num_hrs = 8760 if not self.is_leap_year else 8784
         interp = 'No' if not self.interpolate else 'Yes'
         min_per_step = int(60 / self.timestep)
-        fields = (self.name, shc_typ, file_path, col_num, 0, num_hrs, 'Comma',
+        fields = (self.identifier, shc_typ, file_path, col_num, 0, num_hrs, 'Comma',
                   interp, min_per_step)
         schedule_file = generate_idf_string('Schedule:File', fields,
                                             self._schedule_file_comments)
@@ -503,9 +532,9 @@ class ScheduleFixedInterval(object):
         resulting files by an order of magnitude.
         """
         # initialize the list of IDF properties
-        shc_typ = self._schedule_type_limit.name if \
+        shc_typ = self._schedule_type_limit.identifier if \
             self._schedule_type_limit is not None else ''
-        fields = [self.name, shc_typ]
+        fields = [self.identifier, shc_typ]
 
         # loop through all datetimes of the schedule and append them.
         sched_data = self.values_at_timestep(self.timestep)
@@ -530,12 +559,13 @@ class ScheduleFixedInterval(object):
         Args:
             abridged: Boolean to note whether the full dictionary describing the
                 object should be returned (False) or just an abridged version (True),
-                which only specifies the name of the ScheduleTypeLimit. Default: False.
+                which only specifies the identifier of the ScheduleTypeLimit.
+                Default: False.
         """
         # required properties
         base = {'type': 'ScheduleFixedInterval'} if not \
             abridged else {'type': 'ScheduleFixedIntervalAbridged'}
-        base['name'] = self.name
+        base['identifier'] = self.identifier
         base['values'] = self.values
 
         # optional properties
@@ -549,7 +579,9 @@ class ScheduleFixedInterval(object):
             if not abridged:
                 base['schedule_type_limit'] = self._schedule_type_limit.to_dict()
             else:
-                base['schedule_type_limit'] = self._schedule_type_limit.name
+                base['schedule_type_limit'] = self._schedule_type_limit.identifier
+        if self._display_name is not None:
+            base['display_name'] = self.display_name
         return base
 
     def duplicate(self):
@@ -591,15 +623,15 @@ class ScheduleFixedInterval(object):
         # find the greatest timestep of all the schedules
         max_timestep = max([sched.timestep for sched in schedules])
         # gather all of the data to be written into the CSV
-        sch_names = [sched.name for sched in schedules]
+        sch_ids = [sched.identifier for sched in schedules]
         sched_vals = [sched.values_at_timestep(max_timestep) for sched in schedules]
         sched_data = [','.join([str(x) for x in row]) for row in zip(*sched_vals)]
         if include_datetimes:
             sched_a_per = AnalysisPeriod(timestep=max_timestep, is_leap_year=init_lp_yr)
             sched_data = ('{},{}'.format(dt, val) for dt, val in
                           zip(sched_a_per.datetimes, sched_data))
-            sch_names = [''] + sch_names
-        sched_data = [','.join(sch_names)] + sched_data
+            sch_ids = [''] + sch_ids
+        sched_data = [','.join(sch_ids)] + sched_data
         file_path = os.path.join(schedule_directory,
                                  '{}.csv'.format(file_name.replace(' ', '_')))
 
@@ -609,13 +641,13 @@ class ScheduleFixedInterval(object):
         # generate the IDF strings
         schedule_files = []
         for i, sched in enumerate(schedules):
-            shc_typ = sched._schedule_type_limit.name if \
+            shc_typ = sched._schedule_type_limit.identifier if \
                 sched._schedule_type_limit is not None else ''
             col_num = 1 + i if not include_datetimes else 2 + i
             num_hrs = 8760 if not sched.is_leap_year else 8784
             interp = 'No' if not sched.interpolate else 'Yes'
             min_per_step = int(60 / max_timestep)
-            fields = (sched.name, shc_typ, file_path, col_num, 1, num_hrs, 'Comma',
+            fields = (sched.identifier, shc_typ, file_path, col_num, 1, num_hrs, 'Comma',
                       interp, min_per_step)
             schedule_files.append(generate_idf_string(
                 'Schedule:File', fields, ScheduleFixedInterval._schedule_file_comments))
@@ -656,11 +688,14 @@ class ScheduleFixedInterval(object):
         return schedules
 
     @staticmethod
-    def average_schedules(name, schedules, weights=None):
+    def average_schedules(identifier, schedules, weights=None):
         """Get a ScheduleFixedInterval that's a weighted average between other schedules.
 
         Args:
-            name: A name for the new averaged ScheduleFixedInterval.
+            identifier: A unique ID text string for the new unique ScheduleFixedInterval.
+                Must be < 100 characters and not contain any EnergyPlus special
+                characters. This will be used to identify the object across a
+                model and in the exported IDF.
             schedules: A list of ScheduleFixedInterval objects that will be averaged
                 together to make a new ScheduleFixedInterval. This list may also contain
                 ScheduleRulesets but it is recommened there be at least one
@@ -715,7 +750,7 @@ class ScheduleFixedInterval(object):
                     for values in zip(*all_values)]
 
         # return the final schedule
-        return ScheduleFixedInterval(name, sch_vals, schedules[0].schedule_type_limit,
+        return ScheduleFixedInterval(identifier, sch_vals, schedules[0].schedule_type_limit,
                                      timestep, start_date=Date(1, 1, lp_yr))
 
     def _check_values(self, values):
@@ -759,7 +794,7 @@ class ScheduleFixedInterval(object):
         for type_str in type_idf_strings:
             type_str = type_str.strip()
             type_obj = ScheduleTypeLimit.from_idf(type_str)
-            sch_type_dict[type_obj.name] = type_obj
+            sch_type_dict[type_obj.identifier] = type_obj
         return sch_type_dict
 
     def __len__(self):
@@ -773,7 +808,7 @@ class ScheduleFixedInterval(object):
 
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""
-        return (self.name, self._placeholder_value, self._interpolate,
+        return (self.identifier, self._placeholder_value, self._interpolate,
                 self._timestep, hash(self._start_date),
                 hash(self.schedule_type_limit)) + self._values
 
@@ -787,9 +822,11 @@ class ScheduleFixedInterval(object):
         return not self.__eq__(other)
 
     def __copy__(self):
-        return ScheduleFixedInterval(
-            self.name, self._values, self._schedule_type_limit, self._timestep,
+        new_obj = ScheduleFixedInterval(
+            self.identifier, self._values, self._schedule_type_limit, self._timestep,
             self._start_date, self._placeholder_value, self._interpolate)
+        new_obj._display_name = self._display_name
+        return new_obj
 
     def ToString(self):
         """Overwrite .NET ToString."""
@@ -797,5 +834,5 @@ class ScheduleFixedInterval(object):
 
     def __repr__(self):
         return 'ScheduleFixedInterval:\n name: {}\n period: {} - {}\n timestep: ' \
-            '{}'.format(self.name, self.start_date, self.end_date_time.strftime('%d %b'),
+            '{}'.format(self.identifier, self.start_date, self.end_date_time.strftime('%d %b'),
                         self.timestep)
