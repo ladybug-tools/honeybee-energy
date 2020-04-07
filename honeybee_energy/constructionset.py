@@ -355,30 +355,30 @@ class ConstructionSet(object):
             "roof_ceiling_set": {},  # A RoofCeilingSet dictionary
             "aperture_set": {},  # A ApertureSet dictionary
             "door_set": {},  # A DoorSet dictionary
-            "shade_construction": str,  # ShadeConstruction identifier
-            "air_boundary_construction": str,  # AirBoundaryConstruction identifier
-            "materials": [],  # list of material dictionaries
-            "constructions": []  # list of abridged construction dictionaries
+            "shade_construction": {},  # ShadeConstruction dictionary
+            "air_boundary_construction": {},  # AirBoundaryConstruction dictionary
             }
         """
         assert data['type'] == 'ConstructionSet', \
             'Expected ConstructionSet. Got {}.'.format(data['type'])
 
-        # gather all material objects
-        materials = {}
-        for mat in data['materials']:
-            materials[mat['identifier']] = dict_to_material(mat)
-
-        # gather all construction objects
-        constructions = {}
-        for cnst in data['constructions']:
-            constructions[cnst['identifier']] = \
-                dict_abridged_to_construction(cnst, materials, None)
-        constructions[None] = None
-
         # build each of the sub-construction sets
-        wall_set, floor_set, roof_ceiling_set, aperture_set, door_set, \
-            shade_con, air_con = cls._get_subsets_from_abridged(data, constructions)
+        wall_set = WallSet.from_dict(data['wall_set']) if 'wall_set' in data and \
+            data['wall_set'] is not None else None
+        floor_set = FloorSet.from_dict(data['floor_set']) if 'floor_set' in data and \
+            data['floor_set'] is not None else None
+        roof_ceiling_set = RoofCeilingSet.from_dict(data['roof_ceiling_set']) if \
+            'roof_ceiling_set' in data and data['roof_ceiling_set'] is not None else None
+        aperture_set = ApertureSet.from_dict(data['aperture_set']) if \
+            'aperture_set' in data and data['aperture_set'] is not None else None
+        door_set = DoorSet.from_dict(data['door_set']) if \
+            'door_set' in data and data['door_set'] is not None else None
+        shade_con = ShadeConstruction.from_dict(data['shade_construction']) if \
+            'shade_construction' in data and data['shade_construction'] is not None \
+            else None
+        air_con = AirBoundaryConstruction.from_dict(data['air_boundary_construction']) \
+            if 'air_boundary_construction' in data and \
+            data['air_boundary_construction'] is not None else None
 
         new_obj = cls(data['identifier'], wall_set, floor_set, roof_ceiling_set,
                       aperture_set, door_set, shade_con, air_con)
@@ -402,11 +402,11 @@ class ConstructionSet(object):
             "type": 'ConstructionSetAbridged',
             "identifier": str,  # ConstructionSet identifier
             "display_name": str,  # ConstructionSet display name
-            "wall_set": {},  # A WallSet dictionary
-            "floor_set": {},  # A FloorSet dictionary
-            "roof_ceiling_set": {},  # A RoofCeilingSet dictionary
-            "aperture_set": {},  # A ApertureSet dictionary
-            "door_set": {},  # A DoorSet dictionary
+            "wall_set": {},  # A WallSetAbridged dictionary
+            "floor_set": {},  # A FloorSetAbridged dictionary
+            "roof_ceiling_set": {},  # A RoofCeilingSetAbridged dictionary
+            "aperture_set": {},  # A ApertureSetAbridged dictionary
+            "door_set": {},  # A DoorSetAbridged dictionary
             "shade_construction": str,  # ShadeConstruction identifier
             "air_boundary_construction": str  # AirBoundaryConstruction identifier
             }
@@ -435,35 +435,35 @@ class ConstructionSet(object):
         base = {'type': 'ConstructionSet'} if not \
             abridged else {'type': 'ConstructionSetAbridged'}
         base['identifier'] = self.identifier
-        base['wall_set'] = self.wall_set._to_dict(none_for_defaults)
-        base['floor_set'] = self.floor_set._to_dict(none_for_defaults)
-        base['roof_ceiling_set'] = self.roof_ceiling_set._to_dict(none_for_defaults)
-        base['aperture_set'] = self.aperture_set._to_dict(none_for_defaults)
-        base['door_set'] = self.door_set._to_dict(none_for_defaults)
+        base['wall_set'] = self.wall_set.to_dict(abridged, none_for_defaults)
+        base['floor_set'] = self.floor_set.to_dict(abridged, none_for_defaults)
+        base['roof_ceiling_set'] = \
+            self.roof_ceiling_set.to_dict(abridged, none_for_defaults)
+        base['aperture_set'] = self.aperture_set.to_dict(abridged, none_for_defaults)
+        base['door_set'] = self.door_set.to_dict(abridged, none_for_defaults)
         if none_for_defaults:
-            base['shade_construction'] = self._shade_construction.identifier if \
-                self._shade_construction is not None else None
+            if abridged:
+                base['shade_construction'] = self._shade_construction.identifier if \
+                    self._shade_construction is not None else None
+            else:
+                base['shade_construction'] = self._shade_construction.to_dict() if \
+                    self._shade_construction is not None else None
         else:
-            base['shade_construction'] = self.shade_construction.identifier
+            base['shade_construction'] = self.shade_construction.identifier if abridged \
+                else self.shade_construction.to_dict()
         if none_for_defaults:
+            if abridged:
+                base['air_boundary_construction'] = \
+                    self._air_boundary_construction.identifier if \
+                    self._air_boundary_construction is not None else None
+            else:
+                base['air_boundary_construction'] = \
+                    self._air_boundary_construction.to_dict() if \
+                    self._air_boundary_construction is not None else None
+        else:
             base['air_boundary_construction'] = \
-                self._air_boundary_construction.identifier if \
-                self._air_boundary_construction is not None else None
-        else:
-            base['air_boundary_construction'] = self.air_boundary_construction.identifier
-
-        if not abridged:
-            constructions = self.modified_constructions_unique if none_for_defaults \
-                else self.constructions_unique
-            base['constructions'] = []
-            materials = []
-            for cnst in constructions:
-                try:
-                    materials.extend(cnst.materials)
-                    base['constructions'].append(cnst.to_dict(True))
-                except AttributeError:  # ShadeConstruction or AirBoundaryConstruction
-                    base['constructions'].append(cnst.to_dict())
-            base['materials'] = [mat.to_dict() for mat in list(set(materials))]
+                self.air_boundary_construction.identifier \
+                if abridged else self.air_boundary_construction.to_dict()
 
         if self._display_name is not None:
             base['display_name'] = self.display_name
@@ -699,26 +699,64 @@ class _FaceSetBase(object):
             self._interior_construction is not None or \
             self._ground_construction is not None
 
-    def _to_dict(self, none_for_defaults=True):
+    @classmethod
+    def from_dict(cls, data):
+        """Create a SubSet from a dictionary.
+
+        Note that the dictionary must be a non-abridged version for this
+        classmethod to work.
+
+        Args:
+            data: Dictionary describing the Set of the object.
+        """
+        assert data['type'] == cls.__name__, \
+            'Expected {}. Got {}.'.format(cls.__name__, data['type'])
+        extc = OpaqueConstruction.from_dict(data['exterior_construction']) \
+            if 'exterior_construction' in data and data['exterior_construction'] \
+            is not None else None
+        intc = OpaqueConstruction.from_dict(data['interior_construction']) \
+            if 'interior_construction' in data and data['interior_construction'] \
+            is not None else None
+        gndc = OpaqueConstruction.from_dict(data['ground_construction']) \
+            if 'ground_construction' in data and data['ground_construction'] \
+            is not None else None
+        return cls(extc, intc, gndc)
+
+    def to_dict(self, abridged=False, none_for_defaults=True):
         """Get the Set as a dictionary.
 
         Args:
+            abridged: Boolean noting whether detailed materials and construction
+                objects should be written into the ConstructionSet (False) or just
+                an abridged version (True). Default: False.
             none_for_defaults: Boolean to note whether default constructions in the
                 set should be included in detail (False) or should be None (True).
                 Default: True.
         """
-        base = {'type': self.__class__.__name__ + 'Abridged'}
+        base = {'type': self.__class__.__name__ + 'Abridged'} if abridged else \
+            {'type': self.__class__.__name__}
         if none_for_defaults:
-            base['exterior_construction'] = self._exterior_construction.identifier if \
-                self._exterior_construction is not None else None
-            base['interior_construction'] = self._interior_construction.identifier if \
-                self._interior_construction is not None else None
-            base['ground_construction'] = self._ground_construction.identifier if \
-                self._ground_construction is not None else None
+            if abridged:
+                base['exterior_construction'] = self._exterior_construction.identifier \
+                    if self._exterior_construction is not None else None
+                base['interior_construction'] = self._interior_construction.identifier \
+                    if self._interior_construction is not None else None
+                base['ground_construction'] = self._ground_construction.identifier \
+                    if self._ground_construction is not None else None
+            else:
+                base['exterior_construction'] = self._exterior_construction.to_dict() \
+                    if self._exterior_construction is not None else None
+                base['interior_construction'] = self._interior_construction.to_dict() \
+                    if self._interior_construction is not None else None
+                base['ground_construction'] = self._ground_construction.to_dict() \
+                    if self._ground_construction is not None else None
         else:
-            base['exterior_construction'] = self.exterior_construction.identifier
-            base['interior_construction'] = self.interior_construction.identifier
-            base['ground_construction'] = self.ground_construction.identifier
+            base['exterior_construction'] = self.exterior_construction.identifier if \
+                abridged else self.exterior_construction.to_dict()
+            base['interior_construction'] = self.interior_construction.identifier if \
+                abridged else self.exterior_construction.to_dict()
+            base['ground_construction'] = self.ground_construction.identifier if \
+                abridged else self.exterior_construction.to_dict()
         return base
 
     def duplicate(self):
@@ -1048,31 +1086,74 @@ class ApertureSet(object):
             self._skylight_construction is not None or \
             self._operable_construction is not None
 
-    def _to_dict(self, none_for_defaults=True):
-        """Get ApertureSetAbridged as a dictionary.
+    @classmethod
+    def from_dict(cls, data):
+        """Create a ApertureSet from a dictionary.
+
+        Note that the dictionary must be a non-abridged version for this
+        classmethod to work.
 
         Args:
+            data: Dictionary describing the Set of the object.
+        """
+        assert data['type'] == 'ApertureSet', \
+            'Expected ApertureSet. Got {}.'.format(data['type'])
+        winc = WindowConstruction.from_dict(data['window_construction']) \
+            if 'window_construction' in data and data['window_construction'] \
+            is not None else None
+        intc = WindowConstruction.from_dict(data['interior_construction']) \
+            if 'interior_construction' in data and data['interior_construction'] \
+            is not None else None
+        skyc = WindowConstruction.from_dict(data['skylight_construction']) \
+            if 'skylight_construction' in data and data['skylight_construction'] \
+            is not None else None
+        opc = WindowConstruction.from_dict(data['operable_construction'])\
+            if 'operable_construction' in data and data['operable_construction'] \
+            is not None else None
+        return cls(winc, intc, skyc, opc)
+
+    def to_dict(self, abridged=False, none_for_defaults=True):
+        """Get ApertureSet as a dictionary.
+
+        Args:
+            abridged: Boolean noting whether detailed materials and construction
+                objects should be written into the ConstructionSet (False) or just
+                an abridged version (True). Default: False.
             none_for_defaults: Boolean to note whether default constructions in the
                 set should be included in detail (False) or should be None (True).
                 Default: True.
         """
-        base = {'type': 'ApertureSetAbridged'}
+        base = {'type': 'ApertureSetAbridged'} if abridged else {'type': 'ApertureSet'}
         if none_for_defaults:
-            base['window_construction'] = self._window_construction.identifier if \
-                self._window_construction is not None else None
-            base['interior_construction'] = self._interior_construction.identifier if \
-                self._interior_construction is not None else None
-            base['skylight_construction'] = self._skylight_construction.identifier if \
-                self._skylight_construction is not None else None
-            base['operable_construction'] = \
-                self._operable_construction.identifier if \
-                self._operable_construction is not None else None
+            if abridged:
+                base['window_construction'] = self._window_construction.identifier if \
+                    self._window_construction is not None else None
+                base['interior_construction'] = self._interior_construction.identifier if \
+                    self._interior_construction is not None else None
+                base['skylight_construction'] = self._skylight_construction.identifier if \
+                    self._skylight_construction is not None else None
+                base['operable_construction'] = \
+                    self._operable_construction.identifier if \
+                    self._operable_construction is not None else None
+            else:
+                base['window_construction'] = self._window_construction.to_dict() \
+                    if self._window_construction is not None else None
+                base['interior_construction'] = self._interior_construction.to_dict() \
+                    if self._interior_construction is not None else None
+                base['skylight_construction'] = self._skylight_construction.to_dict() \
+                    if self._skylight_construction is not None else None
+                base['operable_construction'] = \
+                    self._operable_construction.to_dict() if \
+                    self._operable_construction is not None else None
         else:
-            base['window_construction'] = self.window_construction.identifier
-            base['interior_construction'] = self.interior_construction.identifier
-            base['skylight_construction'] = self.skylight_construction.identifier
-            base['operable_construction'] = \
-                self.operable_construction.identifier
+            base['window_construction'] = self.window_construction.identifier if \
+                abridged else self.window_construction.to_dict()
+            base['interior_construction'] = self.interior_construction.identifier if \
+                abridged else self.interior_construction.to_dict()
+            base['skylight_construction'] = self.skylight_construction.identifier if \
+                abridged else self.skylight_construction.to_dict()
+            base['operable_construction'] = self.operable_construction.identifier if \
+                abridged else self.operable_construction.to_dict()
         return base
 
     def duplicate(self):
@@ -1249,36 +1330,87 @@ class DoorSet(object):
             self._interior_glass_construction is not None or \
             self._overhead_construction is None
 
-    def _to_dict(self, none_for_defaults=True):
+    @classmethod
+    def from_dict(cls, data):
+        """Create a DoorSet from a dictionary.
+
+        Note that the dictionary must be a non-abridged version for this
+        classmethod to work.
+
+        Args:
+            data: Dictionary describing the Set of the object.
+        """
+        assert data['type'] == 'DoorSet', \
+            'Expected DoorSet. Got {}.'.format(data['type'])
+        extc = OpaqueConstruction.from_dict(data['exterior_construction']) \
+            if 'exterior_construction' in data and data['exterior_construction'] \
+            is not None else None
+        intc = OpaqueConstruction.from_dict(data['interior_construction']) \
+            if 'interior_construction' in data and data['interior_construction'] \
+            is not None else None
+        egc = WindowConstruction.from_dict(data['exterior_glass_construction']) \
+            if 'exterior_glass_construction' in data and \
+            data['exterior_glass_construction'] is not None else None
+        igc = WindowConstruction.from_dict(data['interior_glass_construction']) \
+            if 'interior_glass_construction' in data and \
+            data['interior_glass_construction'] is not None else None
+        ohc = OpaqueConstruction.from_dict(data['overhead_construction']) \
+            if 'overhead_construction' in data and data['overhead_construction'] \
+            is not None else None
+        return cls(extc, intc, egc, igc, ohc)
+
+    def to_dict(self, abridged=False, none_for_defaults=True):
         """Get the DoorSet as a dictionary.
 
         Args:
+            abridged: Boolean noting whether detailed materials and construction
+                objects should be written into the ConstructionSet (False) or just
+                an abridged version (True). Default: False.
             none_for_defaults: Boolean to note whether default constructions in the
                 set should be included in detail (False) or should be None (True).
                 Default: True.
         """
-        base = {'type': 'DoorSetAbridged'}
+        base = {'type': 'DoorSetAbridged'} if abridged else {'type': 'DoorSet'}
         if none_for_defaults:
-            base['exterior_construction'] = self._exterior_construction.identifier if \
-                self._exterior_construction is not None else None
-            base['interior_construction'] = self._interior_construction.identifier if \
-                self._interior_construction is not None else None
-            base['exterior_glass_construction'] = \
-                self._exterior_glass_construction.identifier if \
-                self._exterior_glass_construction is not None else None
-            base['interior_glass_construction'] = \
-                self._interior_glass_construction.identifier if \
-                self._interior_glass_construction is not None else None
-            base['overhead_construction'] = self._overhead_construction.identifier if \
-                self._overhead_construction is not None else None
+            if abridged:
+                base['exterior_construction'] = self._exterior_construction.identifier \
+                    if self._exterior_construction is not None else None
+                base['interior_construction'] = self._interior_construction.identifier \
+                    if self._interior_construction is not None else None
+                base['exterior_glass_construction'] = \
+                    self._exterior_glass_construction.identifier if \
+                    self._exterior_glass_construction is not None else None
+                base['interior_glass_construction'] = \
+                    self._interior_glass_construction.identifier if \
+                    self._interior_glass_construction is not None else None
+                base['overhead_construction'] = self._overhead_construction.identifier \
+                    if self._overhead_construction is not None else None
+            else:
+                base['exterior_construction'] = self._exterior_construction.to_dict() \
+                    if self._exterior_construction is not None else None
+                base['interior_construction'] = self._interior_construction.to_dict() \
+                    if self._interior_construction is not None else None
+                base['exterior_glass_construction'] = \
+                    self._exterior_glass_construction.to_dict() \
+                    if self._exterior_glass_construction is not None else None
+                base['interior_glass_construction'] = \
+                    self._interior_glass_construction.to_dict() if \
+                    self._interior_glass_construction is not None else None
+                base['overhead_construction'] = self._overhead_construction.to_dict() \
+                    if self._overhead_construction is not None else None
         else:
-            base['exterior_construction'] = self.exterior_construction.identifier
-            base['interior_construction'] = self.interior_construction.identifier
+            base['exterior_construction'] = self.exterior_construction.identifier if \
+                abridged else self.exterior_construction.to_dict()
+            base['interior_construction'] = self.interior_construction.identifier if \
+                abridged else self.interior_construction.to_dict()
             base['exterior_glass_construction'] = \
-                self.exterior_glass_construction.identifier
+                self.exterior_glass_construction.identifier if \
+                abridged else self.exterior_glass_construction.to_dict()
             base['interior_glass_construction'] = \
-                self.interior_glass_construction.identifier
-            base['overhead_construction'] = self.overhead_construction.identifier
+                self.interior_glass_construction.identifier if \
+                abridged else self.interior_glass_construction.to_dict()
+            base['overhead_construction'] = self.overhead_construction.identifier if \
+                abridged else self.overhead_construction.to_dict()
         return base
 
     def duplicate(self):

@@ -1,7 +1,8 @@
 """Load all schedules from the IDF libraries."""
 from honeybee_energy.config import folders
 from honeybee_energy.schedule.ruleset import ScheduleRuleset
-from honeybee_energy.schedule.dictutil import dict_abridged_to_schedule
+from honeybee_energy.schedule.dictutil import dict_abridged_to_schedule, \
+    dict_to_schedule
 
 from ._loadtypelimits import _schedule_type_limits
 
@@ -29,6 +30,8 @@ for f in os.listdir(folders.schedule_lib):
                 try:
                     sch_obj = dict_abridged_to_schedule(
                         data[sch_id], _schedule_type_limits, False)
+                    if sch_obj is None:
+                        sch_obj = dict_to_schedule(data[sch_id], False)
                     if sch_obj:
                         sch_obj.lock()
                         _schedules[sch_id] = sch_obj
