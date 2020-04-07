@@ -3,7 +3,8 @@ from honeybee_energy.config import folders
 from honeybee_energy.construction.opaque import OpaqueConstruction
 from honeybee_energy.construction.window import WindowConstruction
 from honeybee_energy.construction.air import AirBoundaryConstruction
-from honeybee_energy.construction.dictutil import dict_abridged_to_construction
+from honeybee_energy.construction.dictutil import dict_abridged_to_construction, \
+    dict_to_construction
 
 from ._loadmaterials import _opaque_materials, _window_materials
 from ._loadschedules import _schedules
@@ -49,6 +50,8 @@ for f in os.listdir(folders.construction_lib):
                 try:
                     constr = dict_abridged_to_construction(
                         data[constr_identifier], _all_materials, _schedules, False)
+                    if constr is None:
+                        constr = dict_to_construction(data[constr_identifier], False)
                     if constr:
                         constr.lock()
                         if isinstance(constr, (OpaqueConstruction, AirBoundaryConstruction)):

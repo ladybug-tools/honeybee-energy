@@ -20,7 +20,10 @@ for f in os.listdir(folders.programtype_lib):
             p_dict = json.load(json_file)
         for p_id in p_dict:
             try:
-                program = ProgramType.from_dict_abridged(p_dict[p_id], _schedules)
+                if p_dict[p_id]['type'] == 'ProgramTypeAbridged':
+                    program = ProgramType.from_dict_abridged(p_dict[p_id], _schedules)
+                else:
+                    program = ProgramType.from_dict(p_dict[p_id])
                 program.lock()
                 _program_types[program.identifier] = program
             except ValueError:

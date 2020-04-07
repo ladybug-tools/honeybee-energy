@@ -25,12 +25,15 @@ for f in os.listdir(folders.constructionset_lib):
             c_dict = json.load(json_file)
         for c_id in c_dict:
             try:
-                constructionset = ConstructionSet.from_dict_abridged(
-                    c_dict[c_id], _all_constructions)
+                if c_dict[c_id]['type'] == 'ConstructionSetAbridged':
+                    constructionset = ConstructionSet.from_dict_abridged(
+                        c_dict[c_id], _all_constructions)
+                else:
+                    constructionset = ConstructionSet.from_dict(c_dict[c_id])
                 constructionset.lock()
                 _construction_sets[constructionset.identifier] = constructionset
             except ValueError:
-                pass  # failed to find the construction in the construction library
+                pass  # failed to find construction in the library; not a valid program
 
 
 # empty dictionaries to hold extension data
