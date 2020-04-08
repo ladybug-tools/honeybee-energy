@@ -27,9 +27,9 @@ def dict_to_construction(constr_dict, raise_exception=True):
     except KeyError:
         raise ValueError('Construction dictionary lacks required "type" key.')
 
-    if constr_type == 'OpaqueConstructionAbridged':
+    if constr_type == 'OpaqueConstruction':
         return OpaqueConstruction.from_dict(constr_dict)
-    elif constr_type == 'WindowConstructionAbridged':
+    elif constr_type == 'WindowConstruction':
         return WindowConstruction.from_dict(constr_dict)
     elif constr_type == 'ShadeConstruction':
         return ShadeConstruction.from_dict(constr_dict)

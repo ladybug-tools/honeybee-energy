@@ -28,10 +28,12 @@ def simulate():
 @simulate.command('model')
 @click.argument('model-json')
 @click.argument('epw-file')
-@click.option('--sim-par-json', help='Simulation Parameter JSON to decribe the type '
-              'of simulation to run. If None, an annual simulation will be run.',
-              default=None, show_default=True)
-@click.option('--folder', help='Output folder.', default=None, show_default=True)
+@click.option('--sim-par-json', help='Full path to a honeybee energy SimulationParameter'
+              ' JSON that describes all of the settings for the simulation.',
+              default=None)
+@click.option('--folder', help='Folder on this computer, into which the IDF and result'
+              'files will be written. If None, the files will be output in the'
+              'same location as the model_json.', default=None, show_default=True)
 @click.option('--check-model', help='Boolean to note whether the Model should be '
               're-serialized to Python and checked before it is translated to .osm. ',
               default=True, show_default=True)
@@ -40,20 +42,10 @@ def simulate():
               type=click.File('w'), default='-')
 def simulate_model(model_json, epw_file, sim_par_json, folder, check_model, log_file):
     """Simulate a Model JSON file in EnergyPlus.
-    \b
+    \n
     Args:
-        model_json: Full path to a Model JSON file.
+        model_json: Full path to a Model JSON file.\n
         epw_file: Full path to an .epw file.
-        sim_par_json: Full path to a honeybee Energy SimulationParameter JSON
-            that describes all of the settings for the simulation. If None,
-            some default simulation parameters will automatically be used.
-        folder: An optional folder on this computer, into which the IDF and result
-            files will be written. If None, the files will be output in the
-            same location as the model_json. Defaut: None.
-        check_model: Boolean to note whether the Model should be re-serialized to
-            Python and checked before it is translated to .osm.
-        log_file: Optional log file to output the progress of the translation.
-            By default the list will be printed out to stdout.
     """
     try:
         # check that the model JSON and the EPW file is there
@@ -64,7 +56,7 @@ def simulate_model(model_json, epw_file, sim_par_json, folder, check_model, log_
 
         # set the default folder if it's not specified
         if folder is None:
-            folder = os.path.split(model_json)[0]
+            folder = os.path.split(os.path.abspath(model_json))[0]
 
         # process the simulation parameters
         if sim_par_json is None:  # generate some default simulation parameters
