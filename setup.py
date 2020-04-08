@@ -1,4 +1,3 @@
-import re
 import setuptools
 
 
@@ -22,7 +21,7 @@ setuptools.setup(
     include_package_data=True,
     install_requires=requirements,
     extras_require={
-        'cli': ['click>=5.1', 'honeybee-schema>=1.9.0']
+        'cli': ['click==7.1.1', 'honeybee-core[cli]==1.26.1']
     },
     entry_points={
         "console_scripts": ["honeybee-energy = honeybee_energy.cli:energy"]
@@ -30,6 +29,7 @@ setuptools.setup(
     classifiers=[
         "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: Implementation :: CPython",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Operating System :: OS Independent"
