@@ -7,10 +7,20 @@ except ImportError:
         'click is not installed. Try `pip install . [cli]` command.'
     )
 
+from ladybug.futil import write_to_file_by_name
+
 from honeybee.model import Model
 
 from honeybee_energy.simulation.parameter import SimulationParameter
-from honeybee_energy.run import measure_compatible_model_json, to_openstudio_osw, run_osw
+from honeybee_energy.construction.dictutil import dict_to_construction
+from honeybee_energy.construction.opaque import OpaqueConstruction
+from honeybee_energy.construction.window import WindowConstruction
+from honeybee_energy.schedule.dictutil import dict_to_schedule
+from honeybee_energy.schedule.ruleset import ScheduleRuleset
+from honeybee_energy.run import measure_compatible_model_json, to_openstudio_osw, \
+    run_osw
+from honeybee_energy.writer import energyplus_idf_version
+from honeybee_energy.config import folders
 
 import sys
 import os
@@ -26,29 +36,23 @@ def translate():
 
 @translate.command('model-to-osm')
 @click.argument('model-json')
-@click.option('--sim-par-json', help='Optional Simulation Parameter JSON to be '
-              'included as part of the tranlsated OSM.', default=None, show_default=True)
-@click.option('--folder', help='Output folder.', default=None, show_default=True)
+@click.option('--sim-par-json', help='Full path to a honeybee energy SimulationParameter'
+              ' JSON that describes all of the settings for the simulation.',
+              default=None)
+@click.option('--folder', help='Folder on this computer, into which the OSM and IDF '
+              'files will be written. If None, the files will be output in the'
+              'same location as the model_json.', default=None, show_default=True)
 @click.option('--check-model', help='Boolean to note whether the Model should be '
               're-serialized to Python and checked before it is translated to .osm. ',
               default=True, show_default=True)
 @click.option('--log-file', help='Optional log file to output the progress of the'
-              'translation. By default the list will be printed out to stdout',
+              'translation. By default this will be printed out to stdout',
               type=click.File('w'), default='-')
-def translate_model_to_osm(model_json, sim_par_json, folder, check_model, log_file):
-    """Simulate a Model JSON file in EnergyPlus.
-    \b
+def model_to_osm(model_json, sim_par_json, folder, check_model, log_file):
+    """Translate a Model JSON file into an OpenStudio Model.
+    \n
     Args:
         model_json: Full path to a Model JSON file.
-        sim_par_json: Full path to a honeybee Energy SimulationParameter JSON
-            that describes all of the settings for the simulation.
-        folder: An optional folder on this computer, into which the IDF and result
-            files will be written. If None, the files will be output in the
-            same location as the model_json. Defaut: None.
-        check_model: Boolean to note whether the Model should be re-serialized to
-            Python and checked before it is translated to .osm.
-        log_file: Optional log file to output the progress of the translation.
-            By default the list will be printed out to stdout.
     """
     try:
         # check that the model JSON is there
@@ -57,7 +61,7 @@ def translate_model_to_osm(model_json, sim_par_json, folder, check_model, log_fi
 
         # set the default folder if it's not specified
         if folder is None:
-            folder = os.path.split(model_json)[0]
+            folder = os.path.split(os.path.abspath(model_json))[0]
         
         # check that the simulation parameters are there
         if sim_par_json is not None:
@@ -87,6 +91,246 @@ def translate_model_to_osm(model_json, sim_par_json, folder, check_model, log_fi
             raise Exception('Writing OSW file failed.')
     except Exception as e:
         _logger.exception('Model translation failed.\n{}'.format(e))
+        sys.exit(1)
+    else:
+        sys.exit(0)
+
+
+@translate.command('model-to-idf')
+@click.argument('model-json')
+@click.option('--sim-par-json', help='Full path to a honeybee energy SimulationParameter'
+              ' JSON that describes all of the settings for the simulation.',
+              default=None)
+@click.option('--additional-str', help='Text string for additiona lines that '
+              'should be added to the IDF.', type=str, default='')
+@click.option('--log-file', help='Optional IDF file to output the IDF string of the '
+              'translation. By default this will be printed out to stdout',
+              type=click.File('w'), default='-')
+def model_to_idf(model_json, sim_par_json, additional_str, log_file):
+    """Translate a Model JSON file to an IDF using direct-to-idf translators.
+    \n
+    The resulting IDF should be simulate-able but not all Model properties might
+    make it into the IDF given that the direct-to-idf translators are used.
+    \n
+    Args:
+        model_json: Full path to a Model JSON file.
+    """
+    try:
+        # check that the model JSON is there
+        assert os.path.isfile(model_json), \
+            'No Model JSON file found at {}.'.format(model_json)
+
+        # check that the simulation parameters are there and load them
+        if sim_par_json is not None:
+            assert os.path.isfile(sim_par_json), \
+                'No simulation parameter file found at {}.'.format(sim_par_json)
+            with open(sim_par_json) as json_file:
+                data = json.load(json_file)
+            sim_par = SimulationParameter.from_dict(data)
+        else:
+            sim_par = SimulationParameter()
+            sim_par.output.add_zone_energy_use()
+
+        # re-serialze the Model to Python
+        with open(model_json) as json_file:
+            data = json.load(json_file)
+        model = Model.from_dict(data)
+
+        # set the schedule directory in case it is needed
+        sch_path = os.path.abspath(model_json) if 'stdout' in str(log_file) \
+            else os.path.abspath(str(log_file))
+        sch_directory = os.path.join(os.path.split(sch_path)[0], 'schedules')
+
+        # create the strings for simulation paramters and model
+        ver_str = energyplus_idf_version() if folders.energyplus_version \
+            is not None else energyplus_idf_version((9, 2, 0))
+        sim_par_str = sim_par.to_idf()
+        model_str = model.to.idf(
+            model, schedule_directory=sch_directory,
+            solar_distribution=sim_par.shadow_calculation.solar_distribution)
+        idf_str = '\n\n'.join([ver_str, sim_par_str, model_str, additional_str])
+
+        # write out the IDF file
+        log_file.write(idf_str)
+    except Exception as e:
+        _logger.exception('Model translation failed.\n{}'.format(e))
+        sys.exit(1)
+    else:
+        sys.exit(0)
+
+@translate.command('constructions-to-idf')
+@click.argument('construction-json')
+@click.option('--log-file', help='Optional IDF file to output the IDF string of the '
+              'translation. By default this will be printed out to stdout',
+              type=click.File('w'), default='-')
+def construction_to_idf(construction_json, log_file):
+    """Translate a Construction JSON file to an IDF using direct-to-idf translators.
+    \n
+    Args:
+        construction_json: Full path to a Construction JSON file. This file should
+            either be an array of non-abridged Constructions or a dictionary where
+            the values are non-abridged Constructions.
+    """
+    try:
+        # check that the construction JSON is there
+        assert os.path.isfile(construction_json), \
+            'No Construction JSON file found at {}.'.format(construction_json)
+
+        # re-serialze the Constructions to Python
+        with open(construction_json) as json_file:
+            data = json.load(json_file)
+        constr_list = data.values() if isinstance(data, dict) else data
+        constr_objs = [dict_to_construction(constr) for constr in constr_list]
+        mat_objs = set()
+        for constr in constr_objs:
+            for mat in constr.materials:
+                mat_objs.add(mat)
+
+        # create the IDF strings
+        idf_str_list = []
+        idf_str_list.append('!-   ============== MATERIALS ==============\n')
+        idf_str_list.extend([mat.to_idf() for mat in mat_objs])
+        idf_str_list.append('!-   ============ CONSTRUCTIONS ============\n')
+        idf_str_list.extend([constr.to_idf() for constr in constr_objs])
+        idf_str = '\n\n'.join(idf_str_list)
+
+        # write out the IDF file
+        log_file.write(idf_str)
+    except Exception as e:
+        _logger.exception('Construction translation failed.\n{}'.format(e))
+        sys.exit(1)
+    else:
+        sys.exit(0)
+
+@translate.command('constructions-from-idf')
+@click.argument('construction-idf')
+@click.option('--log-file', help='Optional JSON file to output the JSON string of the'
+              'translation. By default this will be printed out to stdout',
+              type=click.File('w'), default='-')
+def construction_from_idf(construction_idf, log_file):
+    """Translate a Construction IDF file to a honeybee JSON as an array of constructions.
+    \n
+    Args:
+        construction_idf: Full path to a Construction IDF file. Only the constructions
+            and materials in this file will be extracted.
+    """
+    try:
+        # check that the construction JSON is there
+        assert os.path.isfile(construction_idf), \
+            'No Construction IDF file found at {}.'.format(construction_idf)
+
+        # re-serialze the Constructions to Python
+        opaque_constrs = OpaqueConstruction.extract_all_from_idf_file(construction_idf)
+        win_constrs = WindowConstruction.extract_all_from_idf_file(construction_idf)
+
+        # create the honeybee disctionaries
+        hb_obj_list = []
+        for constr in opaque_constrs[0]:
+            hb_obj_list.append(constr.to_dict())
+        for constr in win_constrs[0]:
+            hb_obj_list.append(constr.to_dict())
+
+        # write out the JSON file
+        log_file.write(json.dumps(hb_obj_list))
+    except Exception as e:
+        _logger.exception('Construction translation failed.\n{}'.format(e))
+        sys.exit(1)
+    else:
+        sys.exit(0)
+
+@translate.command('schedules-to-idf')
+@click.argument('schedule-json')
+@click.option('--log-file', help='Optional IDF file to output the IDF string of the '
+              'translation. By default this will be printed out to stdout',
+              type=click.File('w'), default='-')
+def schedule_to_idf(schedule_json, log_file):
+    """Translate a Schedule JSON file to an IDF using direct-to-idf translators.
+    \n
+    Args:
+        schedule_json: Full path to a Schedule JSON file. This file should
+            either be an array of non-abridged Schedules or a dictionary where
+            the values are non-abridged Schedules.
+    """
+    try:
+        # check that the Schedule JSON is there
+        assert os.path.isfile(schedule_json), \
+            'No Schedule JSON file found at {}.'.format(schedule_json)
+
+        # re-serialze the Schedule to Python
+        with open(schedule_json) as json_file:
+            data = json.load(json_file)
+        sch_list = data.values() if isinstance(data, dict) else data
+        sch_objs = [dict_to_schedule(sch) for sch in sch_list]
+        type_objs = set()
+        for sch in sch_objs:
+            type_objs.add(sch.schedule_type_limit)
+
+        # set the schedule directory in case it is needed
+        sch_path = os.path.abspath(schedule_json) if 'stdout' in str(log_file) \
+            else os.path.abspath(str(log_file))
+        sch_directory = os.path.join(os.path.split(sch_path)[0], 'schedules')
+
+        # create the IDF strings
+        sched_strs = []
+        used_day_sched_ids = []
+        sched_dir = None
+        for sched in sch_objs:
+            try:  # ScheduleRuleset
+                year_schedule, week_schedules = sched.to_idf()
+                if week_schedules is None:  # ScheduleConstant
+                    sched_strs.append(year_schedule)
+                else:  # ScheduleYear
+                    # check that day schedules aren't referenced by other schedules
+                    day_scheds = []
+                    for day in sched.day_schedules:
+                        if day.identifier not in used_day_sched_ids:
+                            day_scheds.append(day.to_idf(sched.schedule_type_limit))
+                            used_day_sched_ids.append(day.identifier)
+                    sched_strs.extend([year_schedule] + week_schedules + day_scheds)
+            except AttributeError:  # ScheduleFixedInterval
+                sched_strs.append(sched.to_idf(sch_directory))
+        idf_str_list = []
+        idf_str_list.append('!-   ========= SCHEDULE TYPE LIMITS =========\n')
+        idf_str_list.extend([type_limit.to_idf() for type_limit in type_objs])
+        idf_str_list.append('!-   ============== SCHEDULES ==============\n')
+        idf_str_list.extend(sched_strs)
+        idf_str = '\n\n'.join(idf_str_list)
+
+        # write out the IDF file
+        log_file.write(idf_str)
+    except Exception as e:
+        _logger.exception('Schedule translation failed.\n{}'.format(e))
+        sys.exit(1)
+    else:
+        sys.exit(0)
+
+@translate.command('schedules-from-idf')
+@click.argument('schedule-idf')
+@click.option('--log-file', help='Optional JSON file to output the JSON string of the'
+              'translation. By default this will be printed out to stdout',
+              type=click.File('w'), default='-')
+def schedule_from_idf(schedule_idf, log_file):
+    """Translate a schedule IDF file to a honeybee JSON as an array of schedules.
+    \n
+    Args:
+        schedule_idf: Full path to a Schedule IDF file. Only the schedules
+            and schedule type limits in this file will be extracted.
+    """
+    try:
+        # check that the schedule JSON is there
+        assert os.path.isfile(schedule_idf), \
+            'No Schedule IDF file found at {}.'.format(schedule_idf)
+
+        # re-serialze the schedules to Python
+        schedules = ScheduleRuleset.extract_all_from_idf_file(schedule_idf)
+
+        # create the honeybee disctionaries
+        hb_obj_list = [sch.to_dict() for sch in schedules]
+
+        # write out the JSON file
+        log_file.write(json.dumps(hb_obj_list))
+    except Exception as e:
+        _logger.exception('Schedule translation failed.\n{}'.format(e))
         sys.exit(1)
     else:
         sys.exit(0)

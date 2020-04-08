@@ -10,6 +10,7 @@ except ImportError:
 from honeybee.cli import main
 from .simulate import simulate
 from .translate import translate
+from .lib import lib
 
 # command group for all energy extension commands.
 @click.group(help='honeybee energy commands.')
@@ -19,6 +20,7 @@ def energy():
 # add sub-commands to energy
 energy.add_command(simulate)
 energy.add_command(translate)
+energy.add_command(lib)
 
 # add energy sub-commands to honeybee CLI
 main.add_command(energy)
