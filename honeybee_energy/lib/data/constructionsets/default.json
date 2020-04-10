@@ -3,32 +3,32 @@
         "type": "ConstructionSetAbridged",
         "identifier": "Default Generic Construction Set",
         "wall_set": {
-            "type": "WallSetAbridged",
+            "type": "WallConstructionSetAbridged",
             "exterior_construction": null,
             "interior_construction": null,
             "ground_construction": null
         },
         "floor_set": {
-            "type": "FloorSetAbridged",
+            "type": "FloorConstructionSetAbridged",
             "exterior_construction": null,
             "interior_construction": null,
             "ground_construction": null
         },
         "roof_ceiling_set": {
-            "type": "RoofCeilingSetAbridged",
+            "type": "RoofCeilingConstructionSetAbridged",
             "exterior_construction": null,
             "interior_construction": null,
             "ground_construction": null
         },
         "aperture_set": {
-            "type": "ApertureSetAbridged",
+            "type": "ApertureConstructionSetAbridged",
             "window_construction": null,
             "interior_construction": null,
             "skylight_construction": null,
             "operable_construction": null
         },
         "door_set": {
-            "type": "DoorSetAbridged",
+            "type": "DoorConstructionSetAbridged",
             "exterior_construction": null,
             "interior_construction": null,
             "exterior_glass_construction": null,

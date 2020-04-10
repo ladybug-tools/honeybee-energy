@@ -1,5 +1,5 @@
-from honeybee_energy.constructionset import ConstructionSet, WallSet, FloorSet, \
-    RoofCeilingSet, ApertureSet, DoorSet
+from honeybee_energy.constructionset import ConstructionSet, WallConstructionSet, FloorConstructionSet, \
+    RoofCeilingConstructionSet, ApertureConstructionSet, DoorConstructionSet
 from honeybee_energy.construction.opaque import OpaqueConstruction
 from honeybee_energy.construction.window import WindowConstruction
 from honeybee_energy.construction.shade import ShadeConstruction
@@ -22,11 +22,11 @@ def test_constructionset_init():
     assert len(default_set.modified_constructions_unique) == 0
     assert len(default_set.modified_materials_unique) == 0
 
-    assert isinstance(default_set.wall_set, WallSet)
-    assert isinstance(default_set.floor_set, FloorSet)
-    assert isinstance(default_set.roof_ceiling_set, RoofCeilingSet)
-    assert isinstance(default_set.aperture_set, ApertureSet)
-    assert isinstance(default_set.door_set, DoorSet)
+    assert isinstance(default_set.wall_set, WallConstructionSet)
+    assert isinstance(default_set.floor_set, FloorConstructionSet)
+    assert isinstance(default_set.roof_ceiling_set, RoofCeilingConstructionSet)
+    assert isinstance(default_set.aperture_set, ApertureConstructionSet)
+    assert isinstance(default_set.door_set, DoorConstructionSet)
     assert isinstance(default_set.shade_construction, ShadeConstruction)
 
 
