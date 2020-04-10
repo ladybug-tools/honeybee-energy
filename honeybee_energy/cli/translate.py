@@ -80,10 +80,10 @@ def model_to_osm(model_json, sim_par_json, folder, check_model, log_file):
 
         # run the measure to translate the model JSON to an openstudio measure
         log_file.write('Running OSW through OpenStudio CLI.\n')
-        if os.path.isfile(osw):
+        if osw is not None and os.path.isfile(osw):
             osm, idf = run_osw(osw)
             # run the resulting idf through EnergyPlus
-            if os.path.isfile(idf):
+            if idf is not None and os.path.isfile(idf):
                 log_file.write('OpenStudio CLI Model translation successful.\n')
             else:
                 raise Exception('Running OpenStudio CLI failed.')
