@@ -89,14 +89,14 @@ def simulate_model(model_json, epw_file, sim_par_json, folder, check_model, log_
 
         # run the measure to translate the model JSON to an openstudio measure
         log_file.write('Running OSW through OpenStudio CLI.\n')
-        if os.path.isfile(osw):
+        if osw is not None and os.path.isfile(osw):
             osm, idf = run_osw(osw)
             # run the resulting idf through EnergyPlus
-            if os.path.isfile(idf):
+            if idf is not None and os.path.isfile(idf):
                 log_file.write('OpenStudio CLI Model translation successful.\n')
                 log_file.write('Running IDF file through EnergyPlus.\n')
                 sql, eio, rdd, html, err = run_idf(idf, epw_file)
-                if os.path.isfile(err):
+                if err is not None and os.path.isfile(err):
                     log_file.write('EnergyPlus simulation successful.\n')
                 else:
                     raise Exception('Running EnergyPlus failed.')
