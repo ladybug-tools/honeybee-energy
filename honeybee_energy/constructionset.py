@@ -23,16 +23,18 @@ class ConstructionSet(object):
             characters and not contain any EnergyPlus special characters. This
             will be used to identify the object across a model and in the
             exported IDF.
-        wall_set: An optional WallSet object for this ConstructionSet.
-            If None, it will be the honeybee generic default WallSet.
-        floor_set: An optional FloorSet object for this ConstructionSet.
-            If None, it will be the honeybee generic default FloorSet.
-        roof_ceiling_set: An optional RoofCeilingSet object for this ConstructionSet.
-            If None, it will be the honeybee generic default RoofCeilingSet.
-        aperture_set: An optional ApertureSet object for this ConstructionSet.
-            If None, it will be the honeybee generic default ApertureSet.
-        door_set: An optional DoorSet object for this ConstructionSet.
-            If None, it will be the honeybee generic default DoorSet.
+        wall_set: An optional WallConstructionSet object for this ConstructionSet.
+            If None, it will be the honeybee generic default WallConstructionSet.
+        floor_set: An optional FloorConstructionSet object for this ConstructionSet.
+            If None, it will be the honeybee generic default FloorConstructionSet.
+        roof_ceiling_set: An optional RoofCeilingConstructionSet object for this
+            ConstructionSet. If None, it will be the honeybee generic default
+            RoofCeilingConstructionSet.
+        aperture_set: An optional ApertureConstructionSet object for this
+            ConstructionSet. If None, it will be the honeybee generic default
+            ApertureConstructionSet.
+        door_set: An optional DoorConstructionSet object for this ConstructionSet.
+            If None, it will be the honeybee generic default DoorConstructionSet.
         shade_construction: An optional ShadeConstruction to set the reflectance
             properties of all outdoor shades to which this ConstructionSet is
             assigned. If None, it will be the honyebee generic shade construction.
@@ -104,73 +106,73 @@ class ConstructionSet(object):
 
     @property
     def wall_set(self):
-        """Get or set the WallSet assigned to this ConstructionSet."""
+        """Get or set the WallConstructionSet assigned to this ConstructionSet."""
         return self._wall_set
 
     @wall_set.setter
     def wall_set(self, value):
         if value is not None:
-            assert isinstance(value, WallSet), \
-                'Expected WallSet. Got {}'.format(type(value))
+            assert isinstance(value, WallConstructionSet), \
+                'Expected WallConstructionSet. Got {}'.format(type(value))
             self._wall_set = value
         else:
-            self._wall_set = WallSet()
+            self._wall_set = WallConstructionSet()
 
     @property
     def floor_set(self):
-        """Get or set the FloorSet assigned to this ConstructionSet."""
+        """Get or set the FloorConstructionSet assigned to this ConstructionSet."""
         return self._floor_set
 
     @floor_set.setter
     def floor_set(self, value):
         if value is not None:
-            assert isinstance(value, FloorSet), \
-                'Expected FloorSet. Got {}'.format(type(value))
+            assert isinstance(value, FloorConstructionSet), \
+                'Expected FloorConstructionSet. Got {}'.format(type(value))
             self._floor_set = value
         else:
-            self._floor_set = FloorSet()
+            self._floor_set = FloorConstructionSet()
 
     @property
     def roof_ceiling_set(self):
-        """Get or set the RoofCeilingSet assigned to this ConstructionSet."""
+        """Get or set the RoofCeilingConstructionSet assigned to this ConstructionSet."""
         return self._roof_ceiling_set
 
     @roof_ceiling_set.setter
     def roof_ceiling_set(self, value):
         if value is not None:
-            assert isinstance(value, RoofCeilingSet), \
-                'Expected RoofCeilingSet. Got {}'.format(type(value))
+            assert isinstance(value, RoofCeilingConstructionSet), \
+                'Expected RoofCeilingConstructionSet. Got {}'.format(type(value))
             self._roof_ceiling_set = value
         else:
-            self._roof_ceiling_set = RoofCeilingSet()
+            self._roof_ceiling_set = RoofCeilingConstructionSet()
 
     @property
     def aperture_set(self):
-        """Get or set the ApertureSet assigned to this ConstructionSet."""
+        """Get or set the ApertureConstructionSet assigned to this ConstructionSet."""
         return self._aperture_set
 
     @aperture_set.setter
     def aperture_set(self, value):
         if value is not None:
-            assert isinstance(value, ApertureSet), \
-                'Expected ApertureSet. Got {}'.format(type(value))
+            assert isinstance(value, ApertureConstructionSet), \
+                'Expected ApertureConstructionSet. Got {}'.format(type(value))
             self._aperture_set = value
         else:
-            self._aperture_set = ApertureSet()
+            self._aperture_set = ApertureConstructionSet()
 
     @property
     def door_set(self):
-        """Get or set the DoorSet assigned to this ConstructionSet."""
+        """Get or set the DoorConstructionSet assigned to this ConstructionSet."""
         return self._door_set
 
     @door_set.setter
     def door_set(self, value):
         if value is not None:
-            assert isinstance(value, DoorSet), \
-                'Expected DoorSet. Got {}'.format(type(value))
+            assert isinstance(value, DoorConstructionSet), \
+                'Expected DoorConstructionSet. Got {}'.format(type(value))
             self._door_set = value
         else:
-            self._door_set = DoorSet()
+            self._door_set = DoorConstructionSet()
 
     @property
     def shade_construction(self):
@@ -350,11 +352,11 @@ class ConstructionSet(object):
             "type": 'ConstructionSet',
             "identifier": str,  # ConstructionSet identifier
             "display_name": str,  # ConstructionSet display name
-            "wall_set": {},  # A WallSet dictionary
-            "floor_set": {},  # A FloorSet dictionary
-            "roof_ceiling_set": {},  # A RoofCeilingSet dictionary
-            "aperture_set": {},  # A ApertureSet dictionary
-            "door_set": {},  # A DoorSet dictionary
+            "wall_set": {},  # A WallConstructionSet dictionary
+            "floor_set": {},  # A FloorConstructionSet dictionary
+            "roof_ceiling_set": {},  # A RoofCeilingConstructionSet dictionary
+            "aperture_set": {},  # A ApertureConstructionSet dictionary
+            "door_set": {},  # A DoorConstructionSet dictionary
             "shade_construction": {},  # ShadeConstruction dictionary
             "air_boundary_construction": {},  # AirBoundaryConstruction dictionary
             }
@@ -363,15 +365,16 @@ class ConstructionSet(object):
             'Expected ConstructionSet. Got {}.'.format(data['type'])
 
         # build each of the sub-construction sets
-        wall_set = WallSet.from_dict(data['wall_set']) if 'wall_set' in data and \
-            data['wall_set'] is not None else None
-        floor_set = FloorSet.from_dict(data['floor_set']) if 'floor_set' in data and \
-            data['floor_set'] is not None else None
-        roof_ceiling_set = RoofCeilingSet.from_dict(data['roof_ceiling_set']) if \
-            'roof_ceiling_set' in data and data['roof_ceiling_set'] is not None else None
-        aperture_set = ApertureSet.from_dict(data['aperture_set']) if \
+        wall_set = WallConstructionSet.from_dict(data['wall_set']) if 'wall_set' \
+            in data and data['wall_set'] is not None else None
+        floor_set = FloorConstructionSet.from_dict(data['floor_set']) if 'floor_set' \
+            in data and data['floor_set'] is not None else None
+        roof_ceiling_set = RoofCeilingConstructionSet.from_dict(data['roof_ceiling_set']) \
+            if 'roof_ceiling_set' in data and data['roof_ceiling_set'] \
+            is not None else None
+        aperture_set = ApertureConstructionSet.from_dict(data['aperture_set']) if \
             'aperture_set' in data and data['aperture_set'] is not None else None
-        door_set = DoorSet.from_dict(data['door_set']) if \
+        door_set = DoorConstructionSet.from_dict(data['door_set']) if \
             'door_set' in data and data['door_set'] is not None else None
         shade_con = ShadeConstruction.from_dict(data['shade_construction']) if \
             'shade_construction' in data and data['shade_construction'] is not None \
@@ -402,11 +405,11 @@ class ConstructionSet(object):
             "type": 'ConstructionSetAbridged',
             "identifier": str,  # ConstructionSet identifier
             "display_name": str,  # ConstructionSet display name
-            "wall_set": {},  # A WallSetAbridged dictionary
-            "floor_set": {},  # A FloorSetAbridged dictionary
-            "roof_ceiling_set": {},  # A RoofCeilingSetAbridged dictionary
-            "aperture_set": {},  # A ApertureSetAbridged dictionary
-            "door_set": {},  # A DoorSetAbridged dictionary
+            "wall_set": {},  # A WallConstructionSetAbridged dictionary
+            "floor_set": {},  # A FloorConstructionSetAbridged dictionary
+            "roof_ceiling_set": {},  # A RoofCeilingConstructionSetAbridged dictionary
+            "aperture_set": {},  # A ApertureConstructionSetAbridged dictionary
+            "door_set": {},  # A DoorConstructionSetAbridged dictionary
             "shade_construction": str,  # ShadeConstruction identifier
             "air_boundary_construction": str  # AirBoundaryConstruction identifier
             }
@@ -443,14 +446,14 @@ class ConstructionSet(object):
         base['door_set'] = self.door_set.to_dict(abridged, none_for_defaults)
         if none_for_defaults:
             if abridged:
-                base['shade_construction'] = self._shade_construction.identifier if \
-                    self._shade_construction is not None else None
+                base['shade_construction'] = self._shade_construction.identifier \
+                    if self._shade_construction is not None else None
             else:
-                base['shade_construction'] = self._shade_construction.to_dict() if \
-                    self._shade_construction is not None else None
+                base['shade_construction'] = self._shade_construction.to_dict() \
+                    if self._shade_construction is not None else None
         else:
-            base['shade_construction'] = self.shade_construction.identifier if abridged \
-                else self.shade_construction.to_dict()
+            base['shade_construction'] = self.shade_construction.identifier \
+                if abridged else self.shade_construction.to_dict()
         if none_for_defaults:
             if abridged:
                 base['air_boundary_construction'] = \
@@ -474,7 +477,7 @@ class ConstructionSet(object):
         return self.__copy__()
 
     def lock(self):
-        """The lock() method to will also lock the WallSet, FloorSet, etc."""
+        """The lock() method to will also lock the WallConstructionSet, etc."""
         self._locked = True
         self._wall_set.lock()
         self._floor_set.lock()
@@ -483,7 +486,7 @@ class ConstructionSet(object):
         self._door_set.lock()
 
     def unlock(self):
-        """The unlock() method will also unlock the WallSet, FloorSet, etc."""
+        """The unlock() method will also unlock the WallConstructionSet, etc."""
         self._locked = False
         self._wall_set.unlock()
         self._floor_set.unlock()
@@ -504,14 +507,15 @@ class ConstructionSet(object):
     def _get_subsets_from_abridged(data, constructions):
         """Get subset objects from and abirdged dictionary."""
         wall_set = ConstructionSet._make_construction_subset(
-            data, WallSet(), 'wall_set', constructions)
+            data, WallConstructionSet(), 'wall_set', constructions)
         floor_set = ConstructionSet._make_construction_subset(
-            data, FloorSet(), 'floor_set', constructions)
+            data, FloorConstructionSet(), 'floor_set', constructions)
         roof_ceiling_set = ConstructionSet._make_construction_subset(
-            data, RoofCeilingSet(), 'roof_ceiling_set', constructions)
+            data, RoofCeilingConstructionSet(), 'roof_ceiling_set', constructions)
         aperture_set = ConstructionSet._make_aperture_subset(
-            data, ApertureSet(), constructions)
-        door_set = ConstructionSet._make_door_subset(data, DoorSet(), constructions)
+            data, ApertureConstructionSet(), constructions)
+        door_set = ConstructionSet._make_door_subset(
+            data, DoorConstructionSet(), constructions)
         if 'shade_construction' in data and data['shade_construction'] is not None:
             shade = constructions[data['shade_construction']]
         else:
@@ -525,7 +529,7 @@ class ConstructionSet(object):
 
     @staticmethod
     def _make_construction_subset(data, sub_set, sub_set_id, constructions):
-        """Make a WallSet, FloorSet, or RoofCeilingSet from dictionary."""
+        """Make a wall set, floor set, or roof ceiling set from dictionary."""
         if sub_set_id in data:
             if 'exterior_construction' in data[sub_set_id] and \
                     data[sub_set_id]['exterior_construction'] is not None:
@@ -543,7 +547,7 @@ class ConstructionSet(object):
 
     @staticmethod
     def _make_aperture_subset(data, sub_set, constructions):
-        """Make an ApertureSet from a dictionary."""
+        """Make an ApertureConstructionSet from a dictionary."""
         if 'aperture_set' in data:
             if 'window_construction' in data['aperture_set'] and \
                     data['aperture_set']['window_construction'] is not None:
@@ -565,7 +569,7 @@ class ConstructionSet(object):
 
     @staticmethod
     def _make_door_subset(data, sub_set, constructions):
-        """Make a DoorSet from dictionary."""
+        """Make a DoorConstructionSet from dictionary."""
         if 'door_set' in data:
             if 'exterior_construction' in data['door_set'] and \
                     data['door_set']['exterior_construction'] is not None:
@@ -624,7 +628,10 @@ class ConstructionSet(object):
 
 @lockable
 class _FaceSetBase(object):
-    """Base class for the sets assigned to Faces (WallSet, FloorSet, RoofCeilingSet).
+    """Base class for the sets assigned to Faces.
+
+    This includesWallConstructionSet, FloorConstructionSet, and the 
+    RoofCeilingConstructionSet.
 
     Args:
         exterior_construction: An OpaqueConstruction object for faces with an
@@ -751,12 +758,12 @@ class _FaceSetBase(object):
                 base['ground_construction'] = self._ground_construction.to_dict() \
                     if self._ground_construction is not None else None
         else:
-            base['exterior_construction'] = self.exterior_construction.identifier if \
-                abridged else self.exterior_construction.to_dict()
-            base['interior_construction'] = self.interior_construction.identifier if \
-                abridged else self.exterior_construction.to_dict()
-            base['ground_construction'] = self.ground_construction.identifier if \
-                abridged else self.exterior_construction.to_dict()
+            base['exterior_construction'] = self.exterior_construction.identifier \
+                if abridged else self.exterior_construction.to_dict()
+            base['interior_construction'] = self.interior_construction.identifier \
+                if abridged else self.exterior_construction.to_dict()
+            base['ground_construction'] = self.ground_construction.identifier \
+                if abridged else self.exterior_construction.to_dict()
         return base
 
     def duplicate(self):
@@ -788,7 +795,7 @@ class _FaceSetBase(object):
 
 
 @lockable
-class WallSet(_FaceSetBase):
+class WallConstructionSet(_FaceSetBase):
     """Set containing all energy constructions needed to for an energy model's Walls.
 
     Properties:
@@ -848,7 +855,7 @@ class WallSet(_FaceSetBase):
 
 
 @lockable
-class FloorSet(_FaceSetBase):
+class FloorConstructionSet(_FaceSetBase):
     """Set containing all energy constructions needed to for an energy model's Floors.
 
     Properties:
@@ -908,7 +915,7 @@ class FloorSet(_FaceSetBase):
 
 
 @lockable
-class RoofCeilingSet(_FaceSetBase):
+class RoofCeilingConstructionSet(_FaceSetBase):
     """Set containing all energy constructions needed to for an energy model's Roofs.
 
     Properties:
@@ -968,8 +975,8 @@ class RoofCeilingSet(_FaceSetBase):
 
 
 @lockable
-class ApertureSet(object):
-    """Set containing all energy constructions needed to for an energy model's Apertures.
+class ApertureConstructionSet(object):
+    """Set containing all constructions needed to for an energy model's Apertures.
 
     Args:
         window_construction: A WindowConstruction object for apertures
@@ -1088,7 +1095,7 @@ class ApertureSet(object):
 
     @classmethod
     def from_dict(cls, data):
-        """Create a ApertureSet from a dictionary.
+        """Create a ApertureConstructionSet from a dictionary.
 
         Note that the dictionary must be a non-abridged version for this
         classmethod to work.
@@ -1096,8 +1103,8 @@ class ApertureSet(object):
         Args:
             data: Dictionary describing the Set of the object.
         """
-        assert data['type'] == 'ApertureSet', \
-            'Expected ApertureSet. Got {}.'.format(data['type'])
+        assert data['type'] == 'ApertureConstructionSet', \
+            'Expected ApertureConstructionSet. Got {}.'.format(data['type'])
         winc = WindowConstruction.from_dict(data['window_construction']) \
             if 'window_construction' in data and data['window_construction'] \
             is not None else None
@@ -1113,7 +1120,7 @@ class ApertureSet(object):
         return cls(winc, intc, skyc, opc)
 
     def to_dict(self, abridged=False, none_for_defaults=True):
-        """Get ApertureSet as a dictionary.
+        """Get ApertureConstructionSet as a dictionary.
 
         Args:
             abridged: Boolean noting whether detailed materials and construction
@@ -1123,7 +1130,8 @@ class ApertureSet(object):
                 set should be included in detail (False) or should be None (True).
                 Default: True.
         """
-        base = {'type': 'ApertureSetAbridged'} if abridged else {'type': 'ApertureSet'}
+        base = {'type': 'ApertureConstructionSetAbridged'} if abridged \
+            else {'type': 'ApertureConstructionSet'}
         if none_for_defaults:
             if abridged:
                 base['window_construction'] = self._window_construction.identifier if \
@@ -1184,12 +1192,14 @@ class ApertureSet(object):
     def __repr__(self):
         return 'Aperture Construction Set:\n Window: {}\n Interior: {}' \
             '\n Skylight: {}\n Operable: {}'.format(
-                self.window_construction.identifier, self.interior_construction.identifier,
-                self.skylight_construction.identifier, self.operable_construction.identifier)
+                self.window_construction.identifier,
+                self.interior_construction.identifier,
+                self.skylight_construction.identifier,
+                self.operable_construction.identifier)
 
 
 @lockable
-class DoorSet(object):
+class DoorConstructionSet(object):
     """Set containing all energy constructions needed to for an energy model's Roofs.
 
     Args:
@@ -1332,7 +1342,7 @@ class DoorSet(object):
 
     @classmethod
     def from_dict(cls, data):
-        """Create a DoorSet from a dictionary.
+        """Create a DoorConstructionSet from a dictionary.
 
         Note that the dictionary must be a non-abridged version for this
         classmethod to work.
@@ -1340,8 +1350,8 @@ class DoorSet(object):
         Args:
             data: Dictionary describing the Set of the object.
         """
-        assert data['type'] == 'DoorSet', \
-            'Expected DoorSet. Got {}.'.format(data['type'])
+        assert data['type'] == 'DoorConstructionSet', \
+            'Expected DoorConstructionSet. Got {}.'.format(data['type'])
         extc = OpaqueConstruction.from_dict(data['exterior_construction']) \
             if 'exterior_construction' in data and data['exterior_construction'] \
             is not None else None
@@ -1360,7 +1370,7 @@ class DoorSet(object):
         return cls(extc, intc, egc, igc, ohc)
 
     def to_dict(self, abridged=False, none_for_defaults=True):
-        """Get the DoorSet as a dictionary.
+        """Get the DoorConstructionSet as a dictionary.
 
         Args:
             abridged: Boolean noting whether detailed materials and construction
@@ -1370,7 +1380,8 @@ class DoorSet(object):
                 set should be included in detail (False) or should be None (True).
                 Default: True.
         """
-        base = {'type': 'DoorSetAbridged'} if abridged else {'type': 'DoorSet'}
+        base = {'type': 'DoorConstructionSetAbridged'} if abridged \
+            else {'type': 'DoorConstructionSet'}
         if none_for_defaults:
             if abridged:
                 base['exterior_construction'] = self._exterior_construction.identifier \
