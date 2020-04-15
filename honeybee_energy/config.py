@@ -370,8 +370,12 @@ class Folders(object):
         """
         def getversion(energyplus_path):
             """Get digits for the version of EnergyPlus."""
-            ver = ''.join(s for s in energyplus_path if (s.isdigit() or s == '-'))
-            return sum(int(d) * (10 ** i) for i, d in enumerate(reversed(ver.split('-'))))
+            try:
+                ver = ''.join(s for s in energyplus_path if (s.isdigit() or s == '-'))
+                return sum(int(d) * (10 ** i)
+                           for i, d in enumerate(reversed(ver.split('-'))))
+            except ValueError:  # folder starting with 'EnergyPlus' and no version
+                return 0
 
         # first check for the EnergyPlus that comes with OpenStudio
         ep_path = None
@@ -435,8 +439,12 @@ class Folders(object):
         """
         def getversion(openstudio_path):
             """Get digits for the version of OpenStudio."""
-            ver = ''.join(s for s in openstudio_path if (s.isdigit() or s == '.'))
-            return sum(int(d) * (10 ** i) for i, d in enumerate(reversed(ver.split('.'))))
+            try:
+                ver = ''.join(s for s in openstudio_path if (s.isdigit() or s == '.'))
+                return sum(int(d) * (10 ** i)
+                           for i, d in enumerate(reversed(ver.split('.'))))
+            except ValueError:  # folder starting with 'openstudio' and no version
+                return 0
 
         # first check if there's a version installed in the ladybug_tools folder
         lb_install = lb_config.folders.ladybug_tools_folder
@@ -485,9 +493,12 @@ class Folders(object):
         """
         if not os_path:
             return None
-        ver = ''.join(s for s in os_path if (s.isdigit() or s == '.'))
-        if ver:  # version was found in the file path name
-            return tuple(int(d) for d in ver.split('.'))
+        try:
+            ver = ''.join(s for s in os_path if (s.isdigit() or s == '.'))
+            if ver:  # version was found in the file path name
+                return tuple(int(d) for d in ver.split('.'))
+        except ValueError:
+            pass  # folder starting with 'openstudio' and no version
         return None
 
     @staticmethod
