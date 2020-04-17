@@ -351,7 +351,8 @@ class Folders(object):
         # then, check the root of the ladybug_tools folder
         lb_install = lb_config.folders.ladybug_tools_folder
         if os.path.isdir(lb_install):
-            measure_path = os.path.join(lb_install, 'energy_model_measure', 'lib')
+            measure_path = os.path.join(
+                lb_install, 'openstudio', 'energy_model_measure', 'lib')
             if os.path.isdir(measure_path):
                 return measure_path
 
