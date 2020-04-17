@@ -456,7 +456,7 @@ class Folders(object):
                               os.path.isdir(os.path.join(lb_install, f)))]
 
         # then check the default installation folders
-        if len(os_folders) != 0:
+        if len(os_folders) != 0 and os.path.isfile(os.path.join(os_folders[0], 'bin')):
             pass  # we found a version of openstudio in the ladybug_tools folder
         elif os.name == 'nt':  # search the C:/ drive on Windows
             os_folders = ['C:\\{}'.format(f) for f in os.listdir('C:\\')
