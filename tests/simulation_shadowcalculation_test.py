@@ -9,7 +9,7 @@ def test_shadow_calculation_init():
     shadow_calc = ShadowCalculation()
     str(shadow_calc)  # test the string representation
 
-    assert shadow_calc.solar_distribution == 'FullInteriorAndExteriorWithReflections'
+    assert shadow_calc.solar_distribution == 'FullExteriorWithReflections'
     assert shadow_calc.calculation_method == 'AverageOverDaysInFrequency'
     assert shadow_calc.calculation_frequency == 30
     assert shadow_calc.maximum_figures == 15000
@@ -33,7 +33,7 @@ def test_simulation_control_equality():
     """Test the equality of SimulationControl objects."""
     shadow_calc = ShadowCalculation()
     shadow_calc_dup = shadow_calc.duplicate()
-    shadow_calc_alt = ShadowCalculation(solar_distribution='FullExteriorWithReflections')
+    shadow_calc_alt = ShadowCalculation(solar_distribution='FullExterior')
 
     assert shadow_calc is shadow_calc
     assert shadow_calc is not shadow_calc_dup

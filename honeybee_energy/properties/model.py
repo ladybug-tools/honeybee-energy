@@ -314,13 +314,13 @@ class ModelEnergyProperties(object):
                     hvacs.append(room.properties.energy._hvac)
         return hvacs
 
-    def building_idf(self, solar_distribution='FullInteriorAndExteriorWithReflections'):
+    def building_idf(self, solar_distribution='FullExteriorWithReflections'):
         """Get an IDF string for Building that this model represents.
 
         Args:
             solar_distribution: Text desribing how EnergyPlus should treat beam solar
-                radiation reflected from surfaces. Default:
-                FullInteriorAndExteriorWithReflections. Choose from the following:
+                radiation reflected from surfaces. Default: FullExteriorWithReflections.
+                Choose from the following:
 
                 * MinimalShadowing
                 * FullExterior

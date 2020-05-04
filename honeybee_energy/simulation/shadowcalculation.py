@@ -15,7 +15,7 @@ class ShadowCalculation(object):
     Args:
         solar_distribution: Text desribing how EnergyPlus should treat beam solar
             radiation and reflectances from surfaces that strike the building surfaces.
-            Default: FullInteriorAndExteriorWithReflections. Choose from the following:
+            Default: FullExteriorWithReflections. Choose from the following:
 
             * MinimalShadowing
             * FullExterior
@@ -50,7 +50,7 @@ class ShadowCalculation(object):
         'FullExteriorWithReflections', 'FullInteriorAndExteriorWithReflections')
     CALCULATION_METHODS = ('AverageOverDaysInFrequency', 'TimestepFrequency')
 
-    def __init__(self, solar_distribution='FullInteriorAndExteriorWithReflections',
+    def __init__(self, solar_distribution='FullExteriorWithReflections',
                  calculation_method='AverageOverDaysInFrequency',
                  calculation_frequency=30, maximum_figures=15000):
         """Initialize ShadowCalculation."""
@@ -131,8 +131,7 @@ class ShadowCalculation(object):
             value, 200, input_name='shadow calculation maximum figures')
 
     @classmethod
-    def from_idf(cls, idf_string,
-                 solar_distribution='FullInteriorAndExteriorWithReflections'):
+    def from_idf(cls, idf_string, solar_distribution='FullExteriorWithReflections'):
         """Create a ShadowCalculation object from an EnergyPlus IDF text string.
 
         Args:
@@ -178,7 +177,7 @@ class ShadowCalculation(object):
         assert data['type'] == 'ShadowCalculation', \
             'Expected ShadowCalculation dictionary. Got {}.'.format(data['type'])
         solar_distribution = data['solar_distribution'] if \
-            'solar_distribution' in data else 'FullInteriorAndExteriorWithReflections'
+            'solar_distribution' in data else 'FullExteriorWithReflections'
         calculation_method = data['calculation_method'] if \
             'calculation_method' in data else 'AverageOverDaysInFrequency'
         calculation_frequency = data['calculation_frequency'] if \
