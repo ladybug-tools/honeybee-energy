@@ -43,7 +43,7 @@ def measure_compatible_model_json(model_json_path, destination_directory=None):
     file_name = '{}_osm.json'.format(base_file_name)
     dest_file_path = os.path.join(dest_dir, file_name)
 
-    # serialze the Model to Python
+    # serialize the Model to Python
     with open(model_json_path) as json_file:
         data = json.load(json_file)
     parsed_model = Model.from_dict(data)

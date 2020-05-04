@@ -216,7 +216,7 @@ class SimulationParameter(object):
                 holidays_str = None
             try:
                 dls_str = dls_pattern.findall(idf_string)[0]
-            except IndexError:  # No DalyightSavingTime in the file.
+            except IndexError:  # No DaylightSavingTime in the file.
                 dls_str = None
             run_period = RunPeriod.from_idf(run_period_str, holidays_str, dls_str)
 
@@ -245,7 +245,7 @@ class SimulationParameter(object):
                 bldg_str = bldg_pattern.findall(idf_string)[0]
                 solar_dist = bldg_str[5] if bldg_str[5] != '' else 'FullExterior'
             except IndexError:  # No Building in the file. Use honeybee default.
-                solar_dist = 'FullInteriorAndExteriorWithReflections'
+                solar_dist = 'FullExteriorWithReflections'
             shadow_calc = ShadowCalculation.from_idf(sh_calc_str, solar_dist)
 
         # process the SizingParameter within the idf_string

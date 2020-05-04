@@ -297,11 +297,11 @@ def room_to_idf(room):
 
 
 def model_to_idf(model, schedule_directory=None,
-                 solar_distribution='FullInteriorAndExteriorWithReflections'):
+                 solar_distribution='FullExteriorWithReflections'):
     r"""Generate an IDF string representation of a Model.
 
     The resulting string will include all geometry (Rooms, Faces, Shades, Apertures,
-    Doors), all fully-detailed counstructions + materials, all fully-detailed
+    Doors), all fully-detailed constructions + materials, all fully-detailed
     schedules, and the room properties (loads, thermostats with setpoints, and HVAC).
 
     Essentially, the string includes everything needed to simulate the model
@@ -314,8 +314,8 @@ def model_to_idf(model, schedule_directory=None,
             schedules should be written to. If None, it will be written to the
             user folder assuming the project is entitled 'unnamed'.
         solar_distribution: Text desribing how EnergyPlus should treat beam solar
-            radiation reflected from surfaces. Default:
-            FullInteriorAndExteriorWithReflections. Choose from the following:
+            radiation reflected from surfaces. Default: FullExteriorWithReflections.
+            Choose from the following:
 
             * MinimalShadowing
             * FullExterior

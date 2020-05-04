@@ -68,7 +68,7 @@ def model_to_osm(model_json, sim_par_json, folder, check_model, log_file):
             assert os.path.isfile(sim_par_json), \
                 'No simulation parameter file found at {}.'.format(sim_par_json)
         
-        # run the Model re-serialzation and check if specified
+        # run the Model re-serialization and check if specified
         if check_model:
             log_file.write('Checking and re-serailizing model JSON.\n')
             model_json = measure_compatible_model_json(model_json, folder)
@@ -101,7 +101,7 @@ def model_to_osm(model_json, sim_par_json, folder, check_model, log_file):
 @click.option('--sim-par-json', help='Full path to a honeybee energy SimulationParameter'
               ' JSON that describes all of the settings for the simulation.',
               default=None)
-@click.option('--additional-str', help='Text string for additiona lines that '
+@click.option('--additional-str', help='Text string for additional lines that '
               'should be added to the IDF.', type=str, default='')
 @click.option('--log-file', help='Optional IDF file to output the IDF string of the '
               'translation. By default this will be printed out to stdout',
