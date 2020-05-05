@@ -1,1 +1,1 @@
-honeybee-core==1.28.0
+honeybee-core==1.28.1
