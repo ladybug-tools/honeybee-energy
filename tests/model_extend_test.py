@@ -279,7 +279,6 @@ def test_to_from_dict():
     tree_canopy.properties.energy.transmittance_schedule = tree_trans
 
     model = Model('TinyHouse', [room], orphaned_shades=[tree_canopy])
-    model.north_angle = 15
     model_dict = model.to_dict()
     new_model = Model.from_dict(model_dict)
     assert model_dict == new_model.to_dict()
@@ -293,7 +292,6 @@ def test_to_from_dict():
     assert new_model.rooms[0][1].apertures[0].properties.energy.construction == triple_pane
     assert new_model.rooms[0][1].apertures[0].is_operable
     assert len(new_model.orphaned_shades) == 1
-    assert new_model.north_angle == 15
 
     assert new_model.rooms[0][0].type == face_types.floor
     assert new_model.rooms[0][1].type == face_types.wall
@@ -354,7 +352,6 @@ def test_to_dict_single_zone():
     room.add_indoor_shade(table)
 
     model = Model('TinyHouse', [room], orphaned_shades=[tree_canopy])
-    model.north_angle = 15
 
     model_dict = model.to_dict()
 
@@ -432,7 +429,6 @@ def test_to_dict_single_zone_schedule_fixed_interval():
     tree_canopy.properties.energy.transmittance_schedule = trans_sched
 
     model = Model('TinyHouse', [room], orphaned_shades=[tree_canopy])
-    model.north_angle = 15
 
     model_dict = model.to_dict()
 
@@ -724,9 +720,6 @@ def test_writer_to_idf():
     room.add_indoor_shade(table)
 
     model = Model('TinyHouse', [room], orphaned_shades=[tree_canopy])
-    model.north_angle = 15
 
     assert hasattr(model.to, 'idf')
     idf_string = model.to.idf(model, schedule_directory='./tests/idf/')
-    assert 'TinyHouse,' in idf_string
-    assert 'Building,' in idf_string
