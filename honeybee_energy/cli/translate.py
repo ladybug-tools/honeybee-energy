@@ -131,7 +131,7 @@ def model_to_idf(model_json, sim_par_json, additional_str, log_file):
             sim_par = SimulationParameter()
             sim_par.output.add_zone_energy_use()
 
-        # re-serialze the Model to Python
+        # re-serialize the Model to Python
         with open(model_json) as json_file:
             data = json.load(json_file)
         model = Model.from_dict(data)
@@ -145,9 +145,7 @@ def model_to_idf(model_json, sim_par_json, additional_str, log_file):
         ver_str = energyplus_idf_version() if folders.energyplus_version \
             is not None else energyplus_idf_version((9, 2, 0))
         sim_par_str = sim_par.to_idf()
-        model_str = model.to.idf(
-            model, schedule_directory=sch_directory,
-            solar_distribution=sim_par.shadow_calculation.solar_distribution)
+        model_str = model.to.idf(model, schedule_directory=sch_directory)
         idf_str = '\n\n'.join([ver_str, sim_par_str, model_str, additional_str])
 
         # write out the IDF file

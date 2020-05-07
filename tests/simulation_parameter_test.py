@@ -7,6 +7,7 @@ from honeybee_energy.simulation.control import SimulationControl
 from honeybee_energy.simulation.shadowcalculation import ShadowCalculation
 from honeybee_energy.simulation.sizing import SizingParameter
 
+from ladybug_geometry.geometry2d.pointvector import Vector2D
 from ladybug.dt import Date
 
 import pytest
@@ -23,6 +24,9 @@ def test_simulation_parameter_init():
     assert sim_par.simulation_control == SimulationControl()
     assert sim_par.shadow_calculation == ShadowCalculation()
     assert sim_par.sizing_parameter == SizingParameter()
+    assert sim_par.north_angle == 0
+    assert sim_par.north_vector == Vector2D(0, 1)
+    assert sim_par.terrain_type == 'City'
 
 
 def test_simulation_parameter_setability():
@@ -50,6 +54,10 @@ def test_simulation_parameter_setability():
     sizing_alt.add_from_ddy(relative_path)
     sim_par.sizing_parameter = sizing_alt
     assert sim_par.sizing_parameter == sizing_alt
+    sim_par.north_angle = 20
+    assert sim_par.north_angle == 20
+    sim_par.terrain_type = 'Ocean'
+    assert sim_par.terrain_type == 'Ocean'
 
 
 def test_simulation_parameter_equality():

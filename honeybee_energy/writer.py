@@ -96,7 +96,7 @@ def aperture_to_idf(aperture):
     loop through the Aperture.shades, and call the to.idf method on each one.
 
     Args:
-        aperture: A honeyee Aperture for which an IDF representation will be returned.
+        aperture: A honeybee Aperture for which an IDF representation will be returned.
     """
     ap_bc_obj = aperture.boundary_condition.boundary_condition_object if \
         isinstance(aperture.boundary_condition, Surface) else ''
@@ -296,8 +296,7 @@ def room_to_idf(room):
     return '\n\n'.join(zone_str)
 
 
-def model_to_idf(model, schedule_directory=None,
-                 solar_distribution='FullExteriorWithReflections'):
+def model_to_idf(model, schedule_directory=None):
     r"""Generate an IDF string representation of a Model.
 
     The resulting string will include all geometry (Rooms, Faces, Shades, Apertures,
@@ -313,15 +312,6 @@ def model_to_idf(model, schedule_directory=None,
         schedule_directory: An optional file directory to which any file-based
             schedules should be written to. If None, it will be written to the
             user folder assuming the project is entitled 'unnamed'.
-        solar_distribution: Text desribing how EnergyPlus should treat beam solar
-            radiation reflected from surfaces. Default: FullExteriorWithReflections.
-            Choose from the following:
-
-            * MinimalShadowing
-            * FullExterior
-            * FullInteriorAndExterior
-            * FullExteriorWithReflections
-            * FullInteriorAndExteriorWithReflections
 
     Usage:
 
@@ -364,7 +354,6 @@ def model_to_idf(model, schedule_directory=None,
     model_str = ['!-   =======================================\n'
                  '!-   ================ MODEL ================\n'
                  '!-   =======================================\n']
-    model_str.append(model.properties.energy.building_idf(solar_distribution))
 
     # write all of the schedules and type limits
     sched_strs = []
