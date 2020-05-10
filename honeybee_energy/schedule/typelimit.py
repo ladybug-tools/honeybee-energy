@@ -52,7 +52,7 @@ class ScheduleTypeLimit(object):
     _default_lb_unit_type = {
         'Dimensionless': (fraction.Fraction(), 'fraction'),
         'Temperature': (temperature.Temperature(), 'C'),
-        'DeltaTemperature': (temperaturedelta.TemperatureDelta(), 'C'),
+        'DeltaTemperature': (temperaturedelta.TemperatureDelta(), 'dC'),
         'PrecipitationRate': [distance.Distance(), 'm'],
         'Angle': [angle.Angle(), 'degrees'],
         'ConvectionCoefficient': [uvalue.ConvectionCoefficient(), 'W/m2-K'],
