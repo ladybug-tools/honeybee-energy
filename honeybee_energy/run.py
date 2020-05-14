@@ -32,7 +32,7 @@ def measure_compatible_model_json(model_json_path, destination_directory=None):
     Returns:
         The full file path to the new Model JSON written out by this method.
     """
-    # check that the file is thre
+    # check that the file is there
     assert os.path.isfile(model_json_path), \
         'No JSON file found at {}.'.format(model_json_path)
 
@@ -125,8 +125,8 @@ def run_osw(osw_json, measures_only=True):
     Args:
         osw_json: File path to a OSW file to be run using OpenStudio CLI.
         measures_only: Boolean to note whether only the measures should be applied
-            in the runnning of the OSW (True) or the resulting model shoudl be run
-            through EnergyPlus after the measures are aplied to it (False).
+            in the running of the OSW (True) or the resulting model should be run
+            through EnergyPlus after the measures are applied to it (False).
             Default: True.
 
     Returns:
@@ -213,7 +213,7 @@ def run_idf(idf_file_path, epw_file_path, expand_objects=True):
         epw_file_path: The full path to an EPW file.
         expand_objects: If True, the IDF run will include the expansion of any
             HVAC Template objects in the file before beginning the simulation.
-            This is a necessary step whenever there are HVAC Template objets in
+            This is a necessary step whenever there are HVAC Template objects in
             the IDF but it is unnecessary extra time when they are not present.
             Default: True.
 
@@ -381,7 +381,7 @@ def _run_idf_windows(idf_file_path, epw_file_path, expand_objects=True):
         epw_file_path: The full path to an EPW file.
         expand_objects: If True, the IDF run will include the expansion of any
             HVAC Template objects in the file before beginning the simulation.
-            This is a necessary step whenever there are HVAC Template objets in
+            This is a necessary step whenever there are HVAC Template objects in
             the IDF but it is unnecessary extra time when they are not present.
             Default: True.
 
@@ -422,7 +422,7 @@ def _run_idf_unix(idf_file_path, epw_file_path, expand_objects=True):
         epw_file_path: The full path to an EPW file.
         expand_objects: If True, the IDF run will include the expansion of any
             HVAC Template objects in the file before beginning the simulation.
-            This is a necessary step whenever there are HVAC Template objets in
+            This is a necessary step whenever there are HVAC Template objects in
             the IDF but it is unnecessary extra time when they are not present.
             Default: True.
 
@@ -484,7 +484,7 @@ def _output_energyplus_files(directory):
     sql_file = os.path.join(directory, 'eplusout.sql')
     zsz_file = os.path.join(directory, 'epluszsz.csv')
     rdd_file = os.path.join(directory, 'eplusout.rdd')
-    html_file = os.path.join(directory, 'eplusout.html')
+    html_file = os.path.join(directory, 'eplustbl.htm')
     err_file = os.path.join(directory, 'eplusout.err')
 
     # check that the simulation files exist

@@ -9,7 +9,6 @@ from ..writer import generate_idf_string
 class SimulationOutput(object):
     """Object to hold EnergyPlus simulation outputs.
 
-
     Args:
         outputs: A list of EnergyPlus output names as strings, which are requested
             from the simulation. If None, no outputs will be requested.
@@ -32,7 +31,7 @@ class SimulationOutput(object):
             summary_reports. Default: True.
         include_html: Boolean to note whether an HTML report should be generated
             from the simulation, which contains all of the summary_reports.
-            Default: False.
+            Default: True.
         summary_reports: An array of EnergyPlus summary report names as strings.
             An empty list or None will result in no summary reports.
             Default: ('AllSummary',). See the Input Output Reference SummaryReports
@@ -52,7 +51,7 @@ output-table-summaryreports.html#outputtablesummaryreports).
     REPORTING_FREQUENCIES = ('Annual', 'Monthly', 'Daily', 'Hourly', 'Timestep')
 
     def __init__(self, outputs=None, reporting_frequency='Hourly', include_sqlite=True,
-                 include_html=False, summary_reports=('AllSummary',)):
+                 include_html=True, summary_reports=('AllSummary',)):
         """Initialize SimulationOutput."""
         self.outputs = outputs
         self.reporting_frequency = reporting_frequency
@@ -72,7 +71,7 @@ output-table-summaryreports.html#outputtablesummaryreports).
     @outputs.setter
     def outputs(self, value):
         if value is not None:
-            assert not isinstance(value, (str, bytes)), 'Extected list or tuple for ' \
+            assert not isinstance(value, (str, bytes)), 'Expected list or tuple for ' \
                 'SimulationOutput outputs. Got {}.'.format(type(value))
             if not isinstance(value, set):
                 value = set(value)
@@ -399,7 +398,7 @@ output-table-summaryreports.html#outputtablesummaryreports)
                 summary_reports. Default: True.
         """
         # extract the table_style
-        include_html = False
+        include_html = True
         if table_style is not None:
             style_strs = parse_idf_string(table_style, 'OutputControl:Table:Style,')
             try:
@@ -418,7 +417,7 @@ output-table-summaryreports.html#outputtablesummaryreports)
                 try:
                     frequency = ep_out_str[2] if ep_out_str[2] != '' else 'Hourly'
                 except IndexError:
-                    pass  # shorter output variable with default hourly frequencey
+                    pass  # shorter output variable with default hourly frequency
 
         # extract the summary_reports
         reports = None
@@ -440,7 +439,7 @@ output-table-summaryreports.html#outputtablesummaryreports)
             "type": "SimulationOutput",
             "outputs": ['Zone Ideal Loads Supply Air Total Cooling Energy'],
             "reporting_frequency": 'Annual',
-            "include_sqlite": False,
+            "include_sqlite": True,
             "include_html": True,
             "summary_reports": ['AllSummary', 'AnnualBuildingUtilityPerformanceSummary']
             }
@@ -451,7 +450,7 @@ output-table-summaryreports.html#outputtablesummaryreports)
         frequency = data['reporting_frequency'] if \
             'reporting_frequency' in data else 'Hourly'
         sqlite = data['include_sqlite'] if 'include_sqlite' in data else True
-        html = data['include_html'] if 'include_html' in data else False
+        html = data['include_html'] if 'include_html' in data else True
         reports = data['summary_reports'] if 'summary_reports' in data else None
         return cls(outputs, frequency, sqlite, html, reports)
 
