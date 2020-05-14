@@ -14,7 +14,7 @@ def test_simulation_output_init():
     assert len(sim_output.outputs) > 1
     assert sim_output.reporting_frequency == 'Hourly'
     assert sim_output.include_sqlite
-    assert not sim_output.include_html
+    assert sim_output.include_html
     assert len(sim_output.summary_reports) == 1
     assert sim_output.summary_reports == ('AllSummary',)
 
