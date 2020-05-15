@@ -1,10 +1,11 @@
 # coding=utf-8
-from honeybee_energy.result.sql import SQLiteResult
+from honeybee_energy.result.sql import SQLiteResult, ZoneSize, ComponentSize
 from honeybee_energy.result.rdd import RDD
 from honeybee_energy.result.err import Err
 
 from ladybug.datatype.energy import Energy
 from ladybug.datatype.temperature import Temperature
+from ladybug.dt import DateTime
 from ladybug.location import Location
 from ladybug.analysisperiod import AnalysisPeriod
 from ladybug.datacollection import HourlyContinuousCollection, DailyCollection, \
@@ -22,6 +23,61 @@ def test_sqlite_init():
     assert isinstance(sql_obj.file_path, str)
     assert isinstance(sql_obj.location, Location)
     assert sql_obj.location.latitude == 42.37
+
+
+def test_sqlite_zone_sizing():
+    """Test the properties and methods related to zone sizes."""
+    sql_path = './tests/result/eplusout_hourly.sql'
+    sql_obj = SQLiteResult(sql_path)
+
+    cool_sizes = sql_obj.zone_cooling_sizes
+    heat_sizes = sql_obj.zone_heating_sizes
+
+    assert len(cool_sizes) == 7
+    assert len(heat_sizes) == 7
+
+    for size_obj in cool_sizes:
+        assert isinstance(size_obj, ZoneSize)
+        assert isinstance(size_obj.zone_name, str)
+        assert size_obj.load_type == 'Cooling'
+        assert isinstance(size_obj.calculated_design_load, float)
+        assert isinstance(size_obj.final_design_load, float)
+        assert isinstance(size_obj.calculated_design_flow, float)
+        assert isinstance(size_obj.final_design_flow, float)
+        assert size_obj.design_day_name == 'BOSTON LOGAN INTL ARPT ANN CLG .4% CONDNS DB=>MWB'
+        assert isinstance(size_obj.peak_date_time, DateTime)
+        assert isinstance(size_obj.peak_temperature, float)
+        assert isinstance(size_obj.peak_humidity_ratio, float)
+        assert isinstance(size_obj.peak_outdoor_air_flow, float)
+    
+    for size_obj in heat_sizes:
+        assert size_obj.load_type == 'Heating'
+        assert size_obj.design_day_name == 'BOSTON LOGAN INTL ARPT ANN HTG 99.6% CONDNS DB'
+
+
+def test_sqlite_component_sizing():
+    """Test the properties and methods related to component sizes."""
+    sql_path = './tests/result/eplusout_hourly.sql'
+    sql_obj = SQLiteResult(sql_path)
+
+    comp_sizes = sql_obj.component_sizes
+    comp_size_type = sql_obj.component_sizes_by_type('ZoneHVAC:IdealLoadsAirSystem')
+    comp_types = sql_obj.component_types
+
+    assert len(comp_sizes) == 7
+    assert len(comp_size_type) == 7
+    assert comp_types == ['ZoneHVAC:IdealLoadsAirSystem']
+
+    for size_obj in comp_sizes:
+        assert isinstance(size_obj, ComponentSize)
+        assert size_obj.component_type == 'ZoneHVAC:IdealLoadsAirSystem'
+        assert isinstance(size_obj.component_name, str)
+        assert all(isinstance(desc, str) for desc in size_obj.descriptions)
+        assert all(isinstance(prop, str) for prop in size_obj.properties)
+        assert all(isinstance(val, float) for val in size_obj.values)
+        assert all(isinstance(unit, str) for unit in size_obj.units)
+        assert isinstance(size_obj.properties_dict, dict)
+        assert len(size_obj.properties_dict) == 4
 
 
 def test_sqlite_data_collections_by_output_name():
