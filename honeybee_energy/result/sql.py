@@ -6,7 +6,7 @@ import os
 import sqlite3
 
 import ladybug.datatype
-from ladybug.dt import DateTime
+from ladybug.dt import DateTime, datetime
 from ladybug.location import Location
 from ladybug.analysisperiod import AnalysisPeriod
 from ladybug.header import Header
@@ -23,6 +23,9 @@ class SQLiteResult(object):
     Properties:
         * file_path
         * location
+        * zone_cooling_sizes
+        * zone_heating_sizes
+        * component_sizes
     """
     _interval_codes = ('Timestep', 'Hourly', 'Daily', 'Monthly', 'Annual')
 
@@ -32,7 +35,12 @@ class SQLiteResult(object):
         assert file_path.endswith(('.sql', '.db', '.sqlite')), \
             '{} is not an SQL file ending in .sql or .db.'.format(file_path)
         self._file_path = file_path
-        self._location = None  # compute it as soon as it's requested
+
+        # values to be computed as soon as they are requested
+        self._location = None
+        self._zone_cooling_sizes = None
+        self._zone_heating_sizes = None
+        self._component_sizes = None
 
     @property
     def file_path(self):
@@ -49,6 +57,62 @@ class SQLiteResult(object):
         if not self._location:
             self._extract_location()
         return self._location
+
+    @property
+    def zone_cooling_sizes(self):
+        """Get a list of ZoneSize objects for all conditioned zones in the model.
+
+        Each ZoneSize object contains several properties regarding the outcome
+        of the cooling sizing calculation.
+        """
+        if not self._zone_cooling_sizes:
+            self._zone_cooling_sizes = self._extract_zone_sizes('Cooling')
+        return self._zone_cooling_sizes
+
+    @property
+    def zone_heating_sizes(self):
+        """Get a list of ZoneSize objects for all conditioned zones in the model.
+
+        Each ZoneSize object contains several properties regarding the outcome
+        of the heating sizing calculation.
+        """
+        if not self._zone_heating_sizes:
+            self._zone_heating_sizes = self._extract_zone_sizes('Heating')
+        return self._zone_heating_sizes
+
+    @property
+    def component_sizes(self):
+        """Get a list of ComponentSize objects for all HVAC components in the results.
+
+        Each ComponentSize object contains several properties regarding the outcome
+        of the sizing calculation.
+        """
+        if not self._component_sizes:
+            self._component_sizes = self._extract_component_sizes()
+        return self._component_sizes
+
+    @property
+    def component_types(self):
+        """Get a list of text for all component types contained in the results."""
+        if not self._component_sizes:
+            self._component_sizes = self._extract_component_sizes()
+        _comp_types = set()
+        for comp in self._component_sizes:
+            _comp_types.add(comp.component_type)
+        return list(_comp_types)
+
+    def component_sizes_by_type(self, component_type):
+        """Get a list of ComponentSize objects for a specific type of HVAC component.
+
+        This can be much faster than using the component_sizes property when
+        there are a lot of components in the model and only one type of
+        component is needed.
+
+        Args:
+            component_type: Text for the type of component to be retrieved.
+                (eg. 'ZoneHVAC:IdealLoadsAirSystem')
+        """
+        return self._extract_component_sizes(component_type)
 
     def data_collections_by_output_name(self, output_name):
         """Get an array of Ladybug DataCollections for a specified output.
@@ -132,7 +196,7 @@ class SQLiteResult(object):
 
         return data_colls
     
-    def tablular_data_by_name(self, table_name):
+    def tabular_data_by_name(self, table_name):
         """Get all the data within a table of a Summary Report using the table name.
 
         Args:
@@ -155,7 +219,7 @@ class SQLiteResult(object):
     def _extract_location(self):
         """Extract a Location object from the SQLite file."""
         # extract all of the data from the General table in AllSummary
-        general = self.tablular_data_by_name('General')
+        general = self.tabular_data_by_name('General')
         if general == []:
             return
 
@@ -168,6 +232,57 @@ class SQLiteResult(object):
             city=city, source=source, station_id=station_id,
             latitude=general[3][0], longitude=general[4][0],
             time_zone=general[6][0], elevation=general[5][0])
+
+    def _extract_zone_sizes(self, load_type):
+        """Get all of the ZoneSize objects of a certain load type.
+
+        Args:
+            load_type: Text for the type of load to retrive.
+                This must be either 'Cooling' or 'Heating'.
+        """
+        conn = sqlite3.connect(self.file_path)
+        try:
+            # extract the data from the ZoneSizes table
+            c = conn.cursor()
+            c.execute('SELECT * FROM ZoneSizes WHERE LoadType=?', (load_type,))
+            table_data = c.fetchall()
+            conn.close()  # ensure connection is always closed
+        except Exception as e:
+            conn.close()  # ensure connection is always closed
+            raise Exception(str(e))
+        return [ZoneSize(table_row) for table_row in table_data]
+
+    def _extract_component_sizes(self, component_type=None):
+        """Get all of the ComponentSize objects of a certain type in the model.
+
+        Args:
+            component_type: Text for the type of component to be retrieved.
+                (eg. 'ZoneHVAC:IdealLoadsAirSystem')
+        """
+        conn = sqlite3.connect(self.file_path)
+        try:
+            # extract the data from the ZoneSizes table
+            c = conn.cursor()
+            if component_type:
+                c.execute('SELECT * FROM ComponentSizes WHERE CompType=?',
+                          (component_type,))
+            else:
+                c.execute('SELECT * FROM ComponentSizes')
+            table_data = c.fetchall()
+            conn.close()  # ensure connection is always closed
+        except Exception as e:
+            conn.close()  # ensure connection is always closed
+            raise Exception(str(e))
+        # group the rows by component name
+        table_dict = {}
+        for prop in table_data:
+            comp_name = prop[2]
+            try:
+                table_dict[comp_name].append(prop)
+            except KeyError:
+                table_dict[comp_name] = [prop]
+        # create the ComponentSize objects
+        return [ComponentSize(table_rows) for table_rows in table_dict.values()]
 
     def _extract_run_period(self, st_time, end_time):
         """Extract the run period object and frequency from the SQLite file.
@@ -219,7 +334,7 @@ class SQLiteResult(object):
 
     def _check_desdays_in_report(self):
         """Check the Simulation Control object to see if design days are reported."""
-        sim_control = self.tablular_data_by_name('Simulation Control')
+        sim_control = self.tabular_data_by_name('Simulation Control')
         if sim_control == [] or sim_control[3][0] == 'No':
             return True
         return False
@@ -227,8 +342,8 @@ class SQLiteResult(object):
     @staticmethod
     def _data_type_from_unit(from_unit):
         """Get a Ladybug DataType object instance from a unit abbreviation.
-        
-        The returned object will be the base type (eg. Tmperture, Energy, etc.).
+
+        The returned object will be the base type (eg. Temperature, Energy, etc.).
         """
         for key in ladybug.datatype.UNITS:
             if from_unit in ladybug.datatype.UNITS[key]:
@@ -256,3 +371,211 @@ class SQLiteResult(object):
 
     def __repr__(self):
         return 'Energy SQLiteResult: {}'.format(self.file_path)
+
+
+class ZoneSize(object):
+    """Object for holding the sizing results of an individual zone.
+
+    Args:
+        sql_table_row: A list that represents a row of the SQLite ZoneSizes table.
+            This row contains all of the sizing information for a single conditioned
+            zone (either heating or cooling).
+
+    Properties:
+        * zone_name
+        * load_type
+        * calculated_design_load
+        * final_design_load
+        * calculated_design_flow
+        * final_design_flow
+        * design_day_name
+        * peak_date_time
+        * peak_temperature
+        * peak_humidity_ratio
+        * peak_outdoor_air_flow
+    """
+
+    __slots__ = ('_zone_name', '_load_type', '_calculated_design_load',
+                 '_final_design_load', '_calculated_design_flow', '_final_design_flow',
+                 '_design_day_name', '_peak_date_time', '_peak_temperature',
+                 '_peak_humidity_ratio', '_peak_outdoor_air_flow')
+
+    def __init__(self, sql_table_row):
+        """Initialize ZoneSize"""
+        self._zone_name = str(sql_table_row[1])
+        self._load_type = str(sql_table_row[2])
+        self._calculated_design_load = sql_table_row[3]
+        self._final_design_load = sql_table_row[4]
+        self._calculated_design_flow = sql_table_row[5]
+        self._final_design_flow = sql_table_row[6]
+        self._design_day_name = str(sql_table_row[7])
+        self._peak_temperature = sql_table_row[9]
+        self._peak_humidity_ratio = sql_table_row[10]
+        self._peak_outdoor_air_flow = sql_table_row[11]
+
+        py_dt = datetime.strptime(sql_table_row[8], '%m/%d %H:%M:%S')
+        self._peak_date_time = DateTime(py_dt.month, py_dt.day, py_dt.hour, py_dt.minute)
+
+    @property
+    def zone_name(self):
+        """Get the name of the zone to which this sizing information corresponds."""
+        return self._zone_name
+
+    @property
+    def load_type(self):
+        """Get a text string that is either "Cooling" or "Heating"."""
+        return self._load_type
+
+    @property
+    def calculated_design_load(self):
+        """Get the peak load of the Zone computed by the EnergyPlus sizing calculation.
+
+        Values are always in Watts.
+        """
+        return self._calculated_design_load
+
+    @property
+    def final_design_load(self):
+        """Get the peak load of the Zone that is ultimately used to size the equipment. 
+
+        Values are always in Watts. This accounts for the heating_factor and
+        cooling_factor of the specified in the SizingParameter of the
+        SimulationParameter object.
+        """
+        return self._final_design_load
+
+    @property
+    def calculated_design_flow(self):
+        """Get the peak flow of the Zone computed by the EnergyPlus sizing calculation.
+
+        Values are always in m3/s.
+        """
+        return self._calculated_design_flow
+
+    @property
+    def final_design_flow(self):
+        """Get the peak flor of the Zone that is ultimately used to size the equipment. 
+
+        Values are always in m3/s. This accounts for the heating_factor and
+        cooling_factor of the specified in the SizingParameter of the
+        SimulationParameter object.
+        """
+        return self._final_design_flow
+
+    @property
+    def design_day_name(self):
+        """Get the name of the design day on which the peak load occurred."""
+        return self._design_day_name
+
+    @property
+    def peak_date_time(self):
+        """Get a DateTime for the time at which the peak occurred."""
+        return self._peak_date_time
+    
+    @property
+    def peak_temperature(self):
+        """Get the outdoor air temperature at the time of the peak load (C)."""
+        return self._peak_temperature
+    
+    @property
+    def peak_humidity_ratio(self):
+        """Get the outdoor humidity ratio at the time of the peak load (fractional)."""
+        return self._peak_humidity_ratio
+
+    @property
+    def peak_outdoor_air_flow(self):
+        """Get the outdoor air flow into the zone at the time of the peak load (m3/s)."""
+        return self._peak_outdoor_air_flow
+
+    def ToString(self):
+        """Overwrite .NET ToString."""
+        return self.__repr__()
+
+    def __repr__(self):
+        return '{} Zone Size: {} W'.format(self.load_type, self.calculated_design_load)
+
+
+class ComponentSize(object):
+    """Object for holding the sizing results of an individual HVAC components.
+
+    Args:
+        sql_table_rows: A list of list where each sub-list represents a row of
+            the SQLite ComponentSizes table. These rows are all expected to have
+            the same component name.
+
+    Properties:
+        * component_type
+        * component_name
+        * descriptions
+        * properties
+        * values
+        * units
+        * properties_dict
+    """
+
+    __slots__ = ('_component_type', '_component_name', '_properties', '_values',
+                 '_units', '_properties_dict')
+
+    def __init__(self, sql_table_rows):
+        """Initialize ComponentSize"""
+        self._component_type = str(sql_table_rows[0][1])
+        self._component_name = str(sql_table_rows[0][2])
+        self._properties = tuple(str(table_row[3]) for table_row in sql_table_rows)
+        self._values = tuple(table_row[4] for table_row in sql_table_rows)
+        self._units = tuple(str(table_row[5]) for table_row in sql_table_rows)
+
+    @property
+    def component_type(self):
+        """Get text for the type of component that this object represents."""
+        return self._component_type
+
+    @property
+    def component_name(self):
+        """Get text for the name of component that this object represents."""
+        return self._component_name
+
+    @property
+    def descriptions(self):
+        """Get a tuple with text descriptions for all component properties.
+
+        Descriptions are formatted as component_name-property-unit. They are
+        aligned with the values on this object.
+        """
+        return tuple('{}-{} [{}]'.format(self._component_name, prop, unit)
+                     for prop, unit in zip(self._properties, self._units))
+
+    @property
+    def properties(self):
+        """Get a tuple with text for all component properties.
+
+        They are aligned with the values on this object.
+        """
+        return self._properties
+
+    @property
+    def values(self):
+        """Get a tuple with numbers for all component property values.
+
+        They are aligned with the properties on this object.
+        """
+        return self._values
+
+    @property
+    def units(self):
+        """Get a tuple with text for all component property units.
+
+        They are aligned with the values on this object.
+        """
+        return self._units
+
+    @property
+    def properties_dict(self):
+        """Get a dictionary with the properties as keys and values as the values."""
+        return {prop: val for prop, val in zip(self._properties, self._values)}
+
+    def ToString(self):
+        """Overwrite .NET ToString."""
+        return self.__repr__()
+
+    def __repr__(self):
+        return 'Component Size: {}'.format(self.component_name)
