@@ -133,9 +133,8 @@ class ZSZ(object):
         collections = []
         for i, col_head in enumerate(self._headers):
             if data_type_text in col_head:
-                head = Header(data_type, unit, self._a_period)
-                head.metadata['type'] = description
-                head.metadata['Zone'] = col_head.split(':')[0]
+                metadata = {'type': description, 'Zone': col_head.split(':')[0]}
+                head = Header(data_type, unit, self._a_period, metadata)
                 collections.append(HourlyContinuousCollection(
                     head, [float(val) for val in self._data[i]]))
         return collections
