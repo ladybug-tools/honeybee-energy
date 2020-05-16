@@ -1,10 +1,13 @@
 # coding=utf-8
 from honeybee_energy.result.sql import SQLiteResult, ZoneSize, ComponentSize
 from honeybee_energy.result.rdd import RDD
+from honeybee_energy.result.zsz import ZSZ
 from honeybee_energy.result.err import Err
 
 from ladybug.datatype.energy import Energy
 from ladybug.datatype.temperature import Temperature
+from ladybug.datatype.power import Power
+from ladybug.datatype.massflowrate import MassFlowRate
 from ladybug.dt import DateTime
 from ladybug.location import Location
 from ladybug.analysisperiod import AnalysisPeriod
@@ -238,3 +241,33 @@ def test_err_severe():
     assert len(err_obj.warnings) == 0
     assert len(err_obj.severe_errors) == 4
     assert len(err_obj.fatal_errors) == 1
+
+
+def test_zsz_init():
+    """Test the properties and methods related to zone sizes."""
+    zsz_obj = './tests/result/epluszsz.csv'
+    zsz_obj = ZSZ(zsz_obj)
+
+    assert zsz_obj.timestep == 6
+
+    cool_sizes = zsz_obj.cooling_load_data
+    heat_sizes = zsz_obj.heating_load_data
+    cool_flows = zsz_obj.cooling_flow_data
+    heat_flows = zsz_obj.heating_flow_data
+
+    assert len(cool_sizes) == 7
+    assert len(heat_sizes) == 7
+    assert len(cool_flows) == 7
+    assert len(heat_flows) == 7
+
+    for size_obj in cool_sizes:
+        assert isinstance(size_obj, HourlyContinuousCollection)
+        assert isinstance(size_obj.header.metadata['Zone'], str)
+        assert isinstance(size_obj.header.data_type, Power)
+        assert size_obj.header.unit == 'W'
+
+    for size_obj in cool_flows:
+        assert isinstance(size_obj, HourlyContinuousCollection)
+        assert isinstance(size_obj.header.metadata['Zone'], str)
+        assert isinstance(size_obj.header.data_type, MassFlowRate)
+        assert size_obj.header.unit == 'kg/s'
