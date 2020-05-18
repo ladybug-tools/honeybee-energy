@@ -1,9 +1,10 @@
 # coding=utf-8
 from honeybee_energy.run import measure_compatible_model_json, run_idf, \
-     prepare_idf_for_simulation
+     prepare_idf_for_simulation, to_openstudio_osw
 from honeybee_energy.lib.programtypes import office_program
 from honeybee_energy.hvac.idealair import IdealAirSystem
 from honeybee_energy.simulation.parameter import SimulationParameter
+from honeybee_energy.measure import Measure
 import honeybee_energy.config as energy_config
 
 from ladybug.dt import Date
@@ -43,6 +44,45 @@ def test_measure_compatible_model_json():
 
     os.remove(model_json_path)
     os.remove(osm_model_json)
+
+
+def test_to_openstudio_osw():
+    """Test to_openstudio_osw."""
+    # create the model
+    room = Room.from_box('TinyHouseZone', 5, 10, 3)
+    model = Model('TinyHouse', [room])
+    model_json_path = './tests/simulation/model_osw_test.json'
+    with open(model_json_path, 'w') as fp:
+        json.dump(model.to_dict(included_prop=['energy']), fp)
+    
+    # create the simulation parameter
+    sim_par = SimulationParameter()
+    sim_par.output.add_zone_energy_use()
+    simpar_json_path = './tests/simulation/simpar_osw_test.json'
+    with open(simpar_json_path, 'w') as fp:
+        json.dump(sim_par.to_dict(), fp)
+
+    # create additional measures
+    measure_path = './tests/measure/edit_fraction_radiant_of_lighting_and_equipment'
+    measure = Measure(measure_path)
+    measure.arguments[0].value = 0.25
+    measure.arguments[1].value = 0.25
+
+    # test it without measures
+    folder = './tests/simulation/'
+    osw_path = os.path.join(folder, 'workflow.osw')
+
+    osw = to_openstudio_osw(folder, model_json_path, simpar_json_path)
+    assert os.path.isfile(osw_path)
+    os.remove(osw_path)
+
+    # test it with measures
+    osw = to_openstudio_osw(folder, model_json_path, additional_measures=[measure])
+    assert os.path.isfile(osw_path)
+    os.remove(osw_path)
+
+    os.remove(model_json_path)
+    os.remove(simpar_json_path)
 
 
 def test_run_idf():

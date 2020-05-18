@@ -509,7 +509,7 @@ def test_air_construction_init():
     assert night_flush_constr.air_mixing_schedule == constr_dup.air_mixing_schedule
 
 
-def test_shade_construction_to_idf():
+def test_air_construction_to_idf():
     """Test the initalization of AirBoundaryConstruction objects and basic properties."""
     night_flush = ScheduleRuleset.from_daily_values(
         'Night Flush', [1, 1, 1, 1, 1, 1, 1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5,
@@ -519,7 +519,7 @@ def test_shade_construction_to_idf():
     assert isinstance(night_flush_constr.to_idf(), str)
 
 
-def test_shade_equivalency():
+def test_air_equivalency():
     """Test the equality of a AirBoundaryConstruction to another."""
     default_constr = AirBoundaryConstruction('Default Air Construction')
 
@@ -541,7 +541,7 @@ def test_shade_equivalency():
     assert len(set(collection)) == 2
 
 
-def test_shade_dict_methods():
+def test_air_dict_methods():
     """Test the to/from dict methods."""
     night_flush = ScheduleRuleset.from_daily_values(
         'Night Flush', [1, 1, 1, 1, 1, 1, 1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5,

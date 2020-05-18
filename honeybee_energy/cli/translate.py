@@ -61,7 +61,7 @@ def model_to_osm(model_json, sim_par_json, folder, check_model, log_file):
 
         # set the default folder if it's not specified
         if folder is None:
-            folder = os.path.split(os.path.abspath(model_json))[0]
+            folder = os.path.dirname(os.path.abspath(model_json))
         
         # check that the simulation parameters are there
         if sim_par_json is not None:
@@ -174,7 +174,7 @@ def construction_to_idf(construction_json, log_file):
         assert os.path.isfile(construction_json), \
             'No Construction JSON file found at {}.'.format(construction_json)
 
-        # re-serialze the Constructions to Python
+        # re-serialize the Constructions to Python
         with open(construction_json) as json_file:
             data = json.load(json_file)
         constr_list = data.values() if isinstance(data, dict) else data
@@ -217,11 +217,11 @@ def construction_from_idf(construction_idf, log_file):
         assert os.path.isfile(construction_idf), \
             'No Construction IDF file found at {}.'.format(construction_idf)
 
-        # re-serialze the Constructions to Python
+        # re-serialize the Constructions to Python
         opaque_constrs = OpaqueConstruction.extract_all_from_idf_file(construction_idf)
         win_constrs = WindowConstruction.extract_all_from_idf_file(construction_idf)
 
-        # create the honeybee disctionaries
+        # create the honeybee dictionaries
         hb_obj_list = []
         for constr in opaque_constrs[0]:
             hb_obj_list.append(constr.to_dict())
@@ -254,7 +254,7 @@ def schedule_to_idf(schedule_json, log_file):
         assert os.path.isfile(schedule_json), \
             'No Schedule JSON file found at {}.'.format(schedule_json)
 
-        # re-serialze the Schedule to Python
+        # re-serialize the Schedule to Python
         with open(schedule_json) as json_file:
             data = json.load(json_file)
         sch_list = data.values() if isinstance(data, dict) else data
@@ -319,10 +319,10 @@ def schedule_from_idf(schedule_idf, log_file):
         assert os.path.isfile(schedule_idf), \
             'No Schedule IDF file found at {}.'.format(schedule_idf)
 
-        # re-serialze the schedules to Python
+        # re-serialize the schedules to Python
         schedules = ScheduleRuleset.extract_all_from_idf_file(schedule_idf)
 
-        # create the honeybee disctionaries
+        # create the honeybee dictionaries
         hb_obj_list = [sch.to_dict() for sch in schedules]
 
         # write out the JSON file

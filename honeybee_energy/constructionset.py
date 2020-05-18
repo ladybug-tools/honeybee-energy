@@ -37,10 +37,10 @@ class ConstructionSet(object):
             If None, it will be the honeybee generic default DoorConstructionSet.
         shade_construction: An optional ShadeConstruction to set the reflectance
             properties of all outdoor shades to which this ConstructionSet is
-            assigned. If None, it will be the honyebee generic shade construction.
+            assigned. If None, it will be the honeybee generic shade construction.
         air_boundary_construction: An optional AirBoundaryConstruction to set
             the properties of Faces with an AirBoundary type. If None, it
-            will be the honyebee generic air boundary construction.
+            will be the honeybee generic air boundary construction.
 
     Properties:
         * identifier

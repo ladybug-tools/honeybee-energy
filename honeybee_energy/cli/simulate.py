@@ -56,7 +56,7 @@ def simulate_model(model_json, epw_file, sim_par_json, folder, check_model, log_
 
         # set the default folder if it's not specified
         if folder is None:
-            folder = os.path.split(os.path.abspath(model_json))[0]
+            folder = os.path.dirname(os.path.abspath(model_json))
 
         # process the simulation parameters
         if sim_par_json is None:  # generate some default simulation parameters
