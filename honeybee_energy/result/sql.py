@@ -26,6 +26,7 @@ class SQLiteResult(object):
         * zone_cooling_sizes
         * zone_heating_sizes
         * component_sizes
+        * component_types
     """
     _interval_codes = ('Timestep', 'Hourly', 'Daily', 'Monthly', 'Annual')
 

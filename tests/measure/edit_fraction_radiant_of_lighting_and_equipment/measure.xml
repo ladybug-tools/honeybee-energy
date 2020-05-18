@@ -1,0 +1,75 @@
+<measure>
+  <schema_version>3.0</schema_version>
+  <name>edit_fraction_radiant_of_lighting_and_equipment</name>
+  <uid>8dc4dfa6-e4b9-404e-916f-d185af55cce0</uid>
+  <version_id>bd50a42d-62be-476e-90a1-31aa824f7525</version_id>
+  <version_modified>20171231T171740Z</version_modified>
+  <xml_checksum>628D6EBA</xml_checksum>
+  <class_name>EditFractionRadiantOfLightingAndEquipment</class_name>
+  <display_name>Edit Fraction Radiant of Lighting and Equipment</display_name>
+  <description>This measure replaces the 'Fraction Radiant' of all lights and equipment in the model with values that you specify. This is useful for thermal comfort studies where the percentage of heat transferred to the air is important.</description>
+  <modeler_description>This measure replaces the 'Fraction Radiant' of all lights and equipment in the model with values that you specify.</modeler_description>
+  <arguments>
+    <argument>
+      <name>lightsFractRad</name>
+      <display_name>Lights Fraction Radiant</display_name>
+      <type>Double</type>
+      <required>false</required>
+      <model_dependent>false</model_dependent>
+      <default_value>0</default_value>
+    </argument>
+    <argument>
+      <name>equipFractRad</name>
+      <display_name>Equipment Fraction Radiant</display_name>
+      <type>Double</type>
+      <required>false</required>
+      <model_dependent>false</model_dependent>
+      <default_value>0</default_value>
+    </argument>
+  </arguments>
+  <outputs/>
+  <provenances/>
+  <tags>
+    <tag>Electric Lighting.Lighting Equipment</tag>
+  </tags>
+  <attributes>
+    <attribute>
+      <name>Measure Type</name>
+      <value>ModelMeasure</value>
+      <datatype>string</datatype>
+    </attribute>
+    <attribute>
+      <name>Intended Software Tool</name>
+      <value>Apply Measure Now</value>
+      <datatype>string</datatype>
+    </attribute>
+    <attribute>
+      <name>Intended Software Tool</name>
+      <value>OpenStudio Application</value>
+      <datatype>string</datatype>
+    </attribute>
+    <attribute>
+      <name>Intended Software Tool</name>
+      <value>Parametric Analysis Tool</value>
+      <datatype>string</datatype>
+    </attribute>
+    <attribute>
+      <name>Intended Use Case</name>
+      <value>Model Articulation</value>
+      <datatype>string</datatype>
+    </attribute>
+  </attributes>
+  <files>
+    <file>
+      <version>
+        <software_program>OpenStudio</software_program>
+        <identifier>2.3.0</identifier>
+        <min_compatible>2.3.0</min_compatible>
+      </version>
+      <filename>measure.rb</filename>
+      <filetype>rb</filetype>
+      <usage_type>script</usage_type>
+      <checksum>C2F38416</checksum>
+    </file>
+  </files>
+</measure>

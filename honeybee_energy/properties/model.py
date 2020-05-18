@@ -169,11 +169,11 @@ class ModelEnergyProperties(object):
         This includes schedules across all ProgramTypes, HVACs, Rooms and Shades.
         """
         all_scheds = self.program_type_schedules + self.hvac_schedules + \
-            self.room_schedules + self.shade_schedules + self.construcion_schedules
+            self.room_schedules + self.shade_schedules + self.construction_schedules
         return list(set(all_scheds))
 
     @property
-    def construcion_schedules(self):
+    def construction_schedules(self):
         """A list of all unique schedules assigned to constructions in the model.
 
         This includes schedules on al AirBoundaryConstructions.
@@ -210,7 +210,7 @@ class ModelEnergyProperties(object):
         """A list of all unique schedules assigned directly to Rooms in the model.
 
         Note that this does not include schedules from ProgramTypes assigned to the
-        rooms. For this, use the program_type_schedules proeprty.
+        rooms. For this, use the program_type_schedules property.
         """
         scheds = []
         for room in self.host.rooms:
@@ -704,7 +704,7 @@ class ModelEnergyProperties(object):
     def _instance_in_array(object_instance, object_array):
         """Check if a specific object instance is already in an array.
 
-        This can be much faster than  `if object_instance in object_arrary`
+        This can be much faster than  `if object_instance in object_array`
         when you expect to be testing a lot of the same instance of an object for
         inclusion in an array since the builtin method uses an == operator to
         test inclusion.

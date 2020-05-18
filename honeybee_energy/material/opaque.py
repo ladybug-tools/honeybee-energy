@@ -27,8 +27,8 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
         specific_heat: Number for the specific heat of the material [J/kg-K].
         roughness: Text describing the relative roughness of the material.
             Must be one of the following: 'VeryRough', 'Rough', 'MediumRough',
-            'MediumSmooth', 'Smooth', 'VerySmooth'. Defailt is 'MediumRough'.
-        thermal_absorptance: A number between 0 aand 1 for the fraction of
+            'MediumSmooth', 'Smooth', 'VerySmooth'. Default is 'MediumRough'.
+        thermal_absorptance: A number between 0 and 1 for the fraction of
             incident long wavelength radiation that is absorbed by the material.
             Default value is 0.9.
         solar_absorptance: A number between 0 and 1 for the fraction of incident
@@ -263,7 +263,7 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
     def to_radiance_solar(self, specularity=0.0):
         """Honeybee Radiance material from the solar reflectance of this material."""
         try:
-            from honeybee_radiance.primitive.material.plastic import Plastic
+            from honeybee_radiance.modifier.material import Plastic
         except ImportError as e:
             raise ImportError('honeybee_radiance library must be installed to use '
                               'to_radiance_solar() method. {}'.format(e))
@@ -274,7 +274,7 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
     def to_radiance_visible(self, specularity=0.0):
         """Honeybee Radiance material from the visible reflectance of this material."""
         try:
-            from honeybee_radiance.primitive.material.plastic import Plastic
+            from honeybee_radiance.modifier.material import Plastic
         except ImportError as e:
             raise ImportError('honeybee_radiance library must be installed to use '
                               'to_radiance_solar() method. {}'.format(e))

@@ -61,7 +61,7 @@ def measure_compatible_model_json(model_json_path, destination_directory=None):
 
 
 def to_openstudio_osw(osw_directory, model_json_path, sim_par_json_path=None,
-                      epw_file=None):
+                      additional_measures=None, base_osw=None, epw_file=None):
     """Create a .osw to translate honeybee JSONs to an .osm file.
 
     Args:
@@ -71,26 +71,27 @@ def to_openstudio_osw(osw_directory, model_json_path, sim_par_json_path=None,
         sim_par_json_path: Optional file path to the SimulationParameter JSON.
             If None, the resulting OSM will not have everything it needs to be
             simulate-able.
+        additional_measures: An optional array of honeybee-energy Measure objects
+            to be included in the output osw. These Measure objects must have
+            values for all required input arguments or an exception will be
+            raised while running this function.
+        base_osw: Optional file path to an existing OSW JSON be used as the base
+            for the output .osw. This is another way that outside measures
+            can be incorporated into the workflow.
         epw_file: Optional file path to an EPW that should be associated with the
             output energy model.
 
     Returns:
         The file path to the .osw written out by this method.
     """
-    # check the energy_model_measure_path
-    if not folders.energy_model_measure_path:
-        raise OSError('The energy_model_measure that translates honeybee models'
-                      ' to OpenStudio was not found on this machine.')
-
     # create a dictionary representation of the .osw with steps to run
     # the model measure and the simulation parameter measure
-    model_measure_dict = {
-        'arguments' : {
-            'model_json' : model_json_path
-            },
-         'measure_dir_name': 'from_honeybee_model'
-        }
-    osw_dict = {'steps': [model_measure_dict]}
+    if base_osw is None:
+        osw_dict = {'steps': []}
+    else:
+        assert os.path.isfile(base_osw), 'No base OSW file found at {}.'.format(base_osw)
+        with open(base_osw, 'r') as base_file:
+            osw_dict = json.load(base_file)
 
     # add a simulation parameter step if it is specified
     if sim_par_json_path is not None:
@@ -100,12 +101,36 @@ def to_openstudio_osw(osw_directory, model_json_path, sim_par_json_path=None,
                 },
             'measure_dir_name': 'from_honeybee_simulation_parameter'
             }
-        osw_dict['steps'].append(sim_par_dict)
+        osw_dict['steps'].insert(0, sim_par_dict)
 
+    # addd the model json serialization into the steps
+    model_measure_dict = {
+        'arguments' : {
+            'model_json' : model_json_path
+            },
+         'measure_dir_name': 'from_honeybee_model'
+        }
+    osw_dict['steps'].insert(0, model_measure_dict)
+
+    # add any additional measures to the osw_dict
+    if additional_measures:
+        # ensure measures are correctly ordered
+        m_dict = {'ModelMeasure': [], 'EnergyPlusMeasure': [], 'ReportingMeasure': []}
+        for measure in additional_measures:
+            m_dict[measure.type].append(measure)
+        sorted_measures = m_dict['ModelMeasure'] + m_dict['EnergyPlusMeasure'] + \
+            m_dict['ReportingMeasure']
+        for measure in sorted_measures:
+            measure.validate()  # ensure that all required arguments have values
+            osw_dict['steps'].append(measure.to_osw_dict())
 
     # assign the measure_paths to the osw_dict
-    measure_directory = os.path.join(folders.energy_model_measure_path, 'measures')
-    osw_dict['measure_paths'] = [measure_directory]
+    if folders.energy_model_measure_path:
+        measure_directory = os.path.join(folders.energy_model_measure_path, 'measures')
+        if 'measure_paths' in osw_dict:
+            osw_dict['measure_paths'].append(measure_directory)
+        else:
+            osw_dict['measure_paths'] = [measure_directory]
 
     # assign the epw_file to the osw if it is input
     if epw_file is not None:
