@@ -303,8 +303,8 @@ def _run_osw_windows(osw_json, measures_only=True):
     Args:
         osw_json: File path to a OSW file to be run using OpenStudio CLI.
         measures_only: Boolean to note whether only the measures should be applied
-            in the runnning of the OSW (True) or the resulting model shoudl be run
-            through EnergyPlus after the measures are aplied to it (False).
+            in the running of the OSW (True) or the resulting model should be run
+            through EnergyPlus after the measures are applied to it (False).
             Default: True.
 
     Returns:
@@ -337,8 +337,8 @@ def _run_osw_unix(osw_json, measures_only=True):
     Args:
         osw_json: File path to a OSW file to be run using OpenStudio CLI.
         measures_only: Boolean to note whether only the measures should be applied
-            in the runnning of the OSW (True) or the resulting model shoudl be run
-            through EnergyPlus after the measures are aplied to it (False).
+            in the running of the OSW (True) or the resulting model should be run
+            through EnergyPlus after the measures are applied to it (False).
             Default: True.
 
     Returns:

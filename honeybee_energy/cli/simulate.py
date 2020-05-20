@@ -30,7 +30,10 @@ def simulate():
 @click.argument('epw-file')
 @click.option('--sim-par-json', help='Full path to a honeybee energy SimulationParameter'
               ' JSON that describes all of the settings for the simulation.',
-              default=None)
+              default=None, show_default=True)
+@click.option('--base-osw', help='Full path to an OSW JSON be used as the base for '
+              'the execution of the OpenStuduo CLI. This can be used to add '
+              'measures in the workflow.', default=None, show_default=True)
 @click.option('--folder', help='Folder on this computer, into which the IDF and result'
               'files will be written. If None, the files will be output in the'
               'same location as the model_json.', default=None, show_default=True)
@@ -40,7 +43,8 @@ def simulate():
 @click.option('--log-file', help='Optional log file to output the progress of the'
               'simulation. By default the list will be printed out to stdout',
               type=click.File('w'), default='-')
-def simulate_model(model_json, epw_file, sim_par_json, folder, check_model, log_file):
+def simulate_model(model_json, epw_file, sim_par_json, base_osw, folder,
+                   check_model, log_file):
     """Simulate a Model JSON file in EnergyPlus.
     \n
     Args:
@@ -85,23 +89,36 @@ def simulate_model(model_json, epw_file, sim_par_json, folder, check_model, log_
 
         # Write the osw file to translate the model to osm
         log_file.write('Writing OSW for model translation.\n')
-        osw = to_openstudio_osw(folder, model_json, sim_par_json, epw_file)
+        osw = to_openstudio_osw(folder, model_json, sim_par_json,
+                                base_osw=base_osw, epw_file=epw_file)
 
         # run the measure to translate the model JSON to an openstudio measure
         log_file.write('Running OSW through OpenStudio CLI.\n')
         if osw is not None and os.path.isfile(osw):
-            osm, idf = run_osw(osw)
-            # run the resulting idf through EnergyPlus
-            if idf is not None and os.path.isfile(idf):
-                log_file.write('OpenStudio CLI Model translation successful.\n')
-                log_file.write('Running IDF file through EnergyPlus.\n')
-                sql, eio, rdd, html, err = run_idf(idf, epw_file)
-                if err is not None and os.path.isfile(err):
+            if base_osw is None:  # separate the OS CLI run from the E+ run
+                osm, idf = run_osw(osw)
+                # run the resulting idf through EnergyPlus
+                if idf is not None and os.path.isfile(idf):
+                    log_file.write('OpenStudio CLI Model translation successful.\n')
+                    log_file.write('Running IDF file through EnergyPlus.\n')
+                    sql, eio, rdd, html, err = run_idf(idf, epw_file)
+                    if err is not None and os.path.isfile(err):
+                        log_file.write('EnergyPlus simulation successful.\n')
+                    else:
+                        raise Exception('Running EnergyPlus failed.')
+                else:
+                    raise Exception('Running OpenStudio CLI failed.')
+            else:  # run the whole simulation with the OpenStudio CLI
+                osm, idf = run_osw(osw, measures_only=False)
+                if idf is not None and os.path.isfile(idf):
+                    log_file.write('OpenStudio CLI Model translation successful.\n')
+                else:
+                    raise Exception('Running OpenStudio CLI failed.')
+                err_file = os.path.join(os.path.dirname(idf), 'eplusout.err')
+                if idf is not None and os.path.isfile(idf):
                     log_file.write('EnergyPlus simulation successful.\n')
                 else:
                     raise Exception('Running EnergyPlus failed.')
-            else:
-                raise Exception('Running OpenStudio CLI failed.')
         else:
             raise Exception('Writing OSW file failed.')
     except Exception as e:
