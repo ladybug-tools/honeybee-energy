@@ -103,10 +103,10 @@ def model_to_osm(model_json, sim_par_json, folder, check_model, log_file):
               default=None)
 @click.option('--additional-str', help='Text string for additional lines that '
               'should be added to the IDF.', type=str, default='')
-@click.option('--log-file', help='Optional IDF file to output the IDF string of the '
+@click.option('--output-file', help='Optional IDF file to output the IDF string of the '
               'translation. By default this will be printed out to stdout',
               type=click.File('w'), default='-')
-def model_to_idf(model_json, sim_par_json, additional_str, log_file):
+def model_to_idf(model_json, sim_par_json, additional_str, output_file):
     """Translate a Model JSON file to an IDF using direct-to-idf translators.
     \n
     The resulting IDF should be simulate-able but not all Model properties might
@@ -137,8 +137,8 @@ def model_to_idf(model_json, sim_par_json, additional_str, log_file):
         model = Model.from_dict(data)
 
         # set the schedule directory in case it is needed
-        sch_path = os.path.abspath(model_json) if 'stdout' in str(log_file) \
-            else os.path.abspath(str(log_file))
+        sch_path = os.path.abspath(model_json) if 'stdout' in str(output_file) \
+            else os.path.abspath(str(output_file))
         sch_directory = os.path.join(os.path.split(sch_path)[0], 'schedules')
 
         # create the strings for simulation paramters and model
@@ -149,7 +149,7 @@ def model_to_idf(model_json, sim_par_json, additional_str, log_file):
         idf_str = '\n\n'.join([ver_str, sim_par_str, model_str, additional_str])
 
         # write out the IDF file
-        log_file.write(idf_str)
+        output_file.write(idf_str)
     except Exception as e:
         _logger.exception('Model translation failed.\n{}'.format(e))
         sys.exit(1)
@@ -158,10 +158,10 @@ def model_to_idf(model_json, sim_par_json, additional_str, log_file):
 
 @translate.command('constructions-to-idf')
 @click.argument('construction-json')
-@click.option('--log-file', help='Optional IDF file to output the IDF string of the '
+@click.option('--output-file', help='Optional IDF file to output the IDF string of the '
               'translation. By default this will be printed out to stdout',
               type=click.File('w'), default='-')
-def construction_to_idf(construction_json, log_file):
+def construction_to_idf(construction_json, output_file):
     """Translate a Construction JSON file to an IDF using direct-to-idf translators.
     \n
     Args:
@@ -193,7 +193,7 @@ def construction_to_idf(construction_json, log_file):
         idf_str = '\n\n'.join(idf_str_list)
 
         # write out the IDF file
-        log_file.write(idf_str)
+        output_file.write(idf_str)
     except Exception as e:
         _logger.exception('Construction translation failed.\n{}'.format(e))
         sys.exit(1)
@@ -202,10 +202,10 @@ def construction_to_idf(construction_json, log_file):
 
 @translate.command('constructions-from-idf')
 @click.argument('construction-idf')
-@click.option('--log-file', help='Optional JSON file to output the JSON string of the'
+@click.option('--output-file', help='Optional JSON file to output the JSON string of the'
               'translation. By default this will be printed out to stdout',
               type=click.File('w'), default='-')
-def construction_from_idf(construction_idf, log_file):
+def construction_from_idf(construction_idf, output_file):
     """Translate a Construction IDF file to a honeybee JSON as an array of constructions.
     \n
     Args:
@@ -229,7 +229,7 @@ def construction_from_idf(construction_idf, log_file):
             hb_obj_list.append(constr.to_dict())
 
         # write out the JSON file
-        log_file.write(json.dumps(hb_obj_list))
+        output_file.write(json.dumps(hb_obj_list))
     except Exception as e:
         _logger.exception('Construction translation failed.\n{}'.format(e))
         sys.exit(1)
@@ -238,10 +238,10 @@ def construction_from_idf(construction_idf, log_file):
 
 @translate.command('schedules-to-idf')
 @click.argument('schedule-json')
-@click.option('--log-file', help='Optional IDF file to output the IDF string of the '
+@click.option('--output-file', help='Optional IDF file to output the IDF string of the '
               'translation. By default this will be printed out to stdout',
               type=click.File('w'), default='-')
-def schedule_to_idf(schedule_json, log_file):
+def schedule_to_idf(schedule_json, output_file):
     """Translate a Schedule JSON file to an IDF using direct-to-idf translators.
     \n
     Args:
@@ -264,8 +264,8 @@ def schedule_to_idf(schedule_json, log_file):
             type_objs.add(sch.schedule_type_limit)
 
         # set the schedule directory in case it is needed
-        sch_path = os.path.abspath(schedule_json) if 'stdout' in str(log_file) \
-            else os.path.abspath(str(log_file))
+        sch_path = os.path.abspath(schedule_json) if 'stdout' in str(output_file) \
+            else os.path.abspath(str(output_file))
         sch_directory = os.path.join(os.path.split(sch_path)[0], 'schedules')
 
         # create the IDF strings
@@ -295,7 +295,7 @@ def schedule_to_idf(schedule_json, log_file):
         idf_str = '\n\n'.join(idf_str_list)
 
         # write out the IDF file
-        log_file.write(idf_str)
+        output_file.write(idf_str)
     except Exception as e:
         _logger.exception('Schedule translation failed.\n{}'.format(e))
         sys.exit(1)
@@ -304,10 +304,10 @@ def schedule_to_idf(schedule_json, log_file):
 
 @translate.command('schedules-from-idf')
 @click.argument('schedule-idf')
-@click.option('--log-file', help='Optional JSON file to output the JSON string of the'
+@click.option('--output-file', help='Optional JSON file to output the JSON string of the'
               'translation. By default this will be printed out to stdout',
               type=click.File('w'), default='-')
-def schedule_from_idf(schedule_idf, log_file):
+def schedule_from_idf(schedule_idf, output_file):
     """Translate a schedule IDF file to a honeybee JSON as an array of schedules.
     \n
     Args:
@@ -326,7 +326,7 @@ def schedule_from_idf(schedule_idf, log_file):
         hb_obj_list = [sch.to_dict() for sch in schedules]
 
         # write out the JSON file
-        log_file.write(json.dumps(hb_obj_list))
+        output_file.write(json.dumps(hb_obj_list))
     except Exception as e:
         _logger.exception('Schedule translation failed.\n{}'.format(e))
         sys.exit(1)

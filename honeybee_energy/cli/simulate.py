@@ -38,7 +38,7 @@ def simulate():
               're-serialized to Python and checked before it is translated to .osm. ',
               default=True, show_default=True)
 @click.option('--log-file', help='Optional log file to output the progress of the'
-              'translation. By default the list will be printed out to stdout',
+              'simulation. By default the list will be printed out to stdout',
               type=click.File('w'), default='-')
 def simulate_model(model_json, epw_file, sim_par_json, folder, check_model, log_file):
     """Simulate a Model JSON file in EnergyPlus.
@@ -77,7 +77,7 @@ def simulate_model(model_json, epw_file, sim_par_json, folder, check_model, log_
             assert os.path.isfile(sim_par_json), \
                 'No simulation parameter file found at {}.'.format(sim_par_json)
     
-        # run the Model re-serialzation and check if specified
+        # run the Model re-serialization and check if specified
         if check_model:
             log_file.write('Checking and re-serailizing model JSON.\n')
             model_json = measure_compatible_model_json(model_json, folder)
