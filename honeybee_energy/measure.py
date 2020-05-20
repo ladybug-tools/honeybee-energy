@@ -363,8 +363,11 @@ class MeasureArgument(object):
 
     @value.setter
     def value(self, val):
-        assert isinstance(val, self._type), 'Value for measure argument "{}" ' \
-            'must be a {}. Got {}'.format(self.identifier, self._type, type(val))
+        try:
+            val = self._type(val)
+        except Exception:
+            raise TypeError('Value for measure argument "{}" must be a {}. '
+                            'Got {}'.format(self.identifier, self._type, type(val)))
         if self._valid_choices:
             assert val in self._valid_choices, 'Choice measure argument "{}" ' \
                 'must be one of the following:\n{}\nGot {}'.format(
