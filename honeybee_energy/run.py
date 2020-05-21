@@ -10,7 +10,7 @@ from .config import folders
 
 from honeybee.model import Model
 
-from ladybug.futil import write_to_file, copy_files_to_folder, copy_file_tree, preparedir
+from ladybug.futil import write_to_file, copy_files_to_folder, preparedir
 
 
 def measure_compatible_model_json(model_json_path, destination_directory=None):
@@ -112,8 +112,16 @@ def to_openstudio_osw(osw_directory, model_json_path, sim_par_json_path=None,
         }
     osw_dict['steps'].insert(0, model_measure_dict)
 
+    # assign the measure_paths to the osw_dict
+    if 'measure_paths' not in osw_dict:
+        osw_dict['measure_paths'] = []
+    if folders.energy_model_measure_path:  # pass the energy-model-measure path
+        measure_directory = os.path.join(folders.energy_model_measure_path, 'measures')
+        osw_dict['measure_paths'].append(measure_directory)
+
     # add any additional measures to the osw_dict
     if additional_measures:
+        measure_paths = set()  # set of all unique measure paths
         # ensure measures are correctly ordered
         m_dict = {'ModelMeasure': [], 'EnergyPlusMeasure': [], 'ReportingMeasure': []}
         for measure in additional_measures:
@@ -122,15 +130,10 @@ def to_openstudio_osw(osw_directory, model_json_path, sim_par_json_path=None,
             m_dict['ReportingMeasure']
         for measure in sorted_measures:
             measure.validate()  # ensure that all required arguments have values
-            osw_dict['steps'].append(measure.to_osw_dict())
-
-    # assign the measure_paths to the osw_dict
-    if folders.energy_model_measure_path:
-        measure_directory = os.path.join(folders.energy_model_measure_path, 'measures')
-        if 'measure_paths' in osw_dict:
-            osw_dict['measure_paths'].append(measure_directory)
-        else:
-            osw_dict['measure_paths'] = [measure_directory]
+            measure_paths.add(os.path.dirname(measure.folder))
+            osw_dict['steps'].append(measure.to_osw_dict())  # add measure to workflow
+        for m_path in measure_paths:
+            osw_dict['measure_paths'].append(m_path)
 
     # assign the epw_file to the osw if it is input
     if epw_file is not None:
