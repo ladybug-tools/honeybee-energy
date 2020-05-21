@@ -42,7 +42,7 @@ def simulate():
               default=True, show_default=True)
 @click.option('--log-file', help='Optional log file to output the progress of the'
               'simulation. By default the list will be printed out to stdout',
-              type=click.File('w'), default='-')
+              type=click.File('w'), default='-', show_default=True)
 def simulate_model(model_json, epw_file, sim_par_json, base_osw, folder,
                    check_model, log_file):
     """Simulate a Model JSON file in EnergyPlus.
