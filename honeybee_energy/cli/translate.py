@@ -38,7 +38,7 @@ def translate():
 @click.argument('model-json')
 @click.option('--sim-par-json', help='Full path to a honeybee energy SimulationParameter'
               ' JSON that describes all of the settings for the simulation.',
-              default=None)
+              default=None, show_default=True)
 @click.option('--folder', help='Folder on this computer, into which the OSM and IDF '
               'files will be written. If None, the files will be output in the'
               'same location as the model_json.', default=None, show_default=True)
@@ -47,7 +47,7 @@ def translate():
               default=True, show_default=True)
 @click.option('--log-file', help='Optional log file to output the progress of the'
               'translation. By default this will be printed out to stdout',
-              type=click.File('w'), default='-')
+              type=click.File('w'), default='-', show_default=True)
 def model_to_osm(model_json, sim_par_json, folder, check_model, log_file):
     """Translate a Model JSON file into an OpenStudio Model.
     \n
@@ -100,12 +100,12 @@ def model_to_osm(model_json, sim_par_json, folder, check_model, log_file):
 @click.argument('model-json')
 @click.option('--sim-par-json', help='Full path to a honeybee energy SimulationParameter'
               ' JSON that describes all of the settings for the simulation.',
-              default=None)
+              default=None, show_default=True)
 @click.option('--additional-str', help='Text string for additional lines that '
-              'should be added to the IDF.', type=str, default='')
+              'should be added to the IDF.', type=str, default='', show_default=True)
 @click.option('--output-file', help='Optional IDF file to output the IDF string of the '
               'translation. By default this will be printed out to stdout',
-              type=click.File('w'), default='-')
+              type=click.File('w'), default='-', show_default=True)
 def model_to_idf(model_json, sim_par_json, additional_str, output_file):
     """Translate a Model JSON file to an IDF using direct-to-idf translators.
     \n
@@ -160,7 +160,7 @@ def model_to_idf(model_json, sim_par_json, additional_str, output_file):
 @click.argument('construction-json')
 @click.option('--output-file', help='Optional IDF file to output the IDF string of the '
               'translation. By default this will be printed out to stdout',
-              type=click.File('w'), default='-')
+              type=click.File('w'), default='-', show_default=True)
 def construction_to_idf(construction_json, output_file):
     """Translate a Construction JSON file to an IDF using direct-to-idf translators.
     \n
@@ -204,7 +204,7 @@ def construction_to_idf(construction_json, output_file):
 @click.argument('construction-idf')
 @click.option('--output-file', help='Optional JSON file to output the JSON string of the'
               'translation. By default this will be printed out to stdout',
-              type=click.File('w'), default='-')
+              type=click.File('w'), default='-', show_default=True)
 def construction_from_idf(construction_idf, output_file):
     """Translate a Construction IDF file to a honeybee JSON as an array of constructions.
     \n
@@ -240,7 +240,7 @@ def construction_from_idf(construction_idf, output_file):
 @click.argument('schedule-json')
 @click.option('--output-file', help='Optional IDF file to output the IDF string of the '
               'translation. By default this will be printed out to stdout',
-              type=click.File('w'), default='-')
+              type=click.File('w'), default='-', show_default=True)
 def schedule_to_idf(schedule_json, output_file):
     """Translate a Schedule JSON file to an IDF using direct-to-idf translators.
     \n
@@ -306,7 +306,7 @@ def schedule_to_idf(schedule_json, output_file):
 @click.argument('schedule-idf')
 @click.option('--output-file', help='Optional JSON file to output the JSON string of the'
               'translation. By default this will be printed out to stdout',
-              type=click.File('w'), default='-')
+              type=click.File('w'), default='-', show_default=True)
 def schedule_from_idf(schedule_idf, output_file):
     """Translate a schedule IDF file to a honeybee JSON as an array of schedules.
     \n
