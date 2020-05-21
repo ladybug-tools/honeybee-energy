@@ -268,7 +268,49 @@ def run_idf(idf_file_path, epw_file_path, expand_objects=True):
         directory = _run_idf_unix(idf_file_path, epw_file_path, expand_objects)
 
     # output the simulation files
-    return _output_energyplus_files(directory)
+    return output_energyplus_files(directory)
+
+
+def output_energyplus_files(directory):
+    """Get the paths to the EnergyPlus simulation output files given the idf directory.
+
+    Args:
+        directory: The path to where the IDF was run.
+
+    Returns:
+        A tuple with four elements
+
+        -   sql -- Path to a .sqlite file containing all simulation results.
+            Will be None if no file exists.
+
+        -   zsz -- Path to a .csv file containing detailed zone load information
+            recorded over the course of the design days. Will be None if no
+            file exists.
+
+        -   rdd -- Path to a .rdd file containing all possible outputs that can be
+            requested from the simulation. Will be None if no file exists.
+
+        -   html -- Path to a .html file containing all summary reports.
+            Will be None if no file exists.
+
+        -   err -- Path to a .err file containing all errors and warnings from the
+            simulation. Will be None if no file exists.
+    """
+    # generate paths to the simulation files
+    sql_file = os.path.join(directory, 'eplusout.sql')
+    zsz_file = os.path.join(directory, 'epluszsz.csv')
+    rdd_file = os.path.join(directory, 'eplusout.rdd')
+    html_file = os.path.join(directory, 'eplustbl.htm')
+    err_file = os.path.join(directory, 'eplusout.err')
+
+    # check that the simulation files exist
+    sql = sql_file if os.path.isfile(sql_file) else None
+    zsz = zsz_file if os.path.isfile(zsz_file) else None
+    rdd = rdd_file if os.path.isfile(rdd_file) else None
+    html = html_file if os.path.isfile(html_file) else None
+    err = err_file if os.path.isfile(err_file) else None
+
+    return sql, zsz, rdd, html, err
 
 
 def _check_osw(osw_json):
@@ -478,45 +520,3 @@ def _run_idf_unix(idf_file_path, epw_file_path, expand_objects=True):
     subprocess.call(shell_file)
 
     return directory
-
-
-def _output_energyplus_files(directory):
-    """Get the paths to the EnergyPlus simulation output files given the idf directory.
-
-    Args:
-        directory: The path to where the IDF was run.
-
-    Returns:
-        A tuple with four elements
-
-        -   sql -- Path to a .sqlite file containing all simulation results.
-            Will be None if no file exists.
-
-        -   zsz -- Path to a .csv file containing detailed zone load information
-            recorded over the course of the design days. Will be None if no
-            file exists.
-
-        -   rdd -- Path to a .rdd file containing all possible outputs that can be
-            requested from the simulation. Will be None if no file exists.
-
-        -   html -- Path to a .html file containing all summary reports.
-            Will be None if no file exists.
-
-        -   err -- Path to a .err file containing all errors and warnings from the
-            simulation. Will be None if no file exists.
-    """
-    # generate paths to the simulation files
-    sql_file = os.path.join(directory, 'eplusout.sql')
-    zsz_file = os.path.join(directory, 'epluszsz.csv')
-    rdd_file = os.path.join(directory, 'eplusout.rdd')
-    html_file = os.path.join(directory, 'eplustbl.htm')
-    err_file = os.path.join(directory, 'eplusout.err')
-
-    # check that the simulation files exist
-    sql = sql_file if os.path.isfile(sql_file) else None
-    zsz = zsz_file if os.path.isfile(zsz_file) else None
-    rdd = rdd_file if os.path.isfile(rdd_file) else None
-    html = html_file if os.path.isfile(html_file) else None
-    err = err_file if os.path.isfile(err_file) else None
-
-    return sql, zsz, rdd, html, err
