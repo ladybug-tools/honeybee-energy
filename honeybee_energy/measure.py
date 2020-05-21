@@ -183,7 +183,7 @@ class Measure(object):
 
         return base
 
-    def to_osw_dict(self):
+    def to_osw_dict(self, full_path=False):
         """Get a Python dictionary that can be written to an OSW JSON.
 
         Specifcally, this dictionary can be appended to the "steps" key of the
@@ -194,8 +194,14 @@ class Measure(object):
         Measure has all required values and only arguments with values will be
         included in the dictionary. Validation should be done seperately with
         the validate method.
+
+        Args:
+            full_path: Boolean to note whether the full path to the measure should
+                be written under the 'measure_dir_name' key or just the measure
+                base name. (Default: False)
         """
-        base = {'measure_dir_name': self.folder, 'arguments': {}}
+        meas_dir = self.folder if full_path else os.path.basename(self.folder)
+        base = {'measure_dir_name': meas_dir, 'arguments': {}}
         for arg in self._arguments:
             if arg.value is not None:
                 base['arguments'][arg.identifier] = arg.value
