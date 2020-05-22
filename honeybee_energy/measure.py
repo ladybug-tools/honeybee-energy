@@ -363,7 +363,7 @@ class MeasureArgument(object):
         If not set, this will be equal to the default_value and, if no default
         value is included for this argument, it will be None.
         """
-        if self._value:
+        if self._value is not None:
             return self._value
         return self._default_value
 
