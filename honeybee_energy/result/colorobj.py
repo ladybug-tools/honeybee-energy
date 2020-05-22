@@ -24,8 +24,8 @@ from ladybug_geometry.geometry3d.pointvector import Point3D
 
 
 class _ColorObject(object):
-    """Base class for coloring geometry with simulatin results.
-    
+    """Base class for coloring geometry with simulation results.
+
     Properties:
         * data_collections
         * legend_parameters
@@ -42,6 +42,8 @@ class _ColorObject(object):
     __slots__ = ('_data_collections', '_legend_parameters', '_simulation_step',
                  '_normalize', '_geo_unit', '_matched_objects', '_base_collection',
                  '_base_type', '_base_unit', '_min_point', '_max_point')
+
+    UNITS = ('m', 'mm', 'ft', 'in', 'cm')
 
     def __init__(self, data_collections, legend_parameters=None,
                  simulation_step=None, geo_unit='m'):
@@ -121,6 +123,8 @@ class _ColorObject(object):
     @geo_unit.setter
     def geo_unit(self, value):
         self._geo_unit = str(value)
+        assert self._geo_unit in self.UNITS, \
+            'Unit "{}" is not supported in color object.'.format(self._geo_unit)
 
     @property
     def title_text(self):
@@ -148,8 +152,8 @@ class _ColorObject(object):
     def data_type_text(self):
         """Text for the data type.
 
-        This will be the full name of the EnergyPlus ouput if the DataCollection
-        header meatadata contains a 'type' key. Otherwise, this will be the name
+        This will be the full name of the EnergyPlus output if the DataCollection
+        header metadata contains a 'type' key. Otherwise, this will be the name
         of the data_type object.
         """
         m_data = self._base_collection.header.metadata
@@ -167,8 +171,9 @@ class _ColorObject(object):
     def unit(self):
         """The unit of this object's data collections."""
         if self._base_type.normalized_type is not None and self._normalize:
-            return '{}/{}2'.format(self._base_unit, self._geo_unit) if '/' not in \
-                self._base_unit else '{}-{}2'.format(self._base_unit, self._geo_unit)
+            _geo_unit = 'ft' if self._geo_unit in ('ft', 'in') else 'm'
+            return '{}/{}2'.format(self._base_unit, _geo_unit) if '/' not in \
+                self._base_unit else '{}-{}2'.format(self._base_unit, _geo_unit)
         else:
             return self._base_unit
 
@@ -251,10 +256,10 @@ class ColorRoom(_ColorObject):
         simulation_step: An optional integer (greater than or equal to 0) to select
             a specific step of the data collections for which result values will be
             generated. If None, the geometry will be colored with the total of
-            resutls in the data_collections if the data type is cumulative or with
+            results in the data_collections if the data type is cumulative or with
             the average of results if the data type is not cumulative. Default: None.
         normalize_by_floor: Boolean to note whether results should be normalized
-            by the floor area of the Room if the data type of the data_colections
+            by the floor area of the Room if the data type of the data_collections
             supports it. If False, values will be generated using sum total of
             the data collection values. Note that this input has no effect if
             the data type of the data_collections is not normalizable since data
@@ -390,8 +395,19 @@ class ColorRoom(_ColorObject):
 
     @property
     def matched_floor_areas(self):
-        """Get a list for all of the room floor faces."""
-        return [room.floor_area for room in self.matched_rooms]
+        """Get a list for all of the room floor areas that were matches with data.
+        
+        These floor areas will always be in either meters or feet depending on
+        whether the geo_unit is either SI or IP.
+        """
+        if self._geo_unit in ('m', 'ft'):  # no need to do unit conversions
+            return [room.floor_area for room in self.matched_rooms]
+        elif self._geo_unit == 'mm':  # convert to meters
+            return [room.floor_area / 1000000.0 for room in self.matched_rooms]
+        elif self._geo_unit == 'in':  # convert to feet
+            return [room.floor_area / 144.0 for room in self.matched_rooms]
+        else:  # assume it's cm; convert to meters
+            return [room.floor_area / 10000.0 for room in self.matched_rooms]
 
     @property
     def graphic_container(self):
@@ -457,10 +473,10 @@ class ColorFace(_ColorObject):
         simulation_step: An optional integer (greater than or equal to 0) to select
             a specific step of the data collections for which result values will be
             generated. If None, the geometry will be colored with the total of
-            resutls in the data_collections if the data type is cumulative or with
+            results in the data_collections if the data type is cumulative or with
             the average of results if the data type is not cumulative. Default: None.
         normalize: Boolean to note whether results should be normalized by the
-            face/sub-face area if the data type of the data_colections supports it.
+            face/sub-face area if the data type of the data_collections supports it.
             If False, values will be generated using sum total of the data collection
             values. Note that this input has no effect if the data type of the
             data_collections is not normalizable since data collection values will
@@ -597,8 +613,19 @@ class ColorFace(_ColorObject):
 
     @property
     def matched_flat_areas(self):
-        """Get a list numbers for the area of each of the matched_flat_faces."""
-        return tuple(face.area for face in self.matched_flat_faces)
+        """Get a list numbers for the area of each of the matched_flat_faces.
+
+        These areas will always be in either meters or feet depending on whether
+        the geo_unit is either SI or IP.
+        """
+        if self._geo_unit in ('m', 'ft'):  # no need to do unit conversions
+            return [face.area for face in self.matched_flat_faces]
+        elif self._geo_unit == 'mm':  # convert to meters
+            return [face.area / 1000000.0 for face in self.matched_flat_faces]
+        elif self._geo_unit == 'in':  # convert to feet
+            return [face.area / 144.0 for face in self.matched_flat_faces]
+        else:  # assume it's cm; convert to meters
+            return [face.area / 10000.0 for face in self.matched_flat_faces]
 
     @property
     def graphic_container(self):
