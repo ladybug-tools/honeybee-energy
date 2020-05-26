@@ -14,7 +14,7 @@ from ladybug.futil import write_to_file, copy_files_to_folder, preparedir
 
 
 def measure_compatible_model_json(model_json_path, destination_directory=None):
-    """Convert a Model JSON to a version that's compatible with the energy_model_measure.
+    """Convert a Model JSON to one that is compatible with the honeybee_openstudio_gem.
 
     This includes the re-serialization of the Model to Python, which will
     automatically ensure that all Apertures and Doors point in the same direction
@@ -25,8 +25,8 @@ def measure_compatible_model_json(model_json_path, destination_directory=None):
 
     Args:
         model_json_path: File path to the Model JSON.
-        destination_directory: The directory into which the Model JSON that's
-            compatible with the energy_model_measure should be written. If None,
+        destination_directory: The directory into which the Model JSON that is
+            compatible with the honeybee_openstudio_gem should be written. If None,
             this will be the same location as the input model_json_path. Default: None.
 
     Returns:
@@ -115,9 +115,9 @@ def to_openstudio_osw(osw_directory, model_json_path, sim_par_json_path=None,
     # assign the measure_paths to the osw_dict
     if 'measure_paths' not in osw_dict:
         osw_dict['measure_paths'] = []
-    if folders.energy_model_measure_path:  # pass the energy-model-measure path
-        measure_directory = os.path.join(folders.energy_model_measure_path, 'measures')
-        osw_dict['measure_paths'].append(measure_directory)
+    if folders.honeybee_openstudio_gem_path:  # include honeybee-openstudio measure path
+        measure_dir = os.path.join(folders.honeybee_openstudio_gem_path, 'measures')
+        osw_dict['measure_paths'].append(measure_dir)
 
     # add any additional measures to the osw_dict
     if additional_measures:
@@ -362,7 +362,7 @@ def _run_osw_windows(osw_json, measures_only=True):
     working_drive = directory[:2]
     measure_str = '-m ' if measures_only else ''
     batch = '{}\n"{}" -I {} run {}-w {}'.format(
-        working_drive, folders.openstudio_exe, folders.energy_model_measure_path,
+        working_drive, folders.openstudio_exe, folders.honeybee_openstudio_gem_path,
         measure_str, osw_json)
     batch_file = os.path.join(directory, 'run_workflow.bat')
     write_to_file(batch_file, batch, True)
@@ -395,7 +395,7 @@ def _run_osw_unix(osw_json, measures_only=True):
     # Write the shell script to call OpenStudio CLI
     measure_str = '-m ' if measures_only else ''
     shell = '#!/usr/bin/env bash\n"{}" -I {} run {}-w {}'.format(
-        folders.openstudio_exe, folders.energy_model_measure_path,
+        folders.openstudio_exe, folders.honeybee_openstudio_gem_path,
         measure_str, osw_json)
     shell_file = os.path.join(directory, 'run_workflow.sh')
     write_to_file(shell_file, shell, True)

@@ -2,7 +2,7 @@
     "__comment__": "Add full paths to folders (eg. C:/EnergyPlusV9-0-1, /usr/local/energyplus).",
     "energyplus_path": "",
     "openstudio_path": "",
-    "energy_model_measure_path": "",
+    "honeybee_openstudio_gem_path": "",
     "standards_data_folder": "",
     "standards_extension_folders": []
 }
