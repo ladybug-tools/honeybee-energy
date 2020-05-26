@@ -71,7 +71,7 @@ class Folders(object):
         * energyplus_path
         * energyplus_exe
         * energyplus_version
-        * energy_model_measure_path
+        * honeybee_openstudio_gem_path
         * standards_data_folder
         * construction_lib
         * constructionset_lib
@@ -165,34 +165,36 @@ class Folders(object):
         return self._energyplus_version
 
     @property
-    def energy_model_measure_path(self):
-        """Get or set the path to the energy_model_measure translating to OpenStudio.
+    def honeybee_openstudio_gem_path(self):
+        """Get or set the path to the honeybee_openstudio_gem.
 
+        This gem contains libraries and measures for translating between Honeybee
+        JSON schema and OpenStudio Model schema (OSM).
         This folder must have the following sub-folders in order to be valid:
 
-        * from_honeybee - ruby library with modules for model translation to OpenStudio.
+        * from_honeybee - Ruby library with modules for model translation to OpenStudio.
         * measures - folder with the actual measures that run the translation.
         * files - folder containing the openapi schemas
         """
-        return self._energy_model_measure_path
+        return self._honeybee_openstudio_gem_path
 
-    @energy_model_measure_path.setter
-    def energy_model_measure_path(self, path):
-        if not path:  # check the default locations of the energy_model_measure
-            path = self._find_energy_model_measure_path()
+    @honeybee_openstudio_gem_path.setter
+    def honeybee_openstudio_gem_path(self, path):
+        if not path:  # check the default locations of the honeybee_openstudio_gem
+            path = self._find_honeybee_openstudio_gem_path()
 
         # check that the library's sub-folders exist
         if path:
-            assert os.path.isdir(os.path.join(path, 'from_honeybee')), '{} lacks a ' \
-                '"from_honeybee" folder for the translation ruby library.'.format(path)
+            assert os.path.isdir(os.path.join(path, 'from_honeybee')), \
+                '{} lacks a "from_honeybee" folder.'.format(path)
             assert os.path.isdir(os.path.join(path, 'measures')), \
                 '{} lacks a "measures" folder.'.format(path)
 
-        # set the energy_model_measure_path
-        self._energy_model_measure_path = path
+        # set the honeybee_openstudio_gem_path
+        self._honeybee_openstudio_gem_path = path
         if path and not self.mute:
-            print('Path to the energy_model_measure is set to: '
-                    '{}'.format(self._energy_model_measure_path))
+            print('Path to the honeybee_openstudio_gem is set to: '
+                    '{}'.format(self._honeybee_openstudio_gem_path))
 
     @property
     def standards_data_folder(self):
@@ -302,7 +304,7 @@ class Folders(object):
         default_path = {
             "energyplus_path": r'',
             "openstudio_path": r'',
-            "energy_model_measure_path": r'',
+            "honeybee_openstudio_gem_path": r'',
             "standards_data_folder": r'',
             "standards_extension_folders": []
         }
@@ -324,8 +326,8 @@ class Folders(object):
         self.openstudio_path = default_path["openstudio_path"]
         self.energyplus_path = default_path["energyplus_path"]
 
-        # set the paths for the energy_model_measure
-        self.energy_model_measure_path = default_path["energy_model_measure_path"]
+        # set the paths for the honeybee_openstudio_gem
+        self.honeybee_openstudio_gem_path = default_path["honeybee_openstudio_gem_path"]
 
         # set path for the standards_data_folder
         self.standards_data_folder = default_path["standards_data_folder"]
@@ -333,18 +335,18 @@ class Folders(object):
         # set path for the standards_extension_folders
         self.standards_extension_folders = default_path["standards_extension_folders"]
 
-    def _find_energy_model_measure_path(self):
-        """Find the energy_model_measure_path in its default location.
+    def _find_honeybee_openstudio_gem_path(self):
+        """Find the honeybee_openstudio_gem_path in its default location.
 
         First, the OpenStudio installation will be checked to see if there is a
         compatible version of the measure installed for that version of OpenStudio.
         If nothing is found there, the root of the ladybug_tools folder will be
-        checked for an energy_model_measure directory.
+        checked for an honeybee_openstudio_gem directory.
         """
         # first check if there's a version installed in the OpenStudio folder
         if self.openstudio_path:
             os_root = os.path.split(self.openstudio_path)[0]
-            measure_path = os.path.join(os_root, 'energy_model_measure', 'lib')
+            measure_path = os.path.join(os_root, 'honeybee_openstudio_gem', 'lib')
             if os.path.isdir(measure_path):
                 return measure_path
 
@@ -352,7 +354,7 @@ class Folders(object):
         lb_install = lb_config.folders.ladybug_tools_folder
         if os.path.isdir(lb_install):
             measure_path = os.path.join(
-                lb_install, 'openstudio', 'energy_model_measure', 'lib')
+                lb_install, 'openstudio', 'honeybee_openstudio_gem', 'lib')
             if os.path.isdir(measure_path):
                 return measure_path
 

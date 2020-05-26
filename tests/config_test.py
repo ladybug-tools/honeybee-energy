@@ -21,9 +21,9 @@ def test_config_init():
     assert hasattr(folders, 'openstudio_version')
     assert folders.openstudio_version is None or isinstance(folders.openstudio_version, tuple)
 
-    assert hasattr(folders, 'energy_model_measure_path')
-    assert folders.energy_model_measure_path is None or \
-        isinstance(folders.energy_model_measure_path, str)
+    assert hasattr(folders, 'honeybee_openstudio_gem_path')
+    assert folders.honeybee_openstudio_gem_path is None or \
+        isinstance(folders.honeybee_openstudio_gem_path, str)
 
     assert hasattr(folders, 'standards_data_folder')
     assert isinstance(folders.standards_data_folder, str)
