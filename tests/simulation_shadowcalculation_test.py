@@ -10,7 +10,8 @@ def test_shadow_calculation_init():
     str(shadow_calc)  # test the string representation
 
     assert shadow_calc.solar_distribution == 'FullExteriorWithReflections'
-    assert shadow_calc.calculation_method == 'AverageOverDaysInFrequency'
+    assert shadow_calc.calculation_method == 'PolygonClipping'
+    assert shadow_calc.calculation_update_method == 'Periodic'
     assert shadow_calc.calculation_frequency == 30
     assert shadow_calc.maximum_figures == 15000
 
@@ -21,8 +22,10 @@ def test_shadow_calculation_setability():
 
     shadow_calc.solar_distribution = 'fullexterior'
     assert shadow_calc.solar_distribution == 'FullExterior'
-    shadow_calc.calculation_method = 'timestepfrequency'
-    assert shadow_calc.calculation_method == 'TimestepFrequency'
+    shadow_calc.calculation_method = 'pixelcounting'
+    assert shadow_calc.calculation_method == 'PixelCounting'
+    shadow_calc.calculation_update_method = 'timestep'
+    assert shadow_calc.calculation_update_method == 'Timestep'
     shadow_calc.calculation_frequency = 20
     assert shadow_calc.calculation_frequency == 20
     shadow_calc.maximum_figures = 5000
