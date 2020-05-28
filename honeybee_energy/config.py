@@ -19,9 +19,10 @@ import platform
 import json
 import pkgutil
 
-# Matrix matching OpenStudio version to EnergyPlus + Radiance version
+# Matrix matching OpenStudio version to EnergyPlus version
 # https://github.com/NREL/OpenStudio/wiki/OpenStudio-Version-Compatibility-Matrix
 OPENSTUDIO_VERSIONS = {
+    (3, 0, 0): (9, 3, 0),
     (2, 9, 1): (9, 2, 0),
     (2, 9, 0): (9, 2, 0),
     (2, 8, 1): (9, 1, 0),
