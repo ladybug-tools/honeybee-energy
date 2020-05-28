@@ -180,7 +180,7 @@ class SimulationParameter(object):
     @property
     def north_angle(self):
         """Get or set a number between -360 and 360 for the north direction in degrees.
-        
+
         This is the counterclockwise difference between the North and the positive
         Y-axis. 90 is West and 270 is East (Default: 0). Note that this is different
         than the convention used in EnergyPlus, which uses clockwise difference

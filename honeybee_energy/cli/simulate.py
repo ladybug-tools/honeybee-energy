@@ -57,30 +57,40 @@ def simulate_model(model_json, epw_file, sim_par_json, base_osw, folder,
             'No Model JSON file found at {}.'.format(model_json)
         assert os.path.isfile(epw_file), \
             'No EPW file found at {}.'.format(epw_file)
+        # ddy variable that might get used later
+        epw_folder, epw_file_name = os.path.split(epw_file)
+        ddy_file = os.path.join(epw_folder, epw_file_name.replace('.epw', '.ddy'))
 
         # set the default folder if it's not specified
         if folder is None:
             folder = os.path.dirname(os.path.abspath(model_json))
 
-        # process the simulation parameters
+        # process the simulation parameters and write new ones if necessary
+        def write_sim_par(sim_par):
+            """Write simulation parameter object to a JSON."""
+            sim_par_dict = sim_par.to_dict()
+            sp_json = os.path.abspath(os.path.join(folder, 'simulation_parameter.json'))
+            with open(sp_json, 'w') as fp:
+                json.dump(sim_par_dict, fp)
+            return sp_json
         if sim_par_json is None:  # generate some default simulation parameters
             sim_par = SimulationParameter()
             sim_par.output.add_zone_energy_use()
-            epw_folder, epw_file_name = os.path.split(epw_file)
-            ddy_file = os.path.join(epw_folder, epw_file_name.replace('.epw', '.ddy'))
             if os.path.isfile(ddy_file):
                 sim_par.sizing_parameter.add_from_ddy_996_004(ddy_file)
-            # write out the simulation parameters to a JSON
-            sim_par_dict = sim_par.to_dict()
-            sim_par_json = os.path.abspath(
-                os.path.join(folder, 'simulation_parameter.json'))
-            with open(sim_par_json, 'w') as fp:
-                json.dump(sim_par_dict, fp)
+            sim_par_json = write_sim_par(sim_par)
             log_file.write('Default SimulationParameters were auto-generated.\n')
         else:
             assert os.path.isfile(sim_par_json), \
                 'No simulation parameter file found at {}.'.format(sim_par_json)
-    
+            with open(sim_par_json) as json_file:
+                data = json.load(json_file)
+            sim_par = SimulationParameter.from_dict(data)
+            if len(sim_par.sizing_parameter.design_days) == 0 and os.path.isfile(ddy_file):
+                sim_par.sizing_parameter.add_from_ddy_996_004(ddy_file)
+                sim_par_json = write_sim_par(sim_par)
+                log_file.write('Design days added to SimulationParameters from .ddy.\n')
+
         # run the Model re-serialization and check if specified
         if check_model:
             log_file.write('Checking and re-serailizing model JSON.\n')
@@ -103,7 +113,7 @@ def simulate_model(model_json, epw_file, sim_par_json, base_osw, folder,
                     log_file.write('Running IDF file through EnergyPlus.\n')
                     sql, eio, rdd, html, err = run_idf(idf, epw_file)
                     if err is not None and os.path.isfile(err):
-                        log_file.write('EnergyPlus simulation successful.\n')
+                        log_file.write('EnergyPlus simulation successfully started.\n')
                     else:
                         raise Exception('Running EnergyPlus failed.')
                 else:
@@ -115,8 +125,8 @@ def simulate_model(model_json, epw_file, sim_par_json, base_osw, folder,
                 else:
                     raise Exception('Running OpenStudio CLI failed.')
                 err_file = os.path.join(os.path.dirname(idf), 'eplusout.err')
-                if idf is not None and os.path.isfile(idf):
-                    log_file.write('EnergyPlus simulation successful.\n')
+                if os.path.isfile(err_file):
+                    log_file.write('EnergyPlus simulation successfully started.\n')
                 else:
                     raise Exception('Running EnergyPlus failed.')
         else:

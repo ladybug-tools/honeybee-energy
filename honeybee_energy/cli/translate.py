@@ -62,18 +62,18 @@ def model_to_osm(model_json, sim_par_json, folder, check_model, log_file):
         # set the default folder if it's not specified
         if folder is None:
             folder = os.path.dirname(os.path.abspath(model_json))
-        
+
         # check that the simulation parameters are there
         if sim_par_json is not None:
             assert os.path.isfile(sim_par_json), \
                 'No simulation parameter file found at {}.'.format(sim_par_json)
-        
+
         # run the Model re-serialization and check if specified
         if check_model:
             log_file.write('Checking and re-serailizing model JSON.\n')
             model_json = measure_compatible_model_json(model_json, folder)
             log_file.write('Model check complete.\n')
-    
+
         # Write the osw file to translate the model to osm
         log_file.write('Writing OSW for model translation.\n')
         osw = to_openstudio_osw(folder, model_json, sim_par_json)
