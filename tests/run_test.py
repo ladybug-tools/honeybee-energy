@@ -1,11 +1,10 @@
 # coding=utf-8
 from honeybee_energy.run import measure_compatible_model_json, run_idf, \
-     prepare_idf_for_simulation, to_openstudio_osw
+    prepare_idf_for_simulation, to_openstudio_osw
+from honeybee_energy.result.err import Err
 from honeybee_energy.lib.programtypes import office_program
-from honeybee_energy.hvac.idealair import IdealAirSystem
 from honeybee_energy.simulation.parameter import SimulationParameter
 from honeybee_energy.measure import Measure
-import honeybee_energy.config as energy_config
 
 from ladybug.dt import Date
 from ladybug.futil import write_to_file
@@ -33,7 +32,7 @@ def test_measure_compatible_model_json():
 
     with open(osm_model_json) as json_file:
         data = json.load(json_file)
-    
+
     parsed_model = Model.from_dict(data)
 
     assert parsed_model.rooms[0].floor_area == \
@@ -54,7 +53,7 @@ def test_to_openstudio_osw():
     model_json_path = './tests/simulation/model_osw_test.json'
     with open(model_json_path, 'w') as fp:
         json.dump(model.to_dict(included_prop=['energy']), fp)
-    
+
     # create the simulation parameter
     sim_par = SimulationParameter()
     sim_par.output.add_zone_energy_use()
@@ -115,3 +114,41 @@ def test_run_idf():
     sql, zsz, rdd, html, err = run_idf(idf, epw_file)
 
     assert os.path.isfile(sql)
+    assert os.path.isfile(err)
+    err_obj = Err(err)
+    assert 'EnergyPlus Completed Successfully' in err_obj.file_contents
+
+
+def test_run_idf_colinear():
+    """Test the Model.to.idf and run_idf method with a model that has colinear vertices."""
+    # Get input Model
+    input_hb_model = './tests/json/model_colinear_verts.json'
+    with open(input_hb_model) as json_file:
+        data = json.load(json_file)
+    model = Model.from_dict(data)
+
+    # Get the input SimulationParameter
+    sim_par = SimulationParameter()
+    sim_par.output.add_zone_energy_use()
+    ddy_file = './tests/ddy/chicago.ddy'
+    sim_par.sizing_parameter.add_from_ddy_996_004(ddy_file)
+    sim_par.run_period.end_date = Date(1, 7)
+
+    # create the IDF string for simulation paramters and model
+    idf_str = '\n\n'.join((sim_par.to_idf(), model.to.idf(model)))
+
+    # write the final string into an IDF
+    idf = os.path.join(folders.default_simulation_folder, 'test_file_colinear', 'in.idf')
+    write_to_file(idf, idf_str, True)
+
+    # prepare the IDF for simulation
+    epw_file = './tests/simulation/chicago.epw'
+    prepare_idf_for_simulation(idf, epw_file)
+
+    # run the IDF through EnergyPlus
+    sql, zsz, rdd, html, err = run_idf(idf, epw_file)
+
+    assert os.path.isfile(sql)
+    assert os.path.isfile(err)
+    err_obj = Err(err)
+    assert 'EnergyPlus Completed Successfully' in err_obj.file_contents

@@ -345,9 +345,14 @@ def model_to_idf(model, schedule_directory=None):
         idf = os.path.join(folders.default_simulation_folder, 'test_file', 'in.idf')
         write_to_file(idf, idf_str, True)
     """
-    # make sure the model is in meters and, if it's not, duplicate and scale it
+    # duplicate model to avoid mutating it as we edit it for energy simulation
+    model = model.duplicate()
+    # remove colinear vertices using the Model tolerance to avoid E+ tolerance issues
+    if model.tolerance != 0:
+        for room in model.rooms:
+            room.remove_colinear_vertices_envelope(model.tolerance)
+    # scale the model if the units are not meters
     if model.units != 'Meters':
-        model = model.duplicate()  # duplicate the model to avoid mutating the input
         model.convert_to_units('Meters')
 
     # write the building object into the string
