@@ -200,7 +200,7 @@ class RunPeriod(object):
                 * Saturday
 
             holidays: A list of Ladybug Date objects for the holidays within the
-                simulation. If None, no folidays are applied. Default: None.
+                simulation. If None, no holidays are applied. Default: None.
             daylight_saving_time: A DaylightSavingTime object to dictate the start and
                 end dates of daylight saving time. If None, no daylight saving time is
                 applied to the simulation. Default: None.

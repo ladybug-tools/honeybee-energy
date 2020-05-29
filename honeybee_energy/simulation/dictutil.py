@@ -46,4 +46,4 @@ def dict_to_simulation(sim_dict, raise_exception=True):
     elif sim_type == 'SimulationParameter':
         return SimulationParameter.from_dict(sim_dict)
     elif raise_exception:
-        raise ValueError('{} is not a reconized energy Simulation type'.format(sim_type))
+        raise ValueError('{} is not a recognized energy Simulation type'.format(sim_type))

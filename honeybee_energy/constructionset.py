@@ -2,8 +2,6 @@
 """Energy Construction Set."""
 from __future__ import division
 
-from .material.dictutil import dict_to_material
-from .construction.dictutil import dict_abridged_to_construction
 from .construction.opaque import OpaqueConstruction
 from .construction.window import WindowConstruction
 from .construction.shade import ShadeConstruction
@@ -505,7 +503,7 @@ class ConstructionSet(object):
 
     @staticmethod
     def _get_subsets_from_abridged(data, constructions):
-        """Get subset objects from and abirdged dictionary."""
+        """Get subset objects from and abridged dictionary."""
         wall_set = ConstructionSet._make_construction_subset(
             data, WallConstructionSet(), 'wall_set', constructions)
         floor_set = ConstructionSet._make_construction_subset(
@@ -630,7 +628,7 @@ class ConstructionSet(object):
 class _FaceSetBase(object):
     """Base class for the sets assigned to Faces.
 
-    This includesWallConstructionSet, FloorConstructionSet, and the 
+    This includesWallConstructionSet, FloorConstructionSet, and the
     RoofCeilingConstructionSet.
 
     Args:

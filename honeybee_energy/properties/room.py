@@ -10,7 +10,7 @@ from ..load.infiltration import Infiltration
 from ..load.ventilation import Ventilation
 from ..load.setpoint import Setpoint
 
-# import all hvac modules to ensure they are all re-serializable in Room.from_dict
+# import all hvac modules to ensure they are all re-serialize-able in Room.from_dict
 from ..hvac import HVAC_TYPES_DICT
 from ..hvac._base import _HVACSystem
 from ..hvac.idealair import IdealAirSystem

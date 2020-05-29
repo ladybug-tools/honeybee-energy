@@ -10,7 +10,7 @@ from ladybug.datatype.power import Power
 from ladybug.datatype.massflowrate import MassFlowRate
 
 import os
-from datetime import datetime, timedelta
+from datetime import datetime
 
 
 class ZSZ(object):

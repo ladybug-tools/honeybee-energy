@@ -134,7 +134,7 @@ class SizingParameter(object):
 
         Args:
             ddy_file: The full path to a .ddy file on this machine.
-            keywors: String for a keyword, which will be used to select DesignDays
+            keyword: String for a keyword, which will be used to select DesignDays
                 from the .ddy file to add to this object.
         """
         ddy_obj = DDY.from_ddy_file(ddy_file)
@@ -192,7 +192,7 @@ class SizingParameter(object):
             sizing_parameter: A text string for an EnergyPlus Sizing:Parameters
                 definition. If None, defaults of 1.25 anf 1.15 will be used.
                 Default: None.
-            location: An optional Ladybug Location object, which gets assinged
+            location: An optional Ladybug Location object, which gets assigned
                 to the DesignDay objects in order to interpret their SkyConditions.
                 This object is not used in the export to IDF. If None, the
                 intersection of the equator with the prime meridian will be used.
@@ -267,7 +267,7 @@ class SizingParameter(object):
             'type': 'SizingParameter',
             'heating_factor': self.heating_factor,
             'cooling_factor': self.cooling_factor
-            }
+        }
         if len(self._design_days) != 0:
             siz_par['design_days'] = [dday.to_dict(False) for dday in self.design_days]
         return siz_par
@@ -314,8 +314,8 @@ class SizingParameter(object):
         return self._design_days[key]
 
     def __setitem__(self, key, value):
-        assert isinstance(value, DesignDay), 'Expected' \
-                ' DesignDay type. Got {}'.format(type(value))
+        assert isinstance(value, DesignDay), \
+            'Expected DesignDay type. Got {}'.format(type(value))
         self._design_days[key] = value
 
     def __iter__(self):

@@ -15,7 +15,7 @@ from honeybee_energy.simulation.dictutil import dict_to_simulation, SIMULATION_T
 
 
 def dict_to_object(honeybee_energy_dict, raise_exception=True):
-    """Re-serialize a dicationary of almost any object within honeybee_energy.
+    """Re-serialize a dictionary of almost any object within honeybee_energy.
 
     This includes any Material, Construction, ConstructionSet, Schedule, Load,
     ProgramType, or Simulation object.
@@ -50,4 +50,4 @@ def dict_to_object(honeybee_energy_dict, raise_exception=True):
     elif obj_type in SIMULATION_TYPES:
         return dict_to_simulation(honeybee_energy_dict)
     elif raise_exception:
-        raise ValueError('{} is not a reconized honeybee energy object'.format(obj_type))
+        raise ValueError('{} is not a recognized honeybee energy object'.format(obj_type))

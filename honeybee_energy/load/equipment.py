@@ -166,7 +166,7 @@ class _EquipmentBase(_LoadBase):
             lat_fract = ep_strs[7] if ep_strs[7] != '' else 0
             lost_fract = ep_strs[9] if ep_strs[9] != '' else 0
         except IndexError:
-            pass  # shorter equipment definitipn lacking fractions
+            pass  # shorter equipment definition lacking fractions
         # extract the schedules from the string
         try:
             sched = schedule_dict[ep_strs[2]]

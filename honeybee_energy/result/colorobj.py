@@ -2,16 +2,12 @@
 """Module for coloring Model geometry with energy simulation results."""
 from __future__ import division
 
-from honeybee.shade import Shade
 from honeybee.door import Door
 from honeybee.aperture import Aperture
 from honeybee.face import Face
 from honeybee.room import Room
 from honeybee.facetype import Floor
 from honeybee.typing import int_in_range
-
-from ladybug.datatype.energyintensity import EnergyIntensity
-from ladybug.datatype.energyflux import EnergyFlux
 
 from ladybug.dt import Date, DateTime
 from ladybug.analysisperiod import AnalysisPeriod
@@ -396,7 +392,7 @@ class ColorRoom(_ColorObject):
     @property
     def matched_floor_areas(self):
         """Get a list for all of the room floor areas that were matches with data.
-        
+
         These floor areas will always be in either meters or feet depending on
         whether the geo_unit is either SI or IP.
         """

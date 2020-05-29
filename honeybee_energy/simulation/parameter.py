@@ -61,7 +61,7 @@ class SimulationParameter(object):
     TERRAIN_TYPES = ('Ocean', 'Country', 'Suburbs', 'Urban', 'City')
 
     def __init__(self, output=None, run_period=None, timestep=6,
-                 simulation_control=None, shadow_calculation=None, sizing_parameter=None, 
+                 simulation_control=None, shadow_calculation=None, sizing_parameter=None,
                  north_angle=0, terrain_type='City'):
         """Initialize SimulationParameter."""
         self.output = output
@@ -331,7 +331,7 @@ class SimulationParameter(object):
             north_angle = 0
             terrain = 'City'
             solar_dist = 'FullExteriorWithReflections'
-        
+
         # process the ShadowCalculation within the idf_string
         try:
             sh_calc_str = sh_calc_pattern.findall(idf_string)[0]

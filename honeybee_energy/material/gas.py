@@ -107,7 +107,7 @@ class _EnergyWindowMaterialGasBase(_EnergyMaterialWindowBase):
         """Get Grashof number given the temperature difference across the cavity.
 
         Args:
-            delta_t: The temperature diference across the gas cavity [C]. Default is
+            delta_t: The temperature difference across the gas cavity [C]. Default is
                 15C, which is consistent with the NFRC standard for double glazed units.
             t_kelvin: The average temperature of the gas cavity in Kelvin.
                 Default: 273.15 K (0C).
@@ -122,7 +122,7 @@ class _EnergyWindowMaterialGasBase(_EnergyMaterialWindowBase):
         """Get Rayleigh number given the temperature difference across the cavity.
 
         Args:
-            delta_t: The temperature diference across the gas cavity [C]. Default is
+            delta_t: The temperature difference across the gas cavity [C]. Default is
                 15C, which is consistent with the NFRC standard for double glazed units.
             t_kelvin: The average temperature of the gas cavity in Kelvin.
                 Default: 273.15 K (0C).
@@ -140,7 +140,7 @@ class _EnergyWindowMaterialGasBase(_EnergyMaterialWindowBase):
         """Get Nusselt number for a vertical cavity given the temp difference and height.
 
         Args:
-            delta_t: The temperature diference across the gas cavity [C]. Default is
+            delta_t: The temperature difference across the gas cavity [C]. Default is
                 15C, which is consistent with the NFRC standard for double glazed units.
             height: An optional height for the cavity in meters. Default is 1.0,
                 which is consistent with NFRC standards.
@@ -164,7 +164,7 @@ class _EnergyWindowMaterialGasBase(_EnergyMaterialWindowBase):
         """Get Nusselt number for a cavity at a given angle, temp difference and height.
 
         Args:
-            delta_t: The temperature diference across the gas cavity [C]. Default is
+            delta_t: The temperature difference across the gas cavity [C]. Default is
                 15C, which is consistent with the NFRC standard for double glazed units.
             height: An optional height for the cavity in meters. Default is 1.0,
                 which is consistent with NFRC standards.
@@ -208,7 +208,7 @@ class _EnergyWindowMaterialGasBase(_EnergyMaterialWindowBase):
         """Get convective conductance of the cavity in a vertical position.
 
         Args:
-            delta_t: The temperature diference across the gas cavity [C]. Default is
+            delta_t: The temperature difference across the gas cavity [C]. Default is
                 15C, which is consistent with the NFRC standard for double glazed units.
             height: An optional height for the cavity in meters. Default is 1.0,
                 which is consistent with NFRC standards.
@@ -225,7 +225,7 @@ class _EnergyWindowMaterialGasBase(_EnergyMaterialWindowBase):
         """Get convective conductance of the cavity in an angle.
 
         Args:
-            delta_t: The temperature diference across the gas cavity [C]. Default is
+            delta_t: The temperature difference across the gas cavity [C]. Default is
                 15C, which is consistent with the NFRC standard for double glazed units.
             height: An optional height for the cavity in meters. Default is 1.0,
                 which is consistent with NFRC standards.
@@ -249,9 +249,9 @@ class _EnergyWindowMaterialGasBase(_EnergyMaterialWindowBase):
 
         Args:
             emissivity_1: The emissivity of the surface on one side of the cavity.
-                Default is 0.84, which is tyical of clear, uncoated glass.
+                Default is 0.84, which is typical of clear, uncoated glass.
             emissivity_2: The emissivity of the surface on the other side of the cavity.
-                Default is 0.84, which is tyical of clear, uncoated glass.
+                Default is 0.84, which is typical of clear, uncoated glass.
             t_kelvin: The average temperature of the gas cavity in Kelvin.
                 Default: 273.15 K (0C).
         """
@@ -263,13 +263,13 @@ class _EnergyWindowMaterialGasBase(_EnergyMaterialWindowBase):
         """Get the U-value of a vertical gas cavity given temp difference and emissivity.
 
         Args:
-            delta_t: The temperature diference across the gas cavity [C]. This
+            delta_t: The temperature difference across the gas cavity [C]. This
                 influences how strong the convection is within the gas gap. Default is
                 15C, which is consistent with the NFRC standard for double glazed units.
             emissivity_1: The emissivity of the surface on one side of the cavity.
-                Default is 0.84, which is tyical of clear, uncoated glass.
+                Default is 0.84, which is typical of clear, uncoated glass.
             emissivity_2: The emissivity of the surface on the other side of the cavity.
-                Default is 0.84, which is tyical of clear, uncoated glass.
+                Default is 0.84, which is typical of clear, uncoated glass.
             height: An optional height for the cavity in meters. Default is 1.0,
                 which is consistent with NFRC standards.
             t_kelvin: The average temperature of the gas cavity in Kelvin.
@@ -285,13 +285,13 @@ class _EnergyWindowMaterialGasBase(_EnergyMaterialWindowBase):
         """Get the U-value of a vertical gas cavity given temp difference and emissivity.
 
         Args:
-            delta_t: The temperature diference across the gas cavity [C]. This
+            delta_t: The temperature difference across the gas cavity [C]. This
                 influences how strong the convection is within the gas gap. Default is
                 15C, which is consistent with the NFRC standard for double glazed units.
             emissivity_1: The emissivity of the surface on one side of the cavity.
-                Default is 0.84, which is tyical of clear, uncoated glass.
+                Default is 0.84, which is typical of clear, uncoated glass.
             emissivity_2: The emissivity of the surface on the other side of the cavity.
-                Default is 0.84, which is tyical of clear, uncoated glass.
+                Default is 0.84, which is typical of clear, uncoated glass.
             height: An optional height for the cavity in meters. Default is 1.0,
                 which is consistent with NFRC standards.
             angle: An angle in degrees between 0 and 180.
@@ -580,13 +580,12 @@ class EnergyWindowMaterialGasMixture(_EnergyWindowMaterialGasBase):
         """
         assert data['type'] == 'EnergyWindowMaterialGasMixture', \
             'Expected EnergyWindowMaterialGasMixture. Got {}.'.format(data['type'])
-        required_keys = ('gas_types', 'gas_fractions')
+        required_keys = ('identifier', 'gas_types', 'gas_fractions')
         for key in required_keys:
             assert key in data, 'Required key "{}" is missing.'.format(key)
-
-        thickness = 0.0125 if 'thickness' not in data else data['thickness']
-
-        new_obj = cls(data['identifier'], data['thickness'], data['gas_types'],
+        thickness = 0.0125 if 'thickness' not in data or data['thickness'] is None \
+            else data['thickness']
+        new_obj = cls(data['identifier'], thickness, data['gas_types'],
                       data['gas_fractions'])
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
@@ -663,7 +662,7 @@ class EnergyWindowMaterialGasCustom(_EnergyWindowMaterialGasBase):
     * T = temperature [K]
 
     Note that setting properties B and C to 0 will mean the property will be
-    equal to the A coefficeint.
+    equal to the A coefficient.
 
     Args:
         identifier: Text string for a unique Material ID. Must be < 100 characters
@@ -672,7 +671,7 @@ class EnergyWindowMaterialGasCustom(_EnergyWindowMaterialGasBase):
         thickness: Number for the thickness of the air gap layer [m].
             Default: 0.0125
         conductivity_coeff_a: First conductivity coefficient.
-            Or condictivity in [W/m-K] if b and c coefficients are 0.
+            Or conductivity in [W/m-K] if b and c coefficients are 0.
         viscosity_coeff_a: First viscosity coefficient.
             Or viscosity in [kg/m-s] if b and c coefficients are 0.
         specific_heat_coeff_a: First specific heat coefficient.
@@ -680,9 +679,9 @@ class EnergyWindowMaterialGasCustom(_EnergyWindowMaterialGasBase):
         conductivity_coeff_b: Second conductivity coefficient. Default = 0.
         viscosity_coeff_b: Second viscosity coefficient. Default = 0.
         specific_heat_coeff_b: Second specific heat coefficient. Default = 0.
-        conductivity_coeff_c: Thrid conductivity coefficient. Default = 0.
-        viscosity_coeff_c: Thrid viscosity coefficient. Default = 0.
-        specific_heat_coeff_c: Thrid specific heat coefficient. Default = 0.
+        conductivity_coeff_c: Third conductivity coefficient. Default = 0.
+        viscosity_coeff_c: Third viscosity coefficient. Default = 0.
+        specific_heat_coeff_c: Third specific heat coefficient. Default = 0.
         specific_heat_ratio: A number for the the ratio of the specific heat at
             contant pressure, to the specific heat at constant volume.
             Default is 1.0 for Air.

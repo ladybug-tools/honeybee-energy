@@ -36,7 +36,7 @@ class RDD(object):
         if not self._output_names:
             self._parse_outputs()
         return self._output_names
-    
+
     def filter_outputs_by_keywords(self, keywords):
         """Get a list of outputs in the RDD file filtered by keyword.
 
@@ -44,7 +44,7 @@ class RDD(object):
             keywords: A list of keywords that will be used to filter the output names.
         """
         return filter_array_by_keywords(self.output_names, keywords, True)
-    
+
     def _parse_outputs(self):
         """Parse all of the outputs from the file."""
         with open(self._file_path) as rdd_result:

@@ -169,7 +169,7 @@ class Lighting(_LoadBase):
             rad_fract = ep_strs[8] if ep_strs[8] != '' else 0
             vis_fract = ep_strs[9] if ep_strs[9] != '' else 0
         except IndexError:
-            pass  # shorter lighting definitipn lacking fractions
+            pass  # shorter lighting definition lacking fractions
 
         # extract the schedules from the string
         try:

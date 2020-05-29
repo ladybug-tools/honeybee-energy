@@ -408,7 +408,7 @@ class ScheduleRule(object):
 
         Args:
             data: A ScheduleRuleAbridged dictionary in following the format below.
-            schedule_day: A honeybee ScheduleDay object that will be assinged to
+            schedule_day: A honeybee ScheduleDay object that will be assigned to
                 this ScheduleRule.
 
         .. code-block:: python

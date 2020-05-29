@@ -96,20 +96,20 @@ def to_openstudio_osw(osw_directory, model_json_path, sim_par_json_path=None,
     # add a simulation parameter step if it is specified
     if sim_par_json_path is not None:
         sim_par_dict = {
-            'arguments' : {
-                'simulation_parameter_json' : sim_par_json_path
-                },
+            'arguments': {
+                'simulation_parameter_json': sim_par_json_path
+            },
             'measure_dir_name': 'from_honeybee_simulation_parameter'
-            }
+        }
         osw_dict['steps'].insert(0, sim_par_dict)
 
     # addd the model json serialization into the steps
     model_measure_dict = {
-        'arguments' : {
-            'model_json' : model_json_path
-            },
-         'measure_dir_name': 'from_honeybee_model'
-        }
+        'arguments': {
+            'model_json': model_json_path
+        },
+        'measure_dir_name': 'from_honeybee_model'
+    }
     osw_dict['steps'].insert(0, model_measure_dict)
 
     # assign the measure_paths to the osw_dict
@@ -197,7 +197,7 @@ def prepare_idf_for_simulation(idf_file_path, epw_file_path):
     # check the energyplus directory
     if not folders.energyplus_path:
         raise OSError('No EnergyPlus installation was found on this machine.\n'
-                        'Install EnergyPlus to run energy simulations.')
+                      'Install EnergyPlus to run energy simulations.')
 
     # check the input files
     assert os.path.isfile(idf_file_path), \
@@ -402,7 +402,7 @@ def _run_osw_unix(osw_json, measures_only=True):
 
     # make the shell script executable using subprocess.check_call
     # this is more reliable than native Python chmod on Mac
-    subprocess.check_call(['chmod','u+x', shell_file])
+    subprocess.check_call(['chmod', 'u+x', shell_file])
 
     # run the shell script
     subprocess.call(shell_file)
@@ -517,7 +517,7 @@ def _run_idf_unix(idf_file_path, epw_file_path, expand_objects=True):
 
     # make the shell script executable using subprocess.check_call
     # this is more reliable than native Python chmod on Mac
-    subprocess.check_call(['chmod','u+x', shell_file])
+    subprocess.check_call(['chmod', 'u+x', shell_file])
 
     # run the shell script
     subprocess.call(shell_file)

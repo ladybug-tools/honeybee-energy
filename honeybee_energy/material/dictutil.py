@@ -20,7 +20,7 @@ def dict_to_material(mat_dict, raise_exception=True):
         mat_dict: A dictionary of any Honeybee energy material.
         raise_exception: Boolean to note whether an excpetion should be raised
             if the object is not identified as a material. Default: True.
-    
+
     Returns:
         A Python object derived from the input mat_dict.
     """
@@ -28,7 +28,7 @@ def dict_to_material(mat_dict, raise_exception=True):
         mat_type = mat_dict['type']
     except KeyError:
         raise ValueError('Material dictionary lacks required "type" key.')
-    
+
     if mat_type == 'EnergyMaterial':
         return EnergyMaterial.from_dict(mat_dict)
     elif mat_type == 'EnergyMaterialNoMass':
@@ -48,4 +48,4 @@ def dict_to_material(mat_dict, raise_exception=True):
     elif mat_type == 'EnergyWindowMaterialBlind':
         return EnergyWindowMaterialBlind.from_dict(mat_dict)
     elif raise_exception:
-        raise ValueError('{} is not a reconized Energy Material type'.format(mat_type))
+        raise ValueError('{} is not a recognized Energy Material type'.format(mat_type))

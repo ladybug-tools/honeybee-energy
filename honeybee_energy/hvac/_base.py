@@ -73,7 +73,7 @@ class _HVACSystem(object):
 
     @property
     def schedules(self):
-        """Get an array of all the schedules assiciated with the HVAC system.
+        """Get an array of all the schedules associated with the HVAC system.
 
         This property should be overwritten in each of the classes inheriting from
         the HVACSystem base class since each HVAC system is likely to have it's

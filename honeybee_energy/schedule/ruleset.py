@@ -125,7 +125,7 @@ class ScheduleRuleset(object):
         These rules are ordered from highest priority to lowest priority meaning that,
         if two rules cover the same date range and day of the week, the rule that comes
         first in this list will take precedence. Following this logic, you typically
-        want rules that only apply for part of a year to preceed rules that are
+        want rules that only apply for part of a year to precede rules that are
         applied over the whole year. This way, the schedule over the whole year doesn't
         overwrite the partial-year schedule underneath it.
         """
@@ -242,7 +242,7 @@ class ScheduleRuleset(object):
     def add_rule(self, rule):
         """Add a ScheduleRule to this ScheduleRuleset.
 
-        Note that adding a rule here will add it as highest priorty in the full list
+        Note that adding a rule here will add it as highest priority in the full list
         of schedule_rules, meaning it may overwrite other rules underneath it.
 
         Args:
@@ -999,7 +999,7 @@ class ScheduleRuleset(object):
                 model and in the exported IDF.
             schedules: A list of ScheduleRuleset objects that will be averaged together
                 to make a new ScheduleRuleset.
-            weights: An optional list of fractioanl numbers with the same length
+            weights: An optional list of fractional numbers with the same length
                 as the input schedules that sum to 1. These will be used to weight
                 each of the ScheduleRuleset objects in the resulting average schedule.
                 If None, the individual schedules will be weighted equally.
@@ -1017,10 +1017,10 @@ class ScheduleRuleset(object):
         else:
             weights = tuple_with_length(weights, len(schedules), float,
                                         'average schedules weights')
-            assert  abs(sum(weights) - 1.0) <= 1e-9, 'Average schedule weights must ' \
+            assert abs(sum(weights) - 1.0) <= 1e-9, 'Average schedule weights must ' \
                 'sum to 1. Got {}.'.format(sum(weights))
 
-        # if all input shcedules are single week, the averaging process is a lot simpler
+        # if all input schedules are single week, the averaging process is a lot simpler
         if all([sched.is_single_week for sched in schedules]):
             rule_indices = [range(len(sched)) for sched in schedules]
             return ScheduleRuleset._get_avg_week(
@@ -1042,7 +1042,7 @@ class ScheduleRuleset(object):
                 week_sched = ScheduleRuleset._get_avg_week(week_identifier, schedules, weights,
                                                            timestep_resolution, rule_indices)
                 week_schedules.append(week_sched)
-            # create a disctionary mapping unique rule index lists to average week schedules
+            # create a dictionary mapping unique rule index lists to average week schedules
             rule_set_map = {}
             for rule_i, week_sched in zip(unique_rule_sets, week_schedules):
                 rule_set_map[rule_i] = week_sched
@@ -1067,7 +1067,7 @@ class ScheduleRuleset(object):
             for wk_sch, dt_range in zip(yr_wk_scheds, yr_wk_dt_range):
                 final_rules.extend(wk_sch.to_rules(dt_range[0], dt_range[1]))
 
-            # add all rules to a final average SheduleRuleset
+            # add all rules to a final average ScheduleRuleset
             default_day_schedule = final_rules[0].schedule_day
             holiday_sch = yr_wk_scheds[0].holiday_schedule.duplicate()
             summer_dd_sch = yr_wk_scheds[0].summer_designday_schedule.duplicate()
@@ -1159,7 +1159,7 @@ class ScheduleRuleset(object):
         week_fields = [week_sch_id]
         # check rules that apply for the days of the week
         week_fields.extend(self._get_week_list(rule_indices))
-        # add extra daus (including summer and winter design days)
+        # add extra days (including summer and winter design days)
         week_fields.extend(self._get_extra_week_fields())
         week_schedule = generate_idf_string(
             'Schedule:Week:Daily', week_fields, self._schedule_week_comments)
@@ -1329,7 +1329,7 @@ class ScheduleRuleset(object):
     def _instance_in_array(object_instance, object_array):
         """Check if a specific object instance is already in an array.
 
-        This can be much faster than  `if object_instance in object_arrary`
+        This can be much faster than  `if object_instance in object_array`
         when you expect to be testing a lot of the same instance of an object for
         inclusion in an array since the builtin method uses an == operator to
         test inclusion.

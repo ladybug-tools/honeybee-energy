@@ -420,8 +420,8 @@ class WindowConstruction(_ConstructionBase):
     def to_radiance_solar(self):
         """Honeybee Radiance material with the solar transmittance."""
         try:
-            from honeybee_radiance.primitive.material.glass import Glass
-            from honeybee_radiance.primitive.material.trans import Trans
+            from honeybee_radiance.modifier.material import Glass
+            from honeybee_radiance.modifier.material import Trans
         except ImportError as e:
             raise ImportError('honeybee_radiance library must be installed to use '
                               'to_radiance_solar() method. {}'.format(e))
@@ -454,8 +454,8 @@ class WindowConstruction(_ConstructionBase):
     def to_radiance_visible(self, specularity=0.0):
         """Honeybee Radiance material with the visible transmittance."""
         try:
-            from honeybee_radiance.primitive.material.glass import Glass
-            from honeybee_radiance.primitive.material.trans import Trans
+            from honeybee_radiance.modifier.material import Glass
+            from honeybee_radiance.modifier.material import Trans
         except ImportError as e:
             raise ImportError('honeybee_radiance library must be installed to use '
                               'to_radiance_visible() method. {}'.format(e))

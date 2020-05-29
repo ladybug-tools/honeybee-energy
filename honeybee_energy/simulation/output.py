@@ -133,7 +133,7 @@ output-table-summaryreports.html#outputtablesummaryreports).
     @summary_reports.setter
     def summary_reports(self, value):
         if value is not None:
-            assert not isinstance(value, (str, bytes)), 'Extected list, tuple, or ' \
+            assert not isinstance(value, (str, bytes)), 'Expected list, tuple, or ' \
                 'set for SimulationOutput summary_reports. Got {}.'.format(type(value))
             if not isinstance(value, set):
                 value = set(value)
@@ -352,7 +352,7 @@ output-table-summaryreports.html#outputtablesummaryreports)
 
         This includes zone energy use, zone gains and losses, and surface energy flow.
 
-        Arge:
+        Args:
             load_type: A text value to set the type of load outputs requested.
                 Default: 'Total'. Choose from the following:
 

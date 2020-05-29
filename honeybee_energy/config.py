@@ -12,7 +12,6 @@ Usage:
     folders.energyplus_path = "C:/EnergyPlusV9-0-1"
 """
 import ladybug.config as lb_config
-import honeybee.config as hb_config
 
 import os
 import platform
@@ -85,7 +84,7 @@ class Folders(object):
 
     def __init__(self, config_file=None, mute=True):
         self.mute = bool(mute)  # set the mute value
-        self.config_file  = config_file  # load paths from the config JSON file
+        self.config_file = config_file  # load paths from the config JSON file
 
     @property
     def openstudio_path(self):
@@ -100,14 +99,14 @@ class Folders(object):
     def openstudio_path(self, path):
         if not path:  # check the default installation location
             path = self._find_openstudio_folder()
-        exe_name = 'openstudio.exe' if os.name == 'nt'  else 'openstudio'
+        exe_name = 'openstudio.exe' if os.name == 'nt' else 'openstudio'
         os_exe_file = os.path.join(path, exe_name) if path is not None else None
 
         if path:  # check that the OpenStudio executable exists in the path
             assert os.path.isfile(os_exe_file), \
                 '{} is not a valid path to an openstudio installation.'.format(path)
 
-        #set the openstudio_path
+        # set the openstudio_path
         self._openstudio_path = path
         self._openstudio_exe = os_exe_file
         self._openstudio_version = self._os_version_from_path(path)
@@ -118,7 +117,7 @@ class Folders(object):
     def openstudio_exe(self):
         """Get the path to the executable openstudio file."""
         return self._openstudio_exe
-    
+
     @property
     def openstudio_version(self):
         """Get a tuple for the version of openstudio (eg. (2, 9, 1)).
@@ -138,7 +137,7 @@ class Folders(object):
         self._energyplus_version = None
         if not path:  # check the default installation location
             path = self._find_energyplus_folder()
-        exe_name = 'energyplus.exe' if os.name == 'nt'  else 'energyplus'
+        exe_name = 'energyplus.exe' if os.name == 'nt' else 'energyplus'
         ep_exe_file = os.path.join(path, exe_name) if path is not None else None
 
         if path:  # check that the Energyplus executable exists in the installation
@@ -195,7 +194,7 @@ class Folders(object):
         self._honeybee_openstudio_gem_path = path
         if path and not self.mute:
             print('Path to the honeybee_openstudio_gem is set to: '
-                    '{}'.format(self._honeybee_openstudio_gem_path))
+                  '{}'.format(self._honeybee_openstudio_gem_path))
 
     @property
     def standards_data_folder(self):
@@ -223,7 +222,7 @@ class Folders(object):
         self._standards_data_folder = path
         if path and not self.mute:
             print('Path to the standards_data_folder is set to: '
-                    '{}'.format(self._standards_data_folder))
+                  '{}'.format(self._standards_data_folder))
 
     @property
     def standards_extension_folders(self):
@@ -410,7 +409,7 @@ class Folders(object):
 
         if not ep_path and not ep_folders:  # No EnergyPlus installations were found
             return None
-        elif not ep_path: # get the most recent version of energyplus that was found
+        elif not ep_path:  # get the most recent version of energyplus that was found
             ep_path = sorted(ep_folders, key=getversion, reverse=True)[0]
             self._energyplus_version = self._ep_version_from_path(ep_path)
         return ep_path
@@ -459,7 +458,7 @@ class Folders(object):
                               os.path.isdir(os.path.join(lb_install, f)))]
 
         # then check the default installation folders
-        if len(os_folders) != 0 and os.path.isfile(os.path.join(os_folders[0], 'bin')):
+        if len(os_folders) != 0 and os.path.isdir(os.path.join(os_folders[0], 'bin')):
             pass  # we found a version of openstudio in the ladybug_tools folder
         elif os.name == 'nt':  # search the C:/ drive on Windows
             os_folders = ['C:\\{}'.format(f) for f in os.listdir('C:\\')
@@ -510,7 +509,7 @@ class Folders(object):
         """Find the user template library in its default location.
 
         The ladybug_tools/resources/standards/honeybee_standards folder will be
-        checked first, which can conatain libraries that are not overwritten
+        checked first, which can contain libraries that are not overwritten
         with the update of the honeybee_energy package. If no such folder is found,
         this method defaults to the lib/library/ folder within this package.
         """
@@ -533,7 +532,7 @@ class Folders(object):
         and end with the words "standards" (eg. honeybee_energy_cibse_standards).
 
         The ladybug_tools/resources/standards folder will be checked first, which
-        can conatain libraries that are not overwritten with the update of the
+        can contain libraries that are not overwritten with the update of the
         honeybee_energy package.
         If no folders are found, this method will look for any Python packages
         sitting next to honeybee_energy that follow the naming criteria above.

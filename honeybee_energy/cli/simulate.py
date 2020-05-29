@@ -7,8 +7,6 @@ except ImportError:
         'click is not installed. Try `pip install . [cli]` command.'
     )
 
-from honeybee.model import Model
-
 from honeybee_energy.simulation.parameter import SimulationParameter
 from honeybee_energy.run import measure_compatible_model_json, to_openstudio_osw, \
     run_osw, run_idf
@@ -24,6 +22,7 @@ _logger = logging.getLogger(__name__)
 @click.group(help='Commands for simulating Honeybee JSON files in EnergyPlus.')
 def simulate():
     pass
+
 
 @simulate.command('model')
 @click.argument('model-json')

@@ -195,9 +195,9 @@ class ScheduleTypeLimit(object):
         assert data['type'] == 'ScheduleTypeLimit', \
             'Expected ScheduleTypeLimit dictionary. Got {}.'.format(data['type'])
         lower_limit = no_limit if 'lower_limit' not in data or \
-            data['lower_limit'] == no_limit.to_dict()  else data['lower_limit']
+            data['lower_limit'] == no_limit.to_dict() else data['lower_limit']
         upper_limit = no_limit if 'upper_limit' not in data or \
-            data['upper_limit'] == no_limit.to_dict()  else data['upper_limit']
+            data['upper_limit'] == no_limit.to_dict() else data['upper_limit']
         numeric_type = data['numeric_type'] if 'numeric_type' in data else 'Continuous'
         unit_type = data['unit_type'] if 'unit_type' in data else 'Dimensionless'
         new_obj = cls(data['identifier'], lower_limit, upper_limit,

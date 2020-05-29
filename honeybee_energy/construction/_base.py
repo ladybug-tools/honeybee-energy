@@ -138,7 +138,7 @@ class _ConstructionBase(object):
         Symmetric means that the materials in reversed order are equal to those
         in the current order (eg. 'Gypsum', 'Air Gap', 'Gypsum'). This is particularly
         helpful for interior constructions, which need to have matching materials
-        in reveresed order between adjacent Faces.
+        in reversed order between adjacent Faces.
         """
         half_mat = int(len(self._materials) / 2)
         for i in range(half_mat):
@@ -190,7 +190,7 @@ class _ConstructionBase(object):
         Args:
             t_kelvin: The average between the indoor temperature and the
                 interior surface temperature. Default is 293.15K (20C).
-            delta_t: The temperature diference between the indoor temperature and the
+            delta_t: The temperature difference between the indoor temperature and the
                 interior surface temperature [C]. Default is 15C.
             height: An optional height for the surface in meters. Default is 1.0 m,
                 which is consistent with NFRC standards.

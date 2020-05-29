@@ -467,7 +467,7 @@ class ScheduleDay(object):
                 model and in the exported IDF.
             schedules: A list of ScheduleDay objects that will be averaged together
                 to make a new ScheduleDay.
-            weights: An optional list of fractioanl numbers with the same length
+            weights: An optional list of fractional numbers with the same length
                 as the input schedules that sum to 1. These will be used to weight
                 each of the ScheduleDay objects in the resulting average schedule.
                 If None, the individual schedules will be weighted equally.
