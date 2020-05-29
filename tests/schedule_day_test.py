@@ -5,6 +5,7 @@ import honeybee_energy.lib.scheduletypelimits as schedule_types
 from ladybug.dt import Time, Date
 from ladybug.datacollection import HourlyContinuousCollection
 from ladybug.analysisperiod import AnalysisPeriod
+from ladybug.datatype.generic import GenericType
 
 import pytest
 
@@ -163,6 +164,11 @@ def test_schedule_day_data_collection():
     assert office_data.header.analysis_period == AnalysisPeriod(6, 21, 0, 6, 21, 23)
     assert office_data.header.data_type == schedule_types.fractional.data_type
     assert office_data.header.unit == schedule_types.fractional.unit
+
+    # test without type limits or a start date
+    office_data2 = simple_office.data_collection()
+    assert office_data2.header.analysis_period == AnalysisPeriod(1, 1, 0, 1, 1, 23)
+    assert isinstance(office_data2.header.data_type, GenericType)
 
 
 def test_schedule_day_init_from_values_at_timestep():
