@@ -48,8 +48,13 @@ def measure_compatible_model_json(model_json_path, destination_directory=None):
         data = json.load(json_file)
     parsed_model = Model.from_dict(data)
 
-    # convert the Model to Meters and get the dictionary
+    # remove colinear vertices to avoid E+ tolerance issues and convert Model to Meters
+    if parsed_model.tolerance != 0:
+        for room in parsed_model.rooms:
+            room.remove_colinear_vertices_envelope(parsed_model.tolerance)
     parsed_model.convert_to_units('Meters')
+
+    # get the dictionary representation of the Model
     model_dict = parsed_model.to_dict(triangulate_sub_faces=True)
 
     # write the dictionary into a file
