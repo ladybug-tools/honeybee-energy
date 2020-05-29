@@ -13,6 +13,7 @@ from ladybug.datacollection import HourlyContinuousCollection
 from ladybug.header import Header
 from ladybug.analysisperiod import AnalysisPeriod
 from ladybug.dt import Date, Time
+from ladybug.datatype.generic import GenericType
 
 try:
     from collections.abc import Iterable  # python < 3.7
@@ -47,7 +48,7 @@ class ScheduleDay(object):
             which uses "time until" instead of "time of beginning".
         interpolate: Boolean to note whether values in between times should be
             linearly interpolated or whether successive values should take effect
-            immediately upon the beginning time corrsponding to them. Default: False
+            immediately upon the beginning time corresponding to them. Default: False
 
     Properties:
         * identifier
@@ -192,7 +193,7 @@ class ScheduleDay(object):
         """Replace an existing value in the schedule with a new one.
 
         Args:
-            value_index: An integer for the index of the value to replacce.
+            value_index: An integer for the index of the value to replace.
             new_value: A number for the new value to use at the given index.
         """
         val_list = list(self._values)
@@ -268,7 +269,7 @@ class ScheduleDay(object):
             values.append(self._values[-1])  # add the final value that is reached
         return values
 
-    def data_collection(self, date, schedule_type_limit, timestep=1):
+    def data_collection(self, date=Date(1, 1), schedule_type_limit=None, timestep=1):
         """Get a ladybug DataCollection representing this schedule at a given timestep.
 
         Note that ladybug DataCollections always follow the "Ladybug Tools
@@ -277,21 +278,26 @@ class ScheduleDay(object):
 
         Args:
             date: A ladybug Date object for the day of the year the DataCollection
-                is representing.
+                is representing. (Default: 1 Jan)
             schedule_type_limit: A ScheduleTypeLimit object that describes the schedule,
-                which will be used to make the header for the DataCollection.
+                which will be used to make the header for the DataCollection. If None,
+                a generic "Unknown" type will be used. (Default: None)
             timestep: An integer for the number of steps per hour at which to make
                 the resulting DataCollection.
         """
         assert isinstance(date, Date), \
             'Expected ladybug Date. Got {}.'.format(type(date))
-        assert isinstance(schedule_type_limit, ScheduleTypeLimit), \
-            'Expected Honeybee ScheduleTypeLimit. Got {}.'.format(
-                type(schedule_type_limit))
+        if schedule_type_limit is not None:
+            assert isinstance(schedule_type_limit, ScheduleTypeLimit), 'Expected ' \
+                'Honeybee ScheduleTypeLimit. Got {}.'.format(type(schedule_type_limit))
+            d_type = schedule_type_limit.data_type
+            unit = schedule_type_limit.unit
+        else:
+            d_type = GenericType('Unknown Data Type', 'unknown')
+            unit = 'unknown'
         a_period = AnalysisPeriod(date.month, date.day, 0, date.month, date.day, 23,
                                   timestep, date.leap_year)
-        header = Header(schedule_type_limit.data_type, schedule_type_limit.unit,
-                        a_period, metadata={'schedule': self.identifier})
+        header = Header(d_type, unit, a_period, metadata={'schedule': self.identifier})
         return HourlyContinuousCollection(header, self.values_at_timestep(timestep))
 
     @classmethod
@@ -417,7 +423,7 @@ class ScheduleDay(object):
 
         Args:
             schedule_type_limits: Optional ScheduleTypeLimit object, which will
-                be written into the IDFstring in order to validate the values
+                be written into the IDF string in order to validate the values
                 within the schedule during the EnergyPlus run.
         """
         fields = [self.identifier, ''] if schedule_type_limit is None else \
