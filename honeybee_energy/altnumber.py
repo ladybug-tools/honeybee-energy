@@ -9,12 +9,13 @@ from honeybee.altnumber import _AltNumber
 
 class Autosize(_AltNumber):
     """Object for a numerical value is determined from a sizing calculation.
-    
+
     This object is specifically for values determined during the EnergyPlus sizing
     calculation and is therefore disctinct from numerical values that are
     generically Autocalculated.
     """
     __slots__ = ()
     pass
+
 
 autosize = Autosize()

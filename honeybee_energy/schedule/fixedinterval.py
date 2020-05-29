@@ -64,7 +64,7 @@ class ScheduleFixedInterval(object):
             to run. Default: 0.
         interpolate: Boolean to note whether values in between intervals should be
             linearly interpolated or whether successive values should take effect
-            immediately upon the beginning time corrsponding to them. Default: False
+            immediately upon the beginning time corresponding to them. Default: False
 
     Properties:
         * identifier
@@ -274,7 +274,7 @@ class ScheduleFixedInterval(object):
             vals_at_step = list(self._values)
         elif timestep < self.timestep:
             assert self.timestep % timestep == 0, \
-                'Schedule timestep({}) must be enenly divisable by target timestep({})' \
+                'Schedule timestep({}) must be evenly divisible by target timestep({})' \
                 .format(self.timestep, timestep)
             vals_at_step = []
             ind = 0
@@ -284,7 +284,7 @@ class ScheduleFixedInterval(object):
                 ind += step_ratio
         else:
             assert timestep % self.timestep == 0, \
-                'Target timestep({}) must be evenly divisable by schedule timestep({})' \
+                'Target timestep({}) must be evenly divisible by schedule timestep({})' \
                 .format(timestep, self.timestep)
             vals_at_step = []
             if self.interpolate:
@@ -310,8 +310,8 @@ class ScheduleFixedInterval(object):
                 start_i = int((start_date.doy - self.start_date.doy) * 24 * timestep)
                 vals_at_step = vals_at_step[start_i:]
             if ((end_dt.int_hoy + 1) / 24) < end_date.doy:
-                num_vals = int((end_date.doy * 24 * timestep) - 1
-                               - (end_dt.hoy * timestep))
+                num_vals = int((end_date.doy * 24 * timestep) - 1 - (
+                    end_dt.hoy * timestep))
                 end_filler = [self.placeholder_value for i in xrange(num_vals)]
             elif ((end_dt.int_hoy + 1) / 24) > end_date.doy:
                 end_diff = int((end_dt.hoy * timestep) - (end_date.doy * 24 * timestep))
@@ -484,9 +484,9 @@ class ScheduleFixedInterval(object):
             include_datetimes: Boolean to note whether a column of datetime objects
                 should be written into the CSV alongside the data. Default is False,
                 which will keep the resulting CSV lighter in file size but you may
-                want to include such datetimes in order to verfy that values align with
+                want to include such datetimes in order to verify that values align with
                 the expected timestep. Note that the included datetimes will follow the
-                EnergyPlus interpetation of aligning values to timesteps in which case
+                EnergyPlus interpretation of aligning values to timesteps in which case
                 the timestep to which the value is matched means that the value was
                 utilized over all of the previous timestep.
 
@@ -526,7 +526,7 @@ class ScheduleFixedInterval(object):
         Schedule:Compact strings contain all of the schedule values and can be
         written directly into IDF files. So they are sometimes preferable to
         Schedule:Files objects when it's important that all simulation data be
-        repreented in a single IDF file. However, such a representation of the
+        represented in a single IDF file. However, such a representation of the
         schedule often prevents the IDF from being read by programs such as the
         IDFEditor and it can increase the overall size of the schedule in the
         resulting files by an order of magnitude.
@@ -607,7 +607,7 @@ class ScheduleFixedInterval(object):
             include_datetimes: Boolean to note whether a column of datetime objects
                 should be written into the CSV alongside the data. Default is False,
                 which will keep the resulting CSV lighter in file size but you may
-                want to include such datetimes in order to verfy that values align with
+                want to include such datetimes in order to verify that values align with
                 the expected timestep.
 
         Returns:
@@ -698,10 +698,10 @@ class ScheduleFixedInterval(object):
                 model and in the exported IDF.
             schedules: A list of ScheduleFixedInterval objects that will be averaged
                 together to make a new ScheduleFixedInterval. This list may also contain
-                ScheduleRulesets but it is recommened there be at least one
+                ScheduleRulesets but it is recommend there be at least one
                 ScheduleFixedInterval. Otherwise, the ScheduleRuleset.average_schedules
                 method should be used.
-            weights: An optional list of fractioanl numbers with the same length
+            weights: An optional list of fractional numbers with the same length
                 as the input schedules that sum to 1. These will be used to weight
                 each of the ScheduleFixedInterval objects in the resulting average
                 schedule. If None, the individual schedules will be weighted equally.

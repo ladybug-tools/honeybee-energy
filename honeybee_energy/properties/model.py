@@ -14,7 +14,6 @@ from ..schedule.dictutil import SCHEDULE_TYPES, dict_to_schedule, \
     dict_abridged_to_schedule
 from ..programtype import ProgramType
 from ..hvac import HVAC_TYPES_DICT
-from ..writer import generate_idf_string
 
 try:
     from itertools import izip as zip  # python 2
@@ -571,7 +570,7 @@ class ModelEnergyProperties(object):
 
         # process all HVAC systems in the ModelEnergyProperties dictionary
         hvacs = {}
-        if 'hvacs' in data['properties']['energy']  and \
+        if 'hvacs' in data['properties']['energy'] and \
                 data['properties']['energy']['hvacs'] is not None:
             for hvac in data['properties']['energy']['hvacs']:
                 hvac_class = HVAC_TYPES_DICT[hvac['type'].replace('Abridged', '')]

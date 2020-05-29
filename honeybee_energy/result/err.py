@@ -34,7 +34,7 @@ class Err(object):
     def file_path(self):
         """Get the path to the .err file."""
         return self._file_path
-    
+
     @property
     def file_contents(self):
         """Get a string of all contents in the file."""
@@ -45,7 +45,7 @@ class Err(object):
     @property
     def warnings(self):
         """Get a list of strings for all of the warnings found in the .err file.
-        
+
         Warnings are usually not important enough to bring to the front-end users'
         attention but they can be helpful for developers and advanced users.
         """
@@ -56,7 +56,7 @@ class Err(object):
     @property
     def severe_errors(self):
         """Get a list of strings for all of the severe errors found in the .err file.
-        
+
         Severe errors are important enough that front-end users should be made aware of
         them even though they do not necessarily mean that the simulation has failed.
         """
@@ -67,8 +67,8 @@ class Err(object):
     @property
     def fatal_errors(self):
         """Get a list of strings for all of the fatal errors found in the .err file.
-        
-        Fatal errors inidicate the reason why the simulation has failed.
+
+        Fatal errors indicate the reason why the simulation has failed.
         """
         if not self._fatal_errors:
             self._sort_warnings_errors()
@@ -86,7 +86,7 @@ class Err(object):
         self._fatal_errors = []
         for line in self.file_contents.split('\n'):
             if '** Warning **' in line:
-                self._warnings.append(line.split('** Warning **') [-1])
+                self._warnings.append(line.split('** Warning **')[-1])
             elif '**  Fatal  **' in line:
                 self._fatal_errors.append(line)
             elif '** Severe  **' in line:

@@ -51,7 +51,7 @@ class SQLiteResult(object):
     @property
     def location(self):
         """Get a Ladybug Location object derived from the SQL data.
-        
+
         This will be None if there was no AllSummary report requested from the
         simulation.
         """
@@ -152,7 +152,7 @@ class SQLiteResult(object):
                           'ReportDataDictionaryIndex=?', rel_indices)
             else:
                 c.execute('SELECT Value, TimeIndex FROM ReportData WHERE '
-                        'ReportDataDictionaryIndex IN {}'.format(rel_indices))
+                          'ReportDataDictionaryIndex IN {}'.format(rel_indices))
             data = c.fetchall()
             conn.close()  # ensure connection is always closed
         except Exception as e:
@@ -196,7 +196,7 @@ class SQLiteResult(object):
             return all_values
 
         return data_colls
-    
+
     def tabular_data_by_name(self, table_name):
         """Get all the data within a table of a Summary Report using the table name.
 
@@ -287,7 +287,7 @@ class SQLiteResult(object):
 
     def _extract_run_period(self, st_time, end_time):
         """Extract the run period object and frequency from the SQLite file.
-        
+
         Args:
             st_time: Index for the start time of the data.
             end_time: Index for the end time of the data.
@@ -437,7 +437,7 @@ class ZoneSize(object):
 
     @property
     def final_design_load(self):
-        """Get the peak load of the Zone that is ultimately used to size the equipment. 
+        """Get the peak load of the Zone that is ultimately used to size the equipment.
 
         Values are always in Watts. This accounts for the heating_factor and
         cooling_factor of the specified in the SizingParameter of the
@@ -455,7 +455,7 @@ class ZoneSize(object):
 
     @property
     def final_design_flow(self):
-        """Get the peak flor of the Zone that is ultimately used to size the equipment. 
+        """Get the peak flor of the Zone that is ultimately used to size the equipment.
 
         Values are always in m3/s. This accounts for the heating_factor and
         cooling_factor of the specified in the SizingParameter of the
@@ -472,12 +472,12 @@ class ZoneSize(object):
     def peak_date_time(self):
         """Get a DateTime for the time at which the peak occurred."""
         return self._peak_date_time
-    
+
     @property
     def peak_temperature(self):
         """Get the outdoor air temperature at the time of the peak load (C)."""
         return self._peak_temperature
-    
+
     @property
     def peak_humidity_ratio(self):
         """Get the outdoor humidity ratio at the time of the peak load (fractional)."""

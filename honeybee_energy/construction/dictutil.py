@@ -18,7 +18,7 @@ def dict_to_construction(constr_dict, raise_exception=True):
             that this should be a non-abridged dictionary to be valid.
         raise_exception: Boolean to note whether an excpetion should be raised
             if the object is not identified as a construction. Default: True.
-    
+
     Returns:
         A Python object derived from the input constr_dict.
     """
@@ -37,7 +37,7 @@ def dict_to_construction(constr_dict, raise_exception=True):
         return AirBoundaryConstruction.from_dict(constr_dict)
     elif raise_exception:
         raise ValueError(
-            '{} is not a reconized energy Construction type'.format(constr_type))
+            '{} is not a recognized energy Construction type'.format(constr_type))
 
 
 def dict_abridged_to_construction(constr_dict, materials, schedules,
@@ -52,7 +52,7 @@ def dict_abridged_to_construction(constr_dict, materials, schedules,
             construction with the schedule identifiers as the keys.
         raise_exception: Boolean to note whether an excpetion should be raised
             if the object is not identified as a construction. Default: True.
-    
+
     Returns:
         A Python object derived from the input constr_dict.
     """
@@ -60,7 +60,7 @@ def dict_abridged_to_construction(constr_dict, materials, schedules,
         constr_type = constr_dict['type']
     except KeyError:
         raise ValueError('Construction dictionary lacks required "type" key.')
-    
+
     if constr_type == 'OpaqueConstructionAbridged':
         return OpaqueConstruction.from_dict_abridged(constr_dict, materials)
     elif constr_type == 'WindowConstructionAbridged':
@@ -69,8 +69,8 @@ def dict_abridged_to_construction(constr_dict, materials, schedules,
         return ShadeConstruction.from_dict(constr_dict)
     elif constr_type == 'AirBoundaryConstructionAbridged':
         return AirBoundaryConstruction.from_dict_abridged(constr_dict, schedules)
-    elif constr_type == 'AirBoundaryConstruction':  # special case for ConstrucitonSet
+    elif constr_type == 'AirBoundaryConstruction':  # special case for ConstructionSet
         return AirBoundaryConstruction.from_dict(constr_dict)
     elif raise_exception:
         raise ValueError(
-            '{} is not a reconized energy Construction type'.format(constr_type))
+            '{} is not a recognized energy Construction type'.format(constr_type))

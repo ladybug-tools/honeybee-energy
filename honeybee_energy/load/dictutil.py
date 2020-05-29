@@ -44,4 +44,4 @@ def dict_to_load(load_dict, raise_exception=True):
     elif load_type == 'Setpoint':
         return Setpoint.from_dict(load_dict)
     elif raise_exception:
-        raise ValueError('{} is not a reconized energy Load type'.format(load_type))
+        raise ValueError('{} is not a recognized energy Load type'.format(load_type))

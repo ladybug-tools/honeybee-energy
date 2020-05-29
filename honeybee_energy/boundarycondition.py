@@ -15,7 +15,7 @@ class Adiabatic(_BoundaryCondition):
         """Initialize Adiabatic BoundaryCondition from a dictionary.
 
         Args:
-            data: A dictionary representaion of the boundary condition.
+            data: A dictionary representation of the boundary condition.
         """
         assert data['type'] == 'Adiabatic', 'Expected dictionary for Adiabatic ' \
             'boundary condition. Got {}.'.format(data['type'])

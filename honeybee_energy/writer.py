@@ -58,7 +58,7 @@ def door_to_idf(door):
     Note that the resulting string does not include full construction definitions.
 
     Args:
-        door: A honeyee Door for which an IDF representation will be returned.
+        door: A honeybee Door for which an IDF representation will be returned.
     """
     door_bc_obj = door.boundary_condition.boundary_condition_object if \
         isinstance(door.boundary_condition, Surface) else ''
@@ -132,7 +132,7 @@ def shade_to_idf(shade):
     is not defaulted.
 
     Args:
-        shade: A honeyee Shade for which an IDF representation will be returned.
+        shade: A honeybee Shade for which an IDF representation will be returned.
     """
     # create the Shading:Detailed IDF string
     trans_sched = shade.properties.energy.transmittance_schedule.identifier if \
@@ -199,7 +199,7 @@ def face_to_idf(face):
     to.idf method on each one.
 
     Args:
-        face: A honeyee Face for which an IDF representation will be returned.
+        face: A honeybee Face for which an IDF representation will be returned.
     """
     if isinstance(face.type, RoofCeiling):
         face_type = 'Roof' if isinstance(face.boundary_condition, (Outdoors, Ground)) \
@@ -252,7 +252,7 @@ def room_to_idf(room):
     aperture.
 
     Args:
-        room: A honeyee Room for which an IDF representation will be returned.
+        room: A honeybee Room for which an IDF representation will be returned.
     """
     # list of zone strings that will eventually be joined
     zone_str = ['!-   ________ZONE:{}________\n'.format(room.display_name)]
@@ -308,7 +308,7 @@ def model_to_idf(model, schedule_directory=None):
     SimulationParameter.to_idf() should create a simulate-able IDF.
 
     Args:
-        model: A honeyee Model for which an IDF representation will be returned.
+        model: A honeybee Model for which an IDF representation will be returned.
         schedule_directory: An optional file directory to which any file-based
             schedules should be written to. If None, it will be written to the
             user folder assuming the project is entitled 'unnamed'.
@@ -471,7 +471,7 @@ def energyplus_idf_version(version_array=None):
 def _instance_in_array(object_instance, object_array):
     """Check if a specific object instance is already in an array.
 
-    This can be much faster than  `if object_instance in object_arrary`
+    This can be much faster than  `if object_instance in object_array`
     when you expect to be testing a lot of the same instance of an object for
     inclusion in an array since the builtin method uses an == operator to
     test inclusion.

@@ -8,9 +8,6 @@ from .load.equipment import ElectricEquipment, GasEquipment
 from .load.infiltration import Infiltration
 from .load.ventilation import Ventilation
 from .load.setpoint import Setpoint
-from .schedule.typelimit import ScheduleTypeLimit
-from .schedule.ruleset import ScheduleRuleset
-from .schedule.fixedinterval import ScheduleFixedInterval
 
 from honeybee._lockable import lockable
 from honeybee.typing import valid_ep_string, tuple_with_length
@@ -58,7 +55,7 @@ class ProgramType(object):
         * schedules_unique
     """
     __slots__ = ('_identifier', '_display_name', '_people', '_lighting',
-                 '_electric_equipment',  '_gas_equipment', '_infiltration',
+                 '_electric_equipment', '_gas_equipment', '_infiltration',
                  '_ventilation', '_setpoint', '_locked')
 
     def __init__(self, identifier, people=None, lighting=None, electric_equipment=None,
@@ -312,7 +309,7 @@ class ProgramType(object):
         Args:
             abridged: Boolean noting whether detailed schedule objects should be
                 written into the ProgramType (False) or just an abridged version (True)
-                that refrences the schedules by identifier. Default: False.
+                that references the schedules by identifier. Default: False.
         """
         base = {'type': 'ProgramType'} if not \
             abridged else {'type': 'ProgramTypeAbridged'}
@@ -506,7 +503,7 @@ class ProgramType(object):
     def _instance_in_array(object_instance, object_array):
         """Check if a specific object instance is already in an array.
 
-        This can be much faster than  `if object_instance in object_arrary`
+        This can be much faster than  `if object_instance in object_array`
         when you expect to be testing a lot of the same instance of an object for
         inclusion in an array since the builtin method uses an == operator to
         test inclusion.

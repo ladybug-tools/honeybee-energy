@@ -503,7 +503,7 @@ class Setpoint(_LoadBase):
         else:
             dehumid_scheds = [vent.dehumidifying_schedule for vent in setpoints]
             humid_sch_id = '{}_Humid Schedule'.format(identifier)
-            dehumid_sch_id = '{}_Deumid Schedule'.format(identifier)
+            dehumid_sch_id = '{}_Dehumid Schedule'.format(identifier)
             for i, sch in enumerate(humid_scheds):
                 if sch is None:
                     humid_scheds[i] = Setpoint._humidifying_schedule_no_limit

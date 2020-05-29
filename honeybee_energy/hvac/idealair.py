@@ -5,8 +5,6 @@ from __future__ import division
 from ._base import _HVACSystem
 from ..reader import parse_idf_string
 from ..writer import generate_idf_string
-from ..schedule.ruleset import ScheduleRuleset
-from ..schedule.fixedinterval import ScheduleFixedInterval
 
 from honeybee._lockable import lockable
 from honeybee.typing import valid_string, float_positive, float_in_range
@@ -245,7 +243,7 @@ class IdealAirSystem(_HVACSystem):
 
     @property
     def schedules(self):
-        """Get an array of all the schedules assiciated with the HVAC system."""
+        """Get an array of all the schedules associated with the HVAC system."""
         schedules = []
         if self._heating_availability is not None:
             schedules.append(self._heating_availability)
@@ -442,7 +440,7 @@ class IdealAirSystem(_HVACSystem):
         """
         # check that a setpoint object is assigned
         assert self._parent is not None and \
-                self._parent.properties.energy.setpoint is not None, \
+            self._parent.properties.energy.setpoint is not None, \
             'IdealAirSystem must be assigned to a Room ' \
             'with a setpoint object to use IdealAirSystem.to_idf.'
 
@@ -485,7 +483,7 @@ class IdealAirSystem(_HVACSystem):
         if self._parent.properties.energy.ventilation is not None:
             oa_method = 'DetailedSpecification'
             oa_id = '{}..{}'.format(self._parent.properties.energy.ventilation.identifier,
-                                      self._parent.identifier)
+                                    self._parent.identifier)
         else:
             oa_method = 'None'
             oa_id = ''

@@ -20,7 +20,6 @@ from honeybee_energy.lib.schedules import schedule_by_identifier, SCHEDULES
 from honeybee_energy.lib.programtypes import program_type_by_identifier, PROGRAM_TYPES
 
 import sys
-import os
 import logging
 import json
 
@@ -30,6 +29,7 @@ _logger = logging.getLogger(__name__)
 @click.group(help='Commands for retrieving objects from the standards library.')
 def lib():
     pass
+
 
 @lib.command('opaque-materials')
 @click.option('--output-file', help='Optional file to output the JSON string of '
@@ -45,6 +45,7 @@ def opaque_materials(output_file):
     else:
         sys.exit(0)
 
+
 @lib.command('window-materials')
 @click.option('--output-file', help='Optional file to output the JSON string of '
               'the object. By default, it will be printed out to stdout',
@@ -58,6 +59,7 @@ def window_materials(output_file):
         sys.exit(1)
     else:
         sys.exit(0)
+
 
 @lib.command('opaque-constructions')
 @click.option('--output-file', help='Optional file to output the JSON string of '
@@ -73,6 +75,7 @@ def opaque_constructions(output_file):
     else:
         sys.exit(0)
 
+
 @lib.command('window-constructions')
 @click.option('--output-file', help='Optional file to output the JSON string of '
               'the object. By default, it will be printed out to stdout',
@@ -86,6 +89,7 @@ def window_constructions(output_file):
         sys.exit(1)
     else:
         sys.exit(0)
+
 
 @lib.command('shade-constructions')
 @click.option('--output-file', help='Optional file to output the JSON string of '
@@ -101,6 +105,7 @@ def shade_constructions(output_file):
     else:
         sys.exit(0)
 
+
 @lib.command('construction-sets')
 @click.option('--output-file', help='Optional file to output the JSON string of '
               'the object. By default, it will be printed out to stdout',
@@ -114,6 +119,7 @@ def construction_sets(output_file):
         sys.exit(1)
     else:
         sys.exit(0)
+
 
 @lib.command('schedule-type-limits')
 @click.option('--output-file', help='Optional file to output the JSON string of '
@@ -129,6 +135,7 @@ def schedule_type_limits(output_file):
     else:
         sys.exit(0)
 
+
 @lib.command('schedules')
 @click.option('--output-file', help='Optional file to output the JSON string of '
               'the object. By default, it will be printed out to stdout',
@@ -143,6 +150,7 @@ def schedules(output_file):
     else:
         sys.exit(0)
 
+
 @lib.command('program-types')
 @click.option('--output-file', help='Optional file to output the JSON string of '
               'the object. By default, it will be printed out to stdout',
@@ -156,6 +164,7 @@ def program_types(output_file):
         sys.exit(1)
     else:
         sys.exit(0)
+
 
 @lib.command('opaque-material-by-id')
 @click.argument('material-id', type=str)
@@ -177,6 +186,7 @@ def opaque_material_by_id(material_id, output_file):
     else:
         sys.exit(0)
 
+
 @lib.command('window-material-by-id')
 @click.argument('material-id', type=str)
 @click.option('--output-file', help='Optional file to output the JSON string of '
@@ -196,6 +206,7 @@ def window_material_by_id(material_id, output_file):
         sys.exit(1)
     else:
         sys.exit(0)
+
 
 @lib.command('opaque-construction-by-id')
 @click.argument('construction-id', type=str)
@@ -220,6 +231,7 @@ def opaque_construction_by_id(construction_id, abridged, output_file):
     else:
         sys.exit(0)
 
+
 @lib.command('window-construction-by-id')
 @click.argument('construction-id', type=str)
 @click.option('--abridged', help='Optional boolean to note wether an abridged '
@@ -243,6 +255,7 @@ def window_construction_by_id(construction_id, abridged, output_file):
     else:
         sys.exit(0)
 
+
 @lib.command('shade-construction-by-id')
 @click.argument('construction-id', type=str)
 @click.option('--output-file', help='Optional file to output the JSON string of '
@@ -263,6 +276,7 @@ def shade_construction_by_id(construction_id, output_file):
         sys.exit(1)
     else:
         sys.exit(0)
+
 
 @lib.command('construction-set-by-id')
 @click.argument('construction-set-id', type=str)
@@ -291,6 +305,7 @@ def construction_set_by_id(construction_set_id, none_defaults, abridged, output_
     else:
         sys.exit(0)
 
+
 @lib.command('schedule-type-limit-by-id')
 @click.argument('schedule-type-limit-id', type=str)
 @click.option('--output-file', help='Optional file to output the JSON string of '
@@ -311,6 +326,7 @@ def schedule_type_limit_by_id(schedule_type_limit_id, output_file):
         sys.exit(1)
     else:
         sys.exit(0)
+
 
 @lib.command('schedule-by-id')
 @click.argument('schedule-id', type=str)
@@ -334,6 +350,7 @@ def schedule_by_id(schedule_id, abridged, output_file):
     else:
         sys.exit(0)
 
+
 @lib.command('program-type-by-id')
 @click.argument('program-type-id', type=str)
 @click.option('--abridged', help='Optional boolean to note wether an abridged definition'
@@ -355,6 +372,7 @@ def program_type_by_id(program_type_id, abridged, output_file):
         sys.exit(1)
     else:
         sys.exit(0)
+
 
 @lib.command('materials-by-id')
 @click.argument('material-ids', nargs=-1)
@@ -381,6 +399,7 @@ def materials_by_id(material_ids, output_file):
         sys.exit(1)
     else:
         sys.exit(0)
+
 
 @lib.command('constructions-by-id')
 @click.argument('construction-ids', nargs=-1)
@@ -416,6 +435,7 @@ def constructions_by_id(construction_ids, abridged, output_file):
     else:
         sys.exit(0)
 
+
 @lib.command('construction-sets-by-id')
 @click.argument('construction-set-ids', nargs=-1)
 @click.option('--none-defaults', help='Boolean to note whether default constructions '
@@ -446,6 +466,7 @@ def construction_sets_by_id(construction_set_ids, none_defaults, abridged, outpu
     else:
         sys.exit(0)
 
+
 @lib.command('schedule-type-limits-by-id')
 @click.argument('schedule-type-limit-ids', nargs=-1)
 @click.option('--output-file', help='Optional file to output the JSON strings of '
@@ -470,6 +491,7 @@ def schedule_type_limits_by_id(schedule_type_limit_ids, output_file):
     else:
         sys.exit(0)
 
+
 @lib.command('schedules-by-id')
 @click.argument('schedule-ids', nargs=-1)
 @click.option('--abridged', help='Optional boolean to note wether an abridged definition'
@@ -493,6 +515,7 @@ def schedules_by_id(schedule_ids, abridged, output_file):
         sys.exit(1)
     else:
         sys.exit(0)
+
 
 @lib.command('program-types-by-id')
 @click.argument('program-type-ids', nargs=-1)

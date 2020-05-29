@@ -39,13 +39,13 @@ class Infiltration(_LoadBase):
             BLAST and DOE-2 (the EnergyPlus predecessors) used 0.606 and 0 for
             this coefficient respectively. Default: 1.
         temperature_coefficient: A number that will get multiplied by the difference
-            in interior/exterior temperature (in C) to yeild a coefficient that
-            gets mutiplied by the flow_per_exterior_area. EnergyPlus uses 0 by
+            in interior/exterior temperature (in C) to yield a coefficient that
+            gets multiplied by the flow_per_exterior_area. EnergyPlus uses 0 by
             default but BLAST and DOE-2 (the EnergyPlus predecessors) used 0.03636
             and 0 for this coefficient respectively. Default: 0.
         velocity_coefficient: A number that will get multiplied by the hourly
-            exterior wind velocity (in m/s) to yeild a coefficient that gets
-            mutiplied by the flow_per_exterior_area. EnergyPlus uses 0 by default
+            exterior wind velocity (in m/s) to yield a coefficient that gets
+            multiplied by the flow_per_exterior_area. EnergyPlus uses 0 by default
             but BLAST and DOE-2 (the EnergyPlus predecessors) used 0.1177 and 0.224
             for this coefficient respectively. Default: 0.
 

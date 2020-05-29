@@ -159,7 +159,7 @@ class ShadeConstruction(object):
         """IDF string for the ShadingProperty:Reflectance of this construction.
 
         Note that, if is_specular is True, the glazing_construction() method must
-        be used to also write the glazing counstruction into the IDF.
+        be used to also write the glazing construction into the IDF.
 
         Args:
             host_shade_identifier: Text string for the identifier of a Shade object that
@@ -202,8 +202,8 @@ class ShadeConstruction(object):
 
     def _to_radiance(self, reflectance):
         try:
-            from honeybee_radiance.primitive.material.plastic import Plastic
-            from honeybee_radiance.primitive.material.mirror import Mirror
+            from honeybee_radiance.modifier.material import Plastic
+            from honeybee_radiance.modifier.material import Mirror
         except ImportError as e:
             raise ImportError('honeybee_radiance library must be installed to use '
                               'to_radiance_* methods. {}'.format(e))

@@ -203,7 +203,7 @@ def opaque_construction_by_identifier(construction_identifier):
                     schs = {sch_id: _s.schedule_by_identifier(sch_id)}
                 except KeyError:  # no air mixing key provided
                     schs = {}
-                return AirBoundaryConstruction.from_dict_abridged(constr_dict, sch_id)
+                return AirBoundaryConstruction.from_dict_abridged(constr_dict, schs)
         except KeyError:  # construction is nowhere to be found; raise an error
             raise ValueError(
                 '"{}" was not found in the opaque energy construction library.'.format(

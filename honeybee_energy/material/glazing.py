@@ -420,7 +420,6 @@ class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
             base['display_name'] = self.display_name
         return base
 
-
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""
         return (self.identifier, self.thickness, self.solar_transmittance,

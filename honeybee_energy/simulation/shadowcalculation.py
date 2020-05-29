@@ -56,7 +56,7 @@ class ShadowCalculation(object):
         * maximum_figures
     """
     __slots__ = (
-        '_solar_distribution', '_calculation_method', '_calculation_update_method', 
+        '_solar_distribution', '_calculation_method', '_calculation_update_method',
         '_calculation_frequency', '_maximum_figures')
     SOLAR_DISTRIBUTIONS = (
         'MinimalShadowing', 'FullExterior', 'FullInteriorAndExterior',

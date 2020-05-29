@@ -19,7 +19,7 @@ class Ventilation(_LoadBase):
     """A complete definition of ventilation, including schedules and load.
 
     Note the the 4 ventilation types (flow_per_person, flow_per_area, flow_per_zone,
-    and air_changes_per_hour) are ultimately added together to yeild the ventilation
+    and air_changes_per_hour) are ultimately added together to yield the ventilation
     design flow rate used in the simulation.
 
     Args:
@@ -40,7 +40,7 @@ class Ventilation(_LoadBase):
             per square meter of floor area. Default: 0.
         flow_per_zone: A numerical value for the design level of ventilation
             in m3/s for the entire zone. Default: 0.
-        air_changes_per_hour: A numberical value for the design level of ventilation
+        air_changes_per_hour: A numerical value for the design level of ventilation
             in air changes per hour (ACH) for the entire zone. This is particularly
             helpful for hospitals, where ventilation standards are often given
             in ACH. Default: 0.

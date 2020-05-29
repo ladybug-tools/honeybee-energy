@@ -17,6 +17,7 @@ from .lib import lib
 def energy():
     pass
 
+
 # add sub-commands to energy
 energy.add_command(simulate)
 energy.add_command(translate)

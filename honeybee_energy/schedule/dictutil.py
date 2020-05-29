@@ -15,7 +15,7 @@ def dict_to_schedule(sch_dict, raise_exception=True):
             that this should be a non-abridged dictionary to be valid.
         raise_exception: Boolean to note whether an excpetion should be raised
             if the object is not identified as a schedule. Default: True.
-    
+
     Returns:
         A Python object derived from the input sch_dict.
     """
@@ -29,7 +29,7 @@ def dict_to_schedule(sch_dict, raise_exception=True):
     elif sch_type == 'ScheduleFixedInterval':
         return ScheduleFixedInterval.from_dict(sch_dict)
     elif raise_exception:
-        raise ValueError('{} is not a reconized energy Schedule type'.format(sch_type))
+        raise ValueError('{} is not a recognized energy Schedule type'.format(sch_type))
 
 
 def dict_abridged_to_schedule(sch_dict, schedule_type_limits, raise_exception=True):
@@ -42,7 +42,7 @@ def dict_abridged_to_schedule(sch_dict, schedule_type_limits, raise_exception=Tr
             might be used in the schedule with the type limit identifiers as the keys.
         raise_exception: Boolean to note whether an excpetion should be raised
             if the object is not identified as a schedule. Default: True.
-    
+
     Returns:
         A Python object derived from the input sch_dict.
     """
@@ -56,4 +56,4 @@ def dict_abridged_to_schedule(sch_dict, schedule_type_limits, raise_exception=Tr
     elif sch_type == 'ScheduleFixedIntervalAbridged':
         return ScheduleFixedInterval.from_dict_abridged(sch_dict, schedule_type_limits)
     elif raise_exception:
-        raise ValueError('{} is not a reconized energy Schedule type'.format(sch_type))
+        raise ValueError('{} is not a recognized energy Schedule type'.format(sch_type))

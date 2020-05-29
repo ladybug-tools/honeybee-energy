@@ -18,7 +18,7 @@ def parse_idf_string(idf_string, expected_type=None):
     idf_string = idf_string.strip()
     if expected_type is not None:
         assert idf_string.startswith(expected_type), 'Expected EnergyPlus {} ' \
-            'but received a differet object: {}'.format(expected_type, idf_string)
+            'but received a different object: {}'.format(expected_type, idf_string)
     idf_strings = idf_string.split(';')
     assert len(idf_strings) == 2, 'Received more than one object in idf_string.'
     idf_string = re.sub(r'!.*\n', '', idf_strings[0])

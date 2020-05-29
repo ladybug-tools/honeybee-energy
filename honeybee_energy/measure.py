@@ -26,7 +26,7 @@ class Measure(object):
         * arguments
     """
     __slots__ = ('_folder', '_metadata_file', '_program_file', '_resources_folder',
-                 '_identifier',  '_display_name', '_description', '_type', '_arguments')
+                 '_identifier', '_display_name', '_description', '_type', '_arguments')
 
     def __init__(self, folder):
         """Initialize Measure."""
@@ -308,7 +308,7 @@ class MeasureArgument(object):
         'Choice': str
     }
 
-    __slots__ = ('_identifier',  '_display_name', '_value', '_default_value',
+    __slots__ = ('_identifier', '_display_name', '_value', '_default_value',
                  '_type', '_type_text', '_required', '_description',
                  '_model_dependent', '_valid_choices')
 

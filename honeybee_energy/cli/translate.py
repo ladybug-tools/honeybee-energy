@@ -7,8 +7,6 @@ except ImportError:
         'click is not installed. Try `pip install . [cli]` command.'
     )
 
-from ladybug.futil import write_to_file_by_name
-
 from honeybee.model import Model
 
 from honeybee_energy.simulation.parameter import SimulationParameter
@@ -33,6 +31,7 @@ _logger = logging.getLogger(__name__)
 @click.group(help='Commands for translating Honeybee JSON files to/from OSM/IDF.')
 def translate():
     pass
+
 
 @translate.command('model-to-osm')
 @click.argument('model-json')
@@ -156,6 +155,7 @@ def model_to_idf(model_json, sim_par_json, additional_str, output_file):
     else:
         sys.exit(0)
 
+
 @translate.command('constructions-to-idf')
 @click.argument('construction-json')
 @click.option('--output-file', help='Optional IDF file to output the IDF string of the '
@@ -200,6 +200,7 @@ def construction_to_idf(construction_json, output_file):
     else:
         sys.exit(0)
 
+
 @translate.command('constructions-from-idf')
 @click.argument('construction-idf')
 @click.option('--output-file', help='Optional JSON file to output the JSON string of the'
@@ -236,6 +237,7 @@ def construction_from_idf(construction_idf, output_file):
     else:
         sys.exit(0)
 
+
 @translate.command('schedules-to-idf')
 @click.argument('schedule-json')
 @click.option('--output-file', help='Optional IDF file to output the IDF string of the '
@@ -271,7 +273,6 @@ def schedule_to_idf(schedule_json, output_file):
         # create the IDF strings
         sched_strs = []
         used_day_sched_ids = []
-        sched_dir = None
         for sched in sch_objs:
             try:  # ScheduleRuleset
                 year_schedule, week_schedules = sched.to_idf()
@@ -301,6 +302,7 @@ def schedule_to_idf(schedule_json, output_file):
         sys.exit(1)
     else:
         sys.exit(0)
+
 
 @translate.command('schedules-from-idf')
 @click.argument('schedule-idf')
