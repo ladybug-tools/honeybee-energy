@@ -2,8 +2,8 @@
 """Module for coloring Model geometry with energy simulation results."""
 from __future__ import division
 
-from honeybee.door import Door
-from honeybee.aperture import Aperture
+from .match import match_rooms_to_data, match_faces_to_data
+
 from honeybee.face import Face
 from honeybee.room import Room
 from honeybee.facetype import Floor
@@ -63,8 +63,9 @@ class _ColorObject(object):
         self._base_type = self._base_collection.header.data_type
         self._base_unit = self._base_collection.header.unit
         for coll in data_collections[1:]:
-            assert coll.header.unit == self._base_unit, 'ColorObject data_collections must all' \
-                ' have matching units. {} != {}.'.format(coll.header.unit. self._unit)
+            assert coll.header.unit == self._base_unit, \
+                'ColorObject data_collections must all have matching units. ' \
+                '{} != {}.'.format(coll.header.unit, self._base_unit)
             assert len(coll.values) == len(self._base_collection.values), \
                 'ColorObject data_collections must all be aligned with one another.' \
                 '{} != {}'.format(len(coll.values), len(self._base_collection.values))
@@ -237,7 +238,7 @@ class ColorRoom(_ColorObject):
     """Object for visualization zone-level simulation results on Honeybee Room geometry.
 
     Args:
-        data_collections: An array of HourlyContinuousCollections of the same data type,
+        data_collections: An array of data collections of the same data type,
             which will be used to color Rooms with simulation results. Data collections
             can be of any class (eg. MonthlyCollection, DailyCollection) but they
             should all have headers with metadata dictionaries with 'Zone' or
@@ -309,7 +310,7 @@ class ColorRoom(_ColorObject):
         self._calculate_min_max(self._rooms)
 
         # match the rooms with the data collections
-        self._match_rooms_to_data()
+        self._matched_objects = match_rooms_to_data(data_collections, rooms)
         if len(self._matched_objects) == 0:
             raise ValueError('None of the ColorRoom data collections could be '
                              'matched to the input rooms')
@@ -417,35 +418,6 @@ class ColorRoom(_ColorObject):
             self.matched_values, self.min_point, self._max_point,
             self.legend_parameters, self.data_type, str(self.unit))
 
-    def _match_rooms_to_data(self):
-        """Match the object's rooms to the data_collections."""
-        self._matched_objects = []  # list of matched rooms and data collections
-
-        # extract the zone identifier from each of the data collections
-        zone_ids = []
-        use_mult = False
-        for data in self._data_collections:
-            if 'Zone' in data.header.metadata:
-                zone_ids.append(data.header.metadata['Zone'])
-            else:  # it's HVAC system data and we need to see if it's matchable
-                hvac_id = data.header.metadata['System']
-                use_mult = True
-                if '_IDEALAIR' in hvac_id:
-                    zone_ids.append(hvac_id.split('_IDEALAIR')[0])
-                elif ' IDEAL LOADS AIR SYSTEM' in hvac_id:
-                    zone_ids.append(hvac_id.split(' IDEAL LOADS AIR SYSTEM')[0])
-                else:
-                    zone_ids.append(hvac_id)
-
-        # loop through the rooms and match the data to them
-        for room in self._rooms:
-            rm_id = room.identifier.upper()
-            for i, data_id in enumerate(zone_ids):
-                if data_id == rm_id:
-                    mult = 1 if not use_mult else room.multiplier
-                    self._matched_objects.append((room, self._data_collections[i], mult))
-                    break
-
     def __repr__(self):
         """Color Room representation."""
         return 'Color Room:\n{} Rooms\n{}'.format(
@@ -456,7 +428,7 @@ class ColorFace(_ColorObject):
     """Object for visualization face and sub-face-level simulation results on geometry.
 
     Args:
-        data_collections: An array of HourlyContinuousCollections of the same data type,
+        data_collections: An array of data collections of the same data type,
             which will be used to color Faces with simulation results. Data collections
             can be of any class (eg. MonthlyCollection, DailyCollection) but they
             should all have headers with metadata dictionaries with 'Surface'
@@ -519,24 +491,11 @@ class ColorFace(_ColorObject):
         except TypeError:
             raise TypeError('Input faces must be an array. Got {}.'.format(type(faces)))
         assert len(faces) > 0, 'ColorFaces must have at least one face.'
-        flat_f = []
-        for face in faces:
-            if isinstance(face, Face):
-                flat_f.append(face)
-                for ap in face.apertures:
-                    flat_f.append(ap)
-                for dr in face.doors:
-                    flat_f.append(dr)
-            elif isinstance(face, (Aperture, Door)):
-                flat_f.append(face)
-            else:
-                raise ValueError('Expected honeybee Face, Aperture, Door or Shade '
-                                 'for ColorFaces. Got {}.'.format(type(face)))
         self._faces = faces
         self._calculate_min_max(faces)
 
         # match the faces with the data collections
-        self._match_faces_to_data(flat_f)
+        self._matched_objects = match_faces_to_data(data_collections, faces)
         if len(self._matched_objects) == 0:
             raise ValueError('None of the ColorFace data collections could be '
                              'matched to the input faces')
@@ -634,24 +593,6 @@ class ColorFace(_ColorObject):
         return GraphicContainer(
             self.matched_values, self.min_point, self._max_point,
             self.legend_parameters, self.data_type, str(self.unit))
-
-    def _match_faces_to_data(self, flat_f):
-        """Match the object's faces/sub-faces to the data_collections."""
-        self._matched_objects = []  # list of matched rooms and data collections
-
-        # extract the surface id from each of the data collections
-        srf_ids = []
-        for data in self._data_collections:
-            if 'Surface' in data.header.metadata:
-                srf_ids.append(data.header.metadata['Surface'])
-
-        # loop through the faces and match the data to them
-        for face in flat_f:
-            f_id = face.identifier.upper()
-            for i, data_id in enumerate(srf_ids):
-                if data_id == f_id:
-                    self._matched_objects.append((face, self._data_collections[i]))
-                    break
 
     def __repr__(self):
         """Color Face representation."""
