@@ -1,6 +1,7 @@
 """Load all of the constructions and materials from the IDF libraries."""
 from honeybee_energy.construction.opaque import OpaqueConstruction
 from honeybee_energy.construction.window import WindowConstruction
+from honeybee_energy.construction.windowshade import WindowConstructionShade
 from honeybee_energy.construction.shade import ShadeConstruction
 from honeybee_energy.construction.air import AirBoundaryConstruction
 from ._loadconstructions import _opaque_constructions, _window_constructions, \
@@ -221,10 +222,23 @@ def window_construction_by_identifier(construction_identifier):
     except KeyError:
         try:  # search the extension data
             constr_dict = _window_constr_standards_dict[construction_identifier]
-            mats = {}
-            for mat in constr_dict['layers']:
-                mats[mat] = _m.window_material_by_identifier(mat)
-            return WindowConstruction.from_dict_abridged(constr_dict, mats)
+            if constr_dict['type'] == 'WindowConstructionAbridged':
+                mats = {}
+                for mat in constr_dict['layers']:
+                    mats[mat] = _m.window_material_by_identifier(mat)
+                return WindowConstruction.from_dict_abridged(constr_dict, mats)
+            else:  # WindowConstructionShade
+                mats = {}
+                for mat in constr_dict['window_construction']['layers']:
+                    mats[mat] = _m.window_material_by_identifier(mat)
+                shd_mat = constr_dict['shade_material']
+                mats[shd_mat] = _m.window_material_by_identifier(shd_mat)
+                try:
+                    sch_id = constr_dict['schedule']
+                    schs = {sch_id: _s.schedule_by_identifier(sch_id)}
+                except KeyError:  # no schedule key provided
+                    schs = {}
+                return WindowConstructionShade.from_dict_abridged(constr_dict, mats, schs)
         except KeyError:  # construction is nowhere to be found; raise an error
             raise ValueError(
                 '"{}" was not found in the window energy construction library.'.format(

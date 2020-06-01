@@ -7,6 +7,7 @@ from ..lib.constructionsets import generic_construction_set
 from ..material.dictutil import dict_to_material
 from ..construction.dictutil import CONSTRUCTION_TYPES, dict_to_construction, \
     dict_abridged_to_construction
+from ..construction.windowshade import WindowConstructionShade
 from ..construction.air import AirBoundaryConstruction
 from ..constructionset import ConstructionSet
 from ..schedule.typelimit import ScheduleTypeLimit
@@ -181,6 +182,9 @@ class ModelEnergyProperties(object):
         for constr in self.constructions:
             if isinstance(constr, AirBoundaryConstruction):
                 self._check_and_add_schedule(constr.air_mixing_schedule, schedules)
+            elif isinstance(constr, WindowConstructionShade):
+                if constr.schedule is not None:
+                    self._check_and_add_schedule(constr.schedule, schedules)
         return list(set(schedules))
 
     @property

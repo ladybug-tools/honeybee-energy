@@ -2,6 +2,7 @@
 """AirBoundary Construction."""
 from __future__ import division
 
+from ..schedule.dictutil import dict_to_schedule
 from ..schedule.ruleset import ScheduleRuleset
 from ..schedule.fixedinterval import ScheduleFixedInterval
 from ..writer import generate_idf_string
@@ -122,9 +123,7 @@ class AirBoundaryConstruction(object):
             'Expected AirBoundaryConstruction. Got {}.'.format(data['type'])
         a_mix = data['air_mixing_per_area'] if 'air_mixing_per_area' in data else 0.1
         if 'air_mixing_schedule' in data:
-            a_sch = ScheduleRuleset.from_dict(data['air_mixing_schedule']) if \
-                data['air_mixing_schedule']['type'] == 'ScheduleRuleset' else \
-                ScheduleFixedInterval.from_dict(data['air_mixing_schedule'])
+            a_sch = dict_to_schedule(data['air_mixing_schedule'])
         else:
             a_sch = always_on
         new_obj = cls(data['identifier'], a_mix, a_sch)

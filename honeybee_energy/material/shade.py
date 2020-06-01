@@ -6,7 +6,7 @@ They can exist in only one of three possible locations in a window construction:
 1) On the innermost material layer.
 2) On the outermost material layer.
 3) In between two glazing materials. In the case of window constructions with
-   multiple glazing surfaces, the shade mateerial must be between the two
+   multiple glazing surfaces, the shade material must be between the two
    inner glass layers.
 
 Note that shade materials should never be bounded by gas gap layers in honeybee-energy.
@@ -125,11 +125,11 @@ class _EnergyWindowMaterialShadeBase(_EnergyMaterialWindowBase):
         """Get an estimate of the R-value of the shade + air gap when it is exterior.
 
         Args:
-            delta_t: The temperature diference across the air gap [C]. This
+            delta_t: The temperature difference across the air gap [C]. This
                 influences how strong the convection is within the air gap. Default is
                 7.5C, which is consistent with the NFRC standard for double glazed units.
             emissivity: The emissivity of the glazing surface adjacent to the shade.
-                Default is 0.84, which is tyical of clear, uncoated glass.
+                Default is 0.84, which is typical of clear, uncoated glass.
             height: An optional height for the cavity between the shade and the
                 glass in meters. Default is 1.0.
             angle: An angle in degrees between 0 and 180.
@@ -161,11 +161,11 @@ class _EnergyWindowMaterialShadeBase(_EnergyMaterialWindowBase):
         """Get an estimate of the R-value of the shade + air gap when it is interior.
 
         Args:
-            delta_t: The temperature diference across the air gap [C]. This
+            delta_t: The temperature difference across the air gap [C]. This
                 influences how strong the convection is within the air gap. Default is
                 7.5C, which is consistent with the NFRC standard for double glazed units.
             emissivity: The emissivity of the glazing surface adjacent to the shade.
-                Default is 0.84, which is tyical of clear, uncoated glass.
+                Default is 0.84, which is typical of clear, uncoated glass.
             height: An optional height for the cavity between the shade and the
                 glass in meters. Default is 1.0.
             angle: An angle in degrees between 0 and 180.
@@ -194,13 +194,13 @@ class _EnergyWindowMaterialShadeBase(_EnergyMaterialWindowBase):
         """Get an estimate of the R-value of the shade + air gap when it is interior.
 
         Args:
-            delta_t: The temperature diference across the air gap [C]. This
+            delta_t: The temperature difference across the air gap [C]. This
                 influences how strong the convection is within the air gap. Default is
                 7.5C, which is consistent with the NFRC standard for double glazed units.
             emissivity_1: The emissivity of the glazing surface on one side of the shade.
-                Default is 0.84, which is tyical of clear, uncoated glass.
+                Default is 0.84, which is typical of clear, uncoated glass.
             emissivity_2: The emissivity of the glazing surface on the other side of
-                the shade. Default is 0.84, which is tyical of clear, uncoated glass.
+                the shade. Default is 0.84, which is typical of clear, uncoated glass.
             height: An optional height for the cavity between the shade and the
                 glass in meters. Default is 1.0.
             angle: An angle in degrees between 0 and 180.
@@ -249,7 +249,7 @@ class EnergyWindowMaterialShade(_EnergyWindowMaterialShadeBase):
         visible_reflectance: Number between 0 and 1 for the reflectance of
             visible light off of the shade.
             Default: 0.4, which is typical of a white diffusing shade.
-        infrared_transmittance: Long-wave hemisperical transmittance of the shade.
+        infrared_transmittance: Long-wave hemispherical transmittance of the shade.
             Default: 0, which is typical of diffusing shades.
         emissivity: Number between 0 and 1 for the infrared hemispherical
             emissivity of the front side of the shade.  Default: 0.9, which
@@ -614,8 +614,8 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
             of visible light through the blind material. Default : 0.
         visible_reflectance: Number between 0 and 1 for the reflectance of
             visible light off of the blind. Default: 0.5.
-        infrared_transmittance: Long-wave hemisperical transmittance of the blind.
-            Default vallue is 0.
+        infrared_transmittance: Long-wave hemispherical transmittance of the blind.
+            Default value is 0.
         emissivity: Number between 0 and 1 for the infrared hemispherical
             emissivity of the blind.  Default is 0.9.
         distance_to_glass: A number between 0.001 and 1.0 for the distance from
@@ -675,7 +675,7 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
                  visible_transmittance=0, visible_reflectance=0.5,
                  infrared_transmittance=0, emissivity=0.9,
                  distance_to_glass=0.05, opening_multiplier=0.5):
-        """Initialize energy windoww material glazing."""
+        """Initialize energy window material blind."""
         _EnergyWindowMaterialShadeBase.__init__(
             self, identifier, infrared_transmittance, emissivity,
             distance_to_glass, opening_multiplier)
@@ -974,7 +974,7 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
     def u_value(self):
         """U-value of the blind slats [W/m2-K] (excluding air film resistance).
 
-        Note that this value assumes that blinds are cmpletely closed (at 0 degrees).
+        Note that this value assumes that blinds are completely closed (at 0 degrees).
         """
         return self.slat_conductivity / self.slat_thickness
 
@@ -986,7 +986,7 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
     def r_value(self):
         """R-value of the blind slats [m2-K/W] (excluding air film resistance).
 
-        Note that this value assumes that blinds are cmpletely closed (at 0 degrees).
+        Note that this value assumes that blinds are completely closed (at 0 degrees).
         """
         return self.slat_thickness / self.slat_conductivity
 

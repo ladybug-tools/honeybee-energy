@@ -264,7 +264,7 @@ def test_schedule_fixedinterval_from_idf():
 
 
 def test_schedule_fixedinterval_from_idf_file():
-    """Test the initalization of ScheduleFixedInterval from file."""
+    """Test the initialization of ScheduleFixedInterval from file."""
     ec_sched_idf = './tests/idf/ElectrochromicControlSchedules.idf'
     ec_scheds = ScheduleFixedInterval.extract_all_from_idf_file(ec_sched_idf)
 
