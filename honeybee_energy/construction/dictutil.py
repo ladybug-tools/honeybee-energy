@@ -2,12 +2,14 @@
 """Utilities to convert construction dictionaries to Python objects."""
 from honeybee_energy.construction.opaque import OpaqueConstruction
 from honeybee_energy.construction.window import WindowConstruction
+from honeybee_energy.construction.windowshade import WindowConstructionShade
 from honeybee_energy.construction.shade import ShadeConstruction
 from honeybee_energy.construction.air import AirBoundaryConstruction
 
 
-CONSTRUCTION_TYPES = ('OpaqueConstruction', 'WindowConstruction', 'ShadeConstruction',
-                      'AirBoundaryConstruction')
+CONSTRUCTION_TYPES = \
+    ('OpaqueConstruction', 'WindowConstruction', 'WindowConstructionShade',
+     'ShadeConstruction', 'AirBoundaryConstruction')
 
 
 def dict_to_construction(constr_dict, raise_exception=True):
@@ -31,6 +33,8 @@ def dict_to_construction(constr_dict, raise_exception=True):
         return OpaqueConstruction.from_dict(constr_dict)
     elif constr_type == 'WindowConstruction':
         return WindowConstruction.from_dict(constr_dict)
+    elif constr_type == 'WindowConstructionShade':
+        return WindowConstructionShade.from_dict(constr_dict)
     elif constr_type == 'ShadeConstruction':
         return ShadeConstruction.from_dict(constr_dict)
     elif constr_type == 'AirBoundaryConstruction':
@@ -65,6 +69,9 @@ def dict_abridged_to_construction(constr_dict, materials, schedules,
         return OpaqueConstruction.from_dict_abridged(constr_dict, materials)
     elif constr_type == 'WindowConstructionAbridged':
         return WindowConstruction.from_dict_abridged(constr_dict, materials)
+    elif constr_type == 'WindowConstructionShade':
+        return WindowConstructionShade.from_dict_abridged(
+            constr_dict, materials, schedules)
     elif constr_type == 'ShadeConstruction':
         return ShadeConstruction.from_dict(constr_dict)
     elif constr_type == 'AirBoundaryConstructionAbridged':

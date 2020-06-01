@@ -32,6 +32,7 @@ class _ConstructionBase(object):
         * u_factor
         * r_factor
         * is_symmetric
+        * has_shade
     """
     # generic air material used to compute indoor film coefficients.
     _air = EnergyWindowMaterialGas('generic air', gas_type='Air')
@@ -145,6 +146,14 @@ class _ConstructionBase(object):
             if self._materials[i] != self._materials[-(i + 1)]:
                 return False
         return True
+    
+    @property
+    def has_shade(self):
+        """Get a boolean noting whether dynamic materials are in the construction.
+
+        This should be False for all construction types except WindowConstructionShade.
+        """
+        return False
 
     def duplicate(self):
         """Get a copy of this construction."""

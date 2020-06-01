@@ -3,6 +3,7 @@
 from __future__ import division
 
 from ._base import _ConstructionBase
+from ..material.dictutil import dict_to_material
 from ..material._base import _EnergyMaterialOpaqueBase
 from ..material.opaque import EnergyMaterial, EnergyMaterialNoMass
 from ..reader import parse_idf_string
@@ -16,6 +17,13 @@ import os
 @lockable
 class OpaqueConstruction(_ConstructionBase):
     """Opaque energy construction.
+
+    Args:
+        identifier: Text string for a unique Construction ID. Must be < 100 characters
+            and not contain any EnergyPlus special characters. This will be used to
+            identify the object across a model and in the exported IDF.
+        materials: List of materials in the construction (from outside to inside).
+            All materials must be opaque and a maximum of 10 materials are allowed.
 
     Properties:
         * identifier
@@ -41,7 +49,10 @@ class OpaqueConstruction(_ConstructionBase):
 
     @property
     def materials(self):
-        """Get or set the list of materials in the construction (outside to inside)."""
+        """Get or set the list of materials in the construction (outside to inside).
+
+        All materials must be opaque and a maximum of 10 materials are allowed.
+        """
         return self._materials
 
     @materials.setter
@@ -187,13 +198,7 @@ class OpaqueConstruction(_ConstructionBase):
             'Expected OpaqueConstruction. Got {}.'.format(data['type'])
         materials = {}
         for mat in data['materials']:
-            if mat['type'] == 'EnergyMaterial':
-                materials[mat['identifier']] = EnergyMaterial.from_dict(mat)
-            elif mat['type'] == 'EnergyMaterialNoMass':
-                materials[mat['identifier']] = EnergyMaterialNoMass.from_dict(mat)
-            else:
-                raise NotImplementedError(
-                    'Material {} is not supported.'.format(mat['type']))
+            materials[mat['identifier']] = dict_to_material(mat)
         mat_layers = [materials[mat_id] for mat_id in data['layers']]
         new_obj = cls(data['identifier'], mat_layers)
         if 'display_name' in data and data['display_name'] is not None:

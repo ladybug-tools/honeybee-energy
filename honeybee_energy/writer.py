@@ -52,84 +52,12 @@ def generate_idf_string(object_type, values, comments=None):
     return ep_str
 
 
-def door_to_idf(door):
-    """Generate an IDF string representation of a Door.
-
-    Note that the resulting string does not include full construction definitions.
-
-    Args:
-        door: A honeybee Door for which an IDF representation will be returned.
-    """
-    door_bc_obj = door.boundary_condition.boundary_condition_object if \
-        isinstance(door.boundary_condition, Surface) else ''
-    values = (door.identifier,
-              'Door' if not door.is_glass else 'GlassDoor',
-              door.properties.energy.construction.identifier,
-              door.parent.identifier if door.has_parent else 'unknown',
-              door_bc_obj,
-              door.boundary_condition.view_factor,
-              '',  # TODO: Implement Frame and Divider objects on WindowConstructions
-              '1',
-              len(door.vertices),
-              ',\n '.join('%.3f, %.3f, %.3f' % (v.x, v.y, v.z)
-                          for v in door.upper_left_vertices))
-    comments = ('name',
-                'surface type',
-                'construction name',
-                'building surface name',
-                'boundary condition object',
-                'view factor to ground',
-                'frame and divider name',
-                'multiplier',
-                'number of vertices',
-                '')
-    return generate_idf_string('FenestrationSurface:Detailed', values, comments)
-
-
-def aperture_to_idf(aperture):
-    """Generate an IDF string representation of an Aperture.
-
-    Note that the resulting string does not include full construction definitions.
-
-    Also note that this does not include any of the shades assigned to the Aperture
-    in the resulting string. To write these objects into a final string, you must
-    loop through the Aperture.shades, and call the to.idf method on each one.
-
-    Args:
-        aperture: A honeybee Aperture for which an IDF representation will be returned.
-    """
-    ap_bc_obj = aperture.boundary_condition.boundary_condition_object if \
-        isinstance(aperture.boundary_condition, Surface) else ''
-    values = (aperture.identifier,
-              'Window',
-              aperture.properties.energy.construction.identifier,
-              aperture.parent.identifier if aperture.has_parent else 'unknown',
-              ap_bc_obj,
-              aperture.boundary_condition.view_factor,
-              '',  # TODO: Implement Frame and Divider objects on WindowConstructions
-              '1',
-              len(aperture.vertices),
-              ',\n '.join('%.3f, %.3f, %.3f' % (v.x, v.y, v.z)
-                          for v in aperture.upper_left_vertices))
-    comments = ('name',
-                'surface type',
-                'construction name',
-                'building surface name',
-                'boundary condition object',
-                'view factor to ground',
-                'frame and divider name',
-                'multiplier',
-                'number of vertices',
-                '')
-    return generate_idf_string('FenestrationSurface:Detailed', values, comments)
-
-
 def shade_to_idf(shade):
     """Generate an IDF string representation of a Shade.
 
     Note that the resulting string will possess both the Shading object
     as well as a ShadingProperty:Reflectance if the Shade's construction
-    is not defaulted.
+    is not in line with the EnergyPlus default of 0.2 reflectance.
 
     Args:
         shade: A honeybee Shade for which an IDF representation will be returned.
@@ -185,6 +113,125 @@ def shade_to_idf(shade):
             comments = comments + ('glazed fraction of surface', 'glazing construction')
         constr_str = generate_idf_string('ShadingProperty:Reflectance', values, comments)
     return '\n\n'.join((shade_str, constr_str))
+
+
+def door_to_idf(door):
+    """Generate an IDF string representation of a Door.
+
+    Note that the resulting string does not include full construction definitions
+    but it will include a WindowShadingControl definition if a WindowConstructionShade
+    is assigned to the door.
+
+    Also note that shades assigned to the Aperture are not included in the resulting
+    string. To write these objects into a final string, you must loop through the
+    Aperture.shades, and call the to.idf method on each one.
+
+    Args:
+        door: A honeybee Door for which an IDF representation will be returned.
+    """
+    # set defaults for missing fields
+    door_bc_obj = door.boundary_condition.boundary_condition_object if \
+        isinstance(door.boundary_condition, Surface) else ''
+    construction = door.properties.energy.construction
+    constr_name = construction.identifier if not construction.has_shade \
+        else construction.window_construction.identifier
+    if door.has_parent:
+        parent_face = door.parent.identifier
+        parent_room = door.parent.parent.identifier if door.parent.has_parent \
+            else 'unknown'
+    else:
+        parent_room = parent_face = 'unknown'
+
+    # create the fenestration surface string
+    values = (door.identifier,
+              'Door' if not door.is_glass else 'GlassDoor',
+              constr_name,
+              parent_face,
+              door_bc_obj,
+              door.boundary_condition.view_factor,
+              '',  # TODO: Implement Frame and Divider objects on WindowConstructions
+              '1',
+              len(door.vertices),
+              ',\n '.join('%.3f, %.3f, %.3f' % (v.x, v.y, v.z)
+                          for v in door.upper_left_vertices))
+    comments = ('name',
+                'surface type',
+                'construction name',
+                'building surface name',
+                'boundary condition object',
+                'view factor to ground',
+                'frame and divider name',
+                'multiplier',
+                'number of vertices',
+                '')
+    fen_str = generate_idf_string('FenestrationSurface:Detailed', values, comments)
+
+    # create the WindowShadingControl object if it is needed
+    if not construction.has_shade:
+        return fen_str
+    else:
+        shd_prop_str = construction.to_shading_control_idf(door.identifier, parent_room)
+        return '\n\n'.join((fen_str, shd_prop_str))
+
+
+def aperture_to_idf(aperture):
+    """Generate an IDF string representation of an Aperture.
+
+    Note that the resulting string does not include full construction definitions
+    but it will include a WindowShadingControl definition if a WindowConstructionShade
+    is assigned to the aperture.
+
+    Also note that shades assigned to the Aperture are not included in the resulting
+    string. To write these objects into a final string, you must loop through the
+    Aperture.shades, and call the to.idf method on each one.
+
+    Args:
+        aperture: A honeybee Aperture for which an IDF representation will be returned.
+    """
+    # set defaults for missing fields
+    ap_bc_obj = aperture.boundary_condition.boundary_condition_object if \
+        isinstance(aperture.boundary_condition, Surface) else ''
+    construction = aperture.properties.energy.construction
+    constr_name = construction.identifier if not construction.has_shade \
+        else construction.window_construction.identifier
+    if aperture.has_parent:
+        parent_face = aperture.parent.identifier
+        parent_room = aperture.parent.parent.identifier if aperture.parent.has_parent \
+            else 'unknown'
+    else:
+        parent_room = parent_face = 'unknown'
+
+    # create the fenestration surface string
+    values = (aperture.identifier,
+              'Window',
+              constr_name,
+              parent_face,
+              ap_bc_obj,
+              aperture.boundary_condition.view_factor,
+              '',  # TODO: Implement Frame and Divider objects on WindowConstructions
+              '1',
+              len(aperture.vertices),
+              ',\n '.join('%.3f, %.3f, %.3f' % (v.x, v.y, v.z)
+                          for v in aperture.upper_left_vertices))
+    comments = ('name',
+                'surface type',
+                'construction name',
+                'building surface name',
+                'boundary condition object',
+                'view factor to ground',
+                'frame and divider name',
+                'multiplier',
+                'number of vertices',
+                '')
+    fen_str = generate_idf_string('FenestrationSurface:Detailed', values, comments)
+
+    # create the WindowShadingControl object if it is needed
+    if not construction.has_shade:
+        return fen_str
+    else:
+        shd_prop_str = construction.to_shading_control_idf(
+            aperture.identifier, parent_room)
+        return '\n\n'.join((fen_str, shd_prop_str))
 
 
 def face_to_idf(face):
@@ -378,7 +425,7 @@ def model_to_idf(model, schedule_directory=None):
                         day_scheds.append(day.to_idf(sched.schedule_type_limit))
                         used_day_sched_ids.append(day.identifier)
                 sched_strs.extend([year_schedule] + week_schedules + day_scheds)
-        except AttributeError:  # ScheduleFixedInterval
+        except TypeError:  # ScheduleFixedInterval
             if sched_dir is None:
                 if schedule_directory is None:
                     sched_dir = os.path.join(hb_config.folders.default_simulation_folder,
@@ -401,6 +448,8 @@ def model_to_idf(model, schedule_directory=None):
         try:
             materials.extend(constr.materials)
             construction_strs.append(constr.to_idf())
+            if constr.has_shade:
+                construction_strs.append(constr.to_shaded_idf())
         except AttributeError:
             try:  # AirBoundaryConstruction or ShadeConstruction
                 construction_strs.append(constr.to_idf())  # AirBoundaryConstruction

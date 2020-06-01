@@ -7,16 +7,16 @@ from honeybee_energy.material.shade import EnergyWindowMaterialShade, \
     EnergyWindowMaterialBlind
 from honeybee_energy.construction.opaque import OpaqueConstruction
 from honeybee_energy.construction.window import WindowConstruction
+from honeybee_energy.construction.windowshade import WindowConstructionShade
 from honeybee_energy.construction.shade import ShadeConstruction
 from honeybee_energy.construction.air import AirBoundaryConstruction
 from honeybee_energy.schedule.ruleset import ScheduleRuleset
-import honeybee_energy.lib.scheduletypelimits as schedule_types
 
 import pytest
 
 
 def test_opaque_construction_init():
-    """Test the initalization of OpaqueConstruction objects and basic properties."""
+    """Test the initialization of OpaqueConstruction objects and basic properties."""
     concrete = EnergyMaterial('Concrete', 0.15, 2.31, 2322, 832, 'MediumRough',
                               0.95, 0.75, 0.8)
     insulation = EnergyMaterialNoMass('Insulation R-3', 3, 'MediumSmooth')
@@ -185,7 +185,7 @@ def test_opaque_dict_methods():
 
 
 def test_window_construction_init():
-    """Test the initalization of WindowConstruction objects and basic properties."""
+    """Test the initialization of WindowConstruction objects and basic properties."""
     lowe_glass = EnergyWindowMaterialGlazing(
         'Low-e Glass', 0.00318, 0.4517, 0.359, 0.714, 0.207,
         0, 0.84, 0.046578, 1.0)
@@ -216,14 +216,12 @@ def test_window_construction_init():
         double_low_e_dup.inside_emissivity == 0.84
     assert double_low_e.outside_emissivity == \
         double_low_e_dup.outside_emissivity == 0.84
-    assert double_low_e.unshaded_solar_transmittance == \
-        double_low_e_dup.unshaded_solar_transmittance == 0.4517 * 0.770675
-    assert double_low_e.unshaded_visible_transmittance == \
-        double_low_e_dup.unshaded_visible_transmittance == 0.714 * 0.8836
+    assert double_low_e.solar_transmittance == \
+        double_low_e_dup.solar_transmittance == 0.4517 * 0.770675
+    assert double_low_e.visible_transmittance == \
+        double_low_e_dup.visible_transmittance == 0.714 * 0.8836
     assert double_low_e.glazing_count == double_low_e_dup.glazing_count == 2
     assert double_low_e.gap_count == double_low_e_dup.gap_count == 1
-    assert double_low_e.has_shade is double_low_e_dup.has_shade is False
-    assert double_low_e.shade_location is double_low_e_dup.shade_location is None
 
     assert double_clear.u_factor == pytest.approx(2.72, rel=1e-2)
     assert double_low_e.u_factor == pytest.approx(1.698, rel=1e-2)
@@ -298,62 +296,8 @@ def test_window_symmetric():
     assert triple_clear.is_symmetric
 
 
-def test_window_construction_init_shade():
-    """Test the initalization of WindowConstruction objects with shades."""
-    lowe_glass = EnergyWindowMaterialGlazing(
-        'Low-e Glass', 0.00318, 0.4517, 0.359, 0.714, 0.207,
-        0, 0.84, 0.046578, 1.0)
-    clear_glass = EnergyWindowMaterialGlazing(
-        'Clear Glass', 0.005715, 0.770675, 0.07, 0.8836, 0.0804,
-        0, 0.84, 0.84, 1.0)
-    gap = EnergyWindowMaterialGas('air gap', thickness=0.0127)
-    shade_mat = EnergyWindowMaterialShade(
-        'Low-e Diffusing Shade', 0.025, 0.15, 0.5, 0.25, 0.5, 0, 0.4,
-        0.2, 0.1, 0.75, 0.25)
-    double_low_e_shade = WindowConstruction(
-        'Double Low-E with Shade', [lowe_glass, gap, clear_glass, shade_mat])
-    double_low_e_between_shade = WindowConstruction(
-        'Double Low-E Between Shade', [lowe_glass, shade_mat, clear_glass])
-    double_low_e_ext_shade = WindowConstruction(
-        'Double Low-E Outside Shade', [shade_mat, lowe_glass, gap, clear_glass])
-
-    assert double_low_e_shade.identifier == 'Double Low-E with Shade'
-    assert double_low_e_shade.u_factor == pytest.approx(0.9091, rel=1e-2)
-    assert double_low_e_between_shade.identifier == 'Double Low-E Between Shade'
-    assert double_low_e_between_shade.u_factor == pytest.approx(1.13374, rel=1e-2)
-    assert double_low_e_ext_shade.identifier == 'Double Low-E Outside Shade'
-    assert double_low_e_ext_shade.u_factor == pytest.approx(0.97678, rel=1e-2)
-
-
-def test_window_construction_init_blind():
-    """Test the initalization of WindowConstruction objects with blinds."""
-    lowe_glass = EnergyWindowMaterialGlazing(
-        'Low-e Glass', 0.00318, 0.4517, 0.359, 0.714, 0.207,
-        0, 0.84, 0.046578, 1.0)
-    clear_glass = EnergyWindowMaterialGlazing(
-        'Clear Glass', 0.005715, 0.770675, 0.07, 0.8836, 0.0804,
-        0, 0.84, 0.84, 1.0)
-    gap = EnergyWindowMaterialGas('air gap', thickness=0.0127)
-    shade_mat = EnergyWindowMaterialBlind(
-        'Plastic Blind', 'Vertical', 0.025, 0.01875, 0.003, 90, 0.2, 0.05, 0.4,
-        0.05, 0.45, 0, 0.95, 0.1, 1)
-    double_low_e_shade = WindowConstruction(
-        'Double Low-E with Shade', [lowe_glass, gap, clear_glass, shade_mat])
-    double_low_e_between_shade = WindowConstruction(
-        'Double Low-E Between Shade', [lowe_glass, shade_mat, clear_glass])
-    double_low_e_ext_shade = WindowConstruction(
-        'Double Low-E Outside Shade', [shade_mat, lowe_glass, gap, clear_glass])
-
-    assert double_low_e_shade.identifier == 'Double Low-E with Shade'
-    assert double_low_e_shade.u_factor == pytest.approx(1.26296, rel=1e-2)
-    assert double_low_e_between_shade.identifier == 'Double Low-E Between Shade'
-    assert double_low_e_between_shade.u_factor == pytest.approx(1.416379, rel=1e-2)
-    assert double_low_e_ext_shade.identifier == 'Double Low-E Outside Shade'
-    assert double_low_e_ext_shade.u_factor == pytest.approx(1.2089, rel=1e-2)
-
-
 def test_window_construction_init_gas_mixture():
-    """Test the initalization of WindowConstruction objects with a gas mixture."""
+    """Test the initialization of WindowConstruction objects with a gas mixture."""
     lowe_glass = EnergyWindowMaterialGlazing(
         'Low-e Glass', 0.00318, 0.4517, 0.359, 0.714, 0.207,
         0, 0.84, 0.046578, 1.0)
@@ -394,7 +338,7 @@ def test_window_temperature_profile():
 
 
 def test_window_construction_init_from_idf_file():
-    """Test the initalization of WindowConstruction from file."""
+    """Test the initialization of WindowConstruction from file."""
     lbnl_window_idf_file = './tests/idf/GlzSys_Triple Clear_Avg.idf'
     glaz_constrs, glaz_mats = WindowConstruction.extract_all_from_idf_file(
         lbnl_window_idf_file)
@@ -427,8 +371,58 @@ def test_window_dict_methods():
     assert constr_dict == new_constr.to_dict()
 
 
+def test_window_construction_shade_init():
+    """Test the initialization of WindowConstructionShade objects with shades."""
+    lowe_glass = EnergyWindowMaterialGlazing(
+        'Low-e Glass', 0.00318, 0.4517, 0.359, 0.714, 0.207,
+        0, 0.84, 0.046578, 1.0)
+    clear_glass = EnergyWindowMaterialGlazing(
+        'Clear Glass', 0.005715, 0.770675, 0.07, 0.8836, 0.0804,
+        0, 0.84, 0.84, 1.0)
+    gap = EnergyWindowMaterialGas('air gap', thickness=0.03)
+    shade_mat = EnergyWindowMaterialShade(
+        'Low-e Diffusing Shade', 0.025, 0.15, 0.5, 0.25, 0.5, 0, 0.4,
+        0.2, 0.1, 0.75, 0.25)
+    window_constr = WindowConstruction('Double Low-E', [lowe_glass, gap, clear_glass])
+    double_low_e_shade = WindowConstructionShade(
+        'Double Low-E with Shade', window_constr, shade_mat, 'Exterior')
+    double_low_e_between_shade = WindowConstructionShade(
+        'Double Low-E Between Shade', window_constr, shade_mat, 'Between')
+    double_low_e_ext_shade = WindowConstructionShade(
+        'Double Low-E Outside Shade', window_constr, shade_mat, 'Interior')
+
+    assert double_low_e_shade.identifier == 'Double Low-E with Shade'
+    assert double_low_e_between_shade.identifier == 'Double Low-E Between Shade'
+    assert double_low_e_ext_shade.identifier == 'Double Low-E Outside Shade'
+
+
+def test_window_construction_blind_init():
+    """Test the initialization of WindowConstructionShade objects with blinds."""
+    lowe_glass = EnergyWindowMaterialGlazing(
+        'Low-e Glass', 0.00318, 0.4517, 0.359, 0.714, 0.207,
+        0, 0.84, 0.046578, 1.0)
+    clear_glass = EnergyWindowMaterialGlazing(
+        'Clear Glass', 0.005715, 0.770675, 0.07, 0.8836, 0.0804,
+        0, 0.84, 0.84, 1.0)
+    gap = EnergyWindowMaterialGas('air gap', thickness=0.03)
+    shade_mat = EnergyWindowMaterialBlind(
+        'Plastic Blind', 'Vertical', 0.025, 0.01875, 0.003, 90, 0.2, 0.05, 0.4,
+        0.05, 0.45, 0, 0.95, 0.1, 1)
+    window_constr = WindowConstruction('Double Low-E', [lowe_glass, gap, clear_glass])
+    double_low_e_shade = WindowConstructionShade(
+        'Double Low-E with Blind', window_constr, shade_mat, 'Exterior')
+    double_low_e_between_shade = WindowConstructionShade(
+        'Double Low-E Between Blind', window_constr, shade_mat, 'Between')
+    double_low_e_ext_shade = WindowConstructionShade(
+        'Double Low-E Outside Blind', window_constr, shade_mat, 'Interior')
+
+    assert double_low_e_shade.identifier == 'Double Low-E with Blind'
+    assert double_low_e_between_shade.identifier == 'Double Low-E Between Blind'
+    assert double_low_e_ext_shade.identifier == 'Double Low-E Outside Blind'
+
+
 def test_shade_construction_init():
-    """Test the initalization of ShadeConstruction objects and basic properties."""
+    """Test the initialization of ShadeConstruction objects and basic properties."""
     default_constr = ShadeConstruction('Default Shade Construction')
     light_shelf_out = ShadeConstruction('Outdoor Light Shelf', 0.5, 0.6)
     str(light_shelf_out)  # test the string representation of the construction
@@ -444,7 +438,7 @@ def test_shade_construction_init():
 
 
 def test_shade_construction_to_idf():
-    """Test the initalization of ShadeConstruction objects and basic properties."""
+    """Test the initialization of ShadeConstruction objects and basic properties."""
     default_constr = ShadeConstruction('Default Shade Construction')
     light_shelf_out = ShadeConstruction('Outdoor Light Shelf', 0.5, 0.6, True)
 
@@ -493,7 +487,7 @@ def test_shade_dict_methods():
 
 
 def test_air_construction_init():
-    """Test the initalization of AirBoundaryConstruction objects and basic properties."""
+    """Test the initialization of AirBoundaryConstruction objects and basic properties."""
     default_constr = AirBoundaryConstruction('Default Air Construction')
 
     night_flush = ScheduleRuleset.from_daily_values(
@@ -510,7 +504,7 @@ def test_air_construction_init():
 
 
 def test_air_construction_to_idf():
-    """Test the initalization of AirBoundaryConstruction objects and basic properties."""
+    """Test the initialization of AirBoundaryConstruction objects and basic properties."""
     night_flush = ScheduleRuleset.from_daily_values(
         'Night Flush', [1, 1, 1, 1, 1, 1, 1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5,
                         0.5, 0.5, 0.5, 0.5, 0.5, 1, 1, 1])

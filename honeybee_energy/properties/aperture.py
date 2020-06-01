@@ -1,6 +1,8 @@
 # coding=utf-8
 """Aperture Energy Properties."""
+from ..construction.dictutil import dict_to_construction
 from ..construction.window import WindowConstruction
+from ..construction.windowshade import WindowConstructionShade
 from ..lib.constructionsets import generic_construction_set
 
 
@@ -9,9 +11,9 @@ class ApertureEnergyProperties(object):
 
     Args:
         host: A honeybee_core Aperture object that hosts these properties.
-        construction: An optional Honeybee WindowConstruction object for
-            the aperture. If None, it will be set by the parent Room ConstructionSet
-            or the the Honeybee default generic ConstructionSet.
+        construction: An optional Honeybee WindowConstruction or WindowConstructionShade
+            object for the aperture. If None, it will be set by the parent Room
+            ConstructionSet or the the Honeybee default generic ConstructionSet.
 
     Properties:
         * host
@@ -59,8 +61,9 @@ class ApertureEnergyProperties(object):
     @construction.setter
     def construction(self, value):
         if value is not None:
-            assert isinstance(value, WindowConstruction), \
-                'Expected Window Construction for aperture. Got {}'.format(type(value))
+            assert isinstance(value, (WindowConstruction, WindowConstructionShade)), \
+                'Expected WindowConstruction or WindowConstructionShade for aperture.' \
+                ' Got {}'.format(type(value))
             value.lock()  # lock editing in case construction has multiple references
         self._construction = value
 
@@ -95,12 +98,7 @@ class ApertureEnergyProperties(object):
 
             {
             "type": 'ApertureEnergyProperties',
-            "construction": {
-                "type": 'WindowConstruction',
-                "identifier": 'Generic Double Pane Window',
-                "layers": [],  # list of material identifiers (from outside to inside)
-                "materials": []  # list of material objects
-                }
+            "construction": {}  # WindowConstruction or WindowConstructionShade dict
             }
         """
         assert data['type'] == 'ApertureEnergyProperties', \
@@ -108,7 +106,7 @@ class ApertureEnergyProperties(object):
 
         new_prop = cls(host)
         if 'construction' in data and data['construction'] is not None:
-            new_prop.construction = WindowConstruction.from_dict(data['construction'])
+            new_prop.construction = dict_to_construction(data['construction'])
         return new_prop
 
     def apply_properties_from_dict(self, abridged_data, constructions):

@@ -2,8 +2,10 @@
 """Energy Construction Set."""
 from __future__ import division
 
+from .construction.dictutil import dict_to_construction
 from .construction.opaque import OpaqueConstruction
 from .construction.window import WindowConstruction
+from .construction.windowshade import WindowConstructionShade
 from .construction.shade import ShadeConstruction
 from .construction.air import AirBoundaryConstruction
 import honeybee_energy.lib.constructions as _lib
@@ -1103,16 +1105,16 @@ class ApertureConstructionSet(object):
         """
         assert data['type'] == 'ApertureConstructionSet', \
             'Expected ApertureConstructionSet. Got {}.'.format(data['type'])
-        winc = WindowConstruction.from_dict(data['window_construction']) \
+        winc = dict_to_construction(data['window_construction']) \
             if 'window_construction' in data and data['window_construction'] \
             is not None else None
-        intc = WindowConstruction.from_dict(data['interior_construction']) \
+        intc = dict_to_construction(data['interior_construction']) \
             if 'interior_construction' in data and data['interior_construction'] \
             is not None else None
-        skyc = WindowConstruction.from_dict(data['skylight_construction']) \
+        skyc = dict_to_construction(data['skylight_construction']) \
             if 'skylight_construction' in data and data['skylight_construction'] \
             is not None else None
-        opc = WindowConstruction.from_dict(data['operable_construction'])\
+        opc = dict_to_construction(data['operable_construction'])\
             if 'operable_construction' in data and data['operable_construction'] \
             is not None else None
         return cls(winc, intc, skyc, opc)
@@ -1168,7 +1170,7 @@ class ApertureConstructionSet(object):
 
     def _check_window_construction(self, value):
         """Check that a construction is valid before assigning it."""
-        assert isinstance(value, WindowConstruction), \
+        assert isinstance(value, (WindowConstruction, WindowConstructionShade)), \
             'Expected WindowConstruction. Got {}'.format(type(value))
         value.lock()   # lock editing in case construction has multiple references
 
@@ -1356,10 +1358,10 @@ class DoorConstructionSet(object):
         intc = OpaqueConstruction.from_dict(data['interior_construction']) \
             if 'interior_construction' in data and data['interior_construction'] \
             is not None else None
-        egc = WindowConstruction.from_dict(data['exterior_glass_construction']) \
+        egc = dict_to_construction(data['exterior_glass_construction']) \
             if 'exterior_glass_construction' in data and \
             data['exterior_glass_construction'] is not None else None
-        igc = WindowConstruction.from_dict(data['interior_glass_construction']) \
+        igc = dict_to_construction(data['interior_glass_construction']) \
             if 'interior_glass_construction' in data and \
             data['interior_glass_construction'] is not None else None
         ohc = OpaqueConstruction.from_dict(data['overhead_construction']) \
@@ -1434,7 +1436,7 @@ class DoorConstructionSet(object):
 
     def _check_window_construction(self, value):
         """Check that a construction is valid before assigning it."""
-        assert isinstance(value, WindowConstruction), \
+        assert isinstance(value, (WindowConstruction, WindowConstructionShade)), \
             'Expected WindowConstruction. Got {}'.format(type(value))
         value.lock()   # lock editing in case construction has multiple references
 

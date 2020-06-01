@@ -1,7 +1,9 @@
 # coding=utf-8
 """Door Energy Properties."""
+from ..construction.dictutil import dict_to_construction
 from ..construction.opaque import OpaqueConstruction
 from ..construction.window import WindowConstruction
+from ..construction.windowshade import WindowConstructionShade
 from ..lib.constructionsets import generic_construction_set
 
 
@@ -12,9 +14,9 @@ class DoorEnergyProperties(object):
         host_door: A honeybee_core Door object that hosts these properties.
         construction: An optional Honeybee OpaqueConstruction or WindowConstruction
             object for the door. Note that the host Door must have the is_glass
-            property set to True to assign a WindowConstruction. If None, it will
-            be set by the parent Room ConstructionSet or the the Honeybee default
-            generic ConstructionSet.
+            property set to True to assign a WindowConstruction or
+            WindowConstructionShade. If None, it will be set by the parent
+            Room ConstructionSet or the the Honeybee default generic ConstructionSet.
 
     Properties:
         * host
@@ -66,8 +68,9 @@ class DoorEnergyProperties(object):
                 assert isinstance(value, OpaqueConstruction), 'Expected ' \
                     'OpaqueConstruction for door. Got {}'.format(type(value))
             else:
-                assert isinstance(value, WindowConstruction), 'Expected ' \
-                    'WindowConstruction for glass door. Got {}'.format(type(value))
+                assert isinstance(value, (WindowConstruction, WindowConstructionShade)), \
+                    'Expected WindowConstruction or WindowConstructionShade for ' \
+                    'glass door. Got {}'.format(type(value))
             value.lock()  # lock editing in case construction has multiple references
         self._construction = value
 
@@ -102,12 +105,7 @@ class DoorEnergyProperties(object):
 
             {
             "type": 'DoorEnergyProperties',
-            "construction": {
-                "type": 'OpaqueConstruction',
-                "identifier": str,  # construction identifier
-                "layers": [],  # list of material identifiers (from outside to inside)
-                "materials": []  # list of unique material objects
-                }
+            "construction": {}  # OpaqueConstruction or WindowConstruction dict
             }
         """
         assert data['type'] == 'DoorEnergyProperties', \
@@ -115,12 +113,7 @@ class DoorEnergyProperties(object):
 
         new_prop = cls(host)
         if 'construction' in data and data['construction'] is not None:
-            if not host.is_glass:
-                new_prop.construction = OpaqueConstruction.from_dict(
-                    data['construction'])
-            else:
-                new_prop.construction = WindowConstruction.from_dict(
-                    data['construction'])
+            new_prop.construction = dict_to_construction(data['construction'])
         return new_prop
 
     def apply_properties_from_dict(self, abridged_data, constructions):

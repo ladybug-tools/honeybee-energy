@@ -3,13 +3,12 @@
 from __future__ import division
 
 from ._base import _ConstructionBase
+from ..material.dictutil import dict_to_material
 from ..material._base import _EnergyMaterialWindowBase
 from ..material.glazing import _EnergyWindowMaterialGlazingBase, \
     EnergyWindowMaterialGlazing, EnergyWindowMaterialSimpleGlazSys
 from ..material.gas import _EnergyWindowMaterialGasBase, EnergyWindowMaterialGas, \
-    EnergyWindowMaterialGasMixture, EnergyWindowMaterialGasCustom
-from ..material.shade import _EnergyWindowMaterialShadeBase, EnergyWindowMaterialShade, \
-    EnergyWindowMaterialBlind
+    EnergyWindowMaterialGasMixture
 from ..reader import parse_idf_string
 
 from honeybee._lockable import lockable
@@ -22,6 +21,15 @@ import os
 @lockable
 class WindowConstruction(_ConstructionBase):
     """Window energy construction.
+
+    Args:
+        identifier: Text string for a unique Construction ID. Must be < 100 characters
+            and not contain any EnergyPlus special characters. This will be used to
+            identify the object across a model and in the exported IDF.
+        materials: List of materials in the construction (from outside to inside).
+            The first and last layer must be a glazing layer. Adjacent glass layers
+            be separated by one and only one gas layer. When using a Simple Glazing
+            System material, it must be the only material.
 
     Properties:
         * identifier
@@ -36,39 +44,29 @@ class WindowConstruction(_ConstructionBase):
         * is_symmetric
         * inside_emissivity
         * outside_emissivity
-        * unshaded_solar_transmittance
-        * unshaded_visible_transmittance
+        * solar_transmittance
+        * visible_transmittance
+        * thickness
         * glazing_count
         * gap_count
-        * has_shade
-        * shade_location
     """
-    __slots__ = ('_has_shade',)
+    __slots__ = ()
 
     @property
     def materials(self):
-        """Get or set a list of materials in the construction (outside to inside)."""
+        """Get or set the list of materials in the construction (outside to inside).
+
+        The following rules apply:
+
+            * The first and last layer must be a glazing layer.
+            * When using a Simple Glazing System material, it must be the only material.
+            * Adjacent glass layers must be separated by one and only one gas layer
+            * Shades/blinds are not allowed; WindowConstructionShade must be used
+        """
         return self._materials
 
     @materials.setter
     def materials(self, mats):
-        """For multi-layer window constructions the following rules apply in E+:
-
-        * The first and last layer must be a solid layer (glass or shade/screen/blind)
-        * Adjacent glass layers must be separated by one and only one gas layer
-        * Adjacent layers must not be of the same type
-        * Only one shade/screen/blind layer is allowed
-        * An exterior shade/screen/blind must be the first layer
-        * An interior shade/blind must be the last layer
-        * Shades/screens should always be adjacent to glass layers and should never
-          be adjacent to gas layers (honeybee takes care of adding the additional gas
-          gaps needed by EnergyPlus using the material's distance_to_shade property
-          to set the gap thickness).
-        * For triple glazing the between-glass shade/blind must be between the two
-          inner glass layers. (currently no check)
-        * The slat width of a between-glass blind must be less than 2 times the
-          blind's distance_to_glass.(currently no check).
-        """
         try:
             if not isinstance(mats, tuple):
                 mats = tuple(mats)
@@ -82,7 +80,6 @@ class WindowConstruction(_ConstructionBase):
         assert not isinstance(mats[-1], _EnergyWindowMaterialGasBase), \
             'Window construction cannot have gas gap layers on the inside layer.'
         glazing_layer = False
-        has_shade = False
         for i, mat in enumerate(mats):
             assert isinstance(mat, _EnergyMaterialWindowBase), 'Expected window energy' \
                 ' material for construction. Got {}.'.format(type(mat))
@@ -95,14 +92,10 @@ class WindowConstruction(_ConstructionBase):
             elif isinstance(mat, _EnergyWindowMaterialGlazingBase):
                 assert not glazing_layer, 'Two adjacent glazing layers are not allowed.'
                 glazing_layer = True
-            else:  # must be a shade material
-                if i != 0:
-                    assert glazing_layer, \
-                        'Shade layer must be adjacent to a glazing layer.'
-                assert not has_shade, 'Constructions can only possess one shade.'
-                glazing_layer = False
-                has_shade = True
-        self._has_shade = has_shade
+            else:  # it's a shade material
+                raise ValueError(
+                    'Shades and blinds are not permittend within WindowConstruction.\n'
+                    'Use the WindowConstructionShade to add shades and blinds.')
         self._materials = mats
 
     @property
@@ -151,12 +144,8 @@ class WindowConstruction(_ConstructionBase):
         return self.materials[0].emissivity
 
     @property
-    def unshaded_solar_transmittance(self):
-        """The unshaded solar transmittance of the window at normal incidence.
-
-        Note that 'unshaded' means that all shade materials in the construction
-        are ignored.
-        """
+    def solar_transmittance(self):
+        """The solar transmittance of the window at normal incidence."""
         if isinstance(self.materials[0], EnergyWindowMaterialSimpleGlazSys):
             # E+ interprets ~80% of solar heat gain from direct solar transmission
             return self.materials[0].shgc * 0.8
@@ -167,12 +156,8 @@ class WindowConstruction(_ConstructionBase):
         return trans
 
     @property
-    def unshaded_visible_transmittance(self):
-        """The unshaded visible transmittance of the window at normal incidence.
-
-        Note that 'unshaded' means that all shade materials in the construction
-        are ignored.
-        """
+    def visible_transmittance(self):
+        """The visible transmittance of the window at normal incidence."""
         if isinstance(self.materials[0], EnergyWindowMaterialSimpleGlazSys):
             return self.materials[0].vt
         trans = 1
@@ -186,16 +171,15 @@ class WindowConstruction(_ConstructionBase):
         """Thickness of the construction [m]."""
         thickness = 0
         for mat in self.materials:
-            if isinstance(mat, (EnergyWindowMaterialGlazing, EnergyWindowMaterialShade,
-                                _EnergyWindowMaterialGasBase)):
-                thickness += mat.thickness
-            elif isinstance(mat, EnergyWindowMaterialBlind):
-                thickness += mat.slat_width
+            thickness += mat.thickness
         return thickness
 
     @property
     def glazing_count(self):
-        """The number of glazing materials contained within the window construction."""
+        """The number of glazing materials contained within the window construction.
+
+        Note that Simple Glazing System materials do not count.
+        """
         count = 0
         for mat in self.materials:
             if isinstance(mat, _EnergyWindowMaterialGlazingBase):
@@ -204,42 +188,12 @@ class WindowConstruction(_ConstructionBase):
 
     @property
     def gap_count(self):
-        """The number of gas gaps contained within the window construction.
-
-        Note that this property will count the distance between shades and glass
-        as a gap in addition to any gas layers.
-        """
+        """The number of gas gaps contained within the window construction."""
         count = 0
         for i, mat in enumerate(self.materials):
             if isinstance(mat, _EnergyWindowMaterialGasBase):
                 count += 1
-            elif isinstance(mat, _EnergyWindowMaterialShadeBase):
-                if i == 0 or count == len(self.materials) - 1:
-                    count += 1
-                else:
-                    count += 2
         return count
-
-    @property
-    def has_shade(self):
-        """Boolean noting whether there is a shade or blind in the construction."""
-        return self._has_shade
-
-    @property
-    def shade_location(self):
-        """Text noting the location of shade in the construction.
-
-        This will be one of the following: ('Interior', 'Exterior', 'Between', None).
-        None indicates that there is no shade within the construction.
-        """
-        if isinstance(self.materials[0], _EnergyWindowMaterialShadeBase):
-            return 'Exterior'
-        elif isinstance(self.materials[-1], _EnergyWindowMaterialShadeBase):
-            return 'Interior'
-        elif self.has_shade:
-            return 'Between'
-        else:
-            return None
 
     def temperature_profile(self, outside_temperature=-18, inside_temperature=21,
                             wind_speed=6.7, height=1.0, angle=90.0, pressure=101325):
@@ -275,10 +229,13 @@ class WindowConstruction(_ConstructionBase):
                 The sum of this list is the R-factor for this construction given
                 the input parameters.
         """
+        # reverse the angle if the outside temperature is greater than the inside one
         if angle != 90 and outside_temperature > inside_temperature:
             angle = abs(180 - angle)
         gap_count = self.gap_count
-        if gap_count == 0:  # single pane or simple glazing system
+
+        # single pane or simple glazing system
+        if gap_count == 0:
             in_r_init = 1 / self.in_h_simple()
             r_values = [1 / self.out_h(wind_speed, outside_temperature + 273.15),
                         self.materials[0].r_value, in_r_init]
@@ -289,6 +246,7 @@ class WindowConstruction(_ConstructionBase):
             temperatures = self._temperature_profile_from_r_values(
                 r_values, outside_temperature, inside_temperature)
             return temperatures, r_values
+
         # multi-layered window construction
         guess = abs(inside_temperature - outside_temperature) / 2
         guess = 1 if guess < 1 else guess  # prevents zero division with gas conductance
@@ -349,30 +307,7 @@ class WindowConstruction(_ConstructionBase):
             'Expected WindowConstruction. Got {}.'.format(data['type'])
         materials = {}
         for mat in data['materials']:
-            if mat['type'] == 'EnergyWindowMaterialSimpleGlazSys':
-                materials[mat['identifier']] = \
-                    EnergyWindowMaterialSimpleGlazSys.from_dict(mat)
-            elif mat['type'] == 'EnergyWindowMaterialGlazing':
-                materials[mat['identifier']] = \
-                    EnergyWindowMaterialGlazing.from_dict(mat)
-            elif mat['type'] == 'EnergyWindowMaterialGas':
-                materials[mat['identifier']] = \
-                    EnergyWindowMaterialGas.from_dict(mat)
-            elif mat['type'] == 'EnergyWindowMaterialGasMixture':
-                materials[mat['identifier']] = \
-                    EnergyWindowMaterialGasMixture.from_dict(mat)
-            elif mat['type'] == 'EnergyWindowMaterialGasCustom':
-                materials[mat['identifier']] = \
-                    EnergyWindowMaterialGasCustom.from_dict(mat)
-            elif mat['type'] == 'EnergyWindowMaterialShade':
-                materials[mat['identifier']] = \
-                    EnergyWindowMaterialShade.from_dict(mat)
-            elif mat['type'] == 'EnergyWindowMaterialBlind':
-                materials[mat['identifier']] = \
-                    EnergyWindowMaterialBlind.from_dict(mat)
-            else:
-                raise NotImplementedError(
-                    'Material {} is not supported.'.format(mat['type']))
+            materials[mat['identifier']] = dict_to_material(mat)
         mat_layers = [materials[mat_id] for mat_id in data['layers']]
         new_obj = cls(data['identifier'], mat_layers)
         if 'display_name' in data and data['display_name'] is not None:
@@ -433,13 +368,7 @@ class WindowConstruction(_ConstructionBase):
             elif isinstance(mat, EnergyWindowMaterialGlazing):
                 trans *= mat.solar_transmittance
                 diffusing = True if mat.solar_diffusing is True else False
-            elif isinstance(mat, EnergyWindowMaterialShade):
-                trans *= mat.solar_transmittance
-                diffusing = True
-            elif isinstance(mat, EnergyWindowMaterialBlind):
-                raise NotImplementedError('to_radiance_solar() is not supported for '
-                                          'window constructions with blind materials.')
-        if diffusing is False:
+        if not diffusing:
             return Glass.from_single_transmittance(
                 clean_rad_string(self.identifier), trans)
         else:
@@ -451,7 +380,7 @@ class WindowConstruction(_ConstructionBase):
                 clean_rad_string(self.identifier), rgb_reflectance=ref,
                 transmitted_diff=trans, transmitted_spec=0)
 
-    def to_radiance_visible(self, specularity=0.0):
+    def to_radiance_visible(self):
         """Honeybee Radiance material with the visible transmittance."""
         try:
             from honeybee_radiance.modifier.material import Glass
@@ -467,13 +396,7 @@ class WindowConstruction(_ConstructionBase):
             elif isinstance(mat, EnergyWindowMaterialGlazing):
                 trans *= mat.visible_transmittance
                 diffusing = True if mat.solar_diffusing is True else False
-            elif isinstance(mat, EnergyWindowMaterialShade):
-                trans *= mat.visible_transmittance
-                diffusing = True
-            elif isinstance(mat, EnergyWindowMaterialBlind):
-                raise NotImplementedError('to_radiance_visible() is not supported for '
-                                          'window constructions with blind materials.')
-        if diffusing is False:
+        if not diffusing:
             return Glass.from_single_transmittance(
                 clean_rad_string(self.identifier), trans)
         else:
@@ -531,7 +454,7 @@ class WindowConstruction(_ConstructionBase):
                 constr_mats = [materials_dict[mat] for mat in constr[1:]]
                 constructions.append(WindowConstruction(constr[0], constr_mats))
             except KeyError:
-                pass  # the construction is an opaque construction
+                pass  # it's an opaque construction or window shaded construction
         return constructions, materials
 
     @staticmethod
@@ -549,10 +472,6 @@ class WindowConstruction(_ConstructionBase):
                 mat_obj = EnergyWindowMaterialGas.from_idf(mat_str)
             elif mat_str.startswith('WindowMaterial:GasMixture,'):
                 mat_obj = EnergyWindowMaterialGasMixture.from_idf(mat_str)
-            elif mat_str.startswith('WindowMaterial:Shade,'):
-                mat_obj = EnergyWindowMaterialShade.from_idf(mat_str)
-            elif mat_str.startswith('WindowMaterial:Blind,'):
-                mat_obj = EnergyWindowMaterialBlind.from_idf(mat_str)
             if mat_obj is not None:
                 materials_dict[mat_obj.identifier] = mat_obj
         return materials_dict
@@ -578,7 +497,7 @@ class WindowConstruction(_ConstructionBase):
             if isinstance(mat, _EnergyWindowMaterialGlazingBase):
                 r_vals.append(mat.r_value)
                 emiss.append(None)
-            elif isinstance(mat, _EnergyWindowMaterialGasBase):
+            else:  # gas material
                 e_front = self.materials[i + 1].emissivity
                 try:
                     e_back = self.materials[i - 1].emissivity_back
@@ -587,23 +506,6 @@ class WindowConstruction(_ConstructionBase):
                 r_vals.append(1 / mat.u_value(
                     delta_t, e_back, e_front, t_kelvin=avg_t_guess))
                 emiss.append((e_back, e_front))
-            else:  # shade material
-                if i == 0:
-                    e_back = self.materials[i + 1].emissivity
-                    r_vals.append(mat.r_value_exterior(
-                        delta_t, e_back, t_kelvin=avg_t_guess))
-                    emiss.append(e_back)
-                elif i == len(self.materials) - 1:
-                    e_front = self.materials[i - 1].emissivity_back
-                    r_vals.append(mat.r_value_interior(
-                        delta_t, e_front, t_kelvin=avg_t_guess))
-                    emiss.append(e_front)
-                else:
-                    e_back = self.materials[i + 1].emissivity
-                    e_front = self.materials[i - 1].emissivity_back
-                    r_vals.append(mat.r_value_between(
-                        delta_t, e_back, e_front, t_kelvin=avg_t_guess))
-                    emiss.append((e_back, e_front))
         r_vals.append(1 / self.in_h_simple())
         return r_vals, emiss
 
@@ -614,25 +516,12 @@ class WindowConstruction(_ConstructionBase):
         for i, mat in enumerate(self.materials):
             if isinstance(mat, _EnergyWindowMaterialGlazingBase):
                 r_vals.append(r_values_init[i + 1])
-            elif isinstance(mat, _EnergyWindowMaterialGasBase):
+            else:  # gas material
                 delta_t = abs(temperatures[i + 1] - temperatures[i + 2])
                 avg_temp = ((temperatures[i + 1] + temperatures[i + 2]) / 2) + 273.15
                 r_vals.append(1 / mat.u_value_at_angle(
                     delta_t, emiss[i][0], emiss[i][1], height, angle,
                     avg_temp, pressure))
-            else:  # shade material
-                delta_t = abs(temperatures[i + 1] - temperatures[i + 2])
-                avg_temp = ((temperatures[i + 1] + temperatures[i + 2]) / 2) + 273.15
-                if i == 0:
-                    r_vals.append(mat.r_value_exterior(
-                        delta_t, emiss[i], height, angle, avg_temp, pressure))
-                elif i == len(self.materials) - 1:
-                    r_vals.append(mat.r_value_interior(
-                        delta_t, emiss[i], height, angle, avg_temp, pressure))
-                else:
-                    r_vals.append(mat.r_value_between(
-                        delta_t, emiss[i][0], emiss[i][1],
-                        height, angle, avg_temp, pressure))
         delta_t = abs(temperatures[-1] - temperatures[-2])
         avg_temp = ((temperatures[-1] + temperatures[-2]) / 2) + 273.15
         r_vals.append(1 / self.in_h(avg_temp, delta_t, height, angle, pressure))

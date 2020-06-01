@@ -2,6 +2,7 @@
 from honeybee_energy.config import folders
 from honeybee_energy.construction.opaque import OpaqueConstruction
 from honeybee_energy.construction.window import WindowConstruction
+from honeybee_energy.construction.windowshade import WindowConstructionShade
 from honeybee_energy.construction.air import AirBoundaryConstruction
 from honeybee_energy.construction.dictutil import dict_abridged_to_construction, \
     dict_to_construction
@@ -56,9 +57,9 @@ for f in os.listdir(folders.construction_lib):
                         constr.lock()
                         if isinstance(constr, (OpaqueConstruction, AirBoundaryConstruction)):
                             _opaque_constructions[constr_identifier] = constr
-                        elif isinstance(constr, WindowConstruction):
+                        elif isinstance(constr, (WindowConstruction, WindowConstructionShade)):
                             _window_constructions[constr_identifier] = constr
-                        else:
+                        else:  # it's a shade construction
                             _shade_constructions[constr_identifier] = constr
                 except KeyError:
                     pass  # not a Honeybee JSON file with Constructions
