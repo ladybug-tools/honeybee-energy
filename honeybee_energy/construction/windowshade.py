@@ -313,12 +313,12 @@ class WindowConstructionShade(object):
     def unique_materials(self):
         """A set of only unique material objects in the construction.
 
-        This will include the shade material layer.
+        This will include the shade material layer. It will include both types of glass
+        layers if the consruction is a switchable glazing.
         """
-        base = list(set(self._window_construction.materials + (self._shade_material,)))
-        if self._between_gap is not None:
-            base.append(self._between_gap)
-        return base
+        if self.is_switchable_glazing:
+            return list(set(self._window_construction.materials + (self.shade_material,)))
+        return list(set(self.materials))
 
     @property
     def r_value(self):
@@ -414,15 +414,11 @@ class WindowConstructionShade(object):
 
     @property
     def thickness(self):
-        """Thickness of the construction [m], including the shade layer."""
-        thickness = 0
-        for mat in self.materials:
-            if isinstance(mat, EnergyWindowMaterialBlind):
-                thickness += mat.slat_width
-            else:
-                thickness += mat.thickness
-            thickness += mat.thickness
-        return thickness
+        """Thickness of the construction [m], excluding the shade layer.
+
+        This is effectively the thickness that EnergyPlus assumes.
+        """
+        return self._window_construction.thickness
 
     @property
     def glazing_count(self):
@@ -666,6 +662,7 @@ class WindowConstructionShade(object):
             self.identifier, self.window_construction, self.shade_material,
             self.shade_location, self.control_type, self.setpoint,
             self.schedule)
+        new_con._between_gap = self._between_gap
         new_con._display_name = self._display_name
         return new_con
 
