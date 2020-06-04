@@ -3,6 +3,11 @@ from honeybee_energy.run import measure_compatible_model_json, run_idf, \
     prepare_idf_for_simulation, to_openstudio_osw
 from honeybee_energy.result.err import Err
 from honeybee_energy.lib.programtypes import office_program
+from honeybee_energy.lib.materials import clear_glass, air_gap
+from honeybee_energy.material.shade import EnergyWindowMaterialShade
+from honeybee_energy.construction.window import WindowConstruction
+from honeybee_energy.construction.windowshade import WindowConstructionShade
+from honeybee_energy.schedule.ruleset import ScheduleRuleset
 from honeybee_energy.simulation.parameter import SimulationParameter
 from honeybee_energy.measure import Measure
 
@@ -139,6 +144,60 @@ def test_run_idf_colinear():
 
     # write the final string into an IDF
     idf = os.path.join(folders.default_simulation_folder, 'test_file_colinear', 'in.idf')
+    write_to_file(idf, idf_str, True)
+
+    # prepare the IDF for simulation
+    epw_file = './tests/simulation/chicago.epw'
+    prepare_idf_for_simulation(idf, epw_file)
+
+    # run the IDF through EnergyPlus
+    sql, zsz, rdd, html, err = run_idf(idf, epw_file)
+
+    assert os.path.isfile(sql)
+    assert os.path.isfile(err)
+    err_obj = Err(err)
+    assert 'EnergyPlus Completed Successfully' in err_obj.file_contents
+
+
+def test_run_idf_window_shade():
+    """Test the Model.to.idf and run_idf method with a model that has a window shade."""
+    # Get input Model
+    room = Room.from_box('TinyHouseZone', 5, 10, 3)
+    room.properties.energy.program_type = office_program
+    room.properties.energy.add_default_ideal_air()
+
+    double_clear = WindowConstruction(
+        'Double Pane Clear', [clear_glass, air_gap, clear_glass])
+    shade_mat = EnergyWindowMaterialShade(
+        'Low-e Diffusing Shade', 0.005, 0.15, 0.5, 0.25, 0.5, 0, 0.4,
+        0.2, 0.1, 0.75, 0.25)
+    sched = ScheduleRuleset.from_daily_values(
+        'NighSched', [1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                      0, 0, 0, 0, 0, 1, 1, 1])
+    double_ec = WindowConstructionShade(
+        'Double Low-E Inside EC', double_clear, shade_mat, 'Interior',
+        'OnIfHighSolarOnWindow', 200, sched)
+
+    south_face = room[3]
+    south_face.apertures_by_ratio(0.4, 0.01)
+    south_face.apertures[0].properties.energy.construction = double_ec
+    north_face = room[1]
+    north_face.apertures_by_ratio(0.4, 0.01)
+
+    model = Model('TinyHouse', [room])
+
+    # Get the input SimulationParameter
+    sim_par = SimulationParameter()
+    sim_par.output.add_zone_energy_use()
+    ddy_file = './tests/ddy/chicago.ddy'
+    sim_par.sizing_parameter.add_from_ddy_996_004(ddy_file)
+    sim_par.run_period.end_date = Date(1, 7)
+
+    # create the IDF string for simulation paramters and model
+    idf_str = '\n\n'.join((sim_par.to_idf(), model.to.idf(model)))
+
+    # write the final string into an IDF
+    idf = os.path.join(folders.default_simulation_folder, 'test_file_shd', 'in.idf')
     write_to_file(idf, idf_str, True)
 
     # prepare the IDF for simulation

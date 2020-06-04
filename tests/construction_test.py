@@ -379,21 +379,79 @@ def test_window_construction_shade_init():
     clear_glass = EnergyWindowMaterialGlazing(
         'Clear Glass', 0.005715, 0.770675, 0.07, 0.8836, 0.0804,
         0, 0.84, 0.84, 1.0)
-    gap = EnergyWindowMaterialGas('air gap', thickness=0.03)
+    gap = EnergyWindowMaterialGas('air gap', thickness=0.0127)
     shade_mat = EnergyWindowMaterialShade(
+        'Low-e Diffusing Shade', 0.005, 0.15, 0.5, 0.25, 0.5, 0, 0.4,
+        0.2, 0.1, 0.75, 0.25)
+    shade_thick = EnergyWindowMaterialShade(
         'Low-e Diffusing Shade', 0.025, 0.15, 0.5, 0.25, 0.5, 0, 0.4,
         0.2, 0.1, 0.75, 0.25)
     window_constr = WindowConstruction('Double Low-E', [lowe_glass, gap, clear_glass])
+    window_clear = WindowConstruction('Double Low-E', [clear_glass, gap, clear_glass])
+    sched = ScheduleRuleset.from_daily_values(
+        'NighSched', [1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                      0, 0, 0, 0, 0, 1, 1, 1])
+
+    with pytest.raises(AssertionError):
+        double_low_e_between_shade = WindowConstructionShade(
+            'Double Low-E Between Shade', window_constr, shade_thick, 'Between')
+
     double_low_e_shade = WindowConstructionShade(
-        'Double Low-E with Shade', window_constr, shade_mat, 'Exterior')
+        'Double Low-E with Shade', window_constr, shade_mat, 'Exterior',
+        'OnIfHighSolarOnWindow', 200, sched)
     double_low_e_between_shade = WindowConstructionShade(
-        'Double Low-E Between Shade', window_constr, shade_mat, 'Between')
-    double_low_e_ext_shade = WindowConstructionShade(
-        'Double Low-E Outside Shade', window_constr, shade_mat, 'Interior')
+        'Double Low-E Between Shade', window_clear, shade_mat, 'Between')
+    double_ext_shade = WindowConstructionShade(
+        'Double Outside Shade', window_clear, shade_mat, 'Interior')
+
+    double_low_e_shade_dup = double_low_e_shade.duplicate()
 
     assert double_low_e_shade.identifier == 'Double Low-E with Shade'
+    assert double_low_e_shade.window_construction == \
+        double_low_e_shade_dup.window_construction
+    assert double_low_e_shade.shade_material == double_low_e_shade_dup.shade_material
+    assert double_low_e_shade.shade_location == \
+        double_low_e_shade_dup.shade_location == 'Exterior'
+    assert double_low_e_shade.control_type == \
+        double_low_e_shade_dup.control_type == 'OnIfHighSolarOnWindow'
+    assert double_low_e_shade.setpoint == double_low_e_shade_dup.setpoint == 200
+    assert double_low_e_shade.schedule == double_low_e_shade_dup.schedule == sched
+    assert len(double_low_e_shade.materials) == 4
+    assert len(double_low_e_shade.layers) == 4
+    assert len(double_low_e_shade.unique_materials) == 4
+    assert double_low_e_shade.r_value == double_low_e_shade.r_value == \
+        pytest.approx(0.41984, rel=1e-2)
+    assert double_low_e_shade.u_value == double_low_e_shade.u_value == \
+        pytest.approx(2.3818, rel=1e-2)
+    assert double_low_e_shade.u_factor == double_low_e_shade.u_factor == \
+        pytest.approx(1.69802, rel=1e-2)
+    assert double_low_e_shade.r_factor == double_low_e_shade.r_factor == \
+        pytest.approx(0.588919, rel=1e-2)
+    assert not double_low_e_shade.is_symmetric
+    assert not double_low_e_shade.is_switchable_glazing
+    assert double_low_e_shade.has_shade
+    assert double_low_e_shade.inside_emissivity == \
+        double_low_e_shade.inside_emissivity == 0.84
+    assert double_low_e_shade.outside_emissivity == \
+        double_low_e_shade.outside_emissivity == 0.4
+    assert double_low_e_shade.thickness == \
+        double_low_e_shade.window_construction.thickness
+    assert double_low_e_shade.glazing_count == 2
+    assert double_low_e_shade.gap_count == 1
+
     assert double_low_e_between_shade.identifier == 'Double Low-E Between Shade'
-    assert double_low_e_ext_shade.identifier == 'Double Low-E Outside Shade'
+    assert double_low_e_between_shade.shade_location == 'Between'
+    assert double_low_e_between_shade.control_type == 'AlwaysOn'
+    assert double_low_e_between_shade.setpoint is None
+    assert double_low_e_between_shade.schedule is None
+    assert len(double_low_e_between_shade.materials) == 5
+    assert len(double_low_e_between_shade.unique_materials) == 3
+    assert double_low_e_between_shade.is_symmetric
+    assert double_low_e_between_shade.gap_count == 2
+
+    assert double_ext_shade.identifier == 'Double Outside Shade'
+    assert len(double_ext_shade.materials) == 4
+    assert len(double_ext_shade.unique_materials) == 3
 
 
 def test_window_construction_blind_init():
@@ -409,16 +467,206 @@ def test_window_construction_blind_init():
         'Plastic Blind', 'Vertical', 0.025, 0.01875, 0.003, 90, 0.2, 0.05, 0.4,
         0.05, 0.45, 0, 0.95, 0.1, 1)
     window_constr = WindowConstruction('Double Low-E', [lowe_glass, gap, clear_glass])
+    window_clear = WindowConstruction('Double Low-E', [clear_glass, gap, clear_glass])
+    sched = ScheduleRuleset.from_daily_values(
+        'NighSched', [1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                      0, 0, 0, 0, 0, 1, 1, 1])
     double_low_e_shade = WindowConstructionShade(
-        'Double Low-E with Blind', window_constr, shade_mat, 'Exterior')
+        'Double Low-E with Blind', window_constr, shade_mat, 'Exterior',
+        'OnIfHighSolarOnWindow', 200, sched)
     double_low_e_between_shade = WindowConstructionShade(
-        'Double Low-E Between Blind', window_constr, shade_mat, 'Between')
+        'Double Low-E Between Blind', window_clear, shade_mat, 'Between')
     double_low_e_ext_shade = WindowConstructionShade(
         'Double Low-E Outside Blind', window_constr, shade_mat, 'Interior')
+    double_low_e_shade_dup = double_low_e_shade.duplicate()
 
     assert double_low_e_shade.identifier == 'Double Low-E with Blind'
+    assert double_low_e_shade.window_construction == \
+        double_low_e_shade_dup.window_construction
+    assert double_low_e_shade.shade_material == double_low_e_shade_dup.shade_material
+    assert double_low_e_shade.shade_location == \
+        double_low_e_shade_dup.shade_location == 'Exterior'
+    assert double_low_e_shade.control_type == \
+        double_low_e_shade_dup.control_type == 'OnIfHighSolarOnWindow'
+    assert double_low_e_shade.setpoint == double_low_e_shade_dup.setpoint == 200
+    assert double_low_e_shade.schedule == double_low_e_shade_dup.schedule == sched
+    assert len(double_low_e_shade.materials) == 4
+    assert len(double_low_e_shade.layers) == 4
+    assert len(double_low_e_shade.unique_materials) == 4
+    assert not double_low_e_shade.is_symmetric
+    assert not double_low_e_shade.is_switchable_glazing
+    assert double_low_e_shade.has_shade
+    assert double_low_e_shade.inside_emissivity == \
+        double_low_e_shade.inside_emissivity == 0.84
+    assert double_low_e_shade.outside_emissivity == \
+        double_low_e_shade.outside_emissivity == 0.95
+    assert double_low_e_shade.thickness == \
+        double_low_e_shade.window_construction.thickness
+    assert double_low_e_shade.glazing_count == 2
+    assert double_low_e_shade.gap_count == 1
+
     assert double_low_e_between_shade.identifier == 'Double Low-E Between Blind'
+    assert double_low_e_between_shade.shade_location == 'Between'
+    assert double_low_e_between_shade.control_type == 'AlwaysOn'
+    assert double_low_e_between_shade.setpoint is None
+    assert double_low_e_between_shade.schedule is None
+    assert len(double_low_e_between_shade.materials) == 5
+    assert len(double_low_e_between_shade.unique_materials) == 3
+    assert double_low_e_between_shade.is_symmetric
+    assert double_low_e_between_shade.gap_count == 2
+
     assert double_low_e_ext_shade.identifier == 'Double Low-E Outside Blind'
+    assert len(double_low_e_ext_shade.materials) == 4
+
+
+def test_window_construction_ec_init():
+    """Test the initialization of WindowConstructionShade objects with electrochromic."""
+    lowe_glass = EnergyWindowMaterialGlazing(
+        'Low-e Glass', 0.00318, 0.4517, 0.359, 0.714, 0.207,
+        0, 0.84, 0.046578, 1.0)
+    clear_glass = EnergyWindowMaterialGlazing(
+        'Clear Glass', 0.005715, 0.770675, 0.07, 0.8836, 0.0804,
+        0, 0.84, 0.84, 1.0)
+    gap = EnergyWindowMaterialGas('air gap', thickness=0.03)
+    tint_glass = EnergyWindowMaterialGlazing(
+        'Tinted Low-e Glass', 0.00318, 0.09, 0.359, 0.16, 0.207,
+        0, 0.84, 0.046578, 1.0)
+    window_constr = WindowConstruction('Double Low-E', [lowe_glass, gap, clear_glass])
+    sched = ScheduleRuleset.from_daily_values(
+        'NighSched', [1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                      0, 0, 0, 0, 0, 1, 1, 1])
+    double_low_e_ec = WindowConstructionShade(
+        'Double Low-E Inside EC', window_constr, tint_glass, 'Exterior',
+        'OnIfHighSolarOnWindow', 200, sched)
+    double_low_e_between_ec = WindowConstructionShade(
+        'Double Low-E Between EC', window_constr, tint_glass, 'Between')
+    double_low_e_ext_ec = WindowConstructionShade(
+        'Double Low-E Outside EC', window_constr, tint_glass, 'Interior')
+    double_low_e_ec_dup = double_low_e_ec.duplicate()
+
+    assert double_low_e_ec.identifier == 'Double Low-E Inside EC'
+    assert double_low_e_ec.window_construction == \
+        double_low_e_ec_dup.window_construction
+    assert double_low_e_ec.shade_material == double_low_e_ec_dup.shade_material
+    assert double_low_e_ec.shade_location == \
+        double_low_e_ec_dup.shade_location == 'Exterior'
+    assert double_low_e_ec.control_type == \
+        double_low_e_ec_dup.control_type == 'OnIfHighSolarOnWindow'
+    assert double_low_e_ec.setpoint == double_low_e_ec_dup.setpoint == 200
+    assert double_low_e_ec.schedule == double_low_e_ec_dup.schedule == sched
+    assert len(double_low_e_ec.materials) == 3
+    assert len(double_low_e_ec.layers) == 3
+    assert len(double_low_e_ec.unique_materials) == 4
+    assert not double_low_e_ec.is_symmetric
+    assert double_low_e_ec.is_switchable_glazing
+    assert double_low_e_ec.has_shade
+    assert double_low_e_ec.thickness == \
+        double_low_e_ec.window_construction.thickness
+    assert double_low_e_ec.glazing_count == 2
+    assert double_low_e_ec.gap_count == 1
+
+    assert double_low_e_between_ec.identifier == 'Double Low-E Between EC'
+    assert double_low_e_between_ec.shade_location == 'Between'
+    assert double_low_e_between_ec.control_type == 'AlwaysOn'
+    assert double_low_e_between_ec.setpoint is None
+    assert double_low_e_between_ec.schedule is None
+    assert len(double_low_e_between_ec.materials) == 3
+    assert len(double_low_e_between_ec.unique_materials) == 4
+    assert not double_low_e_between_ec.is_symmetric
+    assert double_low_e_between_ec.gap_count == 1
+
+    assert double_low_e_ext_ec.identifier == 'Double Low-E Outside EC'
+    assert len(double_low_e_ext_ec.materials) == 3
+
+
+def test_window_shade_lockability():
+    """Test the lockability of the WindowConstructionShade construction."""
+    clear_glass = EnergyWindowMaterialGlazing(
+        'Clear Glass', 0.005715, 0.770675, 0.07, 0.8836, 0.0804,
+        0, 0.84, 0.84, 1.0)
+    gap = EnergyWindowMaterialGas('air gap', thickness=0.0127)
+    double_clear = WindowConstruction(
+        'Double Clear Window', [clear_glass, gap, clear_glass])
+    shade_mat = EnergyWindowMaterialShade(
+        'Low-e Diffusing Shade', 0.005, 0.15, 0.5, 0.25, 0.5, 0, 0.4,
+        0.2, 0.1, 0.75, 0.25)
+    sched = ScheduleRuleset.from_daily_values(
+        'NighSched', [1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                      0, 0, 0, 0, 0, 1, 1, 1])
+    double_low_e_ec = WindowConstructionShade(
+        'Double Low-E Inside EC', double_clear, shade_mat, 'Exterior',
+        'OnIfHighSolarOnWindow', 200, sched)
+
+    with pytest.raises(AttributeError):
+        double_low_e_ec.window_construction.materials = \
+            [clear_glass, gap, clear_glass, gap, clear_glass]
+    with pytest.raises(AttributeError):
+        double_low_e_ec.window_construction.schedule.identifier = 'ScheduleName'
+    with pytest.raises(AttributeError):
+        double_low_e_ec.shade_location = 'Interior'
+
+    double_low_e_ec.control_type = 'AlwaysOn'
+    double_low_e_ec.lock()
+    with pytest.raises(AttributeError):
+        double_low_e_ec.control_type = 'OnIfHighSolarOnWindow'
+    double_low_e_ec.unlock()
+    double_low_e_ec.control_type = 'OnIfHighSolarOnWindow'
+
+
+def test_window_shade_equivalency():
+    """Test the equality of a WindowConstructionShade construction to another."""
+    clear_glass = EnergyWindowMaterialGlazing(
+        'Clear Glass', 0.005715, 0.770675, 0.07, 0.8836, 0.0804,
+        0, 0.84, 0.84, 1.0)
+    gap = EnergyWindowMaterialGas('air gap', thickness=0.0127)
+    double_clear = WindowConstruction(
+        'Double Clear Window', [clear_glass, gap, clear_glass])
+    shade_mat = EnergyWindowMaterialShade(
+        'Low-e Diffusing Shade', 0.005, 0.15, 0.5, 0.25, 0.5, 0, 0.4,
+        0.2, 0.1, 0.75, 0.25)
+    sched = ScheduleRuleset.from_daily_values(
+        'NighSched', [1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                      0, 0, 0, 0, 0, 1, 1, 1])
+    double_low_e_ec = WindowConstructionShade(
+        'Double Low-E Inside EC', double_clear, shade_mat, 'Exterior',
+        'OnIfHighSolarOnWindow', 200, sched)
+    double_low_e_ec_2 = double_low_e_ec.duplicate()
+    double_low_e_ec_3 = WindowConstructionShade(
+        'Double Low-E Inside EC', double_clear, shade_mat, 'Exterior',
+        'AlwaysOn', None, sched)
+
+    collection = [double_low_e_ec, double_low_e_ec, double_low_e_ec_2, double_low_e_ec_3]
+    assert len(set(collection)) == 2
+    assert double_low_e_ec == double_low_e_ec_2
+    assert double_low_e_ec != double_low_e_ec_3
+    assert double_low_e_ec_2 != double_low_e_ec_3
+
+    double_low_e_ec_2.identifier = 'Cool Window'
+    assert double_low_e_ec != double_low_e_ec_2
+
+
+def test_window_shade_dict_methods():
+    """Test the to/from dict methods."""
+    clear_glass = EnergyWindowMaterialGlazing(
+        'Clear Glass', 0.005715, 0.770675, 0.07, 0.8836, 0.0804,
+        0, 0.84, 0.84, 1.0)
+    gap = EnergyWindowMaterialGas('air gap', thickness=0.0127)
+    double_clear = WindowConstruction(
+        'Double Clear Window', [clear_glass, gap, clear_glass])
+    shade_mat = EnergyWindowMaterialShade(
+        'Low-e Diffusing Shade', 0.005, 0.15, 0.5, 0.25, 0.5, 0, 0.4,
+        0.2, 0.1, 0.75, 0.25)
+    sched = ScheduleRuleset.from_daily_values(
+        'NighSched', [1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                      0, 0, 0, 0, 0, 1, 1, 1])
+    double_low_e_ec = WindowConstructionShade(
+        'Double Low-E Inside EC', double_clear, shade_mat, 'Exterior',
+        'OnIfHighSolarOnWindow', 200, sched)
+
+    constr_dict = double_low_e_ec.to_dict()
+    new_constr = WindowConstructionShade.from_dict(constr_dict)
+    assert double_low_e_ec == new_constr
+    assert constr_dict == new_constr.to_dict()
 
 
 def test_shade_construction_init():
