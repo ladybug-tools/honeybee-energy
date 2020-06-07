@@ -19,7 +19,6 @@ from honeybee_energy.schedule.typelimit import ScheduleTypeLimit
 from honeybee_energy.schedule.ruleset import ScheduleRuleset
 from honeybee_energy.programtype import ProgramType
 
-import os
 import json
 
 
@@ -88,7 +87,7 @@ def test_construction_from_lib():
     result = runner.invoke(shade_construction_by_id, ['Generic Context'])
     assert result.exit_code == 0
     mat_dict = json.loads(result.output)
-    assert isinstance(ShadeConstruction.from_dict(mat_dict),ShadeConstruction)
+    assert isinstance(ShadeConstruction.from_dict(mat_dict), ShadeConstruction)
 
     result = runner.invoke(construction_set_by_id, ['Default Generic Construction Set'])
     assert result.exit_code == 0
@@ -139,7 +138,7 @@ def test_constructions_from_lib():
     assert isinstance(ConstructionSet.from_dict(con_dict[0]), ConstructionSet)
 
 
-def test_schedule_from_lib():
+def test_schedules_from_lib():
     """Test the existence of schedule objects in the library."""
     runner = CliRunner()
 

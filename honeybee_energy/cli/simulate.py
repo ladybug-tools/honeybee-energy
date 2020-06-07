@@ -10,6 +10,8 @@ except ImportError:
 from honeybee_energy.simulation.parameter import SimulationParameter
 from honeybee_energy.run import measure_compatible_model_json, to_openstudio_osw, \
     run_osw, run_idf
+from honeybee.config import folders
+from ladybug.futil import preparedir
 
 import sys
 import os
@@ -34,8 +36,9 @@ def simulate():
               'the execution of the OpenStuduo CLI. This can be used to add '
               'measures in the workflow.', default=None, show_default=True)
 @click.option('--folder', help='Folder on this computer, into which the IDF and result'
-              'files will be written. If None, the files will be output in the'
-              'same location as the model_json.', default=None, show_default=True)
+              'files will be written. If None, the files will be output to the honeybee '
+              'default simulation folder and placed in a project folder with the same '
+              'name as the model_json.', default=None, show_default=True)
 @click.option('--check-model', help='Boolean to note whether the Model should be '
               're-serialized to Python and checked before it is translated to .osm. ',
               default=True, show_default=True)
@@ -60,9 +63,12 @@ def simulate_model(model_json, epw_file, sim_par_json, base_osw, folder,
         epw_folder, epw_file_name = os.path.split(epw_file)
         ddy_file = os.path.join(epw_folder, epw_file_name.replace('.epw', '.ddy'))
 
-        # set the default folder if it's not specified
+        # set the default folder to the default if it's not specified
         if folder is None:
-            folder = os.path.dirname(os.path.abspath(model_json))
+            proj_name = os.path.basename(model_json).replace('.json', '')
+            folder = os.path.join(
+                folders.default_simulation_folder, proj_name, 'OpenStudio')
+            preparedir(folder, remove_content=False)
 
         # process the simulation parameters and write new ones if necessary
         def write_sim_par(sim_par):
