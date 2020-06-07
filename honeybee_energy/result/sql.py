@@ -417,6 +417,56 @@ class ZoneSize(object):
         py_dt = datetime.strptime(sql_table_row[8], '%m/%d %H:%M:%S')
         self._peak_date_time = DateTime(py_dt.month, py_dt.day, py_dt.hour, py_dt.minute)
 
+    @classmethod
+    def from_dict(cls, data):
+        """Create a ZoneSize from a dictionary.
+
+        Args:
+            data: ZoneSize dictionary following the format below.
+
+        .. code-block:: python
+
+            {
+            "type": "ZoneSize",
+            "zone_name": str,
+            "load_type": str,
+            "calculated_design_load": float,
+            "final_design_load": float,
+            "calculated_design_flow": float,
+            "final_design_flow": float,
+            "design_day_name": str,
+            "peak_date_time": str,
+            "peak_temperature": float,
+            "peak_humidity_ratio": float,
+            "peak_outdoor_air_flow": float
+            }
+        """
+        assert data['type'] == 'ZoneSize', \
+            'Expected ZoneSize. Got {}.'.format(data['type'])
+        return cls(
+            [None, data['zone_name'], data['load_type'], data['calculated_design_load'],
+             data['final_design_load'], data['calculated_design_flow'],
+             data['final_design_flow'], data['design_day_name'], data['peak_date_time'],
+             data['peak_temperature'], data['peak_humidity_ratio'],
+             data['peak_outdoor_air_flow']])
+
+    def to_dict(self):
+        """Get ZoneSize as a dictionary."""
+        return {
+            'type': 'ZoneSize',
+            'zone_name': self.zone_name,
+            'load_type': self.load_type,
+            'calculated_design_load': self.calculated_design_load,
+            'final_design_load': self.final_design_load,
+            'calculated_design_flow': self.calculated_design_flow,
+            'final_design_flow': self.final_design_flow,
+            'design_day_name': self.design_day_name,
+            'peak_date_time': self.peak_date_time.strftime('%m/%d %H:%M:%S'),
+            'peak_temperature': self.peak_temperature,
+            'peak_humidity_ratio': self.peak_humidity_ratio,
+            'peak_outdoor_air_flow': self.peak_outdoor_air_flow
+        }
+
     @property
     def zone_name(self):
         """Get the name of the zone to which this sizing information corresponds."""
@@ -524,6 +574,43 @@ class ComponentSize(object):
         self._properties = tuple(str(table_row[3]) for table_row in sql_table_rows)
         self._values = tuple(table_row[4] for table_row in sql_table_rows)
         self._units = tuple(str(table_row[5]) for table_row in sql_table_rows)
+
+    @classmethod
+    def from_dict(cls, data):
+        """Create a ComponentSize from a dictionary.
+
+        Args:
+            data: ComponentSize dictionary following the format below.
+
+        .. code-block:: python
+
+            {
+            "type": "ComponentSize",
+            "component_type": str,
+            "component_name": str,
+            "properties": [],
+            "values": [],
+            "units": []
+            }
+        """
+        assert data['type'] == 'ComponentSize', \
+            'Expected ComponentSize. Got {}.'.format(data['type'])
+        mtx = []
+        for prop, val, unit in zip(data['properties'], data['values'], data['units']):
+            row = [None, data['component_type'], data['component_name'], prop, val, unit]
+            mtx.append(row)
+        return cls(mtx)
+
+    def to_dict(self):
+        """Get ComponentSize as a dictionary."""
+        return {
+            'type': 'ComponentSize',
+            'component_type': self.component_type,
+            'component_name': self.component_name,
+            'properties': self.properties,
+            'values': self.values,
+            'units': self.units
+        }
 
     @property
     def component_type(self):

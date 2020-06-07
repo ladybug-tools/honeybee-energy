@@ -52,7 +52,10 @@ def test_sqlite_zone_sizing():
         assert isinstance(size_obj.peak_temperature, float)
         assert isinstance(size_obj.peak_humidity_ratio, float)
         assert isinstance(size_obj.peak_outdoor_air_flow, float)
-    
+        size_dict = size_obj.to_dict()
+        new_size = ZoneSize.from_dict(size_dict)
+        assert new_size.to_dict() == size_dict
+
     for size_obj in heat_sizes:
         assert size_obj.load_type == 'Heating'
         assert size_obj.design_day_name == 'BOSTON LOGAN INTL ARPT ANN HTG 99.6% CONDNS DB'
@@ -81,6 +84,9 @@ def test_sqlite_component_sizing():
         assert all(isinstance(unit, str) for unit in size_obj.units)
         assert isinstance(size_obj.properties_dict, dict)
         assert len(size_obj.properties_dict) == 4
+        size_dict = size_obj.to_dict()
+        new_size = ComponentSize.from_dict(size_dict)
+        assert new_size.to_dict() == size_dict
 
 
 def test_sqlite_data_collections_by_output_name():
