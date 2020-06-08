@@ -20,6 +20,17 @@ def test_data_by_output():
     assert all(isinstance(HourlyContinuousCollection.from_dict(dc), HourlyContinuousCollection)
                for dc in data_list)
 
+    out_names = [
+        'Zone Ideal Loads Supply Air Total Cooling Energy',
+        'Zone Ideal Loads Supply Air Total Heating Energy'
+    ]
+    result = runner.invoke(data_by_output, [sql_path, json.dumps(out_names)])
+    assert result.exit_code == 0
+    data_list = json.loads(result.output)
+    assert len(data_list) == 14
+    assert all(isinstance(HourlyContinuousCollection.from_dict(dc), HourlyContinuousCollection)
+               for dc in data_list)
+
     result = runner.invoke(data_by_output, [sql_path, "Zone Lights Total Heating Energy"])
     assert result.exit_code == 0
     data_list = json.loads(result.output)
@@ -31,11 +42,11 @@ def test_data_by_outputs():
     runner = CliRunner()
     sql_path = './tests/result/eplusout_hourly.sql'
 
-    out_names = (
+    out_names1 = [
         'Zone Ideal Loads Supply Air Total Cooling Energy',
         'Zone Ideal Loads Supply Air Total Heating Energy'
-    )
-    result = runner.invoke(data_by_outputs, [sql_path, out_names])
+    ]
+    result = runner.invoke(data_by_outputs, [sql_path] + out_names1)
     assert result.exit_code == 0
     data_list = json.loads(result.output)
     assert len(data_list) == 2
@@ -43,15 +54,23 @@ def test_data_by_outputs():
     assert all(isinstance(HourlyContinuousCollection.from_dict(dc), HourlyContinuousCollection)
                for dc in data_list[0])
 
-    out_names = (
+    out_names2 = [
         'Zone Lights Total Heating Energy',
         'Chiller Electric Energy'
-    )
-    result = runner.invoke(data_by_outputs, [sql_path, out_names])
+    ]
+    result = runner.invoke(data_by_outputs, [sql_path] + out_names2)
     assert result.exit_code == 0
     data_list = json.loads(result.output)
     assert len(data_list) == 2
     assert len(data_list[0]) == 0
+
+    input_args = [sql_path, json.dumps(out_names1), json.dumps(out_names2)]
+    result = runner.invoke(data_by_outputs, input_args)
+    assert result.exit_code == 0
+    data_list = json.loads(result.output)
+    assert len(data_list) == 2
+    assert len(data_list[0]) == 14
+    assert len(data_list[1]) == 0
 
 
 def test_output_csv():
@@ -59,11 +78,16 @@ def test_output_csv():
     runner = CliRunner()
     sql_path = './tests/result/eplusout_hourly.sql'
 
-    out_names = (
+    out_names = [
         'Zone Ideal Loads Supply Air Total Cooling Energy',
         'Zone Ideal Loads Supply Air Total Heating Energy'
-    )
-    result = runner.invoke(output_csv, [sql_path, out_names])
+    ]
+    result = runner.invoke(output_csv, [sql_path] + out_names)
+    assert result.exit_code == 0
+    first_row = result.output.split('\n')[0]
+    assert len(first_row.split(',')) == 15
+
+    result = runner.invoke(output_csv, [sql_path, json.dumps(out_names)])
     assert result.exit_code == 0
     first_row = result.output.split('\n')[0]
     assert len(first_row.split(',')) == 15
