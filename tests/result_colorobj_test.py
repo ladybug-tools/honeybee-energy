@@ -1,11 +1,13 @@
 # coding=utf-8
 from honeybee_energy.result.sql import SQLiteResult
 from honeybee_energy.result.colorobj import ColorRoom, ColorFace
+from honeybee_energy.result.loadbalance import LoadBalance
 
+from honeybee.model import Model
 from honeybee.room import Room
 from ladybug_geometry.geometry3d.pointvector import Point3D
 from ladybug_geometry.geometry3d.face import Face3D
-from ladybug.legend import Legend, LegendParameters
+from ladybug.legend import LegendParameters
 from ladybug.graphic import GraphicContainer
 from ladybug.datacollection import HourlyContinuousCollection
 from ladybug.datatype.energyintensity import EnergyIntensity
@@ -14,6 +16,7 @@ from ladybug.datatype.temperature import Temperature
 from ladybug.analysisperiod import AnalysisPeriod
 from ladybug.header import Header
 
+import json
 import pytest
 
 
@@ -28,7 +31,7 @@ def test_colorrooms_init():
         rooms.append(Room.from_box(
             'Residence_{}'.format(i + 1), 3, 6, 3.2, origin=Point3D(3 * i, 0, 0)))
     color_obj = ColorRoom(lighting_data, rooms)
-    
+
     str(color_obj)
     assert len(color_obj.data_collections) == 7
     for coll in color_obj.data_collections:
@@ -174,7 +177,7 @@ def test_colorfaces_init():
 
     room = Room.from_box('Residence', 3, 6, 3.2)
     color_obj = ColorFace(data, room.faces)
-    
+
     str(color_obj)
     assert len(color_obj.data_collections) == 6
     for coll in color_obj.data_collections:
@@ -208,3 +211,48 @@ def test_colorfaces_init():
 
     with pytest.raises(AssertionError):
         color_obj.simulation_step = 8760
+
+
+def test_colorfaces_triangulated():
+    """Test the initialization of ColorFace with a triangulated aperture."""
+    model_json = './tests/result/triangulated/TriangleModel.json'
+    with open(model_json, 'r') as fp:
+        model_data = json.load(fp)
+    model = Model.from_dict(model_data)
+
+    sql_path = './tests/result/triangulated/eplusout.sql'
+    sql_obj = SQLiteResult(sql_path)
+
+    data_colls = sql_obj.data_collections_by_output_name(
+        'Surface Inside Face Temperature')
+    color_obj = ColorFace(data_colls, model.rooms[0].faces)
+    assert len(color_obj.matched_values) == 8
+
+    data_colls = sql_obj.data_collections_by_output_name(
+        'Surface Window Heat Loss Energy')
+    color_obj = ColorFace(data_colls, model.rooms[0].faces)
+    assert len(color_obj.matched_values) == 1
+
+    data_colls = sql_obj.data_collections_by_output_name(
+        'Surface Average Face Conduction Heat Transfer Energy')
+    color_obj = ColorFace(data_colls, model.rooms[0].faces)
+    assert len(color_obj.matched_values) == 7
+
+
+def test_load_balance():
+    """Test the initialization of LoadBalance from an sql file."""
+    model_json = './tests/result/triangulated/TriangleModel.json'
+    with open(model_json, 'r') as fp:
+        model_data = json.load(fp)
+    model = Model.from_dict(model_data)
+    sql_path = './tests/result/triangulated/eplusout.sql'
+
+    load_bal_obj = LoadBalance.from_sql_file(model, sql_path)
+
+    load_colls = load_bal_obj.load_balance_terms()
+    load_colls_storage = load_bal_obj.load_balance_terms(include_storage=True)
+    assert len(load_colls) == 10
+    assert len(load_colls_storage) == 11
+
+    load_colls_norm_storage = load_bal_obj.load_balance_terms(True, True)
+    assert len(load_colls_norm_storage) == 11

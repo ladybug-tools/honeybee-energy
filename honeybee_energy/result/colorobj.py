@@ -233,6 +233,13 @@ class _ColorObject(object):
         self._min_point = Point3D(min_pt[0], min_pt[1], min_pt[2])
         self._max_point = Point3D(max_pt[0], max_pt[1], max_pt[2])
 
+    def ToString(self):
+        """Overwrite .NET ToString."""
+        return self.__repr__()
+
+    def __repr__(self):
+        return 'Color Object'
+
 
 class ColorRoom(_ColorObject):
     """Object for visualization zone-level simulation results on Honeybee Room geometry.
@@ -394,8 +401,8 @@ class ColorRoom(_ColorObject):
     def matched_floor_areas(self):
         """Get a list for all of the room floor areas that were matches with data.
 
-        These floor areas will always be in either meters or feet depending on
-        whether the geo_unit is either SI or IP.
+        These floor areas will always be in either square meters or square feet
+        depending on whether the geo_unit is either SI or IP.
         """
         if self._geo_unit in ('m', 'ft'):  # no need to do unit conversions
             return [room.floor_area for room in self.matched_rooms]
@@ -570,17 +577,18 @@ class ColorFace(_ColorObject):
     def matched_flat_areas(self):
         """Get a list numbers for the area of each of the matched_flat_faces.
 
-        These areas will always be in either meters or feet depending on whether
-        the geo_unit is either SI or IP.
+        These areas will always be in either square meters or square feet
+        depending on whether the geo_unit is either SI or IP. They also use
+        punched geometry in the case of a Face with child Apertures.
         """
         if self._geo_unit in ('m', 'ft'):  # no need to do unit conversions
-            return [face.area for face in self.matched_flat_faces]
+            return [face.area for face in self.matched_flat_geometry]
         elif self._geo_unit == 'mm':  # convert to meters
-            return [face.area / 1000000.0 for face in self.matched_flat_faces]
+            return [face.area / 1000000.0 for face in self.matched_flat_geometry]
         elif self._geo_unit == 'in':  # convert to feet
-            return [face.area / 144.0 for face in self.matched_flat_faces]
+            return [face.area / 144.0 for face in self.matched_flat_geometry]
         else:  # assume it's cm; convert to meters
-            return [face.area / 10000.0 for face in self.matched_flat_faces]
+            return [face.area / 10000.0 for face in self.matched_flat_geometry]
 
     @property
     def graphic_container(self):

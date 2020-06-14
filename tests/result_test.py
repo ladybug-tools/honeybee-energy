@@ -207,7 +207,6 @@ def test_sqlite_data_collections_by_output_name_monthly():
         'Zone Lights Electric Energy')
     for coll in data_colls:
         assert isinstance(coll, MonthlyCollection)
-        print (coll.header.analysis_period)
         assert coll.header.analysis_period.is_annual
         assert len(coll) == 12
 
