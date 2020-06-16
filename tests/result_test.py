@@ -10,7 +10,6 @@ from ladybug.datatype.power import Power
 from ladybug.datatype.massflowrate import MassFlowRate
 from ladybug.dt import DateTime
 from ladybug.location import Location
-from ladybug.analysisperiod import AnalysisPeriod
 from ladybug.datacollection import HourlyContinuousCollection, DailyCollection, \
     MonthlyCollection
 
@@ -209,6 +208,35 @@ def test_sqlite_data_collections_by_output_name_monthly():
         assert isinstance(coll, MonthlyCollection)
         assert coll.header.analysis_period.is_annual
         assert len(coll) == 12
+
+
+def test_sqlite_data_collections_by_output_name_design_day():
+    """Test the data_collections_by_output_name method with several design day results."""
+    sql_path = './tests/result/eplusout_design_days.sql'
+    sql_obj = SQLiteResult(sql_path)
+
+    data_colls = sql_obj.data_collections_by_output_name(
+        'Zone Lights Electric Energy')
+    assert len(data_colls) == 49
+    for coll in data_colls:
+        assert isinstance(coll, HourlyContinuousCollection)
+        assert len(coll) == 24
+
+
+def test_sqlite_data_collections_by_output_name_dday_runperiod():
+    """Test the data_collections_by_output_name method with several design day results."""
+    sql_path = './tests/result/eplusout_dday_runper.sql'
+    sql_obj = SQLiteResult(sql_path)
+
+    data_colls = sql_obj.data_collections_by_output_name(
+        'Zone Lights Electric Energy')
+    assert len(data_colls) == 56
+    for coll in data_colls[:49]:
+        assert isinstance(coll, HourlyContinuousCollection)
+        assert len(coll) == 24
+    for coll in data_colls[49:]:
+        assert isinstance(coll, HourlyContinuousCollection)
+        assert len(coll) == 744
 
 
 def test_rdd_init():
