@@ -161,34 +161,51 @@ class SQLiteResult(object):
 
         # get the analysis period and the reporting frequency from the time table
         st_time, end_time = data[0][1], data[-1][1]
-        run_period, reporting_frequency = self._extract_run_period(st_time, end_time)
+        run_period, report_frequency, dday = self._extract_run_period(st_time, end_time)
+        if dday:  # there are multiple analysis periods; get them all
+            run_period = self._extract_all_run_period(
+                report_frequency, run_period.timestep, run_period.is_leap_year)
 
         # create the header objects to be used for the resulting data collections
         units = header_rows[0][-1] if header_rows[0][-1] != 'J' else 'kWh'
         data_type = self._data_type_from_unit(units)
-        headers = []
+        meta_datas = []
         for row in header_rows:
             obj_type = row[3] if 'Surface' not in output_name else 'Surface'
-            metadata = {'type': row[6], obj_type: row[5]}
-            headers.append(Header(data_type, units, run_period, metadata))
+            meta_datas.append({'type': row[6], obj_type: row[5]})
+        headers = []
+        if isinstance(run_period, list):  # multiple run periods
+            for runper in run_period:
+                for m_data in meta_datas:
+                    headers.append(Header(data_type, units, runper, m_data))
+        else:  # just one run period
+            for m_data in meta_datas:
+                headers.append(Header(data_type, units, run_period, m_data))
 
         # format the data such that we have one list for each of the header rows
-        n_lists = len(header_rows)
-        if units == 'kWh':
-            all_values = self._clean_and_convert_timeseries_data(data, n_lists)
-        else:
-            all_values = self._clean_timeseries_data(data, n_lists)
+        if isinstance(run_period, list):  # multiple run periods
+            chunks = [len(runper) for runper in run_period]
+            if units == 'kWh':
+                all_values = self._partition_and_convert_timeseries_chunks(data, chunks)
+            else:
+                all_values = self._partition_timeseries_chunks(data, chunks)
+        else:  # just one run period
+            n_lists = len(header_rows)
+            if units == 'kWh':
+                all_values = self._partition_and_convert_timeseries(data, n_lists)
+            else:
+                all_values = self._partition_timeseries(data, n_lists)
 
         # create the final data collections
         data_colls = []
-        if reporting_frequency == 'Hourly' or isinstance(reporting_frequency, int):
+        if report_frequency == 'Hourly' or isinstance(report_frequency, int):
             for head, values in zip(headers, all_values):
                 data_colls.append(HourlyContinuousCollection(head, values))
-        elif reporting_frequency == 'Daily':
+        elif report_frequency == 'Daily':
             for head, values in zip(headers, all_values):
                 data_colls.append(DailyCollection(
                     head, values, head.analysis_period.doys_int))
-        elif reporting_frequency == 'Monthly':
+        elif report_frequency == 'Monthly':
             for head, values in zip(headers, all_values):
                 data_colls.append(MonthlyCollection(
                     head, values, head.analysis_period.months_int))
@@ -293,11 +310,12 @@ class SQLiteResult(object):
             end_time: Index for the end time of the data.
 
         Returns:
-            A tuple with run_period and reporting_frequency.
+            A tuple with run_period, reporting_frequency, and a boolean for whether
+            the data was for a design day.
         """
         conn = sqlite3.connect(self.file_path)
         try:
-            # extract all of the data from the Time table
+            # extract the start and end times from the Time table
             c = conn.cursor()
             c.execute('SELECT * FROM Time WHERE TimeIndex=?', (st_time,))
             start = c.fetchone()
@@ -307,6 +325,10 @@ class SQLiteResult(object):
         except Exception as e:
             conn.close()  # ensure connection is always closed
             raise Exception(str(e))
+
+        # check whether the data was for a design day
+        dday_period = True if start[10] in ('SummerDesignDay', 'WinterDesignDay') \
+            else False
 
         # set the reporting frequency by the interval type
         interval_typ = start[8]
@@ -320,7 +342,7 @@ class SQLiteResult(object):
             min_per_step = 60
 
         # convert the extracted data into an AnalysisPeriod object
-        leap_year = True if start[1] % 4 == 0 else False
+        leap_year = True if end[1] % 4 == 0 else False
         if reporting_frequency == 'Monthly':
             st_date = DateTime(start[2], 1, 0)
         else:
@@ -331,14 +353,69 @@ class SQLiteResult(object):
             st_date.month, st_date.day, st_date.hour, end_date.month, end_date.day,
             end_date.hour, aper_timestep, leap_year)
 
-        return run_period, reporting_frequency
+        return run_period, reporting_frequency, dday_period
 
-    def _check_desdays_in_report(self):
-        """Check the Simulation Control object to see if design days are reported."""
-        sim_control = self.tabular_data_by_name('Simulation Control')
-        if sim_control == [] or sim_control[3][0] == 'No':
-            return True
-        return False
+    def _extract_all_run_period(self, reporting_frequency, timestep, leap_year):
+        """Extract all run period objects the Time table in the SQLite file.
+
+        Args:
+            reporting_frequency: Text for the reporting frequency of the data.
+            timestep: Integer to note the timestep of the analsis periods. By the
+                time this function is running, this value should have been gotten
+                from the _extract_run_period method
+            end_time: Boolean to note whether the analysis periods are for the
+                whole year.
+
+        Returns:
+            A list of AnalysisPeriods for all periods that could be obtained from
+            the Time table.
+        """
+        conn = sqlite3.connect(self.file_path)
+        try:
+            # extract all of the data from the Time table
+            c = conn.cursor()
+            c.execute('SELECT * FROM Time')
+            timeseries = c.fetchall()
+            conn.close()  # ensure connection is always closed
+        except Exception as e:
+            conn.close()  # ensure connection is always closed
+            raise Exception(str(e))
+        min_per_step = int(60 / timestep)
+
+        # extract information about the first run period
+        if reporting_frequency == 'Monthly':
+            st_date = DateTime(timeseries[0][2], 1, 0)
+        else:
+            st_date = DateTime(timeseries[0][2], timeseries[0][3], 0)
+        env_period = timeseries[0][11]
+
+        # build up the analysis period objects
+        run_periods = []
+        for i, time_row in enumerate(timeseries):
+            if time_row[11] != env_period:  # start of a new run period
+                # create the run period
+                end = timeseries[i - 1]
+                end_date = DateTime(end[2], end[3], 0)
+                end_date = end_date.add_minute(1440 - min_per_step)
+                run_period = AnalysisPeriod(
+                    st_date.month, st_date.day, st_date.hour, end_date.month,
+                    end_date.day, end_date.hour, timestep, leap_year)
+                run_periods.append(run_period)
+                # reset the tracking variables
+                if reporting_frequency == 'Monthly':
+                    st_date = DateTime(time_row[2], 1, 0)
+                else:
+                    st_date = DateTime(time_row[2], time_row[3], 0)
+                env_period = time_row[11]
+
+        # create the last run period object and return all run periods
+        end_date = DateTime(time_row[2], time_row[3], 0)
+        end_date = end_date.add_minute(1440 - min_per_step)
+        run_period = AnalysisPeriod(
+            st_date.month, st_date.day, st_date.hour, end_date.month,
+            end_date.day, end_date.hour, timestep, leap_year)
+        run_periods.append(run_period)
+        return run_periods
 
     @staticmethod
     def _data_type_from_unit(from_unit):
@@ -351,20 +428,76 @@ class SQLiteResult(object):
                 return ladybug.datatype.TYPESDICT[key]()
 
     @staticmethod
-    def _clean_timeseries_data(data, n_lists):
-        """Clean timeseries data that has been retrived from the SQL file."""
+    def _partition_timeseries(data, n_lists):
+        """Partition timeseries data that has been retrived from the SQL file.
+
+        Args:
+            n_lists: An integer for the number of lists to partiton the data into.
+        """
         all_values = []
         for i in range(0, len(data), n_lists):
             all_values.append([val[0] for val in data[i:i + n_lists]])
         return zip(*all_values)
 
     @staticmethod
-    def _clean_and_convert_timeseries_data(data, n_lists):
-        """Clean data that retrived from the SQL file + convert it to kWh."""
+    def _partition_and_convert_timeseries(data, n_lists):
+        """Partition data that retrived from the SQL file + convert it to kWh.
+
+        Args:
+            n_lists: An integer for the number of lists to partiton the data into.
+        """
         all_values = []
         for i in range(0, len(data), n_lists):
             all_values.append([val[0] / 3600000. for val in data[i:i + n_lists]])
         return zip(*all_values)
+
+    @staticmethod
+    def _partition_timeseries_chunks(data, chunks):
+        """Partition timeseries data based on a chunking pattern.
+
+        Args:
+            chunks: A list of integers for the chunking pattern (eg. [24, 24, 8760]).
+        """
+        n_lists = int(len(data) / sum(chunks))
+        zero_cum_chunks = [0] + SQLiteResult._accumulate(chunks)
+        all_values = []
+        for j, chunk in enumerate(chunks):
+            start = zero_cum_chunks[j] * n_lists
+            day_vals = []
+            for i in range(0, chunk * n_lists, n_lists):
+                day_vals.append([val[0] for val in data[start + i:start + i + n_lists]])
+            all_values.extend(zip(*day_vals))
+        return all_values
+
+    @staticmethod
+    def _partition_and_convert_timeseries_chunks(data, chunks):
+        """Partition timeseries data based on a chunking pattern + convert it to kWh.
+
+        Args:
+            chunks: A list of integers for the chunking pattern (eg. [24, 24, 8760]).
+        """
+        n_lists = int(len(data) / sum(chunks))
+        zero_cum_chunks = [0] + SQLiteResult._accumulate(chunks)
+        all_values = []
+        for j, chunk in enumerate(chunks):
+            start = zero_cum_chunks[j] * n_lists
+            day_vals = []
+            for i in range(0, chunk * n_lists, n_lists):
+                day_vals.append([val[0] / 3600000. for val in
+                                 data[start + i:start + i + n_lists]])
+            all_values.extend(zip(*day_vals))
+        print([len(val) for val in all_values])
+        return all_values
+
+    @staticmethod
+    def _accumulate(chunks):
+        """Cumulatively sum a list of numbers."""
+        cum_chunks = []
+        total = 0
+        for x in chunks:
+            total += x
+            cum_chunks.append(total)
+        return cum_chunks
 
     def ToString(self):
         """Overwrite .NET ToString."""
