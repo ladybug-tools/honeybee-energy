@@ -211,6 +211,9 @@ class SQLiteResult(object):
                     head, values, head.analysis_period.months_int))
         else:  # Annual data; just return the values as they are
             return all_values
+        # ensure all imported data gets marked as valid; this increases speed elsewhere
+        for data in data_colls:
+            data._validated_a_period = True
 
         return data_colls
 
