@@ -343,18 +343,18 @@ class Folders(object):
         If nothing is found there, the root of the ladybug_tools folder will be
         checked for an honeybee_openstudio_gem directory.
         """
-        # first check if there's a version installed in the OpenStudio folder
-        if self.openstudio_path:
-            os_root = os.path.split(self.openstudio_path)[0]
-            measure_path = os.path.join(os_root, 'honeybee_openstudio_gem', 'lib')
-            if os.path.isdir(measure_path):
-                return measure_path
-
-        # then, check the root of the ladybug_tools folder
+        # first, check the resources/measures folder in the ladybug_tools folder
         lb_install = lb_config.folders.ladybug_tools_folder
         if os.path.isdir(lb_install):
             measure_path = os.path.join(
-                lb_install, 'openstudio', 'honeybee_openstudio_gem', 'lib')
+                lb_install, 'resources', 'measures', 'honeybee_openstudio_gem', 'lib')
+            if os.path.isdir(measure_path):
+                return measure_path
+
+        # then check if there's a version installed in the OpenStudio folder
+        if self.openstudio_path:
+            os_root = os.path.split(self.openstudio_path)[0]
+            measure_path = os.path.join(os_root, 'honeybee_openstudio_gem', 'lib')
             if os.path.isdir(measure_path):
                 return measure_path
 
