@@ -10,11 +10,34 @@ import os
 import json
 
 
-# empty dictionaries to hold idf-loaded schedules
+# empty dictionary to hold loaded schedules
 _schedules = {}
 
 
-# load schedules from the default and user-supplied files
+# first load the honeybee defaults
+with open(folders.defaults_file) as json_file:
+    default_data = json.load(json_file)['schedules']
+for sch_dict in default_data:
+    sch_obj = dict_abridged_to_schedule(sch_dict, _schedule_type_limits, False)
+    sch_obj.lock()
+    _schedules[sch_dict['identifier']] = sch_obj
+
+
+# then load schedules from the user-supplied files
+def load_schedule_object(sch_dict):
+    """Load a schedule object from a dictionary and add it to the _schedules dict."""
+    try:
+        sch_obj = dict_abridged_to_schedule(
+            sch_dict, _schedule_type_limits, False)
+        if sch_obj is None:
+            sch_obj = dict_to_schedule(sch_dict, False)
+        if sch_obj:
+            sch_obj.lock()
+            _schedules[sch_dict['identifier']] = sch_obj
+    except (TypeError, KeyError):
+        pass  # not a Honeybee Schedule JSON; possibly a comment
+
+
 for f in os.listdir(folders.schedule_lib):
     f_path = os.path.join(folders.schedule_lib, f)
     if os.path.isfile(f_path):
@@ -26,20 +49,13 @@ for f in os.listdir(folders.schedule_lib):
         elif f_path.endswith('.json'):  # parse as a honeybee JSON
             with open(f_path) as json_file:
                 data = json.load(json_file)
-            for sch_id in data:
-                try:
-                    sch_obj = dict_abridged_to_schedule(
-                        data[sch_id], _schedule_type_limits, False)
-                    if sch_obj is None:
-                        sch_obj = dict_to_schedule(data[sch_id], False)
-                    if sch_obj:
-                        sch_obj.lock()
-                        _schedules[sch_id] = sch_obj
-                except KeyError:
-                    pass  # not a Honeybee JSON file with Schedules
+            if 'type' in data:  # single object
+                load_schedule_object(data)
+            for sch_id in data:  # a collection of several objects
+                load_schedule_object(data[sch_id])
 
 
-# empty dictionaries to hold extension data
+# then load honeybee extension data into a dictionary but don't make the objects yet
 _schedule_standards_dict = {}
 
 for ext_folder in folders.standards_extension_folders:

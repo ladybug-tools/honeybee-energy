@@ -11,7 +11,7 @@ import pytest
 
 
 def test_constructionset_init():
-    """Test the initalization of ConstructionSet and basic properties."""
+    """Test the initialization of ConstructionSet and basic properties."""
     default_set = ConstructionSet('Default Set')
     str(default_set)  # test the string representation of the construction
 

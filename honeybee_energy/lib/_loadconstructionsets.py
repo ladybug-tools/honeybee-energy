@@ -9,34 +9,51 @@ import os
 import json
 
 
-# empty dictionaries to hold json-loaded construction sets
+# make a dictionary of all constructions loaded from JSON
 _all_constructions = _opaque_constructions.copy()  # start with opaque constructions
 _all_constructions.update(_window_constructions)  # add window constructions
 _all_constructions.update(_shade_constructions)  # add shade constructions
 
+# empty dictionary to hold loaded construction sets
 _construction_sets = {}
 
 
-# load construction sets from the default and user-supplied files
+# first load the honeybee defaults
+with open(folders.defaults_file) as json_file:
+    default_data = json.load(json_file)['construction_sets']
+for cset_dict in default_data:
+    constructionset = ConstructionSet.from_dict_abridged(cset_dict, _all_constructions)
+    constructionset.lock()
+    _construction_sets[cset_dict['identifier']] = constructionset
+
+
+# then load construction sets from the user-supplied files
+def load_construction_set_object(cset_dict):
+    """Load a construction set object from a dictionary and add it to the lib dict."""
+    try:
+        if cset_dict['type'] == 'ConstructionSetAbridged':
+            cset = ConstructionSet.from_dict_abridged(cset_dict, _all_constructions)
+        else:
+            cset = ConstructionSet.from_dict(cset_dict)
+        cset.lock()
+        _construction_sets[cset_dict['identifier']] = cset
+    except (TypeError, KeyError, ValueError):
+        pass  # not a Honeybee ConstructionSet JSON; possibly a comment
+
+
 for f in os.listdir(folders.constructionset_lib):
     f_path = os.path.join(folders.constructionset_lib, f)
     if os.path.isfile(f_path) and f_path.endswith('.json'):
         with open(f_path, 'r') as json_file:
             c_dict = json.load(json_file)
-        for c_id in c_dict:
-            try:
-                if c_dict[c_id]['type'] == 'ConstructionSetAbridged':
-                    constructionset = ConstructionSet.from_dict_abridged(
-                        c_dict[c_id], _all_constructions)
-                else:
-                    constructionset = ConstructionSet.from_dict(c_dict[c_id])
-                constructionset.lock()
-                _construction_sets[constructionset.identifier] = constructionset
-            except ValueError:
-                pass  # failed to find construction in the library; not a valid program
+        if 'type' in c_dict:  # single object
+            load_construction_set_object(c_dict)
+        else:  # a collection of several objects
+            for c_id in c_dict:
+                load_construction_set_object(c_dict[c_id])
 
 
-# empty dictionaries to hold extension data
+# then load honeybee extension data into a dictionary but don't make the objects yet
 _construction_set_standards_dict = {}
 
 for ext_folder in folders.standards_extension_folders:
