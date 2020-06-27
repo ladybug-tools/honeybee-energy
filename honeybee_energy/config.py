@@ -12,6 +12,7 @@ Usage:
     folders.energyplus_path = "C:/EnergyPlusV9-0-1"
 """
 import ladybug.config as lb_config
+import honeybee_standards
 
 import os
 import platform
@@ -77,6 +78,7 @@ class Folders(object):
         * constructionset_lib
         * schedule_lib
         * programtype_lib
+        * defaults_file
         * standards_extension_folders
         * config_file
         * mute
@@ -216,7 +218,8 @@ class Folders(object):
 
         # gather all of the sub folders underneath the master folder
         self._construction_lib, self._constructionset_lib, self._schedule_lib, \
-            self._programtype_lib = self._check_standards_folder(path)
+            self._programtype_lib, self._defaults_file = \
+            self._check_standards_folder(path, True)
 
         # set the standards_data_folder
         self._standards_data_folder = path
@@ -272,6 +275,11 @@ class Folders(object):
     def programtype_lib(self):
         """Get the path to the programtype library in the standards_data_folder."""
         return self._programtype_lib
+
+    @property
+    def defaults_file(self):
+        """Get the path to the JSON file where honeybee's defaults are loaded from."""
+        return self._defaults_file
 
     @property
     def config_file(self):
@@ -522,7 +530,7 @@ class Folders(object):
                 return lib_folder
 
         # default to the library folder that installs with this Python package
-        return os.path.join(os.path.dirname(__file__), 'lib', 'data')
+        return os.path.join(os.path.dirname(honeybee_standards.__file__))
 
     @staticmethod
     def _find_standards_extension_folders():
@@ -551,34 +559,39 @@ class Folders(object):
         if len(standards_extensions) == 0:
             for finder, name, ispkg in pkgutil.iter_modules():
                 if name.endswith('standards') and name.startswith('honeybee_energy'):
-                    lib_folder = os.path.join(finder.path, name, 'data')
+                    lib_folder = os.path.join(finder.path, name)
                     if os.path.isdir(lib_folder):
                         standards_extensions.append(lib_folder)
         return standards_extensions
 
     @staticmethod
-    def _check_standards_folder(path):
+    def _check_standards_folder(path, check_defaults=False):
         """Check that a standards data sub-folders exist."""
         if not path:  # first check that a path exists
-            return [None] * 4
+            return [None] * 5
 
         # gather all of the sub folders underneath the master folder
-        _construction_lib = os.path.join(path, 'constructions') if path else None
-        _constructionset_lib = os.path.join(path, 'constructionsets') if path else None
-        _schedule_lib = os.path.join(path, 'schedules') if path else None
-        _programtype_lib = os.path.join(path, 'programtypes') if path else None
+        _construction_lib = os.path.join(path, 'constructions')
+        _constructionset_lib = os.path.join(path, 'constructionsets')
+        _schedule_lib = os.path.join(path, 'schedules')
+        _programtype_lib = os.path.join(path, 'programtypes')
+        _energy_default = os.path.join(path, 'energy_default.json')
 
-        if path:
-            assert os.path.isdir(_construction_lib), \
-                '{} lacks a "constructions" folder.'.format(path)
-            assert os.path.isdir(_constructionset_lib), \
-                '{} lacks a "constructionsets" folder.'.format(path)
-            assert os.path.isdir(_schedule_lib), \
-                '{} lacks a "schedules" folder.'.format(path)
-            assert os.path.isdir(_programtype_lib), \
-                '{} lacks a "programtypes" folder.'.format(path)
+        assert os.path.isdir(_construction_lib), \
+            '{} lacks a "constructions" folder.'.format(path)
+        assert os.path.isdir(_constructionset_lib), \
+            '{} lacks a "constructionsets" folder.'.format(path)
+        assert os.path.isdir(_schedule_lib), \
+            '{} lacks a "schedules" folder.'.format(path)
+        assert os.path.isdir(_programtype_lib), \
+            '{} lacks a "programtypes" folder.'.format(path)
 
-        return _construction_lib, _constructionset_lib, _schedule_lib, _programtype_lib
+        if check_defaults:
+            assert os.path.isfile(_energy_default), \
+                '{} lacks a "energy_default.json."'.format(path)
+
+        return _construction_lib, _constructionset_lib, _schedule_lib, \
+            _programtype_lib, _energy_default
 
 
 """Object possesing all key folders within the configuration."""

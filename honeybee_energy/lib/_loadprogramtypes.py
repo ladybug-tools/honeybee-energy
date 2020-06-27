@@ -8,29 +8,46 @@ import os
 import json
 
 
-# empty dictionaries to hold json-loaded program types
+# empty dictionary to hold loaded program types
 _program_types = {}
 
 
-# load program types from the default and user-supplied files
+# first load the honeybee defaults
+with open(folders.defaults_file) as json_file:
+    default_data = json.load(json_file)['program_types']
+for pro_dict in default_data:
+    program = ProgramType.from_dict_abridged(pro_dict, _schedules)
+    program.lock()
+    _program_types[pro_dict['identifier']] = program
+
+
+# then load program types from the user-supplied files
+def load_program_object(pro_dict):
+    """Load a program object from a dictionary and add it to the _program_types dict."""
+    try:
+        if pro_dict['type'] == 'ProgramTypeAbridged':
+            program = ProgramType.from_dict_abridged(pro_dict, _schedules)
+        else:
+            program = ProgramType.from_dict(pro_dict)
+        program.lock()
+        _program_types[pro_dict['identifier']] = program
+    except (TypeError, KeyError, ValueError):
+        pass  # not a Honeybee ProgramType JSON; possibly a comment
+
+
 for f in os.listdir(folders.programtype_lib):
     f_path = os.path.join(folders.programtype_lib, f)
     if os.path.isfile(f_path) and f_path.endswith('.json'):
         with open(f_path, 'r') as json_file:
             p_dict = json.load(json_file)
-        for p_id in p_dict:
-            try:
-                if p_dict[p_id]['type'] == 'ProgramTypeAbridged':
-                    program = ProgramType.from_dict_abridged(p_dict[p_id], _schedules)
-                else:
-                    program = ProgramType.from_dict(p_dict[p_id])
-                program.lock()
-                _program_types[program.identifier] = program
-            except ValueError:
-                pass  # failed to find schedule in the library; not a valid program
+        if 'type' in p_dict:  # single object
+            load_program_object(p_dict)
+        else:  # a collection of several objects
+            for p_id in p_dict:
+                load_program_object(p_dict[p_id])
 
 
-# empty dictionaries to hold extension data
+# then load honeybee extension data into a dictionary but don't make the objects yet
 _program_types_standards_dict = {}
 _program_types_standards_registry = {}
 

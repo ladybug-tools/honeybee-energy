@@ -25,7 +25,40 @@ _window_constructions = {}
 _shade_constructions = {}
 
 
-# load materials and constructions from the default and user-supplied files
+# first load the honeybee defaults
+with open(folders.defaults_file) as json_file:
+    default_data = json.load(json_file)['constructions']
+for con_dict in default_data:
+    constr = dict_abridged_to_construction(con_dict, _all_materials, _schedules, False)
+    constr.lock()
+    if isinstance(constr, (OpaqueConstruction, AirBoundaryConstruction)):
+        _opaque_constructions[con_dict['identifier']] = constr
+    elif isinstance(constr, (WindowConstruction, WindowConstructionShade)):
+        _window_constructions[con_dict['identifier']] = constr
+    else:  # it's a shade construction
+        _shade_constructions[con_dict['identifier']] = constr
+
+
+# then load materials and constructions from the user-supplied files
+def load_construction_object(con_dict):
+    """Load a construction object from a dictionary and add it to the library dict."""
+    try:
+        constr = dict_abridged_to_construction(
+            con_dict, _all_materials, _schedules, False)
+        if constr is None:
+            constr = dict_to_construction(data[constr_identifier], False)
+        if constr:
+            constr.lock()
+            if isinstance(constr, (OpaqueConstruction, AirBoundaryConstruction)):
+                _opaque_constructions[constr_identifier] = constr
+            elif isinstance(constr, (WindowConstruction, WindowConstructionShade)):
+                _window_constructions[constr_identifier] = constr
+            else:  # it's a shade construction
+                _shade_constructions[constr_identifier] = constr
+    except (TypeError, KeyError):
+        pass  # not a Honeybee Construction JSON; possibly a comment
+
+
 for f in os.listdir(folders.construction_lib):
     f_path = os.path.join(folders.construction_lib, f)
     if os.path.isfile(f_path):
@@ -47,25 +80,14 @@ for f in os.listdir(folders.construction_lib):
         if f_path.endswith('.json'):
             with open(f_path) as json_file:
                 data = json.load(json_file)
-            for constr_identifier in data:
-                try:
-                    constr = dict_abridged_to_construction(
-                        data[constr_identifier], _all_materials, _schedules, False)
-                    if constr is None:
-                        constr = dict_to_construction(data[constr_identifier], False)
-                    if constr:
-                        constr.lock()
-                        if isinstance(constr, (OpaqueConstruction, AirBoundaryConstruction)):
-                            _opaque_constructions[constr_identifier] = constr
-                        elif isinstance(constr, (WindowConstruction, WindowConstructionShade)):
-                            _window_constructions[constr_identifier] = constr
-                        else:  # it's a shade construction
-                            _shade_constructions[constr_identifier] = constr
-                except KeyError:
-                    pass  # not a Honeybee JSON file with Constructions
+            if 'type' in data:  # single object
+                load_construction_object(data)
+            else:  # a collection of several objects
+                for constr_identifier in data:
+                    load_construction_object(data[constr_identifier])
 
 
-# empty dictionaries to hold extension data
+# then load honeybee extension data into a dictionary but don't make the objects yet
 _opaque_constr_standards_dict = {}
 _window_constr_standards_dict = {}
 _shade_constr_standards_dict = {}

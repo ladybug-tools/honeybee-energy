@@ -6,13 +6,7 @@ import honeybee_energy.lib.constructions as _c
 
 
 # establish variables for the default construction sets used across the library
-# and auto-generate construction sets if they were not loaded from default.idf
-try:
-    generic_construction_set = _construction_sets['Default Generic Construction Set']
-except KeyError:
-    generic_construction_set = ConstructionSet('Default Generic Construction Set')
-    generic_construction_set.lock()
-    _construction_sets['Default Generic Construction Set'] = generic_construction_set
+generic_construction_set = _construction_sets['Default Generic Construction Set']
 
 
 # make lists of program types to look up items in the library

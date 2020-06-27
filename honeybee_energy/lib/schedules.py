@@ -1,5 +1,4 @@
 """Establish the default schedule types within the honeybee_energy library."""
-from honeybee_energy.schedule.ruleset import ScheduleRuleset
 from honeybee_energy.schedule.dictutil import dict_abridged_to_schedule
 from ._loadschedules import _schedules, _schedule_standards_dict
 
@@ -7,38 +6,14 @@ import honeybee_energy.lib.scheduletypelimits as _stl
 
 
 # establish variables for the default schedules used across the library
-# and auto-generate schedules if they were not loaded from default.idf
-try:
-    seated_activity = _schedules['Seated Adult Activity']
-except KeyError:
-    seated_activity = ScheduleRuleset.from_constant_value(
-        'Seated Adult Activity', 120, _stl.activity_level)
-    seated_activity.lock()
-    _schedules['Seated Adult Activity'] = seated_activity
-
-try:
-    always_on = _schedules['Always On']
-except KeyError:
-    always_on = ScheduleRuleset.from_constant_value('Always On', 1, _stl.fractional)
-    always_on.lock()
-    _schedules['Always On'] = always_on
-
-try:
-    generic_office_occupancy = _schedules['Generic Office Occupancy']
-    generic_office_activity = _schedules['Generic Office Activity']
-    generic_office_lighting = _schedules['Generic Office Lighting']
-    generic_office_equipment = _schedules['Generic Office Equipment']
-    generic_office_infiltration = _schedules['Generic Office Infiltration']
-    generic_office_heating = _schedules['Generic Office Heating']
-    generic_office_cooling = _schedules['Generic Office Cooling']
-except KeyError:  # the office program isn't critical for the rest of the library
-    generic_office_occupancy = None
-    generic_office_activity = None
-    generic_office_lighting = None
-    generic_office_equipment = None
-    generic_office_infiltration = None
-    generic_office_heating = None
-    generic_office_cooling = None
+seated_activity = _schedules['Seated Adult Activity']
+always_on = _schedules['Always On']
+generic_office_occupancy = _schedules['Generic Office Occupancy']
+generic_office_lighting = _schedules['Generic Office Lighting']
+generic_office_equipment = _schedules['Generic Office Equipment']
+generic_office_infiltration = _schedules['Generic Office Infiltration']
+generic_office_heating = _schedules['Generic Office Heating']
+generic_office_cooling = _schedules['Generic Office Cooling']
 
 
 # make lists of schedules to look up items in the library

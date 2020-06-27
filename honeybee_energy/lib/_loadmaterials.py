@@ -6,30 +6,51 @@ import os
 import json
 
 
-# empty dictionaries to hold JSON-loaded materials
+# empty dictionaries to hold loaded materials
 _opaque_materials = {}
 _window_materials = {}
 
-# load material JSONs from the default and user-supplied files
+
+# first load the honeybee defaults
+with open(folders.defaults_file) as json_file:
+    default_data = json.load(json_file)['materials']
+for mat_dict in default_data:
+    mat_obj = dict_to_material(mat_dict, False)
+    mat_obj.lock()
+    if mat_obj.is_window_material:
+        _window_materials[mat_dict['identifier']] = mat_obj
+    else:
+        _opaque_materials[mat_dict['identifier']] = mat_obj
+
+
+# then load material JSONs from the default and user-supplied files
+def load_material_object(mat_dict):
+    """Load a material object from a dictionary and add it to the library dict."""
+    try:
+        mat_obj = dict_to_material(mat_dict, False)
+        if mat_obj:
+            mat_obj.lock()
+            if mat_obj.is_window_material:
+                _window_materials[mat_dict['identifier']] = mat_obj
+            else:
+                _opaque_materials[mat_dict['identifier']] = mat_obj
+    except (TypeError, KeyError):
+        pass  # not a Honeybee Material JSON; possibly a comment
+
+
 for f in os.listdir(folders.construction_lib):
     f_path = os.path.join(folders.construction_lib, f)
     if os.path.isfile(f_path) and f_path.endswith('.json'):
         with open(f_path) as json_file:
             data = json.load(json_file)
-        for mat_id in data:
-            try:
-                mat_obj = dict_to_material(data[mat_id], False)
-                if mat_obj:
-                    mat_obj.lock()
-                    if mat_obj.is_window_material:
-                        _window_materials[mat_id] = mat_obj
-                    else:
-                        _opaque_materials[mat_id] = mat_obj
-            except KeyError:
-                pass  # not a Honeybee JSON file with Materials
+        if 'type' in data:  # single object
+            load_material_object(data)
+        else:  # a collection of several objects
+            for mat_id in data:
+                load_material_object(data[mat_id])
 
 
-# empty dictionaries to hold extension data
+# then load honeybee extension data into a dictionary but don't make the objects yet
 _opaque_mat_standards_dict = {}
 _window_mat_standards_dict = {}
 
