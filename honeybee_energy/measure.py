@@ -324,7 +324,8 @@ class MeasureArgument(object):
         # set up the argument value and default value
         self._value = None  # will be set by user
         self._default_value = self._type(xml_element.find('default_value').text) \
-            if xml_element.find('default_value') is not None else None
+            if xml_element.find('default_value') is not None and \
+            xml_element.find('default_value').text is not None else None
 
         # parse the optional properties of the argument
         self._display_name = xml_element.find('display_name').text \
@@ -369,11 +370,12 @@ class MeasureArgument(object):
 
     @value.setter
     def value(self, val):
-        try:
-            val = self._type(val)
-        except Exception:
-            raise TypeError('Value for measure argument "{}" must be a {}. '
-                            'Got {}'.format(self.identifier, self._type, type(val)))
+        if val is not None:
+            try:
+                val = self._type(val)
+            except Exception:
+                raise TypeError('Value for measure argument "{}" must be a {}. '
+                                'Got {}'.format(self.identifier, self._type, type(val)))
         if self._valid_choices:
             assert val in self._valid_choices, 'Choice measure argument "{}" ' \
                 'must be one of the following:\n{}\nGot {}'.format(
@@ -435,10 +437,11 @@ class MeasureArgument(object):
                 for this case and True will be returned if all is correct.
         """
         if self.required and self.value is None:
-            if raise_exception:
-                raise ValueError('Measure argument "{}" is required and missing '
-                                 'a value'.format(self.identifier))
-            return False
+            if self._valid_choices != (None,):
+                if raise_exception:
+                    raise ValueError('Measure argument "{}" is required and missing '
+                                     'a value'.format(self.identifier))
+                return False
         return True
 
     def ToString(self):
