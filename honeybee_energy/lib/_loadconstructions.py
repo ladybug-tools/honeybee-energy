@@ -46,15 +46,15 @@ def load_construction_object(con_dict):
         constr = dict_abridged_to_construction(
             con_dict, _all_materials, _schedules, False)
         if constr is None:
-            constr = dict_to_construction(data[constr_identifier], False)
+            constr = dict_to_construction(con_dict, False)
         if constr:
             constr.lock()
             if isinstance(constr, (OpaqueConstruction, AirBoundaryConstruction)):
-                _opaque_constructions[constr_identifier] = constr
+                _opaque_constructions[con_dict['identifier']] = constr
             elif isinstance(constr, (WindowConstruction, WindowConstructionShade)):
-                _window_constructions[constr_identifier] = constr
+                _window_constructions[con_dict['identifier']] = constr
             else:  # it's a shade construction
-                _shade_constructions[constr_identifier] = constr
+                _shade_constructions[con_dict['identifier']] = constr
     except (TypeError, KeyError):
         pass  # not a Honeybee Construction JSON; possibly a comment
 
