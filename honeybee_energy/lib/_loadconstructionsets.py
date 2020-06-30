@@ -25,6 +25,7 @@ for cset_dict in default_data:
     constructionset = ConstructionSet.from_dict_abridged(cset_dict, _all_constructions)
     constructionset.lock()
     _construction_sets[cset_dict['identifier']] = constructionset
+_default_sets = set(list(_construction_sets.keys()))
 
 
 # then load construction sets from the user-supplied files
@@ -36,6 +37,8 @@ def load_construction_set_object(cset_dict):
         else:
             cset = ConstructionSet.from_dict(cset_dict)
         cset.lock()
+        assert cset_dict['identifier'] not in _default_sets, 'Cannot overwrite ' \
+            'default construction set "{}".'.format(cset_dict['identifier'])
         _construction_sets[cset_dict['identifier']] = cset
     except (TypeError, KeyError, ValueError):
         pass  # not a Honeybee ConstructionSet JSON; possibly a comment

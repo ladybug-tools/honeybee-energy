@@ -21,6 +21,7 @@ for mat_dict in default_data:
         _window_materials[mat_dict['identifier']] = mat_obj
     else:
         _opaque_materials[mat_dict['identifier']] = mat_obj
+_default_mats = set(list(_opaque_materials.keys()) + list(_window_materials.keys()))
 
 
 # then load material JSONs from the default and user-supplied files
@@ -30,6 +31,8 @@ def load_material_object(mat_dict):
         mat_obj = dict_to_material(mat_dict, False)
         if mat_obj:
             mat_obj.lock()
+            assert mat_dict['identifier'] not in _default_mats, 'Cannot overwrite ' \
+                'default material "{}".'.format(mat_dict['identifier'])
             if mat_obj.is_window_material:
                 _window_materials[mat_dict['identifier']] = mat_obj
             else:

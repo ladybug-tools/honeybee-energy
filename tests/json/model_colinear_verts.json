@@ -2,7 +2,6 @@
   "units": "Meters",
   "properties": {
     "energy": {
-      "global_construction_set": "Default Generic Construction Set",
       "construction_sets": [
         {
           "wall_set": {

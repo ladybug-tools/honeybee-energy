@@ -7,7 +7,7 @@ from honeybee_energy.construction.air import AirBoundaryConstruction
 from honeybee_energy.construction.dictutil import dict_abridged_to_construction, \
     dict_to_construction
 
-from ._loadmaterials import _opaque_materials, _window_materials
+from ._loadmaterials import _opaque_materials, _window_materials, _default_mats
 from ._loadschedules import _schedules
 
 import os
@@ -37,9 +37,26 @@ for con_dict in default_data:
         _window_constructions[con_dict['identifier']] = constr
     else:  # it's a shade construction
         _shade_constructions[con_dict['identifier']] = constr
+_default_constrs = set(
+    list(_opaque_constructions.keys()) + list(_window_constructions.keys()) +
+    list(_shade_constructions.keys()))
 
 
 # then load materials and constructions from the user-supplied files
+def lock_and_check_material(mat):
+    """Lock a material and check that it's not overwriting a default."""
+    mat.lock()
+    assert mat.identifier not in _default_mats, 'Cannot overwrite ' \
+        'default material "{}".'.format(mat.identifier)
+
+
+def lock_and_check_construction(constr):
+    """Lock a construction and check that it's not overwriting a default."""
+    constr.lock()
+    assert constr.identifier not in _default_constrs, 'Cannot overwrite ' \
+        'default construction "{}".'.format(constr.identifier)
+
+
 def load_construction_object(con_dict):
     """Load a construction object from a dictionary and add it to the library dict."""
     try:
@@ -48,7 +65,7 @@ def load_construction_object(con_dict):
         if constr is None:
             constr = dict_to_construction(con_dict, False)
         if constr:
-            constr.lock()
+            lock_and_check_construction(constr)
             if isinstance(constr, (OpaqueConstruction, AirBoundaryConstruction)):
                 _opaque_constructions[con_dict['identifier']] = constr
             elif isinstance(constr, (WindowConstruction, WindowConstructionShade)):
@@ -65,17 +82,17 @@ for f in os.listdir(folders.construction_lib):
         if f_path.endswith('.idf'):
             constructions, materials = OpaqueConstruction.extract_all_from_idf_file(f_path)
             for mat in materials:
-                mat.lock()
+                lock_and_check_material(mat)
                 _opaque_materials[mat.identifier] = mat
             for cnstr in constructions:
-                cnstr.lock()
+                lock_and_check_construction(cnstr)
                 _opaque_constructions[cnstr.identifier] = cnstr
             constructions, materials = WindowConstruction.extract_all_from_idf_file(f_path)
             for mat in materials:
-                mat.lock()
+                lock_and_check_material(mat)
                 _window_materials[mat.identifier] = mat
             for cnstr in constructions:
-                cnstr.lock()
+                lock_and_check_construction(cnstr)
                 _window_constructions[cnstr.identifier] = cnstr
         if f_path.endswith('.json'):
             with open(f_path) as json_file:

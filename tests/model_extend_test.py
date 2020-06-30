@@ -57,18 +57,17 @@ def test_energy_properties():
     assert hasattr(model.properties, 'energy')
     assert isinstance(model.properties.energy, ModelEnergyProperties)
     assert isinstance(model.properties.host, Model)
-    assert len(model.properties.energy.materials) == 15
+    assert len(model.properties.energy.materials) == 0
     for mat in model.properties.energy.materials:
         assert isinstance(mat, _EnergyMaterialBase)
-    assert len(model.properties.energy.constructions) == 15
+    assert len(model.properties.energy.constructions) == 0
     for cnst in model.properties.energy.constructions:
         assert isinstance(cnst, (WindowConstruction, OpaqueConstruction,
                                  ShadeConstruction, AirBoundaryConstruction))
     assert len(model.properties.energy.face_constructions) == 0
     assert len(model.properties.energy.construction_sets) == 0
-    assert isinstance(model.properties.energy.global_construction_set, ConstructionSet)
     assert len(model.properties.energy.schedule_type_limits) == 3
-    assert len(model.properties.energy.schedules) == 9
+    assert len(model.properties.energy.schedules) == 8
     assert len(model.properties.energy.shade_schedules) == 1
     assert len(model.properties.energy.room_schedules) == 0
     assert len(model.properties.energy.program_types) == 1
@@ -82,6 +81,9 @@ def test_check_duplicate_construction_set_identifiers():
         face.apertures_by_ratio(0.2, 0.01)
     for face in second_floor[1:5]:
         face.apertures_by_ratio(0.2, 0.01)
+    base_constr_set = ConstructionSet('Lower Floor Construction Set')
+    first_floor.properties.energy.construction_set = base_constr_set
+    second_floor.properties.energy.construction_set = base_constr_set
 
     pts_1 = [Point3D(0, 0, 6), Point3D(0, 10, 6), Point3D(10, 10, 6), Point3D(10, 0, 6)]
     pts_2 = [Point3D(0, 0, 6), Point3D(5, 0, 9), Point3D(5, 10, 9), Point3D(0, 10, 6)]
@@ -111,7 +113,7 @@ def test_check_duplicate_construction_set_identifiers():
 
     assert model.properties.energy.check_duplicate_construction_set_identifiers(False)
     constr_set.unlock()
-    constr_set.identifier = 'Default Generic Construction Set'
+    constr_set.identifier = 'Lower Floor Construction Set'
     constr_set.lock()
     assert not model.properties.energy.check_duplicate_construction_set_identifiers(False)
     with pytest.raises(ValueError):
@@ -300,7 +302,7 @@ def test_to_from_dict():
 
     assert new_model.rooms[0].properties.energy.program_type == office_program
     assert len(new_model.properties.energy.schedule_type_limits) == 3
-    assert len(model.properties.energy.schedules) == 9
+    assert len(model.properties.energy.schedules) == 8
     assert new_model.rooms[0].properties.energy.is_conditioned
     assert new_model.rooms[0].properties.energy.hvac == room.properties.energy.hvac
 
@@ -359,11 +361,10 @@ def test_to_dict_single_zone():
     assert 'materials' in model_dict['properties']['energy']
     assert 'constructions' in model_dict['properties']['energy']
     assert 'construction_sets' in model_dict['properties']['energy']
-    assert 'global_construction_set' in model_dict['properties']['energy']
 
-    assert len(model_dict['properties']['energy']['materials']) == 16
-    assert len(model_dict['properties']['energy']['constructions']) == 19
-    assert len(model_dict['properties']['energy']['construction_sets']) == 1
+    assert len(model_dict['properties']['energy']['materials']) == 3
+    assert len(model_dict['properties']['energy']['constructions']) == 4
+    assert len(model_dict['properties']['energy']['construction_sets']) == 0
 
     assert model_dict['rooms'][0]['faces'][0]['properties']['energy']['construction'] == \
         thermal_mass_constr.identifier
@@ -437,7 +438,7 @@ def test_to_dict_single_zone_schedule_fixed_interval():
     assert 'program_types' in model_dict['properties']['energy']
 
     assert len(model_dict['properties']['energy']['program_types']) == 1
-    assert len(model_dict['properties']['energy']['schedules']) == 10
+    assert len(model_dict['properties']['energy']['schedules']) == 9
 
     assert 'people' in model_dict['rooms'][0]['properties']['energy']
     assert model_dict['rooms'][0]['properties']['energy']['people']['occupancy_schedule'] \
@@ -512,8 +513,7 @@ def test_to_dict_shoe_box():
 
     model = Model('ShoeBox', [room])
     model_dict = model.to_dict()
-    model_dict['properties']['energy'] = model.properties.energy.to_dict(
-        include_global_construction_set=False)['energy']
+    model_dict['properties']['energy'] = model.properties.energy.to_dict()['energy']
 
     assert 'energy' in model_dict['properties']
     assert 'materials' in model_dict['properties']['energy']
@@ -571,11 +571,10 @@ def test_to_dict_multizone_house():
     assert 'materials' in model_dict['properties']['energy']
     assert 'constructions' in model_dict['properties']['energy']
     assert 'construction_sets' in model_dict['properties']['energy']
-    assert 'global_construction_set' in model_dict['properties']['energy']
 
-    assert len(model_dict['properties']['energy']['materials']) == 16
-    assert len(model_dict['properties']['energy']['constructions']) == 17
-    assert len(model_dict['properties']['energy']['construction_sets']) == 2
+    assert len(model_dict['properties']['energy']['materials']) == 4
+    assert len(model_dict['properties']['energy']['constructions']) == 2
+    assert len(model_dict['properties']['energy']['construction_sets']) == 1
 
     assert model_dict['rooms'][0]['faces'][5]['boundary_condition']['type'] == 'Surface'
     assert model_dict['rooms'][1]['faces'][0]['boundary_condition']['type'] == 'Surface'

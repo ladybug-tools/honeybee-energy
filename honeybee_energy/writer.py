@@ -441,10 +441,16 @@ def model_to_idf(model, schedule_directory=None):
     model_str.append('!-   ============== SCHEDULES ==============\n')
     model_str.extend(sched_strs)
 
+    # get the default generic construction set
+    # must be imported here to avoid circular imports
+    from .lib.constructionsets import generic_construction_set
+
     # write all of the materials and constructions
     materials = []
     construction_strs = []
-    for constr in model.properties.energy.constructions:
+    all_constrs = model.properties.energy.constructions + \
+        generic_construction_set.constructions_unique
+    for constr in set(all_constrs):
         try:
             materials.extend(constr.materials)
             construction_strs.append(constr.to_idf())
