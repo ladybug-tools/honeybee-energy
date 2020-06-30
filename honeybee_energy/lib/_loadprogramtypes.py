@@ -19,6 +19,7 @@ for pro_dict in default_data:
     program = ProgramType.from_dict_abridged(pro_dict, _schedules)
     program.lock()
     _program_types[pro_dict['identifier']] = program
+_default_programs = set(list(_program_types.keys()))
 
 
 # then load program types from the user-supplied files
@@ -30,6 +31,8 @@ def load_program_object(pro_dict):
         else:
             program = ProgramType.from_dict(pro_dict)
         program.lock()
+        assert pro_dict['identifier'] not in _default_programs, 'Cannot overwrite ' \
+            'default program type "{}".'.format(pro_dict['identifier'])
         _program_types[pro_dict['identifier']] = program
     except (TypeError, KeyError, ValueError):
         pass  # not a Honeybee ProgramType JSON; possibly a comment

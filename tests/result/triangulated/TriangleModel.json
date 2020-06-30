@@ -935,8 +935,7 @@
 "type": "ScheduleTypeLimit"
 }
 ], 
-"type": "ModelEnergyProperties", 
-"global_construction_set": "Default Generic Construction Set", 
+"type": "ModelEnergyProperties",
 "schedules": [
 {
 "identifier": "Generic Office Infiltration", 

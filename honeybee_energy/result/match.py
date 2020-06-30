@@ -6,8 +6,6 @@ from honeybee.door import Door
 from honeybee.aperture import Aperture
 from honeybee.face import Face
 
-from ladybug.datacollection import HourlyContinuousCollection
-
 
 def match_rooms_to_data(data_collections, rooms):
     """Match honeybee Rooms to the Zone-level data collections from SQLiteResult.

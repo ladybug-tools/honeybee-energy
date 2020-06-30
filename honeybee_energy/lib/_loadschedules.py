@@ -21,9 +21,17 @@ for sch_dict in default_data:
     sch_obj = dict_abridged_to_schedule(sch_dict, _schedule_type_limits, False)
     sch_obj.lock()
     _schedules[sch_dict['identifier']] = sch_obj
+_default_schedules = set(list(_schedules.keys()))
 
 
 # then load schedules from the user-supplied files
+def lock_and_check_schedule(sch):
+    """Lock a schedule and check that it's not overwriting a default."""
+    sch.lock()
+    assert sch.identifier not in _default_schedules, 'Cannot overwrite ' \
+        'default schedule "{}".'.format(sch.identifier)
+
+
 def load_schedule_object(sch_dict):
     """Load a schedule object from a dictionary and add it to the _schedules dict."""
     try:
@@ -32,7 +40,7 @@ def load_schedule_object(sch_dict):
         if sch_obj is None:
             sch_obj = dict_to_schedule(sch_dict, False)
         if sch_obj:
-            sch_obj.lock()
+            lock_and_check_schedule(sch_obj)
             _schedules[sch_dict['identifier']] = sch_obj
     except (TypeError, KeyError):
         pass  # not a Honeybee Schedule JSON; possibly a comment
@@ -44,7 +52,7 @@ for f in os.listdir(folders.schedule_lib):
         if f_path.endswith('.idf'):
             schedule_rulesets = ScheduleRuleset.extract_all_from_idf_file(f_path)
             for sch in schedule_rulesets:
-                sch.lock()
+                lock_and_check_schedule(sch)
                 _schedules[sch.identifier] = sch
         elif f_path.endswith('.json'):  # parse as a honeybee JSON
             with open(f_path) as json_file:
