@@ -1,0 +1,7 @@
+.dependabot
+.github
+.git
+docs
+tests
+
+Dockerfile
