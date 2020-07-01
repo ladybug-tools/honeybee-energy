@@ -4,6 +4,7 @@ from __future__ import division
 
 import os
 import sqlite3
+import re
 
 import ladybug.datatype
 from ladybug.dt import DateTime, datetime
@@ -23,6 +24,8 @@ class SQLiteResult(object):
     Properties:
         * file_path
         * location
+        * run_periods
+        * available_outputs
         * zone_cooling_sizes
         * zone_heating_sizes
         * component_sizes
@@ -39,6 +42,8 @@ class SQLiteResult(object):
 
         # values to be computed as soon as they are requested
         self._location = None
+        self._run_periods = None
+        self._available_outputs = None
         self._zone_cooling_sizes = None
         self._zone_heating_sizes = None
         self._component_sizes = None
@@ -58,6 +63,28 @@ class SQLiteResult(object):
         if not self._location:
             self._extract_location()
         return self._location
+
+    @property
+    def run_periods(self):
+        """Get an array of Ladybug AnalysisPeriod objects for the simulation run periods.
+
+        This will be None if there was no AllSummary report requested from the
+        simulation.
+        """
+        if not self._run_periods:
+            self._extract_full_run_periods()
+        return tuple(self._run_periods)
+
+    @property
+    def available_outputs(self):
+        """Get a list of strings for available timeseries outputs that can be requested.
+
+        Any of these outputs when input to data_collections_by_output_name will
+        yield a result with data collections.
+        """
+        if not self._available_outputs:
+            self._extract_available_outputs()
+        return self._available_outputs
 
     @property
     def zone_cooling_sizes(self):
@@ -253,6 +280,48 @@ class SQLiteResult(object):
             city=city, source=source, station_id=station_id,
             latitude=general[3][0], longitude=general[4][0],
             time_zone=general[6][0], elevation=general[5][0])
+
+    def _extract_full_run_periods(self):
+        """Extract a RunPeriod object from the SQLite file."""
+        # extract all of the data from the General table in AllSummary
+        sim_env = self.tabular_data_by_name('Environment')
+        if sim_env == []:
+            return
+
+        # convert the extracted data into a AnalysisPeriod objects
+        self._run_periods = []
+        try:  # assume that it's only one run period
+            st_date = [int(digit) for digit in sim_env[2][0].split('/')]
+            end_date = [int(digit) for digit in sim_env[3][0].split('/')]
+            lp_yr = True if st_date[-1] % 4 == 0 else False
+            aper = AnalysisPeriod(st_date[0], st_date[1], 0, end_date[0], end_date[1],
+                                  23, is_leap_year=lp_yr)
+            self._run_periods.append(aper)
+        except ValueError:  # it's a design day situation
+            found_first = False
+            for item in sim_env:
+                if bool(re.match(r'([0-9]+)\/([0-9]+)', item[0])):
+                    if not found_first:
+                        date = [int(digit) for digit in item[0].split('/')]
+                        aper = AnalysisPeriod(date[0], date[1], 0, date[0], date[1], 23)
+                        self._run_periods.append(aper)
+                        found_first = True
+                    else:
+                        found_first = False
+
+    def _extract_available_outputs(self):
+        """Extract the list of all available outputs from the SQLite file."""
+        conn = sqlite3.connect(self.file_path)
+        try:
+            # extract all indices in the ReportDataDictionary
+            c = conn.cursor()
+            c.execute('SELECT Name FROM ReportDataDictionary')
+            outputs = c.fetchall()
+            conn.close()  # ensure connection is always closed
+        except Exception as e:
+            conn.close()  # ensure connection is always closed
+            raise Exception(str(e))
+        self._available_outputs = tuple(outp[0] for outp in set(outputs))
 
     def _extract_zone_sizes(self, load_type):
         """Get all of the ZoneSize objects of a certain load type.

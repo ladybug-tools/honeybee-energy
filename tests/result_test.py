@@ -9,6 +9,7 @@ from ladybug.datatype.temperature import Temperature
 from ladybug.datatype.power import Power
 from ladybug.datatype.massflowrate import MassFlowRate
 from ladybug.dt import DateTime
+from ladybug.analysisperiod import AnalysisPeriod
 from ladybug.location import Location
 from ladybug.datacollection import HourlyContinuousCollection, DailyCollection, \
     MonthlyCollection
@@ -25,6 +26,33 @@ def test_sqlite_init():
     assert isinstance(sql_obj.file_path, str)
     assert isinstance(sql_obj.location, Location)
     assert sql_obj.location.latitude == 42.37
+
+    all_output = sql_obj.available_outputs
+    assert len(all_output) == 8
+    assert 'Zone Operative Temperature' in all_output
+    assert 'Zone Lights Electric Energy' in all_output
+    assert 'Zone Electric Equipment Electric Energy' in all_output
+    assert 'Zone Air Relative Humidity' in all_output
+    assert 'Zone Ideal Loads Supply Air Total Cooling Energy' in all_output
+    assert 'Zone Mean Radiant Temperature' in all_output
+    assert 'Zone Ideal Loads Supply Air Total Heating Energy' in all_output
+
+
+def test_sqlite_run_period():
+    """Test the run_period property of SQLiteResult."""
+    sql_path = './tests/result/eplusout_hourly.sql'
+    sql_obj = SQLiteResult(sql_path)
+
+    assert len(sql_obj.run_periods) == 1
+    assert isinstance(sql_obj.run_periods[0], AnalysisPeriod)
+    assert sql_obj.run_periods[0].st_month == 1
+    assert sql_obj.run_periods[0].st_day == 6
+    assert sql_obj.run_periods[0].end_month == 1
+    assert sql_obj.run_periods[0].end_day == 12
+
+    sql_path = './tests/result/eplusout_design_days.sql'
+    sql_obj = SQLiteResult(sql_path)
+    assert len(sql_obj.run_periods) == 7
 
 
 def test_sqlite_zone_sizing():

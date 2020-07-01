@@ -1,11 +1,30 @@
 """Test cli result module."""
 from click.testing import CliRunner
 from honeybee_energy.cli.result import data_by_output, data_by_outputs, \
-    output_csv, zone_sizes, component_sizes
+    output_csv, zone_sizes, component_sizes, available_results
 from honeybee_energy.result.sql import ZoneSize, ComponentSize
 from ladybug.datacollection import HourlyContinuousCollection
 
 import json
+
+
+def test_available_results():
+    """Test the available_results command."""
+    runner = CliRunner()
+    sql_path = './tests/result/eplusout_hourly.sql'
+
+    result = runner.invoke(available_results, [sql_path])
+    assert result.exit_code == 0
+    all_output = json.loads(result.output)
+
+    assert len(all_output) == 8
+    assert 'Zone Operative Temperature' in all_output
+    assert 'Zone Lights Electric Energy' in all_output
+    assert 'Zone Electric Equipment Electric Energy' in all_output
+    assert 'Zone Air Relative Humidity' in all_output
+    assert 'Zone Ideal Loads Supply Air Total Cooling Energy' in all_output
+    assert 'Zone Mean Radiant Temperature' in all_output
+    assert 'Zone Ideal Loads Supply Air Total Heating Energy' in all_output
 
 
 def test_data_by_output():

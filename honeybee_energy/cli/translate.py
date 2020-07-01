@@ -36,19 +36,20 @@ def translate():
 @translate.command('model-to-osm')
 @click.argument('model-json')
 @click.option('--sim-par-json', help='Full path to a honeybee energy SimulationParameter'
-              ' JSON that describes all of the settings for the simulation.',
-              default=None, show_default=True)
+              ' JSON that describes all of the settings for the simulation. If None '
+              'default parameters will be generated.', default=None, show_default=True)
 @click.option('--folder', help='Folder on this computer, into which the OSM and IDF '
               'files will be written. If None, the files will be output in the'
               'same location as the model_json.', default=None, show_default=True)
 @click.option('--check-model', help='Boolean to note whether the Model should be '
               're-serialized to Python and checked before it is translated to .osm. ',
               default=True, show_default=True)
-@click.option('--log-file', help='Optional log file to output the progress of the'
-              'translation. By default this will be printed out to stdout',
+@click.option('--log-file', help='Optional log file to output the paths to the '
+              'generated OSM and IDF files if they were successfully created. '
+              'By default this will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
 def model_to_osm(model_json, sim_par_json, folder, check_model, log_file):
-    """Translate a Model JSON file into an OpenStudio Model.
+    """Translate a Model JSON file into an OpenStudio Model and corresponding IDF.
     \n
     Args:
         model_json: Full path to a Model JSON file.
@@ -66,24 +67,28 @@ def model_to_osm(model_json, sim_par_json, folder, check_model, log_file):
         if sim_par_json is not None:
             assert os.path.isfile(sim_par_json), \
                 'No simulation parameter file found at {}.'.format(sim_par_json)
+        else:
+            sim_par = SimulationParameter()
+            sim_par.output.add_zone_energy_use()
+            sim_par.output.add_hvac_energy_use()
+            sim_par_dict = sim_par.to_dict()
+            sp_json = os.path.abspath(os.path.join(folder, 'simulation_parameter.json'))
+            with open(sp_json, 'w') as fp:
+                json.dump(sim_par_dict, fp)
 
         # run the Model re-serialization and check if specified
         if check_model:
-            log_file.write('Checking and re-serailizing model JSON.\n')
             model_json = measure_compatible_model_json(model_json, folder)
-            log_file.write('Model check complete.\n')
 
         # Write the osw file to translate the model to osm
-        log_file.write('Writing OSW for model translation.\n')
         osw = to_openstudio_osw(folder, model_json, sim_par_json)
 
         # run the measure to translate the model JSON to an openstudio measure
-        log_file.write('Running OSW through OpenStudio CLI.\n')
         if osw is not None and os.path.isfile(osw):
             osm, idf = run_osw(osw)
             # run the resulting idf through EnergyPlus
             if idf is not None and os.path.isfile(idf):
-                log_file.write('OpenStudio CLI Model translation successful.\n')
+                log_file.write(json.dumps([osm, idf]))
             else:
                 raise Exception('Running OpenStudio CLI failed.')
         else:
@@ -98,8 +103,8 @@ def model_to_osm(model_json, sim_par_json, folder, check_model, log_file):
 @translate.command('model-to-idf')
 @click.argument('model-json')
 @click.option('--sim-par-json', help='Full path to a honeybee energy SimulationParameter'
-              ' JSON that describes all of the settings for the simulation.',
-              default=None, show_default=True)
+              ' JSON that describes all of the settings for the simulation. If None '
+              'default parameters will be generated.', default=None, show_default=True)
 @click.option('--additional-str', help='Text string for additional lines that '
               'should be added to the IDF.', type=str, default='', show_default=True)
 @click.option('--output-file', help='Optional IDF file to output the IDF string of the '
@@ -129,6 +134,7 @@ def model_to_idf(model_json, sim_par_json, additional_str, output_file):
         else:
             sim_par = SimulationParameter()
             sim_par.output.add_zone_energy_use()
+            sim_par.output.add_hvac_energy_use()
 
         # re-serialize the Model to Python
         with open(model_json) as json_file:
