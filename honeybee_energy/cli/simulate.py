@@ -9,7 +9,7 @@ except ImportError:
 
 from honeybee_energy.simulation.parameter import SimulationParameter
 from honeybee_energy.run import measure_compatible_model_json, to_openstudio_osw, \
-    run_osw, run_idf
+    run_osw, run_idf, output_energyplus_files
 from honeybee.config import folders
 from ladybug.futil import preparedir
 
@@ -42,8 +42,9 @@ def simulate():
 @click.option('--check-model', help='Boolean to note whether the Model should be '
               're-serialized to Python and checked before it is translated to .osm. ',
               default=True, show_default=True)
-@click.option('--log-file', help='Optional log file to output the progress of the'
-              'simulation. By default the list will be printed out to stdout',
+@click.option('--log-file', help='Optional log file to output the paths of the generated'
+              ' files (osw, osm, idf, sql, zsz, rdd, html, err) if successfully '
+              'created. By default the list will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
 def simulate_model(model_json, epw_file, sim_par_json, base_osw, folder,
                    check_model, log_file):
@@ -81,10 +82,10 @@ def simulate_model(model_json, epw_file, sim_par_json, base_osw, folder,
         if sim_par_json is None:  # generate some default simulation parameters
             sim_par = SimulationParameter()
             sim_par.output.add_zone_energy_use()
+            sim_par.output.add_hvac_energy_use()
             if os.path.isfile(ddy_file):
                 sim_par.sizing_parameter.add_from_ddy_996_004(ddy_file)
             sim_par_json = write_sim_par(sim_par)
-            log_file.write('Default SimulationParameters were auto-generated.\n')
         else:
             assert os.path.isfile(sim_par_json), \
                 'No simulation parameter file found at {}.'.format(sim_par_json)
@@ -94,31 +95,26 @@ def simulate_model(model_json, epw_file, sim_par_json, base_osw, folder,
             if len(sim_par.sizing_parameter.design_days) == 0 and os.path.isfile(ddy_file):
                 sim_par.sizing_parameter.add_from_ddy_996_004(ddy_file)
                 sim_par_json = write_sim_par(sim_par)
-                log_file.write('Design days added to SimulationParameters from .ddy.\n')
 
         # run the Model re-serialization and check if specified
         if check_model:
-            log_file.write('Checking and re-serailizing model JSON.\n')
             model_json = measure_compatible_model_json(model_json, folder)
-            log_file.write('Model check complete.\n')
 
         # Write the osw file to translate the model to osm
-        log_file.write('Writing OSW for model translation.\n')
         osw = to_openstudio_osw(folder, model_json, sim_par_json,
                                 base_osw=base_osw, epw_file=epw_file)
 
         # run the measure to translate the model JSON to an openstudio measure
-        log_file.write('Running OSW through OpenStudio CLI.\n')
         if osw is not None and os.path.isfile(osw):
+            gen_files = [osw]
             if base_osw is None:  # separate the OS CLI run from the E+ run
                 osm, idf = run_osw(osw)
                 # run the resulting idf through EnergyPlus
                 if idf is not None and os.path.isfile(idf):
-                    log_file.write('OpenStudio CLI Model translation successful.\n')
-                    log_file.write('Running IDF file through EnergyPlus.\n')
+                    gen_files.extend([osm, idf])
                     sql, eio, rdd, html, err = run_idf(idf, epw_file)
                     if err is not None and os.path.isfile(err):
-                        log_file.write('EnergyPlus simulation successfully started.\n')
+                        gen_files.extend([sql, eio, rdd, html, err])
                     else:
                         raise Exception('Running EnergyPlus failed.')
                 else:
@@ -126,14 +122,15 @@ def simulate_model(model_json, epw_file, sim_par_json, base_osw, folder,
             else:  # run the whole simulation with the OpenStudio CLI
                 osm, idf = run_osw(osw, measures_only=False)
                 if idf is not None and os.path.isfile(idf):
-                    log_file.write('OpenStudio CLI Model translation successful.\n')
+                    gen_files.extend([osm, idf])
                 else:
                     raise Exception('Running OpenStudio CLI failed.')
-                err_file = os.path.join(os.path.dirname(idf), 'eplusout.err')
-                if os.path.isfile(err_file):
-                    log_file.write('EnergyPlus simulation successfully started.\n')
+                sql, eio, rdd, html, err = output_energyplus_files(os.path.dirname(idf))
+                if os.path.isfile(err):
+                    gen_files.extend([sql, eio, rdd, html, err])
                 else:
                     raise Exception('Running EnergyPlus failed.')
+            log_file.write(json.dumps(gen_files))
         else:
             raise Exception('Writing OSW file failed.')
     except Exception as e:

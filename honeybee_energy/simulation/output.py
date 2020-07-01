@@ -73,10 +73,10 @@ output-table-summaryreports.html#outputtablesummaryreports).
         if value is not None:
             assert not isinstance(value, (str, bytes)), 'Expected list or tuple for ' \
                 'SimulationOutput outputs. Got {}.'.format(type(value))
-            if not isinstance(value, set):
-                value = set(value)
+            vals = []
             for output in value:
-                assert isinstance(output, str), 'Output {} is not valid'.format(output)
+                vals.append(str(output))
+            value = set(vals)
         else:
             value = set()
         self._outputs = value
@@ -135,13 +135,12 @@ output-table-summaryreports.html#outputtablesummaryreports).
         if value is not None:
             assert not isinstance(value, (str, bytes)), 'Expected list, tuple, or ' \
                 'set for SimulationOutput summary_reports. Got {}.'.format(type(value))
-            if not isinstance(value, set):
-                value = set(value)
-            for report in value:
-                assert isinstance(report, str), \
-                    'SummaryReport {} is not valid'.format(report)
+            vals = []
+            for output in value:
+                vals.append(str(output))
+            value = set(vals)
         else:
-            value = set()
+            value = set('AllSummary')
         self._summary_reports = value
 
     def add_summary_report(self, report_name):
@@ -172,8 +171,7 @@ output-table-summaryreports.html#outputtablesummaryreports)
                 from a given Model.
                 (eg. 'Zone Ideal Loads Supply Air Total Cooling Energy').
         """
-        assert isinstance(output_name, str), 'Output {} is not valid'.format(output_name)
-        self._outputs.add(output_name)
+        self._outputs.add(str(output_name))
 
     def add_zone_energy_use(self, load_type='All'):
         """Add outputs for zone energy use when ideal air loads are assigned.
