@@ -41,9 +41,10 @@ def translate():
 @click.option('--folder', help='Folder on this computer, into which the OSM and IDF '
               'files will be written. If None, the files will be output in the'
               'same location as the model_json.', default=None, show_default=True)
-@click.option('--check-model', help='Boolean to note whether the Model should be '
-              're-serialized to Python and checked before it is translated to .osm. ',
-              type=bool, default=True, show_default=True)
+@click.option('--check-model/--bypass-check', help='Flag to note whether the Model '
+              'should be re-serialized to Python and checked before it is translated '
+              'to .osm. The check is not needed if the model-json was expored directly '
+              'from the honeybee-energy Python library.', default=True, show_default=True)
 @click.option('--log-file', help='Optional log file to output the paths to the '
               'generated OSM and IDF files if they were successfully created. '
               'By default this will be printed out to stdout',
