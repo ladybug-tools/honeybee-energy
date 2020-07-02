@@ -11,6 +11,7 @@ RUN apt-get update && \
     python3.7 \
     python3-pip \
     libx11-6 \
+    git \
     && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user
@@ -45,7 +46,8 @@ RUN mkdir -p ladybug_tools/resources/measures/honeybee_openstudio_gem \
 # Install honeybee-energy cli
 ENV PATH="/home/ladybugbot/.local/bin:${PATH}"
 COPY . honeybee-energy
-RUN pip3 install honeybee-energy[cli]
+RUN pip3 install setuptools 
+RUN pip3 install ./honeybee-energy[cli]
 
 # Set up working directory
 RUN mkdir -p /home/ladybugbot/run/simulation
