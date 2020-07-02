@@ -39,9 +39,10 @@ def simulate():
               'files will be written. If None, the files will be output to the honeybee '
               'default simulation folder and placed in a project folder with the same '
               'name as the model_json.', default=None, show_default=True)
-@click.option('--check-model', help='Boolean to note whether the Model should be '
-              're-serialized to Python and checked before it is translated to .osm. ',
-              type=bool, default=True, show_default=True)
+@click.option('--check-model/--bypass-check', help='Flag to note whether the Model '
+              'should be re-serialized to Python and checked before it is translated '
+              'to .osm. The check is not needed if the model-json was expored directly '
+              'from the honeybee-energy Python library.', default=True, show_default=True)
 @click.option('--log-file', help='Optional log file to output the paths of the generated'
               ' files (osw, osm, idf, sql, zsz, rdd, html, err) if successfully '
               'created. By default the list will be printed out to stdout',
