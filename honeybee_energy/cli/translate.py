@@ -43,7 +43,7 @@ def translate():
               'same location as the model_json.', default=None, show_default=True)
 @click.option('--check-model', help='Boolean to note whether the Model should be '
               're-serialized to Python and checked before it is translated to .osm. ',
-              default=True, show_default=True)
+              type=bool, default=True, show_default=True)
 @click.option('--log-file', help='Optional log file to output the paths to the '
               'generated OSM and IDF files if they were successfully created. '
               'By default this will be printed out to stdout',

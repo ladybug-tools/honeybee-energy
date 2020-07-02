@@ -41,7 +41,7 @@ def simulate():
               'name as the model_json.', default=None, show_default=True)
 @click.option('--check-model', help='Boolean to note whether the Model should be '
               're-serialized to Python and checked before it is translated to .osm. ',
-              default=True, show_default=True)
+              type=bool, default=True, show_default=True)
 @click.option('--log-file', help='Optional log file to output the paths of the generated'
               ' files (osw, osm, idf, sql, zsz, rdd, html, err) if successfully '
               'created. By default the list will be printed out to stdout',
