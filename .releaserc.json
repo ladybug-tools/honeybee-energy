@@ -6,7 +6,7 @@
         [
             "@semantic-release/exec",
             {
-                "publishCmd": "bash deploy.sh"
+                "publishCmd": "bash deploy.sh ${nextRelease.version}"
             }
         ]
     ]
