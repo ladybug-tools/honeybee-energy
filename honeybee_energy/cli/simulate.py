@@ -85,6 +85,11 @@ def simulate_model(model_json, epw_file, sim_par_json, base_osw, folder,
             sim_par.output.add_hvac_energy_use()
             if os.path.isfile(ddy_file):
                 sim_par.sizing_parameter.add_from_ddy_996_004(ddy_file)
+            else:
+                raise ValueError(
+                    'No sim-par-json was input and there is no .ddy file next to '
+                    'the .epw.\nAt least one of these two cirtieria must be satisfied '
+                    'for a successful simulation.')
             sim_par_json = write_sim_par(sim_par)
         else:
             assert os.path.isfile(sim_par_json), \
@@ -95,6 +100,11 @@ def simulate_model(model_json, epw_file, sim_par_json, base_osw, folder,
             if len(sim_par.sizing_parameter.design_days) == 0 and os.path.isfile(ddy_file):
                 sim_par.sizing_parameter.add_from_ddy_996_004(ddy_file)
                 sim_par_json = write_sim_par(sim_par)
+            elif len(sim_par.sizing_parameter.design_days) == 0:
+                raise ValueError(
+                    'No design days were found in the input sim-par-json and there is '
+                    'no .ddy file next to the .epw.\nAt least one of these two cirtieria '
+                    'must be satisfied for a successful simulation.')
 
         # run the Model re-serialization and check if specified
         if check_model:
