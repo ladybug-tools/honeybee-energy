@@ -1,0 +1,6 @@
+Simulate
+========
+
+.. click:: honeybee_energy.cli.simulate:simulate
+   :prog: honeybee-energy simulate
+   :show-nested:

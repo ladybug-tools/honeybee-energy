@@ -1,6 +1,20 @@
-honeybee energy command line interface
-===============================
+CLI Docs
+========
 
-.. click:: honeybee_energy.cli:energy
-   :prog: honeybee_energy
-   :show-nested:
+Installation
+------------
+
+You can install the `honeybee-energy` cli tool using the following command::
+
+``pip install -U honeybee-energy[cli]``
+
+Commands
+------------
+.. toctree::
+   :maxdepth: 1
+
+   lib
+   result
+   settings
+   simulate
+   translate

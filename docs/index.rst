@@ -1,5 +1,5 @@
 Welcome to Honeybee Energy's documentation!
-===================================
+===========================================
 
 .. image:: http://www.ladybug.tools/assets/img/honeybee.png
 
@@ -21,23 +21,14 @@ To check if the command line is installed correctly try ``honeybee energy --help
 or ``honeybee-energy --help``
 
 
-CLI Documentation
-==================
+Documentation
+=============
 
-For command line interface documentation see `this page <cli.html>`_.
+For command line interface documentation and API documentation see the pages below.
 
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
 
-.. include:: modules.rst
-.. include:: cli.rst
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+   cli
+   api
