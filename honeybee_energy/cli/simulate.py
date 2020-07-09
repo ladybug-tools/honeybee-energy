@@ -27,14 +27,18 @@ def simulate():
 
 
 @simulate.command('model')
-@click.argument('model-json')
-@click.argument('epw-file')
+@click.argument('model-json',
+                type=click.Path(exists=True, file_okay=True, dir_okay=False, resolve_path=True))
+@click.argument('epw-file',
+                type=click.Path(exists=True, file_okay=True, dir_okay=False, resolve_path=True))
 @click.option('--sim-par-json', help='Full path to a honeybee energy SimulationParameter'
               ' JSON that describes all of the settings for the simulation.',
-              default=None, show_default=True)
+              default=None, show_default=True,
+              type=click.Path(exists=True, file_okay=True, dir_okay=False, resolve_path=True))
 @click.option('--base-osw', help='Full path to an OSW JSON be used as the base for '
               'the execution of the OpenStuduo CLI. This can be used to add '
-              'measures in the workflow.', default=None, show_default=True)
+              'measures in the workflow.', default=None, show_default=True,
+              type=click.Path(exists=True, file_okay=True, dir_okay=False, resolve_path=True))
 @click.option('--folder', help='Folder on this computer, into which the IDF and result'
               'files will be written. If None, the files will be output to the honeybee '
               'default simulation folder and placed in a project folder with the same '
