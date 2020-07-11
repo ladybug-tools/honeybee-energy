@@ -22,7 +22,8 @@ def result():
 
 
 @result.command('available-results')
-@click.argument('result-sql')
+@click.argument('result-sql', type=click.Path(
+    exists=True, file_okay=True, dir_okay=False, resolve_path=True))
 @click.option('--output-file', help='Optional file to output the list of available '
               'outputs. By default, it will be printed to stdout',
               type=click.File('w'), default='-', show_default=True)
@@ -43,7 +44,8 @@ def available_results(result_sql, output_file):
 
 
 @result.command('available-results-info')
-@click.argument('result-sql')
+@click.argument('result-sql', type=click.Path(
+    exists=True, file_okay=True, dir_okay=False, resolve_path=True))
 @click.option('--output-file', help='Optional file to output the list of available '
               'outputs. By default, it will be printed to stdout',
               type=click.File('w'), default='-', show_default=True)
@@ -82,7 +84,8 @@ def available_results_info(result_sql, output_file):
 
 
 @result.command('available-run-period-info')
-@click.argument('result-sql')
+@click.argument('result-sql', type=click.Path(
+    exists=True, file_okay=True, dir_okay=False, resolve_path=True))
 @click.option('--output-file', help='Optional file to output the list of available '
               'outputs. By default, it will be printed to stdout',
               type=click.File('w'), default='-', show_default=True)
@@ -113,7 +116,8 @@ def available_run_period_info(result_sql, output_file):
 
 
 @result.command('all-available-info')
-@click.argument('result-sql')
+@click.argument('result-sql', type=click.Path(
+    exists=True, file_okay=True, dir_okay=False, resolve_path=True))
 @click.option('--output-file', help='Optional file to output the list of available '
               'outputs. By default, it will be printed to stdout',
               type=click.File('w'), default='-', show_default=True)
@@ -172,7 +176,8 @@ def all_available_info(result_sql, output_file):
 
 
 @result.command('data-by-output')
-@click.argument('result-sql')
+@click.argument('result-sql', type=click.Path(
+    exists=True, file_okay=True, dir_okay=False, resolve_path=True))
 @click.argument('output-name', type=str)
 @click.option('--output-file', help='Optional file to output the JSON strings of '
               'the data collections. By default, it will be printed to stdout',
@@ -205,7 +210,8 @@ def data_by_output(result_sql, output_name, output_file):
 
 
 @result.command('data-by-outputs')
-@click.argument('result-sql')
+@click.argument('result-sql', type=click.Path(
+    exists=True, file_okay=True, dir_okay=False, resolve_path=True))
 @click.argument('output-names', type=str, nargs=-1)
 @click.option('--output-file', help='Optional file to output the JSON strings of '
               'the data collections. By default, it will be printed to stdout',
@@ -239,7 +245,8 @@ def data_by_outputs(result_sql, output_names, output_file):
 
 
 @result.command('output-csv')
-@click.argument('result-sql')
+@click.argument('result-sql', type=click.Path(
+    exists=True, file_okay=True, dir_okay=False, resolve_path=True))
 @click.argument('output-names', type=str, nargs=-1)
 @click.option('--output-file', help='Optional file to output the CSV data of '
               'the results. By default, it will be printed to stdout',
@@ -303,7 +310,8 @@ def output_csv(result_sql, output_names, output_file):
 
 
 @result.command('zone-sizes')
-@click.argument('result-sql')
+@click.argument('result-sql', type=click.Path(
+    exists=True, file_okay=True, dir_okay=False, resolve_path=True))
 @click.option('--output-file', help='Optional file to output the JSON strings of '
               'the ZoneSize objects. By default, it will be printed to stdout',
               type=click.File('w'), default='-', show_default=True)
@@ -327,7 +335,8 @@ def zone_sizes(result_sql, output_file):
 
 
 @result.command('component-sizes')
-@click.argument('result-sql')
+@click.argument('result-sql', type=click.Path(
+    exists=True, file_okay=True, dir_okay=False, resolve_path=True))
 @click.option('--component-type', help='A name of a HVAC component type, which will '
               'be used to filter the output HVAC components. If None, all HVAC component'
               ' sizes will be output.', type=str, default=None, show_default=True)
