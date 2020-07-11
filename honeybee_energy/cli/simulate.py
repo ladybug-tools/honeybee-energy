@@ -27,10 +27,10 @@ def simulate():
 
 
 @simulate.command('model')
-@click.argument('model-json',
-                type=click.Path(exists=True, file_okay=True, dir_okay=False, resolve_path=True))
-@click.argument('epw-file',
-                type=click.Path(exists=True, file_okay=True, dir_okay=False, resolve_path=True))
+@click.argument('model-json', type=click.Path(
+    exists=True, file_okay=True, dir_okay=False, resolve_path=True))
+@click.argument('epw-file', type=click.Path(
+    exists=True, file_okay=True, dir_okay=False, resolve_path=True))
 @click.option('--sim-par-json', help='Full path to a honeybee energy SimulationParameter'
               ' JSON that describes all of the settings for the simulation.',
               default=None, show_default=True,
@@ -42,7 +42,8 @@ def simulate():
 @click.option('--folder', help='Folder on this computer, into which the IDF and result'
               'files will be written. If None, the files will be output to the honeybee '
               'default simulation folder and placed in a project folder with the same '
-              'name as the model_json.', default=None, show_default=True)
+              'name as the model_json.', default=None, show_default=True,
+              type=click.Path(file_okay=False, dir_okay=True, resolve_path=True))
 @click.option('--check-model/--bypass-check', help='Flag to note whether the Model '
               'should be re-serialized to Python and checked before it is translated '
               'to .osm. The check is not needed if the model-json was expored directly '
@@ -60,12 +61,7 @@ def simulate_model(model_json, epw_file, sim_par_json, base_osw, folder,
         epw_file: Full path to an .epw file.
     """
     try:
-        # check that the model JSON and the EPW file is there
-        assert os.path.isfile(model_json), \
-            'No Model JSON file found at {}.'.format(model_json)
-        assert os.path.isfile(epw_file), \
-            'No EPW file found at {}.'.format(epw_file)
-        # ddy variable that might get used later
+        # get a ddy variable that might get used later
         epw_folder, epw_file_name = os.path.split(epw_file)
         ddy_file = os.path.join(epw_folder, epw_file_name.replace('.epw', '.ddy'))
 
@@ -97,8 +93,6 @@ def simulate_model(model_json, epw_file, sim_par_json, base_osw, folder,
                     'for a successful simulation.')
             sim_par_json = write_sim_par(sim_par)
         else:
-            assert os.path.isfile(sim_par_json), \
-                'No simulation parameter file found at {}.'.format(sim_par_json)
             with open(sim_par_json) as json_file:
                 data = json.load(json_file)
             sim_par = SimulationParameter.from_dict(data)

@@ -34,13 +34,16 @@ def translate():
 
 
 @translate.command('model-to-osm')
-@click.argument('model-json')
+@click.argument('model-json', type=click.Path(
+    exists=True, file_okay=True, dir_okay=False, resolve_path=True))
 @click.option('--sim-par-json', help='Full path to a honeybee energy SimulationParameter'
               ' JSON that describes all of the settings for the simulation. If None '
-              'default parameters will be generated.', default=None, show_default=True)
+              'default parameters will be generated.', default=None, show_default=True,
+              type=click.Path(exists=True, file_okay=True, dir_okay=False, resolve_path=True))
 @click.option('--folder', help='Folder on this computer, into which the OSM and IDF '
               'files will be written. If None, the files will be output in the'
-              'same location as the model_json.', default=None, show_default=True)
+              'same location as the model_json.', default=None, show_default=True,
+              type=click.Path(file_okay=False, dir_okay=True, resolve_path=True))
 @click.option('--check-model/--bypass-check', help='Flag to note whether the Model '
               'should be re-serialized to Python and checked before it is translated '
               'to .osm. The check is not needed if the model-json was expored directly '
@@ -56,19 +59,12 @@ def model_to_osm(model_json, sim_par_json, folder, check_model, log_file):
         model_json: Full path to a Model JSON file.
     """
     try:
-        # check that the model JSON is there
-        assert os.path.isfile(model_json), \
-            'No Model JSON file found at {}.'.format(model_json)
-
         # set the default folder if it's not specified
         if folder is None:
             folder = os.path.dirname(os.path.abspath(model_json))
 
         # check that the simulation parameters are there
-        if sim_par_json is not None:
-            assert os.path.isfile(sim_par_json), \
-                'No simulation parameter file found at {}.'.format(sim_par_json)
-        else:
+        if sim_par_json is None:
             sim_par = SimulationParameter()
             sim_par.output.add_zone_energy_use()
             sim_par.output.add_hvac_energy_use()
@@ -102,10 +98,12 @@ def model_to_osm(model_json, sim_par_json, folder, check_model, log_file):
 
 
 @translate.command('model-to-idf')
-@click.argument('model-json')
+@click.argument('model-json', type=click.Path(
+    exists=True, file_okay=True, dir_okay=False, resolve_path=True))
 @click.option('--sim-par-json', help='Full path to a honeybee energy SimulationParameter'
               ' JSON that describes all of the settings for the simulation. If None '
-              'default parameters will be generated.', default=None, show_default=True)
+              'default parameters will be generated.', default=None, show_default=True,
+              type=click.Path(exists=True, file_okay=True, dir_okay=False, resolve_path=True))
 @click.option('--additional-str', help='Text string for additional lines that '
               'should be added to the IDF.', type=str, default='', show_default=True)
 @click.option('--output-file', help='Optional IDF file to output the IDF string of the '
@@ -121,14 +119,8 @@ def model_to_idf(model_json, sim_par_json, additional_str, output_file):
         model_json: Full path to a Model JSON file.
     """
     try:
-        # check that the model JSON is there
-        assert os.path.isfile(model_json), \
-            'No Model JSON file found at {}.'.format(model_json)
-
         # check that the simulation parameters are there and load them
         if sim_par_json is not None:
-            assert os.path.isfile(sim_par_json), \
-                'No simulation parameter file found at {}.'.format(sim_par_json)
             with open(sim_par_json) as json_file:
                 data = json.load(json_file)
             sim_par = SimulationParameter.from_dict(data)
@@ -164,7 +156,8 @@ def model_to_idf(model_json, sim_par_json, additional_str, output_file):
 
 
 @translate.command('constructions-to-idf')
-@click.argument('construction-json')
+@click.argument('construction-json', type=click.Path(
+    exists=True, file_okay=True, dir_okay=False, resolve_path=True))
 @click.option('--output-file', help='Optional IDF file to output the IDF string of the '
               'translation. By default this will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
@@ -177,10 +170,6 @@ def construction_to_idf(construction_json, output_file):
             the values are non-abridged Constructions.
     """
     try:
-        # check that the construction JSON is there
-        assert os.path.isfile(construction_json), \
-            'No Construction JSON file found at {}.'.format(construction_json)
-
         # re-serialize the Constructions to Python
         with open(construction_json) as json_file:
             data = json.load(json_file)
@@ -209,7 +198,8 @@ def construction_to_idf(construction_json, output_file):
 
 
 @translate.command('constructions-from-idf')
-@click.argument('construction-idf')
+@click.argument('construction-idf', type=click.Path(
+    exists=True, file_okay=True, dir_okay=False, resolve_path=True))
 @click.option('--output-file', help='Optional JSON file to output the JSON string of the'
               'translation. By default this will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
@@ -221,10 +211,6 @@ def construction_from_idf(construction_idf, output_file):
             and materials in this file will be extracted.
     """
     try:
-        # check that the construction JSON is there
-        assert os.path.isfile(construction_idf), \
-            'No Construction IDF file found at {}.'.format(construction_idf)
-
         # re-serialize the Constructions to Python
         opaque_constrs = OpaqueConstruction.extract_all_from_idf_file(construction_idf)
         win_constrs = WindowConstruction.extract_all_from_idf_file(construction_idf)
@@ -246,7 +232,8 @@ def construction_from_idf(construction_idf, output_file):
 
 
 @translate.command('schedules-to-idf')
-@click.argument('schedule-json')
+@click.argument('schedule-json', type=click.Path(
+    exists=True, file_okay=True, dir_okay=False, resolve_path=True))
 @click.option('--output-file', help='Optional IDF file to output the IDF string of the '
               'translation. By default this will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
@@ -259,10 +246,6 @@ def schedule_to_idf(schedule_json, output_file):
             the values are non-abridged Schedules.
     """
     try:
-        # check that the Schedule JSON is there
-        assert os.path.isfile(schedule_json), \
-            'No Schedule JSON file found at {}.'.format(schedule_json)
-
         # re-serialize the Schedule to Python
         with open(schedule_json) as json_file:
             data = json.load(json_file)
@@ -312,7 +295,8 @@ def schedule_to_idf(schedule_json, output_file):
 
 
 @translate.command('schedules-from-idf')
-@click.argument('schedule-idf')
+@click.argument('schedule-idf', type=click.Path(
+    exists=True, file_okay=True, dir_okay=False, resolve_path=True))
 @click.option('--output-file', help='Optional JSON file to output the JSON string of the'
               'translation. By default this will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
@@ -324,10 +308,6 @@ def schedule_from_idf(schedule_idf, output_file):
             and schedule type limits in this file will be extracted.
     """
     try:
-        # check that the schedule JSON is there
-        assert os.path.isfile(schedule_idf), \
-            'No Schedule IDF file found at {}.'.format(schedule_idf)
-
         # re-serialize the schedules to Python
         schedules = ScheduleRuleset.extract_all_from_idf_file(schedule_idf)
 

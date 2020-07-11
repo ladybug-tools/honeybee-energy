@@ -14,7 +14,6 @@ from ladybug.analysisperiod import AnalysisPeriod
 from ladybug.dt import Date
 
 import sys
-import os
 import logging
 import json
 
@@ -27,10 +26,12 @@ def settings():
 
 
 @settings.command('default-sim-par')
-@click.argument('ddy-file')
+@click.argument('ddy-file', type=click.Path(
+    exists=True, file_okay=True, dir_okay=False, resolve_path=True))
 @click.option('--run-period-json', help='Full path to a honeybee energy RunPeriod'
               ' JSON that describes the duration of the simulation. If None the simulation'
-              'will be run for the whole year.', default=None, show_default=True)
+              'will be run for the whole year.', default=None, show_default=True,
+              type=click.Path(exists=True, file_okay=True, dir_okay=False, resolve_path=True))
 @click.option('--filter-des-days', help='Boolean to note whether the design days in the '
               'ddy-file should be filtered to only include 99.6 and 0.4 design days.',
               type=bool, default=True, show_default=True)
@@ -45,13 +46,10 @@ def default_sim_par(ddy_file, run_period_json, filter_des_days, output_file):
             within the simulation parameter.
     """
     try:
-        assert os.path.isfile(ddy_file), 'No DDY file found at {}.'.format(ddy_file)
         sim_par = SimulationParameter()
         sim_par.output.add_zone_energy_use()
         sim_par.output.add_hvac_energy_use()
         if run_period_json:
-            assert os.path.isfile(run_period_json), \
-                'No run period JSON file found at {}.'.format(run_period_json)
             with open(run_period_json) as json_file:
                 data = json.load(json_file)
             sim_par.run_period = RunPeriod.from_dict(data)
@@ -68,7 +66,8 @@ def default_sim_par(ddy_file, run_period_json, filter_des_days, output_file):
 
 
 @settings.command('load-balance-sim-par')
-@click.argument('ddy-file')
+@click.argument('ddy-file', type=click.Path(
+    exists=True, file_okay=True, dir_okay=False, resolve_path=True))
 @click.option('--load-type', help='A text value to set the type of load outputs '
               'requested. Choose from the following:\nAll - all energy use '
               'including heat lost from the zone\nTotal - the total load added to the '
@@ -77,7 +76,8 @@ def default_sim_par(ddy_file, run_period_json, filter_des_days, output_file):
               type=str, default='Total', show_default=True)
 @click.option('--run-period-json', help='Full path to a honeybee energy RunPeriod'
               ' JSON that describes the duration of the simulation. If None the simulation'
-              'will be run for the whole year.', default=None, show_default=True)
+              'will be run for the whole year.', default=None, show_default=True,
+              type=click.Path(exists=True, file_okay=True, dir_okay=False, resolve_path=True))
 @click.option('--filter-des-days', help='Boolean to note whether the design days in the '
               'ddy-file should be filtered to only include 99.6 and 0.4 design days.',
               type=bool, default=True, show_default=True)
@@ -93,15 +93,12 @@ def load_balance_sim_par(ddy_file, load_type, run_period_json, filter_des_days,
             within the simulation parameter.
     """
     try:
-        assert os.path.isfile(ddy_file), 'No DDY file found at {}.'.format(ddy_file)
         sim_par = SimulationParameter()
         sim_par.output.add_zone_energy_use(load_type)
         gl_load_type = load_type if load_type != 'All' else 'Total'
         sim_par.output.add_gains_and_losses(gl_load_type)
         sim_par.output.add_surface_energy_flow()
         if run_period_json:
-            assert os.path.isfile(run_period_json), \
-                'No run period JSON file found at {}.'.format(run_period_json)
             with open(run_period_json) as json_file:
                 data = json.load(json_file)
             sim_par.run_period = RunPeriod.from_dict(data)
@@ -118,10 +115,12 @@ def load_balance_sim_par(ddy_file, load_type, run_period_json, filter_des_days,
 
 
 @settings.command('comfort-sim-par')
-@click.argument('ddy-file')
+@click.argument('ddy-file', type=click.Path(
+    exists=True, file_okay=True, dir_okay=False, resolve_path=True))
 @click.option('--run-period-json', help='Full path to a honeybee energy RunPeriod'
               ' JSON that describes the duration of the simulation. If None the simulation'
-              'will be run for the whole year.', default=None, show_default=True)
+              'will be run for the whole year.', default=None, show_default=True,
+              type=click.Path(exists=True, file_okay=True, dir_okay=False, resolve_path=True))
 @click.option('--filter-des-days', help='Boolean to note whether the design days in the '
               'ddy-file should be filtered to only include 99.6 and 0.4 design days.',
               type=bool, default=True, show_default=True)
@@ -136,13 +135,10 @@ def comfort_sim_par(ddy_file, run_period_json, filter_des_days, output_file):
             within the simulation parameter.
     """
     try:
-        assert os.path.isfile(ddy_file), 'No DDY file found at {}.'.format(ddy_file)
         sim_par = SimulationParameter()
         sim_par.output.add_comfort_metrics()
         sim_par.output.add_surface_temperature()
         if run_period_json:
-            assert os.path.isfile(run_period_json), \
-                'No run period JSON file found at {}.'.format(run_period_json)
             with open(run_period_json) as json_file:
                 data = json.load(json_file)
             sim_par.run_period = RunPeriod.from_dict(data)
@@ -159,7 +155,8 @@ def comfort_sim_par(ddy_file, run_period_json, filter_des_days, output_file):
 
 
 @settings.command('sizing-sim-par')
-@click.argument('ddy-file')
+@click.argument('ddy-file', type=click.Path(
+    exists=True, file_okay=True, dir_okay=False, resolve_path=True))
 @click.option('--load-type', help='A text value to set the type of load outputs '
               'requested. Choose from the following:\nAll - all energy use '
               'including heat lost from the zone\nTotal - the total load added to the '
@@ -180,7 +177,6 @@ def sizing_sim_par(ddy_file, load_type, filter_des_days, output_file):
             within the simulation parameter.
     """
     try:
-        assert os.path.isfile(ddy_file), 'No DDY file found at {}.'.format(ddy_file)
         sim_par = SimulationParameter()
         sim_par.output.add_zone_energy_use(load_type)
         gl_load_type = load_type if load_type != 'All' else 'Total'
@@ -200,10 +196,12 @@ def sizing_sim_par(ddy_file, load_type, filter_des_days, output_file):
 
 
 @settings.command('custom-sim-par')
-@click.argument('ddy-file')
+@click.argument('ddy-file', type=click.Path(
+    exists=True, file_okay=True, dir_okay=False, resolve_path=True))
 @click.option('--run-period-json', help='Full path to a honeybee energy RunPeriod'
               ' JSON that describes the duration of the simulation. If None the simulation'
-              'will be run for the whole year.', default=None, show_default=True)
+              'will be run for the whole year.', default=None, show_default=True,
+              type=click.Path(exists=True, file_okay=True, dir_okay=False, resolve_path=True))
 @click.argument('output-names', nargs=-1)
 @click.option('--filter-des-days', help='Boolean to note whether the design days in the '
               'ddy-file should be filtered to only include 99.6 and 0.4 design days.',
@@ -222,13 +220,10 @@ def custom_sim_par(ddy_file, output_names, run_period_json, filter_des_days, out
             requested from the simulation.
     """
     try:
-        assert os.path.isfile(ddy_file), 'No DDY file found at {}.'.format(ddy_file)
         sim_par = SimulationParameter()
         for output_name in output_names:
             sim_par.output.add_output(output_name)
         if run_period_json:
-            assert os.path.isfile(run_period_json), \
-                'No run period JSON file found at {}.'.format(run_period_json)
             with open(run_period_json) as json_file:
                 data = json.load(json_file)
             sim_par.run_period = RunPeriod.from_dict(data)
