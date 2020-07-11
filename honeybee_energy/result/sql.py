@@ -4,7 +4,7 @@ from __future__ import division
 
 import os
 import sqlite3
-import re
+from collections import OrderedDict
 
 import ladybug.datatype
 from ladybug.dt import DateTime, datetime
@@ -24,8 +24,11 @@ class SQLiteResult(object):
     Properties:
         * file_path
         * location
+        * reporting_frequency
         * run_periods
+        * run_period_names
         * available_outputs
+        * available_outputs_info
         * zone_cooling_sizes
         * zone_heating_sizes
         * component_sizes
@@ -42,8 +45,11 @@ class SQLiteResult(object):
 
         # values to be computed as soon as they are requested
         self._location = None
+        self._reporting_frequency = None
         self._run_periods = None
+        self._run_period_names = None
         self._available_outputs = None
+        self._available_outputs_info = None
         self._zone_cooling_sizes = None
         self._zone_heating_sizes = None
         self._component_sizes = None
@@ -57,23 +63,48 @@ class SQLiteResult(object):
     def location(self):
         """Get a Ladybug Location object derived from the SQL data.
 
-        This will be None if there was no AllSummary report requested from the
-        simulation.
+        This will be None if there was no AllSummary report in the SQL file.
         """
         if not self._location:
             self._extract_location()
         return self._location
 
     @property
+    def reporting_frequency(self):
+        """Get text for the output reporting frequency. Will be one of the following.
+
+            * Annual
+            * Monthly
+            * Daily
+            * Hourly
+            * An integer for the number of steps per hour
+        """
+        if not self._reporting_frequency:
+            self._extract_available_outputs()
+        if 'Timestep' in self._reporting_frequency:  # get timesteps per hour
+            self._reporting_frequency = self._extract_timestep()
+        return self._reporting_frequency
+
+    @property
     def run_periods(self):
         """Get an array of Ladybug AnalysisPeriod objects for the simulation run periods.
 
-        This will be None if there was no AllSummary report requested from the
-        simulation.
+        This will be None if there was no AllSummary report in the SQL file.
         """
         if not self._run_periods:
             self._extract_full_run_periods()
         return tuple(self._run_periods)
+
+    @property
+    def run_period_names(self):
+        """Get an array of text for the names of the run periods.
+
+        These will align with the run_periods property. This will be None if
+        there was no AllSummary report in the SQL file.
+        """
+        if not self._run_period_names:
+            self._extract_full_run_periods()
+        return tuple(self._run_period_names)
 
     @property
     def available_outputs(self):
@@ -85,6 +116,25 @@ class SQLiteResult(object):
         if not self._available_outputs:
             self._extract_available_outputs()
         return self._available_outputs
+
+    @property
+    def available_outputs_info(self):
+        """Get a list of dictionaries with outputs within the SQL and their metadata.
+
+        Each dictionary is formatted with the keys below.
+
+        .. code-block:: python
+
+            {
+            "output_name": "Zone Ideal Loads Supply Air Total Cooling Energy",
+            "object_type": "Zone",
+            "units": "kWh",
+            "data_type ": Energy  # this is a ladybug DataType object
+            }
+        """
+        if not self._available_outputs_info:
+            self._extract_available_outputs()
+        return self._available_outputs_info
 
     @property
     def zone_cooling_sizes(self):
@@ -247,6 +297,10 @@ class SQLiteResult(object):
     def tabular_data_by_name(self, table_name):
         """Get all the data within a table of a Summary Report using the table name.
 
+        The output will be a Python matrix (list of lists), with each sub-list
+        being a row of the table. The output should mirror how the table appears
+        in the HTML output.
+
         Args:
             table_name: Text string for the name of a table within a summary
                 report. (eg. 'General').
@@ -255,14 +309,20 @@ class SQLiteResult(object):
         try:
             # extract the data from the General table in AllSummary
             c = conn.cursor()
-            c.execute('SELECT Value FROM TabularDataWithStrings '
+            c.execute('SELECT RowName, Value FROM TabularDataWithStrings '
                       'WHERE TableName=?', (table_name,))
             table_data = c.fetchall()
             conn.close()  # ensure connection is always closed
         except Exception as e:
             conn.close()  # ensure connection is always closed
             raise Exception(str(e))
-        return table_data
+        table_dict = OrderedDict()
+        for item in table_data:
+            try:
+                table_dict[item[0]].append(item[1])
+            except KeyError:
+                table_dict[item[0]] = [item[1]]
+        return list(table_dict.values())
 
     def _extract_location(self):
         """Extract a Location object from the SQLite file."""
@@ -282,7 +342,7 @@ class SQLiteResult(object):
             time_zone=general[6][0], elevation=general[5][0])
 
     def _extract_full_run_periods(self):
-        """Extract a RunPeriod object from the SQLite file."""
+        """Extract all of the RunPeriod objects from the SQLite file."""
         # extract all of the data from the General table in AllSummary
         sim_env = self.tabular_data_by_name('Environment')
         if sim_env == []:
@@ -290,24 +350,19 @@ class SQLiteResult(object):
 
         # convert the extracted data into a AnalysisPeriod objects
         self._run_periods = []
-        try:  # assume that it's only one run period
-            st_date = [int(digit) for digit in sim_env[2][0].split('/')]
-            end_date = [int(digit) for digit in sim_env[3][0].split('/')]
-            lp_yr = True if st_date[-1] % 4 == 0 else False
-            aper = AnalysisPeriod(st_date[0], st_date[1], 0, end_date[0], end_date[1],
-                                  23, is_leap_year=lp_yr)
+        self._run_period_names = []
+        for row in sim_env:
+            st_date = [int(digit) for digit in row[2].split('/')]
+            end_date = [int(digit) for digit in row[3].split('/')]
+            if len(st_date) == 3:  # it's a true run period
+                lp_yr = True if st_date[-1] % 4 == 0 else False
+                aper = AnalysisPeriod(st_date[0], st_date[1], 0, end_date[0],
+                                      end_date[1], 23, is_leap_year=lp_yr)
+            else:  # it's a design day period
+                aper = AnalysisPeriod(st_date[0], st_date[1], 0,
+                                      end_date[0], end_date[1], 23)
             self._run_periods.append(aper)
-        except ValueError:  # it's a design day situation
-            found_first = False
-            for item in sim_env:
-                if bool(re.match(r'([0-9]+)\/([0-9]+)', item[0])):
-                    if not found_first:
-                        date = [int(digit) for digit in item[0].split('/')]
-                        aper = AnalysisPeriod(date[0], date[1], 0, date[0], date[1], 23)
-                        self._run_periods.append(aper)
-                        found_first = True
-                    else:
-                        found_first = False
+            self._run_period_names.append(row[0])
 
     def _extract_available_outputs(self):
         """Extract the list of all available outputs from the SQLite file."""
@@ -315,13 +370,42 @@ class SQLiteResult(object):
         try:
             # extract all indices in the ReportDataDictionary
             c = conn.cursor()
-            c.execute('SELECT Name FROM ReportDataDictionary')
+            c.execute('SELECT Name, IndexGroup, Units, ReportingFrequency '
+                      'FROM ReportDataDictionary')
             outputs = c.fetchall()
             conn.close()  # ensure connection is always closed
         except Exception as e:
             conn.close()  # ensure connection is always closed
             raise Exception(str(e))
-        self._available_outputs = tuple(outp[0] for outp in set(outputs))
+        unique_outputs = set(outputs)
+        self._available_outputs = tuple(outp[0] for outp in unique_outputs)
+        self._available_outputs_info = []
+        for outp in unique_outputs:
+            outp_dict = {}
+            outp_dict['output_name'] = outp[0]
+            outp_dict['object_type'] = outp[1]
+            outp_dict['units'] = outp[2] if outp[2] != 'J' else 'kWh'
+            outp_dict['data_type'] = self._data_type_from_unit(outp_dict['units'])
+            self._available_outputs_info.append(outp_dict)
+            self._reporting_frequency = outp[3]
+
+    def _extract_timestep(self):
+        """Extract an integer for the timestep of the data.
+
+        This is done by checking the first entry within the Time table.
+        """
+        conn = sqlite3.connect(self.file_path)
+        try:
+            # extract the start and end times from the Time table
+            c = conn.cursor()
+            c.execute('SELECT * FROM Time')
+            start = c.fetchone()
+            conn.close()  # ensure connection is always closed
+        except Exception as e:
+            conn.close()  # ensure connection is always closed
+            raise Exception(str(e))
+        min_per_step = start[7]
+        return int(60 / min_per_step)
 
     def _extract_zone_sizes(self, load_type):
         """Get all of the ZoneSize objects of a certain load type.
