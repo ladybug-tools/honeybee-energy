@@ -1,7 +1,8 @@
 """Test cli result module."""
 from click.testing import CliRunner
-from honeybee_energy.cli.result import data_by_output, data_by_outputs, \
-    output_csv, zone_sizes, component_sizes, available_results
+from honeybee_energy.cli.result import data_by_output, available_results_info, \
+    data_by_outputs, output_csv, zone_sizes, component_sizes, available_results, \
+    available_run_period_info, all_available_info
 from honeybee_energy.result.sql import ZoneSize, ComponentSize
 from ladybug.datacollection import HourlyContinuousCollection
 
@@ -25,6 +26,65 @@ def test_available_results():
     assert 'Zone Ideal Loads Supply Air Total Cooling Energy' in all_output
     assert 'Zone Mean Radiant Temperature' in all_output
     assert 'Zone Ideal Loads Supply Air Total Heating Energy' in all_output
+
+
+def test_available_results_info():
+    """Test the available_results_info command."""
+    runner = CliRunner()
+    sql_path = './tests/result/eplusout_hourly.sql'
+
+    result = runner.invoke(available_results_info, [sql_path])
+    assert result.exit_code == 0
+    all_output = json.loads(result.output)
+
+    assert len(all_output) == 8
+    assert all(isinstance(obj, dict) for obj in all_output)
+    for outp in all_output:
+        if outp['output_name'] == 'Zone Mean Radiant Temperature':
+            assert outp['object_type'] == 'Zone'
+            assert outp['units'] == 'C'
+            assert outp['units_ip'] == 'F'
+            assert not outp['cumulative']
+
+
+def test_available_run_period_info():
+    """Test the available_results_info command."""
+    runner = CliRunner()
+    sql_path = './tests/result/eplusout_hourly.sql'
+    result = runner.invoke(available_run_period_info, [sql_path])
+    assert result.exit_code == 0
+    all_output = json.loads(result.output)
+    assert len(all_output) == 1
+    assert all(isinstance(obj, dict) for obj in all_output)
+
+    sql_path = './tests/result/eplusout_dday_runper.sql'
+    result = runner.invoke(available_run_period_info, [sql_path])
+    assert result.exit_code == 0
+    all_output = json.loads(result.output)
+    assert len(all_output) == 8
+    assert all(isinstance(obj, dict) for obj in all_output)
+
+
+def test_all_available_info():
+    """Test the all_available_info command."""
+    runner = CliRunner()
+    sql_path = './tests/result/eplusout_hourly.sql'
+    result = runner.invoke(all_available_info, [sql_path])
+    assert result.exit_code == 0
+    all_output = json.loads(result.output)
+    assert len(all_output['outputs']) == 8
+    assert all(isinstance(obj, dict) for obj in all_output['outputs'])
+    assert len(all_output['run_periods']) == 1
+    assert all(isinstance(obj, dict) for obj in all_output['run_periods'])
+
+    sql_path = './tests/result/eplusout_dday_runper.sql'
+    result = runner.invoke(all_available_info, [sql_path])
+    assert result.exit_code == 0
+    all_output = json.loads(result.output)
+    assert len(all_output['outputs']) == 13
+    assert all(isinstance(obj, dict) for obj in all_output['outputs'])
+    assert len(all_output['run_periods']) == 8
+    assert all(isinstance(obj, dict) for obj in all_output['run_periods'])
 
 
 def test_data_by_output():

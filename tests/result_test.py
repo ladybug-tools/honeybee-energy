@@ -14,8 +14,6 @@ from ladybug.location import Location
 from ladybug.datacollection import HourlyContinuousCollection, DailyCollection, \
     MonthlyCollection
 
-import pytest
-
 
 def test_sqlite_init():
     """Test the initialization of SQLiteResult and basic properties."""
@@ -23,6 +21,7 @@ def test_sqlite_init():
     sql_obj = SQLiteResult(sql_path)
     str(sql_obj)  # test the string representation
 
+    assert sql_obj.reporting_frequency == 'Hourly'
     assert isinstance(sql_obj.file_path, str)
     assert isinstance(sql_obj.location, Location)
     assert sql_obj.location.latitude == 42.37
@@ -38,6 +37,20 @@ def test_sqlite_init():
     assert 'Zone Ideal Loads Supply Air Total Heating Energy' in all_output
 
 
+def test_available_results_info():
+    """Test the available_results_info property."""
+    sql_path = './tests/result/eplusout_hourly.sql'
+    sql_obj = SQLiteResult(sql_path)
+
+    assert len(sql_obj.available_outputs_info) == 8
+    assert all(isinstance(obj, dict) for obj in sql_obj.available_outputs_info)
+    for outp in sql_obj.available_outputs_info:
+        if outp['output_name'] == 'Zone Mean Radiant Temperature':
+            assert outp['object_type'] == 'Zone'
+            assert outp['units'] == 'C'
+            assert str(outp['data_type']) == 'Temperature'
+
+
 def test_sqlite_run_period():
     """Test the run_period property of SQLiteResult."""
     sql_path = './tests/result/eplusout_hourly.sql'
@@ -49,10 +62,14 @@ def test_sqlite_run_period():
     assert sql_obj.run_periods[0].st_day == 6
     assert sql_obj.run_periods[0].end_month == 1
     assert sql_obj.run_periods[0].end_day == 12
+    assert len(sql_obj.run_period_names) == 1
+    assert sql_obj.run_period_names[0] == 'CUSTOMRUNPERIOD'
 
     sql_path = './tests/result/eplusout_design_days.sql'
     sql_obj = SQLiteResult(sql_path)
     assert len(sql_obj.run_periods) == 7
+    assert len(sql_obj.run_period_names) == 7
+    assert 'BOSTON LOGAN INTL ARPT ANN' in sql_obj.run_period_names[0]
 
 
 def test_sqlite_zone_sizing():
@@ -205,6 +222,7 @@ def test_sqlite_data_collections_by_output_name_timestep():
     sql_path = './tests/result/eplusout_timestep.sql'
     sql_obj = SQLiteResult(sql_path)
 
+    assert sql_obj.reporting_frequency == 6
     data_colls = sql_obj.data_collections_by_output_name(
         'Zone Lights Electric Energy')
     for coll in data_colls:
@@ -217,6 +235,7 @@ def test_sqlite_data_collections_by_output_name_daily():
     sql_path = './tests/result/eplusout_daily.sql'
     sql_obj = SQLiteResult(sql_path)
 
+    assert sql_obj.reporting_frequency == 'Daily'
     data_colls = sql_obj.data_collections_by_output_name(
         'Zone Lights Electric Energy')
     for coll in data_colls:
@@ -230,6 +249,7 @@ def test_sqlite_data_collections_by_output_name_monthly():
     sql_path = './tests/result/eplusout_monthly.sql'
     sql_obj = SQLiteResult(sql_path)
 
+    assert sql_obj.reporting_frequency == 'Monthly'
     data_colls = sql_obj.data_collections_by_output_name(
         'Zone Lights Electric Energy')
     for coll in data_colls:
