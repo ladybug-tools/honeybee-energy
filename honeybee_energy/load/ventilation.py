@@ -64,7 +64,6 @@ class Ventilation(_LoadBase):
     """
     __slots__ = ('_flow_per_person', '_flow_per_area', '_flow_per_zone',
                  '_air_changes_per_hour', '_schedule')
-    CALCULATION_METHODS = ('Sum', 'Maximum')
 
     def __init__(self, identifier, flow_per_person=0, flow_per_area=0, flow_per_zone=0,
                  air_changes_per_hour=0, schedule=None):

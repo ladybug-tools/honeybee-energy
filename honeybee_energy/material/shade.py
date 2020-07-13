@@ -444,6 +444,11 @@ class EnergyWindowMaterialShade(_EnergyWindowMaterialShadeBase):
             idf_string: A text string fully describing an EnergyPlus material.
         """
         ep_s = parse_idf_string(idf_string, 'WindowMaterial:Shade,')
+        idf_defaults = {9: 0.05, 10: 0.5, 11: 0.5, 12: 0.5, 13: 0.5, 14: 0.0}
+        for i, ep_str in enumerate(ep_s):  # fill in any default values
+            if ep_str == '' and i in idf_defaults:
+                ep_s[i] = idf_defaults[i]
+
         new_mat = cls(ep_s[0], ep_s[7], ep_s[1], ep_s[2], ep_s[3], ep_s[4],
                       ep_s[6], ep_s[5], ep_s[8], ep_s[9], ep_s[10], ep_s[14])
         new_mat.bottom_opening_multiplier = ep_s[11]
@@ -477,28 +482,40 @@ class EnergyWindowMaterialShade(_EnergyWindowMaterialShadeBase):
         assert data['type'] == 'EnergyWindowMaterialShade', \
             'Expected EnergyWindowMaterialShade. Got {}.'.format(data['type'])
 
-        optional_keys = (
-            'thickness', 'solar_transmittance', 'solar_reflectance',
-            'visible_transmittance', 'visible_reflectance', 'infrared_transmittance',
-            'emissivity', 'conductivity', 'distance_to_glass',
-            'top_opening_multiplier', 'bottom_opening_multiplier',
-            'left_opening_multiplier', 'right_opening_multiplier',
-            'airflow_permeability')
-        optional_vals = (0.005, 0.4, 0.5, 0.4, 0.4, 0, 0.9, 0.9, 0.05,
-                         0.5, 0.5, 0.5, 0.5, 0)
-        for key, val in zip(optional_keys, optional_vals):
-            if key not in data:
-                data[key] = val
+        thick = data['thickness'] if 'thickness' in data and data['thickness'] \
+            is not None else 0.005
+        t_sol = data['solar_transmittance'] if 'solar_transmittance' in data and \
+            data['solar_transmittance'] is not None else 0.4
+        r_sol = data['solar_reflectance'] if 'solar_reflectance' in data and \
+            data['solar_reflectance'] is not None else 0.5
+        t_vis = data['visible_transmittance'] if 'visible_transmittance' in data and \
+            data['visible_transmittance'] is not None else 0.4
+        r_vis = data['visible_reflectance'] if 'visible_reflectance' in data and \
+            data['visible_reflectance'] is not None else 0.5
+        t_inf = data['infrared_transmittance'] if 'infrared_transmittance' in data and \
+            data['infrared_transmittance'] is not None else 0.0
+        emis = data['emissivity'] if 'emissivity' in data and \
+            data['emissivity'] is not None else 0.9
+        cond = data['conductivity'] if 'conductivity' in data and \
+            data['conductivity'] is not None else 0.9
+        dist = data['distance_to_glass'] if 'distance_to_glass' in data and \
+            data['distance_to_glass'] is not None else 0.05
+        top = data['top_opening_multiplier'] if 'top_opening_multiplier' in data \
+            and data['top_opening_multiplier'] is not None else 0.5
+        bot = data['bottom_opening_multiplier'] if 'bottom_opening_multiplier' in data \
+            and data['bottom_opening_multiplier'] is not None else 0.5
+        left = data['left_opening_multiplier'] if 'left_opening_multiplier' in data \
+            and data['left_opening_multiplier'] is not None else 0.5
+        right = data['right_opening_multiplier'] if 'right_opening_multiplier' in data \
+            and data['right_opening_multiplier'] is not None else 0.5
+        air = data['airflow_permeability'] if 'airflow_permeability' in data \
+            and data['airflow_permeability'] is not None else 0
 
-        new_mat = cls(data['identifier'], data['thickness'], data['solar_transmittance'],
-                      data['solar_reflectance'],
-                      data['visible_transmittance'], data['visible_reflectance'],
-                      data['infrared_transmittance'], data['emissivity'],
-                      data['conductivity'], data['distance_to_glass'],
-                      data['top_opening_multiplier'], data['airflow_permeability'])
-        new_mat.bottom_opening_multiplier = data['bottom_opening_multiplier']
-        new_mat.left_opening_multiplier = data['left_opening_multiplier']
-        new_mat.right_opening_multiplier = data['right_opening_multiplier']
+        new_mat = cls(data['identifier'], thick, t_sol, r_sol, t_vis, r_vis,
+                      t_inf, emis, cond, dist, top, air)
+        new_mat.bottom_opening_multiplier = bot
+        new_mat.left_opening_multiplier = left
+        new_mat.right_opening_multiplier = right
         if 'display_name' in data and data['display_name'] is not None:
             new_mat.display_name = data['display_name']
         return new_mat
@@ -1027,6 +1044,14 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
             idf_string: A text string fully describing an EnergyPlus material.
         """
         ep_s = parse_idf_string(idf_string, 'WindowMaterial:Blind,')
+        idf_defaults = {1: 'Horizontal', 4: 0.00025, 5: 45, 6: 221.0, 7: 0.0,
+                        10: 0.0, 14: 0.0, 15: 0.0, 16: 0.0, 17: 0.0, 18: 0.0,
+                        19: 0.0, 20: 0.9, 21: 0.9, 22: 0.05, 23: 0.5, 24: 0.0,
+                        25: 0.5, 26: 0.5}
+        for i, ep_str in enumerate(ep_s):  # fill in any default values
+            if ep_str == '' and i in idf_defaults:
+                ep_s[i] = idf_defaults[i]
+
         new_mat = cls(ep_s[0], ep_s[1], ep_s[2], ep_s[3], ep_s[4], ep_s[5],
                       ep_s[6], ep_s[7], ep_s[8], ep_s[13], ep_s[14], ep_s[19],
                       ep_s[20], ep_s[22], ep_s[23])
@@ -1068,47 +1093,76 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
         assert data['type'] == 'EnergyWindowMaterialBlind', \
             'Expected EnergyWindowMaterialBlind. Got {}.'.format(data['type'])
 
-        optional_keys = (
-            'slat_orientation', 'slat_width', 'slat_separation', 'slat_thickness',
-            'slat_angle', 'slat_conductivity', 'beam_solar_transmittance',
-            'beam_solar_reflectance', 'beam_solar_reflectance_back',
-            'diffuse_solar_transmittance', 'diffuse_solar_reflectance',
-            'diffuse_solar_reflectance_back', 'beam_visible_transmittance',
-            'beam_visible_reflectance', 'beam_visible_reflectance_back',
-            'diffuse_visible_transmittance', 'diffuse_visible_reflectance',
-            'diffuse_visible_reflectance_back', 'infrared_transmittance', 'emissivity',
-            'emissivity_back', 'distance_to_glass', 'top_opening_multiplier',
-            'bottom_opening_multiplier', 'left_opening_multiplier',
-            'right_opening_multiplier')
-        optional_vals = ('Horizontal', 0.025, 0.01875, 0.001, 45, 221, 0, 0.5, None,
-                         0, 0.5, None, 0, 0.5, None, 0, 0.5, None, 0, 0.9, None, 0.05,
-                         0.5, 0.5, 0.5, 0.5, 0, 180)
-        for key, val in zip(optional_keys, optional_vals):
-            if key not in data:
-                data[key] = val
+        orient = data['slat_orientation'] if 'slat_orientation' in data and \
+            data['slat_orientation'] is not None else 'Horizontal'
+        width = data['slat_width'] if 'slat_width' in data and \
+            data['slat_width'] is not None else 0.025
+        sep = data['slat_separation'] if 'slat_separation' in data and \
+            data['slat_separation'] is not None else 0.01875
+        thick = data['slat_thickness'] if 'slat_thickness' in data and \
+            data['slat_thickness'] is not None else 0.001
+        angle = data['slat_angle'] if 'slat_angle' in data and \
+            data['slat_angle'] is not None else 45
+        cond = data['slat_conductivity'] if 'slat_conductivity' in data and \
+            data['slat_conductivity'] is not None else 221
+        t_sol = data['beam_solar_transmittance'] if 'beam_solar_transmittance' in data \
+            and data['beam_solar_transmittance'] is not None else 0.0
+        r_sol = data['beam_solar_reflectance'] if 'beam_solar_reflectance' in data and \
+            data['beam_solar_reflectance'] is not None else 0.5
+        r_sol_b = data['beam_solar_reflectance_back'] if 'beam_solar_reflectance_back' \
+            in data else None
+        td_sol = data['diffuse_solar_transmittance'] if 'diffuse_solar_transmittance' \
+            in data and data['diffuse_solar_transmittance'] is not None else 0.0
+        rd_sol = data['diffuse_solar_reflectance'] if 'diffuse_solar_reflectance' in \
+            data and data['diffuse_solar_reflectance'] is not None else 0.5
+        rd_sol_b = data['diffuse_solar_reflectance_back'] if \
+            'diffuse_solar_reflectance_back' in data else None
+
+        t_vis = data['beam_visible_transmittance'] if 'beam_visible_transmittance' in \
+            data and data['beam_visible_transmittance'] is not None else 0.0
+        r_vis = data['beam_visible_reflectance'] if 'beam_visible_reflectance' in data and \
+            data['beam_visible_reflectance'] is not None else 0.5
+        r_vis_b = data['beam_visible_reflectance_back'] if 'beam_visible_reflectance_back' \
+            in data else None
+        td_vis = data['diffuse_visible_transmittance'] if 'diffuse_visible_transmittance' \
+            in data and data['diffuse_visible_transmittance'] is not None else 0.0
+        rd_vis = data['diffuse_visible_reflectance'] if 'diffuse_visible_reflectance' \
+            in data and data['diffuse_visible_reflectance'] is not None else 0.5
+        rd_vis_b = data['diffuse_visible_reflectance_back'] if \
+            'diffuse_visible_reflectance_back' in data else None
+
+        t_inf = data['infrared_transmittance'] if 'infrared_transmittance' in data and \
+            data['infrared_transmittance'] is not None else 0.0
+        emis = data['emissivity'] if 'emissivity' in data and \
+            data['emissivity'] is not None else 0.9
+        emis_b = data['emissivity_back'] if 'emissivity_back' in data else None
+        dist = data['distance_to_glass'] if 'distance_to_glass' in data and \
+            data['distance_to_glass'] is not None else 0.05
+        top = data['top_opening_multiplier'] if 'top_opening_multiplier' in data \
+            and data['top_opening_multiplier'] is not None else 0.5
+        bot = data['bottom_opening_multiplier'] if 'bottom_opening_multiplier' in data \
+            and data['bottom_opening_multiplier'] is not None else 0.5
+        left = data['left_opening_multiplier'] if 'left_opening_multiplier' in data \
+            and data['left_opening_multiplier'] is not None else 0.5
+        right = data['right_opening_multiplier'] if 'right_opening_multiplier' in data \
+            and data['right_opening_multiplier'] is not None else 0.5
 
         new_mat = cls(
-            data['identifier'], data['slat_orientation'], data['slat_width'],
-            data['slat_separation'], data['slat_thickness'],
-            data['slat_angle'], data['slat_conductivity'],
-            data['beam_solar_transmittance'], data['beam_solar_reflectance'],
-            data['beam_visible_transmittance'], data['beam_visible_reflectance'],
-            data['infrared_transmittance'], data['emissivity'],
-            data['distance_to_glass'], data['top_opening_multiplier'])
+            data['identifier'], orient, width, sep, thick, angle, cond, t_sol, r_sol,
+            t_vis, r_vis, t_inf, emis, dist, top)
 
-        new_mat.beam_solar_reflectance_back = data['beam_solar_reflectance_back']
-        new_mat.diffuse_solar_transmittance = data['diffuse_solar_transmittance']
-        new_mat.diffuse_solar_reflectance = data['diffuse_solar_reflectance']
-        new_mat.diffuse_solar_reflectance_back = data['diffuse_solar_reflectance_back']
-        new_mat.beam_visible_reflectance_back = data['beam_visible_reflectance_back']
-        new_mat.diffuse_visible_transmittance = data['diffuse_visible_transmittance']
-        new_mat.diffuse_visible_reflectance = data['diffuse_visible_reflectance']
-        new_mat.diffuse_visible_reflectance_back = \
-            data['diffuse_visible_reflectance_back']
-        new_mat.emissivity_back = data['emissivity_back']
-        new_mat.bottom_opening_multiplier = data['bottom_opening_multiplier']
-        new_mat.left_opening_multiplier = data['left_opening_multiplier']
-        new_mat.right_opening_multiplier = data['right_opening_multiplier']
+        new_mat.beam_solar_reflectance_back = r_sol_b
+        new_mat.diffuse_solar_transmittance = td_sol
+        new_mat.diffuse_solar_reflectance = rd_sol
+        new_mat.diffuse_solar_reflectance_back = rd_sol_b
+        new_mat.beam_visible_reflectance_back = r_vis_b
+        new_mat.diffuse_visible_transmittance = td_vis
+        new_mat.diffuse_visible_reflectance = rd_vis
+        new_mat.diffuse_visible_reflectance_back = rd_vis_b
+        new_mat.emissivity_back = emis_b
+        new_mat.bottom_opening_multiplier = bot
+        new_mat.left_opening_multiplier = left
+        new_mat.right_opening_multiplier = right
         if 'display_name' in data and data['display_name'] is not None:
             new_mat.display_name = data['display_name']
         return new_mat
