@@ -206,6 +206,10 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
             idf_string: A text string fully describing an EnergyPlus material.
         """
         ep_strs = parse_idf_string(idf_string, 'Material,')
+        idf_defaults = {6: 0.9, 7: 0.7, 8: 0.7}
+        for i, ep_str in enumerate(ep_strs):  # fill in any default values
+            if ep_str == '' and i in idf_defaults:
+                ep_strs[i] = idf_defaults[i]
         ep_strs.insert(5, ep_strs.pop(1))  # move roughness to correct place
         return cls(*ep_strs)
 
@@ -235,17 +239,16 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
         assert data['type'] == 'EnergyMaterial', \
             'Expected EnergyMaterial. Got {}.'.format(data['type'])
 
-        optional_keys = ('roughness', 'thermal_absorptance', 'solar_absorptance',
-                         'visible_absorptance')
-        optional_vals = ('MediumRough', 0.9, 0.7, 0.7)
-        for key, val in zip(optional_keys, optional_vals):
-            if key not in data:
-                data[key] = val
+        rough = data['roughness'] if 'roughness' in data and \
+            data['roughness'] is not None else 'MediumRough'
+        t_abs = data['thermal_absorptance'] if 'thermal_absorptance' in data and \
+            data['thermal_absorptance'] is not None else 0.9
+        s_abs = data['solar_absorptance'] if 'solar_absorptance' in data and \
+            data['solar_absorptance'] is not None else 0.7
+        v_abs = data['visible_absorptance'] if 'visible_absorptance' in data else None
 
         new_mat = cls(data['identifier'], data['thickness'], data['conductivity'],
-                      data['density'], data['specific_heat'], data['roughness'],
-                      data['thermal_absorptance'], data['solar_absorptance'],
-                      data['visible_absorptance'])
+                      data['density'], data['specific_heat'], rough, t_abs, s_abs, v_abs)
         if 'display_name' in data and data['display_name'] is not None:
             new_mat.display_name = data['display_name']
         return new_mat
@@ -454,6 +457,10 @@ class EnergyMaterialNoMass(_EnergyMaterialOpaqueBase):
             idf_string: A text string fully describing an EnergyPlus material.
         """
         ep_strs = parse_idf_string(idf_string, 'Material:NoMass,')
+        idf_defaults = {3: 0.9, 4: 0.7, 5: 0.7}
+        for i, ep_str in enumerate(ep_strs):  # fill in any default values
+            if ep_str == '' and i in idf_defaults:
+                ep_strs[i] = idf_defaults[i]
         ep_strs.insert(2, ep_strs.pop(1))  # move roughness to correct place
         return cls(*ep_strs)
 
@@ -480,16 +487,15 @@ class EnergyMaterialNoMass(_EnergyMaterialOpaqueBase):
         assert data['type'] == 'EnergyMaterialNoMass', \
             'Expected EnergyMaterialNoMass. Got {}.'.format(data['type'])
 
-        optional_keys = ('roughness', 'thermal_absorptance', 'solar_absorptance',
-                         'visible_absorptance')
-        optional_vals = ('MediumRough', 0.9, 0.7, 0.7)
-        for key, val in zip(optional_keys, optional_vals):
-            if key not in data:
-                data[key] = val
+        rough = data['roughness'] if 'roughness' in data and \
+            data['roughness'] is not None else 'MediumRough'
+        t_abs = data['thermal_absorptance'] if 'thermal_absorptance' in data and \
+            data['thermal_absorptance'] is not None else 0.9
+        s_abs = data['solar_absorptance'] if 'solar_absorptance' in data and \
+            data['solar_absorptance'] is not None else 0.7
+        v_abs = data['visible_absorptance'] if 'visible_absorptance' in data else None
 
-        new_mat = cls(data['identifier'], data['r_value'], data['roughness'],
-                      data['thermal_absorptance'], data['solar_absorptance'],
-                      data['visible_absorptance'])
+        new_mat = cls(data['identifier'], data['r_value'], rough, t_abs, s_abs, v_abs)
         if 'display_name' in data and data['display_name'] is not None:
             new_mat.display_name = data['display_name']
         return new_mat

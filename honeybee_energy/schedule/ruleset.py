@@ -957,8 +957,8 @@ class ScheduleRuleset(object):
                 st_date = Date(int(year_sch[i + 1]), int(year_sch[i + 2]))
                 end_date = Date(int(year_sch[i + 3]), int(year_sch[i + 4]))
                 for rule in rules:
-                    rule.start_date = st_date
                     rule.end_date = end_date
+                    rule.start_date = st_date
                 all_rules.extend(rules)
             # gather the other day schedules
             holiday_sch, summer_dd_sch, winter_dd_sch = week_dd_dict[year_sch[2]]

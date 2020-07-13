@@ -316,6 +316,11 @@ class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
             idf_string: A text string fully describing an EnergyPlus material.
         """
         ep_s = parse_idf_string(idf_string, 'WindowMaterial:Glazing,')
+        idf_defaults = {10: 0, 11: 0.84, 12: 0.84, 13: 0.9, 14: 1.0, 15: 'No'}
+        for i, ep_str in enumerate(ep_s):  # fill in any default values
+            if ep_str == '' and i in idf_defaults:
+                ep_s[i] = idf_defaults[i]
+
         assert ep_s[1] == 'SpectralAverage', \
             'Expected SpectralAverage glazing type. Got {}.'.format(ep_s[1])
         new_mat = cls(ep_s[0], ep_s[3], ep_s[4], ep_s[5], ep_s[7], ep_s[8],
@@ -354,26 +359,39 @@ class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
         assert data['type'] == 'EnergyWindowMaterialGlazing', \
             'Expected EnergyWindowMaterialGlazing. Got {}.'.format(data['type'])
 
-        optional_keys = ('thickness', 'solar_transmittance', 'solar_reflectance',
-                         'solar_reflectance_back', 'visible_transmittance',
-                         'visible_reflectance', 'visible_reflectance_back',
-                         'infrared_transmittance', 'emissivity', 'emissivity_back',
-                         'conductivity', 'dirt_correction', 'solar_diffusing')
-        optional_vals = (0.003, 0.85, 0.075, None, 0.9, 0.075, None, 0,
-                         0.84, 0.84, 0.9, 1.0, False)
-        for key, val in zip(optional_keys, optional_vals):
-            if key not in data:
-                data[key] = val
+        thick = data['thickness'] if 'thickness' in data and data['thickness'] \
+            is not None else 0.003
+        t_sol = data['solar_transmittance'] if 'solar_transmittance' in data and \
+            data['solar_transmittance'] is not None else 0.85
+        r_sol = data['solar_reflectance'] if 'solar_reflectance' in data and \
+            data['solar_reflectance'] is not None else 0.075
+        r_sol_b = data['solar_reflectance_back'] if 'solar_reflectance_back' \
+            in data else None
+        t_vis = data['visible_transmittance'] if 'visible_transmittance' in data and \
+            data['visible_transmittance'] is not None else 0.9
+        r_vis = data['visible_reflectance'] if 'visible_reflectance' in data and \
+            data['visible_reflectance'] is not None else 0.075
+        r_vis_b = data['visible_reflectance_back'] if 'visible_reflectance_back' \
+            in data else None
+        t_inf = data['infrared_transmittance'] if 'infrared_transmittance' in data and \
+            data['infrared_transmittance'] is not None else 0.0
+        emis = data['emissivity'] if 'emissivity' in data and \
+            data['emissivity'] is not None else 0.84
+        emis_b = data['emissivity_back'] if 'emissivity_back' in data and \
+            data['emissivity_back'] is not None else 0.84
+        cond = data['conductivity'] if 'conductivity' in data and \
+            data['conductivity'] is not None else 0.9
+        dirt = data['dirt_correction'] if 'dirt_correction' in data and \
+            data['dirt_correction'] is not None else 1.0
+        sol_diff = data['solar_diffusing'] if 'solar_diffusing' in data and \
+            data['solar_diffusing'] is not None else False
 
-        new_mat = cls(data['identifier'], data['thickness'],
-                      data['solar_transmittance'], data['solar_reflectance'],
-                      data['visible_transmittance'], data['visible_reflectance'],
-                      data['infrared_transmittance'], data['emissivity'],
-                      data['emissivity_back'], data['conductivity'])
-        new_mat.solar_reflectance_back = data['solar_reflectance_back']
-        new_mat.visible_reflectance_back = data['visible_reflectance_back']
-        new_mat.dirt_correction = data['dirt_correction']
-        new_mat.solar_diffusing = data['solar_diffusing']
+        new_mat = cls(data['identifier'], thick, t_sol, r_sol, t_vis, r_vis,
+                      t_inf, emis, emis_b, cond)
+        new_mat.solar_reflectance_back = r_sol_b
+        new_mat.visible_reflectance_back = r_vis_b
+        new_mat.dirt_correction = dirt
+        new_mat.solar_diffusing = sol_diff
         if 'display_name' in data and data['display_name'] is not None:
             new_mat.display_name = data['display_name']
         return new_mat
@@ -548,6 +566,10 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
             idf_string: A text string fully describing an EnergyPlus material.
         """
         ep_strs = parse_idf_string(idf_string, 'WindowMaterial:SimpleGlazingSystem,')
+        idf_defaults = {3: 0.6}
+        for i, ep_str in enumerate(ep_strs):  # fill in any default values
+            if ep_str == '' and i in idf_defaults:
+                ep_strs[i] = idf_defaults[i]
         return cls(*ep_strs)
 
     @classmethod
@@ -570,9 +592,8 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
         """
         assert data['type'] == 'EnergyWindowMaterialSimpleGlazSys', \
             'Expected EnergyWindowMaterialSimpleGlazSys. Got {}.'.format(data['type'])
-        if 'vt' not in data:
-            data['vt'] = 0.6
-        new_obj = cls(data['identifier'], data['u_factor'], data['shgc'], data['vt'])
+        vt = 0.6 if 'vt' not in data else data['vt']
+        new_obj = cls(data['identifier'], data['u_factor'], data['shgc'], vt)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
         return new_obj
