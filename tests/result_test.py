@@ -195,6 +195,10 @@ def test_sqlite_data_collections_by_output_names():
         assert len(coll) == len(coll.header.analysis_period.hoys)
         assert isinstance(coll.header.data_type, (Energy, Temperature))
 
+    data_colls = sql_obj.data_collections_by_output_name(
+        ('Zone Lights Electric Energy',))
+    assert len(data_colls) == 7
+
 
 def test_sqlite_data_collections_by_output_name_openstudio():
     """Test the data_collections_by_output_name method with openstudio values."""

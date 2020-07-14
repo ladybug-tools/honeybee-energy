@@ -9,6 +9,7 @@ from ..load.equipment import ElectricEquipment, GasEquipment
 from ..load.infiltration import Infiltration
 from ..load.ventilation import Ventilation
 from ..load.setpoint import Setpoint
+from ..ventcool.control import VentilationControl
 
 # import all hvac modules to ensure they are all re-serialize-able in Room.from_dict
 from ..hvac import HVAC_TYPES_DICT
@@ -49,12 +50,13 @@ class RoomEnergyProperties(object):
         * infiltration
         * ventilation
         * setpoint
+        * window_vent_control
         * is_conditioned
     """
 
     __slots__ = ('_host', '_program_type', '_construction_set', '_hvac',
                  '_people', '_lighting', '_electric_equipment', '_gas_equipment',
-                 '_infiltration', '_ventilation', '_setpoint')
+                 '_infiltration', '_ventilation', '_setpoint', '_window_vent_control')
 
     def __init__(self, host, program_type=None, construction_set=None, hvac=None):
         """Initialize Room energy properties."""
@@ -72,6 +74,7 @@ class RoomEnergyProperties(object):
         self._infiltration = None
         self._ventilation = None
         self._setpoint = None
+        self._window_vent_control = None
 
     @property
     def host(self):
@@ -256,6 +259,22 @@ class RoomEnergyProperties(object):
         self._setpoint = value
 
     @property
+    def window_vent_control(self):
+        """Get or set a VentilationControl object to dictate the opening of windows.
+
+        If None, the windows will never open.
+        """
+        return self._window_vent_control
+
+    @window_vent_control.setter
+    def window_vent_control(self, value):
+        if value is not None:
+            assert isinstance(value, VentilationControl), 'Expected VentilationControl ' \
+                'object for Room window_vent_control. Got {}'.format(type(value))
+            value.lock()   # lock because we don't duplicate the object
+        self._window_vent_control = value
+
+    @property
     def is_conditioned(self):
         """Boolean to note whether the Room is conditioned."""
         return self._hvac is not None
@@ -266,6 +285,22 @@ class RoomEnergyProperties(object):
         The identifier of this system will be derived from the room identifier.
         """
         self.hvac = IdealAirSystem('{}_IdealAir'.format(self.host.identifier))
+
+    def assign_ventilation_opening(self, vent_opening):
+        """Assign a VentilationOpening object to all operable Apertures on this Room.
+
+        This method will handle the duplication of the VentilationOpening object to
+        ensure that each aperture gets a unique object that can export the correct
+        area and height properties of its parent.
+
+        Args:
+            vent_opening: A VentilationOpening object to be duplicated and assigned
+                to all of the operable apertures of the Room.
+        """
+        for face in self.host.faces:
+            for ap in face.apertures:
+                if ap.is_operable:
+                    ap.properties.energy.vent_opening = vent_opening.duplicate()
 
     def add_prefix(self, prefix):
         """Change the identifier attributes unique to this object by adding a prefix.
@@ -296,6 +331,7 @@ class RoomEnergyProperties(object):
         self._infiltration = None
         self._ventilation = None
         self._setpoint = None
+        self._window_vent_control = None
 
     @classmethod
     def from_dict(cls, data, host):
@@ -323,6 +359,7 @@ class RoomEnergyProperties(object):
             "infiltration": {},  # A Infiltration dictionary
             "ventilation": {},  # A Ventilation dictionary
             "setpoint": {}  # A Setpoint dictionary
+            "window_vent_control": {}  # A VentilationControl dictionary
             }
         """
         assert data['type'] == 'RoomEnergyProperties', \
@@ -353,6 +390,9 @@ class RoomEnergyProperties(object):
             new_prop.ventilation = Ventilation.from_dict(data['ventilation'])
         if 'setpoint' in data and data['setpoint'] is not None:
             new_prop.setpoint = Setpoint.from_dict(data['setpoint'])
+        if 'window_vent_control' in data and data['window_vent_control'] is not None:
+            new_prop.window_vent_control = \
+                VentilationControl.from_dict(data['window_vent_control'])
 
         return new_prop
 
@@ -403,6 +443,10 @@ class RoomEnergyProperties(object):
         if 'setpoint' in abridged_data and abridged_data['setpoint'] is not None:
             self.setpoint = Setpoint.from_dict_abridged(
                 abridged_data['setpoint'], schedules)
+        if 'window_vent_control' in abridged_data and \
+                abridged_data['window_vent_control'] is not None:
+            self.window_vent_control = VentilationControl.from_dict_abridged(
+                abridged_data['window_vent_control'], schedules)
 
     def to_dict(self, abridged=False):
         """Return Room energy properties as a dictionary.
@@ -449,6 +493,9 @@ class RoomEnergyProperties(object):
             base['energy']['ventilation'] = self._ventilation.to_dict(abridged)
         if self._setpoint is not None:
             base['energy']['setpoint'] = self._setpoint.to_dict(abridged)
+        if self._window_vent_control is not None:
+            base['energy']['window_vent_control'] = \
+                self._window_vent_control.to_dict(abridged)
 
         return base
 
@@ -469,6 +516,7 @@ class RoomEnergyProperties(object):
         new_room._infiltration = self._infiltration
         new_room._ventilation = self._ventilation
         new_room._setpoint = self._setpoint
+        new_room._window_vent_control = self._window_vent_control
         return new_room
 
     def ToString(self):

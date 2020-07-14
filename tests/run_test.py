@@ -4,10 +4,14 @@ from honeybee_energy.run import measure_compatible_model_json, run_idf, \
 from honeybee_energy.result.err import Err
 from honeybee_energy.lib.programtypes import office_program
 from honeybee_energy.lib.materials import clear_glass, air_gap
+import honeybee_energy.lib.scheduletypelimits as schedule_types
 from honeybee_energy.material.shade import EnergyWindowMaterialShade
 from honeybee_energy.construction.window import WindowConstruction
 from honeybee_energy.construction.windowshade import WindowConstructionShade
 from honeybee_energy.schedule.ruleset import ScheduleRuleset
+from honeybee_energy.load.setpoint import Setpoint
+from honeybee_energy.ventcool.opening import VentilationOpening
+from honeybee_energy.ventcool.control import VentilationControl
 from honeybee_energy.simulation.parameter import SimulationParameter
 from honeybee_energy.measure import Measure
 
@@ -198,6 +202,59 @@ def test_run_idf_window_shade():
 
     # write the final string into an IDF
     idf = os.path.join(folders.default_simulation_folder, 'test_file_shd', 'in.idf')
+    write_to_file(idf, idf_str, True)
+
+    # prepare the IDF for simulation
+    epw_file = './tests/simulation/chicago.epw'
+    prepare_idf_for_simulation(idf, epw_file)
+
+    # run the IDF through EnergyPlus
+    sql, zsz, rdd, html, err = run_idf(idf, epw_file)
+
+    assert os.path.isfile(sql)
+    assert os.path.isfile(err)
+    err_obj = Err(err)
+    assert 'EnergyPlus Completed Successfully' in err_obj.file_contents
+
+
+def test_run_idf_window_ventilation():
+    """Test the Model.to.idf and run_idf method with a model possessing operable windows."""
+    room = Room.from_box('TinyHouseZone', 5, 10, 3)
+    room.properties.energy.add_default_ideal_air()
+    south_face = room[3]
+    north_face = room[1]
+    south_face.apertures_by_ratio(0.4, 0.01)
+    north_face.apertures_by_ratio(0.4, 0.01)
+    south_face.apertures[0].is_operable = True
+    north_face.apertures[0].is_operable = True
+
+    heat_setpt = ScheduleRuleset.from_constant_value(
+        'House Heating', 20, schedule_types.temperature)
+    cool_setpt = ScheduleRuleset.from_constant_value(
+        'House Cooling', 28, schedule_types.temperature)
+    setpoint = Setpoint('House Setpoint', heat_setpt, cool_setpt)
+    room.properties.energy.setpoint = setpoint
+
+    vent_control = VentilationControl(22, 27, 12, 30)
+    room.properties.energy.window_vent_control = vent_control
+    ventilation = VentilationOpening(wind_cross_vent=True)
+    room.properties.energy.assign_ventilation_opening(ventilation)
+
+    model = Model('TinyHouse', [room])
+
+    # Get the input SimulationParameter
+    sim_par = SimulationParameter()
+    sim_par.output.add_zone_energy_use()
+    ddy_file = './tests/ddy/chicago.ddy'
+    sim_par.sizing_parameter.add_from_ddy_996_004(ddy_file)
+    sim_par.run_period.end_date = Date(6, 7)
+    sim_par.run_period.start_date = Date(6, 1)
+
+    # create the IDF string for simulation paramters and model
+    idf_str = '\n\n'.join((sim_par.to_idf(), model.to.idf(model)))
+
+    # write the final string into an IDF
+    idf = os.path.join(folders.default_simulation_folder, 'test_file_window_vent', 'in.idf')
     write_to_file(idf, idf_str, True)
 
     # prepare the IDF for simulation
