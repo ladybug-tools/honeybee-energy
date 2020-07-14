@@ -3,6 +3,7 @@
 from ..construction.dictutil import dict_to_construction
 from ..construction.window import WindowConstruction
 from ..construction.windowshade import WindowConstructionShade
+from ..ventcool.opening import VentilationOpening
 from ..lib.constructionsets import generic_construction_set
 
 
@@ -14,19 +15,23 @@ class ApertureEnergyProperties(object):
         construction: An optional Honeybee WindowConstruction or WindowConstructionShade
             object for the aperture. If None, it will be set by the parent Room
             ConstructionSet or the the Honeybee default generic ConstructionSet.
+        vent_opening: An optional VentilationOpening to specify the operable
+            portion of the Aperture. (Default: None).
 
     Properties:
         * host
         * construction
+        * vent_opening
         * is_construction_set_on_object
     """
 
-    __slots__ = ('_host', '_construction')
+    __slots__ = ('_host', '_construction', '_vent_opening')
 
-    def __init__(self, host, construction=None):
+    def __init__(self, host, construction=None, vent_opening=None):
         """Initialize Aperture energy properties."""
         self._host = host
         self.construction = construction
+        self.vent_opening = vent_opening
 
     @property
     def host(self):
@@ -68,6 +73,30 @@ class ApertureEnergyProperties(object):
         self._construction = value
 
     @property
+    def vent_opening(self):
+        """Get or set a VentilationOpening object to specify the operable portion."""
+        return self._vent_opening
+
+    @vent_opening.setter
+    def vent_opening(self, value):
+        if value is not None:
+            assert isinstance(value, VentilationOpening), 'Expected VentilationOpening ' \
+                'for Aperture vent_opening. Got {}'.format(type(value))
+            assert self.host.is_operable, 'Aperture must have a "True" is_operable ' \
+                'property in order to assign vent_opening energy properties.'
+            if value._parent is None:
+                value._parent = self.host
+            elif value._parent.identifier != self.host.identifier:
+                raise ValueError(
+                    '{0} objects can be assigned to only one parent.\n{0} cannot be '
+                    'assigned to Aperture "{1}" since it is already assigned to "{2}".\n'
+                    'Try duplicating the object and then assign it.'.format(
+                        'VentilationOpening', self.host.identifier,
+                        value._parent.identifier))
+            value.lock()   # lock because we don't duplicate the object
+        self._vent_opening = value
+
+    @property
     def is_construction_set_on_object(self):
         """Boolean noting if construction is assigned on the level of this Aperture.
 
@@ -81,6 +110,7 @@ class ApertureEnergyProperties(object):
         This means the Aperture's construction will be assigned by a ConstructionSet.
         """
         self._construction = None
+        self._vent_opening = None
 
     @classmethod
     def from_dict(cls, data, host):
@@ -98,7 +128,8 @@ class ApertureEnergyProperties(object):
 
             {
             "type": 'ApertureEnergyProperties',
-            "construction": {}  # WindowConstruction or WindowConstructionShade dict
+            "construction": {},  # WindowConstruction or WindowConstructionShade dict
+            "vent_opening": {}  # VentilationOpening dict
             }
         """
         assert data['type'] == 'ApertureEnergyProperties', \
@@ -107,6 +138,8 @@ class ApertureEnergyProperties(object):
         new_prop = cls(host)
         if 'construction' in data and data['construction'] is not None:
             new_prop.construction = dict_to_construction(data['construction'])
+        if 'vent_opening' in data and data['vent_opening'] is not None:
+            new_prop.vent_opening = VentilationOpening.from_dict(data['vent_opening'])
         return new_prop
 
     def apply_properties_from_dict(self, abridged_data, constructions):
@@ -120,6 +153,9 @@ class ApertureEnergyProperties(object):
         """
         if 'construction' in abridged_data and abridged_data['construction'] is not None:
             self.construction = constructions[abridged_data['construction']]
+        if 'vent_opening' in abridged_data and abridged_data['vent_opening'] is not None:
+            self.vent_opening = \
+                VentilationOpening.from_dict(abridged_data['vent_opening'])
 
     def to_dict(self, abridged=False):
         """Return energy properties as a dictionary.
@@ -135,6 +171,8 @@ class ApertureEnergyProperties(object):
         if self._construction is not None:
             base['energy']['construction'] = \
                 self._construction.identifier if abridged else self._construction.to_dict()
+        if self._vent_opening is not None:
+            base['energy']['vent_opening'] = self._vent_opening.to_dict()
         return base
 
     def duplicate(self, new_host=None):
@@ -144,7 +182,7 @@ class ApertureEnergyProperties(object):
             If None, the properties will be duplicated with the same host.
         """
         _host = new_host or self._host
-        return ApertureEnergyProperties(_host, self._construction)
+        return ApertureEnergyProperties(_host, self._construction, self._vent_opening)
 
     def ToString(self):
         return self.__repr__()

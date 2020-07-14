@@ -209,12 +209,15 @@ class SQLiteResult(object):
         try:
             # extract all indices in the ReportDataDictionary with the output_name
             c = conn.cursor()
-            if isinstance(output_name, str):
+            if isinstance(output_name, str):  # assume it's a single output
                 c.execute('SELECT * FROM ReportDataDictionary WHERE Name=?',
                           (output_name,))
-            else:
+            elif len(output_name) == 1:  # assume it's a list
+                c.execute('SELECT * FROM ReportDataDictionary WHERE Name=?',
+                          (output_name[0],))
+            else:  # assume it is a list of outputs
                 c.execute('SELECT * FROM ReportDataDictionary WHERE Name IN {}'.format(
-                    output_name))
+                    tuple(output_name)))
             header_rows = c.fetchall()
 
             # if nothing was found, return an empty list

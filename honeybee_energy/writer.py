@@ -120,11 +120,12 @@ def door_to_idf(door):
 
     Note that the resulting string does not include full construction definitions
     but it will include a WindowShadingControl definition if a WindowConstructionShade
-    is assigned to the door.
+    is assigned to the door. It will also include a ventilation object if the door
+    has a VentilationOpening object assigned to it.
 
-    Also note that shades assigned to the Aperture are not included in the resulting
+    Also note that shades assigned to the Door are not included in the resulting
     string. To write these objects into a final string, you must loop through the
-    Aperture.shades, and call the to.idf method on each one.
+    Door.shades, and call the to.idf method on each one.
 
     Args:
         door: A honeybee Door for which an IDF representation will be returned.
@@ -167,11 +168,18 @@ def door_to_idf(door):
     fen_str = generate_idf_string('FenestrationSurface:Detailed', values, comments)
 
     # create the WindowShadingControl object if it is needed
-    if not construction.has_shade:
-        return fen_str
-    else:
+    if construction.has_shade:
         shd_prop_str = construction.to_shading_control_idf(door.identifier, parent_room)
-        return '\n\n'.join((fen_str, shd_prop_str))
+        fen_str = '\n\n'.join((fen_str, shd_prop_str))
+
+    # create the VentilationOpening object if it is needed
+    if door.properties.energy.vent_opening is not None:
+        try:
+            vent_str = door.properties.energy.vent_opening.to_idf()
+            fen_str = '\n\n'.join((fen_str, vent_str))
+        except AssertionError:  # door does not have a parent room
+            pass
+    return fen_str
 
 
 def aperture_to_idf(aperture):
@@ -179,7 +187,8 @@ def aperture_to_idf(aperture):
 
     Note that the resulting string does not include full construction definitions
     but it will include a WindowShadingControl definition if a WindowConstructionShade
-    is assigned to the aperture.
+    is assigned to the aperture. It will also include a ventilation object if the
+    aperture has a VentilationOpening object assigned to it.
 
     Also note that shades assigned to the Aperture are not included in the resulting
     string. To write these objects into a final string, you must loop through the
@@ -226,12 +235,19 @@ def aperture_to_idf(aperture):
     fen_str = generate_idf_string('FenestrationSurface:Detailed', values, comments)
 
     # create the WindowShadingControl object if it is needed
-    if not construction.has_shade:
-        return fen_str
-    else:
+    if construction.has_shade:
         shd_prop_str = construction.to_shading_control_idf(
             aperture.identifier, parent_room)
-        return '\n\n'.join((fen_str, shd_prop_str))
+        fen_str = '\n\n'.join((fen_str, shd_prop_str))
+    
+    # create the VentilationOpening object if it is needed
+    if aperture.properties.energy.vent_opening is not None:
+        try:
+            vent_str = aperture.properties.energy.vent_opening.to_idf()
+            fen_str = '\n\n'.join((fen_str, vent_str))
+        except AssertionError:  # aperture does not have a parent room
+            pass
+    return fen_str
 
 
 def face_to_idf(face):

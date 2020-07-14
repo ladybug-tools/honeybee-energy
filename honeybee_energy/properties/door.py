@@ -4,6 +4,7 @@ from ..construction.dictutil import dict_to_construction
 from ..construction.opaque import OpaqueConstruction
 from ..construction.window import WindowConstruction
 from ..construction.windowshade import WindowConstructionShade
+from ..ventcool.opening import VentilationOpening
 from ..lib.constructionsets import generic_construction_set
 
 
@@ -17,19 +18,23 @@ class DoorEnergyProperties(object):
             property set to True to assign a WindowConstruction or
             WindowConstructionShade. If None, it will be set by the parent
             Room ConstructionSet or the the Honeybee default generic ConstructionSet.
+        vent_opening: An optional VentilationOpening to specify the operable
+            portion of the Door. (Default: None).
 
     Properties:
         * host
         * construction
+        * vent_opening
         * is_construction_set_on_object
     """
 
-    __slots__ = ('_host', '_construction')
+    __slots__ = ('_host', '_construction', '_vent_opening')
 
-    def __init__(self, host, construction=None):
+    def __init__(self, host, construction=None, vent_opening=None):
         """Initialize Door energy properties."""
         self._host = host
         self.construction = construction
+        self.vent_opening = vent_opening
 
     @property
     def host(self):
@@ -75,6 +80,28 @@ class DoorEnergyProperties(object):
         self._construction = value
 
     @property
+    def vent_opening(self):
+        """Get or set a VentilationOpening object to specify the operable portion."""
+        return self._vent_opening
+
+    @vent_opening.setter
+    def vent_opening(self, value):
+        if value is not None:
+            assert isinstance(value, VentilationOpening), 'Expected VentilationOpening ' \
+                'for Door vent_opening. Got {}'.format(type(value))
+            if value._parent is None:
+                value._parent = self.host
+            elif value._parent.identifier != self.host.identifier:
+                raise ValueError(
+                    '{0} objects can be assigned to only one parent.\n{0} cannot be '
+                    'assigned to Door "{1}" since it is already assigned to "{2}".\n'
+                    'Try duplicating the object and then assign it.'.format(
+                        'VentilationOpening', self.host.identifier,
+                        value._parent.identifier))
+            value.lock()   # lock because we don't duplicate the object
+        self._vent_opening = value
+
+    @property
     def is_construction_set_on_object(self):
         """Boolean noting if construction is assigned on the level of this Door.
 
@@ -88,6 +115,7 @@ class DoorEnergyProperties(object):
         This means that the Door's construction will be assigned by a ConstructionSet.
         """
         self._construction = None
+        self._vent_opening = None
 
     @classmethod
     def from_dict(cls, data, host):
@@ -105,7 +133,8 @@ class DoorEnergyProperties(object):
 
             {
             "type": 'DoorEnergyProperties',
-            "construction": {}  # OpaqueConstruction or WindowConstruction dict
+            "construction": {},  # OpaqueConstruction or WindowConstruction dict
+            "vent_opening": {}  # VentilationOpening dict
             }
         """
         assert data['type'] == 'DoorEnergyProperties', \
@@ -114,6 +143,8 @@ class DoorEnergyProperties(object):
         new_prop = cls(host)
         if 'construction' in data and data['construction'] is not None:
             new_prop.construction = dict_to_construction(data['construction'])
+        if 'vent_opening' in data and data['vent_opening'] is not None:
+            new_prop.vent_opening = VentilationOpening.from_dict(data['vent_opening'])
         return new_prop
 
     def apply_properties_from_dict(self, abridged_data, constructions):
@@ -127,6 +158,9 @@ class DoorEnergyProperties(object):
         """
         if 'construction' in abridged_data and abridged_data['construction'] is not None:
             self.construction = constructions[abridged_data['construction']]
+        if 'vent_opening' in abridged_data and abridged_data['vent_opening'] is not None:
+            self.vent_opening = \
+                VentilationOpening.from_dict(abridged_data['vent_opening'])
 
     def to_dict(self, abridged=False):
         """Return energy properties as a dictionary.
@@ -143,6 +177,8 @@ class DoorEnergyProperties(object):
             base['energy']['construction'] = \
                 self._construction.identifier if abridged else \
                 self._construction.to_dict()
+        if self._vent_opening is not None:
+            base['energy']['vent_opening'] = self._vent_opening.to_dict()
         return base
 
     def duplicate(self, new_host=None):
@@ -153,7 +189,7 @@ class DoorEnergyProperties(object):
                 If None, the properties will be duplicated with the same host.
         """
         _host = new_host or self._host
-        return DoorEnergyProperties(_host, self._construction)
+        return DoorEnergyProperties(_host, self._construction, self._vent_opening)
 
     def ToString(self):
         return self.__repr__()
