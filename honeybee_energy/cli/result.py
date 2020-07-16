@@ -436,14 +436,15 @@ def output_csv_queryable(result_sql, model_json, run_period_name, output_names,
         date_times = []
         if isinstance(base_coll, HourlyContinuousCollection):
             for dat_t in base_coll.datetimes:
-                date_times.append([dat_t.month, dat_t.day, dat_t.hour, dat_t.minute])
+                date_times.append(
+                    [str(dat_t.month), str(dat_t.day), str(dat_t.hour), str(dat_t.minute)])
         elif isinstance(base_coll, DailyCollection):
             for dat_t in base_coll.datetimes:
                 date_obj = Date.from_doy(dat_t)
-                date_times.append([date_obj.month, date_obj.day, 0, 0])
+                date_times.append([str(date_obj.month), str(date_obj.day), '0', '0'])
         elif isinstance(base_coll, MonthlyCollection):
             for dat_t in base_coll.datetimes:
-                date_times.append([dat_t, 1, 0, 0])
+                date_times.append([str(dat_t), '1', '0', '0'])
 
         # determine the output folder location
         if folder is None:
@@ -451,12 +452,14 @@ def output_csv_queryable(result_sql, model_json, run_period_name, output_names,
 
         # write everything into the output CSVs
         def write_rows(csv_file, datas, identifier):
-            data_rows = [row[:] + [identifier] for row in date_times]
+            data_rows = [row[:] for row in date_times]  # copy datetimes
+            for row in data_rows:
+                row.append(identifier)
             for data in datas:
                 for i, val in enumerate(data.values):
-                    data_rows[i].append(val)
+                    data_rows[i].append(str(val))
             for row in data_rows:
-                csv_file.write(','.join([str(item) for item in row]) + '\n')
+                csv_file.write(','.join(row) + '\n')
 
         col_names_dict = {}
         if len(room_csv_data) != 0:
@@ -464,7 +467,7 @@ def output_csv_queryable(result_sql, model_json, run_period_name, output_names,
             col_names_dict['eplusout_room'] = \
                 ['month', 'day', 'hour', 'minute', 'identifier'] + \
                 [data[0][1].header.metadata['type'].replace(' ', '_').lower()
-                 for data in room_csv_data]
+                for data in room_csv_data]
             with open(room_file, 'w') as rm_file:
                 for outp_tups in zip(*room_csv_data):
                     datas = [tup[1] for tup in outp_tups]
@@ -475,7 +478,7 @@ def output_csv_queryable(result_sql, model_json, run_period_name, output_names,
             col_names_dict['eplusout_face'] = \
                 ['month', 'day', 'hour', 'minute', 'identifier'] + \
                 [data[0][1].header.metadata['type'].replace(' ', '_').lower()
-                 for data in face_csv_data]
+                for data in face_csv_data]
             with open(room_file, 'w') as rm_file:
                 for outp_tups in zip(*face_csv_data):
                     datas = [tup[1] for tup in outp_tups]
