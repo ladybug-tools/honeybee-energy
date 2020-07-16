@@ -27,6 +27,7 @@ class SQLiteResult(object):
         * reporting_frequency
         * run_periods
         * run_period_names
+        * run_period_indices
         * available_outputs
         * available_outputs_info
         * zone_cooling_sizes
@@ -48,6 +49,7 @@ class SQLiteResult(object):
         self._reporting_frequency = None
         self._run_periods = None
         self._run_period_names = None
+        self._run_period_indices = None
         self._available_outputs = None
         self._available_outputs_info = None
         self._zone_cooling_sizes = None
@@ -105,6 +107,16 @@ class SQLiteResult(object):
         if not self._run_period_names:
             self._extract_full_run_periods()
         return tuple(self._run_period_names)
+
+    @property
+    def run_period_indices(self):
+        """Get an array integers used to identify the run periods in the time table.
+
+        These will align with the run_periods property.
+        """
+        if not self._run_period_indices:
+            self._extract_full_run_period_indices()
+        return self._run_period_indices
 
     @property
     def available_outputs(self):
@@ -209,15 +221,16 @@ class SQLiteResult(object):
         try:
             # extract all indices in the ReportDataDictionary with the output_name
             c = conn.cursor()
+            cols = 'ReportDataDictionaryIndex, IndexGroup, KeyValue, Name, Units'
             if isinstance(output_name, str):  # assume it's a single output
-                c.execute('SELECT * FROM ReportDataDictionary WHERE Name=?',
-                          (output_name,))
+                query = 'SELECT {} FROM ReportDataDictionary WHERE Name=?'.format(cols)
+                c.execute(query, (output_name,))
             elif len(output_name) == 1:  # assume it's a list
-                c.execute('SELECT * FROM ReportDataDictionary WHERE Name=?',
-                          (output_name[0],))
+                query = 'SELECT {} FROM ReportDataDictionary WHERE Name=?'.format(cols)
+                c.execute(query, (output_name[0],))
             else:  # assume it is a list of outputs
-                c.execute('SELECT * FROM ReportDataDictionary WHERE Name IN {}'.format(
-                    tuple(output_name)))
+                c.execute('SELECT {} FROM ReportDataDictionary WHERE Name IN {}'.format(
+                    cols, tuple(output_name)))
             header_rows = c.fetchall()
 
             # if nothing was found, return an empty list
@@ -241,8 +254,8 @@ class SQLiteResult(object):
 
         # get the analysis period and the reporting frequency from the time table
         st_time, end_time = data[0][1], data[-1][1]
-        run_period, report_frequency, dday = self._extract_run_period(st_time, end_time)
-        if dday:  # there are multiple analysis periods; get them all
+        run_period, report_frequency, mult = self._extract_run_period(st_time, end_time)
+        if mult:  # there are multiple analysis periods; get them all
             run_period = self._extract_all_run_period(
                 report_frequency, run_period.timestep, run_period.is_leap_year)
 
@@ -251,8 +264,8 @@ class SQLiteResult(object):
         data_type = self._data_type_from_unit(units)
         meta_datas = []
         for row in header_rows:
-            obj_type = row[3] if 'Surface' not in output_name else 'Surface'
-            meta_datas.append({'type': row[6], obj_type: row[5]})
+            obj_type = row[1] if 'Surface' not in output_name else 'Surface'
+            meta_datas.append({'type': row[3], obj_type: row[2]})
         headers = []
         if isinstance(run_period, list):  # multiple run periods
             for runper in run_period:
@@ -295,6 +308,86 @@ class SQLiteResult(object):
         for data in data_colls:
             data._validated_a_period = True
 
+        return data_colls
+
+    def data_collections_by_output_name_run_period(self, output_name, run_period_index):
+        """Get an array of Ladybug DataCollections for an output and a run period index.
+
+        Args:
+            output_name: The name of an EnergyPlus output to be retrieved from
+                the SQLite result file as a string.
+            run_period_index: An integer taken from the run_period_indices property
+                of this object, which will be used to select out data collections
+                for just one run period in the SQL file.
+
+        Returns:
+            An array of data collections of the requested output type. This will
+            be an empty list if no output of the requested name was found in the
+            file.
+        """
+        conn = sqlite3.connect(self.file_path)
+        try:
+            # extract all indices in the ReportDataDictionary with the output_name
+            c = conn.cursor()
+            cols = 'ReportDataDictionaryIndex, IndexGroup, KeyValue, Name, Units'
+            query = 'SELECT {} FROM ReportDataDictionary WHERE Name=?'.format(cols)
+            c.execute(query, (output_name,))
+            header_rows = c.fetchall()
+
+            # if nothing was found, return an empty list
+            if len(header_rows) == 0:
+                conn.close()  # ensure connection is always closed
+                return []
+
+            # extract all data of the relevant type from ReportData
+            rel_indices = tuple(row[0] for row in header_rows)
+            query = 'SELECT ReportData.Value, ReportData.TimeIndex ' \
+                'FROM ReportData ' \
+                'INNER JOIN Time ON ReportData.TimeIndex=Time.TimeIndex ' \
+                'WHERE ReportData.ReportDataDictionaryIndex IN {} AND ' \
+                'Time.EnvironmentPeriodIndex=?'.format(rel_indices)
+            c.execute(query, (run_period_index,))
+            data = c.fetchall()
+            conn.close()  # ensure connection is always closed
+        except Exception as e:
+            conn.close()  # ensure connection is always closed
+            raise Exception(str(e))
+
+        # get the analysis period and the reporting frequency from the time table
+        st_time, end_time = data[0][1], data[-1][1]
+        run_period, report_frequency, mult = self._extract_run_period(st_time, end_time)
+
+        # create the header objects to be used for the resulting data collections
+        units = header_rows[0][-1] if header_rows[0][-1] != 'J' else 'kWh'
+        data_type = self._data_type_from_unit(units)
+        headers = []
+        for row in header_rows:
+            obj_type = row[1] if 'Surface' not in output_name else 'Surface'
+            m_data = {'type': row[3], obj_type: row[2]}
+            headers.append(Header(data_type, units, run_period, m_data))
+
+        # format the data such that we have one list for each of the header rows
+        all_values = self._partition_and_convert_timeseries(data, len(header_rows)) if \
+            units == 'kWh' else self._partition_timeseries(data, len(header_rows))
+
+        # create the final data collections
+        data_colls = []
+        if report_frequency == 'Hourly' or isinstance(report_frequency, int):
+            for head, values in zip(headers, all_values):
+                data_colls.append(HourlyContinuousCollection(head, values))
+        elif report_frequency == 'Daily':
+            for head, values in zip(headers, all_values):
+                data_colls.append(DailyCollection(
+                    head, values, head.analysis_period.doys_int))
+        elif report_frequency == 'Monthly':
+            for head, values in zip(headers, all_values):
+                data_colls.append(MonthlyCollection(
+                    head, values, head.analysis_period.months_int))
+        else:  # Annual data; just return the values as they are
+            return all_values
+        # ensure all imported data gets marked as valid; this increases speed elsewhere
+        for data in data_colls:
+            data._validated_a_period = True
         return data_colls
 
     def tabular_data_by_name(self, table_name):
@@ -367,6 +460,21 @@ class SQLiteResult(object):
             self._run_periods.append(aper)
             self._run_period_names.append(row[0])
 
+    def _extract_full_run_period_indices(self):
+        """Extract all RunPeriod indices from the Time table of the SQLite file."""
+        conn = sqlite3.connect(self.file_path)
+        try:
+            # extract all of the data from the Time table
+            c = conn.cursor()
+            c.execute('SELECT EnvironmentPeriodIndex FROM Time '
+                      'GROUP BY EnvironmentPeriodIndex')
+            e_periods = c.fetchall()
+            conn.close()  # ensure connection is always closed
+        except Exception as e:
+            conn.close()  # ensure connection is always closed
+            raise Exception(str(e))
+        self._run_period_indices = tuple(ind[0] for ind in e_periods)
+
     def _extract_available_outputs(self):
         """Extract the list of all available outputs from the SQLite file."""
         conn = sqlite3.connect(self.file_path)
@@ -401,14 +509,13 @@ class SQLiteResult(object):
         try:
             # extract the start and end times from the Time table
             c = conn.cursor()
-            c.execute('SELECT * FROM Time')
-            start = c.fetchone()
+            c.execute('SELECT Interval FROM Time')
+            min_per_step = c.fetchone()
             conn.close()  # ensure connection is always closed
         except Exception as e:
             conn.close()  # ensure connection is always closed
             raise Exception(str(e))
-        min_per_step = start[7]
-        return int(60 / min_per_step)
+        return int(60 / min_per_step[0])
 
     def _extract_zone_sizes(self, load_type):
         """Get all of the ZoneSize objects of a certain load type.
@@ -475,10 +582,12 @@ class SQLiteResult(object):
         conn = sqlite3.connect(self.file_path)
         try:
             # extract the start and end times from the Time table
+            query_str = 'SELECT Year, Month, Day, Interval, IntervalType, ' \
+                'EnvironmentPeriodIndex FROM Time WHERE TimeIndex=?'
             c = conn.cursor()
-            c.execute('SELECT * FROM Time WHERE TimeIndex=?', (st_time,))
+            c.execute(query_str, (st_time,))
             start = c.fetchone()
-            c.execute('SELECT * FROM Time WHERE TimeIndex=?', (end_time,))
+            c.execute(query_str, (end_time,))
             end = c.fetchone()
             conn.close()  # ensure connection is always closed
         except Exception as e:
@@ -486,13 +595,12 @@ class SQLiteResult(object):
             raise Exception(str(e))
 
         # check whether the data was for a design day
-        dday_period = True if start[10] in ('SummerDesignDay', 'WinterDesignDay') \
-            else False
+        multiple_period = True if start[5] != end[5] else False
 
         # set the reporting frequency by the interval type
-        interval_typ = start[8]
+        interval_typ = start[4]
         if interval_typ <= 1:
-            min_per_step = start[7]
+            min_per_step = start[3]
             aper_timestep = int(60 / min_per_step)
             reporting_frequency = aper_timestep
         else:
@@ -501,18 +609,18 @@ class SQLiteResult(object):
             min_per_step = 60
 
         # convert the extracted data into an AnalysisPeriod object
-        leap_year = True if end[1] % 4 == 0 else False
+        leap_year = True if end[0] != 0 and end[0] % 4 == 0 else False
         if reporting_frequency == 'Monthly':
-            st_date = DateTime(start[2], 1, 0)
+            st_date = DateTime(start[1], 1, 0)
         else:
-            st_date = DateTime(start[2], start[3], 0)
-        end_date = DateTime(end[2], end[3], 0)
+            st_date = DateTime(start[1], start[2], 0)
+        end_date = DateTime(end[1], end[2], 0)
         end_date = end_date.add_minute(1440 - min_per_step)
         run_period = AnalysisPeriod(
             st_date.month, st_date.day, st_date.hour, end_date.month, end_date.day,
             end_date.hour, aper_timestep, leap_year)
 
-        return run_period, reporting_frequency, dday_period
+        return run_period, reporting_frequency, multiple_period
 
     def _extract_all_run_period(self, reporting_frequency, timestep, leap_year):
         """Extract all run period objects the Time table in the SQLite file.
@@ -522,8 +630,8 @@ class SQLiteResult(object):
             timestep: Integer to note the timestep of the analsis periods. By the
                 time this function is running, this value should have been gotten
                 from the _extract_run_period method
-            end_time: Boolean to note whether the analysis periods are for the
-                whole year.
+            leap_year: Boolean to note whether the analysis periods are for a
+                leap year.
 
         Returns:
             A list of AnalysisPeriods for all periods that could be obtained from
@@ -533,7 +641,7 @@ class SQLiteResult(object):
         try:
             # extract all of the data from the Time table
             c = conn.cursor()
-            c.execute('SELECT * FROM Time')
+            c.execute('SELECT Month, Day, EnvironmentPeriodIndex FROM Time')
             timeseries = c.fetchall()
             conn.close()  # ensure connection is always closed
         except Exception as e:
@@ -543,18 +651,18 @@ class SQLiteResult(object):
 
         # extract information about the first run period
         if reporting_frequency == 'Monthly':
-            st_date = DateTime(timeseries[0][2], 1, 0)
+            st_date = DateTime(timeseries[0][0], 1, 0)
         else:
-            st_date = DateTime(timeseries[0][2], timeseries[0][3], 0)
-        env_period = timeseries[0][11]
+            st_date = DateTime(timeseries[0][0], timeseries[0][1], 0)
+        env_period = timeseries[0][2]
 
         # build up the analysis period objects
         run_periods = []
         for i, time_row in enumerate(timeseries):
-            if time_row[11] != env_period:  # start of a new run period
+            if time_row[2] != env_period:  # start of a new run period
                 # create the run period
                 end = timeseries[i - 1]
-                end_date = DateTime(end[2], end[3], 0)
+                end_date = DateTime(end[0], end[1], 0)
                 end_date = end_date.add_minute(1440 - min_per_step)
                 run_period = AnalysisPeriod(
                     st_date.month, st_date.day, st_date.hour, end_date.month,
@@ -562,13 +670,13 @@ class SQLiteResult(object):
                 run_periods.append(run_period)
                 # reset the tracking variables
                 if reporting_frequency == 'Monthly':
-                    st_date = DateTime(time_row[2], 1, 0)
+                    st_date = DateTime(time_row[0], 1, 0)
                 else:
-                    st_date = DateTime(time_row[2], time_row[3], 0)
-                env_period = time_row[11]
+                    st_date = DateTime(time_row[0], time_row[1], 0)
+                env_period = time_row[2]
 
         # create the last run period object and return all run periods
-        end_date = DateTime(time_row[2], time_row[3], 0)
+        end_date = DateTime(time_row[0], time_row[1], 0)
         end_date = end_date.add_minute(1440 - min_per_step)
         run_period = AnalysisPeriod(
             st_date.month, st_date.day, st_date.hour, end_date.month,

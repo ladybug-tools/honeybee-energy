@@ -2,11 +2,12 @@
 from click.testing import CliRunner
 from honeybee_energy.cli.result import data_by_output, available_results_info, \
     data_by_outputs, output_csv, zone_sizes, component_sizes, available_results, \
-    available_run_period_info, all_available_info
+    available_run_period_info, all_available_info, output_csv_queryable
 from honeybee_energy.result.sql import ZoneSize, ComponentSize
 from ladybug.datacollection import HourlyContinuousCollection
 
 import json
+import os
 
 
 def test_available_results():
@@ -170,6 +171,35 @@ def test_output_csv():
     assert result.exit_code == 0
     first_row = result.output.split('\n')[0]
     assert len(first_row.split(',')) == 15
+
+
+def test_output_csv_queryable():
+    """Test the output_csv_queryable command."""
+    runner = CliRunner()
+    sql_path = './tests/result/single_family_home_eplusout.sql'
+    model_path = './tests/result/single_family_home.json'
+
+    out_names = [
+        'Zone Ideal Loads Supply Air Total Cooling Energy',
+        'Zone Ideal Loads Supply Air Total Heating Energy',
+        'Surface Inside Face Temperature',
+        'Surface Outside Face Temperature'
+    ]
+
+    result = runner.invoke(output_csv_queryable,
+                           [sql_path, model_path, 'RUN PERIOD 1'] + out_names)
+
+    assert result.exit_code == 0
+    col_names = json.loads(result.output)
+    assert len(col_names['eplusout_room']) == 7
+    assert len(col_names['eplusout_face']) == 7
+
+    expected_room_file = './tests/result/eplusout_room.csv'
+    expected_face_file = './tests/result/eplusout_face.csv'
+    assert os.path.isfile(expected_room_file)
+    assert os.path.isfile(expected_face_file)
+    os.remove(expected_room_file)
+    os.remove(expected_face_file)
 
 
 def test_zone_sizes():

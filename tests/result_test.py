@@ -69,6 +69,7 @@ def test_sqlite_run_period():
     sql_obj = SQLiteResult(sql_path)
     assert len(sql_obj.run_periods) == 7
     assert len(sql_obj.run_period_names) == 7
+    assert len(sql_obj.run_period_indices) == 7
     assert 'BOSTON LOGAN INTL ARPT ANN' in sql_obj.run_period_names[0]
 
 
