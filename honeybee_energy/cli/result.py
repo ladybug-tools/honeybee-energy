@@ -467,8 +467,9 @@ def output_csv_queryable(result_sql, model_json, run_period_name, output_names,
             col_names_dict['eplusout_room'] = \
                 ['month', 'day', 'hour', 'minute', 'identifier'] + \
                 [data[0][1].header.metadata['type'].replace(' ', '_').lower()
-                for data in room_csv_data]
+                 for data in room_csv_data]
             with open(room_file, 'w') as rm_file:
+                rm_file.write(','.join(col_names_dict['eplusout_room']) + '\n')
                 for outp_tups in zip(*room_csv_data):
                     datas = [tup[1] for tup in outp_tups]
                     identifier = outp_tups[0][0].identifier
@@ -478,12 +479,13 @@ def output_csv_queryable(result_sql, model_json, run_period_name, output_names,
             col_names_dict['eplusout_face'] = \
                 ['month', 'day', 'hour', 'minute', 'identifier'] + \
                 [data[0][1].header.metadata['type'].replace(' ', '_').lower()
-                for data in face_csv_data]
-            with open(room_file, 'w') as rm_file:
+                 for data in face_csv_data]
+            with open(room_file, 'w') as f_file:
+                f_file.write(','.join(col_names_dict['eplusout_face']) + '\n')
                 for outp_tups in zip(*face_csv_data):
                     datas = [tup[1] for tup in outp_tups]
                     identifier = outp_tups[0][0].identifier
-                    write_rows(rm_file, datas, identifier)
+                    write_rows(f_file, datas, identifier)
 
         # write the column names into the output file
         log_file.write(json.dumps(col_names_dict))
