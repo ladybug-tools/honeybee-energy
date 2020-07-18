@@ -63,7 +63,7 @@ def model_to_osm(model_json, sim_par_json, folder, check_model, log_file):
         if folder is None:
             folder = os.path.dirname(os.path.abspath(model_json))
 
-        # check that the simulation parameters are there
+        # generate default simulation parameters
         if sim_par_json is None:
             sim_par = SimulationParameter()
             sim_par.output.add_zone_energy_use()
@@ -119,7 +119,7 @@ def model_to_idf(model_json, sim_par_json, additional_str, output_file):
         model_json: Full path to a Model JSON file.
     """
     try:
-        # check that the simulation parameters are there and load them
+        # load simulation parameters or generate default ones
         if sim_par_json is not None:
             with open(sim_par_json) as json_file:
                 data = json.load(json_file)

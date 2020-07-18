@@ -12,6 +12,7 @@ from honeybee_energy.run import measure_compatible_model_json, to_openstudio_osw
     run_osw, run_idf, output_energyplus_files
 from honeybee.config import folders
 from ladybug.futil import preparedir
+from ladybug.epw import EPW
 
 import sys
 import os
@@ -73,6 +74,13 @@ def simulate_model(model_json, epw_file, sim_par_json, base_osw, folder,
             preparedir(folder, remove_content=False)
 
         # process the simulation parameters and write new ones if necessary
+        def ddy_from_epw(epw_file, sim_par):
+            """Produce a DDY from an EPW file."""
+            epw_obj = EPW(epw_file)
+            des_days = [epw_obj.approximate_design_day('WinterDesignDay'),
+                        epw_obj.approximate_design_day('SummerDesignDay')]
+            sim_par.sizing_parameter.design_days = des_days
+
         def write_sim_par(sim_par):
             """Write simulation parameter object to a JSON."""
             sim_par_dict = sim_par.to_dict()
@@ -80,30 +88,23 @@ def simulate_model(model_json, epw_file, sim_par_json, base_osw, folder,
             with open(sp_json, 'w') as fp:
                 json.dump(sim_par_dict, fp)
             return sp_json
+
         if sim_par_json is None:  # generate some default simulation parameters
             sim_par = SimulationParameter()
             sim_par.output.add_zone_energy_use()
             sim_par.output.add_hvac_energy_use()
-            if os.path.isfile(ddy_file):
-                sim_par.sizing_parameter.add_from_ddy_996_004(ddy_file)
-            else:
-                raise ValueError(
-                    'No sim-par-json was input and there is no .ddy file next to '
-                    'the .epw.\nAt least one of these two cirtieria must be satisfied '
-                    'for a successful simulation.')
-            sim_par_json = write_sim_par(sim_par)
         else:
             with open(sim_par_json) as json_file:
                 data = json.load(json_file)
             sim_par = SimulationParameter.from_dict(data)
-            if len(sim_par.sizing_parameter.design_days) == 0 and os.path.isfile(ddy_file):
+        if len(sim_par.sizing_parameter.design_days) == 0 and os.path.isfile(ddy_file):
+            try:
                 sim_par.sizing_parameter.add_from_ddy_996_004(ddy_file)
-                sim_par_json = write_sim_par(sim_par)
-            elif len(sim_par.sizing_parameter.design_days) == 0:
-                raise ValueError(
-                    'No design days were found in the input sim-par-json and there is '
-                    'no .ddy file next to the .epw.\nAt least one of these two cirtieria '
-                    'must be satisfied for a successful simulation.')
+            except AssertionError:  # no design days within the DDY file
+                ddy_from_epw(epw_file, sim_par)
+        elif len(sim_par.sizing_parameter.design_days) == 0:
+            ddy_from_epw(epw_file, sim_par)
+        sim_par_json = write_sim_par(sim_par)
 
         # run the Model re-serialization and check if specified
         if check_model:
