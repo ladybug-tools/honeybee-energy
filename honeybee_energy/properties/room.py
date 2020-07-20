@@ -509,6 +509,8 @@ class RoomEnergyProperties(object):
         _host = new_host or self._host
         new_room = RoomEnergyProperties(
             _host, self._program_type, self._construction_set, self._hvac)
+        if self._hvac is not None and self._hvac.is_single_room:
+            new_room.hvac = self.hvac.duplicate()  # reassign parent to new host
         new_room._people = self._people
         new_room._lighting = self._lighting
         new_room._electric_equipment = self._electric_equipment

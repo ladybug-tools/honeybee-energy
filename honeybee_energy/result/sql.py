@@ -390,7 +390,7 @@ class SQLiteResult(object):
             data._validated_a_period = True
         return data_colls
 
-    def tabular_data_by_name(self, table_name):
+    def tabular_data_by_name(self, table_name, j_to_kwh=True):
         """Get all the data within a table of a Summary Report using the table name.
 
         The output will be a Python matrix (list of lists), with each sub-list
@@ -400,30 +400,51 @@ class SQLiteResult(object):
         Args:
             table_name: Text string for the name of a table within a summary
                 report. (eg. 'General').
+            j_to_kwh: Boolean to note if any data in MJ or GJ should be
+                converted to kWh upon import of the table. This will also mean
+                that any area-normalized values will also be converted to kWh/m2.
         """
         conn = sqlite3.connect(self.file_path)
         try:
             # extract the data from the General table in AllSummary
             c = conn.cursor()
-            c.execute('SELECT RowName, Value FROM TabularDataWithStrings '
-                      'WHERE TableName=?', (table_name,))
+            if j_to_kwh:
+                c.execute('SELECT RowName, Value, Units FROM TabularDataWithStrings '
+                          'WHERE TableName=?', (table_name,))
+            else:
+                c.execute('SELECT RowName, Value FROM TabularDataWithStrings '
+                          'WHERE TableName=?', (table_name,))
             table_data = c.fetchall()
             conn.close()  # ensure connection is always closed
         except Exception as e:
             conn.close()  # ensure connection is always closed
             raise Exception(str(e))
+
+        # convert all of the extracted data into a tabular format
         table_dict = OrderedDict()
-        for item in table_data:
-            try:
-                table_dict[item[0]].append(item[1])
-            except KeyError:
-                table_dict[item[0]] = [item[1]]
+        if j_to_kwh:
+            for item in table_data:
+                val = item[1]
+                if 'GJ' in item[2]:
+                    val = val / 0.0036
+                elif 'MJ' in item[2]:
+                    val = val / 3.6
+                try:
+                    table_dict[item[0]].append(val)
+                except KeyError:
+                    table_dict[item[0]] = [val]
+        else:
+            for item in table_data:
+                try:
+                    table_dict[item[0]].append(item[1])
+                except KeyError:
+                    table_dict[item[0]] = [item[1]]
         return list(table_dict.values())
 
     def _extract_location(self):
         """Extract a Location object from the SQLite file."""
         # extract all of the data from the General table in AllSummary
-        general = self.tabular_data_by_name('General')
+        general = self.tabular_data_by_name('General', False)
         if general == []:
             return
 
@@ -440,7 +461,7 @@ class SQLiteResult(object):
     def _extract_full_run_periods(self):
         """Extract all of the RunPeriod objects from the SQLite file."""
         # extract all of the data from the General table in AllSummary
-        sim_env = self.tabular_data_by_name('Environment')
+        sim_env = self.tabular_data_by_name('Environment', False)
         if sim_env == []:
             return
 

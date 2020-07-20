@@ -5,11 +5,9 @@ from __future__ import division
 from .control import VentilationControl
 from ..writer import generate_idf_string
 
-from honeybee._lockable import lockable
 from honeybee.typing import float_in_range
 
 
-@lockable
 class VentilationOpening(object):
     """Definition of window opening for ventilative cooling.
 
@@ -46,7 +44,7 @@ class VentilationOpening(object):
         * has_parent
     """
     __slots__ = ('_fraction_area_operable', '_fraction_height_operable',
-                 '_discharge_coefficient', '_wind_cross_vent', '_parent', '_locked')
+                 '_discharge_coefficient', '_wind_cross_vent', '_parent')
 
     def __init__(self, fraction_area_operable=0.5, fraction_height_operable=1.0,
                  discharge_coefficient=0.17, wind_cross_vent=False):

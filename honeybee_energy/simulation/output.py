@@ -479,7 +479,7 @@ output-table-summaryreports.html#outputtablesummaryreports)
         style = 'CommaAndHTML' if self.include_html else 'Comma'
         table_style = generate_idf_string(
             'OutputControl:Table:Style',
-            (style, 'JtoKWH'), ('column separator', 'unit conversion'))
+            (style, 'None'), ('column separator', 'unit conversion'))
         output_variables = [self._output_to_idf(out_p) for out_p in self.outputs] if \
             len(self._outputs) != 0 else None
         r_comments = ['report {}'.format(i) for i in range(len(self._summary_reports))]
