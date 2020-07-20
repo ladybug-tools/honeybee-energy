@@ -69,18 +69,6 @@ def test_ventilation_opening_equality():
     assert ventilation != ventilation_alt
 
 
-def test_ventilation_opening_lockability():
-    """Test the lockability of Ventilation objects."""
-    ventilation = VentilationOpening(0.25, 0.5, 0.25, True)
-
-    ventilation.fraction_area_operable = 0.3
-    ventilation.lock()
-    with pytest.raises(AttributeError):
-        ventilation.wind_cross_vent = False
-    ventilation.unlock()
-    ventilation.wind_cross_vent = False
-
-
 def test_ventilation_opening_to_idf():
     """Test the initialization of Ventilation from_idf."""
     room = Room.from_box('ShoeBoxZone', 5, 10, 3)

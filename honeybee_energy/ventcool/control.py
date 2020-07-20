@@ -264,4 +264,4 @@ class VentilationControl(object):
             'schedule: {}'.format(
                 self.min_indoor_temperature, self.max_indoor_temperature,
                 self.min_outdoor_temperature, self.max_outdoor_temperature,
-                self.delta_temperature, self.schedule)
+                self.delta_temperature, self.schedule.identifier)

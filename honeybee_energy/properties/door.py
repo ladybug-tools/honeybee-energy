@@ -98,7 +98,6 @@ class DoorEnergyProperties(object):
                     'Try duplicating the object and then assign it.'.format(
                         'VentilationOpening', self.host.identifier,
                         value._parent.identifier))
-            value.lock()   # lock because we don't duplicate the object
         self._vent_opening = value
 
     @property
@@ -189,7 +188,8 @@ class DoorEnergyProperties(object):
                 If None, the properties will be duplicated with the same host.
         """
         _host = new_host or self._host
-        return DoorEnergyProperties(_host, self._construction, self._vent_opening)
+        vo = self._vent_opening.duplicate() if self._vent_opening is not None else None
+        return DoorEnergyProperties(_host, self._construction, vo)
 
     def ToString(self):
         return self.__repr__()
