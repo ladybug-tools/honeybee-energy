@@ -433,18 +433,21 @@ def output_csv_queryable(result_sql, model_json, run_period_name, output_names,
         # create the datetime columns
         base_coll = room_csv_data[0][0][1] if len(room_csv_data) != 0 else \
             face_csv_data[0][0][1]
+        year = '2016' if base_coll.header.analysis_period.is_leap_year else '2017'
         date_times = []
         if isinstance(base_coll, HourlyContinuousCollection):
             for dat_t in base_coll.datetimes:
                 date_times.append(
-                    [str(dat_t.month), str(dat_t.day), str(dat_t.hour), str(dat_t.minute)])
+                    [year, str(dat_t.month), str(dat_t.day), str(dat_t.hour),
+                     str(dat_t.minute)])
         elif isinstance(base_coll, DailyCollection):
             for dat_t in base_coll.datetimes:
                 date_obj = Date.from_doy(dat_t)
-                date_times.append([str(date_obj.month), str(date_obj.day), '0', '0'])
+                date_times.append(
+                    [year, str(date_obj.month), str(date_obj.day), '0', '0'])
         elif isinstance(base_coll, MonthlyCollection):
             for dat_t in base_coll.datetimes:
-                date_times.append([str(dat_t), '1', '0', '0'])
+                date_times.append([year, str(dat_t), '1', '0', '0'])
 
         # determine the output folder location
         if folder is None:
@@ -465,7 +468,7 @@ def output_csv_queryable(result_sql, model_json, run_period_name, output_names,
         if len(room_csv_data) != 0:
             room_file = os.path.join(folder, 'eplusout_room.csv')
             col_names_dict['eplusout_room'] = \
-                ['month', 'day', 'hour', 'minute', 'identifier'] + \
+                ['year', 'month', 'day', 'hour', 'minute', 'identifier'] + \
                 [data[0][1].header.metadata['type'].replace(' ', '_').lower()
                  for data in room_csv_data]
             with open(room_file, 'w') as rm_file:
@@ -477,7 +480,7 @@ def output_csv_queryable(result_sql, model_json, run_period_name, output_names,
         if len(face_csv_data) != 0:
             room_file = os.path.join(folder, 'eplusout_face.csv')
             col_names_dict['eplusout_face'] = \
-                ['month', 'day', 'hour', 'minute', 'identifier'] + \
+                ['year', 'month', 'day', 'hour', 'minute', 'identifier'] + \
                 [data[0][1].header.metadata['type'].replace(' ', '_').lower()
                  for data in face_csv_data]
             with open(room_file, 'w') as f_file:

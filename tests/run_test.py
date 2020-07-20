@@ -238,7 +238,8 @@ def test_run_idf_window_ventilation():
     vent_control = VentilationControl(22, 27, 12, 30)
     room.properties.energy.window_vent_control = vent_control
     ventilation = VentilationOpening(wind_cross_vent=True)
-    room.properties.energy.assign_ventilation_opening(ventilation)
+    op_aps = room.properties.energy.assign_ventilation_opening(ventilation)
+    assert len(op_aps) == 2
 
     model = Model('TinyHouse', [room])
 
