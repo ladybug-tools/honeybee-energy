@@ -296,11 +296,19 @@ class RoomEnergyProperties(object):
         Args:
             vent_opening: A VentilationOpening object to be duplicated and assigned
                 to all of the operable apertures of the Room.
+        
+        Returns:
+            A list of Apertures for which ventilation opening properties were set.
+            This can be used to perform additional operations on the apertures, such
+            as changing their construction.
         """
+        operable_aps = []
         for face in self.host.faces:
             for ap in face.apertures:
                 if ap.is_operable:
                     ap.properties.energy.vent_opening = vent_opening.duplicate()
+                    operable_aps.append(ap)
+        return operable_aps
 
     def add_prefix(self, prefix):
         """Change the identifier attributes unique to this object by adding a prefix.

@@ -191,8 +191,8 @@ def test_output_csv_queryable():
 
     assert result.exit_code == 0
     col_names = json.loads(result.output)
-    assert len(col_names['eplusout_room']) == 7
-    assert len(col_names['eplusout_face']) == 7
+    assert len(col_names['eplusout_room']) == 8
+    assert len(col_names['eplusout_face']) == 8
 
     expected_room_file = './tests/result/eplusout_room.csv'
     expected_face_file = './tests/result/eplusout_face.csv'
