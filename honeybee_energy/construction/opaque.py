@@ -169,7 +169,7 @@ class OpaqueConstruction(_ConstructionBase):
         materials_dict = cls._idf_materials_dictionary(ep_mat_strings)
         ep_strs = parse_idf_string(idf_string)
         try:
-            materials = [materials_dict[mat] for mat in ep_strs[1:]]
+            materials = [materials_dict[mat.upper()] for mat in ep_strs[1:]]
         except KeyError as e:
             raise ValueError('Failed to find {} in the input ep_mat_strings.'.format(e))
         return cls(ep_strs[0], materials)
@@ -313,7 +313,7 @@ class OpaqueConstruction(_ConstructionBase):
         constructions = []
         for constr in constr_props:
             try:
-                constr_mats = [materials_dict[mat] for mat in constr[1:]]
+                constr_mats = [materials_dict[mat.upper()] for mat in constr[1:]]
                 constructions.append(OpaqueConstruction(constr[0], constr_mats))
             except KeyError:
                 pass  # the construction is a window construction
@@ -325,12 +325,15 @@ class OpaqueConstruction(_ConstructionBase):
         materials_dict = {}
         for mat_str in ep_mat_strings:
             mat_str = mat_str.strip()
-            if mat_str.startswith('Material:NoMass,'):
-                mat_obj = EnergyMaterialNoMass.from_idf(mat_str)
-                materials_dict[mat_obj.identifier] = mat_obj
-            elif mat_str.startswith('Material,'):
+            if mat_str.startswith('Material,'):
                 mat_obj = EnergyMaterial.from_idf(mat_str)
-                materials_dict[mat_obj.identifier] = mat_obj
+                materials_dict[mat_obj.identifier.upper()] = mat_obj
+            elif mat_str.startswith('Material:NoMass,'):
+                mat_obj = EnergyMaterialNoMass.from_idf(mat_str)
+                materials_dict[mat_obj.identifier.upper()] = mat_obj
+            elif mat_str.startswith('Material:AirGap,'):
+                mat_obj = EnergyMaterialNoMass.from_idf_air_gap(mat_str)
+                materials_dict[mat_obj.identifier.upper()] = mat_obj
         return materials_dict
 
     def __repr__(self):

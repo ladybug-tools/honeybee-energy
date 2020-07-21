@@ -465,6 +465,16 @@ class EnergyMaterialNoMass(_EnergyMaterialOpaqueBase):
         return cls(*ep_strs)
 
     @classmethod
+    def from_idf_air_gap(cls, idf_string):
+        """Create an EnergyMaterialNoMass from an EnergyPlus string of an AirGap.
+
+        Args:
+            idf_string: A text string fully describing an EnergyPlus Material:AirGap.
+        """
+        ep_strs = parse_idf_string(idf_string, 'Material:AirGap,')
+        return cls(*ep_strs)
+
+    @classmethod
     def from_dict(cls, data):
         """Create a EnergyMaterialNoMass from a dictionary.
 

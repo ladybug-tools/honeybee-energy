@@ -393,16 +393,18 @@ class SQLiteResult(object):
     def tabular_data_by_name(self, table_name, j_to_kwh=True):
         """Get all the data within a table of a Summary Report using the table name.
 
-        The output will be a Python matrix (list of lists), with each sub-list
-        being a row of the table. The output should mirror how the table appears
-        in the HTML output.
-
         Args:
             table_name: Text string for the name of a table within a summary
                 report. (eg. 'General').
             j_to_kwh: Boolean to note if any data in MJ or GJ should be
                 converted to kWh upon import of the table. This will also mean
                 that any area-normalized values will also be converted to kWh/m2.
+
+        Returns:
+            An ordered dictionary representing a matrix (list of lists), where
+            the keys of the dictionary represent the row names and each value
+            is a row of the table. The output should mirror how the table appears
+            in the HTML output.
         """
         conn = sqlite3.connect(self.file_path)
         try:
@@ -439,12 +441,36 @@ class SQLiteResult(object):
                     table_dict[item[0]].append(item[1])
                 except KeyError:
                     table_dict[item[0]] = [item[1]]
-        return list(table_dict.values())
+        return table_dict
+
+    def tabular_column_names(self, table_name):
+        """Get the names of the columns for a table of a Summary Report.
+
+        Args:
+            table_name: Text string for the name of a table within a summary
+                report. (eg. 'General').
+
+        Returns:
+            A list of the column names of the table
+        """
+        conn = sqlite3.connect(self.file_path)
+        try:
+            # extract the data from the General table in AllSummary
+            c = conn.cursor()
+            c.execute('SELECT ColumnName FROM TabularDataWithStrings '
+                      'WHERE TableName=?', (table_name,))
+            table_col_names = c.fetchall()
+            conn.close()  # ensure connection is always closed
+        except Exception as e:
+            conn.close()  # ensure connection is always closed
+            raise Exception(str(e))
+        return list(OrderedDict.fromkeys([item[0] for item in table_col_names]))
 
     def _extract_location(self):
         """Extract a Location object from the SQLite file."""
         # extract all of the data from the General table in AllSummary
-        general = self.tabular_data_by_name('General', False)
+        table_dict = self.tabular_data_by_name('General', False)
+        general = list(table_dict.values())
         if general == []:
             return
 
@@ -461,7 +487,8 @@ class SQLiteResult(object):
     def _extract_full_run_periods(self):
         """Extract all of the RunPeriod objects from the SQLite file."""
         # extract all of the data from the General table in AllSummary
-        sim_env = self.tabular_data_by_name('Environment', False)
+        table_dict = self.tabular_data_by_name('Environment', False)
+        sim_env = list(table_dict.values())
         if sim_env == []:
             return
 
