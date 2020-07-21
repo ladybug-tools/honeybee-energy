@@ -30,5 +30,5 @@ For command line interface documentation and API documentation see the pages bel
 .. toctree::
    :maxdepth: 2
 
-   cli
+   cli/index
    api

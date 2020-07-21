@@ -1,6 +1,0 @@
-Translate
-=========
-
-.. click:: honeybee_energy.cli.translate:translate
-   :prog: honeybee-energy translate
-   :show-nested:

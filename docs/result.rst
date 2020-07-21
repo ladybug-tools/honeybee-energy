@@ -1,6 +1,0 @@
-Result
-=======
-
-.. click:: honeybee_energy.cli.result:result
-   :prog: honeybee-energy result
-   :show-nested:

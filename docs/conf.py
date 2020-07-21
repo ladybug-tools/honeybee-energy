@@ -225,6 +225,175 @@ autodoc_default_options = {
 
 autodoc_member_order = 'groupwise'
 
+# -- CLI documentation  -------------------------------------------------------
+"""Improves the CLI documentation section.
+
+In order to have separate html pages for each module inside library\\cli
+additional documentation files(.rst) need to be generated in docs\\cli folder.
+
+Note:
+    This process assumes that each cli module represent a group of subcommands.
+"""
+
+# Library-command hash table. Created to address sub-command group names that
+# differ from their library name. Format: {library_name : command_name}
+ht_lib_command = {}
+
+# Repository-library hash table. Creared to address library names that
+#  differ from their repository name (beyond the dash-lower dash difference).
+# Format: {repo_name : library_name}
+ht_repo_lib = {}
+
+
+def create_CLI_files():
+    """Generates the rst files with CLI directives for each module detected in
+    the library's cli folder. Updates index.rst file to include a list of
+    sub-command documenation pages.
+    """
+
+    # Get CLI data from library
+    repo_path = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
+    repo_name, lib_name, mod_names = get_CLI_data(repo_path)
+
+    if not mod_names:
+        return
+
+    # Prepare docs folder and rst files to create
+    doc_folder = os.path.join(os.path.dirname(__file__), 'cli')
+    if not os.path.isdir(doc_folder):
+        os.mkdir(doc_folder)
+
+    # Excluding CLI groups if corresponding rst file detected in docs/cli
+    rst_names = [name for name in mod_names
+                 if name + ".rst" not in os.listdir(doc_folder)]
+
+    if not rst_names:
+        return
+
+    # Check in hash table for custom command line prog.name
+    command_name = repo_name
+
+    # Create rst files for each module(command group)
+    result = write_rst_files(command_name, lib_name, rst_names, doc_folder)
+    if not result:
+        print ("Something went wrong during CLI docs generation")
+
+    # Update/Create index file with command group section included
+    result = update_index_data(os.path.join(doc_folder, 'index.rst'), rst_names)
+    if not result:
+        print ("Something went wrong during CLI index update")
+
+    return
+
+
+def get_CLI_data(repo_path):
+    """Given a repository path, retrieves the repository and library names along
+    with the names of modules found inside the cli folder.
+    """
+    repo_name = os.path.split(repo_path)[1]
+    lib_name = repo_name.replace("-", "_")
+    lib_path = os.path.abspath(os.path.join(repo_path, lib_name))
+
+    if not os.path.isdir(lib_path):
+        print ("Cannot find library path")
+        return None
+
+    CLI_path = os.path.join(lib_path, 'cli')
+    if not os.path.isdir(lib_path):
+        print ("No CLI library found")
+        return None
+
+    # Generate a list with the modules source files(.py).
+    mod_names = [os.path.splitext(file)[0] for file in os.listdir(CLI_path)
+                 if os.path.splitext(file)[1] == ".py"]
+
+    # Extract files that aren't a cli module
+    if "__init__" in mod_names:
+        mod_names.remove("__init__")
+
+    # Return library data
+    return repo_name, lib_name, mod_names
+
+
+def write_rst_files(comm_name, lib_name, rst_names, doc_folder):
+    """Write a rst file with CLI directives for each rst file name.
+
+    Args:
+        comm_name: Command name used in the documentation.
+        lib_name: CLI command library name.
+        rst_names: The rst file names, also used for the command name.
+        doc_folder: The path where cli docs will be saved.
+    """
+
+    # Creating missing CLI rst files
+    print ("[CLI]: Creating ({}) CLI rst files: {}...".format(
+        len(rst_names), rst_names))
+
+    # Write CLI directive and options for each command-line group
+    for group in rst_names:
+        L = ["{}\n".format(group),
+             "{}\n".format("=" * len(group)),
+             "\n",
+             ".. click:: {0}.cli.{1}:{1}\n".format(lib_name, group),
+             "   :prog: {} {}\n".format(comm_name, group),
+             "   :show-nested:\n"
+             ]
+
+        # Create CLI group file
+        with open(os.path.join(doc_folder, group + ".rst"), 'w') as group_file:
+            group_file.writelines(L)
+
+    return True
+
+
+def update_index_data(index_path, group_names):
+    """ Updates the index.rst file inside the docs\\cli folder to include
+    links to the newly created sub-command groups. If no index.rst file found,
+    creates a new index.rst file.
+
+    Args:
+        index_path: index.rst file path to be updated or created from scratch.
+        group_names: Name of the CLI sub-command groups to include in the
+            'Commands' section.
+    """
+
+    print ("[CLI]: Updating index.rst file...")
+
+    # Include exisitng index.rst data if present
+    cli_content = []
+    if os.path.isfile(index_path):
+        with open(index_path, 'r') as index_file:
+            lines = index_file.readlines()
+        cli_content = lines[:lines.index("Commands\n")
+                            ] if "Commands\n" in lines else lines
+    else:
+        # Otherwise create a "CLI" heading
+        cli_content = ["CLI\n", "===\n", "\n"]
+
+    # Add 'Commands' section with directive and options
+    cli_content += ["\n"
+                    "Commands\n",
+                    "--------\n",
+                    ".. toctree::\n",
+                    "   :maxdepth: 1\n",
+                    "\n"
+                    ]
+
+    # Add sub-command groups to content
+    for group in group_names:
+        cli_content.append("   {}\n".format(group))
+
+    # Append section to file
+    with open(index_path, 'w') as index_file:
+        index_file.writelines(cli_content)
+
+    return True
+
+
+# Custom CLI docs function call.
+# Commment the call below to exclude custom CLI docs from the doc. process.
+create_CLI_files()
+
 
 def setup(app):
     """Run custom code with access to the Sphinx application object

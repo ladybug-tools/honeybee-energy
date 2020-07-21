@@ -1,6 +1,0 @@
-Settings
-========
-
-.. click:: honeybee_energy.cli.settings:settings
-   :prog: honeybee-energy settings
-   :show-nested:

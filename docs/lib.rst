@@ -1,6 +1,0 @@
-Library
-=======
-
-.. click:: honeybee_energy.cli.lib:lib
-   :prog: honeybee-energy lib
-   :show-nested:
