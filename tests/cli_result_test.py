@@ -2,7 +2,8 @@
 from click.testing import CliRunner
 from honeybee_energy.cli.result import data_by_output, available_results_info, \
     data_by_outputs, output_csv, zone_sizes, component_sizes, available_results, \
-    available_run_period_info, all_available_info, output_csv_queryable
+    available_run_period_info, all_available_info, output_csv_queryable, \
+    tabular_data, tabular_metadata
 from honeybee_energy.result.sql import ZoneSize, ComponentSize
 from ladybug.datacollection import HourlyContinuousCollection
 
@@ -151,6 +152,25 @@ def test_data_by_outputs():
     assert len(data_list) == 2
     assert len(data_list[0]) == 14
     assert len(data_list[1]) == 0
+
+
+def test_tabular_data():
+    """Test the tabular_data method."""
+    runner = CliRunner()
+    sql_path = './tests/result/eplusout_monthly.sql'
+
+    result = runner.invoke(tabular_data, [sql_path, 'Utility Use Per Conditioned Floor Area'])
+    assert result.exit_code == 0
+    data_list = json.loads(result.output)
+    assert len(data_list) == 4
+    assert len(data_list[0]) == 6
+
+    result = runner.invoke(tabular_metadata, [sql_path, 'Utility Use Per Conditioned Floor Area'])
+    assert result.exit_code == 0
+    data_list = json.loads(result.output)
+    assert len(data_list['row_names']) == 4
+    assert len(data_list['column_names']) == 6
+    assert 'Electricity Intensity' in data_list['column_names'][0]
 
 
 def test_output_csv():

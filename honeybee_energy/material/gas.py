@@ -376,6 +376,9 @@ class EnergyWindowMaterialGas(_EnergyWindowMaterialGasBase):
             idf_string: A text string fully describing an EnergyPlus material.
         """
         ep_strs = parse_idf_string(idf_string, 'WindowMaterial:Gas,')
+        assert ep_strs[1].title() != 'Custom', \
+            'Honeybee EnergyWindowMaterialGas cannot use EnergyPlus Custom gas type.\n' \
+            'Use honeybee EnergyWindowMaterialGasCustom instead.'
         return cls(ep_strs[0], ep_strs[2], ep_strs[1])
 
     @classmethod

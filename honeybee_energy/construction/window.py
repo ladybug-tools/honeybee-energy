@@ -8,7 +8,8 @@ from ..material._base import _EnergyMaterialWindowBase
 from ..material.glazing import _EnergyWindowMaterialGlazingBase, \
     EnergyWindowMaterialGlazing, EnergyWindowMaterialSimpleGlazSys
 from ..material.gas import _EnergyWindowMaterialGasBase, EnergyWindowMaterialGas, \
-    EnergyWindowMaterialGasMixture
+    EnergyWindowMaterialGasMixture, EnergyWindowMaterialGasCustom
+from ..material.shade import EnergyWindowMaterialShade, EnergyWindowMaterialBlind
 from ..reader import parse_idf_string
 
 from honeybee._lockable import lockable
@@ -278,7 +279,7 @@ class WindowConstruction(_ConstructionBase):
         materials_dict = cls._idf_materials_dictionary(ep_mat_strings)
         ep_strs = parse_idf_string(idf_string)
         try:
-            materials = [materials_dict[mat] for mat in ep_strs[1:]]
+            materials = [materials_dict[mat.upper()] for mat in ep_strs[1:]]
         except KeyError as e:
             raise ValueError('Failed to find {} in the input ep_mat_strings.'.format(e))
         return cls(ep_strs[0], materials)
@@ -434,6 +435,15 @@ class WindowConstruction(_ConstructionBase):
             idf_file: A path to an IDF file containing objects for window
                 constructions and corresponding materials. For example, the
                 IDF Report output by LBNL WINDOW.
+
+        Returns:
+            A tuple with two elements
+
+            -   constructions: A list of all WindowConstruction objects in the IDF
+                file as honeybee_energy WindowConstruction objects.
+
+            -   materials: A list of all window materials in the IDF file as
+                honeybee_energy Material objects.
         """
         # check the file
         assert os.path.isfile(idf_file), 'Cannot find an idf file at {}'.format(idf_file)
@@ -451,8 +461,11 @@ class WindowConstruction(_ConstructionBase):
         constructions = []
         for constr in constr_props:
             try:
-                constr_mats = [materials_dict[mat] for mat in constr[1:]]
-                constructions.append(WindowConstruction(constr[0], constr_mats))
+                constr_mats = [materials_dict[mat.upper()] for mat in constr[1:]]
+                try:
+                    constructions.append(WindowConstruction(constr[0], constr_mats))
+                except ValueError:
+                    pass  # it likely has a blind or a shade and is not serialize-able
             except KeyError:
                 pass  # it's an opaque construction or window shaded construction
         return constructions, materials
@@ -469,11 +482,18 @@ class WindowConstruction(_ConstructionBase):
             elif mat_str.startswith('WindowMaterial:Glazing,'):
                 mat_obj = EnergyWindowMaterialGlazing.from_idf(mat_str)
             elif mat_str.startswith('WindowMaterial:Gas,'):
-                mat_obj = EnergyWindowMaterialGas.from_idf(mat_str)
+                try:
+                    mat_obj = EnergyWindowMaterialGas.from_idf(mat_str)
+                except AssertionError:  # likely a custom gas to serialize differently
+                    mat_obj = EnergyWindowMaterialGasCustom.from_idf(mat_str)
             elif mat_str.startswith('WindowMaterial:GasMixture,'):
                 mat_obj = EnergyWindowMaterialGasMixture.from_idf(mat_str)
+            elif mat_str.startswith('WindowMaterial:Shade,'):
+                mat_obj = EnergyWindowMaterialShade.from_idf(mat_str)
+            elif mat_str.startswith('WindowMaterial:Blind,'):
+                mat_obj = EnergyWindowMaterialBlind.from_idf(mat_str)
             if mat_obj is not None:
-                materials_dict[mat_obj.identifier] = mat_obj
+                materials_dict[mat_obj.identifier.upper()] = mat_obj
         return materials_dict
 
     def _solve_r_values(self, r_vals, emissivities):

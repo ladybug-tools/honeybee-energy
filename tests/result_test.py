@@ -292,6 +292,19 @@ def test_sqlite_data_collections_by_output_name_dday_runperiod():
         assert len(coll) == 744
 
 
+def test_sqlite_tabular_data():
+    """Test the tabular_data_by_name method."""
+    sql_path = './tests/result/eplusout_monthly.sql'
+    sql_obj = SQLiteResult(sql_path)
+
+    data = sql_obj.tabular_data_by_name('Utility Use Per Conditioned Floor Area')
+    assert len(data) == 4
+    assert len(data['Lighting']) == 6
+    col_names = sql_obj.tabular_column_names('Utility Use Per Conditioned Floor Area')
+    assert len(col_names) == 6
+    assert 'Electricity Intensity' in col_names[0]
+
+
 def test_rdd_init():
     """Test the initialization of RDD and basic properties."""
     rdd_path = './tests/result/eplusout.rdd'
