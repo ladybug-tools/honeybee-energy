@@ -227,7 +227,7 @@ def tabular_metadata(result_sql, table_name, output_file):
     try:
         sql_obj = SQLiteResult(result_sql)
         table_dict = sql_obj.tabular_data_by_name(str(table_name))
-        row_names = list(table_dict.values())
+        row_names = list(table_dict.keys())
         col_names = sql_obj.tabular_column_names(str(table_name))
         output_file.write(json.dumps({'row_names': row_names, 'column_names': col_names}))
     except Exception as e:
