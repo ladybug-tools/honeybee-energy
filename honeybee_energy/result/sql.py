@@ -426,11 +426,14 @@ class SQLiteResult(object):
         table_dict = OrderedDict()
         if j_to_kwh:
             for item in table_data:
-                val = item[1]
-                if 'GJ' in item[2]:
-                    val = val / 0.0036
-                elif 'MJ' in item[2]:
-                    val = val / 3.6
+                try:
+                    val = float(item[1])
+                    if 'GJ' in item[2]:
+                        val = val / 0.0036
+                    elif 'MJ' in item[2]:
+                        val = val / 3.6
+                except ValueError:  # not a number
+                    val = item[1]
                 try:
                     table_dict[item[0]].append(val)
                 except KeyError:
@@ -438,9 +441,13 @@ class SQLiteResult(object):
         else:
             for item in table_data:
                 try:
-                    table_dict[item[0]].append(item[1])
+                    val = float(item[1])
+                except ValueError:  # not a number
+                    val = item[1]
+                try:
+                    table_dict[item[0]].append(val)
                 except KeyError:
-                    table_dict[item[0]] = [item[1]]
+                    table_dict[item[0]] = [val]
         return table_dict
 
     def tabular_column_names(self, table_name):
