@@ -71,7 +71,7 @@ def simulate_model(model_json, epw_file, sim_par_json, base_osw, folder,
             proj_name = os.path.basename(model_json).replace('.json', '')
             folder = os.path.join(
                 folders.default_simulation_folder, proj_name, 'OpenStudio')
-            preparedir(folder, remove_content=False)
+        preparedir(folder, remove_content=False)
 
         # process the simulation parameters and write new ones if necessary
         def ddy_from_epw(epw_file, sim_par):
