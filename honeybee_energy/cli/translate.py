@@ -19,6 +19,7 @@ from honeybee_energy.run import measure_compatible_model_json, to_openstudio_osw
     run_osw
 from honeybee_energy.writer import energyplus_idf_version
 from honeybee_energy.config import folders
+from ladybug.futil import preparedir
 
 import sys
 import os
@@ -62,6 +63,7 @@ def model_to_osm(model_json, sim_par_json, folder, check_model, log_file):
         # set the default folder if it's not specified
         if folder is None:
             folder = os.path.dirname(os.path.abspath(model_json))
+        preparedir(folder, remove_content=False)
 
         # generate default simulation parameters
         if sim_par_json is None:
