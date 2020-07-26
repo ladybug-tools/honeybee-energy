@@ -35,11 +35,10 @@ def lock_and_check_schedule(sch):
 def load_schedule_object(sch_dict):
     """Load a schedule object from a dictionary and add it to the _schedules dict."""
     try:
-        sch_obj = dict_abridged_to_schedule(
-            sch_dict, _schedule_type_limits, False)
+        sch_obj = dict_abridged_to_schedule(sch_dict, _schedule_type_limits, False)
         if sch_obj is None:
             sch_obj = dict_to_schedule(sch_dict, False)
-        if sch_obj:
+        if sch_obj is not None:
             lock_and_check_schedule(sch_obj)
             _schedules[sch_dict['identifier']] = sch_obj
     except (TypeError, KeyError):

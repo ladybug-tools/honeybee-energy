@@ -29,7 +29,7 @@ def load_material_object(mat_dict):
     """Load a material object from a dictionary and add it to the library dict."""
     try:
         mat_obj = dict_to_material(mat_dict, False)
-        if mat_obj:
+        if mat_obj is not None:
             mat_obj.lock()
             assert mat_dict['identifier'] not in _default_mats, 'Cannot overwrite ' \
                 'default material "{}".'.format(mat_dict['identifier'])

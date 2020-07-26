@@ -64,7 +64,7 @@ def load_construction_object(con_dict):
             con_dict, _all_materials, _schedules, False)
         if constr is None:
             constr = dict_to_construction(con_dict, False)
-        if constr:
+        if constr is not None:
             lock_and_check_construction(constr)
             if isinstance(constr, (OpaqueConstruction, AirBoundaryConstruction)):
                 _opaque_constructions[con_dict['identifier']] = constr
