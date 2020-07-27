@@ -35,6 +35,34 @@ def test_ventilation_opening_init():
     assert ventilation.wind_cross_vent
 
 
+def test_ventilation_opening_afn_init():
+    """Test the initialization of VentilationOpening and basic properties for AFN."""
+    vent_afn = VentilationOpening(
+        fraction_area_operable=1, fraction_height_operable=1, discharge_coefficient=0.17,
+        wind_cross_vent=False, air_mass_flow_coefficient_closed=0.001,
+        air_mass_flow_exponent_closed=0.667, minimum_density_difference_two_way=0.0001)
+
+    assert vent_afn.air_mass_flow_coefficient_closed == pytest.approx(0.001, abs=1e-10)
+    assert vent_afn.air_mass_flow_exponent_closed == pytest.approx(0.667, abs=1e-10)
+    assert vent_afn.minimum_density_difference_two_way == pytest.approx(0.0001)
+
+    # Test setting values
+    with pytest.raises(AssertionError):
+        vent_afn.air_mass_flow_coefficient_closed = -1
+    with pytest.raises(AssertionError):
+        vent_afn.air_mass_flow_exponent_closed = 0.1
+    with pytest.raises(AssertionError):
+        vent_afn.minimum_density_difference_two_way = -1
+
+    vent_afn.air_mass_flow_coefficient_closed = 0.002
+    vent_afn.air_mass_flow_exponent_closed = 0.65
+    vent_afn.minimum_density_difference_two_way = 0.001
+
+    assert vent_afn.air_mass_flow_coefficient_closed == pytest.approx(0.002, abs=1e-10)
+    assert vent_afn.air_mass_flow_exponent_closed == pytest.approx(0.65, abs=1e-10)
+    assert vent_afn.minimum_density_difference_two_way == pytest.approx(0.001)
+
+
 def test_ventilation_opening_parent():
     """Test the VentilationOpening with a parent."""
     room = Room.from_box('ShoeBoxZone', 5, 10, 3)
@@ -57,9 +85,9 @@ def test_ventilation_opening_parent():
 
 def test_ventilation_opening_equality():
     """Test the equality of Ventilation objects."""
-    ventilation = VentilationOpening(0.25, 0.5, 0.25, True)
+    ventilation = VentilationOpening(0.25, 0.5, 0.25, True, 0.001, 0.667, 1e-3)
     ventilation_dup = ventilation.duplicate()
-    ventilation_alt = VentilationOpening(0.5, 0.5, 0.25, True)
+    ventilation_alt = VentilationOpening(0.5, 0.5, 0.25, True, 0.001, 0.667, 1e-3)
 
     assert ventilation is ventilation
     assert ventilation is not ventilation_dup
@@ -101,3 +129,13 @@ def test_ventilation_dict_methods():
     new_ventilation = VentilationOpening.from_dict(vent_dict)
     assert new_ventilation == ventilation
     assert vent_dict == new_ventilation.to_dict()
+
+    # Test with afn
+    ventilation_afn = VentilationOpening(1, 1, 0.17, False, 0.001, 0.667, 1e-3)
+    vent_afn_dict = ventilation_afn.to_dict()
+    vent_afn_dict['air_mass_flow_coefficient_closed'] == pytest.approx(0.002, abs=1e-10)
+    vent_afn_dict['air_mass_flow_exponent_closed'] == pytest.approx(0.667, abs=1e-10)
+    vent_afn_dict['minimum_density_difference_two_way'] == pytest.approx(0.0001)
+    new_ventilation_afn = VentilationOpening.from_dict(vent_afn_dict)
+    assert new_ventilation_afn == ventilation_afn
+    assert vent_afn_dict == new_ventilation_afn.to_dict()

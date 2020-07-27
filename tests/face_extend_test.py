@@ -5,6 +5,7 @@ from honeybee.boundarycondition import boundary_conditions
 from honeybee_energy.properties.face import FaceEnergyProperties
 from honeybee_energy.construction.opaque import OpaqueConstruction
 from honeybee_energy.material.opaque import EnergyMaterial
+from honeybee_energy.ventcool.crack import AFNCrack
 
 from ladybug_geometry.geometry3d.pointvector import Point3D
 from ladybug_geometry.geometry3d.face import Face3D
@@ -20,6 +21,16 @@ def test_energy_properties():
     assert isinstance(face.properties.energy, FaceEnergyProperties)
     assert isinstance(face.properties.energy.construction, OpaqueConstruction)
     assert not face.properties.energy.is_construction_set_on_object
+    assert face.properties.energy.vent_crack is None
+
+    with pytest.raises(AssertionError):
+        face.properties.energy.vent_crack = AFNCrack(0, 0, 0)
+    face.properties.energy.vent_crack = AFNCrack(1e-5, 0.65, 1)
+    assert face.properties.energy.vent_crack.air_mass_flow_coefficient_reference == \
+        pytest.approx(1e-5, abs=1e-10)
+    assert face.properties.energy.vent_crack.air_mass_flow_exponent == \
+        pytest.approx(0.65, abs=1e-10)
+    assert face.properties.energy.vent_crack.crack_factor == pytest.approx(1, abs=1e-10)
 
 
 def test_default_constructions():
@@ -62,6 +73,7 @@ def test_duplicate():
         'Thick Concrete Construction', [concrete20])
 
     face_original = Face('wall_face', Face3D(verts))
+    face_original.properties.energy.vent_crack = AFNCrack(0.00001, 0.65, 1)
     face_dup_1 = face_original.duplicate()
 
     assert face_original.properties.energy.host is face_original
@@ -70,23 +82,32 @@ def test_duplicate():
 
     assert face_original.properties.energy.construction == \
         face_dup_1.properties.energy.construction
+    assert face_original.properties.energy.vent_crack == \
+        face_dup_1.properties.energy.vent_crack
     face_dup_1.properties.energy.construction = thick_constr
+    face_dup_1.properties.energy.vent_crack = AFNCrack(0.001, 0.7, 0.5)
     assert face_original.properties.energy.construction != \
         face_dup_1.properties.energy.construction
+    assert face_original.properties.energy.vent_crack != \
+        face_dup_1.properties.energy.vent_crack
 
     face_dup_2 = face_dup_1.duplicate()
 
     assert face_dup_1.properties.energy.construction == \
         face_dup_2.properties.energy.construction
     face_dup_2.properties.energy.construction = None
+    face_dup_2.properties.energy.vent_crack = None
     assert face_dup_1.properties.energy.construction != \
         face_dup_2.properties.energy.construction
+    assert face_dup_1.properties.energy.vent_crack != \
+        face_dup_2.properties.energy.vent_crack
 
 
 def test_to_dict():
     """Test the Face to_dict method with energy properties."""
     face = Face.from_vertices(
         'wall_face', [[0, 0, 0], [10, 0, 0], [10, 0, 10], [0, 0, 10]])
+
     concrete20 = EnergyMaterial('20cm Concrete', 0.2, 2.31, 2322, 832,
                                 'MediumRough', 0.95, 0.75, 0.8)
     thick_constr = OpaqueConstruction(
@@ -97,17 +118,25 @@ def test_to_dict():
     assert fd['properties']['type'] == 'FaceProperties'
     assert 'energy' in fd['properties']
     assert fd['properties']['energy']['type'] == 'FaceEnergyProperties'
+    assert 'vent_crack' not in fd['properties']['energy']
 
     face.properties.energy.construction = thick_constr
+    face.properties.energy.vent_crack = AFNCrack(1e-5, 0.65, 1)
     fd = face.to_dict()
     assert 'construction' in fd['properties']['energy']
     assert fd['properties']['energy']['construction'] is not None
+    assert AFNCrack.from_dict(fd['properties']['energy']['vent_crack']) == \
+        face.properties.energy.vent_crack
 
 
 def test_from_dict():
     """Test the Face from_dict method with energy properties."""
     face = Face.from_vertices(
         'wall_face', [[0, 0, 0], [10, 0, 0], [10, 0, 10], [0, 0, 10]])
+
+    ref_crack = AFNCrack(1e-5, 0.65, 1)
+    face.properties.energy.vent_crack = ref_crack
+
     concrete20 = EnergyMaterial('20cm Concrete', 0.2, 2.31, 2322, 832,
                                 'MediumRough', 0.95, 0.75, 0.8)
     thick_constr = OpaqueConstruction('Thick Concrete Construction', [concrete20])
@@ -116,6 +145,7 @@ def test_from_dict():
     fd = face.to_dict()
     new_face = Face.from_dict(fd)
     assert new_face.properties.energy.construction == thick_constr
+    assert new_face.properties.energy.vent_crack == ref_crack
     assert new_face.to_dict() == fd
 
 
