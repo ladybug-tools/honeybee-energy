@@ -239,20 +239,12 @@ Note:
 # Used to address library names that differ from their repository name (beyond
 # the dash-lower dash difference).
 # Format: {repository_name : library_name}
-ht_repo_lib = {'honeybee-core': 'honeybee',
-               'dragonfly-core': 'dragonfly'
-               }
+ht_repo_lib = {}
 
 # Library-command hash table.
 # Created to address sub-command group names that differ from their library name.
 # Format: {library_name : tool_name}
 ht_lib_tool = {}
-
-module_file = os.path.join(os.path.join(os.path.dirname(__file__), 'modules.rst'))
-with open(module_file, 'r') as mod_file:
-    lines = mod_file.readlines()
-module_name = lines[0]
-print (module_name)
 
 
 def create_cli_files():
@@ -264,15 +256,20 @@ def create_cli_files():
     the index.rst file to include a list of the click groups found.
     """
 
-    # Get CLI data from repository
-    repo_path = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
-    mod_names, lib_name, tool_name = get_cli_data(repo_path)
+    # Get CLI data from library
+    proj_folder = os.path.dirname(__file__)
+    result = get_cli_data(proj_folder)
+    if not result:
+        print ("[CLI]: Something went wrong while getting CLI data")
+        return
+
+    mod_names, lib_name, tool_name = result
 
     if not mod_names:
         return
 
     # Prepare docs folder and reST files to create
-    doc_folder = os.path.join(os.path.dirname(__file__), 'cli')
+    doc_folder = os.path.join(proj_folder, 'cli')
     if not os.path.isdir(doc_folder):
         os.mkdir(doc_folder)
 
@@ -286,20 +283,20 @@ def create_cli_files():
     # Create CLI rst files for each module(command group) found.
     result = write_cli_files(click_groups, lib_name, tool_name, doc_folder)
     if not result:
-        print ("Something went wrong during CLI docs generation")
+        print ("[CLI]: Something went wrong during CLI docs generation")
 
     # Update/Create index file with command group section included
     result = update_cli_index(os.path.join(doc_folder, 'index.rst'), click_groups)
     if not result:
-        print ("Something went wrong during CLI index update")
+        print ("[CLI]: Something went wrong during CLI index update")
 
 
-def get_cli_data(repo_path):
+def get_cli_data(project_folder):
     """Retrieves CLI data found inside a specified respository.
 
     Args:
-        repo_path: the repository that contains the library to extract the
-        CLI data from.
+        project_folder: the documentation path that contains the files to
+        extract CLI data from.
 
     Returns:
         A tuple with three elements.
@@ -312,13 +309,18 @@ def get_cli_data(repo_path):
         -   tool_name: The name of the command line tool that is used for this
             library.
     """
-
+    # Check in hash table for a library name based on repository name
+    repo_path = os.path.abspath(os.path.join(project_folder, os.pardir))
     repo_name = os.path.split(repo_path)[1]
-
-    # Check in hash table for a library name that differs from its
-    # repository name beyond the dash(-) to underscore(_) difference.
-    lib_name = ht_repo_lib[
-        repo_name] if repo_name in ht_repo_lib else repo_name.replace("-", "_")
+    lib_name = ht_repo_lib[repo_name] if repo_name in ht_repo_lib else None
+    # If library name not found in hashtable
+    # exract library name from modules.rst file (from heading)
+    if not lib_name:
+        modules_file = os.path.join(
+            os.path.join(project_folder, 'modules.rst'))
+        with open(modules_file, 'r') as mod_file:
+            lines = mod_file.readlines()
+        lib_name = lines[0][0:-1]
 
     # Check in hash table for a command line tool name that is different
     # from its library name beyond the underscore(_) to dash(-) difference.
@@ -326,7 +328,7 @@ def get_cli_data(repo_path):
         lib_name] if lib_name in ht_lib_tool else lib_name.replace("_", "-")
 
     lib_path = os.path.abspath(os.path.join(repo_path, lib_name))
-
+    print lib_path
     if not os.path.isdir(lib_path):
         print ("Cannot find library path")
         return None
