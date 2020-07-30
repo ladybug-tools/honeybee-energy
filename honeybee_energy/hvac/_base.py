@@ -114,4 +114,4 @@ class _HVACSystem(object):
         return new_obj
 
     def __repr__(self):
-        return 'HVACSystem:\n is single room: {}'.format(self.is_single_room)
+        return 'HVACSystem: {}'.format(self.identifier)
