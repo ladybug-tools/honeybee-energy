@@ -15,10 +15,6 @@ from honeybee.altnumber import autosize, no_limit
 class IdealAirSystem(_HVACSystem):
     """Simple ideal air system object used to condition zones.
 
-    Note that this is the only HVAC system supported by honeybee_energy and, to
-    access more advanced HVAC systems, a honeybee_energy extension should be
-    installed.
-
     Args:
         identifier: Text string for ideal air system identifier. Must be < 100 characters
             and not contain any EnergyPlus special characters. This will be used to
@@ -75,6 +71,8 @@ class IdealAirSystem(_HVACSystem):
         * cooling_limit
         * heating_availability
         * cooling_availability
+        * is_single_room
+        * schedules
     """
     __slots__ = ('_economizer_type', '_demand_controlled_ventilation',
                  '_sensible_heat_recovery', '_latent_heat_recovery',
@@ -553,14 +551,6 @@ class IdealAirSystem(_HVACSystem):
         if self._display_name is not None:
             base['display_name'] = self.display_name
         return base
-
-    def duplicate(self):
-        """Get a copy of this object."""
-        return self.__copy__()
-
-    def ToString(self):
-        """Overwrite .NET ToString."""
-        return self.__repr__()
 
     def _air_temperature_check(self):
         """Check that heating_air_temperature is greater than cooling_air_temperature."""

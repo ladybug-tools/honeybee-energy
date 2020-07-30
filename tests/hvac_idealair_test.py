@@ -6,7 +6,7 @@ from honeybee_energy.schedule.ruleset import ScheduleRuleset
 import honeybee_energy.lib.scheduletypelimits as schedule_types
 
 from honeybee.room import Room
-from honeybee.altnumber import autosize, no_limit
+from honeybee.altnumber import autosize
 
 from ladybug.dt import Time
 
@@ -118,7 +118,7 @@ def test_ideal_air_init_from_idf():
 def test_ideal_air_to_dict():
     """Test the to_dict method."""
     ideal_air = IdealAirSystem('Passive House HVAC System')
-    
+
     ideal_air.economizer_type = 'DifferentialEnthalpy'
     ideal_air.demand_controlled_ventilation = True
     ideal_air.sensible_heat_recovery = 0.75
@@ -135,7 +135,7 @@ def test_ideal_air_to_dict():
     ideal_air_dict = ideal_air.to_dict(abridged=True)
 
     assert ideal_air_dict['economizer_type'] == 'DifferentialEnthalpy'
-    assert ideal_air_dict['demand_controlled_ventilation'] == True
+    assert ideal_air_dict['demand_controlled_ventilation']
     assert ideal_air_dict['sensible_heat_recovery'] == 0.75
     assert ideal_air_dict['latent_heat_recovery'] == 0.6
     assert ideal_air_dict['heating_air_temperature'] == 40
