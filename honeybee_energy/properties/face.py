@@ -74,7 +74,7 @@ class FaceEnergyProperties(object):
 
     @property
     def vent_crack(self):
-        """Get or set a AFNCrack object to specify the operable portion."""
+        """Get or set a AFNCrack object to specify Airflow Network air leakage."""
         return self._vent_crack
 
     @vent_crack.setter
@@ -82,15 +82,6 @@ class FaceEnergyProperties(object):
         if value is not None:
             assert isinstance(value, AFNCrack), 'Expected AFNCrack ' \
                 'for Face vent_crack. Got {}'.format(type(value))
-            if value._parent is None:
-                value._parent = self.host
-            elif value._parent.identifier != self.host.identifier:
-                raise ValueError(
-                    '{0} objects can be assigned to only one parent.\n{0} cannot be '
-                    'assigned to Face "{1}" since it is already assigned to "{2}".\n'
-                    'Try duplicating the object and then assign it.'.format(
-                        'AFNCrack', self.host.identifier,
-                        value._parent.identifier))
             value.lock()   # lock because we don't duplicate the object
         self._vent_crack = value
 
@@ -125,18 +116,8 @@ class FaceEnergyProperties(object):
 
             {
             "type": 'FaceEnergyProperties',
-            "construction": {
-                "type": 'OpaqueConstruction',
-                "identifier": str, # construction identifier
-                "layers": [], # list of material identifiers (from outside to inside)
-                "materials": []  # list of unique material objects
-                }
-            "vent_crack": {
-                "type": "AFNCrack",
-                "air_mass_flow_coefficient_reference": 0.01 # reference crack coefficient
-                "air_mass_flow_exponent": 0.65 # exponent for the surface crack
-                "crack_factor" 0.5 # multiplier for air mass flow through a crack
-                }
+            "construction": {},  # opaque construction
+            "vent_crack": {}  # AFN crack
             }
         """
         assert data['type'] == 'FaceEnergyProperties', \

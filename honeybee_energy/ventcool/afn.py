@@ -2,8 +2,8 @@
 """Functions to generate airflownetwork from list of rooms."""
 from __future__ import division
 
-from honeybee.boundarycondition import Outdoors, Ground
-from honeybee.facetype import Wall, Floor, AirBoundary
+from honeybee.boundarycondition import Outdoors
+from honeybee.facetype import Wall, RoofCeiling
 
 from .crack import AFNCrack
 from .opening import VentilationOpening
@@ -35,7 +35,7 @@ internal_tight_cracks = InternalCracks(
 )
 
 
-internal_average_cracks  = InternalCracks(
+internal_average_cracks = InternalCracks(
     # kg/s/m2 @ 1 Pa
     wall_cq=0.003,
     wall_n=0.75,
@@ -49,7 +49,7 @@ internal_average_cracks  = InternalCracks(
 )
 
 
-internal_leaky_cracks  = InternalCracks(
+internal_leaky_cracks = InternalCracks(
     # kg/s/m2 @ 1 Pa
     wall_cq=0.019,
     wall_n=0.75,
@@ -63,62 +63,33 @@ internal_leaky_cracks  = InternalCracks(
 )
 
 
-def _group_faces_by_boundary_condition(faces):
-    """Group faces by boundary condition.
-
-    Args:
-        faces: List of Face3D objects.
-
-    Returns:
-        Two lists:
-            * ext_faces: Face3D objects with Outdoor boundary conditions
-            * int_faces: Face3D objects with Surface boundary conditions.
-            * grd_faces: Face3D objects with Ground boundary conditions.
-    """
-
-    ext_faces, int_faces, grd_faces = [], [], []
-    for face in faces:
-        if isinstance(face.boundary_condition, Outdoors):
-            ext_faces.append(face)
-        elif isinstance(face.boundary_condition, Ground):
-            grd_faces.append(face)
-        else:  # Surface BC
-            int_faces.append(face)
-    return ext_faces, int_faces, grd_faces
-
-
 def _group_faces_by_type(faces):
-    """Group faces and subfaces by type.
+    """Group faces and subfaces by types that experience exterior air flow leakage.
 
     Args:
-        faces: List of Face3D objects.
+        faces: List of Face objects.
 
     Return:
-        A tuple with six items:
-            * walls: List of Wall type Face3D objects.
-            * roofceilings: List of RoofCeiling type Face3D objects.
-            * floors: List of Floor type Face3D objects.
-            * airboundaries: List of AirBoundary type of Face3D objects.
-            * apertures: List of Aperture sub-face Face3D objects.
-            * doors: List of Door sub-face Face3D objects.
+        A tuple with four items:
+            * walls: List of exterior Wall type Face objects.
+            * roofceilings: List of exterior RoofCeiling type Face objects.
+            * apertures: List of exterior Aperture sub-face Face objects.
+            * doors: List of exterior Door sub-face Face objects.
     """
 
-    walls, roofceilings, floors, airboundaries, apertures, doors = [], [], [], [], [], []
+    walls, roofceilings, apertures, doors = [], [], [], []
 
     for face in faces:
-        if isinstance(face.type, Wall):
-            walls.append(face)
-            apertures.extend(face.apertures)
-            doors.extend(face.doors)
-        elif isinstance(face.type, AirBoundary):
-            airboundaries.append(face)
-        elif isinstance(face.type, Floor):
-            floors.append(face)
-        else:
-            roofceilings.append(face)
-            apertures.extend(face.apertures)  # Add any potential skylights
+        if isinstance(face.boundary_condition, Outdoors):
+            if isinstance(face.type, Wall):
+                walls.append(face)
+                apertures.extend(face.apertures)
+                doors.extend(face.doors)
+            elif isinstance(face.type, RoofCeiling):
+                roofceilings.append(face)
+                apertures.extend(face.apertures)  # Add any potential skylights
 
-    return walls, roofceilings, floors, airboundaries, apertures, doors
+    return walls, roofceilings, apertures, doors
 
 
 def solve_area_leakage_mass_flow_coefficient(flow_per_exterior_area, face_area,
@@ -205,15 +176,31 @@ def solve_perimeter_leakage_mass_flow_coefficient(flow_per_exterior_perimeter,
     return qv * d / (dp ** n)
 
 
-def generate(rooms, window_vent_controls, internal_leakage_type='Average'):
+def generate(rooms, window_vent_controls, rooms_adjacency_info=None,
+             internal_leakage_type='Average'):
     """
-    Auto-generate airflow networks given an array of honeybee Rooms and other properties.
+    Generate an AirflowNetwork from a list of Honeybee Room objects and associated data.
+
+    This function will derive the leakage component parameters for the ventilation
+    cooling energy properties of Honeybee Room and Face objects to simulate an
+    EnergyPlus AirflowNetwork. The exterior airflow leakage parameters will be
+    calculated to be consistent with the specified Room infiltration rate, while
+    interzone airflow leakage parameters are referenced from the DesignBuilder Cracks
+    template, based on the 'internal_leakage_type' parameter.
+
+    VentilationOpening objects will be added to Aperture and Door objects if not already
+    defined. If already defined, only the parameters defining leakage when the openings
+    are closed will be overwritten. AFNCrack objects will be added to all external and
+    internal Face objects.
 
     Args:
         rooms: List of Honeybee Room objects that make up the Airflow Network. The
             adjacencies of these rooms must be solved.
         window_vent_controls: List or tuple of VentilationControl objects corresponding
             to the list of rooms, or a single VentilationControl.
+        rooms_adjacency_info: Either a dictionary of adjacency information returned from
+            the Room.solve_adjacency method, or None. If None the air flow through
+            interzone faces and sub-faces will not be modeled.
         internal_leakage_type: Text identifying the leakiness of the internal walls. This
             will be used to determine the air mass flow rate parameters for cracks in
             internal floors, ceilings and walls. (Default: 'Average').
@@ -222,9 +209,6 @@ def generate(rooms, window_vent_controls, internal_leakage_type='Average'):
             * Tight
             * Average
             * Leaky
-
-    Returns:
-        rooms: List of Honeybee Room objects with Airflow Network properties set.
     """
 
     assert isinstance(window_vent_controls, (tuple, list)) and \
@@ -233,7 +217,7 @@ def generate(rooms, window_vent_controls, internal_leakage_type='Average'):
         'rooms. Got a {} with length {}.'.format(
             type(window_vent_controls), len(window_vent_controls))
 
-    # define reference cracks
+    # simplify reference cracks
     if internal_leakage_type == 'Tight':
         int_cracks = internal_tight_cracks
     elif internal_leakage_type == 'Average':
@@ -244,70 +228,104 @@ def generate(rooms, window_vent_controls, internal_leakage_type='Average'):
         raise AssertionError('internal_leakage_type must be "Tight", "Average", '
                              'or "Leaky". Got: {}.'.format(internal_leakage_type))
 
+    # make reference AFNCracks
+    int_wall_crack = AFNCrack(int_cracks.wall_cq, int_cracks.wall_n, 1)
+    int_floorceiling_crack = \
+        AFNCrack(int_cracks.floorceiling_cq, int_cracks.floorceiling_n)
+    int_wall_crack.lock()
+    int_floorceiling_crack.lock()
+
     # loop through all rooms get wall data
     for i, room in enumerate(rooms):
 
         # assign ventilation control to room
         room.properties.energy.window_vent_control = window_vent_controls[i]
 
-        # group face data, omitting the ground face data
-        walls, roofceilings, floors, _, apertures, doors = \
+        # get exterior faces by type that experience air flow leakage
+        ext_walls, ext_roofceilings, ext_apertures, ext_doors = \
             _group_faces_by_type(room.faces)
-        ext_walls, int_walls, _ = _group_faces_by_boundary_condition(walls)
-        ext_roofceilings, int_roofceilings, _ = \
-            _group_faces_by_boundary_condition(roofceilings)
-        _, int_floors, _ = _group_faces_by_boundary_condition(floors)
-        int_floorceilings = int_floors + int_roofceilings
 
-        # get reference air flow data for area leakage
-        infil_per_area = room.properties.energy.infiltration.flow_per_exterior_area
-        opening_area = room.exterior_aperture_area + sum([door.area for door in doors])
+        if len(ext_walls) > 0 or len(ext_roofceilings) > 0:
+            # get reference air flow data for area leakage
+            infil_per_area = room.properties.energy.infiltration.flow_per_exterior_area
+            opening_area = sum([ext_aperture.area for ext_aperture in ext_apertures])
+            opening_area += sum([ext_door.area for ext_door in ext_doors])
 
-        # solve for leakage parameters of all exposed areas minus apertures/doors
-        ext_cq_area = solve_area_leakage_mass_flow_coefficient(
-            infil_per_area, room.exposed_area - opening_area, DEFAULT_EXTERIOR_CRACK_N)
-        ext_area_crack = AFNCrack(ext_cq_area, DEFAULT_EXTERIOR_CRACK_N, 1)
+            # solve for leakage parameters of all exposed areas minus apertures/doors
+            ext_cq_area = solve_area_leakage_mass_flow_coefficient(
+                infil_per_area, room.exposed_area - opening_area,
+                DEFAULT_EXTERIOR_CRACK_N)
+
+            # make single AFNCrack for all exterior surfaces
+            ext_area_crack = AFNCrack(ext_cq_area, DEFAULT_EXTERIOR_CRACK_N, 1)
+            ext_area_crack.lock()
+
+            # add exterior crack leakage components
+            for ext_wall in ext_walls:
+                ext_wall.properties.energy.vent_crack = ext_area_crack
+
+            for ext_roofceiling in ext_roofceilings:
+                ext_roofceiling.properties.energy.vent_crack = ext_area_crack
 
         # get reference air flow data for perimeter leakage
-        if len(doors) > 0 and len(apertures) > 0:
-            opening_perimeter = sum([aperture.perimeter for aperture in apertures])
-            opening_perimeter += sum([door.perimeter for door in doors])
+        if len(ext_doors) > 0 or len(ext_apertures) > 0:
+            opening_perimeter = sum([aperture.perimeter for aperture in ext_apertures])
+            opening_perimeter += sum([door.perimeter for door in ext_doors])
             infil_per_perimeter = infil_per_area * opening_area / opening_perimeter
 
             # solve for leakage parameters of all exposed apertures/doors
             ext_cq_perimeter = solve_perimeter_leakage_mass_flow_coefficient(
                 infil_per_perimeter, DEFAULT_EXTERIOR_CRACK_N)
 
-        # Add crack leakage components
-        for ext_wall in ext_walls:
-            ext_wall.properties.energy.vent_crack = ext_area_crack.duplicate()
+            # add exterior opening leakage components
+            for ext_aperture in ext_apertures:
+                if ext_aperture.properties.energy.vent_opening is None:
+                    ext_aperture.is_operable = True
+                    ext_aperture.properties.energy.vent_opening = VentilationOpening()
+                vent_opening = ext_aperture.properties.energy.vent_opening
+                vent_opening.flow_coefficient_closed = ext_cq_perimeter
+                vent_opening.flow_exponent_closed = DEFAULT_EXTERIOR_CRACK_N
 
-        for ext_roofceiling in ext_roofceilings:
-            ext_roofceiling.properties.energy.vent_crack = ext_area_crack.duplicate()
+            for ext_door in ext_doors:
+                if ext_door.properties.energy.vent_opening is None:
+                    ext_door.properties.energy.vent_opening = VentilationOpening()
+                vent_opening = ext_door.properties.energy.vent_opening
+                vent_opening.flow_coefficient_closed = ext_cq_perimeter
+                vent_opening.flow_exponent_closed = DEFAULT_EXTERIOR_CRACK_N
 
-        for int_wall in int_walls:
-            int_wall_crack = AFNCrack(int_cracks.wall_cq, int_cracks.wall_n, 1)
-            int_wall.properties.energy.vent_crack = int_wall_crack
 
-        for int_floorceiling in int_floorceilings:
-            int_floorceiling_crack = \
-                AFNCrack(int_cracks.floorceiling_cq, int_cracks.floorceiling_n)
-            int_floorceiling.properties.energy.vent_crack = int_floorceiling_crack
+    # simplify adjacency data
+    if rooms_adjacency_info:
+        adj_faces = rooms_adjacency_info['adjacent_faces']
+        adj_apertures = rooms_adjacency_info['adjacent_apertures']
+        adj_doors = rooms_adjacency_info['adjacent_doors']
 
-        # Add opening leakage components
-        for aperture in apertures:
-            if aperture.properties.energy.vent_opening is None:
-                aperture.is_operable = True
-                aperture.properties.energy.vent_opening = VentilationOpening()
-            vent_opening = aperture.properties.energy.vent_opening
-            vent_opening.air_mass_flow_coefficient_closed = ext_cq_perimeter
-            vent_opening.air_mass_flow_exponent_closed = DEFAULT_EXTERIOR_CRACK_N
+    if rooms_adjacency_info:
+        # Note that only one of the adjacent interzone surfaces need to be assigned
+        # a leakage component. If both adjacent surfaces have a leakage component,
+        # the air flow through the surface will be counted twice.
 
-        for door in doors:
-            if door.properties.energy.vent_opening is None:
-                door.properties.energy.vent_opening = VentilationOpening()
-            vent_opening = door.properties.energy.vent_opening
-            vent_opening.air_mass_flow_coefficient_closed = ext_cq_perimeter
-            vent_opening.air_mass_flow_exponent_closed = DEFAULT_EXTERIOR_CRACK_N
+        # add interior crack leakage components
+        for adj_face1, adj_face2 in adj_faces:
+            if isinstance(adj_face1.type, Wall):
+                adj_face1.properties.energy.vent_crack = int_wall_crack
+            else:  # floor or ceiling
+                adj_face1.properties.energy.vent_crack = int_floorceiling_crack
+            adj_face2.properties.energy.vent_crack = None
 
-    return rooms
+        # add interior opening leakage components
+        for adj_aperture1, adj_aperture2 in adj_apertures:
+            if adj_aperture1.properties.energy.vent_opening is None:
+                adj_aperture1.is_operable = True
+                adj_aperture1.properties.energy.vent_opening = VentilationOpening()
+            vent_opening = adj_aperture1.properties.energy.vent_opening
+            vent_opening.flow_coefficient_closed = int_cracks.window_cq
+            vent_opening.flow_exponent_closed = int_cracks.window_n
+
+        for adj_door1, adj_door2 in adj_doors:
+            if adj_door1.properties.energy.vent_opening is None:
+                adj_door1.properties.energy.vent_opening = VentilationOpening()
+            vent_opening = adj_door1.properties.energy.vent_opening
+            vent_opening.flow_coefficient_closed = int_cracks.door_cq
+            vent_opening.flow_exponent_closed = int_cracks.door_n
+
