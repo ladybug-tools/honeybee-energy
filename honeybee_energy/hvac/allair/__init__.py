@@ -1,8 +1,10 @@
 """Template All-air HVAC definitions.
 
 All-air systems provide both ventilation and satisfaction of heating + cooling
-demand with the same stream of warm/cool air. As such, they often have really
-good humidity control. However, because such systems often involve the 
+demand with the same stream of warm/cool air. As such, they often grant tight
+control over zone humidity. However, because such systems often involve the
+cooling of air only to reheat it again, they are often more energy intensive
+than systems that separate ventilation from the meeting of thermal loads.
 
 Properties:
     * HVAC_TYPES_DICT: A dictionary containing pointers to the classes of each
