@@ -209,8 +209,9 @@ class VentilationControl(object):
         base['min_outdoor_temperature'] = self.min_outdoor_temperature
         base['max_outdoor_temperature'] = self.max_outdoor_temperature
         base['delta_temperature'] = self.delta_temperature
-        base['schedule'] = self.schedule.identifier if abridged \
-            else self.schedule.to_dict()
+        if self.schedule is not always_on:
+            base['schedule'] = self.schedule.identifier if abridged \
+                else self.schedule.to_dict()
         return base
 
     def duplicate(self):

@@ -296,7 +296,7 @@ class RoomEnergyProperties(object):
         Args:
             vent_opening: A VentilationOpening object to be duplicated and assigned
                 to all of the operable apertures of the Room.
-        
+
         Returns:
             A list of Apertures for which ventilation opening properties were set.
             This can be used to perform additional operations on the apertures, such
