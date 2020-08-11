@@ -241,8 +241,16 @@ output-table-summaryreports.html#outputtablesummaryreports)
                    'Zone VRF Air Terminal Heating Electric Energy',
                    'VRF Heat Pump Cooling Electric Energy',
                    'VRF Heat Pump Heating Electric Energy',
+                   'VRF Heat Pump Defrost Electric Energy',
+                   'VRF Heat Pump Crankcase Heater Electric Energy',
                    'Chiller Heater System Cooling Electric Energy',
-                   'Chiller Heater System Heating Electric Energy']
+                   'Chiller Heater System Heating Electric Energy',
+                   'District Cooling Chilled Water Energy',
+                   'District Heating Hot Water Energy',
+                   'Baseboard Electric Energy',
+                   'Evaporative Cooler Electric Energy',
+                   'Energy Management System Metered Output Variable 1']
+        # NOTE: The EMS output is needed to catch the electric energy of ASHP
         for outp in outputs:
             self._outputs.add(outp)
 
