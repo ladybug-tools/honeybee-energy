@@ -250,7 +250,7 @@ output-table-summaryreports.html#outputtablesummaryreports)
                    'Baseboard Electric Energy',
                    'Evaporative Cooler Electric Energy',
                    'Energy Management System Metered Output Variable 1']
-        # NOTE: The EMS output is needed to catch the electric energy of ASHP
+        # NOTE: The EMS output catches the electric energy of standards gem ASHP
         for outp in outputs:
             self._outputs.add(outp)
 
