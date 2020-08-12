@@ -16,6 +16,7 @@ from ..ventcool.opening import VentilationOpening
 # import Honeybee-core modules
 from honeybee.boundarycondition import Outdoors
 from honeybee.facetype import Wall, RoofCeiling
+from honeybee.aperture import Aperture
 
 # import all hvac modules to ensure they are all re-serialize-able in Room.from_dict
 from ..hvac import HVAC_TYPES_DICT
@@ -58,13 +59,11 @@ class RoomEnergyProperties(object):
         * setpoint
         * window_vent_control
         * is_conditioned
-        * afn_exterior_face_groups
     """
 
     __slots__ = ('_host', '_program_type', '_construction_set', '_hvac',
                  '_people', '_lighting', '_electric_equipment', '_gas_equipment',
-                 '_infiltration', '_ventilation', '_setpoint', '_window_vent_control',
-                 '_afn_exterior_face_groups')
+                 '_infiltration', '_ventilation', '_setpoint', '_window_vent_control')
 
     def __init__(self, host, program_type=None, construction_set=None, hvac=None):
         """Initialize Room energy properties."""
@@ -83,7 +82,6 @@ class RoomEnergyProperties(object):
         self._ventilation = None
         self._setpoint = None
         self._window_vent_control = None
-        self._afn_exterior_face_groups = None
 
     @property
     def host(self):
@@ -288,7 +286,6 @@ class RoomEnergyProperties(object):
         """Boolean to note whether the Room is conditioned."""
         return self._hvac is not None
 
-    @property
     def afn_exterior_face_groups(self):
         """Group faces and subfaces by types that experience exterior air flow leakage.
 
@@ -302,38 +299,35 @@ class RoomEnergyProperties(object):
                 * apertures: List of exterior Aperture sub-face Face objects.
                 * doors: List of exterior Door sub-face Face objects.
         """
-        if self._afn_exterior_face_groups is None:
-            walls, roofs, apertures, doors = [], [], [], []
+        walls, roofs, apertures, doors = [], [], [], []
 
-            for face in self.host.faces:
-                if isinstance(face.boundary_condition, Outdoors):
-                    if isinstance(face.type, Wall):
-                        walls.append(face)
-                        apertures.extend(face.apertures)
-                        doors.extend(face.doors)
-                    elif isinstance(face.type, RoofCeiling):
-                        roofs.append(face)
-                        apertures.extend(face.apertures)  # Add any potential skylights
+        for face in self.host.faces:
+            if isinstance(face.boundary_condition, Outdoors):
+                if isinstance(face.type, Wall):
+                    walls.append(face)
+                    apertures.extend(face.apertures)
+                    doors.extend(face.doors)
+                elif isinstance(face.type, RoofCeiling):
+                    roofs.append(face)
+                    apertures.extend(face.apertures)  # Add any potential skylights
 
-            self._afn_exterior_face_groups = (walls, roofs, apertures, doors)
-
-        return self._afn_exterior_face_groups
+        return walls, roofs, apertures, doors
 
     @staticmethod
-    def solve_norm_area_flow_coefficient(flow_per_exterior_area, mass_flow_exponent,
+    def solve_norm_area_flow_coefficient(flow_per_exterior_area, mass_flow_exponent=0.65,
                                          air_density=1.204, delta_pressure=4):
         """Mass flow coefficient in kg/(m2 s P^n) for exposed surface area from infiltration.
 
         Note that this coefficient is normalized per unit area. The EnergyPlus
         AirflowNetwork requires an unnormalized value, and thus this value needs to be
-        multiplied by it's corresponding exposed surface area. The normalized air mass
-        flow coefficient is derived from a zone's infiltration flow rate using the
+        multiplied by it's corresponding exposed surface area. The normalized area air
+        mass flow coefficient is derived from a zone's infiltration flow rate using the
         following formula:
 
-            Qva * d = Cq * dP^n
+            Qva * d = Cqa * dP^n
 
             where:
-                Cq: Air mass flow coefficient at 1 Pa [kg/m2/s/P^n]
+                Cqa: Air mass flow coefficient per unit meter at 1 Pa [kg/m2/s/P^n]
                 Qva: Volumetric air flow rate per area [m3/s/m2]
                 d: Air density [kg/m3]
                 dP: Change in pressure across building envelope [Pa]
@@ -341,7 +335,7 @@ class RoomEnergyProperties(object):
 
         Rearranged to solve for Cq:
 
-            Cq = Qv * d / dP^n
+            Cqa = Qv * d / dP^n
 
         Args:
             flow_per_exterior_area: A numerical value for the intensity of infiltration
@@ -353,7 +347,7 @@ class RoomEnergyProperties(object):
                 represents typical building pressures.
 
         Returns:
-            Air mass flow coefficient in kg/m2/s/P^n at 1 Pa
+            Air mass flow coefficient per unit meter at 1 Pa [kg/m2/s/P^n]
         """
         qva = flow_per_exterior_area
         n = mass_flow_exponent
@@ -371,50 +365,46 @@ class RoomEnergyProperties(object):
         This parameter is used to derive air flow for the four cracks around the
         perimeter of a closed window or door: one along the bottom, one along the top,
         and one on each side. Since this value is derived from the infiltration flow
-        rate per exterior area, which represents an average over many types of air leakage 
-        flow rates, this value is not intended to be representative of actual opening edges
-        flow coefficients.   
-        
+        rate per exterior area, which represents an average over many types of air
+        leakage rates, this value is not intended to be representative of actual opening
+        edges flow coefficients. Note that, unlike the surface area flow_coefficient,
+        this coefficient is normalized per unit length, which is the required input unit
+        the EnergyPlus AirflowNetwork, whereas the flow coefficient for surface cracks is
+        not normalized. The normalized perimeter air mass flow coefficient is derived
+        from its infiltration flow rate using the following formula:
 
-        Note that, unlike the surface area flow_coefficient, this
-        coefficient is normalized per unit length, which is the required input unit the
-        EnergyPlus AirflowNetwork, whereas the flow coefficient for surface cracks is
-        not normalized. The air mass flow coefficient is derived from its infiltration
-        flow rate using the following formula:
-
-            Qv * d * A / L = Cq * dP^n
+            Qv * d * A = Cql * L * dP^n
 
             where:
-                Cq: Air mass flow coefficient at 1 Pa [kg/m/s/P^n]
+                Cql: Air mass flow coefficient per unit length at 1 Pa [kg/m/s/P^n]
                 Qv: Volumetric air flow rate per length [m3/s/m]
                 d: Air density [kg/m3]
-                A: Surface area [m2]
-                L: Surface perimeter [m]
+                A: Surface area of opening [m2]
+                L: Surface perimeter of opening [m]
                 dP: Change in pressure across building envelope [Pa]
                 n: Air mass flow exponent [-]
 
-        Rearranged to solve for Cq:
+        Since Qv * d / dP^n equals Cqa the normalized area flow coefficient, this can
+        be simplified and rearranged to solve for Cql with:
 
-            Cq = Qv * d * A / L / dP^n
+            Cql = Cqa * A / L
 
         Args:
-            flow_per_exterior_area: A numerical value for the intensity of infiltration
-                in m3/s per square meter of exterior surface area.
+            norm_area_flow_coefficient: Air mass flow coefficient per unit meter at
+                1 Pa [kg/m2/s/P^n]
             face_area: A numerical value for the total exterior area in m2.
             face_perimeter: A numerical value for the total exterior perimeter in meters.
-            mass_flow_exponent: A numerical value for the air mass flow exponent.
-            air_density: Reference air density in kg/m3. Default: 1.204 represents
-                air density at a temperature of 20 C, and 101325 Pa.
-            delta_pressure: Reference building air pressure in Pascals. Default: 4
-                represents typical building pressures.
 
         Returns:
-            Air mass flow coefficient in kg/s/m/P^n at 1 Pa
+            Air mass flow coefficient per unit length at 1 Pa [kg/m/s/P^n]
         """
-        a, l = face_area, face_perimeter
-        return norm_area_flow_coefficient * a / l
+        cqa = norm_area_flow_coefficient
+        a = face_area
+        ln = face_perimeter
 
-    def afn_from_infiltration_flow(self, model_crack_leakage, model_cracks):
+        return cqa * a / ln
+
+    def afn_from_infiltration_load(self):
         """TBD
 
         Uses default values for mass flow exponent.
@@ -422,38 +412,28 @@ class RoomEnergyProperties(object):
 
         # get exterior faces by type that experience air flow leakage
         ext_walls, ext_roofceilings, ext_apertures, ext_doors = \
-            self.afn_exterior_faces_groups
+            self.afn_exterior_face_groups()
 
-        infil_flow = self.properties.energy.infiltration.flow_per_exterior_area
-        ext_flow_cof_area = self.solve_norm_area_flow_coefficient(infil_flow)
+        infil_flow = self.infiltration.flow_per_exterior_area
+        flow_cof_area = self.solve_norm_area_flow_coefficient(infil_flow)
 
-        if model_crack_leakage:
-            # add exterior crack leakage components
-            opening_area, opening_perimeter = 0, 0
-            for ext_face in ext_walls + ext_roofceilings:
-                opening_area = sum([aper.area for aper in ext_face.apertures])
-                opening_area += sum([door.area for door in ext_face.doors])
-                face_area = self.exposed_area - opening_area
-                ext_area_crack = AFNCrack(ext_flow_cof_area * face_area)
-                ext_area_crack.lock()
-                ext_face.properties.energy.vent_crack = ext_area_crack
-                model_cracks.append((face_area, ext_area_crack))
+        # add exterior crack leakage components
+        for ext_face in (ext_walls + ext_roofceilings):
+            opening_area = sum([aper.area for aper in ext_face.apertures])
+            opening_area += sum([door.area for door in ext_face.doors])
+            flow_cof = flow_cof_area * (ext_face.area - opening_area)
+            ext_face.properties.energy.vent_crack = AFNCrack(flow_cof)
 
-        # TODO: account for all model exposed area if not model_crack_leakage
         # add exterior opening leakage components
-        for ext_opening in ext_apertures + ext_doors:
-            opening_perimeter = sum([aper.perimeter for aper in ext_opening])
-            opening_perimeter += sum([door.perimeter for door in ext_opening])
-
+        for ext_opening in (ext_apertures + ext_doors):
             if ext_opening.properties.energy.vent_opening is None:
-                ext_opening.is_operable = True
+                if isinstance(ext_opening, Aperture):
+                    ext_opening.is_operable = True
                 ext_opening.properties.energy.vent_opening = VentilationOpening()
             vent_opening = ext_opening.properties.energy.vent_opening
             ext_flow_cof_perimeter = self.solve_norm_perimeter_flow_coefficient(
-                ext_flow_cof_area, opening_area, )
+                flow_cof_area, ext_opening.area, ext_opening.perimeter)
             vent_opening.flow_coefficient_closed = ext_flow_cof_perimeter
-
-        return model_cracks
 
     def add_default_ideal_air(self):
         """Add a default IdealAirSystem to this Room.
