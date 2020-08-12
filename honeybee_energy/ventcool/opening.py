@@ -20,14 +20,14 @@ class VentilationOpening(object):
         discharge_coefficient: A number between 0.0 and 1.0 that will be multipled
             by the area of the window in the stack (buoyancy-driven) part of the
             equation to account for additional friction from window geometry,
-            insect screens, etc. (Default: 0.17, for unobstructed windows with
+            insect screens, etc. (Default: 0.45, for unobstructed windows with
             insect screens). This value should be lowered if windows are of an
             awning or casement type and not allowed to fully open. Some common
             values for this coefficient include the following.
 
                 * 0.0 - Completely discount stack ventilation from the calculation.
-                * 0.17 - For unobstructed windows with an insect screen.
-                * 0.25 - For unobstructed windows with NO insect screen.
+                * 0.45 - For unobstructed windows with an insect screen.
+                * 0.65 - For unobstructed windows with NO insect screen.
 
         wind_cross_vent: Boolean to indicate if there is an opening of roughly
             equal area on the opposite side of the Room such that wind-driven
@@ -47,7 +47,7 @@ class VentilationOpening(object):
                  '_discharge_coefficient', '_wind_cross_vent', '_parent')
 
     def __init__(self, fraction_area_operable=0.5, fraction_height_operable=1.0,
-                 discharge_coefficient=0.17, wind_cross_vent=False):
+                 discharge_coefficient=0.45, wind_cross_vent=False):
         """Initialize VentilationOpening."""
         self.fraction_area_operable = fraction_area_operable
         self.fraction_height_operable = fraction_height_operable
@@ -127,7 +127,7 @@ class VentilationOpening(object):
             "type": "VentilationOpening",
             "fraction_area_operable": 0.5,  # Fractional number for area operable
             "fraction_height_operable": 0.5,  # Fractional number for height operable
-            "discharge_coefficient": 0.17,  # Fractional number for discharge coefficient
+            "discharge_coefficient": 0.45,  # Fractional number for discharge coefficient
             "wind_cross_vent": True  # Wind-driven cross ventilation
             }
         """
@@ -139,7 +139,7 @@ class VentilationOpening(object):
         height_op = data['fraction_height_operable'] if 'fraction_height_operable' in data \
             and data['fraction_height_operable'] is not None else 1.0
         discharge = data['discharge_coefficient'] if 'discharge_coefficient' in data \
-            and data['discharge_coefficient'] is not None else 0.17
+            and data['discharge_coefficient'] is not None else 0.45
         cross_vent = data['wind_cross_vent'] if 'wind_cross_vent' in data \
             and data['wind_cross_vent'] is not None else False
 

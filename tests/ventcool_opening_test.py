@@ -19,7 +19,7 @@ def test_ventilation_opening_init():
 
     assert ventilation.fraction_area_operable == 0.5
     assert ventilation.fraction_height_operable == 1.0
-    assert ventilation.discharge_coefficient == 0.17
+    assert ventilation.discharge_coefficient == 0.45
     assert not ventilation.wind_cross_vent
     assert not ventilation.has_parent
     assert ventilation.parent is None
