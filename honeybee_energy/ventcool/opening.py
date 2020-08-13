@@ -5,7 +5,7 @@ from __future__ import division
 from .control import VentilationControl
 from ..writer import generate_idf_string
 
-from honeybee.typing import float_in_range
+from honeybee.typing import float_in_range, float_positive
 
 
 class VentilationOpening(object):
@@ -34,56 +34,59 @@ class VentilationOpening(object):
             cross ventilation will be induced. If False, the assumption is that
             the operable area is primarily on one side of the Room and there is
             no wind-driven ventilation. (Default: False)
-        air_mass_flow_coefficient_closed: A number in kg/s-m, at 1 Pa per meter of crack
+        flow_coefficient_closed: A number in kg/s-m, at 1 Pa per meter of crack
             length, used to calculate the mass flow rate when the opening is closed;
-            required to run an AirflowNetwork simulation. Some common values for this
-            coefficient from the DesignBuilder Cracks template include the following:
+            only used in an AirflowNetwork simulation. Some common values for this
+            coefficient (from the DesignBuilder Cracks template) include the following:
 
                 * 0.00001 - Tight, low-leakage closed external window
                 * 0.003 - Very poor, high-leakage closed external window
 
-            If this value is None and one of the AirflowNetwork options are
-            selected in the VentilationSimulationControl object, a default value will be
-            calculated to produce air flow leakages equivalent to the zone flow rate
-            defined by the corresponding Infiltration object.
-        air_mass_flow_exponent_closed: An optional dimensionless number between 0.5 and
+            (Default: 0, indicates the VentilationOpening object will not participate
+            in the AirflowNetwork simulation).
+        flow_exponent_closed: An optional dimensionless number between 0.5 and
             1 used to calculate the mass flow rate when the opening is closed; required
             to run an AirflowNetwork simulation. This value represents the leak geometry
             impact on airflow, with 0.5 generally corresponding to turbulent orifice flow
-            and 1 generally corresponding to laminar flow. The default of 0.7 is
-            representative of internal and external window leakage, according to the
-            DesignBuilder Cracks template.
-        minimum_density_difference_two_way: A number in kg/m3 indicating the minimum
-            density difference above which two-way flow may occur due to stack effect;
-            required to run an AirflowNetwork simulation. The default of 0.0001 is a
-            typical default value used for AirflowNetwork openings.'
+            and 1 generally corresponding to laminar flow. (Default: 0.65,
+            representative of many cases of wall and window leakage, used when the
+            exponent cannot be measured).
+        two_way_threshold: A number in kg/m3 indicating the minimum density difference
+            above which two-way flow may occur due to stack effect, required to run an
+            AirflowNetwork simulation. This value is required because the air density
+            difference between two zones (which drives two-way air flow) will tend
+            towards division by zero errors as the air density difference approaches
+            zero. (Default: 0.0001, typical default value used for AirflowNetwork
+            openings).
 
     Properties:
         * fraction_area_operable
         * fraction_height_operable
         * discharge_coefficient
         * wind_cross_vent
-        * air_mass_flow_coefficient_closed
-        * air_mass_flow_exponent_closed
-        * minimum_density_difference_two_way
+        * flow_coefficient_closed
+        * flow_exponent_closed
+        * two_way_threshold
         * parent
         * has_parent
     """
     __slots__ = ('_fraction_area_operable', '_fraction_height_operable',
                  '_discharge_coefficient', '_wind_cross_vent',
-                 '_air_mass_flow_coefficient_closed', '_air_mass_flow_exponent_closed',
-                 '_minimum_density_difference_two_way', '_parent')
+                 '_flow_coefficient_closed', '_flow_exponent_closed',
+                 '_two_way_threshold', '_parent')
 
     def __init__(self, fraction_area_operable=0.5, fraction_height_operable=1.0,
-                 discharge_coefficient=0.45, wind_cross_vent=False):
+                 discharge_coefficient=0.45, wind_cross_vent=False,
+                 flow_coefficient_closed=0, flow_exponent_closed=0.65,
+                 two_way_threshold=0.0001):
         """Initialize VentilationOpening."""
         self.fraction_area_operable = fraction_area_operable
         self.fraction_height_operable = fraction_height_operable
         self.discharge_coefficient = discharge_coefficient
         self.wind_cross_vent = wind_cross_vent
-        self.air_mass_flow_coefficient_closed = air_mass_flow_coefficient_closed
-        self.air_mass_flow_exponent_closed = air_mass_flow_exponent_closed
-        self.minimum_density_difference_two_way = minimum_density_difference_two_way
+        self.flow_coefficient_closed = flow_coefficient_closed
+        self.flow_exponent_closed = flow_exponent_closed
+        self.two_way_threshold = two_way_threshold
         self._parent = None  # this will be set when assigned to an aperture
 
     @property
@@ -136,37 +139,39 @@ class VentilationOpening(object):
         self._wind_cross_vent = bool(value)
 
     @property
-    def air_mass_flow_coefficient_closed(self):
-        """Get or set coefficient for the mass flow rate when opening is closed."""
-        return self._air_mass_flow_coefficient_closed
+    def flow_coefficient_closed(self):
+        """Get or set coefficient for the mass flow rate when opening is closed.
 
-    @air_mass_flow_coefficient_closed.setter
-    def air_mass_flow_coefficient_closed(self, value):
-        assert value is None or value > 0.0, 'air_mass_flow_coefficient_closed must ' \
-            'be a number greater than 0 or None. Got: {}.'.format(value)
-        self._air_mass_flow_coefficient_closed = value
+        Note that while the default for this value is zero, it only indicates that this
+        VentilationOpening object is not participating in the AirflowNetwork simulation,
+        and thus does not actually inform any simulation. Values greater than (but not
+        equal) to zero indicate participation in the AirflowNetwork simulation,
+        consistent with the expected EnergyPlus range for flow_coefficient_closed values.
+        """
+        return self._flow_coefficient_closed
+
+    @flow_coefficient_closed.setter
+    def flow_coefficient_closed(self, value):
+        self._flow_coefficient_closed = float_positive(value, 'flow_coefficient_closed')
 
     @property
-    def air_mass_flow_exponent_closed(self):
+    def flow_exponent_closed(self):
         """Get or set exponent for deriving the mass flow rate when opening is closed."""
-        return self._air_mass_flow_exponent_closed
+        return self._flow_exponent_closed
 
-    @air_mass_flow_exponent_closed.setter
-    def air_mass_flow_exponent_closed(self, value):
-        assert value is None or 0.5 <= value <= 1, 'air_mass_flow_exponent_closed must' \
-            ' be a number between 0.5 and 1 (inclusive), or None. Got: {}.'.format(value)
-        self._air_mass_flow_exponent_closed = value
+    @flow_exponent_closed.setter
+    def flow_exponent_closed(self, value):
+        self._flow_exponent_closed = \
+            float_in_range(value, 0.5, 1.0, 'flow_exponent_closed')
 
     @property
-    def minimum_density_difference_two_way(self):
+    def two_way_threshold(self):
         """Get or set minimum density difference above which two-way flow occurs."""
-        return self._minimum_density_difference_two_way
+        return self._two_way_threshold
 
-    @minimum_density_difference_two_way.setter
-    def minimum_density_difference_two_way(self, value):
-        assert value is None or value > 0, 'minimum_density_difference_two_way must ' \
-            'a number be greater than 0, or None. Got: {}.'.format(value)
-        self._minimum_density_difference_two_way = value
+    @two_way_threshold.setter
+    def two_way_threshold(self, value):
+        self._two_way_threshold = float_positive(value, 'two_way_threshold')
 
     @property
     def parent(self):
@@ -193,9 +198,9 @@ class VentilationOpening(object):
             "fraction_height_operable": 0.5,  # Fractional number for height operable
             "discharge_coefficient": 0.45,  # Fractional number for discharge coefficient
             "wind_cross_vent": True  # Wind-driven cross ventilation
-            "air_mass_flow_coefficient_closed": 0.001 # Coefficient for mass flow rate
-            "air_mass_flow_exponent_closed": 0.667 # Exponent for mass flow rate
-            "minimum_density_difference_two_way": 1e-3 # Minimum density for two-way flow
+            "flow_coefficient_closed": 0.001 # Coefficient for mass flow rate
+            "flow_exponent_closed": 0.667 # Exponent for mass flow rate
+            "two_way_threshold": 1e-3 # Minimum density for two-way flow
             }
         """
         assert data['type'] == 'VentilationOpening', \
@@ -211,13 +216,15 @@ class VentilationOpening(object):
             and data['wind_cross_vent'] is not None else False
 
         # Add AFN parameters
-        air_flow_coeff = data['air_mass_flow_coefficient_closed'] if \
-            'air_mass_flow_coefficient_closed' in data else None
-        air_flow_exp = data['air_mass_flow_exponent_closed'] if \
-            'air_mass_flow_exponent_closed' in data and \
-            data['air_mass_flow_exponent_closed'] is not None else 0.65
-        min_diff = data['minimum_density_difference_two_way'] if \
-            'minimum_density_difference_two_way' in data else 0.0001
+        air_flow_coeff = data['flow_coefficient_closed'] if \
+            'flow_coefficient_closed' in data and \
+            data['flow_coefficient_closed'] is not None else 0
+        air_flow_exp = data['flow_exponent_closed'] if \
+            'flow_exponent_closed' in data and \
+            data['flow_exponent_closed'] is not None else 0.65
+        min_diff = data['two_way_threshold'] if \
+            'two_way_threshold' in data and \
+            data['two_way_threshold'] is not None else 0.0001
 
         return cls(area_op, height_op, discharge, cross_vent, air_flow_coeff,
                    air_flow_exp, min_diff)
@@ -286,10 +293,12 @@ class VentilationOpening(object):
         base['fraction_height_operable'] = self.fraction_height_operable
         base['discharge_coefficient'] = self.discharge_coefficient
         base['wind_cross_vent'] = self.wind_cross_vent
-        base['air_mass_flow_coefficient_closed'] = self.air_mass_flow_coefficient_closed
-        base['air_mass_flow_exponent_closed'] = self.air_mass_flow_exponent_closed
-        base['minimum_density_difference_two_way'] = \
-            self.minimum_density_difference_two_way
+
+        if self.flow_coefficient_closed > 0:
+            base['flow_coefficient_closed'] = self.flow_coefficient_closed
+            base['flow_exponent_closed'] = self.flow_exponent_closed
+            base['two_way_threshold'] = self.two_way_threshold
+
         return base
 
     def duplicate(self):
@@ -300,16 +309,16 @@ class VentilationOpening(object):
         return VentilationOpening(
             self.fraction_area_operable, self.fraction_height_operable,
             self.discharge_coefficient, self.wind_cross_vent,
-            self.air_mass_flow_coefficient_closed, self.air_mass_flow_exponent_closed,
-            self.minimum_density_difference_two_way)
+            self.flow_coefficient_closed, self.flow_exponent_closed,
+            self.two_way_threshold)
 
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""
         return (self.fraction_area_operable, self.fraction_height_operable,
                 self.discharge_coefficient, self.wind_cross_vent,
-                self.air_mass_flow_coefficient_closed,
-                self.air_mass_flow_exponent_closed,
-                self.minimum_density_difference_two_way)
+                self.flow_coefficient_closed,
+                self.flow_exponent_closed,
+                self.two_way_threshold)
 
     def __hash__(self):
         return hash(self.__key())
@@ -327,9 +336,9 @@ class VentilationOpening(object):
     def __repr__(self):
         return 'VentilationOpening,\n fraction area: {}\n ' \
             'fraction height: {}\n discharge coeff: {}\n ' \
-            'air_mass_flow_coefficient_closed: {}\n air_mass_flow_exponent_closed: ' \
-            '{}\n minimum_density_difference_two_way: {}'.format(
+            'flow_coefficient_closed: {}\n flow_exponent_closed: ' \
+            '{}\n two_way_threshold: {}'.format(
                 self.fraction_area_operable, self.fraction_height_operable,
-                self.discharge_coefficient, self.air_mass_flow_coefficient_closed,
-                self.air_mass_flow_exponent_closed,
-                self.minimum_density_difference_two_way)
+                self.discharge_coefficient, self.flow_coefficient_closed,
+                self.flow_exponent_closed,
+                self.two_way_threshold)

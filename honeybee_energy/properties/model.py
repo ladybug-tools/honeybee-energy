@@ -13,7 +13,7 @@ from ..schedule.dictutil import SCHEDULE_TYPES, dict_to_schedule, \
     dict_abridged_to_schedule
 from ..programtype import ProgramType
 from ..hvac import HVAC_TYPES_DICT
-from ..ventcool.simulation_control import VentilationSimulationControl
+from ..ventcool.simulation import VentilationSimulationControl
 
 try:
     from itertools import izip as zip  # python 2
@@ -26,6 +26,8 @@ class ModelEnergyProperties(object):
 
     Args:
         host: A honeybee_core Model object that hosts these properties.
+        ventilation_simulation_control: A VentilationSimulationControl object that
+            defines global parameters for ventilation simulation.
 
     Properties:
         * host
@@ -49,8 +51,6 @@ class ModelEnergyProperties(object):
     def __init__(self, host, ventilation_simulation_control=None):
         """Initialize Model energy properties."""
         self._host = host
-        if ventilation_simulation_control is None:
-            ventilation_simulation_control = VentilationSimulationControl()
         self.ventilation_simulation_control = ventilation_simulation_control
 
     @property
@@ -285,9 +285,12 @@ class ModelEnergyProperties(object):
 
     @ventilation_simulation_control.setter
     def ventilation_simulation_control(self, value):
-        assert isinstance(value, VentilationSimulationControl), \
-            'ventilation_simulation_control must be a VentilationSimulationControl ' \
-            'object. Got: {}.'.format(value)
+        if value is None:
+            value = VentilationSimulationControl()
+        else:
+            assert isinstance(value, VentilationSimulationControl), \
+                'ventilation_simulation_control must be a ' \
+                'VentilationSimulationControl object. Got: {}.'.format(value)
         self._ventilation_simulation_control = value
 
     def check_duplicate_material_identifiers(self, raise_exception=True):
@@ -465,19 +468,16 @@ class ModelEnergyProperties(object):
 
         return base
 
-    def duplicate(self, new_host=None, new_ventilation_simulation_control=None):
+    def duplicate(self, new_host=None):
         """Get a copy of this object.
 
         Args:
             new_host: A new Model object that hosts these properties.
                 If None, the properties will be duplicated with the same host.
-            new_ventilation_simulation_control: A new VentilationSimulationControl object.
-                If None, the existing VentilationSimulationControl object will be used.
         """
         _host = new_host or self._host
-        _ventilation_simulation_control = new_ventilation_simulation_control or \
-            self._ventilation_simulation_control
-        return ModelEnergyProperties(_host, _ventilation_simulation_control)
+        return ModelEnergyProperties(
+            _host, self._ventilation_simulation_control.duplicate())
 
     @staticmethod
     def load_properties_from_dict(data):

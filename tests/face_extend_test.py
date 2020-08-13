@@ -24,14 +24,12 @@ def test_energy_properties():
     assert face.properties.energy.vent_crack is None
 
     with pytest.raises(AssertionError):
-        face.properties.energy.vent_crack = AFNCrack(0, 0, 0)
-    face.properties.energy.vent_crack = AFNCrack(1e-5, 0.65, 1)
-    assert face.properties.energy.vent_crack.air_mass_flow_coefficient_reference == \
+        face.properties.energy.vent_crack = AFNCrack(0, 0)
+    face.properties.energy.vent_crack = AFNCrack(1e-5, 0.65)
+    assert face.properties.energy.vent_crack.flow_coefficient == \
         pytest.approx(1e-5, abs=1e-10)
-    assert face.properties.energy.vent_crack.air_mass_flow_exponent == \
+    assert face.properties.energy.vent_crack.flow_exponent == \
         pytest.approx(0.65, abs=1e-10)
-    assert face.properties.energy.vent_crack.crack_factor == pytest.approx(1, abs=1e-10)
-
 
 def test_default_constructions():
     """Test the auto-assigning of constructions by face type and boundary condition."""
@@ -73,7 +71,7 @@ def test_duplicate():
         'Thick Concrete Construction', [concrete20])
 
     face_original = Face('wall_face', Face3D(verts))
-    face_original.properties.energy.vent_crack = AFNCrack(0.00001, 0.65, 1)
+    face_original.properties.energy.vent_crack = AFNCrack(0.00001, 0.65)
     face_dup_1 = face_original.duplicate()
 
     assert face_original.properties.energy.host is face_original
@@ -85,7 +83,7 @@ def test_duplicate():
     assert face_original.properties.energy.vent_crack == \
         face_dup_1.properties.energy.vent_crack
     face_dup_1.properties.energy.construction = thick_constr
-    face_dup_1.properties.energy.vent_crack = AFNCrack(0.001, 0.7, 0.5)
+    face_dup_1.properties.energy.vent_crack = AFNCrack(0.001, 0.7)
     assert face_original.properties.energy.construction != \
         face_dup_1.properties.energy.construction
     assert face_original.properties.energy.vent_crack != \
@@ -121,7 +119,7 @@ def test_to_dict():
     assert 'vent_crack' not in fd['properties']['energy']
 
     face.properties.energy.construction = thick_constr
-    face.properties.energy.vent_crack = AFNCrack(1e-5, 0.65, 1)
+    face.properties.energy.vent_crack = AFNCrack(1e-5, 0.65)
     fd = face.to_dict()
     assert 'construction' in fd['properties']['energy']
     assert fd['properties']['energy']['construction'] is not None
@@ -134,7 +132,7 @@ def test_from_dict():
     face = Face.from_vertices(
         'wall_face', [[0, 0, 0], [10, 0, 0], [10, 0, 10], [0, 0, 10]])
 
-    ref_crack = AFNCrack(1e-5, 0.65, 1)
+    ref_crack = AFNCrack(1e-5, 0.65)
     face.properties.energy.vent_crack = ref_crack
 
     concrete20 = EnergyMaterial('20cm Concrete', 0.2, 2.31, 2322, 832,

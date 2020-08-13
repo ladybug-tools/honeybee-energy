@@ -68,7 +68,7 @@ class VentilationSimulationControl(object):
         reference_temperature: Reference temperature measurement in Celsius under which
             the surface crack data were obtained. (Default: 20).
         reference_pressure: Reference barometric pressure measurement in
-            Pascals under which the surface crack data were obtained. (Default: 101320).
+            Pascals under which the surface crack data were obtained. (Default: 101325).
         reference_humidity_ratio: Reference humidity ratio measurement in
             kgWater/kgDryAir under which the surface crack data were obtained.
             (Default: 0).
@@ -119,7 +119,7 @@ class VentilationSimulationControl(object):
     BUILDING_TYPES = ('LowRise', 'HighRise')
 
     def __init__(self, vent_control_type='SingleZone', reference_temperature=20,
-                 reference_pressure=101320, reference_humidity_ratio=0,
+                 reference_pressure=101325, reference_humidity_ratio=0,
                  building_type='LowRise', long_axis_angle=0, aspect_ratio=1):
         """Initialize VentilationSimulationControl."""
         self.vent_control_type = vent_control_type

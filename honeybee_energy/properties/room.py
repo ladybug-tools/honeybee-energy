@@ -14,8 +14,8 @@ from ..ventcool.crack import AFNCrack
 from ..ventcool.opening import VentilationOpening
 
 # import Honeybee-core modules
-from honeybee.boundarycondition import Outdoors
-from honeybee.facetype import Wall, RoofCeiling
+from honeybee.boundarycondition import Outdoors, Surface
+from honeybee.facetype import Wall, RoofCeiling, Floor
 from honeybee.aperture import Aperture
 
 # import all hvac modules to ensure they are all re-serialize-able in Room.from_dict
@@ -286,36 +286,54 @@ class RoomEnergyProperties(object):
         """Boolean to note whether the Room is conditioned."""
         return self._hvac is not None
 
-    def afn_exterior_face_groups(self):
-        """Group faces and subfaces by types that experience exterior air flow leakage.
+    def afn_face_groups(self):
+        """Group faces and subfaces by boundary condition and type for the AirflowNetwork.
 
-        Args:
-            faces: List of Face objects.
+        The surface groups created by this function correspond to the structure of the
+        crack template data used to generate the AirflowNetwork.
 
         Return:
-            A tuple with four items:
-                * walls: List of exterior Wall type Face objects.
-                * roofceilings: List of exterior RoofCeiling type Face objects.
-                * apertures: List of exterior Aperture sub-face Face objects.
-                * doors: List of exterior Door sub-face Face objects.
+            A tuple with four groups of exterior faces types:
+                * ext_walls: List of exterior Wall type Face objects.
+                * ext_roofs: List of exterior RoofCeiling type Face objects.
+                * ext_apertures: List of exterior Aperture subface Face objects.
+                * ext_doors: List of exterior Door subface Face objects.
+            A tuple with four groups of interior faces types:
+                * int_walls: List of interior Wall type Face objects.
+                * int_floorceilings: List of interior RoofCeiling and Floor type Face
+                    objects.
+                * int_apertures: List of interior Aperture subface Face objects.
+                * int_doors: List of interior Door subface Face objects.
         """
-        walls, roofs, apertures, doors = [], [], [], []
+        ext_walls, ext_roofs, ext_apertures, ext_doors = [], [], [], []
+        int_walls, int_floorceilings, int_apertures, int_doors = [], [], [], []
 
         for face in self.host.faces:
             if isinstance(face.boundary_condition, Outdoors):
                 if isinstance(face.type, Wall):
-                    walls.append(face)
-                    apertures.extend(face.apertures)
-                    doors.extend(face.doors)
+                    ext_walls.append(face)
+                    ext_apertures.extend(face.apertures)
+                    ext_doors.extend(face.doors)
                 elif isinstance(face.type, RoofCeiling):
-                    roofs.append(face)
-                    apertures.extend(face.apertures)  # Add any potential skylights
+                    ext_roofs.append(face)
+                    ext_apertures.extend(face.apertures)  # exterior skylights
+            elif isinstance(face.boundary_condition, Surface):
+                if isinstance(face.type, Wall):
+                    int_walls.append(face)
+                    int_apertures.extend(face.apertures)
+                    int_doors.extend(face.doors)
+                elif isinstance(face.type, RoofCeiling) or isinstance(face.type, Floor):
+                    int_floorceilings.append(face)
+                    int_apertures.extend(face.apertures)  # interior skylights
 
-        return walls, roofs, apertures, doors
+        ext_faces = (ext_walls, ext_roofs, ext_apertures, ext_doors)
+        int_faces = (int_walls, int_floorceilings, int_apertures, int_doors)
+
+        return ext_faces, int_faces
 
     @staticmethod
-    def solve_norm_area_flow_coefficient(flow_per_exterior_area, mass_flow_exponent=0.65,
-                                         air_density=1.204, delta_pressure=4):
+    def solve_norm_area_flow_coefficient(flow_per_exterior_area, flow_exponent=0.65,
+                                         air_density=1.2041, delta_pressure=4):
         """Mass flow coefficient in kg/(m2 s P^n) for exposed surface area from infiltration.
 
         Note that this coefficient is normalized per unit area. The EnergyPlus
@@ -340,17 +358,18 @@ class RoomEnergyProperties(object):
         Args:
             flow_per_exterior_area: A numerical value for the intensity of infiltration
                 in m3/s per square meter of exterior surface area.
-            mass_flow_exponent: A numerical value for the air mass flow exponent.
-            air_density: Reference air density in kg/m3. Default: 1.204 represents
-                air density at a temperature of 20 C, and 101325 Pa.
-            delta_pressure: Reference building air pressure in Pascals. Default: 4
+            air_density: Air density in kg/m3. (Default: 1.2041 represents
+                air density at a temperature of 20 C and 101325 Pa).
+            flow_exponent: A numerical value for the air mass flow exponent.
+                (Default: 0.65).
+            delta_pressure: Reference building air pressure in Pascals. (Default: 4).
                 represents typical building pressures.
 
         Returns:
             Air mass flow coefficient per unit meter at 1 Pa [kg/m2/s/P^n]
         """
         qva = flow_per_exterior_area
-        n = mass_flow_exponent
+        n = flow_exponent
         d = air_density
         dp = delta_pressure
 
@@ -404,28 +423,54 @@ class RoomEnergyProperties(object):
 
         return cqa * a / ln
 
-    def afn_from_infiltration_load(self):
-        """TBD
+    def exterior_afn_from_infiltration_load(self, exterior_face_groups,
+                                            air_density=1.2041):
+        """Calculate exterior AirflowNetwork parameters from the room infiltration rate.
 
-        Uses default values for mass flow exponent.
+        This will compute air leakage parameters for exterior cracks and opening edges
+        that produce a total air flow rate equivalent to the room infiltration rate, at
+        an envelope pressure difference of 4 Pa. However, the individual flow air
+        leakage parameters are not meant to be representative of real values, since the
+        infiltration flow rate is an average of the actual, variable surface flow
+        dynamics.
+
+        VentilationOpening objects will be added to Aperture and Door objects if not
+        already defined. If already defined, only the parameters defining leakage when
+        the openings are closed will be overwritten. AFNCrack objects will be added to
+        all external and internal Face objects, and any existing AFNCrack objects will
+        be overwritten.
+
+        Args:
+            exterior_face_groups: A tuple with four groups of exterior faces types:
+
+                * ext_walls: List of exterior Wall type Face objects.
+                * ext_roofs: List of exterior RoofCeiling type Face objects.
+                * ext_apertures: List of exterior Aperture subface Face objects.
+                * ext_doors: List of exterior Door subface Face objects.
+
+            air_density: Air density in kg/m3. (Default: 1.2041 represents
+                air density at a temperature of 20 C and 101325 Pa).
         """
 
-        # get exterior faces by type that experience air flow leakage
-        ext_walls, ext_roofceilings, ext_apertures, ext_doors = \
-            self.afn_exterior_face_groups()
-
+        # simplify parameters
+        ext_walls, ext_roofs, ext_apertures, ext_doors = exterior_face_groups
+        ext_faces = ext_walls + ext_roofs
+        ext_openings = ext_apertures + ext_doors
         infil_flow = self.infiltration.flow_per_exterior_area
-        flow_cof_area = self.solve_norm_area_flow_coefficient(infil_flow)
+
+        # derive normalized flow coefficient
+        flow_cof_area = self.solve_norm_area_flow_coefficient(
+            infil_flow, air_density=air_density)
 
         # add exterior crack leakage components
-        for ext_face in (ext_walls + ext_roofceilings):
+        for ext_face in ext_faces:
             opening_area = sum([aper.area for aper in ext_face.apertures])
             opening_area += sum([door.area for door in ext_face.doors])
             flow_cof = flow_cof_area * (ext_face.area - opening_area)
             ext_face.properties.energy.vent_crack = AFNCrack(flow_cof)
 
         # add exterior opening leakage components
-        for ext_opening in (ext_apertures + ext_doors):
+        for ext_opening in ext_openings:
             if ext_opening.properties.energy.vent_opening is None:
                 if isinstance(ext_opening, Aperture):
                     ext_opening.is_operable = True
