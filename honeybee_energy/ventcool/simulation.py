@@ -3,48 +3,7 @@
 from __future__ import division
 
 from honeybee._lockable import lockable
-
-from honeybee.typing import float_in_range, float_positive
-
-# TODO: move to honeybee.typing
-INFPOS = float('inf')
-INFNEG = float('-inf')
-
-
-def float_in_range_excl(value, mi=INFNEG, ma=INFPOS, input_name=''):
-    """Check a float value to be greater than minimum and less than maximum."""
-    try:
-        number = float(value)
-    except (ValueError, TypeError):
-        raise TypeError('Input {} must be a number. Got {}: {}.'.format(
-            input_name, type(value), value))
-    assert mi < number < ma, 'Input number {} must be greater than {} ' \
-        'and less than {}. Got {}'.format(input_name, mi, ma, value)
-    return number
-
-
-def float_in_range_excl_incl(value, mi=INFNEG, ma=INFPOS, input_name=''):
-    """Check a float value to be greater than minimum and less than/equal to maximum."""
-    try:
-        number = float(value)
-    except (ValueError, TypeError):
-        raise TypeError('Input {} must be a number. Got {}: {}.'.format(
-            input_name, type(value), value))
-    assert mi < number <= ma, 'Input number {} must be greater than {} and less than ' \
-        'or equal to {}. Got {}'.format(input_name, mi, ma, value)
-    return number
-
-
-def float_in_range_incl_excl(value, mi=INFNEG, ma=INFPOS, input_name=''):
-    """Check a float value to be greater than/equal to minimum and less than maximum."""
-    try:
-        number = float(value)
-    except (ValueError, TypeError):
-        raise TypeError('Input {} must be a number. Got {}: {}.'.format(
-            input_name, type(value), value))
-    assert mi <= number < ma, 'Input number {} must be greater than or equal to {} ' \
-        'and less than {}. Got {}'.format(input_name, mi, ma, value)
-    return number
+from honeybee.typing import float_in_range, float_positive, float_in_range_excl_incl
 
 
 @lockable

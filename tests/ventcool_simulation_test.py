@@ -12,11 +12,11 @@ def test_simulation_control_init():
 
     # Test MultiZone
     vent = VentilationSimulationControl(
-        'MultiZoneWithoutDistribution', 21, 101320, 0.5, 'LowRise', 90, 0.5)
+        'MultiZoneWithoutDistribution', 21, 101325, 0.5, 'LowRise', 90, 0.5)
 
     assert vent.vent_control_type == 'MultiZoneWithoutDistribution'
     assert vent.reference_temperature == pytest.approx(21, abs=1e-10)
-    assert vent.reference_pressure == pytest.approx(101320, abs=1e-10)
+    assert vent.reference_pressure == pytest.approx(101325, abs=1e-10)
     assert vent.reference_humidity_ratio == pytest.approx(0.5, abs=1e-10)
     assert vent.building_type == 'LowRise'
     assert vent.long_axis_angle == pytest.approx(90, abs=1e-10)
@@ -42,7 +42,7 @@ def test_simulation_control_init():
 def test_simulation_control_equality():
     """Test the equality of VentilationSimulationControl objects."""
     ventilation = VentilationSimulationControl(
-        'MultiZoneWithoutDistribution', 21, 101320, 0.5, 'LowRise', 90, 0.5)
+        'MultiZoneWithoutDistribution', 21, 101325, 0.5, 'LowRise', 90, 0.5)
     ventilation_dup = ventilation.duplicate()
     ventilation_alt = VentilationSimulationControl(
         'MultiZoneWithoutDistribution', 22, 101321, 0.6, 'LowRise', 91, 0.7)
@@ -58,7 +58,7 @@ def test_simulation_control_equality():
 def test_simulation_control_lockability():
     """Test the lockability of VentilationSimultionControl objects."""
     ventilation = VentilationSimulationControl(
-        'MultiZoneWithoutDistribution', 21, 101320, 0.5, 'LowRise', 90, 0.5)
+        'MultiZoneWithoutDistribution', 21, 101325, 0.5, 'LowRise', 90, 0.5)
 
     ventilation.reference_pressure = 101340
     ventilation.lock()
@@ -71,7 +71,7 @@ def test_simulation_control_lockability():
 def test_ventilation_dict_methods():
     """Test the to/from dict methods."""
     ventilation = VentilationSimulationControl(
-        'MultiZoneWithoutDistribution', 21, 101320, 0.5, 'LowRise', 90, 0.5)
+        'MultiZoneWithoutDistribution', 21, 101325, 0.5, 'LowRise', 90, 0.5)
 
     vent_dict = ventilation.to_dict()
     new_ventilation = VentilationSimulationControl.from_dict(vent_dict)
@@ -83,5 +83,5 @@ def test_ventilation_dict_methods():
     vent_dict['building_type'] == 'LowRise'
 
     new_ventilation.reference_pressure == \
-        pytest.approx(101320, 1e-10)
+        pytest.approx(101325, 1e-10)
     new_ventilation.building_type == 'LowRise'
