@@ -17,6 +17,7 @@ from ladybug_geometry.geometry3d.face import Face3D
 from ladybug_geometry.geometry3d.polyface import Polyface3D
 
 import pytest
+import math
 from pprint import pprint as pp
 
 
@@ -185,9 +186,6 @@ def test_afn_single_zone():
 def test_afn_multizone():
     """Test adding afn to multiple zones with windows."""
 
-    # get cracks
-    int_cracks = crack_data_dict['internal_average_cracks']
-
     # South Room
     szone_pts = Face3D(
         [Point3D(0, 0), Point3D(20, 0), Point3D(20, 10), Point3D(0, 10)])
@@ -235,6 +233,9 @@ def test_afn_multizone():
     window_vent_controls = [VentilationControl().duplicate() for _ in rooms]
     afn.generate(model.rooms, window_vent_controls)
 
+    # get cracks
+    int_cracks = crack_data_dict['internal_average_cracks']
+
     # Check internal cracks in adjacent faces
     int_crack = sroom[3].properties.energy.vent_crack
     ref_area = sroom[3].area - sroom[3].apertures[0].area
@@ -273,3 +274,227 @@ def test_afn_multizone():
 
         chk_infil = total_room_flow / room.exposed_area  # m3/s/m2
         assert qv == pytest.approx(chk_infil, abs=1e-10)
+
+
+def test_compute_bounding_box_extents_simple():
+    """Test the bounding box extents calculation."""
+
+    # South Room 1: 20 x 6 x 3
+    szone1 = Face3D(
+        [Point3D(-10, -3), Point3D(10, -3), Point3D(10, 3), Point3D(-10, 3)])
+    #szone1 = Face3D(
+    #    [Point3D(0, 0), Point3D(10, 0), Point3D(10, 3), Point3D(0, 3)])
+
+    sroom1 = Room.from_polyface3d('SouthRoom1', Polyface3D.from_offset_face(szone1, 3))
+
+    rooms = [sroom1]
+    model = Model('One_Zone_Simple', rooms)
+
+    # Rotate the buildings
+    theta = 90.0
+    model.rotate_xy(theta, Point3D(0, 0, 0))#rooms[0].geometry.vertices[-1])
+    geoms = [room.geometry for room in model.rooms]
+    xx, yy, zz = afn.compute_bounding_box_extents(geoms, theta)
+
+    assert xx == pytest.approx(20, abs=1e-10)
+    assert yy == pytest.approx(6, abs=1e-10)
+    assert zz == pytest.approx(3, abs=1e-10)
+
+
+def test_compute_bounding_box_extents_complex():
+    """Test the bounding box extents calculation."""
+
+    # South Room 1: 21 x 10.5 x 3
+    szone1 = Face3D(
+        [Point3D(0, 0), Point3D(21, 0), Point3D(21, 10.5), Point3D(0, 10.5)])
+    sroom1 = Room.from_polyface3d('SouthRoom1', Polyface3D.from_offset_face(szone1, 3))
+
+    # North Room 1: 21 x 10.5 x 3
+    nzone1 = Face3D(
+        [Point3D(0, 10.5), Point3D(21, 10.5), Point3D(21, 21), Point3D(0, 21)])
+    nroom1 = Room.from_polyface3d('NorthRoom1', Polyface3D.from_offset_face(nzone1, 3))
+
+    # South Room 2: 21 x 10.5 x 3
+    szone2 = Face3D(
+        [Point3D(0, 0, 3), Point3D(21, 0, 3), Point3D(21, 10.5, 3), Point3D(0, 10.5, 3)])
+    sroom2 = Room.from_polyface3d('SouthRoom2', Polyface3D.from_offset_face(szone2, 3))
+
+    # North Room 2: 21 x 10.5 x 3
+    nzone2 = Face3D(
+        [Point3D(0, 10.5, 3), Point3D(21, 10.5, 3), Point3D(21, 21, 3), Point3D(0, 21, 3)])
+    nroom2 = Room.from_polyface3d('NorthRoom2', Polyface3D.from_offset_face(nzone2, 3))
+
+    rooms = [sroom1, nroom1, sroom2, nroom2]
+    model = Model('Four_Zone_Simple', rooms)
+
+    # Rotate the buildings
+    theta = 30.0
+    model.rotate_xy(theta, rooms[0].geometry.vertices[-1])
+    geoms = [room.geometry for room in model.rooms]
+    xx, yy, zz = afn.compute_bounding_box_extents(geoms, theta)
+
+    assert xx == pytest.approx(21, abs=1e-10)
+    assert yy == pytest.approx(21, abs=1e-10)
+    assert zz == pytest.approx(6, abs=1e-10)
+
+
+def test_compute_building_type():
+    """Test calculation of building type."""
+
+    # Test lowrise: 21 x 21 x 3
+
+    # South Room: 21 x 10.5
+    szone_pts = Face3D(
+        [Point3D(0, 0), Point3D(21, 0), Point3D(21, 10.5), Point3D(0, 5)])
+    sroom = Room.from_polyface3d(
+        'SouthRoom', Polyface3D.from_offset_face(szone_pts, 3))
+
+    # North Room: 21 x 10.5
+    nzone_pts = Face3D(
+        [Point3D(0, 10.5), Point3D(21, 10.5), Point3D(21, 21), Point3D(0, 21)])
+    nroom = Room.from_polyface3d(
+        'NorthRoom', Polyface3D.from_offset_face(nzone_pts, 3))
+
+    # Add adjacent interior windows
+    sroom[3].apertures_by_ratio(0.3)  # Window on south face
+    nroom[1].apertures_by_ratio(0.3)  # Window on north face
+
+    # rooms
+    rooms = [sroom, nroom]
+    model = Model('Test_Zone', rooms)
+
+    # Rotate the building
+    theta = 3.0 / 180.0 * math.pi
+    model.rotate_xy(theta, rooms[0].geometry.vertices[0])
+    geoms = [room.geometry for room in model.rooms]
+    bbox = afn.compute_bounding_box_extents(geoms, theta)
+
+    btype = afn.compute_building_type(bbox)
+    assert btype == 'LowRise'
+
+    # Test highrise 21 x 21 x 63
+
+    # South Room: 21 x 10.5
+    szone_pts = Face3D(
+        [Point3D(0, 0), Point3D(21, 0), Point3D(21, 10.5), Point3D(0, 10.5)])
+    sroom = Room.from_polyface3d(
+        'SouthRoom', Polyface3D.from_offset_face(szone_pts, 63))
+
+    # North Room: 21 x 10.5
+    nzone_pts = Face3D(
+        [Point3D(0, 10.5), Point3D(21, 10.5), Point3D(21, 21), Point3D(0, 21)])
+    nroom = Room.from_polyface3d(
+        'NorthRoom', Polyface3D.from_offset_face(nzone_pts, 63))
+
+    # rooms
+    rooms = [sroom, nroom]
+    model = Model('Test_Zone', rooms)
+
+    # Rotate the buildings
+    theta = 3.0 / 180.0 * math.pi
+    model.rotate_xy(theta, rooms[0].geometry.vertices[0])
+    geoms = [room.geometry for room in model.rooms]
+    bbox = afn.compute_bounding_box_extents(geoms, theta)
+
+    btype = afn.compute_building_type(bbox)
+    assert btype == 'LowRise'
+
+    # Test highrise 21 x 21 x 63.1
+
+    # South Room: 21 x 10.5
+    szone_pts = Face3D(
+        [Point3D(0, 0), Point3D(21, 0), Point3D(21, 10.5), Point3D(0, 10.5)])
+    sroom = Room.from_polyface3d(
+        'SouthRoom', Polyface3D.from_offset_face(szone_pts, 63.1))
+
+    # North Room: 21 x 10.5
+    nzone_pts = Face3D(
+        [Point3D(0, 10.5), Point3D(21, 10.5), Point3D(21, 21), Point3D(0, 21)])
+    nroom = Room.from_polyface3d(
+        'NorthRoom', Polyface3D.from_offset_face(nzone_pts, 63.1))
+
+    # rooms
+    rooms = [sroom, nroom]
+    model = Model('Test_Zone', rooms)
+
+    # Rotate the buildings
+    theta = 3.0 / 180.0 * math.pi
+    model.rotate_xy(theta, rooms[0].geometry.vertices[0])
+    geoms = [room.geometry for room in model.rooms]
+    bbox = afn.compute_bounding_box_extents(geoms, theta)
+
+    btype = afn.compute_building_type(bbox)
+    assert btype == 'HighRise'
+
+
+def test_compute_aspect_ratio():
+    """Test calculation of aspect ratio."""
+
+    # South Room: 21 x 21 x 3 (not orthogonal)
+    szone_pts = Face3D(
+        [Point3D(0, 0), Point3D(21, 0), Point3D(21, 21), Point3D(0, 10)])
+    sroom = Room.from_polyface3d(
+        'SouthRoom', Polyface3D.from_offset_face(szone_pts, 3))
+
+    # rooms
+    rooms = [sroom]
+    model = Model('Test_Zone', rooms)
+
+    # Rotate the building
+    theta = 191.0 / 180.0 * math.pi
+    model.rotate_xy(theta, rooms[0].geometry.vertices[0])
+    geoms = [room.geometry for room in model.rooms]
+    bbox = afn.compute_bounding_box_extents(geoms, theta)
+
+    ar = afn.compute_aspect_ratio(bbox)
+    assert ar == pytest.approx(1.0, abs=1e-10)
+
+    # Test lowrise 15 x 21 x 3
+    szone_pts = Face3D(
+        [Point3D(0, 0), Point3D(21, 0), Point3D(21, 10), Point3D(0, 10)])
+    sroom = Room.from_polyface3d(
+        'SouthRoom', Polyface3D.from_offset_face(szone_pts, 3))
+
+    # North Room: 21 x 10.5 x 3
+    nzone_pts = Face3D(
+        [Point3D(0, 10), Point3D(21, 10), Point3D(21, 15), Point3D(0, 15)])
+    nroom = Room.from_polyface3d(
+        'NorthRoom', Polyface3D.from_offset_face(nzone_pts, 3))
+
+    # rooms
+    rooms = [sroom, nroom]
+    model = Model('Test_Zone', rooms)
+
+    # Rotate the buildings
+    theta = 3.0 / 180.0 * math.pi
+    model.rotate_xy(theta, rooms[0].geometry.vertices[0])
+    geoms = [room.geometry for room in model.rooms]
+    bbox = afn.compute_bounding_box_extents(geoms, theta)
+
+    ar = afn.compute_aspect_ratio(bbox)
+    assert ar == pytest.approx(15.0 / 21.0, abs=1e-10)
+
+    # Test 21 x 22 x 3
+    szone_pts = Face3D(
+        [Point3D(0, 0), Point3D(21, 0), Point3D(21, 10.5), Point3D(0, 10.5)])
+    sroom = Room.from_polyface3d(
+        'SouthRoom', Polyface3D.from_offset_face(szone_pts, 63.1))
+
+    nzone_pts = Face3D(
+        [Point3D(0, 10.5), Point3D(21, 10.5), Point3D(21, 22), Point3D(0, 22)])
+    nroom = Room.from_polyface3d(
+        'NorthRoom', Polyface3D.from_offset_face(nzone_pts, 3))
+
+    # rooms
+    rooms = [sroom, nroom]
+    model = Model('Test_Zone', rooms)
+
+    # Rotate the buildings
+    theta = 78.0 / 180.0 * math.pi
+    model.rotate_xy(theta, rooms[0].geometry.vertices[0])
+    geoms = [room.geometry for room in model.rooms]
+    bbox = afn.compute_bounding_box_extents(geoms, theta)
+
+    ar = afn.compute_aspect_ratio(bbox)
+    assert ar == pytest.approx(21.0 / 22.0, abs=1e-10)
+

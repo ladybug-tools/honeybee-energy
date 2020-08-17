@@ -1,10 +1,140 @@
 # coding=utf-8
 """Functions to generate airflownetwork for a list of rooms."""
 from __future__ import division
+import math
 
 from .crack import AFNCrack
 from .opening import VentilationOpening
 from .crack_data import crack_data_dict
+
+
+# TODO: Move to ladybug_geometry.Base2DIn3D?
+def compute_bounding_box_x(geometries):
+    """Calculate minimum and maximum x coordinates of multiple geometries.
+
+    Note this function returns the coordinate extents relative to the standard
+    basis. If extents relative to a rotated bounding box is required, the geometries
+    need to be rotated to the standard basis before running this function.
+    """
+
+    geoms = geometries
+    min_x, max_x = geoms[0].min.x, geoms[0].max.x
+
+    for geom in geoms[1:]:
+        if geom.min.x < min_x:
+            min_x = geom.min.x
+        if geom.max.x > max_x:
+            max_x = geom.max.x
+
+    return min_x, max_x
+
+
+# TODO: Move to ladybug_geometry.Base2DIn3D?
+def compute_bounding_box_y(geometries):
+    """Calculate minimum and maximum y coordinates of multiple geometries.
+
+    Note this function returns the coordinate extents relative to the standard
+    basis. If extents relative to a rotated bounding box is required, the geometries
+    need to be rotated to the standard basis before running this function.
+    """
+
+    geoms = geometries
+    min_y, max_y = geoms[0].min.y, geoms[0].max.y
+
+    for geom in geoms[1:]:
+        if geom.min.y < min_y:
+            min_y = geom.min.y
+        if geom.max.y > max_y:
+            max_y = geom.max.y
+
+    return min_y, max_y
+
+
+# TODO: Move to ladybug_geometry.Base2DIn3D?
+def compute_bounding_box_z(geometries):
+    """Calculate minimum and maximum z coordinates of multiple geometries.
+
+    Note this function returns the coordinate extents relative to the standard
+    basis. If extents relative to a rotated bounding box is required, the geometries
+    need to be rotated to the standard basis before running this function.
+    """
+
+    geoms = geometries
+    min_z, max_z = geoms[0].min.z, geoms[0].max.z
+
+    for geom in geometries:
+        if geom.max.z > max_z:
+            max_z = geom.max.z
+        if geom.min.z < min_z:
+            min_z = geom.min.z
+
+    return min_z, max_z
+
+
+# TODO: Move to ladybug_geometry.Base2DIn3D?
+def compute_bounding_box_extents(geometries, axis_angle=0):
+    """Calculate the extents of an oriented bounding box from an array of 3D geometry objects.
+
+    Args:
+        geometries: An array of 3D geometry objects.
+        axis_angle: The counter-clockwise rotation angle in radians in the xy plane
+            to represent the orientation of the bounding box extents. (Default: 0).
+    Returns:
+        The distances associated with the width, length and height of the bounding box.
+    """
+
+    geoms = geometries
+    theta = -axis_angle / 180.0 * math.pi
+    cpt = geoms[0].vertices[0]
+
+    if abs(axis_angle) > 1e-10:
+        geoms = [geom.rotate_xy(theta, cpt) for geom in geoms]
+
+    xx = compute_bounding_box_x(geoms)
+    yy = compute_bounding_box_y(geoms)
+    zz = compute_bounding_box_z(geoms)
+
+    return xx[1] - xx[0], yy[1] - yy[0], zz[1] - zz[0]
+
+
+def compute_building_type(bounding_box_extents):
+    """Compute the relationship between building footprint and height for AirflowNetwork.
+
+    Args:
+        bounding_box_extents: A tuple with three numbers representing the distance of
+            the bounding box width, length, and height.
+        rooms: List of Honeybee Room objects.
+    Returns:
+        Either a 'LowRise' text string if the bounding box height is less then three
+        times the width and length of the footprint, or a 'HighRise' text string
+        if the bounding box height is more than three times the width and length of
+        the footprint.
+    """
+
+    xx, yy, zz = bounding_box_extents
+
+    hdist = 3 * max(xx, yy)
+    zdist = zz
+
+    return 'LowRise' if zdist <= hdist else 'HighRise'
+
+
+def compute_aspect_ratio(bounding_box_extents):
+    """Compute the AirflowNetwork aspect ratio of a building.
+
+    Args:
+        bounding_box_extents: # TBD
+    Returns:
+        A number representing the ratio of length of the short axis divided by the
+        length of the long axis.
+    """
+
+    xx, yy, _ = bounding_box_extents
+
+    if xx < yy:
+        return xx / yy
+    else:
+        return yy / xx
 
 
 def air_density_from_pressure(atmospheric_pressure=101325, air_temperature=20.0):
@@ -259,4 +389,3 @@ def generate(rooms, window_vent_controls, leakage_type='Average',
             exterior_afn(ext_faces, ext_cracks)
 
         interior_afn(int_faces, int_cracks)
-
