@@ -1,15 +1,15 @@
 # coding=utf-8
-"""Functions to generate airflownetwork for a list of rooms."""
+"""Functions to generate an Airflow Network for a list of rooms."""
 from __future__ import division
 import math
 
 from .crack import AFNCrack
 from .opening import VentilationOpening
-from .crack_data import crack_data_dict
+from ._crack_data import CRACK_TEMPLATE_DATA
 
 
-# TODO: Move to ladybug_geometry.Base2DIn3D?
-def compute_bounding_box_x(geometries):
+# TODO: Move to ladybug_geometry
+def _compute_bounding_box_x(geometries):
     """Calculate minimum and maximum x coordinates of multiple geometries.
 
     Note this function returns the coordinate extents relative to the standard
@@ -29,8 +29,8 @@ def compute_bounding_box_x(geometries):
     return min_x, max_x
 
 
-# TODO: Move to ladybug_geometry.Base2DIn3D?
-def compute_bounding_box_y(geometries):
+# TODO: Move to ladybug_geometry
+def _compute_bounding_box_y(geometries):
     """Calculate minimum and maximum y coordinates of multiple geometries.
 
     Note this function returns the coordinate extents relative to the standard
@@ -50,8 +50,8 @@ def compute_bounding_box_y(geometries):
     return min_y, max_y
 
 
-# TODO: Move to ladybug_geometry.Base2DIn3D?
-def compute_bounding_box_z(geometries):
+# TODO: Move to ladybug_geometry
+def _compute_bounding_box_z(geometries):
     """Calculate minimum and maximum z coordinates of multiple geometries.
 
     Note this function returns the coordinate extents relative to the standard
@@ -71,8 +71,8 @@ def compute_bounding_box_z(geometries):
     return min_z, max_z
 
 
-# TODO: Move to ladybug_geometry.Base2DIn3D?
-def compute_bounding_box_extents(geometries, axis_angle=0):
+# TODO: Move to ladybug_geometry
+def _compute_bounding_box_extents(geometries, axis_angle=0):
     """Calculate the extents of an oriented bounding box from an array of 3D geometry objects.
 
     Args:
@@ -90,14 +90,14 @@ def compute_bounding_box_extents(geometries, axis_angle=0):
     if abs(axis_angle) > 1e-10:
         geoms = [geom.rotate_xy(theta, cpt) for geom in geoms]
 
-    xx = compute_bounding_box_x(geoms)
-    yy = compute_bounding_box_y(geoms)
-    zz = compute_bounding_box_z(geoms)
+    xx = _compute_bounding_box_x(geoms)
+    yy = _compute_bounding_box_y(geoms)
+    zz = _compute_bounding_box_z(geoms)
 
     return xx[1] - xx[0], yy[1] - yy[0], zz[1] - zz[0]
 
 
-def compute_building_type(bounding_box_extents):
+def _compute_building_type(bounding_box_extents):
     """Compute the relationship between building footprint and height for AirflowNetwork.
 
     Args:
@@ -119,11 +119,12 @@ def compute_building_type(bounding_box_extents):
     return 'LowRise' if zdist <= hdist else 'HighRise'
 
 
-def compute_aspect_ratio(bounding_box_extents):
+def _compute_aspect_ratio(bounding_box_extents):
     """Compute the AirflowNetwork aspect ratio of a building.
 
     Args:
-        bounding_box_extents: # TBD
+        bounding_box_extents: A tuple with three numbers representing the distance of
+            the bounding box width, length, and height.
     Returns:
         A number representing the ratio of length of the short axis divided by the
         length of the long axis.
@@ -137,7 +138,7 @@ def compute_aspect_ratio(bounding_box_extents):
         return yy / xx
 
 
-def air_density_from_pressure(atmospheric_pressure=101325, air_temperature=20.0):
+def _air_density_from_pressure(atmospheric_pressure=101325, air_temperature=20.0):
     """Calculate density of dry air using the ideal gas law from temperature and pressure.
 
     Args:
@@ -151,46 +152,44 @@ def air_density_from_pressure(atmospheric_pressure=101325, air_temperature=20.0)
     return atmospheric_pressure / (r_specific * air_temperature)
 
 
-def interior_afn(interior_face_groups, int_cracks):
+def _interior_afn(interior_face_groups, int_cracks):
     """Mutate interior faces and subfaces to model airflow through cracks and openings.
 
     This function creates an AFNCrack object with an air mass flow coefficient that
     reflects the leakage characteristics of faces with different areas and types.
     This requires multiplying the area-normalized air mass flow coefficients from the
-    reference crack data in int_cracks, by the wall area.
-
-    This function does not check adjacency information when computing leakage parameters
-    for adjacent faces or subfaces. It assumes adjacent faces share the same type and
-    area properties so that the computed leakage parameters are equivalent. Note that
-    EnergyPlus only requires one of the adjacent interzone surfaces to be
-    assigned a leakage component. If both adjacent surfaces have a leakage component,
-    the air flow through the surface will be counted twice.
+    reference crack data in int_cracks, by the wall area. This function assumes adjacent
+    faces share the same type and area properties so that the computed leakage parameters
+    are equivalent for each face.
 
     Args:
-        interior_face_groups: A tuple with four groups of interior faces types:
+        interior_face_groups: A tuple with four groups of interior faces types
 
-            * int_walls: List of interior Wall type Face objects.
-            * int_floorceilings: List of interior RoofCeiling and Floor type Face
+            - int_walls: List of interior Wall type Face objects.
+
+            - int_floorceilings: List of interior RoofCeiling and Floor type Face
                 objects.
-            * int_apertures: List of interior Aperture subface Face objects.
-            * int_doors: List of interior Door subface Face objects.
+
+            - int_apertures: List of interior Aperture Face objects.
+
+            - int_doors: List of interior Door Face objects.
 
         int_cracks: A dictionary of air mass flow coefficient and exponent data
             corresponding to the face types in the interior_face_groups. Face
             data flow coefficients should be normalized by surface area, and closed
             opening flow coefficients should be normalized by edge lengths, for example:
 
+        .. code-block:: python
+
             {
-                # kg/s/m2 @ 1 Pa
-                'wall_flow_cof': 0.003,
-                'wall_flow_exp': 0.75,
-                'floorceiling_flow_cof': 0.0009,
-                'floorceiling_flow_exp': 0.7,
-                # kg/s/m @ 1 Pa
-                'window_flow_cof': 0.0014,
-                'window_flow_exp': 0.65,
-                'door_flow_cof': 0.02,
-                'door_flow_exp': 0.6
+            "wall_flow_cof": 0.003, # wall flow coefficient
+            "wall_flow_exp": 0.75, # wall flow exponent
+            "floorceiling_flow_cof": 0.0009, # floorceiling flow coefficient
+            "floorceiling_flow_exp": 0.7, # floorceiling flow exponent
+            "window_flow_cof": 0.0014, # window flow coefficient
+            "window_flow_exp": 0.65, # window flow exponent
+            "door_flow_cof": 0.02, # door flow coefficient
+            "door_flow_exp": 0.6 # door flow exponent
             }
     """
 
@@ -217,20 +216,22 @@ def interior_afn(interior_face_groups, int_cracks):
     for int_aperture in int_apertures:
         if int_aperture.properties.energy.vent_opening is None:
             int_aperture.is_operable = True
-            int_aperture.properties.energy.vent_opening = VentilationOpening()
+            int_aperture.properties.energy.vent_opening = \
+                VentilationOpening(fraction_area_operable=0)
         vent_opening = int_aperture.properties.energy.vent_opening
         vent_opening.flow_coefficient_closed = int_cracks['window_flow_cof']
         vent_opening.flow_exponent_closed = int_cracks['window_flow_exp']
 
     for int_door in int_doors:
         if int_door.properties.energy.vent_opening is None:
-            int_door.properties.energy.vent_opening = VentilationOpening()
+            int_door.properties.energy.vent_opening = \
+                VentilationOpening(fraction_area_operable=0)
         vent_opening = int_door.properties.energy.vent_opening
         vent_opening.flow_coefficient_closed = int_cracks['door_flow_cof']
         vent_opening.flow_exponent_closed = int_cracks['door_flow_exp']
 
 
-def exterior_afn(exterior_face_groups, ext_cracks):
+def _exterior_afn(exterior_face_groups, ext_cracks):
     """Mutate exterior faces and subfaces to model airflow through cracks and openings.
 
     This function creates an AFNCrack object with an air mass flow coefficient that
@@ -239,34 +240,42 @@ def exterior_afn(exterior_face_groups, ext_cracks):
     reference crack data in ext_cracks, by the wall area.
 
     Args:
-        exterior_face_groups: A tuple with four groups of exterior faces types:
+        exterior_face_groups: A tuple with five groups of exterior envelope types
 
-            * ext_walls: List of exterior Wall type Face objects.
-            * ext_roofs: List of exterior RoofCeiling type Face objects.
-            * ext_apertures: List of exterior Aperture subface Face objects.
-            * ext_doors: List of exterior Door subface Face objects.
+            -   ext_walls - A list of exterior Wall type Face objects.
+
+            -   ext_roofs - A list of exterior RoofCeiling type Face objects.
+
+            -   ext_floors - A list of exterior Floor type Face objects, like you
+                would find in a cantilevered Room.
+
+            -   ext_apertures - A list of exterior Aperture Face objects.
+
+            -   ext_doors - A list of exterior Door Face objects.
 
         ext_cracks: A dictionary of air mass flow coefficient and exponent data
             corresponding to the face types in the exterior_face_groups. Face
             data flow coefficients should be normalized by surface area, and closed
             opening flow coefficients should be normalized by edge lengths, for example:
 
+        .. code-block:: python
+
             {
-                # kg/s/m2 @ 1 Pa
-                'wall_flow_cof': 0.00001,
-                'wall_flow_exp': 0.7,
-                'roof_flow_cof': 0.00001,
-                'roof_flow_exp': 0.70,
-                # kg/s/m @ 1 Pa
-                'window_flow_cof': 0.00001,
-                'window_flow_exp': 0.7,
-                'door_flow_cof': 0.0002,
-                'door_flow_exp': 0.7
+            "wall_flow_cof": 0.003, # wall flow coefficient
+            "wall_flow_exp": 0.75, # wall flow exponent
+            "roof_flow_cof": 0.0009, # roof flow coefficient
+            "roof_flow_exp": 0.7, # roof flow exponent
+            "floor_flow_cof": 0.0009, # floor flow coefficient
+            "floor_flow_exp": 0.7, # floor flow exponent
+            "window_flow_cof": 0.0014, # window flow coefficient
+            "window_flow_exp": 0.65, # window flow exponent
+            "door_flow_cof": 0.02, # door flow coefficient
+            "door_flow_exp": 0.6 # door flow exponent
             }
     """
 
     # simplify parameters
-    ext_walls, ext_roofs, ext_apertures, ext_doors = exterior_face_groups
+    ext_walls, ext_roofs, ext_floors, ext_apertures, ext_doors = exterior_face_groups
 
     # add exterior crack leakage components
     for ext_wall in ext_walls:
@@ -284,50 +293,64 @@ def exterior_afn(exterior_face_groups, ext_cracks):
         flow_exp = ext_cracks['roof_flow_exp']
         ext_roof.properties.energy.vent_crack = AFNCrack(flow_cof, flow_exp)
 
+    for ext_floor in ext_floors:
+        face_area = ext_floor.area
+        flow_cof = ext_cracks['floor_flow_cof'] * face_area
+        flow_exp = ext_cracks['floor_flow_exp']
+        ext_floor.properties.energy.vent_crack = AFNCrack(flow_cof, flow_exp)
+
     # add exterior opening leakage components
     for ext_aperture in ext_apertures:
         if ext_aperture.properties.energy.vent_opening is None:
             ext_aperture.is_operable = True
-            ext_aperture.properties.energy.vent_opening = VentilationOpening()
+            ext_aperture.properties.energy.vent_opening = \
+                VentilationOpening(fraction_area_operable=0)
         vent_opening = ext_aperture.properties.energy.vent_opening
         vent_opening.flow_coefficient_closed = ext_cracks['window_flow_cof']
         vent_opening.flow_exponent_closed = ext_cracks['window_flow_exp']
 
     for ext_door in ext_doors:
         if ext_door.properties.energy.vent_opening is None:
-            ext_door.properties.energy.vent_opening = VentilationOpening()
+            ext_door.properties.energy.vent_opening = \
+                VentilationOpening(fraction_area_operable=0)
         vent_opening = ext_door.properties.energy.vent_opening
         vent_opening.flow_coefficient_closed = ext_cracks['door_flow_cof']
         vent_opening.flow_exponent_closed = ext_cracks['door_flow_exp']
 
 
-def generate(rooms, window_vent_controls, leakage_type='Average',
-             use_room_infiltration=True, atmospheric_pressure=101325):
+def generate(rooms, leakage_type='Medium', use_room_infiltration=True,
+             atmospheric_pressure=101325):
     """
     Mutate a list of Honeybee Room objects to represent an EnergyPlus AirflowNetwork.
 
     This function will compute leakage component parameters for the ventilation
     cooling energy properties of Honeybee Room and Face objects to simulate an
-    EnergyPlus AirflowNetwork.
+    EnergyPlus AirflowNetwork. The leakage flow coefficient and exponent values are
+    referenced from the DesignBuilder Cracks Template[1], which provides typical air
+    changes rates for different envelope tightness classifications for a range of
+    building types. Specifically this function references leakage values for an
+    'Excellent', 'Medium', and 'VeryPoor' classification of envelope tightness.
 
     VentilationOpening objects will be added to Aperture and Door objects if not already
-    defined. If already defined, only the parameters defining leakage when the openings
-    are closed will be overwritten. AFNCrack objects will be added to all external and
-    internal Face objects, and any existing AFNCrack objects will be overwritten.
+    defined, with the fraction_area_operable set to 0. If already defined, only the
+    parameters defining leakage when the openings are closed will be overwritten.
+    AFNCrack objects will be added to all external and internal Face objects, and any
+    existing AFNCrack objects will be overwritten.
+
+    Note:
+        [1] DesignBuilder (6.1.6.008). DesignBuilder Software Ltd, 2000-2020.
 
     Args:
         rooms: List of Honeybee Room objects that make up the Airflow Network. The
             adjacencies of these rooms must be solved.
-        window_vent_controls: List or tuple of VentilationControl objects or None,
-            corresponding to the list of rooms.
         leakage_type: Text identifying the leakiness of the internal walls. This
             will be used to determine the air mass flow rate parameters for cracks in
-            internal floors, ceilings and walls. (Default: 'Average').
+            internal floors, ceilings and walls. (Default: ''Medium'').
             Choose from the following:
 
-            * Tight
-            * Average
-            * Leaky
+            * Excellent
+            * Medium
+            * VeryPoor
 
         use_room_infiltration: Boolean value to specify how exterior leakage parameters
             are computed. If True the exterior airflow leakage parameters will be derived
@@ -344,40 +367,30 @@ def generate(rooms, window_vent_controls, leakage_type='Average',
             orifices and cracks. In both cases, interzone airflow leakage parameters are
             referenced from the crack data template, corresponding to the provided
             leakage_type.
-
-        atmospheric_pressure: Atmospheric pressure measurement in Pascals used to
-            calculate dry air density. (Default: 101325).
+        atmospheric_pressure: Optional number to define the atmospheric pressure
+            measurement in Pascals used to calculate dry air density. (Default: 101325).
     """
 
-    assert isinstance(window_vent_controls, (tuple, list)) and \
-        len(window_vent_controls) == len(rooms), 'The window_vent_control parameter ' \
-        'must be a list or tuple of VentilationControl objects equal to the list of ' \
-        'rooms. Got a {} with length {}.'.format(
-            type(window_vent_controls), len(window_vent_controls))
-
     # simplify parameters
-    if leakage_type == 'Tight':
-        int_cracks = crack_data_dict['internal_tight_cracks']
-        ext_cracks = crack_data_dict['external_tight_cracks']
-    elif leakage_type == 'Average':
-        int_cracks = crack_data_dict['internal_average_cracks']
-        ext_cracks = crack_data_dict['external_average_cracks']
-    elif leakage_type == 'Leaky':
-        int_cracks = crack_data_dict['internal_leaky_cracks']
-        ext_cracks = crack_data_dict['external_leaky_cracks']
+    if leakage_type == 'Excellent':
+        int_cracks = CRACK_TEMPLATE_DATA['internal_excellent_cracks']
+        ext_cracks = CRACK_TEMPLATE_DATA['external_excellent_cracks']
+    elif leakage_type == 'Medium':
+        int_cracks = CRACK_TEMPLATE_DATA['internal_medium_cracks']
+        ext_cracks = CRACK_TEMPLATE_DATA['external_medium_cracks']
+    elif leakage_type == 'VeryPoor':
+        int_cracks = CRACK_TEMPLATE_DATA['internal_verypoor_cracks']
+        ext_cracks = CRACK_TEMPLATE_DATA['external_verypoor_cracks']
     else:
-        raise AssertionError('leakage_type must be "Tight", "Average", '
-                             'or "Leaky". Got: {}.'.format(leakage_type))
-    air_density = air_density_from_pressure(atmospheric_pressure)
+        raise AssertionError('leakage_type must be "Excellent", "Medium", '
+                             'or "VeryPoor". Got: {}.'.format(leakage_type))
+    air_density = _air_density_from_pressure(atmospheric_pressure)
 
     # generate
-    for room, window_vent_control in zip(rooms, window_vent_controls):
-
-        # assign ventilation control to room
-        room.properties.energy.window_vent_control = window_vent_control
+    for room in rooms:
 
         # get grouped faces by type that experience air flow leakage
-        ext_faces, int_faces = room.properties.energy.afn_face_groups()
+        ext_faces, int_faces = room.properties.energy.envelope_components_by_type()
 
         has_room_infiltration = room.properties.energy.infiltration is not None
 
@@ -386,6 +399,6 @@ def generate(rooms, window_vent_controls, leakage_type='Average',
             room.properties.energy.exterior_afn_from_infiltration_load(
                 ext_faces, air_density)
         else:
-            exterior_afn(ext_faces, ext_cracks)
+            _exterior_afn(ext_faces, ext_cracks)
 
-        interior_afn(int_faces, int_cracks)
+        _interior_afn(int_faces, int_cracks)

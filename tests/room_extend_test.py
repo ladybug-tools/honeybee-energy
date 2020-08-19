@@ -282,7 +282,7 @@ def test_writer_to_idf():
     assert 'HVACTemplate:Zone:IdealLoadsAirSystem' not in idf_string
 
 
-def test_afn_face_groups():
+def test_envelope_components_by_type():
 
     zone_pts = Face3D(
         [Point3D(0, 0, 0), Point3D(20, 0, 0), Point3D(20, 10, 0), Point3D(0, 10, 0)])
@@ -295,12 +295,13 @@ def test_afn_face_groups():
     room[3].add_door(door)  # Door to north face
     room[1].apertures_by_ratio(0.3)  # Window on south face
 
-    ext_faces, int_faces = room.properties.energy.afn_face_groups()
+    ext_faces, int_faces = room.properties.energy.envelope_components_by_type()
 
-    walls, roofs, apertures, doors = ext_faces
+    walls, roofs, floors, apertures, doors = ext_faces
 
     assert len(walls) == 4
     assert len(roofs) == 1
+    assert len(floors) == 0
     assert len(apertures) == 1
     assert len(doors) == 1
 

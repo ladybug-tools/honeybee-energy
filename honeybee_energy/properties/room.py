@@ -286,26 +286,38 @@ class RoomEnergyProperties(object):
         """Boolean to note whether the Room is conditioned."""
         return self._hvac is not None
 
-    def afn_face_groups(self):
-        """Group faces and subfaces by boundary condition and type for the AirflowNetwork.
+    def envelope_components_by_type(self):
+        """Group the room envelope by boundary condition and type for the AirflowNetwork.
 
         The surface groups created by this function correspond to the structure of the
         crack template data used to generate the AirflowNetwork.
 
         Return:
-            A tuple with four groups of exterior faces types:
-                * ext_walls: List of exterior Wall type Face objects.
-                * ext_roofs: List of exterior RoofCeiling type Face objects.
-                * ext_apertures: List of exterior Aperture subface Face objects.
-                * ext_doors: List of exterior Door subface Face objects.
-            A tuple with four groups of interior faces types:
-                * int_walls: List of interior Wall type Face objects.
-                * int_floorceilings: List of interior RoofCeiling and Floor type Face
-                    objects.
-                * int_apertures: List of interior Aperture subface Face objects.
-                * int_doors: List of interior Door subface Face objects.
+            A tuple with five groups of exterior envelope types
+
+            -   ext_walls - A list of exterior Wall type Face objects.
+
+            -   ext_roofs - A list of exterior RoofCeiling type Face objects.
+
+            -   ext_floors - A list of exterior Floor type Face objects, like you
+                would find in a cantilevered Room.
+
+            -   ext_apertures - A list of exterior Aperture Face objects.
+
+            -   ext_doors - A list of exterior Door Face objects.
+
+            A tuple with four groups of interior faces types
+
+            - int_walls: List of interior Wall type Face objects.
+
+            - int_floorceilings: List of interior RoofCeiling and Floor type Face
+              objects.
+
+            - int_apertures: List of interior Aperture Face objects.
+
+            - int_doors: List of interior Door Face objects.
         """
-        ext_walls, ext_roofs, ext_apertures, ext_doors = [], [], [], []
+        ext_walls, ext_roofs, ext_floors, ext_apertures, ext_doors = [], [], [], [], []
         int_walls, int_floorceilings, int_apertures, int_doors = [], [], [], []
 
         for face in self.host.faces:
@@ -317,6 +329,8 @@ class RoomEnergyProperties(object):
                 elif isinstance(face.type, RoofCeiling):
                     ext_roofs.append(face)
                     ext_apertures.extend(face.apertures)  # exterior skylights
+                elif isinstance(face.type, Floor):
+                    ext_floors.append(face)
             elif isinstance(face.boundary_condition, Surface):
                 if isinstance(face.type, Wall):
                     int_walls.append(face)
@@ -326,7 +340,7 @@ class RoomEnergyProperties(object):
                     int_floorceilings.append(face)
                     int_apertures.extend(face.apertures)  # interior skylights
 
-        ext_faces = (ext_walls, ext_roofs, ext_apertures, ext_doors)
+        ext_faces = (ext_walls, ext_roofs, ext_floors, ext_apertures, ext_doors)
         int_faces = (int_walls, int_floorceilings, int_apertures, int_doors)
 
         return ext_faces, int_faces
@@ -338,9 +352,9 @@ class RoomEnergyProperties(object):
 
         Note that this coefficient is normalized per unit area. The EnergyPlus
         AirflowNetwork requires an unnormalized value, and thus this value needs to be
-        multiplied by it's corresponding exposed surface area. The normalized area air
+        multiplied by its corresponding exposed surface area. The normalized area air
         mass flow coefficient is derived from a zone's infiltration flow rate using the
-        following formula:
+        following formula::
 
             Qva * d = Cqa * dP^n
 
@@ -351,7 +365,7 @@ class RoomEnergyProperties(object):
                 dP: Change in pressure across building envelope [Pa]
                 n: Air mass flow exponent [-]
 
-        Rearranged to solve for Cq:
+        Rearranged to solve for ``Cqa`` ::
 
             Cqa = Qv * d / dP^n
 
@@ -390,7 +404,7 @@ class RoomEnergyProperties(object):
         this coefficient is normalized per unit length, which is the required input unit
         the EnergyPlus AirflowNetwork, whereas the flow coefficient for surface cracks is
         not normalized. The normalized perimeter air mass flow coefficient is derived
-        from its infiltration flow rate using the following formula:
+        from its infiltration flow rate using the following formula::
 
             Qv * d * A = Cql * L * dP^n
 
@@ -403,8 +417,9 @@ class RoomEnergyProperties(object):
                 dP: Change in pressure across building envelope [Pa]
                 n: Air mass flow exponent [-]
 
-        Since Qv * d / dP^n equals Cqa the normalized area flow coefficient, this can
-        be simplified and rearranged to solve for Cql with:
+        Since ``Qv * d / dP^n`` equals ``Cqa`` the normalized area flow coefficient,
+        this can be simplified and rearranged to solve for ``Cql`` with the following
+        formula::
 
             Cql = Cqa * A / L
 
@@ -435,26 +450,32 @@ class RoomEnergyProperties(object):
         dynamics.
 
         VentilationOpening objects will be added to Aperture and Door objects if not
-        already defined. If already defined, only the parameters defining leakage when
-        the openings are closed will be overwritten. AFNCrack objects will be added to
-        all external and internal Face objects, and any existing AFNCrack objects will
-        be overwritten.
+        already defined, with the fraction_area_operable set to 0. If already defined,
+        only the parameters defining leakage when the openings are closed will be
+        overwritten. AFNCrack objects will be added to all external and internal Face
+        objects, and any existing AFNCrack objects will be overwritten.
 
         Args:
-            exterior_face_groups: A tuple with four groups of exterior faces types:
+            exterior_face_groups: A tuple with five types of the exterior room envelope
 
-                * ext_walls: List of exterior Wall type Face objects.
-                * ext_roofs: List of exterior RoofCeiling type Face objects.
-                * ext_apertures: List of exterior Aperture subface Face objects.
-                * ext_doors: List of exterior Door subface Face objects.
+                -   ext_walls - A list of exterior Wall type Face objects.
+
+                -   ext_roofs - A list of exterior RoofCeiling type Face objects.
+
+                -   ext_floors - A list of exterior Floor type Face objects, like you
+                    would find in a cantilevered Room.
+
+                -   ext_apertures - A list of exterior Aperture Face objects.
+
+                -   ext_doors - A list of exterior Door Face objects.
 
             air_density: Air density in kg/m3. (Default: 1.2041 represents
                 air density at a temperature of 20 C and 101325 Pa).
         """
 
         # simplify parameters
-        ext_walls, ext_roofs, ext_apertures, ext_doors = exterior_face_groups
-        ext_faces = ext_walls + ext_roofs
+        ext_walls, ext_roofs, ext_floors, ext_apertures, ext_doors = exterior_face_groups
+        ext_faces = ext_walls + ext_roofs + ext_floors
         ext_openings = ext_apertures + ext_doors
         infil_flow = self.infiltration.flow_per_exterior_area
 
@@ -474,7 +495,8 @@ class RoomEnergyProperties(object):
             if ext_opening.properties.energy.vent_opening is None:
                 if isinstance(ext_opening, Aperture):
                     ext_opening.is_operable = True
-                ext_opening.properties.energy.vent_opening = VentilationOpening()
+                ext_opening.properties.energy.vent_opening = \
+                    VentilationOpening(fraction_area_operable=0)
             vent_opening = ext_opening.properties.energy.vent_opening
             ext_flow_cof_perimeter = self.solve_norm_perimeter_flow_coefficient(
                 flow_cof_area, ext_opening.area, ext_opening.perimeter)

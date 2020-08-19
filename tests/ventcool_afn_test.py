@@ -10,7 +10,7 @@ from honeybee_energy.ventcool import afn
 from honeybee_energy.ventcool.crack import AFNCrack
 from honeybee_energy.ventcool.opening import VentilationOpening
 from honeybee_energy.ventcool.control import VentilationControl
-from honeybee_energy.ventcool.crack_data import crack_data_dict
+from honeybee_energy.ventcool._crack_data import CRACK_TEMPLATE_DATA
 
 from ladybug_geometry.geometry3d.pointvector import Point3D
 from ladybug_geometry.geometry3d.face import Face3D
@@ -24,10 +24,10 @@ from pprint import pprint as pp
 def test_density_from_pressure():
     """Test derivation of dry air density."""
 
-    chk_d = afn.air_density_from_pressure(101325, 20.0)
+    chk_d = afn._air_density_from_pressure(101325, 20.0)
     assert chk_d == pytest.approx(1.2041, abs=1e-4)
 
-    chk_d = afn.air_density_from_pressure(100000, 0)
+    chk_d = afn._air_density_from_pressure(100000, 0)
     assert chk_d == pytest.approx(1.2754, abs=1e-4)
 
 
@@ -41,49 +41,40 @@ def test_afn_plenum_zone():
 
     # Make model
     model = Model('PlenumSimple', [room])
-    window_vent_controls = [None]
 
     # generate afn, w/ average leakage
-    afn.generate(model.rooms, window_vent_controls, leakage_type='Average',
-                 use_room_infiltration=True)
+    afn.generate(model.rooms, leakage_type='Medium', use_room_infiltration=True)
     faces = model.faces
-
-    # check ventcontrol
-    assert room.properties.energy.window_vent_control is None
 
     # check ext wall
     crack = faces[1].properties.energy.vent_crack
-    chk_cof = crack_data_dict['external_average_cracks']['wall_flow_cof']
-    chk_exp = crack_data_dict['external_average_cracks']['wall_flow_exp']
+    chk_cof = CRACK_TEMPLATE_DATA['external_medium_cracks']['wall_flow_cof']
+    chk_exp = CRACK_TEMPLATE_DATA['external_medium_cracks']['wall_flow_exp']
     assert crack.flow_coefficient == pytest.approx(chk_cof * faces[1].area, abs=1e-10)
     assert crack.flow_exponent == pytest.approx(chk_exp, abs=1e-10)
 
     # check roof
     crack = faces[5].properties.energy.vent_crack
-    chk_cof = crack_data_dict['external_average_cracks']['roof_flow_cof']
-    chk_exp = crack_data_dict['external_average_cracks']['roof_flow_exp']
+    chk_cof = CRACK_TEMPLATE_DATA['external_medium_cracks']['roof_flow_cof']
+    chk_exp = CRACK_TEMPLATE_DATA['external_medium_cracks']['roof_flow_exp']
     assert crack.flow_coefficient == pytest.approx(chk_cof * faces[5].area, abs=1e-10)
     assert crack.flow_exponent == pytest.approx(chk_exp, abs=1e-10)
 
     # generate afn, w/ tight leakage
-    afn.generate(model.rooms, window_vent_controls, leakage_type='Tight',
-                 use_room_infiltration=False)
+    afn.generate(model.rooms, leakage_type='Excellent', use_room_infiltration=False)
     faces = model.faces
-
-    # check ventcontrol
-    assert room.properties.energy.window_vent_control is None
 
     # check ext wall
     crack = faces[1].properties.energy.vent_crack
-    chk_cof = crack_data_dict['external_tight_cracks']['wall_flow_cof']
-    chk_exp = crack_data_dict['external_tight_cracks']['wall_flow_exp']
+    chk_cof = CRACK_TEMPLATE_DATA['external_excellent_cracks']['wall_flow_cof']
+    chk_exp = CRACK_TEMPLATE_DATA['external_excellent_cracks']['wall_flow_exp']
     assert crack.flow_coefficient == pytest.approx(chk_cof * faces[1].area, abs=1e-10)
     assert crack.flow_exponent == pytest.approx(chk_exp, abs=1e-10)
 
     # check roof
     crack = faces[5].properties.energy.vent_crack
-    chk_cof = crack_data_dict['external_tight_cracks']['roof_flow_cof']
-    chk_exp = crack_data_dict['external_tight_cracks']['roof_flow_exp']
+    chk_cof = CRACK_TEMPLATE_DATA['external_excellent_cracks']['roof_flow_cof']
+    chk_exp = CRACK_TEMPLATE_DATA['external_excellent_cracks']['roof_flow_exp']
     assert crack.flow_coefficient == pytest.approx(chk_cof * faces[5].area, abs=1e-10)
     assert crack.flow_exponent == pytest.approx(chk_exp, abs=1e-10)
 
@@ -105,15 +96,11 @@ def test_afn_single_zone():
 
     # Make model
     model = Model('Single_Zone_Simple', [room])
-    window_vent_controls = [VentilationControl()]
-    afn.generate(model.rooms, window_vent_controls)
+    afn.generate(model.rooms)
 
     # Check that walls have AFNCrack in face
     room = model.rooms[0]
     faces = room.faces
-
-    # Test ventcontrol
-    assert isinstance(room.properties.energy.window_vent_control, VentilationControl)
 
     # Test that no cracks to roofs/floors were added
     assert faces[0].properties.energy.vent_crack is None
@@ -135,7 +122,7 @@ def test_afn_single_zone():
     qv = room.properties.energy.infiltration.flow_per_exterior_area
     n = 0.65
     dP = 4
-    d = afn.air_density_from_pressure()
+    d = afn._air_density_from_pressure()
 
     # Test flow coefficients and exponents
     for i in range(1, 6):
@@ -230,11 +217,10 @@ def test_afn_multizone():
     assert isinstance(inter_naper1.boundary_condition, Surface)
 
     # Make afn
-    window_vent_controls = [VentilationControl().duplicate() for _ in rooms]
-    afn.generate(model.rooms, window_vent_controls)
+    afn.generate(model.rooms)
 
     # get cracks
-    int_cracks = crack_data_dict['internal_average_cracks']
+    int_cracks = CRACK_TEMPLATE_DATA['internal_medium_cracks']
 
     # Check internal cracks in adjacent faces
     int_crack = sroom[3].properties.energy.vent_crack
@@ -257,7 +243,7 @@ def test_afn_multizone():
         nroom[1].apertures[0].properties.energy.vent_opening, VentilationOpening)
 
     # confirm that auto-calculated flow coefficients produce room.infiltration rate
-    d = afn.air_density_from_pressure()
+    d = afn._air_density_from_pressure()
     dP = 4
 
     for room in model.rooms:
@@ -294,7 +280,7 @@ def test_compute_bounding_box_extents_simple():
     theta = 90.0
     model.rotate_xy(theta, Point3D(0, 0, 0))#rooms[0].geometry.vertices[-1])
     geoms = [room.geometry for room in model.rooms]
-    xx, yy, zz = afn.compute_bounding_box_extents(geoms, theta)
+    xx, yy, zz = afn._compute_bounding_box_extents(geoms, theta)
 
     assert xx == pytest.approx(20, abs=1e-10)
     assert yy == pytest.approx(6, abs=1e-10)
@@ -331,7 +317,7 @@ def test_compute_bounding_box_extents_complex():
     theta = 30.0
     model.rotate_xy(theta, rooms[0].geometry.vertices[-1])
     geoms = [room.geometry for room in model.rooms]
-    xx, yy, zz = afn.compute_bounding_box_extents(geoms, theta)
+    xx, yy, zz = afn._compute_bounding_box_extents(geoms, theta)
 
     assert xx == pytest.approx(21, abs=1e-10)
     assert yy == pytest.approx(21, abs=1e-10)
@@ -367,9 +353,9 @@ def test_compute_building_type():
     theta = 3.0 / 180.0 * math.pi
     model.rotate_xy(theta, rooms[0].geometry.vertices[0])
     geoms = [room.geometry for room in model.rooms]
-    bbox = afn.compute_bounding_box_extents(geoms, theta)
+    bbox = afn._compute_bounding_box_extents(geoms, theta)
 
-    btype = afn.compute_building_type(bbox)
+    btype = afn._compute_building_type(bbox)
     assert btype == 'LowRise'
 
     # Test highrise 21 x 21 x 63
@@ -394,9 +380,9 @@ def test_compute_building_type():
     theta = 3.0 / 180.0 * math.pi
     model.rotate_xy(theta, rooms[0].geometry.vertices[0])
     geoms = [room.geometry for room in model.rooms]
-    bbox = afn.compute_bounding_box_extents(geoms, theta)
+    bbox = afn._compute_bounding_box_extents(geoms, theta)
 
-    btype = afn.compute_building_type(bbox)
+    btype = afn._compute_building_type(bbox)
     assert btype == 'LowRise'
 
     # Test highrise 21 x 21 x 63.1
@@ -421,9 +407,9 @@ def test_compute_building_type():
     theta = 3.0 / 180.0 * math.pi
     model.rotate_xy(theta, rooms[0].geometry.vertices[0])
     geoms = [room.geometry for room in model.rooms]
-    bbox = afn.compute_bounding_box_extents(geoms, theta)
+    bbox = afn._compute_bounding_box_extents(geoms, theta)
 
-    btype = afn.compute_building_type(bbox)
+    btype = afn._compute_building_type(bbox)
     assert btype == 'HighRise'
 
 
@@ -444,9 +430,9 @@ def test_compute_aspect_ratio():
     theta = 191.0 / 180.0 * math.pi
     model.rotate_xy(theta, rooms[0].geometry.vertices[0])
     geoms = [room.geometry for room in model.rooms]
-    bbox = afn.compute_bounding_box_extents(geoms, theta)
+    bbox = afn._compute_bounding_box_extents(geoms, theta)
 
-    ar = afn.compute_aspect_ratio(bbox)
+    ar = afn._compute_aspect_ratio(bbox)
     assert ar == pytest.approx(1.0, abs=1e-10)
 
     # Test lowrise 15 x 21 x 3
@@ -469,9 +455,9 @@ def test_compute_aspect_ratio():
     theta = 3.0 / 180.0 * math.pi
     model.rotate_xy(theta, rooms[0].geometry.vertices[0])
     geoms = [room.geometry for room in model.rooms]
-    bbox = afn.compute_bounding_box_extents(geoms, theta)
+    bbox = afn._compute_bounding_box_extents(geoms, theta)
 
-    ar = afn.compute_aspect_ratio(bbox)
+    ar = afn._compute_aspect_ratio(bbox)
     assert ar == pytest.approx(15.0 / 21.0, abs=1e-10)
 
     # Test 21 x 22 x 3
@@ -493,8 +479,8 @@ def test_compute_aspect_ratio():
     theta = 78.0 / 180.0 * math.pi
     model.rotate_xy(theta, rooms[0].geometry.vertices[0])
     geoms = [room.geometry for room in model.rooms]
-    bbox = afn.compute_bounding_box_extents(geoms, theta)
+    bbox = afn._compute_bounding_box_extents(geoms, theta)
 
-    ar = afn.compute_aspect_ratio(bbox)
+    ar = afn._compute_aspect_ratio(bbox)
     assert ar == pytest.approx(21.0 / 22.0, abs=1e-10)
 
