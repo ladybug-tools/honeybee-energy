@@ -20,6 +20,7 @@ from honeybee_energy.schedule.ruleset import ScheduleRuleset
 from honeybee_energy.schedule.fixedinterval import ScheduleFixedInterval
 from honeybee_energy.schedule.typelimit import ScheduleTypeLimit
 from honeybee_energy.load.people import People
+from honeybee_energy.ventcool.simulation import VentilationSimulationControl
 
 from honeybee_energy.lib.programtypes import office_program, plenum_program
 import honeybee_energy.lib.scheduletypelimits as schedule_types
@@ -722,3 +723,40 @@ def test_writer_to_idf():
 
     assert hasattr(model.to, 'idf')
     idf_string = model.to.idf(model, schedule_directory='./tests/idf/')
+
+
+def test_energy_ventilation_simulation_properties():
+    """Test the existence of the ventilation simulation control properties."""
+    room = Room.from_box('Tiny_House_Zone', 5, 10, 3)
+    room.properties.energy.program_type = office_program
+    room.properties.energy.add_default_ideal_air()
+
+    # ModelEnergyProperties will set ventilation cooling to single zone
+    model = Model('Tiny_House', [room])
+    assert hasattr(model.properties.energy, 'ventilation_simulation_control')
+
+    vent = model.properties.energy.ventilation_simulation_control
+    assert isinstance(vent, VentilationSimulationControl)
+    assert vent.vent_control_type == 'SingleZone'
+    assert vent.reference_temperature == pytest.approx(20, abs=1e-10)
+    assert vent.reference_pressure == pytest.approx(101325, abs=1e-10)
+    assert vent.reference_humidity_ratio == pytest.approx(0, abs=1e-10)
+    assert vent.building_type == 'LowRise'
+    assert vent.long_axis_angle == pytest.approx(0, abs=1e-10)
+    assert vent.aspect_ratio == pytest.approx(1, abs=1e-10)
+
+    # Test to_dict
+    data = model.properties.energy.to_dict()
+    assert 'ventilation_simulation_control' in data['energy']
+    vent_dict = data['energy']['ventilation_simulation_control']
+    vent_dict['reference_temperature'] == pytest.approx(20, abs=1e-10)
+    vent_dict['building_type'] == 'LowRise'
+    new_vent = VentilationSimulationControl.from_dict(vent_dict)
+    assert new_vent == VentilationSimulationControl()
+    assert vent_dict == new_vent.to_dict()
+
+    # Add sim control obj
+    model.properties.energy.ventilation_simulation_control = \
+        VentilationSimulationControl('MultiZoneWithoutDistribution', 21, 101320, 0.5)
+    vent = model.properties.energy.ventilation_simulation_control
+    assert vent.vent_control_type == 'MultiZoneWithoutDistribution'

@@ -13,6 +13,7 @@ from ..schedule.dictutil import SCHEDULE_TYPES, dict_to_schedule, \
     dict_abridged_to_schedule
 from ..programtype import ProgramType
 from ..hvac import HVAC_TYPES_DICT
+from ..ventcool.simulation import VentilationSimulationControl
 
 try:
     from itertools import izip as zip  # python 2
@@ -25,6 +26,8 @@ class ModelEnergyProperties(object):
 
     Args:
         host: A honeybee_core Model object that hosts these properties.
+        ventilation_simulation_control: A VentilationSimulationControl object that
+            defines global parameters for ventilation simulation.
 
     Properties:
         * host
@@ -42,11 +45,13 @@ class ModelEnergyProperties(object):
         * hvac_schedules
         * program_types
         * hvacs
+        * ventilation_simulation_control
     """
 
-    def __init__(self, host):
+    def __init__(self, host, ventilation_simulation_control=None):
         """Initialize Model energy properties."""
         self._host = host
+        self.ventilation_simulation_control = ventilation_simulation_control
 
     @property
     def host(self):
@@ -273,6 +278,21 @@ class ModelEnergyProperties(object):
                     hvacs.append(room.properties.energy._hvac)
         return hvacs
 
+    @property
+    def ventilation_simulation_control(self):
+        """Get or set global parameters for ventilation cooling simulation."""
+        return self._ventilation_simulation_control
+
+    @ventilation_simulation_control.setter
+    def ventilation_simulation_control(self, value):
+        if value is None:
+            value = VentilationSimulationControl()
+        else:
+            assert isinstance(value, VentilationSimulationControl), \
+                'ventilation_simulation_control must be a ' \
+                'VentilationSimulationControl object. Got: {}.'.format(value)
+        self._ventilation_simulation_control = value
+
     def check_duplicate_material_identifiers(self, raise_exception=True):
         """Check that there are no duplicate Material identifiers in the model."""
         material_identifiers = set()
@@ -442,6 +462,10 @@ class ModelEnergyProperties(object):
         # add all schedule type limits, schedules, program types and hvacs to the dict
         self._add_sched_type_objs_to_dict(base, schs)
 
+        # add ventilation_simulation_control
+        base['energy']['ventilation_simulation_control'] = \
+            self.ventilation_simulation_control.to_dict()
+
         return base
 
     def duplicate(self, new_host=None):
@@ -452,7 +476,8 @@ class ModelEnergyProperties(object):
                 If None, the properties will be duplicated with the same host.
         """
         _host = new_host or self._host
-        return ModelEnergyProperties(_host)
+        return ModelEnergyProperties(
+            _host, self._ventilation_simulation_control.duplicate())
 
     @staticmethod
     def load_properties_from_dict(data):

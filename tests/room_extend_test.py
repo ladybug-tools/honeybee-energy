@@ -18,6 +18,8 @@ import honeybee_energy.lib.scheduletypelimits as schedule_types
 from honeybee_energy.lib.programtypes import office_program
 
 from ladybug_geometry.geometry3d.pointvector import Point3D, Vector3D
+from ladybug_geometry.geometry3d.face import Face3D
+from ladybug_geometry.geometry3d.polyface import Polyface3D
 
 from ladybug.dt import Time
 
@@ -278,3 +280,75 @@ def test_writer_to_idf():
     assert 'DesignSpecification:OutdoorAir' in idf_string
     assert 'HVACTemplate:Thermostat' in idf_string
     assert 'HVACTemplate:Zone:IdealLoadsAirSystem' not in idf_string
+
+
+def test_envelope_components_by_type():
+
+    zone_pts = Face3D(
+        [Point3D(0, 0, 0), Point3D(20, 0, 0), Point3D(20, 10, 0), Point3D(0, 10, 0)])
+    room = Room.from_polyface3d(
+        'SouthRoom', Polyface3D.from_offset_face(zone_pts, 3))
+
+    door_pts = [Point3D(2, 10, 0.01), Point3D(4, 10, 0.01),
+                Point3D(4, 10, 2.50), Point3D(2, 10, 2.50)]
+    door = Door('FrontDoor', Face3D(door_pts))
+    room[3].add_door(door)  # Door to north face
+    room[1].apertures_by_ratio(0.3)  # Window on south face
+
+    ext_faces, int_faces = room.properties.energy.envelope_components_by_type()
+
+    walls, roofs, floors, apertures, doors = ext_faces
+
+    assert len(walls) == 4
+    assert len(roofs) == 1
+    assert len(floors) == 0
+    assert len(apertures) == 1
+    assert len(doors) == 1
+
+    for types in int_faces:
+        assert len(types) == 0
+
+
+def test_solve_norm_area_flow_coefficient():
+    """Test calculation of leakage parameters from infiltration for face area."""
+
+    refn = 0.65
+    rep = RoomEnergyProperties
+    d = 1.204
+
+    # Test tight envelope @ 0.0001 m3/s per m2 @ 4 Pa
+    Cq = rep.solve_norm_area_flow_coefficient(0.0001, refn, d)
+    assert Cq == pytest.approx(0.0000488976, abs=1e-9)
+
+    # Test average envelope
+    Cq = rep.solve_norm_area_flow_coefficient(0.0003, refn, d)
+    assert Cq == pytest.approx(0.000146693, abs=1e-9)
+
+    # Test leaky envelope
+    Cq = rep.solve_norm_area_flow_coefficient(0.0006, refn, d)
+    assert Cq == pytest.approx(0.000293386, abs=1e-9)
+
+
+def test_solve_norm_perimeter_flow_coefficient():
+    """Test calculation of leakage parameters from infiltration for opening edges."""
+
+    L = 6  # 2 x 1 meter opening
+    A = 2  # m2
+    refn = 0.65
+    rep = RoomEnergyProperties
+    d = 1.204
+
+    # Test tight envelope
+    Cqa = rep.solve_norm_area_flow_coefficient(0.0001, refn, d)
+    Cql = rep.solve_norm_perimeter_flow_coefficient(Cqa, A, L)
+    assert Cql == pytest.approx(0.0000162992, abs=1e-9)
+
+    # Test average envelope
+    Cqa = rep.solve_norm_area_flow_coefficient(0.0003, refn, d)
+    Cql = rep.solve_norm_perimeter_flow_coefficient(Cqa, A, L)
+    assert Cql == pytest.approx(0.0000488976, abs=1e-9)
+
+    # Test leaky envelope
+    Cqa = rep.solve_norm_area_flow_coefficient(0.0006, refn, d)
+    Cql = rep.solve_norm_perimeter_flow_coefficient(Cqa, A, L)
+    assert Cql == pytest.approx(0.0000977952, abs=1e-9)

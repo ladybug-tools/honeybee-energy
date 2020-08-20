@@ -3,6 +3,7 @@
 from ..construction.opaque import OpaqueConstruction
 from ..construction.air import AirBoundaryConstruction
 from ..lib.constructionsets import generic_construction_set
+from ..ventcool.crack import AFNCrack
 
 from honeybee.facetype import AirBoundary
 
@@ -15,19 +16,23 @@ class FaceEnergyProperties(object):
         construction: An optional Honeybee OpaqueConstruction object for
             the face. If None, it will be set by the parent Room ConstructionSet
             or the the Honeybee default generic ConstructionSet.
+        vent_crack: An optional AFNCrack to specify an air leakage crack for
+            the Face. (Default: None).
 
     Properties:
         * host
         * construction
+        * vent_crack
         * is_construction_set_on_object
     """
 
-    __slots__ = ('_host', '_construction')
+    __slots__ = ('_host', '_construction', '_vent_crack')
 
-    def __init__(self, host, construction=None):
+    def __init__(self, host, construction=None, vent_crack=None):
         """Initialize Face energy properties."""
         self._host = host
         self.construction = construction
+        self.vent_crack = vent_crack
 
     @property
     def host(self):
@@ -68,6 +73,19 @@ class FaceEnergyProperties(object):
         self._construction = value
 
     @property
+    def vent_crack(self):
+        """Get or set a AFNCrack object to specify Airflow Network air leakage."""
+        return self._vent_crack
+
+    @vent_crack.setter
+    def vent_crack(self, value):
+        if value is not None:
+            assert isinstance(value, AFNCrack), 'Expected AFNCrack ' \
+                'for Face vent_crack. Got {}'.format(type(value))
+            value.lock()   # lock because we don't duplicate the object
+        self._vent_crack = value
+
+    @property
     def is_construction_set_on_object(self):
         """Boolean noting if construction is assigned on the level of this Face.
 
@@ -98,12 +116,8 @@ class FaceEnergyProperties(object):
 
             {
             "type": 'FaceEnergyProperties',
-            "construction": {
-                "type": 'OpaqueConstruction',
-                "identifier": str, # construction identifier
-                "layers": [], # list of material identifiers (from outside to inside)
-                "materials": []  # list of unique material objects
-                }
+            "construction": {},  # opaque construction
+            "vent_crack": {}  # AFN crack
             }
         """
         assert data['type'] == 'FaceEnergyProperties', \
@@ -112,6 +126,8 @@ class FaceEnergyProperties(object):
         new_prop = cls(host)
         if 'construction' in data and data['construction'] is not None:
             new_prop.construction = OpaqueConstruction.from_dict(data['construction'])
+        if 'vent_crack' in data and data['vent_crack'] is not None:
+            new_prop.vent_crack = AFNCrack.from_dict(data['vent_crack'])
         return new_prop
 
     def apply_properties_from_dict(self, abridged_data, constructions):
@@ -125,6 +141,8 @@ class FaceEnergyProperties(object):
         """
         if 'construction' in abridged_data and abridged_data['construction'] is not None:
             self.construction = constructions[abridged_data['construction']]
+        if 'vent_crack' in abridged_data and abridged_data['vent_crack'] is not None:
+            self.vent_crack = AFNCrack.from_dict(abridged_data['vent_crack'])
 
     def to_dict(self, abridged=False):
         """Return energy properties as a dictionary.
@@ -141,6 +159,8 @@ class FaceEnergyProperties(object):
             base['energy']['construction'] = \
                 self._construction.identifier if abridged else \
                 self._construction.to_dict()
+        if self._vent_crack is not None:
+            base['energy']['vent_crack'] = self._vent_crack.to_dict()
         return base
 
     def duplicate(self, new_host=None):
@@ -151,7 +171,7 @@ class FaceEnergyProperties(object):
                 If None, the properties will be duplicated with the same host.
         """
         _host = new_host or self._host
-        return FaceEnergyProperties(_host, self._construction)
+        return FaceEnergyProperties(_host, self._construction, self._vent_crack)
 
     def ToString(self):
         return self.__repr__()
