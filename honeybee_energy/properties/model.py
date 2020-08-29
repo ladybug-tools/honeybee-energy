@@ -452,6 +452,14 @@ class ModelEnergyProperties(object):
                 door.properties.energy.apply_properties_from_dict(
                     d_dict, constructions)
 
+        # re-serialize the ventilation_simulation_control
+        energy_prop = data['properties']['energy']
+        if 'ventilation_simulation_control' in energy_prop and \
+                energy_prop['ventilation_simulation_control'] is not None:
+            self.ventilation_simulation_control = \
+                VentilationSimulationControl.from_dict(
+                    energy_prop['ventilation_simulation_control'])
+
     def to_dict(self):
         """Return Model energy properties as a dictionary."""
         base = {'energy': {'type': 'ModelEnergyProperties'}}

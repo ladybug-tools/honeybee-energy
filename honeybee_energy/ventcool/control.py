@@ -15,8 +15,8 @@ from honeybee.typing import float_in_range
 class VentilationControl(object):
     """Object to dictate setpoints and schedule for ventilative cooling.
 
-    Note the all of the default setpoints of this object are set to not perform
-    any ventilative cooling such that users can individually decide which setpoints
+    Note the all of the default setpoints of this object are set to always perform
+    ventilative cooling such that users can individually decide which setpoints
     are relevant to a given ventilation strategy.
 
     Args:
@@ -37,9 +37,9 @@ class VentilationControl(object):
             ventilative cooling. (Default: 100).
         delta_temperature: A number between -100 and 100 for the temperature
             differential in Celsius between indoor and outdoor below which
-            ventilation is shut off.  This should usually be a negative number
+            ventilation is shut off.  This should usually be a positive number
             so that ventilation only occurs when the outdoors is cooler than the
-            indoors. Positive numbers indicate how much hotter the outdoors can
+            indoors. Negative numbers indicate how much hotter the outdoors can
             be than the indoors before ventilation is stopped. (Default: -100).
         schedule: An optional ScheduleRuleset or ScheduleFixedInterval for the
             ventilation over the course of the year. Note that this is applied
