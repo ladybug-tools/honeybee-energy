@@ -16,7 +16,7 @@ class FaceEnergyProperties(object):
         construction: An optional Honeybee OpaqueConstruction object for
             the face. If None, it will be set by the parent Room ConstructionSet
             or the the Honeybee default generic ConstructionSet.
-        vent_crack: An optional AFNCrack to specify an air leakage crack for
+        vent_crack: An optional AFNCrack to specify the air leakage crack for
             the Face. (Default: None).
 
     Properties:
@@ -74,7 +74,12 @@ class FaceEnergyProperties(object):
 
     @property
     def vent_crack(self):
-        """Get or set a AFNCrack object to specify Airflow Network air leakage."""
+        """Get or set a AFNCrack object to specify Airflow Network air leakage.
+
+        Note that anything assigned here has no bearing on the simulation unless
+        the Model that the Face is a part of has its ventilation_simulation_control
+        set for MultiZone air flow, thereby triggering the use of the AirflowNetwork.
+        """
         return self._vent_crack
 
     @vent_crack.setter

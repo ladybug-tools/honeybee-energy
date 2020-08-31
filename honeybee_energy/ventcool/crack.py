@@ -10,6 +10,10 @@ from honeybee.typing import float_in_range, float_positive
 class AFNCrack(object):
     """Airflow leakage through surface due to cracks or porous surface material.
 
+    Note that this whole class only has bearing on the simulation when the Model
+    that the AFNCrack is a part of has its ventilation_simulation_control set for
+    MultiZone air flow, thereby triggering the use of the AirflowNetwork.
+
     Args:
         flow_coefficient: A number in kg/s-m at 1 Pa per meter of
             crack length at the conditions defined in the ReferenceCrack condition;

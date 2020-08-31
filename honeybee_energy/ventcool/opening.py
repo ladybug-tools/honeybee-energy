@@ -123,9 +123,9 @@ class VentilationOpening(object):
     def wind_cross_vent(self):
         """Get or set a boolean for whether there is cross ventilation from the window.
 
-        Note that this property only has significance for simulations with simple
-        ZoneVentilation objects and has no bearing on simulations with the
-        Airflow Network.
+        Note that this property only has significance for simulations using SingleZone
+        ventilation_simulation_control and has no bearing on multizone simulations
+        with the Airflow Network.
 
         This should be True if there is an opening of roughly equal area on the
         opposite side of the Room such that wind-driven cross ventilation will
@@ -140,13 +140,11 @@ class VentilationOpening(object):
 
     @property
     def flow_coefficient_closed(self):
-        """Get or set coefficient for the mass flow rate when opening is closed.
+        """Get or set a number for the mass flow coefficient when opening is closed [kg/s-m].
 
-        Note that while the default for this value is zero, it only indicates that this
-        VentilationOpening object is not participating in the AirflowNetwork simulation,
-        and thus does not actually inform any simulation. Values greater than (but not
-        equal) to zero indicate participation in the AirflowNetwork simulation,
-        consistent with the expected EnergyPlus range for flow_coefficient_closed values.
+        Note that anything assigned here has no bearing on the simulation unless
+        the Model that this object is a part of has its ventilation_simulation_control
+        set for MultiZone air flow, thereby triggering the use of the AirflowNetwork.
         """
         return self._flow_coefficient_closed
 
@@ -156,7 +154,12 @@ class VentilationOpening(object):
 
     @property
     def flow_exponent_closed(self):
-        """Get or set exponent for deriving the mass flow rate when opening is closed."""
+        """Get or set the exponent for deriving the mass flow rate when opening is closed.
+
+        Note that anything assigned here has no bearing on the simulation unless
+        the Model that this object is a part of has its ventilation_simulation_control
+        set for MultiZone air flow, thereby triggering the use of the AirflowNetwork.
+        """
         return self._flow_exponent_closed
 
     @flow_exponent_closed.setter
@@ -166,7 +169,12 @@ class VentilationOpening(object):
 
     @property
     def two_way_threshold(self):
-        """Get or set minimum density difference above which two-way flow occurs."""
+        """Get or set minimum density difference above which two-way flow occurs [kg/m3].
+
+        Note that anything assigned here has no bearing on the simulation unless
+        the Model that this object is a part of has its ventilation_simulation_control
+        set for MultiZone air flow, thereby triggering the use of the AirflowNetwork.
+        """
         return self._two_way_threshold
 
     @two_way_threshold.setter

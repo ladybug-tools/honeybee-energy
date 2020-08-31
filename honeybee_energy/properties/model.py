@@ -293,6 +293,16 @@ class ModelEnergyProperties(object):
                 'VentilationSimulationControl object. Got: {}.'.format(value)
         self._ventilation_simulation_control = value
 
+    def autocalculate_ventilation_simulation_control(self):
+        """Set geometry properties of ventilation_simulation_control with Model's rooms.
+
+        The room geometry of the host Model will be used to assign the aspect_ratio,
+        long_axis_angle, and the building_type. Note that these properties are only
+        meaningful for simulations using the AirflowNetwork.
+        """
+        self.ventilation_simulation_control.assign_geometry_properties_from_rooms(
+            self.host.rooms)
+
     def check_duplicate_material_identifiers(self, raise_exception=True):
         """Check that there are no duplicate Material identifiers in the model."""
         material_identifiers = set()
