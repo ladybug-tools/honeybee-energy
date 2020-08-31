@@ -9,16 +9,15 @@ import honeybee_energy.lib.programtypes as prog_type_lib
 from honeybee_energy.ventcool import afn
 from honeybee_energy.ventcool.crack import AFNCrack
 from honeybee_energy.ventcool.opening import VentilationOpening
-from honeybee_energy.ventcool.control import VentilationControl
 from honeybee_energy.ventcool._crack_data import CRACK_TEMPLATE_DATA
 
 from ladybug_geometry.geometry3d.pointvector import Point3D
 from ladybug_geometry.geometry3d.face import Face3D
 from ladybug_geometry.geometry3d.polyface import Polyface3D
+from ladybug_geometry.bounding import bounding_box_extents
 
 import pytest
 import math
-from pprint import pprint as pp
 
 
 def test_density_from_pressure():
@@ -263,24 +262,14 @@ def test_afn_multizone():
 
 
 def test_compute_bounding_box_extents_simple():
-    """Test the bounding box extents calculation."""
-
+    """Test the bounding box extents calculation of ladybug_geometry."""
     # South Room 1: 20 x 6 x 3
     szone1 = Face3D(
         [Point3D(-10, -3), Point3D(10, -3), Point3D(10, 3), Point3D(-10, 3)])
-    #szone1 = Face3D(
-    #    [Point3D(0, 0), Point3D(10, 0), Point3D(10, 3), Point3D(0, 3)])
-
     sroom1 = Room.from_polyface3d('SouthRoom1', Polyface3D.from_offset_face(szone1, 3))
-
-    rooms = [sroom1]
-    model = Model('One_Zone_Simple', rooms)
-
-    # Rotate the buildings
     theta = 90.0
-    model.rotate_xy(theta, Point3D(0, 0, 0))#rooms[0].geometry.vertices[-1])
-    geoms = [room.geometry for room in model.rooms]
-    xx, yy, zz = afn._compute_bounding_box_extents(geoms, theta)
+    sroom1.rotate_xy(theta, Point3D(0, 0, 0))
+    xx, yy, zz = bounding_box_extents([sroom1.geometry], math.radians(theta))
 
     assert xx == pytest.approx(20, abs=1e-10)
     assert yy == pytest.approx(6, abs=1e-10)
@@ -288,8 +277,7 @@ def test_compute_bounding_box_extents_simple():
 
 
 def test_compute_bounding_box_extents_complex():
-    """Test the bounding box extents calculation."""
-
+    """Test the bounding box extents of ladybug_geometry."""
     # South Room 1: 21 x 10.5 x 3
     szone1 = Face3D(
         [Point3D(0, 0), Point3D(21, 0), Point3D(21, 10.5), Point3D(0, 10.5)])
@@ -317,7 +305,7 @@ def test_compute_bounding_box_extents_complex():
     theta = 30.0
     model.rotate_xy(theta, rooms[0].geometry.vertices[-1])
     geoms = [room.geometry for room in model.rooms]
-    xx, yy, zz = afn._compute_bounding_box_extents(geoms, theta)
+    xx, yy, zz = bounding_box_extents(geoms, math.radians(theta))
 
     assert xx == pytest.approx(21, abs=1e-10)
     assert yy == pytest.approx(21, abs=1e-10)
@@ -326,7 +314,6 @@ def test_compute_bounding_box_extents_complex():
 
 def test_compute_building_type():
     """Test calculation of building type."""
-
     # Test lowrise: 21 x 21 x 3
 
     # South Room: 21 x 10.5
@@ -341,21 +328,15 @@ def test_compute_building_type():
     nroom = Room.from_polyface3d(
         'NorthRoom', Polyface3D.from_offset_face(nzone_pts, 3))
 
-    # Add adjacent interior windows
+    # Add detail and create the model
     sroom[3].apertures_by_ratio(0.3)  # Window on south face
     nroom[1].apertures_by_ratio(0.3)  # Window on north face
-
-    # rooms
     rooms = [sroom, nroom]
     model = Model('Test_Zone', rooms)
 
-    # Rotate the building
-    theta = 3.0 / 180.0 * math.pi
-    model.rotate_xy(theta, rooms[0].geometry.vertices[0])
-    geoms = [room.geometry for room in model.rooms]
-    bbox = afn._compute_bounding_box_extents(geoms, theta)
-
-    btype = afn._compute_building_type(bbox)
+    # autocalculate the building type
+    model.properties.energy.autocalculate_ventilation_simulation_control()
+    btype = model.properties.energy.ventilation_simulation_control.building_type
     assert btype == 'LowRise'
 
     # Test highrise 21 x 21 x 63
@@ -372,17 +353,14 @@ def test_compute_building_type():
     nroom = Room.from_polyface3d(
         'NorthRoom', Polyface3D.from_offset_face(nzone_pts, 63))
 
-    # rooms
+    # Add detail and create the model
     rooms = [sroom, nroom]
     model = Model('Test_Zone', rooms)
+    model.rotate_xy(3, rooms[0].geometry.vertices[0])
 
-    # Rotate the buildings
-    theta = 3.0 / 180.0 * math.pi
-    model.rotate_xy(theta, rooms[0].geometry.vertices[0])
-    geoms = [room.geometry for room in model.rooms]
-    bbox = afn._compute_bounding_box_extents(geoms, theta)
-
-    btype = afn._compute_building_type(bbox)
+    # autocalculate the building type
+    model.properties.energy.autocalculate_ventilation_simulation_control()
+    btype = model.properties.energy.ventilation_simulation_control.building_type
     assert btype == 'LowRise'
 
     # Test highrise 21 x 21 x 63.1
@@ -399,41 +377,34 @@ def test_compute_building_type():
     nroom = Room.from_polyface3d(
         'NorthRoom', Polyface3D.from_offset_face(nzone_pts, 63.1))
 
-    # rooms
+    # Add detail and create the model
     rooms = [sroom, nroom]
     model = Model('Test_Zone', rooms)
 
-    # Rotate the buildings
-    theta = 3.0 / 180.0 * math.pi
-    model.rotate_xy(theta, rooms[0].geometry.vertices[0])
-    geoms = [room.geometry for room in model.rooms]
-    bbox = afn._compute_bounding_box_extents(geoms, theta)
-
-    btype = afn._compute_building_type(bbox)
+    # autocalculate the building type
+    model.properties.energy.autocalculate_ventilation_simulation_control()
+    btype = model.properties.energy.ventilation_simulation_control.building_type
     assert btype == 'HighRise'
 
 
 def test_compute_aspect_ratio():
     """Test calculation of aspect ratio."""
-
-    # South Room: 21 x 21 x 3 (not orthogonal)
+    # South Room: 21 x 21 x 3
     szone_pts = Face3D(
         [Point3D(0, 0), Point3D(21, 0), Point3D(21, 21), Point3D(0, 10)])
     sroom = Room.from_polyface3d(
         'SouthRoom', Polyface3D.from_offset_face(szone_pts, 3))
 
-    # rooms
+    # add detail and create the Model
     rooms = [sroom]
     model = Model('Test_Zone', rooms)
 
-    # Rotate the building
-    theta = 191.0 / 180.0 * math.pi
-    model.rotate_xy(theta, rooms[0].geometry.vertices[0])
-    geoms = [room.geometry for room in model.rooms]
-    bbox = afn._compute_bounding_box_extents(geoms, theta)
-
-    ar = afn._compute_aspect_ratio(bbox)
+    # autocalculate the aspect ratio
+    model.properties.energy.autocalculate_ventilation_simulation_control()
+    ar = model.properties.energy.ventilation_simulation_control.aspect_ratio
     assert ar == pytest.approx(1.0, abs=1e-10)
+    axis = model.properties.energy.ventilation_simulation_control.long_axis_angle
+    assert axis == 0
 
     # Test lowrise 15 x 21 x 3
     szone_pts = Face3D(
@@ -447,18 +418,16 @@ def test_compute_aspect_ratio():
     nroom = Room.from_polyface3d(
         'NorthRoom', Polyface3D.from_offset_face(nzone_pts, 3))
 
-    # rooms
+    # add detail and create the model
     rooms = [sroom, nroom]
     model = Model('Test_Zone', rooms)
 
-    # Rotate the buildings
-    theta = 3.0 / 180.0 * math.pi
-    model.rotate_xy(theta, rooms[0].geometry.vertices[0])
-    geoms = [room.geometry for room in model.rooms]
-    bbox = afn._compute_bounding_box_extents(geoms, theta)
-
-    ar = afn._compute_aspect_ratio(bbox)
+    # autocalculate the aspect ratio
+    model.properties.energy.autocalculate_ventilation_simulation_control()
+    ar = model.properties.energy.ventilation_simulation_control.aspect_ratio
     assert ar == pytest.approx(15.0 / 21.0, abs=1e-10)
+    axis = model.properties.energy.ventilation_simulation_control.long_axis_angle
+    assert axis == 0
 
     # Test 21 x 22 x 3
     szone_pts = Face3D(
@@ -471,16 +440,13 @@ def test_compute_aspect_ratio():
     nroom = Room.from_polyface3d(
         'NorthRoom', Polyface3D.from_offset_face(nzone_pts, 3))
 
-    # rooms
+    # add detail and create the model
     rooms = [sroom, nroom]
     model = Model('Test_Zone', rooms)
 
-    # Rotate the buildings
-    theta = 78.0 / 180.0 * math.pi
-    model.rotate_xy(theta, rooms[0].geometry.vertices[0])
-    geoms = [room.geometry for room in model.rooms]
-    bbox = afn._compute_bounding_box_extents(geoms, theta)
-
-    ar = afn._compute_aspect_ratio(bbox)
+    # autocalculate the aspect ratio
+    model.properties.energy.autocalculate_ventilation_simulation_control()
+    ar = model.properties.energy.ventilation_simulation_control.aspect_ratio
     assert ar == pytest.approx(21.0 / 22.0, abs=1e-10)
-
+    axis = model.properties.energy.ventilation_simulation_control.long_axis_angle
+    assert axis == 90

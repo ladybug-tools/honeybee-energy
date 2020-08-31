@@ -1,6 +1,9 @@
 # coding=utf-8
 """Definitions for global parameters used in the ventilation simulation."""
 from __future__ import division
+import math
+
+from ladybug_geometry.bounding import bounding_box_extents
 
 from honeybee._lockable import lockable
 from honeybee.typing import float_in_range, float_positive, float_in_range_excl_incl
@@ -8,7 +11,7 @@ from honeybee.typing import float_in_range, float_positive, float_in_range_excl_
 
 @lockable
 class VentilationSimulationControl(object):
-    """Global parameters used in the ventilation simulation.
+    """Global parameters used to specify the simulation of air flow.
 
     Args:
         vent_control_type: Text indicating type of ventilation control.
@@ -25,41 +28,40 @@ class VentilationSimulationControl(object):
             differences, and the leakage geometry corresponding to specific windows,
             doors, and surface cracks (Default: 'SingleZone').
         reference_temperature: Reference temperature measurement in Celsius under which
-            the surface crack data were obtained. (Default: 20).
-        reference_pressure: Reference barometric pressure measurement in
-            Pascals under which the surface crack data were obtained. (Default: 101325).
+            the surface crack data were obtained. This is only used for AFN simulations,
+            when vent_control_type is NOT SingleZone. (Default: 20).
+        reference_pressure: Reference barometric pressure measurement in Pascals
+            under which the surface crack data were obtained. This is only used for AFN
+            simulations, when vent_control_type is NOT SingleZone.(Default: 101325).
         reference_humidity_ratio: Reference humidity ratio measurement in
             kgWater/kgDryAir under which the surface crack data were obtained.
-            (Default: 0).
+            This is only used for AFN simulations, when vent_control_type is
+            NOT SingleZone. (Default: 0).
         building_type: Text indicating relationship between building footprint and
-            height used to calculate the wind pressure coefficients for exterior
-            surfaces.
-            Choose from the following:
+            height. Choose from the following:
 
             * LowRise
             * HighRise
 
-            LowRise corresponds to rectangular building whose height is less then three
-            times the width and length of the footprint. HighRise corresponds to a
-            rectangular building whose height is more than three times the width and
-            length of the footprint. This parameter is required to automatically
-            calculate wind pressure coefficients for the AirflowNetwork simulation.
-            If used for complex building geometries that cannot be described as a
-            highrise or lowrise rectangular mass, the resulting air flow and pressure
-            simulated on the building surfaces may be inaccurate. (Default: 'LowRise').
-        long_axis_angle: The clockwise rotation in degrees from true North of the long
-            axis of the building. This parameter is required to automatically calculate
-            wind pressure coefficients for the AirflowNetwork simulation. If used for
-            complex building geometries that cannot be described as a highrise or
-            lowrise rectangular mass, the resulting air flow and pressure simulated on
-            the building surfaces may be inaccurate. (Default: 0).
-        aspect_ratio: Aspect ratio of a rectangular footprint, defined as the ratio of
-            length of the short axis divided by the length of the long axis. This
-            parameter is required to automatically calculate wind pressure coefficients
-            for the AirflowNetwork simulation. If used for complex building geometries
-            that cannot be described as a highrise or lowrise rectangular mass, the
-            resulting air flow and pressure simulated on the building surfaces may be
-            inaccurate. (Default: 1).
+            LowRise corresponds to a building where the height is less then three
+            times the width AND length of the footprint. HighRise corresponds to a
+            building where height is more than three times the width OR length of
+            the footprint. This parameter is used to estimate building-wide wind
+            pressure coefficients for the AFN by approximating the building geometry
+            as an extruded rectangle. This property can be auto-calculated from
+            Honeybee Room geometry with the geometry_properties_from_rooms
+            method. (Default: 'LowRise').
+        long_axis_angle: A number between 0 and 180 for the clockwise angle difference
+            in degrees that the long axis of the building is from true North. This
+            parameter is used to estimate building-wide wind pressure coefficients
+            for the AFN by approximating the building geometry as an extruded
+            rectangle. 0 indicates a North-South long axis while 90 indicates an
+            East-West long axis. (Default: 0).
+        aspect_ratio: A number between 0 and 1 for the aspect ratio of the building's
+            footprint, defined as the ratio of length of the short axis divided
+            by the length of the long axis. This parameter is used to estimate
+            building-wide wind pressure coefficients for the AFN by approximating
+            the building geometry as an extruded rectangle (Default: 1).
 
     Properties:
         * vent_control_type
@@ -133,7 +135,7 @@ class VentilationSimulationControl(object):
 
     @property
     def building_type(self):
-        """Get or set text indicating type of building type."""
+        """Get or set text indicating whether the building is high or low rise."""
         return self._building_type
 
     @building_type.setter
@@ -145,7 +147,12 @@ class VentilationSimulationControl(object):
 
     @property
     def long_axis_angle(self):
-        """Get or set angle of the long axis of building."""
+        """Get or set a number between 0 and 180 for the building long axis angle.
+
+        The value represents the clockwise difference between the long axis and
+        true North. 0 indicates a North-South long axis while 90 indicates an
+        East-West long axis.
+        """
         return self._long_axis_angle
 
     @long_axis_angle.setter
@@ -154,12 +161,40 @@ class VentilationSimulationControl(object):
 
     @property
     def aspect_ratio(self):
-        """Get or set the aspect ratio of the building footprint."""
+        """Get or set a number between 0 and 1 for the building footprint aspect ratio.
+        """
         return self._aspect_ratio
 
     @aspect_ratio.setter
     def aspect_ratio(self, value):
         self._aspect_ratio = float_in_range_excl_incl(value, 0, 1, 'aspect_ratio')
+
+    def assign_geometry_properties_from_rooms(self, rooms):
+        """Assign the geometry properties of this object using an array of Honeybee Rooms.
+
+        The building_type (HighRise or LowRise) will be determined by analyzing
+        the bounding box around the Rooms (assessing whether the box is taller than
+        it is wide + long).
+
+        This object's long_axis_angle will be used to orient the bounding box and
+        compute the aspect ratio of the footprint. If the length of what should
+        be the short axis ends up being longer than the other axis, this object's
+        long_axis_angle will be rotated 90 degrees in order to keep the aspect
+        ratio from being greater than 1.
+
+        Args:
+            rooms: An array of Honeybee Rooms, which will have their geometry
+                collectively analyzed in order to set the geometry properties
+                of this object. Typically, this should be all of the Rooms of
+                a Honeybee Model.
+        """
+        l_axis = self.long_axis_angle
+        bldg_type, aspect_r = self.geometry_properties_from_rooms(rooms, l_axis)
+        self.building_type = bldg_type
+        if aspect_r > 1:  # rotate the long axis 90 degrees
+            aspect_r = 1 / aspect_r
+            self.long_axis_angle = l_axis + 90 if l_axis < 90 else l_axis - 90
+        self.aspect_ratio = aspect_r
 
     @classmethod
     def from_dict(cls, data):
@@ -216,6 +251,35 @@ class VentilationSimulationControl(object):
     def duplicate(self):
         """Get a copy of this object."""
         return self.__copy__()
+
+    @staticmethod
+    def geometry_properties_from_rooms(rooms, axis_angle=0):
+        """Get AFN building geometry properties from an array of Honeybee Rooms.
+
+        Args:
+            rooms: An array of Honeybee Rooms, which will have their geometry
+                collectively analyzed.
+            axis_angle: The clockwise rotation angle in degrees in the XY plane
+                to represent the orientation of the bounding box. (Default: 0).
+
+        Returns:
+            A tuple with 2 values for geometry properties.
+
+            1) Text indicating the building_type (either Highrise or LowRise)
+            2) A number for the aspect ratio of the axis_angle-oriented bounding box.
+
+            Note that the aspect ratio may be greater than 1 if the axis_angle
+            isn't aligned to the long axis of the geometry.
+        """
+        # process the inputs to be suitable for ladybug_geometry
+        if axis_angle != 0:  # convert to counter-clockwise radians for ladybug_geometry
+            axis_angle = -math.radians(axis_angle)
+        geo = [room.geometry for room in rooms]  # get ladybug_geometry polyfaces
+
+        # get the bounding box and return the properties
+        xx, yy, zz = bounding_box_extents(geo)
+        bldg_type = 'LowRise' if zz <= 3 * max(xx, yy) else 'HighRise'
+        return bldg_type, yy / xx
 
     def __copy__(self):
         return VentilationSimulationControl(
