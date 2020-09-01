@@ -412,7 +412,7 @@ def test_compute_aspect_ratio():
     sroom = Room.from_polyface3d(
         'SouthRoom', Polyface3D.from_offset_face(szone_pts, 3))
 
-    # North Room: 21 x 10.5 x 3
+    # North Room: 21 x 15 x 3
     nzone_pts = Face3D(
         [Point3D(0, 10), Point3D(21, 10), Point3D(21, 15), Point3D(0, 15)])
     nroom = Room.from_polyface3d(
@@ -427,7 +427,7 @@ def test_compute_aspect_ratio():
     ar = model.properties.energy.ventilation_simulation_control.aspect_ratio
     assert ar == pytest.approx(15.0 / 21.0, abs=1e-10)
     axis = model.properties.energy.ventilation_simulation_control.long_axis_angle
-    assert axis == 0
+    assert axis == 90
 
     # Test 21 x 22 x 3
     szone_pts = Face3D(
@@ -449,4 +449,4 @@ def test_compute_aspect_ratio():
     ar = model.properties.energy.ventilation_simulation_control.aspect_ratio
     assert ar == pytest.approx(21.0 / 22.0, abs=1e-10)
     axis = model.properties.energy.ventilation_simulation_control.long_axis_angle
-    assert axis == 90
+    assert axis == 0

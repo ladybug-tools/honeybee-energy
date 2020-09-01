@@ -279,7 +279,7 @@ class VentilationSimulationControl(object):
         # get the bounding box and return the properties
         xx, yy, zz = bounding_box_extents(geo)
         bldg_type = 'LowRise' if zz <= 3 * max(xx, yy) else 'HighRise'
-        return bldg_type, yy / xx
+        return bldg_type, xx / yy
 
     def __copy__(self):
         return VentilationSimulationControl(
@@ -311,7 +311,7 @@ class VentilationSimulationControl(object):
         return 'VentilationSimulationControl,\n vent_control_type: {}\n ' \
             'reference_temperature: {}\n reference_pressure: {}\n ' \
             'reference_humidity_ratio: {}\n building_type: {}\n long_axis_angle: {}\n' \
-            'aspect_ratio: {}' .format(
+            ' aspect_ratio: {}' .format(
                 self.vent_control_type, self.reference_temperature,
                 self.reference_pressure, self.reference_humidity_ratio,
                 self.building_type, self.long_axis_angle, self.aspect_ratio)
