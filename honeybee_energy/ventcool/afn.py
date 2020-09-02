@@ -2,6 +2,8 @@
 """Functions to generate an Airflow Network for a list of rooms."""
 from __future__ import division
 
+import math
+
 from .crack import AFNCrack
 from .opening import VentilationOpening
 from ._crack_data import CRACK_TEMPLATE_DATA
@@ -21,7 +23,7 @@ def _air_density_from_pressure(atmospheric_pressure=101325, air_temperature=20.0
     return atmospheric_pressure / (r_specific * air_temperature)
 
 
-def _interior_afn(interior_face_groups, int_cracks):
+def _interior_afn(interior_face_groups, int_cracks, air_density=1.2041):
     """Mutate interior faces and subfaces to model airflow through cracks and openings.
 
     This function creates an AFNCrack object with an air mass flow coefficient that
@@ -43,6 +45,8 @@ def _interior_afn(interior_face_groups, int_cracks):
 
             - int_doors: List of interior Door Face objects.
 
+            - int_air: List of interior Faces with AirBoundary face type.
+
         int_cracks: A dictionary of air mass flow coefficient and exponent data
             corresponding to the face types in the interior_face_groups. Face
             data flow coefficients should be normalized by surface area, and closed
@@ -60,12 +64,15 @@ def _interior_afn(interior_face_groups, int_cracks):
             "door_flow_cof": 0.02, # door flow coefficient
             "door_flow_exp": 0.6 # door flow exponent
             }
+
+        air_density: Air density in kg/m3. (Default: 1.2041 represents
+            air density at a temperature of 20 C and 101325 Pa).
     """
 
     # simplify parameters
-    int_walls, int_floorceilings, int_apertures, int_doors = interior_face_groups
+    int_walls, int_floorceilings, int_apertures, int_doors, int_air = interior_face_groups
 
-    # add interior crack leakage components
+    # add interior crack leakage components for opaque building Faces
     for int_wall in int_walls:
         opening_area = sum([aper.area for aper in int_wall.apertures])
         opening_area += sum([door.area for door in int_wall.doors])
@@ -80,6 +87,13 @@ def _interior_afn(interior_face_groups, int_cracks):
         flow_cof = int_cracks['floorceiling_flow_cof'] * face_area
         flow_exp = int_cracks['floorceiling_flow_exp']
         int_floorceiling.properties.energy.vent_crack = AFNCrack(flow_cof, flow_exp)
+
+    # add interior crack leakage for air boundary Faces
+    for int_ab in int_air:
+        # derive (large) flow coefficient from the orifice equation with 0.65 discharge
+        flow_cof = 0.65 * int_ab.area * math.sqrt(air_density * 2)
+        flow_exp = 0.5  # always use 0.5 exponent for a large hole-shaped opening
+        int_ab.properties.energy.vent_crack = AFNCrack(flow_cof, flow_exp)
 
     # add interior opening leakage components
     for int_aperture in int_apertures:
@@ -259,9 +273,9 @@ def generate(rooms, leakage_type='Medium', use_room_infiltration=True,
         ext_faces, int_faces = room.properties.energy.envelope_components_by_type()
 
         # mutate surfaces with AFN flow parameters
+        rho = _air_density_from_pressure(atmospheric_pressure)
         if use_room_infiltration and room.properties.energy.infiltration is not None:
-            rho = _air_density_from_pressure(atmospheric_pressure)
             room.properties.energy.exterior_afn_from_infiltration_load(ext_faces, rho)
         else:
             _exterior_afn(ext_faces, ext_cracks)
-        _interior_afn(int_faces, int_cracks)
+        _interior_afn(int_faces, int_cracks, rho)

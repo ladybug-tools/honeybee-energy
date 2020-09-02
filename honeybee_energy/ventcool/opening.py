@@ -25,9 +25,9 @@ class VentilationOpening(object):
             awning or casement type and not allowed to fully open. Some common
             values for this coefficient include the following.
 
-                * 0.0 - Completely discount stack ventilation from the calculation.
-                * 0.45 - For unobstructed windows with an insect screen.
-                * 0.65 - For unobstructed windows with NO insect screen.
+            * 0.0 - Completely discount stack ventilation from the calculation.
+            * 0.45 - For unobstructed windows with an insect screen.
+            * 0.65 - For unobstructed windows with NO insect screen.
 
         wind_cross_vent: Boolean to indicate if there is an opening of roughly
             equal area on the opposite side of the Room such that wind-driven
@@ -39,8 +39,8 @@ class VentilationOpening(object):
             only used in an AirflowNetwork simulation. Some common values for this
             coefficient (from the DesignBuilder Cracks template) include the following:
 
-                * 0.00001 - Tight, low-leakage closed external window
-                * 0.003 - Very poor, high-leakage closed external window
+            * 0.00001 - Tight, low-leakage closed external window
+            * 0.003 - Very poor, high-leakage closed external window
 
             (Default: 0, indicates the VentilationOpening object will not participate
             in the AirflowNetwork simulation).

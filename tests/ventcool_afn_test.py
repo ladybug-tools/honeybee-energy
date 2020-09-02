@@ -4,6 +4,7 @@ from honeybee.model import Model
 from honeybee.room import Room
 from honeybee.door import Door
 from honeybee.boundarycondition import Surface, Outdoors
+from honeybee.facetype import face_types
 
 import honeybee_energy.lib.programtypes as prog_type_lib
 from honeybee_energy.ventcool import afn
@@ -171,7 +172,6 @@ def test_afn_single_zone():
 
 def test_afn_multizone():
     """Test adding afn to multiple zones with windows."""
-
     # South Room
     szone_pts = Face3D(
         [Point3D(0, 0), Point3D(20, 0), Point3D(20, 10), Point3D(0, 10)])
@@ -259,6 +259,41 @@ def test_afn_multizone():
 
         chk_infil = total_room_flow / room.exposed_area  # m3/s/m2
         assert qv == pytest.approx(chk_infil, abs=1e-10)
+
+
+def test_afn_multizone_air_boundary():
+    """Test adding afn to multiple zones with an AirBoundary between them."""
+    # South Room
+    szone_pts = Face3D(
+        [Point3D(0, 0), Point3D(20, 0), Point3D(20, 10), Point3D(0, 10)])
+    sroom = Room.from_polyface3d(
+        'SouthRoom', Polyface3D.from_offset_face(szone_pts, 3))
+
+    # North Room
+    nzone_pts = Face3D(
+        [Point3D(0, 10), Point3D(20, 10), Point3D(20, 20), Point3D(0, 20)])
+    nroom = Room.from_polyface3d(
+        'NorthRoom', Polyface3D.from_offset_face(nzone_pts, 3))
+
+    # Make interior faces
+    rooms = [sroom, nroom]
+    adj_info = Room.solve_adjacency(rooms, 0.01)
+    inter_sface3 = adj_info['adjacent_faces'][0][0]
+    inter_nface1 = adj_info['adjacent_faces'][0][1]
+    inter_sface3.type = face_types.air_boundary
+    inter_nface1.type = face_types.air_boundary
+
+    # Make afn
+    afn.generate(rooms)
+
+    sface3_crack = inter_sface3.properties.energy.vent_crack
+    nface1_crack = inter_nface1.properties.energy.vent_crack
+    assert sface3_crack is not None
+    assert nface1_crack is not None
+    assert sface3_crack.flow_coefficient > 50  # ensure it's nice and large
+    assert nface1_crack.flow_coefficient > 50  # ensure it's nice and large
+    assert sface3_crack.flow_exponent == 0.5
+    assert nface1_crack.flow_exponent == 0.5
 
 
 def test_compute_bounding_box_extents_simple():

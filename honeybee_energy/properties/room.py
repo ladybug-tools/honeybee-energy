@@ -15,7 +15,7 @@ from ..ventcool.opening import VentilationOpening
 
 # import Honeybee-core modules
 from honeybee.boundarycondition import Outdoors, Surface
-from honeybee.facetype import Wall, RoofCeiling, Floor
+from honeybee.facetype import Wall, RoofCeiling, Floor, AirBoundary
 from honeybee.aperture import Aperture
 
 # import all hvac modules to ensure they are all re-serialize-able in Room.from_dict
@@ -414,9 +414,13 @@ class RoomEnergyProperties(object):
             - int_apertures: List of interior Aperture Face objects.
 
             - int_doors: List of interior Door Face objects.
+
+            - int_air: List of interior Faces with AirBoundary face type.
         """
-        ext_walls, ext_roofs, ext_floors, ext_apertures, ext_doors = [], [], [], [], []
-        int_walls, int_floorceilings, int_apertures, int_doors = [], [], [], []
+        ext_walls, ext_roofs, ext_floors, ext_apertures, ext_doors = \
+            [], [], [], [], []
+        int_walls, int_floorceilings, int_apertures, int_doors, int_air = \
+            [], [], [], [], []
 
         for face in self.host.faces:
             if isinstance(face.boundary_condition, Outdoors):
@@ -437,9 +441,11 @@ class RoomEnergyProperties(object):
                 elif isinstance(face.type, RoofCeiling) or isinstance(face.type, Floor):
                     int_floorceilings.append(face)
                     int_apertures.extend(face.apertures)  # interior skylights
+                elif isinstance(face.type, AirBoundary):
+                    int_air.append(face)
 
         ext_faces = (ext_walls, ext_roofs, ext_floors, ext_apertures, ext_doors)
-        int_faces = (int_walls, int_floorceilings, int_apertures, int_doors)
+        int_faces = (int_walls, int_floorceilings, int_apertures, int_doors, int_air)
 
         return ext_faces, int_faces
 
