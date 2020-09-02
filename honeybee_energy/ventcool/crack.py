@@ -20,10 +20,10 @@ class AFNCrack(object):
             required to run an AirflowNetwork simulation. Some common values for this
             coefficient from the DesignBuilder Cracks template include the following:
 
-                * 0.00001 - Tight low-leakage external wall
-                * 0.001 - Tight, low-leakage internal wall
-                * 0.0004 - Poor, high-leakage external wall
-                * 0.019 - Poor, high-leakage internal wall
+            * 0.00001 - Tight low-leakage external wall
+            * 0.001 - Tight, low-leakage internal wall
+            * 0.0004 - Poor, high-leakage external wall
+            * 0.019 - Poor, high-leakage internal wall
 
         flow_exponent: An optional dimensionless number between 0.5 and 1 used
             to calculate the crack mass flow rate; required to run an AirflowNetwork
