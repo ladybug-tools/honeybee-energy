@@ -464,7 +464,7 @@ class WindowConstruction(_ConstructionBase):
                 constr_mats = [materials_dict[mat.upper()] for mat in constr[1:]]
                 try:
                     constructions.append(WindowConstruction(constr[0], constr_mats))
-                except ValueError:
+                except (ValueError, AssertionError):
                     pass  # it likely has a blind or a shade and is not serialize-able
             except KeyError:
                 pass  # it's an opaque construction or window shaded construction
