@@ -315,8 +315,8 @@ class OpaqueConstruction(_ConstructionBase):
             try:
                 constr_mats = [materials_dict[mat.upper()] for mat in constr[1:]]
                 constructions.append(OpaqueConstruction(constr[0], constr_mats))
-            except KeyError:
-                pass  # the construction is a window construction
+            except (KeyError, AssertionError):
+                pass  # the construction is probably a window construction
         return constructions, materials
 
     @staticmethod
