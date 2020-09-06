@@ -39,8 +39,8 @@ def measure_compatible_model_json(model_json_path, destination_directory=None):
     # get the directory and the file path for the new Model JSON
     directory, init_file_name = os.path.split(model_json_path)
     dest_dir = directory if destination_directory is None else destination_directory
-    base_file_name = init_file_name.replace('.json', '')
-    file_name = '{}_osm.json'.format(base_file_name)
+    base_file_name = init_file_name.replace('.json', '').replace('.hbjson', '')
+    file_name = '{}_osm.hbjson'.format(base_file_name)
     dest_file_path = os.path.join(dest_dir, file_name)
 
     # serialize the Model to Python
@@ -144,7 +144,7 @@ def to_openstudio_osw(osw_directory, model_json_path, sim_par_json_path=None,
     if epw_file is not None:
         osw_dict['weather_file'] = epw_file
 
-    # write the dictionary to a workflow.json
+    # write the dictionary to a workflow.osw
     osw_json = os.path.join(osw_directory, 'workflow.osw')
     with open(osw_json, 'w') as fp:
         json.dump(osw_dict, fp, indent=4)

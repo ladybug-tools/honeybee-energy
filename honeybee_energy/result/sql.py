@@ -869,7 +869,9 @@ class ZoneSize(object):
         self._peak_humidity_ratio = sql_table_row[10]
         self._peak_outdoor_air_flow = sql_table_row[11]
 
-        py_dt = datetime.strptime(sql_table_row[8], '%m/%d %H:%M:%S')
+        date_str = sql_table_row[8] if '24:00:00' not in sql_table_row[8] else \
+            sql_table_row[8].replace('24:00:00', '00:00:00')
+        py_dt = datetime.strptime(date_str, '%m/%d %H:%M:%S')
         self._peak_date_time = DateTime(py_dt.month, py_dt.day, py_dt.hour, py_dt.minute)
 
     @classmethod

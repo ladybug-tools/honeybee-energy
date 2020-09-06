@@ -68,7 +68,8 @@ def simulate_model(model_json, epw_file, sim_par_json, base_osw, folder,
 
         # set the default folder to the default if it's not specified
         if folder is None:
-            proj_name = os.path.basename(model_json).replace('.json', '')
+            proj_name = \
+                os.path.basename(model_json).replace('.json', '').replace('.hbjson', '')
             folder = os.path.join(
                 folders.default_simulation_folder, proj_name, 'OpenStudio')
         preparedir(folder, remove_content=False)
