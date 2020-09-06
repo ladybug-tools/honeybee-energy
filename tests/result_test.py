@@ -134,6 +134,25 @@ def test_sqlite_component_sizing():
         assert new_size.to_dict() == size_dict
 
 
+def test_sqlite_sizing_odd():
+    """Test the properties and methods related to zone sizes with an odd SQL file."""
+    sql_path = './tests/result/eplusout_odd_zonesize.sql'
+    sql_obj = SQLiteResult(sql_path)
+
+    cool_sizes = sql_obj.zone_cooling_sizes
+    heat_sizes = sql_obj.zone_heating_sizes
+    assert len(cool_sizes) == 2
+    assert len(heat_sizes) == 2
+
+    comp_sizes = sql_obj.component_sizes
+    comp_size_type = sql_obj.component_sizes_by_type('ZoneHVAC:IdealLoadsAirSystem')
+    comp_types = sql_obj.component_types
+
+    assert len(comp_sizes) == 2
+    assert len(comp_size_type) == 2
+    assert comp_types == ['ZoneHVAC:IdealLoadsAirSystem']
+
+
 def test_sqlite_data_collections_by_output_name():
     """Test the data_collections_by_output_name method."""
     sql_path = './tests/result/eplusout_hourly.sql'
