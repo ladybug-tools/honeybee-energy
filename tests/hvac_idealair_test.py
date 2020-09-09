@@ -77,29 +77,15 @@ def test_ideal_air_system_equality():
     assert ideal_air != ideal_air_alt
 
 
-def test_single_room():
-    """Test that each IdealAirSystem can be assigned to only one Room."""
-    first_floor = Room.from_box('First_Floor', 10, 10, 3, origin=Point3D(0, 0, 0))
-    second_floor = Room.from_box('Second_Floor', 10, 10, 3, origin=Point3D(0, 0, 3))
-    ideal_air = IdealAirSystem('Test_System')
-
-    first_floor.properties.energy.hvac = ideal_air
-    with pytest.raises(ValueError):
-        second_floor.properties.energy.hvac = ideal_air
-
-
 def test_ideal_air_init_from_idf():
     """Test the initialization of IdealAirSystem from_idf."""
     ideal_air = IdealAirSystem('Test_System')
-    with pytest.raises(AssertionError):
-        ideal_air.to_idf()
-
     zone_id = 'ShoeBox'
     room = Room.from_box(zone_id, 5, 10, 3, 90, Point3D(0, 0, 3))
     room.properties.energy.add_default_ideal_air()
     ideal_air = room.properties.energy.hvac
     with pytest.raises(AssertionError):
-        ideal_air.to_idf()
+        ideal_air.to_idf(room)
 
     heat_setpt = ScheduleRuleset.from_constant_value(
         'Office Heating', 21, schedule_types.temperature)
@@ -108,7 +94,7 @@ def test_ideal_air_init_from_idf():
     setpoint = Setpoint('Office Setpoint', heat_setpt, cool_setpt)
     room.properties.energy.setpoint = setpoint
 
-    idf_str = ideal_air.to_idf()
+    idf_str = ideal_air.to_idf(room)
     schedule_dict = {}
     rebuilt_ideal_air, rebuilt_zone_id = IdealAirSystem.from_idf(idf_str, schedule_dict)
     assert ideal_air == rebuilt_ideal_air

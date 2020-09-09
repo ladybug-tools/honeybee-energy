@@ -44,10 +44,10 @@ def match_rooms_to_data(data_collections, rooms):
         else:  # it's HVAC system data and we need to see if it's matchable
             hvac_id = data.header.metadata['System']
             use_mult = True
-            if '_IDEALAIR' in hvac_id:
-                zone_ids.append(hvac_id.split('_IDEALAIR')[0])
-            elif ' IDEAL LOADS AIR SYSTEM' in hvac_id:
+            if ' IDEAL LOADS AIR SYSTEM' in hvac_id:
                 zone_ids.append(hvac_id.split(' IDEAL LOADS AIR SYSTEM')[0])
+            elif '_IDEALAIR' in hvac_id:
+                zone_ids.append(hvac_id.split('_IDEALAIR')[0])
             else:
                 zone_ids.append(hvac_id)
 

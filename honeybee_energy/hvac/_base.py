@@ -17,25 +17,16 @@ class _HVACSystem(object):
         identifier: Text string for system identifier. Must be < 100 characters
             and not contain any EnergyPlus special characters. This will be used to
             identify the object across a model and in the exported IDF.
-        is_single_room: Boolean to note whether the HVAC system is only assignable
-            to a single Room. If True, an error will be raised if the system
-            is set to more than one Room and if False, no error will be raised
-            in such cases. An example of a single room system is the IdealAirSystem
-            and an example of a multi room system is VAVWithReheat.
 
     Properties:
         * identifier
         * display_name
-        * is_single_room
         * schedules
     """
-    __slots__ = ('_identifier', '_display_name', '_is_single_room', '_parent',
-                 '_locked')
+    __slots__ = ('_identifier', '_display_name', '_locked')
 
-    def __init__(self, identifier, is_single_room=True):
+    def __init__(self, identifier):
         """Initialize HVACSystem."""
-        self._is_single_room = bool(is_single_room)
-        self._parent = None  # this is only used by single room systems
         self.identifier = identifier
         self._display_name = None
 
@@ -64,12 +55,6 @@ class _HVACSystem(object):
             self._display_name = str(value)
         except UnicodeEncodeError:  # Python 2 machine lacking the character set
             self._display_name = value  # keep it as unicode
-
-    @property
-    def is_single_room(self):
-        """Get a boolean noting whether the HVAC system is assignable to only one Room.
-        """
-        return self._is_single_room
 
     @property
     def schedules(self):
@@ -109,7 +94,7 @@ class _HVACSystem(object):
                 'Schedule {} is not supported.'.format(sch_dict['type']))
 
     def __copy__(self):
-        new_obj = _HVACSystem(self.is_single_room)
+        new_obj = _HVACSystem(self.identifier)
         new_obj._display_name = self._display_name
         return new_obj
 

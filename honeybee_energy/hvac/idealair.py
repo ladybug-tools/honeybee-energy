@@ -71,7 +71,6 @@ class IdealAirSystem(_HVACSystem):
         * cooling_limit
         * heating_availability
         * cooling_availability
-        * is_single_room
         * schedules
     """
     __slots__ = ('_economizer_type', '_demand_controlled_ventilation',
@@ -89,7 +88,7 @@ class IdealAirSystem(_HVACSystem):
                  heating_availability=None, cooling_availability=None):
         """Initialize IdealAirSystem."""
         # initialize base HVAC system properties
-        _HVACSystem.__init__(self, identifier, is_single_room=True)
+        _HVACSystem.__init__(self, identifier)
 
         # set the main features of the HVAC system
         self.economizer_type = economizer_type
@@ -273,7 +272,7 @@ class IdealAirSystem(_HVACSystem):
         ep_strs = parse_idf_string(idf_string, 'HVACTemplate:Zone:IdealLoadsAirSystem,')
 
         # set defaults for anything not included
-        identifier = '{}_IdealAir'.format(ep_strs[0])
+        identifier = '{} Ideal Loads Air System'.format(ep_strs[0])
         econ = 'DifferentialDryBulb'
         dcv = False
         sensible = 0
@@ -335,7 +334,7 @@ class IdealAirSystem(_HVACSystem):
 
             {
             "type": "IdealAirSystem",
-            "identifier": "Classroom1_IdealAir",  # identifier for the HVAC
+            "identifier": "Classroom1 Ideal Loads Air System",  # identifier for the HVAC
             "display_name": "Standard IdealAir",  # name for the HVAC
             "economizer_type": 'DifferentialDryBulb',  # Economizer type
             "demand_controlled_ventilation": True,  # Demand controlled ventilation
@@ -385,7 +384,7 @@ class IdealAirSystem(_HVACSystem):
 
             {
             "type": 'IdealAirSystemAbridged',
-            "identifier": 'Warehouse1_IdealAir',  # identifier for the HVAC
+            "identifier": 'Warehouse1 Ideal Loads Air System',  # identifier for the HVAC
             "economizer_type": 'DifferentialDryBulb',  # Economizer type
             "demand_controlled_ventilation": True,  # Demand controlled ventilation
             "sensible_heat_recovery": 0.75,  # Sensible heat recovery effectiveness
@@ -425,24 +424,25 @@ class IdealAirSystem(_HVACSystem):
             new_obj.display_name = data['display_name']
         return new_obj
 
-    def to_idf(self):
+    def to_idf(self, room):
         """IDF string representation of IdealAirSystem object.
 
-        Note that this ideal air system must be assigned to a honeybee Room that
-        has a Setpoint object for this method to work correctly since all setpoints
-        and ventilation requirements are pulled from this assigned Room.
-
-        Also note that this method does not return full definitions of heating/cooling
+        Note that this method does not return full definitions of heating/cooling
         availability schedules and so this objects's schedules must also be translated
         into the final IDF file.
+
+        Args:
+            room: A Honeybee Room for which the specific IDF string will be generated.
+                This Room must have a Setpoint object for this method to work
+                correctly since all setpoints (and any ventilation requirements)
+                are pulled from this Room.
         """
         # check that a setpoint object is assigned
-        assert self._parent is not None and \
-            self._parent.properties.energy.setpoint is not None, \
+        assert room.properties.energy.setpoint is not None, \
             'IdealAirSystem must be assigned to a Room ' \
             'with a setpoint object to use IdealAirSystem.to_idf.'
 
-        # extract all of the fields from this object and its parent
+        # extract all of the fields from this object and its room
         # heating limit
         if self.heating_limit != no_limit:
             h_lim_type = 'LimitCapacity'
@@ -464,24 +464,24 @@ class IdealAirSystem(_HVACSystem):
         cool_avail = self.cooling_availability.identifier if \
             self.cooling_availability is not None else ''
         # humidifying setpoint
-        if self._parent.properties.energy.setpoint.humidifying_setpoint is not None:
+        if room.properties.energy.setpoint.humidifying_setpoint is not None:
             humid_type = 'Humidistat'
-            humid_setpt = self._parent.properties.energy.setpoint.humidifying_setpoint
+            humid_setpt = room.properties.energy.setpoint.humidifying_setpoint
         else:
             humid_type = 'None'
             humid_setpt = ''
         # dehumidifying setpoint
-        if self._parent.properties.energy.setpoint.dehumidifying_setpoint is not None:
+        if room.properties.energy.setpoint.dehumidifying_setpoint is not None:
             dehumid_type = 'Humidistat'
-            dehumid_setpt = self._parent.properties.energy.setpoint.dehumidifying_setpoint
+            dehumid_setpt = room.properties.energy.setpoint.dehumidifying_setpoint
         else:
             dehumid_type = 'None'
             dehumid_setpt = ''
         # ventilation requirements
-        if self._parent.properties.energy.ventilation is not None:
+        if room.properties.energy.ventilation is not None:
             oa_method = 'DetailedSpecification'
-            oa_id = '{}..{}'.format(self._parent.properties.energy.ventilation.identifier,
-                                    self._parent.identifier)
+            oa_id = '{}..{}'.format(room.properties.energy.ventilation.identifier,
+                                    room.identifier)
         else:
             oa_method = 'None'
             oa_id = ''
@@ -496,9 +496,9 @@ class IdealAirSystem(_HVACSystem):
             heat_recovery = 'Sensible'
 
         # return a full IDF string
-        thermostat = '{}..{}'.format(self._parent.properties.energy.setpoint.identifier,
-                                     self._parent.identifier)
-        values = (self._parent.identifier, thermostat,
+        thermostat = '{}..{}'.format(room.properties.energy.setpoint.identifier,
+                                     room.identifier)
+        values = (room.identifier, thermostat,
                   '', self.heating_air_temperature, self.cooling_air_temperature,
                   '', '', h_lim_type, '', heat_limit, c_lim_type, air_limit, cool_limit,
                   heat_avail, cool_avail, dehumid_type, '', dehumid_setpt,

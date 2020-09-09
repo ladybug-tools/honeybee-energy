@@ -388,7 +388,7 @@
             "hvacs": [
                 {
                     "type": "IdealAirSystemAbridged",
-                    "identifier": "House_Room_0_IdealAir",
+                    "identifier": "House_Room_0 Ideal Loads Air System",
                     "economizer_type": "DifferentialDryBulb",
                     "demand_controlled_ventilation": false,
                     "sensible_heat_recovery": 0.0,
@@ -404,7 +404,7 @@
                 },
                 {
                     "type": "IdealAirSystemAbridged",
-                    "identifier": "House_Room_1_IdealAir",
+                    "identifier": "House_Room_1 Ideal Loads Air System",
                     "economizer_type": "DifferentialDryBulb",
                     "demand_controlled_ventilation": false,
                     "sensible_heat_recovery": 0.0,
@@ -420,7 +420,7 @@
                 },
                 {
                     "type": "IdealAirSystemAbridged",
-                    "identifier": "House_Room_2_IdealAir",
+                    "identifier": "House_Room_2 Ideal Loads Air System",
                     "economizer_type": "DifferentialDryBulb",
                     "demand_controlled_ventilation": false,
                     "sensible_heat_recovery": 0.0,
@@ -436,7 +436,7 @@
                 },
                 {
                     "type": "IdealAirSystemAbridged",
-                    "identifier": "House_Room_3_IdealAir",
+                    "identifier": "House_Room_3 Ideal Loads Air System",
                     "economizer_type": "DifferentialDryBulb",
                     "demand_controlled_ventilation": false,
                     "sensible_heat_recovery": 0.0,
@@ -452,7 +452,7 @@
                 },
                 {
                     "type": "IdealAirSystemAbridged",
-                    "identifier": "House_Room_4_IdealAir",
+                    "identifier": "House_Room_4 Ideal Loads Air System",
                     "economizer_type": "DifferentialDryBulb",
                     "demand_controlled_ventilation": false,
                     "sensible_heat_recovery": 0.0,
@@ -468,7 +468,7 @@
                 },
                 {
                     "type": "IdealAirSystemAbridged",
-                    "identifier": "House_Room_5_IdealAir",
+                    "identifier": "House_Room_5 Ideal Loads Air System",
                     "economizer_type": "DifferentialDryBulb",
                     "demand_controlled_ventilation": false,
                     "sensible_heat_recovery": 0.0,
@@ -484,7 +484,7 @@
                 },
                 {
                     "type": "IdealAirSystemAbridged",
-                    "identifier": "House_Room_6_IdealAir",
+                    "identifier": "House_Room_6 Ideal Loads Air System",
                     "economizer_type": "DifferentialDryBulb",
                     "demand_controlled_ventilation": false,
                     "sensible_heat_recovery": 0.0,
@@ -1898,7 +1898,7 @@
                     "type": "RoomEnergyPropertiesAbridged",
                     "program_type": "2013::MidriseApartment::Apartment",
                     "construction_set": "2013::ClimateZone5::SteelFramed",
-                    "hvac": "House_Room_0_IdealAir",
+                    "hvac": "House_Room_0 Ideal Loads Air System",
                     "gas_equipment": {
                         "type": "GasEquipmentAbridged",
                         "identifier": "Kitchen Stove",
@@ -2623,7 +2623,7 @@
                     "type": "RoomEnergyPropertiesAbridged",
                     "program_type": "2013::MidriseApartment::Apartment",
                     "construction_set": "2013::ClimateZone5::SteelFramed",
-                    "hvac": "House_Room_1_IdealAir"
+                    "hvac": "House_Room_1 Ideal Loads Air System"
                 },
                 "radiance": {
                     "type": "RoomRadiancePropertiesAbridged"
@@ -3131,7 +3131,7 @@
                     "type": "RoomEnergyPropertiesAbridged",
                     "program_type": "2013::MidriseApartment::Apartment",
                     "construction_set": "2013::ClimateZone5::SteelFramed",
-                    "hvac": "House_Room_2_IdealAir"
+                    "hvac": "House_Room_2 Ideal Loads Air System"
                 },
                 "radiance": {
                     "type": "RoomRadiancePropertiesAbridged"
@@ -3638,7 +3638,7 @@
                     "type": "RoomEnergyPropertiesAbridged",
                     "program_type": "2013::MidriseApartment::Apartment",
                     "construction_set": "2013::ClimateZone5::SteelFramed",
-                    "hvac": "House_Room_3_IdealAir"
+                    "hvac": "House_Room_3 Ideal Loads Air System"
                 },
                 "radiance": {
                     "type": "RoomRadiancePropertiesAbridged"
@@ -4146,7 +4146,7 @@
                     "type": "RoomEnergyPropertiesAbridged",
                     "program_type": "2013::MidriseApartment::Apartment",
                     "construction_set": "2013::ClimateZone5::SteelFramed",
-                    "hvac": "House_Room_4_IdealAir"
+                    "hvac": "House_Room_4 Ideal Loads Air System"
                 },
                 "radiance": {
                     "type": "RoomRadiancePropertiesAbridged"
@@ -4653,7 +4653,7 @@
                     "type": "RoomEnergyPropertiesAbridged",
                     "program_type": "2013::MidriseApartment::Apartment",
                     "construction_set": "2013::ClimateZone5::SteelFramed",
-                    "hvac": "House_Room_5_IdealAir"
+                    "hvac": "House_Room_5 Ideal Loads Air System"
                 },
                 "radiance": {
                     "type": "RoomRadiancePropertiesAbridged"
@@ -5218,7 +5218,7 @@
                     "type": "RoomEnergyPropertiesAbridged",
                     "program_type": "2013::MidriseApartment::Corridor",
                     "construction_set": "2013::ClimateZone5::SteelFramed",
-                    "hvac": "House_Room_6_IdealAir"
+                    "hvac": "House_Room_6 Ideal Loads Air System"
                 },
                 "radiance": {
                     "type": "RoomRadiancePropertiesAbridged"

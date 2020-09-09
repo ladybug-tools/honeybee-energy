@@ -377,7 +377,7 @@
           "cooling_limit": {
             "type": "Autosize"
           },
-          "identifier": "ClosedOffice_IdealAir",
+          "identifier": "ClosedOffice Ideal Loads Air System",
           "type": "IdealAirSystemAbridged"
         }
       ],

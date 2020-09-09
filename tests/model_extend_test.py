@@ -21,6 +21,7 @@ from honeybee_energy.schedule.fixedinterval import ScheduleFixedInterval
 from honeybee_energy.schedule.typelimit import ScheduleTypeLimit
 from honeybee_energy.load.people import People
 from honeybee_energy.ventcool.simulation import VentilationSimulationControl
+from honeybee_energy.hvac.allair.vav import VAV
 
 from honeybee_energy.lib.programtypes import office_program, plenum_program
 import honeybee_energy.lib.scheduletypelimits as schedule_types
@@ -28,7 +29,7 @@ from honeybee_energy.lib.materials import clear_glass, air_gap, roof_membrane, \
     wood, insulation
 from honeybee_energy.lib.constructions import generic_exterior_wall, \
     generic_interior_wall, generic_interior_floor, generic_interior_ceiling, \
-    generic_double_pane
+    generic_double_pane, generic_single_pane
 
 from ladybug_geometry.geometry3d.pointvector import Point3D, Vector3D
 from ladybug_geometry.geometry3d.plane import Plane
@@ -72,6 +73,28 @@ def test_energy_properties():
     assert len(model.properties.energy.shade_schedules) == 1
     assert len(model.properties.energy.room_schedules) == 0
     assert len(model.properties.energy.program_types) == 1
+
+
+def test_window_construction_by_orientation():
+    """Test the window_construction_by_orientation method."""
+    room = Room.from_box('Tiny_House_Zone', 5, 10, 3)
+    room.properties.energy.program_type = office_program
+    room.properties.energy.add_default_ideal_air()
+    room.wall_apertures_by_ratio(0.4)
+    model = Model('Tiny_House', [room])
+
+    assert room[1].apertures[0].properties.energy.construction == generic_double_pane
+    assert room[3].apertures[0].properties.energy.construction == generic_double_pane
+    model.properties.energy.window_construction_by_orientation(generic_single_pane, 0, 45)
+    assert room[1].apertures[0].properties.energy.construction == generic_single_pane
+    assert room[3].apertures[0].properties.energy.construction == generic_double_pane
+    model.properties.energy.window_construction_by_orientation(generic_single_pane, 180, 45)
+    assert room[1].apertures[0].properties.energy.construction == generic_single_pane
+    assert room[3].apertures[0].properties.energy.construction == generic_single_pane
+
+    model.properties.energy.remove_child_constructions()
+    assert room[1].apertures[0].properties.energy.construction == generic_double_pane
+    assert room[3].apertures[0].properties.energy.construction == generic_double_pane
 
 
 def test_check_duplicate_construction_set_identifiers():
@@ -723,6 +746,17 @@ def test_writer_to_idf():
 
     assert hasattr(model.to, 'idf')
     idf_string = model.to.idf(model, schedule_directory='./tests/idf/')
+    assert len(idf_string) != 0
+
+    model.properties.energy.ventilation_simulation_control.vent_control_type = \
+        'MultiZoneWithoutDistribution'
+    with pytest.raises(AssertionError):
+        idf_string = model.to.idf(model, schedule_directory='./tests/idf/')
+    model.properties.energy.ventilation_simulation_control.vent_control_type = \
+        'SingleZone'
+    room.properties.energy.hvac = VAV('Test VAV System')
+    with pytest.raises(TypeError):
+        idf_string = model.to.idf(model, schedule_directory='./tests/idf/')
 
 
 def test_energy_ventilation_simulation_properties():

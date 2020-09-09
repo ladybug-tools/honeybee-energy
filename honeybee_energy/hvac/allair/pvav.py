@@ -53,7 +53,6 @@ class PVAV(_AllAirBase):
         * economizer_type
         * sensible_heat_recovery
         * latent_heat_recovery
-        * is_single_room
         * schedules
 
     Note:

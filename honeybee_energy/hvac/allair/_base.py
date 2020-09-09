@@ -50,7 +50,6 @@ class _AllAirBase(_TemplateSystem):
         * economizer_type
         * sensible_heat_recovery
         * latent_heat_recovery
-        * is_single_room
         * schedules
     """
     __slots__ = ('_economizer_type', '_sensible_heat_recovery', '_latent_heat_recovery')

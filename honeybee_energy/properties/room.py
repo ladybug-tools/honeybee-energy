@@ -1,5 +1,11 @@
 # coding=utf-8
 """Room Energy Properties."""
+# import honeybee-core and ladybug-geometry modules
+from ladybug_geometry.geometry2d.pointvector import Vector2D
+from honeybee.boundarycondition import Outdoors, Surface
+from honeybee.facetype import Wall, RoofCeiling, Floor, AirBoundary
+from honeybee.aperture import Aperture
+
 # import the main types of assignable objects
 from ..programtype import ProgramType
 from ..constructionset import ConstructionSet
@@ -12,11 +18,6 @@ from ..load.setpoint import Setpoint
 from ..ventcool.control import VentilationControl
 from ..ventcool.crack import AFNCrack
 from ..ventcool.opening import VentilationOpening
-
-# import Honeybee-core modules
-from honeybee.boundarycondition import Outdoors, Surface
-from honeybee.facetype import Wall, RoofCeiling, Floor, AirBoundary
-from honeybee.aperture import Aperture
 
 # import all hvac modules to ensure they are all re-serialize-able in Room.from_dict
 from ..hvac import HVAC_TYPES_DICT
@@ -139,17 +140,6 @@ class RoomEnergyProperties(object):
         if value is not None:
             assert isinstance(value, _HVACSystem), \
                 'Expected HVACSystem for Room hvac. Got {}'.format(type(value))
-            if value.is_single_room:
-                if value._parent is None:
-                    value._parent = self.host
-                elif value._parent.identifier != self.host.identifier:
-                    raise ValueError(
-                        '{0} objects can be assigned to a only one Room.\n'
-                        '{0} "{1}" cannot be assigned to Room "{2}" since it is '
-                        'already assigned to "{3}".\nTry duplicating the {0}, '
-                        'and then assigning it to this Room.'.format(
-                            value.__class__.__name__, value.identifier,
-                            self.host.identifier, value._parent.identifier))
             value.lock()   # lock in case hvac has multiple references
         self._hvac = value
 
@@ -286,12 +276,79 @@ class RoomEnergyProperties(object):
         """Boolean to note whether the Room is conditioned."""
         return self._hvac is not None
 
+    def remove_child_constructions(self):
+        """Remove constructions assigned to the Room's Faces, Apertures, Doors and Shades.
+
+        This means that all constructions of the Room will be assigned by the Room's
+        construction_set (or the Honeybee default ConstructionSet if the Room has
+        no construction set).
+        """
+        for shade in self.host.shades:
+            shade.properties.energy.construction = None
+        for face in self.host.faces:
+            face.properties.energy.construction = None
+            for shade in face.shades:
+                shade.properties.energy.construction = None
+            for ap in face._apertures:
+                ap.properties.energy.construction = None
+                for shade in ap.shades:
+                    shade.properties.energy.construction = None
+            for dr in face._doors:
+                dr.properties.energy.construction = None
+                for shade in dr.shades:
+                    shade.properties.energy.construction = None
+
+    def window_construction_by_orientation(
+            self, construction, orientation=0, offset=45, north_vector=Vector2D(0, 1)):
+        """Set the construction of exterior Apertures in Walls facing a given orientation.
+
+        This is useful for testing orientation-specific energy conservation
+        strategies or creating AHSRAE baseline buildings.
+
+        Args:
+            construction: A WindowConstruction that will be assigned to all of the
+                room's Apertures in Walls that are facing a certain orientation.
+            orientation: A number between 0 and 360 that represents the orientation
+                in degrees to which the construction will be assigned. 0 = North,
+                90 = East, 180 = South, 270 = West. (Default: 0 for North).
+            offset: A number between 0 and 180 that represents the offset from the
+                orientation in degrees for which the construction will be assigned.
+                For example, a value of 45 indicates that any Apertures falling
+                in the 90 degree range around the orientation will get the input
+                construction. (Default: 45).
+            north_vector: A ladybug_geometry Vector3D for the north direction.
+                Default is the Y-axis (0, 1).
+        """
+        # determine the min and max values for orientation
+        ori_min = orientation - offset
+        ori_max = orientation + offset
+        ori_min = ori_min + 360 if ori_min < 0 else ori_min
+        ori_max = ori_max - 360 if ori_max > 360 else ori_max
+        rev_vars = True if ori_min > ori_max else False
+
+        # loop through the faces an determine if they meet the criteria
+        for face in self.host.faces:
+            if isinstance(face.boundary_condition, Outdoors) and \
+                    isinstance(face.type, Wall) and len(face._apertures) > 0:
+                if rev_vars:
+                    if face.horizontal_orientation(north_vector) > ori_min \
+                            or face.horizontal_orientation(north_vector) < ori_max:
+                        for ap in face._apertures:
+                            ap.properties.energy.construction = construction
+                else:
+                    if ori_min < face.horizontal_orientation(north_vector) < ori_max:
+                        for ap in face._apertures:
+                            ap.properties.energy.construction = construction
+
     def add_default_ideal_air(self):
         """Add a default IdealAirSystem to this Room.
 
-        The identifier of this system will be derived from the room identifier.
+        The identifier of this system will be derived from the room identifier
+        and will align with the naming convention that EnergyPlus uses for
+        templates Ideal Air systems.
         """
-        self.hvac = IdealAirSystem('{}_IdealAir'.format(self.host.identifier))
+        hvac_id = '{} Ideal Loads Air System'.format(self.host.identifier)
+        self.hvac = IdealAirSystem(hvac_id)
 
     def assign_ventilation_opening(self, vent_opening):
         """Assign a VentilationOpening object to all operable Apertures on this Room.
@@ -316,6 +373,12 @@ class RoomEnergyProperties(object):
                     ap.properties.energy.vent_opening = vent_opening.duplicate()
                     operable_aps.append(ap)
         return operable_aps
+
+    def remove_ventilation_opening(self):
+        """Remove all VentilationOpening objects assigned to the Room's Apertures."""
+        for face in self.host.faces:
+            for ap in face.apertures:
+                ap.properties.energy.vent_opening = None
 
     def exterior_afn_from_infiltration_load(self, exterior_face_groups,
                                             air_density=1.2041):
@@ -448,22 +511,6 @@ class RoomEnergyProperties(object):
         int_faces = (int_walls, int_floorceilings, int_apertures, int_doors, int_air)
 
         return ext_faces, int_faces
-
-    def add_prefix(self, prefix):
-        """Change the identifier attributes unique to this object by adding a prefix.
-
-        Notably, this method only adds the prefix to extension attributes that must
-        be unique to the Room (eg. single-room HVAC systems) and does not add the
-        prefix to attributes that are shared across several Rooms (eg. ConstructionSets).
-
-        Args:
-            prefix: Text that will be inserted at the start of extension
-                attribute identifiers.
-        """
-        if self._hvac is not None and self._hvac.is_single_room:
-            new_hvac = self._hvac.duplicate()
-            new_hvac.identifier = '{}_{}'.format(prefix, self._hvac.identifier)
-            self.hvac = new_hvac
 
     def reset_to_default(self):
         """Reset all of the properties assigned at the level of this Room to the default.
@@ -656,8 +703,6 @@ class RoomEnergyProperties(object):
         _host = new_host or self._host
         new_room = RoomEnergyProperties(
             _host, self._program_type, self._construction_set, self._hvac)
-        if self._hvac is not None and self._hvac.is_single_room:
-            new_room.hvac = self.hvac.duplicate()  # reassign parent to new host
         new_room._people = self._people
         new_room._lighting = self._lighting
         new_room._electric_equipment = self._electric_equipment

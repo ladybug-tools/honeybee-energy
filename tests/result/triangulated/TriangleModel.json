@@ -413,7 +413,7 @@
 "energy": {
 "program_type": "Generic Office Program", 
 "type": "RoomEnergyPropertiesAbridged", 
-"hvac": "Room_1_f67f1f6f_IdealAir"
+"hvac": "Room_1_f67f1f6f Ideal Loads Air System"
 }, 
 "type": "RoomPropertiesAbridged"
 }
@@ -889,7 +889,7 @@
 ], 
 "hvacs": [
 {
-"identifier": "Room_1_f67f1f6f_IdealAir", 
+"identifier": "Room_1_f67f1f6f Ideal Loads Air System", 
 "economizer_type": "DifferentialDryBulb", 
 "cooling_air_temperature": 13.0, 
 "sensible_heat_recovery": 0.0, 

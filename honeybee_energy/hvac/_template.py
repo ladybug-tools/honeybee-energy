@@ -38,7 +38,6 @@ class _TemplateSystem(_HVACSystem):
         * display_name
         * vintage
         * equipment_type
-        * is_single_room
         * schedules
     """
     __slots__ = ('_vintage', '_equipment_type')
@@ -50,7 +49,7 @@ class _TemplateSystem(_HVACSystem):
     def __init__(self, identifier, vintage='90.1-2013', equipment_type=None):
         """Initialize HVACSystem."""
         # initialize base HVAC system properties
-        _HVACSystem.__init__(self, identifier, is_single_room=False)
+        _HVACSystem.__init__(self, identifier)
         self.vintage = vintage
         self.equipment_type = equipment_type
 
