@@ -239,7 +239,7 @@ def aperture_to_idf(aperture):
         shd_prop_str = construction.to_shading_control_idf(
             aperture.identifier, parent_room)
         fen_str = '\n\n'.join((fen_str, shd_prop_str))
-    
+
     # create the VentilationOpening object if it is needed
     if aperture.properties.energy.vent_opening is not None:
         try:
@@ -417,6 +417,10 @@ def model_to_idf(model, schedule_directory=None):
     # scale the model if the units are not meters
     if model.units != 'Meters':
         model.convert_to_units('Meters')
+    # check to be sure that the Airflow Network is not being used
+    assert model.properties.energy.ventilation_simulation_control.vent_control_type == \
+        'SingleZone', 'The Honeybee Airflow Network does not support direct ' \
+        'translation to IDF.\nUse the export to OpenStudio workflow instead.'
 
     # write the building object into the string
     model_str = ['!-   =======================================\n'
@@ -484,14 +488,15 @@ def model_to_idf(model, schedule_directory=None):
 
     # write all of the HVAC systems
     model_str.append('!-   ============ HVAC SYSTEMS ============\n')
-    for hvac in model.properties.energy.hvacs:
-        try:
-            model_str.append(hvac.to_idf())
-        except AttributeError:
-            raise AttributeError(
-                'HVAC system type "{}" does not support direct translation to IDF. '
-                'Try using the export to OpenStudio workflow.'.format(
-                    hvac.__class__.__name__))
+    for room in model.rooms:
+        if room.properties.energy.hvac is not None:
+            try:
+                model_str.append(room.properties.energy.hvac.to_idf(room))
+            except AttributeError:
+                raise TypeError(
+                    'HVAC system type "{}" does not support direct translation to IDF.\n'
+                    'Use the export to OpenStudio workflow instead.'.format(
+                        room.properties.energy.hvac.__class__.__name__))
 
     # write all of the zone geometry
     model_str.append('!-   ============ ZONE GEOMETRY ============\n')

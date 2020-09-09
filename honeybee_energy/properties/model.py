@@ -1,6 +1,8 @@
 # coding=utf-8
 """Model Energy Properties."""
+from ladybug_geometry.geometry2d.pointvector import Vector2D
 from honeybee.extensionutil import model_extension_dicts
+from honeybee.checkdup import check_duplicate_identifiers
 
 from ..material.dictutil import dict_to_material
 from ..construction.dictutil import CONSTRUCTION_TYPES, dict_to_construction, \
@@ -303,125 +305,74 @@ class ModelEnergyProperties(object):
         self.ventilation_simulation_control.assign_geometry_properties_from_rooms(
             self.host.rooms)
 
+    def remove_child_constructions(self):
+        """Remove constructions assigned to Faces, Apertures, Doors and Shades.
+
+        This means that all constructions of the Mode's rooms will be assigned
+        by the Rooms' construction_set (or the Honeybee default ConstructionSet
+        if Rooms have no construction set).
+        """
+        for room in self._host.rooms:
+            room.properties.energy.remove_child_constructions()
+
+    def window_construction_by_orientation(
+            self, construction, orientation=0, offset=45, north_vector=Vector2D(0, 1)):
+        """Set the construction of exterior Apertures in Walls facing a given orientation.
+
+        This is useful for testing orientation-specific energy conservation
+        strategies or creating AHSRAE baseline buildings.
+
+        Args:
+            construction: A WindowConstruction that will be assigned to all of the
+                room's Apertures in Walls that are facing a certain orientation.
+            orientation: A number between 0 and 360 that represents the orientation
+                in degrees to which the construction will be assigned. 0 = North,
+                90 = East, 180 = South, 270 = West. (Default: 0 for North).
+            offset: A number between 0 and 180 that represents the offset from the
+                orientation in degrees for which the construction will be assigned.
+                For example, a value of 45 indicates that any Apertures falling
+                in the 90 degree range around the orientation will get the input
+                construction. (Default: 45).
+            north_vector: A ladybug_geometry Vector3D for the north direction.
+                Default is the Y-axis (0, 1).
+        """
+        for room in self._host.rooms:
+            room.properties.energy.window_construction_by_orientation(
+                construction, orientation, offset, north_vector)
+
     def check_duplicate_material_identifiers(self, raise_exception=True):
         """Check that there are no duplicate Material identifiers in the model."""
-        material_identifiers = set()
-        duplicate_identifiers = set()
-        for mat in self.materials:
-            if mat.identifier not in material_identifiers:
-                material_identifiers.add(mat.identifier)
-            else:
-                duplicate_identifiers.add(mat.identifier)
-        if len(duplicate_identifiers) != 0:
-            if raise_exception:
-                raise ValueError(
-                    'The model has the following duplicated Material '
-                    'identifiers:\n{}'.format('\n'.join(duplicate_identifiers)))
-            return False
-        return True
+        return check_duplicate_identifiers(
+            self.materials, raise_exception, 'Energy Material')
 
     def check_duplicate_construction_identifiers(self, raise_exception=True):
         """Check that there are no duplicate Construction identifiers in the model."""
-        cnstr_identifiers = set()
-        duplicate_identifiers = set()
-        for cnstr in self.constructions:
-            if cnstr.identifier not in cnstr_identifiers:
-                cnstr_identifiers.add(cnstr.identifier)
-            else:
-                duplicate_identifiers.add(cnstr.identifier)
-        if len(duplicate_identifiers) != 0:
-            if raise_exception:
-                raise ValueError(
-                    'The model has the following duplicated Construction '
-                    'identifiers:\n{}'.format('\n'.join(duplicate_identifiers)))
-            return False
-        return True
+        return check_duplicate_identifiers(
+            self.constructions, raise_exception, 'Construction')
 
     def check_duplicate_construction_set_identifiers(self, raise_exception=True):
         """Check that there are no duplicate ConstructionSet identifiers in the model."""
-        con_set_identifiers = set()
-        duplicate_identifiers = set()
-        for con_set in self.construction_sets:
-            if con_set.identifier not in con_set_identifiers:
-                con_set_identifiers.add(con_set.identifier)
-            else:
-                duplicate_identifiers.add(con_set.identifier)
-        if len(duplicate_identifiers) != 0:
-            if raise_exception:
-                raise ValueError(
-                    'The model has the following duplicated ConstructionSet '
-                    'identifiers:\n{}'.format('\n'.join(duplicate_identifiers)))
-            return False
-        return True
+        return check_duplicate_identifiers(
+            self.construction_sets, raise_exception, 'ConstructionSet')
 
     def check_duplicate_schedule_type_limit_identifiers(self, raise_exception=True):
         """Check that there are no duplicate ScheduleTypeLimit identifiers in the model.
         """
-        sched_type_limit_identifiers = set()
-        duplicate_identifiers = set()
-        for t_lim in self.schedule_type_limits:
-            if t_lim.identifier not in sched_type_limit_identifiers:
-                sched_type_limit_identifiers.add(t_lim.identifier)
-            else:
-                duplicate_identifiers.add(t_lim.identifier)
-        if len(duplicate_identifiers) != 0:
-            if raise_exception:
-                raise ValueError(
-                    'The model has the following duplicated ScheduleTypeLimit '
-                    'identifiers:\n{}'.format('\n'.join(duplicate_identifiers)))
-            return False
-        return True
+        return check_duplicate_identifiers(
+            self.schedule_type_limits, raise_exception, 'ScheduleTypeLimit')
 
     def check_duplicate_schedule_identifiers(self, raise_exception=True):
         """Check that there are no duplicate Schedule identifiers in the model."""
-        sched_identifiers = set()
-        duplicate_identifiers = set()
-        for sched in self.schedules:
-            if sched.identifier not in sched_identifiers:
-                sched_identifiers.add(sched.identifier)
-            else:
-                duplicate_identifiers.add(sched.identifier)
-        if len(duplicate_identifiers) != 0:
-            if raise_exception:
-                raise ValueError(
-                    'The model has the following duplicated Schedule '
-                    'identifiers:\n{}'.format('\n'.join(duplicate_identifiers)))
-            return False
-        return True
+        return check_duplicate_identifiers(self.schedules, raise_exception, 'Schedule')
 
     def check_duplicate_program_type_identifiers(self, raise_exception=True):
         """Check that there are no duplicate ProgramType identifiers in the model."""
-        p_type_identifiers = set()
-        duplicate_identifiers = set()
-        for p_type in self.program_types:
-            if p_type.identifier not in p_type_identifiers:
-                p_type_identifiers.add(p_type.identifier)
-            else:
-                duplicate_identifiers.add(p_type.identifier)
-        if len(duplicate_identifiers) != 0:
-            if raise_exception:
-                raise ValueError(
-                    'The model has the following duplicated ProgramType '
-                    'identifiers:\n{}'.format('\n'.join(duplicate_identifiers)))
-            return False
-        return True
+        return check_duplicate_identifiers(
+            self.program_types, raise_exception, 'ProgramType')
 
     def check_duplicate_hvac_identifiers(self, raise_exception=True):
         """Check that there are no duplicate HVAC identifiers in the model."""
-        hvac_identifiers = set()
-        duplicate_identifiers = set()
-        for hvac in self.hvacs:
-            if hvac.identifier not in hvac_identifiers:
-                hvac_identifiers.add(hvac.identifier)
-            else:
-                duplicate_identifiers.add(hvac.identifier)
-        if len(duplicate_identifiers) != 0:
-            if raise_exception:
-                raise ValueError(
-                    'The model has the following duplicated HVAC system '
-                    'identifiers:\n{}'.format('\n'.join(duplicate_identifiers)))
-            return False
-        return True
+        return check_duplicate_identifiers(self.hvacs, raise_exception, 'HVAC')
 
     def apply_properties_from_dict(self, data):
         """Apply the energy properties of a dictionary to the host Model of this object.

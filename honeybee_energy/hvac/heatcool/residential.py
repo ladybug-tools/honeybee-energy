@@ -44,7 +44,6 @@ class Residential(_HeatCoolBase):
         * display_name
         * vintage
         * equipment_type
-        * is_single_room
         * schedules
     """
     __slots__ = ()

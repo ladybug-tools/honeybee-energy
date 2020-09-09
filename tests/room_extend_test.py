@@ -199,10 +199,8 @@ def test_duplicate():
     assert room_original.properties.energy.construction_set != \
         room_dup_1.properties.energy.construction_set
 
-    prefix ='Opt1'
     room_dup_1.add_prefix('Opt1')
     assert room_dup_1.identifier.startswith('Opt1')
-    assert room_dup_1.properties.energy.hvac.identifier.startswith('Opt1')
 
     room_dup_2 = room_dup_1.duplicate()
 

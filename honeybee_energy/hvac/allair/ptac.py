@@ -46,7 +46,6 @@ class PTAC(_AllAirBase):
         * display_name
         * vintage
         * equipment_type
-        * is_single_room
         * schedules
 
     Note:

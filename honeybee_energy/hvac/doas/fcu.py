@@ -65,7 +65,6 @@ class FCUwithDOAS(_DOASBase):
         * equipment_type
         * sensible_heat_recovery
         * latent_heat_recovery
-        * is_single_room
         * schedules
     """
     __slots__ = ()
