@@ -45,9 +45,10 @@ class Lighting(_LoadBase):
         * radiant_fraction
         * visible_fraction
         * convected_fraction
+        * baseline_watts_per_area
     """
     __slots__ = ('_watts_per_area', '_schedule', '_return_air_fraction',
-                 '_radiant_fraction', '_visible_fraction')
+                 '_radiant_fraction', '_visible_fraction', '_baseline_watts_per_area')
 
     def __init__(self, identifier, watts_per_area, schedule, return_air_fraction=0.0,
                  radiant_fraction=0.32, visible_fraction=0.25):
@@ -61,6 +62,7 @@ class Lighting(_LoadBase):
         self.return_air_fraction = return_air_fraction
         self.radiant_fraction = radiant_fraction
         self.visible_fraction = visible_fraction
+        self.baseline_watts_per_area = None  # can be set by the user later
 
     @property
     def watts_per_area(self):
@@ -132,6 +134,24 @@ class Lighting(_LoadBase):
         """Get the fraction of lighting heat that convects to the zone air."""
         tot = (self._return_air_fraction, self._radiant_fraction, self._visible_fraction)
         return 1 - sum(tot)
+
+    @property
+    def baseline_watts_per_area(self):
+        """Get or set the baseline lighting power density in W/m2 of floor area.
+
+        This baseline is useful to track how much better the installed lights are
+        in comparison to a standard like ASHRAE 90.1. If set to None, it will
+        default to 11.84029 W/m2, which is that ASHRAE 90.1-2004 baseline for
+        an office.
+        """
+        return self._baseline_watts_per_area if self._baseline_watts_per_area \
+            is not None else 11.84029
+
+    @baseline_watts_per_area.setter
+    def baseline_watts_per_area(self, value):
+        if value is not None:
+            value = float_positive(value, 'lighting baseline watts per area')
+        self._baseline_watts_per_area = value
 
     @classmethod
     def from_idf(cls, idf_string, schedule_dict):
@@ -212,9 +232,7 @@ class Lighting(_LoadBase):
         ret_fract, rad_fract, vis_fract = cls._optional_dict_keys(data)
         new_obj = cls(data['identifier'], data['watts_per_area'], sched,
                       ret_fract, rad_fract, vis_fract)
-        if 'display_name' in data and data['display_name'] is not None:
-            new_obj.display_name = data['display_name']
-        return new_obj
+        return cls._apply_optional_dict_props(new_obj, data)
 
     @classmethod
     def from_dict_abridged(cls, data, schedule_dict):
@@ -249,9 +267,7 @@ class Lighting(_LoadBase):
         ret_fract, rad_fract, vis_fract = cls._optional_dict_keys(data)
         new_obj = cls(data['identifier'], data['watts_per_area'], sched,
                       ret_fract, rad_fract, vis_fract)
-        if 'display_name' in data and data['display_name'] is not None:
-            new_obj.display_name = data['display_name']
-        return new_obj
+        return cls._apply_optional_dict_props(new_obj, data)
 
     def to_idf(self, zone_identifier):
         """IDF string representation of Lighting object.
@@ -293,6 +309,8 @@ class Lighting(_LoadBase):
             abridged else self.schedule.identifier
         if self._display_name is not None:
             base['display_name'] = self.display_name
+        if self._baseline_watts_per_area is not None:
+            base['baseline_watts_per_area'] = self._baseline_watts_per_area
         return base
 
     @staticmethod
@@ -347,6 +365,16 @@ class Lighting(_LoadBase):
         vis_fract = data['visible_fraction'] if 'visible_fraction' in data else 0.25
         return ret_fract, rad_fract, vis_fract
 
+    @staticmethod
+    def _apply_optional_dict_props(new_obj, data):
+        """Apply optional properties like display_name to an object from a dictionary."""
+        if 'display_name' in data and data['display_name'] is not None:
+            new_obj.display_name = data['display_name']
+        if 'baseline_watts_per_area' in data and \
+                data['baseline_watts_per_area'] is not None:
+            new_obj.baseline_watts_per_area = data['baseline_watts_per_area']
+        return new_obj
+
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""
         return (self.identifier, self.watts_per_area, hash(self.schedule),
@@ -366,6 +394,7 @@ class Lighting(_LoadBase):
             self.identifier, self.watts_per_area, self.schedule,
             self.return_air_fraction, self.radiant_fraction, self.visible_fraction)
         new_obj._display_name = self._display_name
+        new_obj._baseline_watts_per_area = self._baseline_watts_per_area
         return new_obj
 
     def __repr__(self):

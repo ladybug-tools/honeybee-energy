@@ -28,6 +28,7 @@ def test_lighting_init():
     assert lighting.return_air_fraction == 0
     assert lighting.radiant_fraction == 0.32
     assert lighting.visible_fraction == 0.25
+    assert lighting.baseline_watts_per_area == 11.84029
 
 
 def test_lighting_setability():
@@ -53,6 +54,8 @@ def test_lighting_setability():
     assert lighting.radiant_fraction == 0.4
     lighting.visible_fraction = 0.2
     assert lighting.visible_fraction == 0.2
+    lighting.baseline_watts_per_area = 5.0
+    assert lighting.baseline_watts_per_area == 5.0
 
 
 def test_lighting_equality():

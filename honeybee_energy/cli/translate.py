@@ -114,8 +114,8 @@ def model_to_osm(model_json, sim_par_json, folder, check_model, log_file):
 def model_to_idf(model_json, sim_par_json, additional_str, output_file):
     """Translate a Model JSON file to an IDF using direct-to-idf translators.
     \n
-    The resulting IDF should be simulate-able but not all Model properties might
-    make it into the IDF given that the direct-to-idf translators are used.
+    If the model contains a feature that is not translate-able through direct-to-idf
+    translators, an exception will be raised.
     \n
     Args:
         model_json: Full path to a Model JSON file.
@@ -143,7 +143,7 @@ def model_to_idf(model_json, sim_par_json, additional_str, output_file):
 
         # create the strings for simulation paramters and model
         ver_str = energyplus_idf_version() if folders.energyplus_version \
-            is not None else energyplus_idf_version((9, 2, 0))
+            is not None else energyplus_idf_version((9, 3, 0))
         sim_par_str = sim_par.to_idf()
         model_str = model.to.idf(model, schedule_directory=sch_directory)
         idf_str = '\n\n'.join([ver_str, sim_par_str, model_str, additional_str])
