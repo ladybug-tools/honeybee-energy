@@ -16,7 +16,6 @@ from honeybee_energy.construction.window import WindowConstruction
 from honeybee_energy.lib.constructionsets import construction_set_by_identifier
 from honeybee_energy.lib.programtypes import program_type_by_identifier
 
-from ladybug_geometry.geometry2d.pointvector import Vector2D
 from ladybug.futil import csv_to_matrix
 from honeybee.model import Model
 from honeybee.boundarycondition import Outdoors
@@ -26,7 +25,6 @@ import sys
 import logging
 import os
 import json
-import math
 
 _logger = logging.getLogger(__name__)
 
@@ -89,18 +87,14 @@ def geometry_2004(model_json, output_file):
 @click.argument('model-json', type=click.Path(
     exists=True, file_okay=True, dir_okay=False, resolve_path=True))
 @click.argument('climate-zone', type=str)
-@click.option('--north-angle', help='A number between 0 and 360 for the counterclockwise'
-              ' difference between the North and the positive Y-axis in degrees. '
-              '90 is West and 270 is East.', type=float, default=0, show_default=True)
 @click.option('--output-file', help='Optional hbjson file to output the JSON string '
               'of the converted model. By default this will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
-def constructions_2004(model_json, climate_zone, north_angle, output_file):
+def constructions_2004(model_json, climate_zone, output_file):
     """Convert a Model's constructions to be conformant with ASHRAE 90.1-2004 appendix G.
     \n
     This includes assigning a ConstructionSet that is compliant with Table 5.5 to
-    all rooms in the model and overriding the window constructions on the north
-    side to have the relaxed SHGC.
+    all rooms in the model.
     \n
     Args:
         model_json: Full path to a Model JSON file.
@@ -165,17 +159,6 @@ def constructions_2004(model_json, climate_zone, north_angle, output_file):
         model.properties.energy.remove_child_constructions()
         for room in model.rooms:
             room.properties.energy.construction_set = base_set
-
-        # if need be, override the constructions on the north
-        if vert_except[2] != vert_except[3]:  # special SHGC exception
-            north_id = 'U {} SHGC {} North Glz'.format(vert_except[0], vert_except[3])
-            n_mat = EnergyWindowMaterialSimpleGlazSys(
-                north_id, vert_except[0] * si_ip_u, vert_except[3])
-            north_constr = WindowConstruction(north_id.replace('Glz', 'Window'), [n_mat])
-            north_vec = Vector2D(0, 1) if north_angle == 0 else \
-                Vector2D(0, 1).rotate(math.radians(north_angle))
-            model.properties.energy.window_construction_by_orientation(
-                north_constr, north_vector=north_vec)
 
         # write the Model JSON string
         output_file.write(json.dumps(model.to_dict()))
@@ -352,8 +335,11 @@ def remove_ecms(model_json, output_file):
 
         # loop through the rooms and remove operable windows
         for room in model.rooms:
-            room.properties.energy.remove_ventilation_opening()
             room.properties.energy.window_vent_control = None
+            room.properties.energy.remove_ventilation_opening()
+            for face in room.faces:
+                for ap in face.apertures:
+                    ap.is_operable = False
 
         # write the Model JSON string
         output_file.write(json.dumps(model.to_dict()))
