@@ -47,7 +47,7 @@ RUN mkdir -p ladybug_tools/resources/measures/honeybee_openstudio_gem \
 ENV PATH="/home/ladybugbot/.local/bin:${PATH}"
 COPY . honeybee-energy
 RUN pip3 install setuptools wheel\
-    && pip3 install pydantic==1.5.1 honeybee-schema ./honeybee-energy[cli]
+    && pip3 install ./honeybee-energy[cli]
 
 # Set up working directory
 RUN mkdir -p /home/ladybugbot/run/simulation

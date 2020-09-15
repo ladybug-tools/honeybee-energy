@@ -97,7 +97,7 @@ def constructions_2004(model_json, climate_zone, output_file):
     all rooms in the model.
     \n
     Args:
-        model_json: Full path to a Model JSON file.
+        model_json: Full path to a Model JSON file.\n
         climate_zone: Text indicating the ASHRAE climate zone. This can be a single
             integer (in which case it is interpreted as A) or it can include the
             A, B, or C qualifier (eg. 3C).
@@ -254,7 +254,7 @@ def hvac_2004(model_json, climate_zone, nonresidential, fuel, floor_area,
     the model.
     \n
     Args:
-        model_json: Full path to a Model JSON file.
+        model_json: Full path to a Model JSON file.\n
         climate_zone: Text indicating the ASHRAE climate zone. This can be a single
             integer (in which case it is interpreted as A) or it can include the
             A, B, or C qualifier (eg. 3C).
