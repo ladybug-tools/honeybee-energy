@@ -423,7 +423,7 @@ class Folders(object):
         self._openstudio_version_str = base_str
         ver_nums = self._openstudio_version_str.split('+')[0].split('.')
         try:
-            self._openstudio_version = tuple(int(i)for i in ver_nums)
+            self._openstudio_version = tuple(int(i) for i in ver_nums)
         except Exception:
             pass  # failed to parse the version into integers
 
@@ -436,7 +436,7 @@ class Folders(object):
         self._energyplus_version_str = base_str.split(' ')[-1]
         ver_nums = self._energyplus_version_str.split('-')[0].split('.')
         try:
-            self._energyplus_version = tuple(int(i)for i in ver_nums)
+            self._energyplus_version = tuple(int(i) for i in ver_nums)
         except Exception:
             pass  # failed to parse the version into integers
 

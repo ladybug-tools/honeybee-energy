@@ -22,6 +22,7 @@ from .baseline import baseline
 
 # command group for all energy extension commands.
 @click.group(help='honeybee energy commands.')
+@click.version_option()
 def energy():
     pass
 
