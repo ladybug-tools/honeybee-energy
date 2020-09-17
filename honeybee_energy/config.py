@@ -417,7 +417,8 @@ class Folders(object):
     def _openstudio_version_from_cli(self):
         """Set this object's OpenStudio version by making a call to OpenStudio CLI."""
         cmds = [self.openstudio_exe, 'openstudio_version']
-        process = subprocess.Popen(cmds, stdout=subprocess.PIPE)
+        use_shell = True if os.name == 'nt' else False
+        process = subprocess.Popen(cmds, stdout=subprocess.PIPE, shell=use_shell)
         stdout = process.communicate()
         base_str = str(stdout[0]).replace("b'", '').replace(r"\r\n'", '')
         self._openstudio_version_str = base_str
