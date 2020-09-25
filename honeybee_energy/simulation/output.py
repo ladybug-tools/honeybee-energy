@@ -140,7 +140,7 @@ output-table-summaryreports.html#outputtablesummaryreports).
                 vals.append(str(output))
             value = set(vals)
         else:
-            value = set('AllSummary')
+            value = set(('AllSummary',))
         self._summary_reports = value
 
     def add_summary_report(self, report_name):

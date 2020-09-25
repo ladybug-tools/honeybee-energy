@@ -199,3 +199,17 @@ def test_simulation_output_dict_methods():
     new_sim_output = SimulationOutput.from_dict(output_dict)
     assert new_sim_output == sim_output
     assert output_dict == new_sim_output.to_dict()
+
+
+def test_simulation_output_from_dict():
+    """Test for a bug in from_dict that Mingbo found."""
+    out_dict = {
+        "type": "SimulationOutput",     
+        "reporting_frequency": "Hourly",
+        "include_sqlite": True,
+        "include_html": True
+    }
+
+    defalt_out = SimulationOutput.from_dict(out_dict)
+    default_dict = defalt_out.to_dict()
+    assert tuple(default_dict['summary_reports']) == ('AllSummary',)
