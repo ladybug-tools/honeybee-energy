@@ -431,7 +431,8 @@ class Folders(object):
     def _energyplus_version_from_cli(self):
         """Set this object's EnergyPlus version by making a call to EnergyPlus CLI."""
         cmds = [self.energyplus_exe, '--version']
-        process = subprocess.Popen(cmds, stdout=subprocess.PIPE)
+        use_shell = True if os.name == 'nt' else False
+        process = subprocess.Popen(cmds, stdout=subprocess.PIPE, shell=use_shell)
         stdout = process.communicate()
         base_str = str(stdout[0]).replace("b'", '').replace(r"\r\n'", '')
         self._energyplus_version_str = base_str.split(' ')[-1]
