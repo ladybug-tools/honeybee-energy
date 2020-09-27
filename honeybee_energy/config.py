@@ -41,6 +41,7 @@ class Folders(object):
         * energyplus_exe
         * energyplus_version
         * energyplus_version_str
+        * energyplus_idd_path
         * honeybee_openstudio_gem_path
         * standards_data_folder
         * construction_lib
@@ -134,6 +135,7 @@ class Folders(object):
         self._energyplus_exe = ep_exe_file
         self._energyplus_version = None
         self._energyplus_version_str = None
+        self._energyplus_idd_path = None
         if path and not self.mute:
             print("Path to EnergyPlus is set to: %s" % self._energyplus_path)
 
@@ -163,6 +165,14 @@ class Folders(object):
         if self._energyplus_exe and self._energyplus_version_str is None:
             self._energyplus_version_from_cli()
         return self._energyplus_version_str
+
+    @property
+    def energyplus_idd_path(self):
+        if self._energyplus_exe and self._energyplus_idd_path is None:
+            idd_path = os.path.join(self.energyplus_path, 'Energy+.idd')
+            if os.path.isfile(idd_path):
+                self._energyplus_idd_path = idd_path
+        return self._energyplus_idd_path
 
     @property
     def honeybee_openstudio_gem_path(self):
