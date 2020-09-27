@@ -10,7 +10,7 @@ from .config import folders
 
 from honeybee.model import Model
 
-from ladybug.futil import write_to_file, copy_files_to_folder, preparedir
+from ladybug.futil import write_to_file, preparedir
 
 
 def measure_compatible_model_json(model_json_path, destination_directory=None):
@@ -152,15 +152,18 @@ def to_openstudio_osw(osw_directory, model_json_path, sim_par_json_path=None,
     return os.path.abspath(osw_json)
 
 
-def run_osw(osw_json, measures_only=True):
+def run_osw(osw_json, measures_only=True, silent=False):
     """Run a .osw file using the OpenStudio CLI on any operating system.
 
     Args:
         osw_json: File path to a OSW file to be run using OpenStudio CLI.
-        measures_only: Boolean to note whether only the measures should be applied
-            in the running of the OSW (True) or the resulting model should be run
-            through EnergyPlus after the measures are applied to it (False).
-            Default: True.
+        measures_only: Boolean to note whether only the measures should be
+            applied in the running of the OSW (True) or the resulting model
+            should be run through EnergyPlus after the measures are applied
+            to it (False). (Default: True).
+        silent: Boolean to note whether the OSW should be run silently.
+            This only has an effect on Windows simulations since Unix-based
+            simulations always use shell and are always silent (Default: False).
 
     Returns:
         The following files output from the CLI run
@@ -173,7 +176,7 @@ def run_osw(osw_json, measures_only=True):
     """
     # run the simulation
     if os.name == 'nt':  # we are on Windows
-        directory = _run_osw_windows(osw_json, measures_only)
+        directory = _run_osw_windows(osw_json, measures_only, silent)
     else:  # we are on Mac, Linux, or some other unix-based system
         directory = _run_osw_unix(osw_json, measures_only)
 
@@ -184,12 +187,9 @@ def run_osw(osw_json, measures_only=True):
 def prepare_idf_for_simulation(idf_file_path, epw_file_path):
     """Prepare an IDF file to be run through EnergyPlus.
 
-    This includes copying the Energy+.idd to the directory of the IDF, copying the EPW
-    file to the directory, renaming the EPW to in.epw and renaming the IDF to in.idf
-    (if it is not already names so).
-
-    A check is also performed to be sure that a valid EnergyPlus installation
-    was found.
+    This includes checking that the EPW file and IDF file exist and renaming the
+    IDF to in.idf (if it is not already named so). A check is also performed to
+    be sure that a valid EnergyPlus installation was found.
 
     Args:
         idf_file_path: The full path to an IDF file.
@@ -210,25 +210,11 @@ def prepare_idf_for_simulation(idf_file_path, epw_file_path):
     assert os.path.isfile(epw_file_path), \
         'No EPW file found at {}.'.format(epw_file_path)
 
-    # copy all files needed for simulation to the folder
-    directory = os.path.split(idf_file_path)[0]
-    idd_path = os.path.join(folders.energyplus_path, 'Energy+.idd')
-    copy_files_to_folder([idd_path, epw_file_path], directory, True)
-
-    # rename the weather file to in.epw (what energyplus is expecting)
-    epw_file_name = os.path.split(epw_file_path)[-1]
-    if epw_file_name != 'in.epw':
-        old_file_name = os.path.join(directory, epw_file_name)
-        new_file_name = os.path.join(directory, 'in.epw')
-        # ensure that there isn't an in.epw file there already
-        if os.path.isfile(new_file_name):
-            os.remove(new_file_name)
-        os.rename(old_file_name, new_file_name)
-
     # rename the idf file to in.idf if it isn't named that already
+    directory = os.path.split(idf_file_path)[0]
     idf_file_name = os.path.split(idf_file_path)[-1]
     if idf_file_name != 'in.idf':
-        old_file_name = os.path.join(directory, epw_file_name)
+        old_file_name = os.path.join(directory, idf_file_name)
         new_file_name = os.path.join(directory, 'in.idf')
         # ensure that there isn't an in.idf file there already
         if os.path.isfile(new_file_name):
@@ -238,7 +224,7 @@ def prepare_idf_for_simulation(idf_file_path, epw_file_path):
     return directory
 
 
-def run_idf(idf_file_path, epw_file_path, expand_objects=True):
+def run_idf(idf_file_path, epw_file_path, expand_objects=True, silent=False):
     """Run an IDF file through energyplus on any operating system.
 
     Args:
@@ -247,8 +233,11 @@ def run_idf(idf_file_path, epw_file_path, expand_objects=True):
         expand_objects: If True, the IDF run will include the expansion of any
             HVAC Template objects in the file before beginning the simulation.
             This is a necessary step whenever there are HVAC Template objects in
-            the IDF but it is unnecessary extra time when they are not present.
-            Default: True.
+            the IDF but it is unnecessary extra time when they are not
+            present. (Default: True).
+        silent: Boolean to note whether the simulation should be run silently.
+            This only has an effect on Windows simulations since Unix-based
+            simulations always use shell and are always silent (Default: False).
 
     Returns:
         A series of file paths to the simulation output files
@@ -271,7 +260,7 @@ def run_idf(idf_file_path, epw_file_path, expand_objects=True):
     """
     # run the simulation
     if os.name == 'nt':  # we are on Windows
-        directory = _run_idf_windows(idf_file_path, epw_file_path, expand_objects)
+        directory = _run_idf_windows(idf_file_path, epw_file_path, expand_objects, silent)
     else:  # we are on Mac, Linux, or some other unix-based system
         directory = _run_idf_unix(idf_file_path, epw_file_path, expand_objects)
 
@@ -345,7 +334,7 @@ def _check_osw(osw_json):
     return os.path.split(osw_json)[0]
 
 
-def _run_osw_windows(osw_json, measures_only=True):
+def _run_osw_windows(osw_json, measures_only=True, silent=False):
     """Run a .osw file using the OpenStudio CLI on a Windows-based operating system.
 
     A batch file will be used to run the simulation.
@@ -356,6 +345,9 @@ def _run_osw_windows(osw_json, measures_only=True):
             in the running of the OSW (True) or the resulting model should be run
             through EnergyPlus after the measures are applied to it (False).
             Default: True.
+        silent: Boolean to note whether the OSW should be run silently (without
+            the batch window). If so, the simulation will be run using subprocess
+            with shell set to True. (Default: False).
 
     Returns:
         Path to the folder out of which the OSW was run.
@@ -363,17 +355,22 @@ def _run_osw_windows(osw_json, measures_only=True):
     # check the input file
     directory = _check_osw(osw_json)
 
-    # Write the batch file to call OpenStudio CLI
-    working_drive = directory[:2]
-    measure_str = '-m ' if measures_only else ''
-    batch = '{}\n"{}" -I {} run {}-w {}'.format(
-        working_drive, folders.openstudio_exe, folders.honeybee_openstudio_gem_path,
-        measure_str, osw_json)
-    batch_file = os.path.join(directory, 'run_workflow.bat')
-    write_to_file(batch_file, batch, True)
-
-    # run the batch file
-    os.system(batch_file)
+    if not silent:  # write the batch file to call OpenStudio CLI
+        working_drive = directory[:2]
+        measure_str = '-m ' if measures_only else ''
+        batch = '{}\n"{}" -I {} run {}-w {}'.format(
+            working_drive, folders.openstudio_exe, folders.honeybee_openstudio_gem_path,
+            measure_str, osw_json)
+        batch_file = os.path.join(directory, 'run_workflow.bat')
+        write_to_file(batch_file, batch, True)
+        os.system(batch_file)  # run the batch file
+    else:  # run it all using subprocess
+        cmds = [folders.openstudio_exe, '-I', folders.honeybee_openstudio_gem_path,
+                'run', '-w', osw_json]
+        if measures_only:
+            cmds.append('-m')
+        process = subprocess.Popen(cmds, stdout=subprocess.PIPE, shell=True)
+        process.communicate()  # prevents the script from running before command is done
 
     return directory
 
@@ -446,7 +443,7 @@ def _output_openstudio_files(directory):
     return osm, idf
 
 
-def _run_idf_windows(idf_file_path, epw_file_path, expand_objects=True):
+def _run_idf_windows(idf_file_path, epw_file_path, expand_objects=True, silent=False):
     """Run an IDF file through energyplus on a Windows-based operating system.
 
     A batch file will be used to run the simulation.
@@ -457,8 +454,11 @@ def _run_idf_windows(idf_file_path, epw_file_path, expand_objects=True):
         expand_objects: If True, the IDF run will include the expansion of any
             HVAC Template objects in the file before beginning the simulation.
             This is a necessary step whenever there are HVAC Template objects in
-            the IDF but it is unnecessary extra time when they are not present.
-            Default: True.
+            the IDF but it is unnecessary extra time when they are not
+            present. (Default: True).
+        silent: Boolean to note whether the simulation should be run silently
+            (without the batch window). If so, the simulation will be run using
+            subprocess with shell set to True. (Default: False).
 
     Returns:
         Path to the folder out of which the simulation was run.
@@ -466,22 +466,26 @@ def _run_idf_windows(idf_file_path, epw_file_path, expand_objects=True):
     # check and prepare the input files
     directory = prepare_idf_for_simulation(idf_file_path, epw_file_path)
 
-    # generate the object expansion string if requested
-    if expand_objects:
-        exp_path = os.path.join(folders.energyplus_path, 'ExpandObjects')
-        exp_str = '{}\nif exist expanded.idf MOVE expanded.idf in.idf\n'.format(exp_path)
-    else:
-        exp_str = ''
-
-    # write a batch file
-    run_path = os.path.join(folders.energyplus_path, 'EnergyPlus')
-    working_drive = directory[:2]
-    batch = '{}\ncd {}\n{}{}'.format(working_drive, directory, exp_str, run_path)
-    batch_file = os.path.join(directory, 'in.bat')
-    write_to_file(batch_file, batch, True)
-
-    # run the batch file
-    os.system(batch_file)
+    if not silent:  # run the simulations using a batch file
+        # generate various arguments to pass to the energyplus command
+        epw_str = '-w {}'.format(os.path.abspath(epw_file_path))
+        idd_str = '-i {}'.format(folders.energyplus_idd_path)
+        expand_str = ' -x' if expand_objects else ''
+        working_drive = directory[:2]
+        # write the batch file
+        batch = '{}\ncd {}\n{} {} {}{}'.format(
+            working_drive, directory, folders.energyplus_exe, epw_str,
+            idd_str, expand_str)
+        batch_file = os.path.join(directory, 'in.bat')
+        write_to_file(batch_file, batch, True)
+        os.system(batch_file)  # run the batch file
+    else:  # run the simulation using subprocess
+        cmds = [folders.energyplus_exe, '-w', os.path.abspath(epw_file_path),
+                '-i', folders.energyplus_idd_path]
+        if expand_objects:
+            cmds.append('-x')
+        process = subprocess.Popen(cmds, cwd=directory, stdout=subprocess.PIPE, shell=True)
+        process.communicate()  # prevents the script from running before command is done
 
     return directory
 
@@ -507,16 +511,14 @@ def _run_idf_unix(idf_file_path, epw_file_path, expand_objects=True):
     # check and prepare the input files
     directory = prepare_idf_for_simulation(idf_file_path, epw_file_path)
 
-    # generate the object expansion string if requested
-    if expand_objects:
-        exp_path = os.path.join(folders.energyplus_path, 'ExpandObjects')
-        exp_str = '{}\ntest -f expanded.idf && mv expanded.idf in.idf\n'.format(exp_path)
-    else:
-        exp_str = ''
+    # generate various arguments to pass to the energyplus command
+    epw_str = '-w {}'.format(os.path.abspath(epw_file_path))
+    idd_str = '-i {}'.format(folders.energyplus_idd_path)
+    expand_str = ' -x' if expand_objects else ''
 
     # write a shell file
-    run_path = os.path.join(folders.energyplus_path, 'energyplus')
-    shell = '#!/usr/bin/env bash\n\ncd {}\n{}{}'.format(directory, exp_str, run_path)
+    shell = '#!/usr/bin/env bash\n\ncd {}\n{} {} {}{}'.format(
+        directory, folders.energyplus_exe, epw_str, idd_str, expand_str)
     shell_file = os.path.join(directory, 'in.sh')
     write_to_file(shell_file, shell, True)
 
