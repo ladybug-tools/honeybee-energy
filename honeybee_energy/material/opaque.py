@@ -118,7 +118,8 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
 
     @specific_heat.setter
     def specific_heat(self, sp_ht):
-        self._specific_heat = float_positive(sp_ht, 'material specific heat')
+        self._specific_heat = float_in_range(
+            sp_ht, 100.0, input_name='material specific heat')
 
     @property
     def thermal_absorptance(self):
