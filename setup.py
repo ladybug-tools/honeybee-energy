@@ -21,7 +21,7 @@ setuptools.setup(
     include_package_data=True,
     install_requires=requirements,
     extras_require={
-        'cli': ['click==7.1.2', 'honeybee-core[cli]==1.36.4', 'honeybee-energy-standards==2.0.2']
+        'cli': ['click==7.1.2', 'honeybee-core[cli]==1.36.4', 'honeybee-energy-standards==2.0.3']
     },
     entry_points={
         "console_scripts": ["honeybee-energy = honeybee_energy.cli:energy"]
