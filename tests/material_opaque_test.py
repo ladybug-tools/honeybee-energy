@@ -5,8 +5,8 @@ import pytest
 
 
 def test_material_init():
-    """Test the initalization of EnergyMaterial objects and basic properties."""
-    concrete = EnergyMaterial('Concrete', 0.2, 0.5, 800, 0.75,
+    """Test the initialization of EnergyMaterial objects and basic properties."""
+    concrete = EnergyMaterial('Concrete', 0.2, 0.5, 800, 1200,
                               'MediumSmooth', 0.95, 0.75, 0.8)
     str(concrete)  # test the string representation of the material
     concrete_dup = concrete.duplicate()
@@ -15,7 +15,7 @@ def test_material_init():
     assert concrete.thickness == concrete_dup.thickness == 0.2
     assert concrete.conductivity == concrete_dup.conductivity == 0.5
     assert concrete.density == concrete_dup.density == 800
-    assert concrete.specific_heat == concrete_dup.specific_heat == 0.75
+    assert concrete.specific_heat == concrete_dup.specific_heat == 1200
     assert concrete.roughness == concrete_dup.roughness == 'MediumSmooth'
     assert concrete.thermal_absorptance == concrete_dup.thermal_absorptance == 0.95
     assert concrete.solar_absorptance == concrete_dup.solar_absorptance == 0.75
@@ -25,7 +25,7 @@ def test_material_init():
     assert concrete.u_value == pytest.approx(2.5, rel=1e-2)
     assert concrete.r_value == pytest.approx(0.4, rel=1e-2)
     assert concrete.mass_area_density == pytest.approx(160, rel=1e-2)
-    assert concrete.area_heat_capacity == pytest.approx(120, rel=1e-2)
+    assert concrete.area_heat_capacity == pytest.approx(192000, rel=1e-2)
 
     concrete.r_value = 0.5
     assert concrete.conductivity != concrete_dup.conductivity
@@ -35,7 +35,7 @@ def test_material_init():
 
 def test_material_equivalency():
     """Test the equality of a material to another EnergyMaterial."""
-    concrete_1 = EnergyMaterial('Concrete [HW]', 0.2, 0.5, 800, 0.75)
+    concrete_1 = EnergyMaterial('Concrete [HW]', 0.2, 0.5, 800, 1200)
     concrete_2 = concrete_1.duplicate()
     insulation = EnergyMaterial('Insulation', 0.05, 0.049, 265, 836)
 
@@ -51,7 +51,7 @@ def test_material_equivalency():
 
 def test_material_lockability():
     """Test the lockability of the EnergyMaterial."""
-    concrete = EnergyMaterial('Concrete [HW]', 0.2, 0.5, 800, 0.75)
+    concrete = EnergyMaterial('Concrete [HW]', 0.2, 0.5, 800, 1200)
     concrete.density = 600
     concrete.lock()
     with pytest.raises(AttributeError):
@@ -62,7 +62,7 @@ def test_material_lockability():
 
 def test_material_defaults():
     """Test the EnergyMaterial default properties."""
-    concrete = EnergyMaterial('Concrete [HW]', 0.2, 0.5, 800, 0.75)
+    concrete = EnergyMaterial('Concrete [HW]', 0.2, 0.5, 800, 1200)
 
     assert concrete.identifier == 'Concrete [HW]'
     assert concrete.roughness == 'MediumRough'
@@ -71,8 +71,8 @@ def test_material_defaults():
 
 
 def test_material_invalid():
-    """Test the initalization of EnergyMaterial objects with invalid properties."""
-    concrete = EnergyMaterial('Concrete', 0.2, 0.5, 800, 0.75)
+    """Test the initialization of EnergyMaterial objects with invalid properties."""
+    concrete = EnergyMaterial('Concrete', 0.2, 0.5, 800, 1200)
 
     with pytest.raises(TypeError):
         concrete.identifier = ['test_identifier']
@@ -132,14 +132,14 @@ def test_material_to_from_idf():
 
 def test_material_dict_methods():
     """Test the to/from dict methods."""
-    material = EnergyMaterial('Concrete', 0.2, 0.5, 800, 0.75)
+    material = EnergyMaterial('Concrete', 0.2, 0.5, 800, 1200)
     material_dict = material.to_dict()
     new_material = EnergyMaterial.from_dict(material_dict)
     assert material_dict == new_material.to_dict()
 
 
 def test_material_nomass_init():
-    """Test the initalization of EnergyMaterialNoMass and basic properties."""
+    """Test the initialization of EnergyMaterialNoMass and basic properties."""
     insul_r2 = EnergyMaterialNoMass('Insulation R-2', 2,
                                     'MediumSmooth', 0.95, 0.75, 0.8)
     str(insul_r2)  # test the string representation of the material
@@ -170,7 +170,7 @@ def test_material_nomass_defaults():
 
 
 def test_material_nomass_invalid():
-    """Test the initalization of EnergyMaterial objects with invalid properties."""
+    """Test the initialization of EnergyMaterial objects with invalid properties."""
     insul_r2 = EnergyMaterialNoMass('Insulation [R-2]', 2)
 
     with pytest.raises(TypeError):
