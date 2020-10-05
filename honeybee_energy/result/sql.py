@@ -869,10 +869,13 @@ class ZoneSize(object):
         self._peak_humidity_ratio = sql_table_row[10]
         self._peak_outdoor_air_flow = sql_table_row[11]
 
-        date_str = sql_table_row[8] if '24:00:00' not in sql_table_row[8] else \
-            sql_table_row[8].replace('24:00:00', '00:00:00')
-        py_dt = datetime.strptime(date_str, '%m/%d %H:%M:%S')
-        self._peak_date_time = DateTime(py_dt.month, py_dt.day, py_dt.hour, py_dt.minute)
+        try:
+            date_str = sql_table_row[8] if '24:00:00' not in sql_table_row[8] else \
+                sql_table_row[8].replace('24:00:00', '00:00:00')
+            pyd = datetime.strptime(date_str, '%m/%d %H:%M:%S')
+            self._peak_date_time = DateTime(pyd.month, pyd.day, pyd.hour, pyd.minute)
+        except Exception:  # likely a zone with no cooling; a peak value of 0
+            self._peak_date_time = None
 
     @classmethod
     def from_dict(cls, data):
@@ -909,6 +912,8 @@ class ZoneSize(object):
 
     def to_dict(self):
         """Get ZoneSize as a dictionary."""
+        pk_time = None if self.peak_date_time is None else \
+            self.peak_date_time.strftime('%m/%d %H:%M:%S')
         return {
             'type': 'ZoneSize',
             'zone_name': self.zone_name,
@@ -918,7 +923,7 @@ class ZoneSize(object):
             'calculated_design_flow': self.calculated_design_flow,
             'final_design_flow': self.final_design_flow,
             'design_day_name': self.design_day_name,
-            'peak_date_time': self.peak_date_time.strftime('%m/%d %H:%M:%S'),
+            'peak_date_time': pk_time,
             'peak_temperature': self.peak_temperature,
             'peak_humidity_ratio': self.peak_humidity_ratio,
             'peak_outdoor_air_flow': self.peak_outdoor_air_flow
