@@ -199,7 +199,11 @@ class OpaqueConstruction(_ConstructionBase):
         materials = {}
         for mat in data['materials']:
             materials[mat['identifier']] = dict_to_material(mat)
-        mat_layers = [materials[mat_id] for mat_id in data['layers']]
+        try:
+            mat_layers = [materials[mat_id] for mat_id in data['layers']]
+        except KeyError as e:
+            raise ValueError(
+                'Failed to find {} in opaque construction materials.'.format(e))
         new_obj = cls(data['identifier'], mat_layers)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
@@ -225,7 +229,10 @@ class OpaqueConstruction(_ConstructionBase):
         """
         assert data['type'] == 'OpaqueConstructionAbridged', \
             'Expected OpaqueConstructionAbridged. Got {}.'.format(data['type'])
-        mat_layers = [materials[mat_id] for mat_id in data['layers']]
+        try:
+            mat_layers = [materials[mat_id] for mat_id in data['layers']]
+        except KeyError as e:
+            raise ValueError('Failed to find {} in materials.'.format(e))
         new_obj = cls(data['identifier'], mat_layers)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
