@@ -69,7 +69,7 @@ def dict_abridged_to_construction(constr_dict, materials, schedules,
         return OpaqueConstruction.from_dict_abridged(constr_dict, materials)
     elif constr_type == 'WindowConstructionAbridged':
         return WindowConstruction.from_dict_abridged(constr_dict, materials)
-    elif constr_type == 'WindowConstructionShade':
+    elif constr_type == 'WindowConstructionShadeAbridged':
         return WindowConstructionShade.from_dict_abridged(
             constr_dict, materials, schedules)
     elif constr_type == 'ShadeConstruction':
