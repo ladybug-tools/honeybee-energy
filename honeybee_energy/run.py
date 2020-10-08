@@ -358,12 +358,12 @@ def _run_osw_windows(osw_json, measures_only=True, silent=False):
     if not silent:  # write the batch file to call OpenStudio CLI
         working_drive = directory[:2]
         measure_str = '-m ' if measures_only else ''
-        batch = '{}\n"{}" -I {} run {}-w {}'.format(
+        batch = '{}\n"{}" -I "{}" run {}-w "{}"'.format(
             working_drive, folders.openstudio_exe, folders.honeybee_openstudio_gem_path,
             measure_str, osw_json)
         batch_file = os.path.join(directory, 'run_workflow.bat')
         write_to_file(batch_file, batch, True)
-        os.system(batch_file)  # run the batch file
+        os.system('"{}"'.format(batch_file))  # run the batch file
     else:  # run it all using subprocess
         cmds = [folders.openstudio_exe, '-I', folders.honeybee_openstudio_gem_path,
                 'run', '-w', osw_json]
@@ -396,7 +396,7 @@ def _run_osw_unix(osw_json, measures_only=True):
 
     # Write the shell script to call OpenStudio CLI
     measure_str = '-m ' if measures_only else ''
-    shell = '#!/usr/bin/env bash\n"{}" -I {} run {}-w {}'.format(
+    shell = '#!/usr/bin/env bash\n"{}" -I "{}" run {}-w "{}"'.format(
         folders.openstudio_exe, folders.honeybee_openstudio_gem_path,
         measure_str, osw_json)
     shell_file = os.path.join(directory, 'run_workflow.sh')
@@ -468,17 +468,17 @@ def _run_idf_windows(idf_file_path, epw_file_path, expand_objects=True, silent=F
 
     if not silent:  # run the simulations using a batch file
         # generate various arguments to pass to the energyplus command
-        epw_str = '-w {}'.format(os.path.abspath(epw_file_path))
-        idd_str = '-i {}'.format(folders.energyplus_idd_path)
+        epw_str = '-w "{}"'.format(os.path.abspath(epw_file_path))
+        idd_str = '-i "{}"'.format(folders.energyplus_idd_path)
         expand_str = ' -x' if expand_objects else ''
         working_drive = directory[:2]
         # write the batch file
-        batch = '{}\ncd {}\n{} {} {}{}'.format(
+        batch = '{}\ncd "{}"\n"{}" {} {}{}'.format(
             working_drive, directory, folders.energyplus_exe, epw_str,
             idd_str, expand_str)
         batch_file = os.path.join(directory, 'in.bat')
         write_to_file(batch_file, batch, True)
-        os.system(batch_file)  # run the batch file
+        os.system('"{}"'.format(batch_file))  # run the batch file
     else:  # run the simulation using subprocess
         cmds = [folders.energyplus_exe, '-w', os.path.abspath(epw_file_path),
                 '-i', folders.energyplus_idd_path]
@@ -512,12 +512,12 @@ def _run_idf_unix(idf_file_path, epw_file_path, expand_objects=True):
     directory = prepare_idf_for_simulation(idf_file_path, epw_file_path)
 
     # generate various arguments to pass to the energyplus command
-    epw_str = '-w {}'.format(os.path.abspath(epw_file_path))
-    idd_str = '-i {}'.format(folders.energyplus_idd_path)
+    epw_str = '-w "{}"'.format(os.path.abspath(epw_file_path))
+    idd_str = '-i "{}"'.format(folders.energyplus_idd_path)
     expand_str = ' -x' if expand_objects else ''
 
     # write a shell file
-    shell = '#!/usr/bin/env bash\n\ncd {}\n{} {} {}{}'.format(
+    shell = '#!/usr/bin/env bash\n\ncd "{}"\n"{}" {} {}{}'.format(
         directory, folders.energyplus_exe, epw_str, idd_str, expand_str)
     shell_file = os.path.join(directory, 'in.sh')
     write_to_file(shell_file, shell, True)

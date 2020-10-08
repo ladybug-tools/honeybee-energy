@@ -55,7 +55,15 @@ def geometry_2004(model_json, output_file):
         with open(model_json) as json_file:
             data = json.load(json_file)
         model = Model.from_dict(data)
+
+        # remove all non-context shade
         model.remove_assigned_shades()  # remove all of the child shades
+        or_shades = [shd for shd in model.orphaned_shades if shd.is_detached]
+        model.remove_shades()
+        for shd in or_shades:
+            model.add_shade(shd)
+
+        # compute the window and skylight ratios
         w_area = model.exterior_wall_area
         r_area = model.exterior_roof_area
         wr = model.exterior_wall_aperture_area / w_area if w_area != 0 else 0
