@@ -34,7 +34,7 @@ RUN mkdir ladybug_tools/openstudio/ \
 
 
 # Add honeybee-openstudio-gem lib to ladybug_tools folder
-ENV HONEYBEE_OPENSTUDIO_GEM_VERSION=2.5.3
+ENV HONEYBEE_OPENSTUDIO_GEM_VERSION=2.6.5
 RUN mkdir -p ladybug_tools/resources/measures/honeybee_openstudio_gem \
     && curl -SL -o honeybee-openstudio-gem.tar.gz https://github.com/ladybug-tools/honeybee-openstudio-gem/archive/v$HONEYBEE_OPENSTUDIO_GEM_VERSION.tar.gz \
     && tar zxvf honeybee-openstudio-gem.tar.gz \
