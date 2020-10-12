@@ -31,7 +31,7 @@ class People(_LoadBase):
             the people_per_area to yield a complete occupancy profile.
         activity_schedule: A ScheduleRuleset or ScheduleFixedInterval for the
             activity of the occupants over the course of the year. The type of
-            this schedule should be Power and the values of the schedule equal
+            this schedule should be ActivityLevel and the values of the schedule equal
             to the number of Watts given off by an individual person in the room.
             If None, it will a default constant schedule with 120 Watts per person
             will be used, which is typical of awake, adult humans who are seated.
@@ -358,9 +358,9 @@ class People(_LoadBase):
     def _check_activity_schedule_type(self, schedule):
         """Check that the type limit of an input schedule is fractional."""
         if schedule.schedule_type_limit is not None:
-            assert schedule.schedule_type_limit.unit == 'W', 'Activity schedule ' \
-                'should be in Watts [ActivityLevel]. Got a schedule of unit_type ' \
-                '[{}].'.format(schedule.schedule_type_limit.unit_type)
+            assert schedule.schedule_type_limit.unit_type == 'ActivityLevel', 'Activity' \
+                ' schedule must have a unit type of ActivityLevel. Got a schedule' \
+                ' of unit type [{}].'.format(schedule.schedule_type_limit.unit_type)
 
     @staticmethod
     def _optional_dict_keys(data):
