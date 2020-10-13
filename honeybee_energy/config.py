@@ -433,6 +433,7 @@ class Folders(object):
         base_str = str(stdout[0]).replace("b'", '').replace(r"\r\n'", '')
         self._openstudio_version_str = base_str
         ver_nums = self._openstudio_version_str.split('+')[0].split('.')
+        ver_nums[-1] = ver_nums[-1].split('-')[0] if '-' in ver_nums[-1] else ver_nums[-1]
         try:
             self._openstudio_version = tuple(int(i) for i in ver_nums)
         except Exception:
