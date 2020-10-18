@@ -1,0 +1,70 @@
+{
+   "completed_at" : "20201017T221435Z",
+   "completed_status" : "Fail",
+   "current_step" : 1,
+   "file_paths" : 
+   [
+      "C:/Users/chris/simulation/ShoeBox0.4/OpenStudio/generated_files",
+      "./files",
+      "./weather",
+      "../../files",
+      "../../weather",
+      "./"
+   ],
+   "hash" : "AE89F1C3",
+   "measure_paths" : 
+   [
+      "C:\\Users\\chris\\ladybug_tools\\resources\\measures\\honeybee_openstudio_gem\\lib\\measures"
+   ],
+   "started_at" : "20201017T221430Z",
+   "steps" : 
+   [
+      {
+         "arguments" : 
+         {
+            "model_json" : "C:\\Users\\chris\\simulation\\ShoeBox0.4\\OpenStudio\\ShoeBox0.4.hbjson"
+         },
+         "measure_dir_name" : "from_honeybee_model",
+         "result" : 
+         {
+            "completed_at" : "20201017T221435Z",
+            "measure_class_name" : "FromHoneybeeModel",
+            "measure_display_name" : "From Honeybee Model",
+            "measure_name" : "from_honeybee_model",
+            "measure_taxonomy" : "Whole Building.Space Types",
+            "measure_type" : "ModelMeasure",
+            "measure_uid" : "a5f500d5-97ff-4048-a6f4-6b0b0a92d0f0",
+            "measure_version_id" : "ad76277e-d175-4f0d-a667-936d3aa65420",
+            "measure_version_modified" : "20190315T212648Z",
+            "measure_xml_checksum" : "D8922A73",
+            "started_at" : "20201017T221435Z",
+            "stderr" : "",
+            "stdout" : "[utilities.Plane] <2> Cannot compute plane for points [[0.005, 0, 0.003], [0.005, 0, 0], [0.005, 0.01, 0], [0.005, 0.01, 0.003]]\n[openstudio.model.PlanarSurface] <1> Could not compute plane for vertices for 'Surface 1'.\n[openstudio.model.Surface] <1> Cannot compute default Surface properties.\n[openstudio.model.PlanarSurface] <2> Cannot create a surface with vertices [[0.005, 0, 0.003], [0.005, 0, 0], [0.005, 0.01, 0], [0.005, 0.01, 0.003]]\n",
+            "step_errors" : 
+            [
+               "C:\\Users\\jenkins\\git\\OpenStudio\\src\\model\\PlanarSurface.cpp@657 : Cannot create a surface with vertices [[0.005, 0, 0.003], [0.005, 0, 0], [0.005, 0.01, 0], [0.005, 0.01, 0.003]]\n\tC:/Users/chris/ladybug_tools/resources/measures/honeybee_openstudio_gem/lib/from_honeybee/geometry/face.rb:71:in `initialize'\n\tC:/Users/chris/ladybug_tools/resources/measures/honeybee_openstudio_gem/lib/from_honeybee/geometry/face.rb:71:in `new'\n\tC:/Users/chris/ladybug_tools/resources/measures/honeybee_openstudio_gem/lib/from_honeybee/geometry/face.rb:71:in `to_openstudio'\n\tC:/Users/chris/ladybug_tools/resources/measures/honeybee_openstudio_gem/lib/from_honeybee/geometry/room.rb:128:in `block in to_openstudio'\n\tC:/Users/chris/ladybug_tools/resources/measures/honeybee_openstudio_gem/lib/from_honeybee/geometry/room.rb:126:in `each'\n\tC:/Users/chris/ladybug_tools/resources/measures/honeybee_openstudio_gem/lib/from_honeybee/geometry/room.rb:126:in `to_openstudio'\n\tC:/Users/chris/ladybug_tools/resources/measures/honeybee_openstudio_gem/lib/from_honeybee/model.rb:452:in `block in create_rooms'\n\tC:/Users/chris/ladybug_tools/resources/measures/honeybee_openstudio_gem/lib/from_honeybee/model.rb:450:in `each'\n\tC:/Users/chris/ladybug_tools/resources/measures/honeybee_openstudio_gem/lib/from_honeybee/model.rb:450:in `create_rooms'\n\tC:/Users/chris/ladybug_tools/resources/measures/honeybee_openstudio_gem/lib/from_honeybee/model.rb:231:in `create_openstudio_objects'\n\tC:/Users/chris/ladybug_tools/resources/measures/honeybee_openstudio_gem/lib/from_honeybee/model.rb:147:in `to_openstudio_model'\n\tC:/Users/chris/ladybug_tools/resources/measures/honeybee_openstudio_gem/lib/measures/from_honeybee_model/measure.rb:84:in `run'\n\t:/ruby/2.5.0/gems/openstudio-workflow-2.0.0/lib/openstudio/workflow/util/measure.rb:510:in `apply_measure'\n\t:/ruby/2.5.0/gems/openstudio-workflow-2.0.0/lib/openstudio/workflow/util/measure.rb:109:in `block in apply_measures'\n\t:/ruby/2.5.0/gems/openstudio-workflow-2.0.0/lib/openstudio/workflow/util/measure.rb:67:in `each_index'\n\t:/ruby/2.5.0/gems/openstudio-workflow-2.0.0/lib/openstudio/workflow/util/measure.rb:67:in `apply_measures'\n\t:/ruby/2.5.0/gems/openstudio-workflow-2.0.0/lib/openstudio/workflow/jobs/run_os_measures.rb:70:in `perform'\n\t:/ruby/2.5.0/gems/openstudio-workflow-2.0.0/lib/openstudio/workflow/run.rb:292:in `step'\n\t:/ruby/2.5.0/gems/openstudio-workflow-2.0.0/lib/openstudio/workflow/run.rb:234:in `run'\n\t:/openstudio_cli.rb:960:in `execute'\n\t:/openstudio_cli.rb:750:in `execute'\n\t:/openstudio_cli.rb:1744:in `<main>'\n\teval:174:in `eval'\n\teval:174:in `require_embedded_absolute'\n\teval:160:in `block in require_embedded'\n\teval:154:in `each'\n\teval:154:in `require_embedded'\n\teval:113:in `require'\n\teval:3:in `<main>'"
+            ],
+            "step_files" : [],
+            "step_info" : [],
+            "step_result" : "Fail",
+            "step_values" : 
+            [
+               {
+                  "name" : "model_json",
+                  "value" : "C:\\Users\\chris\\simulation\\ShoeBox0.4\\OpenStudio\\ShoeBox0.4.hbjson"
+               }
+            ],
+            "step_warnings" : []
+         }
+      },
+      {
+         "arguments" : 
+         {
+            "simulation_parameter_json" : "C:\\Users\\chris\\simulation\\ShoeBox0.4\\OpenStudio\\simulation_parameter.json"
+         },
+         "measure_dir_name" : "from_honeybee_simulation_parameter"
+      }
+   ],
+   "updated_at" : "20201017T221435Z",
+   "weather_file" : "C:\\Users\\chris\\ladybug_tools\\resources\\weather\\USA_MA_Boston-Logan.Intl.AP.725090_TMY3\\USA_MA_Boston-Logan.Intl.AP.725090_TMY3.epw"
+}

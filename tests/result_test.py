@@ -3,6 +3,7 @@ from honeybee_energy.result.sql import SQLiteResult, ZoneSize, ComponentSize
 from honeybee_energy.result.rdd import RDD
 from honeybee_energy.result.zsz import ZSZ
 from honeybee_energy.result.err import Err
+from honeybee_energy.result.osw import OSW
 
 from ladybug.datatype.energy import Energy
 from ladybug.datatype.temperature import Temperature
@@ -389,3 +390,18 @@ def test_zsz_init():
         assert isinstance(size_obj.header.metadata['Zone'], str)
         assert isinstance(size_obj.header.data_type, MassFlowRate)
         assert size_obj.header.unit == 'kg/s'
+
+
+def test_osw():
+    """Test the initialization of osw files with errors."""
+    err_path = './tests/result/out.osw'
+    osw_obj = OSW(err_path)
+    str(osw_obj)  # test the string representation
+
+    assert isinstance(osw_obj.file_path, str)
+    assert isinstance(osw_obj.file_dict, dict)
+    assert len(osw_obj.stdout) == 1
+    assert len(osw_obj.warnings) == 0
+    assert len(osw_obj.errors) == 1
+    assert len(osw_obj.error_tracebacks) == 1
+    assert 'Cannot create a surface with vertices' in osw_obj.stdout[0]

@@ -7,6 +7,7 @@ except ImportError:
         'click is not installed. Try `pip install . [cli]` command.'
     )
 
+from ladybug.futil import preparedir
 from honeybee.model import Model
 
 from honeybee_energy.simulation.parameter import SimulationParameter
@@ -19,7 +20,6 @@ from honeybee_energy.run import measure_compatible_model_json, to_openstudio_osw
     run_osw
 from honeybee_energy.writer import energyplus_idf_version
 from honeybee_energy.config import folders
-from ladybug.futil import preparedir
 
 import sys
 import os
@@ -37,25 +37,28 @@ def translate():
 @translate.command('model-to-osm')
 @click.argument('model-json', type=click.Path(
     exists=True, file_okay=True, dir_okay=False, resolve_path=True))
-@click.option('--sim-par-json', help='Full path to a honeybee energy SimulationParameter'
-              ' JSON that describes all of the settings for the simulation. If None '
-              'default parameters will be generated.', default=None, show_default=True,
+@click.option('--sim-par-json', '-sp', help='Full path to a honeybee energy '
+              'SimulationParameter JSON that describes all of the settings for '
+              'the simulation. If None default parameters will be generated.',
+              default=None, show_default=True,
               type=click.Path(exists=True, file_okay=True, dir_okay=False, resolve_path=True))
-@click.option('--folder', help='Folder on this computer, into which the OSM and IDF '
-              'files will be written. If None, the files will be output in the'
+@click.option('--folder', '-f', help='Folder on this computer, into which the OSM '
+              'and IDF files will be written. If None, the files will be output in the'
               'same location as the model_json.', default=None, show_default=True,
               type=click.Path(file_okay=False, dir_okay=True, resolve_path=True))
-@click.option('--check-model/--bypass-check', help='Flag to note whether the Model '
-              'should be re-serialized to Python and checked before it is translated '
-              'to .osm. The check is not needed if the model-json was expored directly '
-              'from the honeybee-energy Python library.', default=True, show_default=True)
-@click.option('--log-file', help='Optional log file to output the paths to the '
+@click.option('--check-model/--bypass-check', ' /-bc', help='Flag to note whether the '
+              'Model should be re-serialized to Python and checked before it is '
+              'translated to .osm. The check is not needed if the model-json was '
+              'expored directly from the honeybee-energy Python library.',
+              default=True, show_default=True)
+@click.option('--log-file', '-log', help='Optional log file to output the paths to the '
               'generated OSM and IDF files if they were successfully created. '
               'By default this will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
 def model_to_osm(model_json, sim_par_json, folder, check_model, log_file):
     """Translate a Model JSON file into an OpenStudio Model and corresponding IDF.
-    \n
+
+    \b
     Args:
         model_json: Full path to a Model JSON file.
     """
@@ -102,21 +105,23 @@ def model_to_osm(model_json, sim_par_json, folder, check_model, log_file):
 @translate.command('model-to-idf')
 @click.argument('model-json', type=click.Path(
     exists=True, file_okay=True, dir_okay=False, resolve_path=True))
-@click.option('--sim-par-json', help='Full path to a honeybee energy SimulationParameter'
-              ' JSON that describes all of the settings for the simulation. If None '
-              'default parameters will be generated.', default=None, show_default=True,
+@click.option('--sim-par-json', '-sp', help='Full path to a honeybee energy '
+              'SimulationParameter JSON that describes all of the settings for the '
+              'simulation. If None default parameters will be generated.',
+              default=None, show_default=True,
               type=click.Path(exists=True, file_okay=True, dir_okay=False, resolve_path=True))
-@click.option('--additional-str', help='Text string for additional lines that '
+@click.option('--additional-str', '-a', help='Text string for additional lines that '
               'should be added to the IDF.', type=str, default='', show_default=True)
-@click.option('--output-file', help='Optional IDF file to output the IDF string of the '
+@click.option('--output-file', '-f', help='Optional IDF file to output the IDF string of the '
               'translation. By default this will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
 def model_to_idf(model_json, sim_par_json, additional_str, output_file):
     """Translate a Model JSON file to an IDF using direct-to-idf translators.
-    \n
+
     If the model contains a feature that is not translate-able through direct-to-idf
     translators, an exception will be raised.
-    \n
+
+    \b
     Args:
         model_json: Full path to a Model JSON file.
     """
@@ -143,7 +148,7 @@ def model_to_idf(model_json, sim_par_json, additional_str, output_file):
 
         # create the strings for simulation paramters and model
         ver_str = energyplus_idf_version() if folders.energyplus_version \
-            is not None else energyplus_idf_version((9, 3, 0))
+            is not None else ''
         sim_par_str = sim_par.to_idf()
         model_str = model.to.idf(model, schedule_directory=sch_directory)
         idf_str = '\n\n'.join([ver_str, sim_par_str, model_str, additional_str])
@@ -160,12 +165,13 @@ def model_to_idf(model_json, sim_par_json, additional_str, output_file):
 @translate.command('constructions-to-idf')
 @click.argument('construction-json', type=click.Path(
     exists=True, file_okay=True, dir_okay=False, resolve_path=True))
-@click.option('--output-file', help='Optional IDF file to output the IDF string of the '
-              'translation. By default this will be printed out to stdout',
+@click.option('--output-file', '-f', help='Optional IDF file to output the IDF string '
+              'of the translation. By default this will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
 def construction_to_idf(construction_json, output_file):
     """Translate a Construction JSON file to an IDF using direct-to-idf translators.
-    \n
+
+    \b
     Args:
         construction_json: Full path to a Construction JSON file. This file should
             either be an array of non-abridged Constructions or a dictionary where
@@ -202,12 +208,13 @@ def construction_to_idf(construction_json, output_file):
 @translate.command('constructions-from-idf')
 @click.argument('construction-idf', type=click.Path(
     exists=True, file_okay=True, dir_okay=False, resolve_path=True))
-@click.option('--output-file', help='Optional JSON file to output the JSON string of the'
-              'translation. By default this will be printed out to stdout',
+@click.option('--output-file', '-f', help='Optional JSON file to output the JSON '
+              'string of the translation. By default this will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
 def construction_from_idf(construction_idf, output_file):
     """Translate a Construction IDF file to a honeybee JSON as an array of constructions.
-    \n
+
+    \b
     Args:
         construction_idf: Full path to a Construction IDF file. Only the constructions
             and materials in this file will be extracted.
@@ -236,12 +243,13 @@ def construction_from_idf(construction_idf, output_file):
 @translate.command('schedules-to-idf')
 @click.argument('schedule-json', type=click.Path(
     exists=True, file_okay=True, dir_okay=False, resolve_path=True))
-@click.option('--output-file', help='Optional IDF file to output the IDF string of the '
-              'translation. By default this will be printed out to stdout',
+@click.option('--output-file', '-f', help='Optional IDF file to output the IDF '
+              'string of the translation. By default this will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
 def schedule_to_idf(schedule_json, output_file):
     """Translate a Schedule JSON file to an IDF using direct-to-idf translators.
-    \n
+
+    \b
     Args:
         schedule_json: Full path to a Schedule JSON file. This file should
             either be an array of non-abridged Schedules or a dictionary where
@@ -299,12 +307,13 @@ def schedule_to_idf(schedule_json, output_file):
 @translate.command('schedules-from-idf')
 @click.argument('schedule-idf', type=click.Path(
     exists=True, file_okay=True, dir_okay=False, resolve_path=True))
-@click.option('--output-file', help='Optional JSON file to output the JSON string of the'
-              'translation. By default this will be printed out to stdout',
+@click.option('--output-file', '-f', help='Optional JSON file to output the JSON '
+              'string of the translation. By default this will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
 def schedule_from_idf(schedule_idf, output_file):
     """Translate a schedule IDF file to a honeybee JSON as an array of schedules.
-    \n
+
+    \b
     Args:
         schedule_idf: Full path to a Schedule IDF file. Only the schedules
             and schedule type limits in this file will be extracted.
