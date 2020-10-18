@@ -269,3 +269,38 @@ def test_run_idf_window_ventilation():
     assert os.path.isfile(err)
     err_obj = Err(err)
     assert 'EnergyPlus Completed Successfully' in err_obj.file_contents
+
+
+def test_run_idf_5vertex():
+    """Test the run_idf methods with 5-vertex apertures."""
+    # Get input Model
+    input_hb_model = './tests/json/model_colinear_verts.json'
+    with open(input_hb_model) as json_file:
+        data = json.load(json_file)
+    model = Model.from_dict(data)
+
+    # Get the input SimulationParameter
+    sim_par = SimulationParameter()
+    sim_par.output.add_zone_energy_use()
+    ddy_file = './tests/ddy/chicago.ddy'
+    sim_par.sizing_parameter.add_from_ddy_996_004(ddy_file)
+    sim_par.run_period.end_date = Date(1, 7)
+
+    # create the IDF string for simulation paramters and model
+    idf_str = '\n\n'.join((sim_par.to_idf(), model.to.idf(model)))
+
+    # write the final string into an IDF
+    idf = os.path.join(folders.default_simulation_folder, 'test_file_5verts', 'in.idf')
+    write_to_file(idf, idf_str, True)
+
+    # prepare the IDF for simulation
+    epw_file = './tests/simulation/chicago.epw'
+    prepare_idf_for_simulation(idf, epw_file)
+
+    # run the IDF through EnergyPlus
+    sql, zsz, rdd, html, err = run_idf(idf, epw_file)
+
+    assert os.path.isfile(sql)
+    assert os.path.isfile(err)
+    err_obj = Err(err)
+    assert 'EnergyPlus Completed Successfully' in err_obj.file_contents

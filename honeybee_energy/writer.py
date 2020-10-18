@@ -509,17 +509,29 @@ def model_to_idf(model, schedule_directory=None):
                 adj_room = face.boundary_condition.boundary_condition_objects[-1]
                 model_str.append(air_constr.to_air_mixing_idf(face, adj_room))
             for ap in face.apertures:
-                model_str.append(ap.to.idf(ap))
+                if len(ap.geometry) <= 4:  # ignore apertures to be triangulated
+                    model_str.append(ap.to.idf(ap))
                 for shade in ap.outdoor_shades:
                     model_str.append(shade.to.idf(shade))
             for dr in face.doors:
-                model_str.append(dr.to.idf(dr))
+                if len(dr.geometry) <= 4:  # ignore doors to be triangulated
+                    model_str.append(dr.to.idf(dr))
                 for shade in dr.outdoor_shades:
                     model_str.append(shade.to.idf(shade))
             for shade in face.outdoor_shades:
                 model_str.append(shade.to.idf(shade))
         for shade in room.outdoor_shades:
             model_str.append(shade.to.idf(shade))
+
+    # triangulate any apertures or doors with more than 4 vertices
+    tri_apertures, parents_to_edit = model.triangulated_apertures()
+    for tri_aps in tri_apertures:
+        for ap in tri_aps:
+            model_str.append(ap.to.idf(ap))
+    tri_doors, parents_to_edit = model.triangulated_doors()
+    for tri_drs in tri_doors:
+        for dr in tri_drs:
+            model_str.append(dr.to.idf(dr))
 
     # write all context shade geometry
     model_str.append('!-   ========== CONTEXT GEOMETRY ==========\n')
