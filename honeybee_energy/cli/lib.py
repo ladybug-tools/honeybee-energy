@@ -32,7 +32,7 @@ def lib():
 
 
 @lib.command('opaque-materials')
-@click.option('--output-file', help='Optional file to output the JSON string of '
+@click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the object. By default, it will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
 def opaque_materials(output_file):
@@ -47,7 +47,7 @@ def opaque_materials(output_file):
 
 
 @lib.command('window-materials')
-@click.option('--output-file', help='Optional file to output the JSON string of '
+@click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the object. By default, it will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
 def window_materials(output_file):
@@ -62,7 +62,7 @@ def window_materials(output_file):
 
 
 @lib.command('opaque-constructions')
-@click.option('--output-file', help='Optional file to output the JSON string of '
+@click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the object. By default, it will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
 def opaque_constructions(output_file):
@@ -77,7 +77,7 @@ def opaque_constructions(output_file):
 
 
 @lib.command('window-constructions')
-@click.option('--output-file', help='Optional file to output the JSON string of '
+@click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the object. By default, it will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
 def window_constructions(output_file):
@@ -92,7 +92,7 @@ def window_constructions(output_file):
 
 
 @lib.command('shade-constructions')
-@click.option('--output-file', help='Optional file to output the JSON string of '
+@click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the object. By default, it will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
 def shade_constructions(output_file):
@@ -107,7 +107,7 @@ def shade_constructions(output_file):
 
 
 @lib.command('construction-sets')
-@click.option('--output-file', help='Optional file to output the JSON string of '
+@click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the object. By default, it will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
 def construction_sets(output_file):
@@ -122,7 +122,7 @@ def construction_sets(output_file):
 
 
 @lib.command('schedule-type-limits')
-@click.option('--output-file', help='Optional file to output the JSON string of '
+@click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the object. By default, it will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
 def schedule_type_limits(output_file):
@@ -137,7 +137,7 @@ def schedule_type_limits(output_file):
 
 
 @lib.command('schedules')
-@click.option('--output-file', help='Optional file to output the JSON string of '
+@click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the object. By default, it will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
 def schedules(output_file):
@@ -152,7 +152,7 @@ def schedules(output_file):
 
 
 @lib.command('program-types')
-@click.option('--output-file', help='Optional file to output the JSON string of '
+@click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the object. By default, it will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
 def program_types(output_file):
@@ -168,12 +168,13 @@ def program_types(output_file):
 
 @lib.command('opaque-material-by-id')
 @click.argument('material-id', type=str)
-@click.option('--output-file', help='Optional file to output the JSON string of '
+@click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the object. By default, it will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
 def opaque_material_by_id(material_id, output_file):
     """Get an opaque material definition from the standards lib with its identifier.
-    \n
+
+    \b
     Args:
         material_id: The identifier of an opaque material in the library.
     """
@@ -189,12 +190,13 @@ def opaque_material_by_id(material_id, output_file):
 
 @lib.command('window-material-by-id')
 @click.argument('material-id', type=str)
-@click.option('--output-file', help='Optional file to output the JSON string of '
+@click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the object. By default, it will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
 def window_material_by_id(material_id, output_file):
     """Get a window material definition from the standards lib with its identifier.
-    \n
+
+    \b
     Args:
         material_id: The identifier of an window material in the library.
     """
@@ -210,18 +212,20 @@ def window_material_by_id(material_id, output_file):
 
 @lib.command('opaque-construction-by-id')
 @click.argument('construction-id', type=str)
-@click.option('--abridged', help='Optional boolean to note wether an abridged '
-              'defintion should be returned.', type=bool, default=False)
-@click.option('--output-file', help='Optional file to output the JSON string of '
+@click.option('--complete/--abridged', ' /-a', help='Flag to note wether an abridged '
+              'defintion should be returned.', type=bool, default=True)
+@click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the object. By default, it will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
-def opaque_construction_by_id(construction_id, abridged, output_file):
+def opaque_construction_by_id(construction_id, complete, output_file):
     """Get an opaque construction definition from the standards lib with its identifier.
-    \n
+
+    \b
     Args:
         construction_id: The identifier of an opaque construction in the library.
     """
     try:
+        abridged = not complete
         output_file.write(json.dumps(opaque_construction_by_identifier(
             construction_id).to_dict(abridged=abridged)))
     except Exception as e:
@@ -234,18 +238,20 @@ def opaque_construction_by_id(construction_id, abridged, output_file):
 
 @lib.command('window-construction-by-id')
 @click.argument('construction-id', type=str)
-@click.option('--abridged', help='Optional boolean to note wether an abridged '
-              'defintion should be returned.', type=bool, default=False)
-@click.option('--output-file', help='Optional file to output the JSON string of '
+@click.option('--complete/--abridged', ' /-a', help='Flag to note wether an abridged '
+              'defintion should be returned.', type=bool, default=True)
+@click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the object. By default, it will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
-def window_construction_by_id(construction_id, abridged, output_file):
+def window_construction_by_id(construction_id, complete, output_file):
     """Get a window construction definition from the standards lib with its identifier.
-    \n
+
+    \b
     Args:
         construction_id: The identifier of a window construction in the library.
     """
     try:
+        abridged = not complete
         output_file.write(json.dumps(window_construction_by_identifier(
             construction_id).to_dict(abridged=abridged)))
     except Exception as e:
@@ -258,12 +264,13 @@ def window_construction_by_id(construction_id, abridged, output_file):
 
 @lib.command('shade-construction-by-id')
 @click.argument('construction-id', type=str)
-@click.option('--output-file', help='Optional file to output the JSON string of '
+@click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the object. By default, it will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
 def shade_construction_by_id(construction_id, output_file):
     """Get a shade construction definition from the standards lib with its identifier.
-    \n
+
+    \b
     Args:
         construction_id: The identifier of a shade construction in the library.
     """
@@ -280,21 +287,24 @@ def shade_construction_by_id(construction_id, output_file):
 
 @lib.command('construction-set-by-id')
 @click.argument('construction-set-id', type=str)
-@click.option('--none-defaults', help='Boolean to note whether default constructions '
-              'in the set should be included in detail (False) or should be None '
-              '(True).', type=bool, default=True, show_default=True)
-@click.option('--abridged', help='Optional boolean to note wether an abridged definition'
-              ' should be returned.', type=bool, default=False, show_default=True)
-@click.option('--output-file', help='Optional file to output the JSON string of '
+@click.option('--none-defaults/--include-defaults', ' /-d', help='Flag to note whether '
+              'default constructions in the set should be included in or should be '
+              'None.', type=bool, default=True, show_default=True)
+@click.option('--complete/--abridged', ' /-a', help='Flag to note wether an abridged '
+              'definition should be returned.',
+              type=bool, default=True, show_default=True)
+@click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the object. By default, it will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
-def construction_set_by_id(construction_set_id, none_defaults, abridged, output_file):
+def construction_set_by_id(construction_set_id, none_defaults, complete, output_file):
     """Get a construction set definition from the standards lib with its identifier.
-    \n
+
+    \b
     Args:
         construction_set_id: The identifier of a construction set in the library.
     """
     try:
+        abridged = not complete
         c_set = construction_set_by_identifier(construction_set_id)
         output_file.write(json.dumps(c_set.to_dict(
             none_for_defaults=none_defaults, abridged=abridged)))
@@ -308,12 +318,13 @@ def construction_set_by_id(construction_set_id, none_defaults, abridged, output_
 
 @lib.command('schedule-type-limit-by-id')
 @click.argument('schedule-type-limit-id', type=str)
-@click.option('--output-file', help='Optional file to output the JSON string of '
+@click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the object. By default, it will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
 def schedule_type_limit_by_id(schedule_type_limit_id, output_file):
     """Get a schedule type limit definition from the standards lib with its identifier.
-    \n
+
+    \b
     Args:
         schedule_type_limit_id: The identifier of a schedule type limit in the library.
     """
@@ -330,18 +341,21 @@ def schedule_type_limit_by_id(schedule_type_limit_id, output_file):
 
 @lib.command('schedule-by-id')
 @click.argument('schedule-id', type=str)
-@click.option('--abridged', help='Optional boolean to note wether an abridged definition'
-              ' should be returned.', type=bool, default=False, show_default=True)
-@click.option('--output-file', help='Optional file to output the JSON string of '
+@click.option('--complete/--abridged', ' /-a', help='Flag to note wether an abridged '
+              'definition should be returned.',
+              type=bool, default=True, show_default=True)
+@click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the object. By default, it will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
-def schedule_by_id(schedule_id, abridged, output_file):
+def schedule_by_id(schedule_id, complete, output_file):
     """Get a schedule definition from the standards lib with its identifier.
-    \n
+
+    \b
     Args:
         schedule_id: The identifier of a schedule in the library.
     """
     try:
+        abridged = not complete
         output_file.write(json.dumps(schedule_by_identifier(
             schedule_id).to_dict(abridged=abridged)))
     except Exception as e:
@@ -353,18 +367,21 @@ def schedule_by_id(schedule_id, abridged, output_file):
 
 @lib.command('program-type-by-id')
 @click.argument('program-type-id', type=str)
-@click.option('--abridged', help='Optional boolean to note wether an abridged definition'
-              ' should be returned.', type=bool, default=False, show_default=True)
-@click.option('--output-file', help='Optional file to output the JSON string of '
+@click.option('--complete/--abridged', ' /-a', help='Flag to note wether an abridged '
+              'definition should be returned.',
+              type=bool, default=True, show_default=True)
+@click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the object. By default, it will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
-def program_type_by_id(program_type_id, abridged, output_file):
+def program_type_by_id(program_type_id, complete, output_file):
     """Get a program type definition from the standards lib with its identifier.
-    \n
+
+    \b
     Args:
         program_type_id: The identifier of a program type in the library.
     """
     try:
+        abridged = not complete
         output_file.write(json.dumps(program_type_by_identifier(
             program_type_id).to_dict(abridged=abridged)))
     except Exception as e:
@@ -376,14 +393,16 @@ def program_type_by_id(program_type_id, abridged, output_file):
 
 @lib.command('materials-by-id')
 @click.argument('material-ids', nargs=-1)
-@click.option('--output-file', help='Optional file to output the JSON strings of '
+@click.option('--output-file', '-f', help='Optional file to output the JSON strings of '
               'the objects. By default, it will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
 def materials_by_id(material_ids, output_file):
     """Get several material definitions from the standards lib at once.
-    \n
+
+    \b
     Args:
-        material_ids: A list of material identifiers to be retrieved from the library.
+        material_ids: Any number of material identifiers to be retrieved from
+            the library.
     """
     try:
         mats = []
@@ -403,19 +422,22 @@ def materials_by_id(material_ids, output_file):
 
 @lib.command('constructions-by-id')
 @click.argument('construction-ids', nargs=-1)
-@click.option('--abridged', help='Optional boolean to note wether an abridged definition'
-              ' should be returned.', type=bool, default=False, show_default=True)
-@click.option('--output-file', help='Optional file to output the JSON strings of '
+@click.option('--complete/--abridged', ' /-a', help='Flag to note wether an abridged '
+              'definition should be returned.',
+              type=bool, default=True, show_default=True)
+@click.option('--output-file', '-f', help='Optional file to output the JSON strings of '
               'the objects. By default, it will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
-def constructions_by_id(construction_ids, abridged, output_file):
+def constructions_by_id(construction_ids, complete, output_file):
     """Get several construction definitions from the standards lib at once.
-    \n
+
+    \b
     Args:
-        construction_ids: A list of construction identifiers to be retrieved
+        construction_ids: Any number of construction identifiers to be retrieved
             from the library.
     """
     try:
+        abridged = not complete
         cons = []
         for con_id in construction_ids:
             try:
@@ -438,22 +460,25 @@ def constructions_by_id(construction_ids, abridged, output_file):
 
 @lib.command('construction-sets-by-id')
 @click.argument('construction-set-ids', nargs=-1)
-@click.option('--none-defaults', help='Boolean to note whether default constructions '
-              'in the set should be included in detail (False) or should be None '
-              '(True).', type=bool, default=True, show_default=True)
-@click.option('--abridged', help='Optional boolean to note wether an abridged definition'
-              ' should be returned.', type=bool, default=False, show_default=True)
-@click.option('--output-file', help='Optional file to output the JSON string of '
+@click.option('--none-defaults/--include-defaults', ' /-d', help='Flag to note whether '
+              'default constructions in the set should be included in detail or should '
+              'be None.', type=bool, default=True, show_default=True)
+@click.option('--complete/--abridged', ' /-a', help='Flag to note wether an abridged '
+              'definition should be returned.',
+              type=bool, default=True, show_default=True)
+@click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the object. By default, it will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
-def construction_sets_by_id(construction_set_ids, none_defaults, abridged, output_file):
+def construction_sets_by_id(construction_set_ids, none_defaults, complete, output_file):
     """Get several construction set definitions from the standards lib at once.
-    \n
+
+    \b
     Args:
-        construction_set_ids: A list of construction set identifiers to be retrieved
+        construction_set_ids: Any number of construction set identifiers to be retrieved
             from the library.
     """
     try:
+        abridged = not complete
         cons = []
         for con_id in construction_set_ids:
             cons.append(construction_set_by_identifier(con_id))
@@ -469,14 +494,15 @@ def construction_sets_by_id(construction_set_ids, none_defaults, abridged, outpu
 
 @lib.command('schedule-type-limits-by-id')
 @click.argument('schedule-type-limit-ids', nargs=-1)
-@click.option('--output-file', help='Optional file to output the JSON strings of '
+@click.option('--output-file', '-f', help='Optional file to output the JSON strings of '
               'the objects. By default, it will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
 def schedule_type_limits_by_id(schedule_type_limit_ids, output_file):
     """Get several schedule type limit definitions from the standards lib at once.
-    \n
+
+    \b
     Args:
-        schedule_type_limit_ids: A list of schedule type limit identifiers to be
+        schedule_type_limit_ids: Any number of schedule type limit identifiers to be
             retrieved from the library.
     """
     try:
@@ -494,18 +520,22 @@ def schedule_type_limits_by_id(schedule_type_limit_ids, output_file):
 
 @lib.command('schedules-by-id')
 @click.argument('schedule-ids', nargs=-1)
-@click.option('--abridged', help='Optional boolean to note wether an abridged definition'
-              ' should be returned.', type=bool, default=False, show_default=True)
-@click.option('--output-file', help='Optional file to output the JSON strings of '
+@click.option('--complete/--abridged', ' /-a', help='Flag to note wether an abridged '
+              'definition should be returned.',
+              type=bool, default=True, show_default=True)
+@click.option('--output-file', '-f', help='Optional file to output the JSON strings of '
               'the objects. By default, it will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
-def schedules_by_id(schedule_ids, abridged, output_file):
+def schedules_by_id(schedule_ids, complete, output_file):
     """Get several schedule definitions from the standards lib at once.
-    \n
+
+    \b
     Args:
-        schedule_ids: A list of schedule identifiers to be retrieved from the library.
+        schedule_ids: Any number of schedule identifiers to be retrieved from
+            the library.
     """
     try:
+        abridged = not complete
         schs = []
         for sch_id in schedule_ids:
             schs.append(schedule_by_identifier(sch_id))
@@ -519,19 +549,22 @@ def schedules_by_id(schedule_ids, abridged, output_file):
 
 @lib.command('program-types-by-id')
 @click.argument('program-type-ids', nargs=-1)
-@click.option('--abridged', help='Optional boolean to note wether an abridged definition'
-              ' should be returned.', type=bool, default=False, show_default=True)
-@click.option('--output-file', help='Optional file to output the JSON strings of '
+@click.option('--complete/--abridged', ' /-a', help='Flag to note wether an abridged '
+              'definition should be returned.',
+              type=bool, default=True, show_default=True)
+@click.option('--output-file', '-f', help='Optional file to output the JSON strings of '
               'the objects. By default, it will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
-def program_types_by_id(program_type_ids, abridged, output_file):
+def program_types_by_id(program_type_ids, complete, output_file):
     """Get several program type definitions from the standards lib at once.
-    \n
+
+    \b
     Args:
-        program_type_ids: A list of program type identifiers to be retrieved
+        program_type_ids: Any number of program type identifiers to be retrieved
             from the library.
     """
     try:
+        abridged = not complete
         prgs = []
         for prg_id in program_type_ids:
             prgs.append(program_type_by_identifier(prg_id))

@@ -37,16 +37,17 @@ def baseline():
 @baseline.command('geometry-2004')
 @click.argument('model-json', type=click.Path(
     exists=True, file_okay=True, dir_okay=False, resolve_path=True))
-@click.option('--output-file', help='Optional hbjson file to output the JSON string '
-              'of the converted model. By default this will be printed out to stdout',
-              type=click.File('w'), default='-', show_default=True)
+@click.option('--output-file', '-f', help='Optional hbjson file to output the JSON '
+              'string of the converted model. By default this will be printed out to '
+              'stdout', type=click.File('w'), default='-', show_default=True)
 def geometry_2004(model_json, output_file):
     """Convert a Model's geometry to be conformant with ASHRAE 90.1-2004 appendix G.
-    \n
+
     This includes stripping out all child shades (leaving orphaned shade as context),
     reducing the vertical glazing ratio to 40% it it's above this value, and
     reducing the skylight ratio to 5% of it's above this value.
-    \n
+
+    \b
     Args:
         model_json: Full path to a Model JSON file.
     """
@@ -95,17 +96,18 @@ def geometry_2004(model_json, output_file):
 @click.argument('model-json', type=click.Path(
     exists=True, file_okay=True, dir_okay=False, resolve_path=True))
 @click.argument('climate-zone', type=str)
-@click.option('--output-file', help='Optional hbjson file to output the JSON string '
-              'of the converted model. By default this will be printed out to stdout',
-              type=click.File('w'), default='-', show_default=True)
+@click.option('--output-file', '-f', help='Optional hbjson file to output the JSON '
+              'string of the converted model. By default this will be printed out '
+              'to stdout', type=click.File('w'), default='-', show_default=True)
 def constructions_2004(model_json, climate_zone, output_file):
     """Convert a Model's constructions to be conformant with ASHRAE 90.1-2004 appendix G.
-    \n
+
     This includes assigning a ConstructionSet that is compliant with Table 5.5 to
     all rooms in the model.
-    \n
+
+    \b
     Args:
-        model_json: Full path to a Model JSON file.\n
+        model_json: Full path to a Model JSON file.
         climate_zone: Text indicating the ASHRAE climate zone. This can be a single
             integer (in which case it is interpreted as A) or it can include the
             A, B, or C qualifier (eg. 3C).
@@ -180,17 +182,18 @@ def constructions_2004(model_json, climate_zone, output_file):
 @baseline.command('lighting-2004')
 @click.argument('model-json', type=click.Path(
     exists=True, file_okay=True, dir_okay=False, resolve_path=True))
-@click.option('--output-file', help='Optional hbjson file to output the JSON string '
-              'of the converted model. By default this will be printed out to stdout',
-              type=click.File('w'), default='-', show_default=True)
+@click.option('--output-file', '-f', help='Optional hbjson file to output the JSON '
+              'string of the converted model. By default this will be printed out '
+              'to stdout', type=click.File('w'), default='-', show_default=True)
 def lighting_2004(model_json, output_file):
     """Convert a Model's lighting to be conformant with ASHRAE 90.1-2004 appendix G.
-    \n
+
     This includes determining whether an ASHRAE 2004 equivalent exists for each
     program type in the model. If none is found, the baseline_watts_per_area on
     the room's program's lighting will be used, which will default to a typical
     office if none has been specified.
-    \n
+
+    \b
     Args:
         model_json: Full path to a Model JSON file.
     """
@@ -238,31 +241,32 @@ def lighting_2004(model_json, output_file):
 @click.argument('model-json', type=click.Path(
     exists=True, file_okay=True, dir_okay=False, resolve_path=True))
 @click.argument('climate-zone', type=str)
-@click.option('--nonresidential/--residential', help='Flag to note whether the model '
-              'represents a residential or nonresidential building.',
+@click.option('--nonresidential/--residential', ' /-r', help='Flag to note whether '
+              'the model represents a residential or nonresidential building.',
               default=True, show_default=True)
-@click.option('--fuel/--electric', help='Flag to note whether the available energy '
-              'source is fossil fuel based or all-electric.',
+@click.option('--fuel/--electric', ' /-e', help='Flag to note whether the available '
+              'energy source is fossil fuel based or all-electric.',
               default=True, show_default=True)
-@click.option('--floor-area', help='A number for the floor area of the building that '
-              'the model is a part of in m2. If None, the model floor area will be used.',
-              type=float, default=None, show_default=True)
-@click.option('--story-count', help='An integer for the number of stories of the building '
-              'that the model is a part of. If None, the model stories will be used.',
-              type=int, default=None, show_default=True)
-@click.option('--output-file', help='Optional hbjson file to output the JSON string '
-              'of the converted model. By default this will be printed out to stdout',
-              type=click.File('w'), default='-', show_default=True)
+@click.option('--floor-area', '-a', help='A number for the floor area of the building'
+              ' that the model is a part of in m2. If None, the model floor area '
+              'will be used.', type=float, default=None, show_default=True)
+@click.option('--story-count', '-s', help='An integer for the number of stories of '
+              'the building that the model is a part of. If None, the model stories '
+              'will be used.', type=int, default=None, show_default=True)
+@click.option('--output-file', '-f', help='Optional hbjson file to output the JSON '
+              'string of the converted model. By default this will be printed out '
+              'to stdout', type=click.File('w'), default='-', show_default=True)
 def hvac_2004(model_json, climate_zone, nonresidential, fuel, floor_area,
               story_count, output_file):
     """Convert a Model's HVAC to be conformant with ASHRAE 90.1-2004 appendix G.
-    \n
+
     This includes the selection of the correct Appendix G template HVAC based on
     the inputs and the application of this HVAC to all conditioned spaces in
     the model.
-    \n
+
+    \b
     Args:
-        model_json: Full path to a Model JSON file.\n
+        model_json: Full path to a Model JSON file.
         climate_zone: Text indicating the ASHRAE climate zone. This can be a single
             integer (in which case it is interpreted as A) or it can include the
             A, B, or C qualifier (eg. 3C).
@@ -324,14 +328,15 @@ def hvac_2004(model_json, climate_zone, nonresidential, fuel, floor_area,
 @baseline.command('remove-ecms')
 @click.argument('model-json', type=click.Path(
     exists=True, file_okay=True, dir_okay=False, resolve_path=True))
-@click.option('--output-file', help='Optional hbjson file to output the JSON string '
-              'of the converted model. By default this will be printed out to stdout',
-              type=click.File('w'), default='-', show_default=True)
+@click.option('--output-file', '-f', help='Optional hbjson file to output the JSON '
+              'string of the converted model. By default this will be printed out '
+              'to stdout', type=click.File('w'), default='-', show_default=True)
 def remove_ecms(model_json, output_file):
     """Remove energy conservation strategies (ECMs) not associated with baseline models.
-    \n
+
     This includes removing the opening behavior of all opearable windows.
-    \n
+
+    \b
     Args:
         model_json: Full path to a Model JSON file.
     """

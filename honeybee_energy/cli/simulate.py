@@ -32,33 +32,36 @@ def simulate():
     exists=True, file_okay=True, dir_okay=False, resolve_path=True))
 @click.argument('epw-file', type=click.Path(
     exists=True, file_okay=True, dir_okay=False, resolve_path=True))
-@click.option('--sim-par-json', help='Full path to a honeybee energy SimulationParameter'
-              ' JSON that describes all of the settings for the simulation.',
-              default=None, show_default=True,
+@click.option('--sim-par-json', '-sp', help='Full path to a honeybee energy '
+              'SimulationParameter JSON that describes all of the settings for '
+              'the simulation.',default=None, show_default=True,
               type=click.Path(exists=True, file_okay=True, dir_okay=False, resolve_path=True))
-@click.option('--base-osw', help='Full path to an OSW JSON be used as the base for '
-              'the execution of the OpenStuduo CLI. This can be used to add '
+@click.option('--base-osw', '-osw', help='Full path to an OSW JSON be used as the '
+              'base for the execution of the OpenStuduo CLI. This can be used to add '
               'measures in the workflow.', default=None, show_default=True,
               type=click.Path(exists=True, file_okay=True, dir_okay=False, resolve_path=True))
-@click.option('--folder', help='Folder on this computer, into which the IDF and result'
-              'files will be written. If None, the files will be output to the honeybee '
-              'default simulation folder and placed in a project folder with the same '
-              'name as the model_json.', default=None, show_default=True,
+@click.option('--folder', '-f', help='Folder on this computer, into which the IDF '
+              'and result files will be written. If None, the files will be output '
+              'to the honeybee default simulation folder and placed in a project '
+              'folder with the same name as the model_json.',
+              default=None, show_default=True,
               type=click.Path(file_okay=False, dir_okay=True, resolve_path=True))
-@click.option('--check-model/--bypass-check', help='Flag to note whether the Model '
-              'should be re-serialized to Python and checked before it is translated '
-              'to .osm. The check is not needed if the model-json was expored directly '
-              'from the honeybee-energy Python library.', default=True, show_default=True)
-@click.option('--log-file', help='Optional log file to output the paths of the generated'
-              ' files (osw, osm, idf, sql, zsz, rdd, html, err) if successfully '
-              'created. By default the list will be printed out to stdout',
+@click.option('--check-model/--bypass-check', ' /-bc', help='Flag to note whether '
+              'the Model should be re-serialized to Python and checked before it '
+              'is translated to .osm. The check is not needed if the model-json '
+              'was expored directly from the honeybee-energy Python library.',
+              default=True, show_default=True)
+@click.option('--log-file', '-log', help='Optional log file to output the paths of the '
+              'generated files (osw, osm, idf, sql, zsz, rdd, html, err) if successfully'
+              ' created. By default the list will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
 def simulate_model(model_json, epw_file, sim_par_json, base_osw, folder,
                    check_model, log_file):
     """Simulate a Model JSON file in EnergyPlus.
-    \n
+
+    \b
     Args:
-        model_json: Full path to a Model JSON file.\n
+        model_json: Full path to a Model JSON file.
         epw_file: Full path to an .epw file.
     """
     try:

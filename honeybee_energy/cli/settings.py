@@ -28,19 +28,20 @@ def settings():
 @settings.command('default-sim-par')
 @click.argument('ddy-file', type=click.Path(
     exists=True, file_okay=True, dir_okay=False, resolve_path=True))
-@click.option('--run-period-json', help='Full path to a honeybee energy RunPeriod'
+@click.option('--run-period-json', '-rp', help='Full path to a honeybee energy RunPeriod'
               ' JSON that describes the duration of the simulation. If None the simulation'
               'will be run for the whole year.', default=None, show_default=True,
               type=click.Path(exists=True, file_okay=True, dir_okay=False, resolve_path=True))
 @click.option('--filter-des-days', help='Boolean to note whether the design days in the '
               'ddy-file should be filtered to only include 99.6 and 0.4 design days.',
               type=bool, default=True, show_default=True)
-@click.option('--output-file', help='Optional file to output the JSON string of '
+@click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the simulation parameters. By default, it will be printed to stdout.',
               type=click.File('w'), default='-', show_default=True)
 def default_sim_par(ddy_file, run_period_json, filter_des_days, output_file):
     """Get a SimulationParameter JSON with default outputs for energy use only.
-    \n
+
+    \b
     Args:
         ddy_file: Full path to a DDY file that will be used to specify design days
             within the simulation parameter.
@@ -68,26 +69,27 @@ def default_sim_par(ddy_file, run_period_json, filter_des_days, output_file):
 @settings.command('load-balance-sim-par')
 @click.argument('ddy-file', type=click.Path(
     exists=True, file_okay=True, dir_okay=False, resolve_path=True))
-@click.option('--load-type', help='A text value to set the type of load outputs '
+@click.option('--load-type', '-lt', help='A text value to set the type of load outputs '
               'requested. Choose from the following:\nAll - all energy use '
               'including heat lost from the zone\nTotal - the total load added to the '
               'zone (both sensible and latent)\nSensible - the sensible load added to '
               'the zone\nLatent - the latent load added to the zone.',
               type=str, default='Total', show_default=True)
-@click.option('--run-period-json', help='Full path to a honeybee energy RunPeriod'
+@click.option('--run-period-json', '-rp', help='Full path to a honeybee energy RunPeriod'
               ' JSON that describes the duration of the simulation. If None the simulation'
               'will be run for the whole year.', default=None, show_default=True,
               type=click.Path(exists=True, file_okay=True, dir_okay=False, resolve_path=True))
 @click.option('--filter-des-days', help='Boolean to note whether the design days in the '
               'ddy-file should be filtered to only include 99.6 and 0.4 design days.',
               type=bool, default=True, show_default=True)
-@click.option('--output-file', help='Optional file to output the JSON string of '
+@click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the simulation parameters. By default, it will be printed to stdout.',
               type=click.File('w'), default='-', show_default=True)
 def load_balance_sim_par(ddy_file, load_type, run_period_json, filter_des_days,
                          output_file):
     """Get a SimulationParameter JSON with outputs for thermal load balances.
-    \n
+
+    \b
     Args:
         ddy_file: Full path to a DDY file that will be used to specify design days
             within the simulation parameter.
@@ -117,19 +119,20 @@ def load_balance_sim_par(ddy_file, load_type, run_period_json, filter_des_days,
 @settings.command('comfort-sim-par')
 @click.argument('ddy-file', type=click.Path(
     exists=True, file_okay=True, dir_okay=False, resolve_path=True))
-@click.option('--run-period-json', help='Full path to a honeybee energy RunPeriod'
+@click.option('--run-period-json', '-rp', help='Full path to a honeybee energy RunPeriod'
               ' JSON that describes the duration of the simulation. If None the simulation'
               'will be run for the whole year.', default=None, show_default=True,
               type=click.Path(exists=True, file_okay=True, dir_okay=False, resolve_path=True))
 @click.option('--filter-des-days', help='Boolean to note whether the design days in the '
               'ddy-file should be filtered to only include 99.6 and 0.4 design days.',
               type=bool, default=True, show_default=True)
-@click.option('--output-file', help='Optional file to output the JSON string of '
+@click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the simulation parameters. By default, it will be printed to stdout.',
               type=click.File('w'), default='-', show_default=True)
 def comfort_sim_par(ddy_file, run_period_json, filter_des_days, output_file):
     """Get a SimulationParameter JSON with outputs for thermal comfort mapping.
-    \n
+
+    \b
     Args:
         ddy_file: Full path to a DDY file that will be used to specify design days
             within the simulation parameter.
@@ -157,7 +160,7 @@ def comfort_sim_par(ddy_file, run_period_json, filter_des_days, output_file):
 @settings.command('sizing-sim-par')
 @click.argument('ddy-file', type=click.Path(
     exists=True, file_okay=True, dir_okay=False, resolve_path=True))
-@click.option('--load-type', help='A text value to set the type of load outputs '
+@click.option('--load-type', '-lt', help='A text value to set the type of load outputs '
               'requested. Choose from the following:\nAll - all energy use '
               'including heat lost from the zone\nTotal - the total load added to the '
               'zone (both sensible and latent)\nSensible - the sensible load added to '
@@ -166,12 +169,13 @@ def comfort_sim_par(ddy_file, run_period_json, filter_des_days, output_file):
 @click.option('--filter-des-days', help='Boolean to note whether the design days in the '
               'ddy-file should be filtered to only include 99.6 and 0.4 design days.',
               type=bool, default=True, show_default=True)
-@click.option('--output-file', help='Optional file to output the JSON string of '
+@click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the simulation parameters. By default, it will be printed to stdout.',
               type=click.File('w'), default='-', show_default=True)
 def sizing_sim_par(ddy_file, load_type, filter_des_days, output_file):
     """Get a SimulationParameter JSON with outputs and run periodfor HVAC sizing.
-    \n
+
+    \b
     Args:
         ddy_file: Full path to a DDY file that will be used to specify design days
             within the simulation parameter.
@@ -198,24 +202,25 @@ def sizing_sim_par(ddy_file, load_type, filter_des_days, output_file):
 @settings.command('custom-sim-par')
 @click.argument('ddy-file', type=click.Path(
     exists=True, file_okay=True, dir_okay=False, resolve_path=True))
-@click.option('--run-period-json', help='Full path to a honeybee energy RunPeriod'
+@click.argument('output-names', nargs=-1)
+@click.option('--run-period-json', '-rp', help='Full path to a honeybee energy RunPeriod'
               ' JSON that describes the duration of the simulation. If None the simulation'
               'will be run for the whole year.', default=None, show_default=True,
               type=click.Path(exists=True, file_okay=True, dir_okay=False, resolve_path=True))
-@click.argument('output-names', nargs=-1)
 @click.option('--filter-des-days', help='Boolean to note whether the design days in the '
               'ddy-file should be filtered to only include 99.6 and 0.4 design days.',
               type=bool, default=True, show_default=True)
-@click.option('--output-file', help='Optional file to output the JSON string of '
+@click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the simulation parameters. By default, it will be printed to stdout.',
               type=click.File('w'), default='-', show_default=True)
 def custom_sim_par(ddy_file, output_names, run_period_json, filter_des_days, output_file):
     """Get a SimulationParameter JSON with outputs for thermal load balances.
-    \n
+
+    \b
     Args:
         ddy_file: Full path to a DDY file that will be used to specify design days
             within the simulation parameter.
-        output_names: A list of EnergyPlus output names as strings (eg.
+        output_names: Any number of EnergyPlus output names as strings (eg.
             'Surface Window System Solar Transmittance'. These outputs will be
             requested from the simulation.
     """
@@ -244,20 +249,21 @@ def custom_sim_par(ddy_file, output_names, run_period_json, filter_des_days, out
 @click.argument('start-day', type=int)
 @click.argument('end-month', type=int)
 @click.argument('end-day', type=int)
-@click.option('--start-day-of-week', help='Text for the day of the week on which '
+@click.option('--start-day-of-week', '-dow', help='Text for the day of the week on which '
               'the simulation starts.', type=str, default='Sunday', show_default=True)
-@click.option('--holidays', help='A JSON array of text for the holidays within the '
+@click.option('--holidays', '-h', help='A JSON array of text for the holidays within the '
               'simulation. Dates should be formatted as follows: [day int] [month text] '
               '(eg. "1 Jan". The list should appear as a JSON-formatted array in [] '
               'brackets. If None, no holidays are applied.',
               type=str, default=None, show_default=True)
-@click.option('--output-file', help='Optional file to output the JSON string of '
+@click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the run period. By default, it will be printed to stdout.',
               type=click.File('w'), default='-', show_default=True)
 def run_period(start_month, start_day, end_month, end_day, start_day_of_week,
                holidays, output_file):
     """Get a RunPeriod JSON that can be used to set the simulation run period.
-    \n
+
+    \b
     Args:
         start_month: Start month (1-12).
         start_day: Start day (1-31).
