@@ -26,6 +26,7 @@ from ..hvac.idealair import IdealAirSystem
 
 # import the libraries of constructionsets and programs
 from ..lib.constructionsets import generic_construction_set
+from ..lib.schedules import always_on
 from ..lib.programtypes import plenum_program
 
 
@@ -275,6 +276,121 @@ class RoomEnergyProperties(object):
     def is_conditioned(self):
         """Boolean to note whether the Room is conditioned."""
         return self._hvac is not None
+
+    def abolute_people(self, person_count, conversion=1):
+        """Set the abolute number of people in the Room.
+        
+        This overwrites the RoomEnergyProperties's people per area but preserves
+        all schedules and other people properties. If the Room has no people definition,
+        a new one with an Always On schedule will be created. Note that, if the
+        host Room has no floors, the people load will be zero.
+
+        Args:
+            person_count: Number for the maximum quantity of people in the room.
+            conversion: Factor to account for the case where host Room geometry is
+                not in meters. This will be multiplied by the floor area so it should
+                be 0.001 for millimeters, 0.305 for feet, etc. (Default: 1).
+        """
+        people = self._dup_load('people', People)
+        self._absolute_by_floor(people, 'people_per_area', person_count, conversion)
+        self.people = people
+
+    def abolute_lighting(self, watts, conversion=1):
+        """Set the abolute wattage of lighting in the Room.
+        
+        This overwrites the RoomEnergyProperties's lighting per area but preserves all
+        schedules and other lighting properties. If the Room has no lighting definition,
+        a new one with an Always On schedule will be created. Note that, if the
+        host Room has no floors, the lighting load will be zero.
+
+        Args:
+            watts: Number for the installed wattage of lighting in the room.
+            conversion: Factor to account for the case where host Room geometry is
+                not in meters. This will be multiplied by the floor area so it should
+                be 0.001 for millimeters, 0.305 for feet, etc. (Default: 1).
+        """
+        lighting = self._dup_load('lighting', Lighting)
+        self._absolute_by_floor(lighting, 'watts_per_area', watts, conversion)
+        self.lighting = lighting
+
+    def abolute_electric_equipment(self, watts, conversion=1):
+        """Set the abolute wattage of electric equipment in the Room.
+        
+        This overwrites the RoomEnergyProperties's electric equipment per area but
+        preserves all schedules and other properties. If the Room has no electric
+        equipment definition, a new one with an Always On schedule will be created.
+        Note that, if the host Room has no floors, the electric equipment load
+        will be zero.
+
+        Args:
+            watts: Number for the installed wattage of electric equipment in the room.
+            conversion: Factor to account for the case where host Room geometry is
+                not in meters. This will be multiplied by the floor area so it should
+                be 0.001 for millimeters, 0.305 for feet, etc. (Default: 1).
+        """
+        elect_equip = self._dup_load('electric_equipment', ElectricEquipment)
+        self._absolute_by_floor(elect_equip, 'watts_per_area', watts, conversion)
+        self.electric_equipment = elect_equip
+
+    def abolute_gas_equipment(self, watts, conversion=1):
+        """Set the abolute wattage of gas equipment in the Room.
+        
+        This overwrites the RoomEnergyProperties's gas equipment per area but
+        preserves all schedules and other properties. If the Room has no gas
+        equipment definition, a new one with an Always On schedule will be created.
+        Note that, if the host Room has no floors, the gas equipment load
+        will be zero.
+
+        Args:
+            watts: Number for the installed wattage of gas equipment in the room.
+            conversion: Factor to account for the case where host Room geometry is
+                not in meters. This will be multiplied by the floor area so it should
+                be 0.001 for millimeters, 0.305 for feet, etc. (Default: 1).
+        """
+        gas_equipment = self._dup_load('gas_equipment', GasEquipment)
+        self._absolute_by_floor(gas_equipment, 'watts_per_area', watts, conversion)
+        self.gas_equipment = gas_equipment
+
+    def abolute_infiltration(self, flow_rate, conversion=1):
+        """Set the abolute flow rate of infiltration for the Room in m3/s.
+
+        This overwrites the RoomEnergyProperties's infiltration flow per exterior area
+        but preserves all schedules and other properties. If the Room has no
+        infiltration definition, a new one with an Always On schedule will be created.
+        Note that, if the host Room has no exterior faces, the infiltration load
+        will be zero.
+
+        Args:
+            flow_rate: Number for the infiltration flow rate in m3/s.
+            conversion: Factor to account for the case where host Room geometry is
+                not in meters. This will be multiplied by the floor area so it should
+                be 0.001 for millimeters, 0.305 for feet, etc. (Default: 1).
+        """
+        infiltration = self._dup_load('infiltration', Infiltration)
+        try:
+            ext_area = self.host.exposed_area * conversion ** 2
+            infiltration.flow_per_exterior_area = flow_rate / ext_area
+        except ZeroDivisionError:
+            pass  # no exposed area; just leave the load level as is
+        self.infiltration = infiltration
+
+    def abolute_infiltration_ach(self, air_changes_per_hour, conversion=1):
+        """Set the abolute flow rate of infiltration for the Room in ACH.
+
+        This overwrites the RoomEnergyProperties's infiltration flow per exterior area
+        but preserves all schedules and other properties. If the Room has no
+        infiltration definition, a new one with an Always On schedule will be created.
+        Note that, if the host Room has no exterior faces, the infiltration load
+        will be zero.
+
+        Args:
+            air_changes_per_hour: Number for the infiltration flow rate in ACH.
+            conversion: Factor to account for the case where host Room geometry is
+                not in meters. This will be multiplied by the floor area so it should
+                be 0.001 for millimeters, 0.305 for feet, etc. (Default: 1).
+        """
+        room_vol = self.host.volume * conversion ** 3
+        self.abolute_infiltration((air_changes_per_hour * room_vol) / 3600., conversion)
 
     def remove_child_constructions(self):
         """Remove constructions assigned to the Room's Faces, Apertures, Doors and Shades.
@@ -802,6 +918,32 @@ class RoomEnergyProperties(object):
         a = face_area
         ln = face_perimeter
         return cqa * a / ln
+
+    def _dup_load(self, load_name, load_class):
+        """Duplicate a load object assigned to this Room or get a new one if none exists.
+
+        Args:
+            load_name: Text for the name of the property as it appears on this object.
+                This is used both to retrive the load and to man an identifier
+                for it. (eg. "people", "lighting").
+            load_class: The class of the load object (eg. People).
+        """
+        load_obj = getattr(self, load_name)
+        load_id = '{}_{}'.format(self.host.identifier, load_name)
+        try:  # duplicate the Room's current load object and give it a unique ID
+            dup_load = load_obj.duplicate()
+            dup_load.identifier = load_id
+            return dup_load
+        except AttributeError:  # currently no load object; create a new one
+            return load_class(load_id, 0, always_on)
+
+    def _absolute_by_floor(self, load_obj, property_name, value, conversion):
+        """Set a floor-normalized load object to have an abolute value for a property."""
+        try:
+            floor_area = self.host.floor_area * conversion ** 2
+            setattr(load_obj, property_name, value / floor_area)
+        except ZeroDivisionError:
+            pass  # no floor area; just leave the load level as is
 
     def ToString(self):
         return self.__repr__()

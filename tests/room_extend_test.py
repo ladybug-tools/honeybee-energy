@@ -174,6 +174,26 @@ def test_set_loads():
     assert room.properties.energy.setpoint.cooling_setback == 24
 
 
+def test_loads_absolute():
+    """Test the methods that assign loads using an absolute number."""
+    room = Room.from_box('ShoeBox', 10000, 10000, 3000)
+
+    room.properties.energy.abolute_people(10, 0.001)
+    assert room.properties.energy.people.people_per_area == 0.1
+    room.properties.energy.abolute_lighting(1000, 0.001)
+    assert room.properties.energy.lighting.watts_per_area == 10
+    room.properties.energy.abolute_electric_equipment(1000, 0.001)
+    assert room.properties.energy.electric_equipment.watts_per_area == 10
+    room.properties.energy.abolute_gas_equipment(1000, 0.001)
+    assert room.properties.energy.gas_equipment.watts_per_area == 10
+    room.properties.energy.abolute_infiltration(1, 0.001)
+    assert room.properties.energy.infiltration.flow_per_exterior_area == \
+        pytest.approx(1. / 220., abs=1e-3)
+    room.properties.energy.abolute_infiltration_ach(1, 0.001)
+    assert room.properties.energy.infiltration.flow_per_exterior_area == \
+        pytest.approx(300. / (220. * 3600.), abs=1e-3)
+
+
 def test_duplicate():
     """Test what happens to energy properties when duplicating a Room."""
     mass_set = ConstructionSet('Thermal Mass Construction Set')
