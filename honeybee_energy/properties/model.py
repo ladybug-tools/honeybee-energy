@@ -600,6 +600,9 @@ class ModelEnergyProperties(object):
         for constr in constructions:
             if isinstance(constr, AirBoundaryConstruction):
                 self._check_and_add_schedule(constr.air_mixing_schedule, schedules)
+            elif isinstance(constr, WindowConstructionShade):
+                if constr.schedule is not None:
+                    self._check_and_add_schedule(constr.schedule, schedules)
         return schedules
 
     def _add_sched_type_objs_to_dict(self, base, schs):
