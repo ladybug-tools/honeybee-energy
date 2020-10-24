@@ -261,7 +261,7 @@ class SQLiteResult(object):
 
         # create the header objects to be used for the resulting data collections
         units = header_rows[0][-1] if header_rows[0][-1] != 'J' else 'kWh'
-        data_type = self._data_type_from_unit(units)
+        data_type, units = self._data_type_from_unit(units)
         meta_datas = []
         for row in header_rows:
             obj_type = row[1] if 'Surface' not in output_name else 'Surface'
@@ -359,7 +359,7 @@ class SQLiteResult(object):
 
         # create the header objects to be used for the resulting data collections
         units = header_rows[0][-1] if header_rows[0][-1] != 'J' else 'kWh'
-        data_type = self._data_type_from_unit(units)
+        data_type, units = self._data_type_from_unit(units)
         headers = []
         for row in header_rows:
             obj_type = row[1] if 'Surface' not in output_name else 'Surface'
@@ -551,7 +551,8 @@ class SQLiteResult(object):
             outp_dict['output_name'] = outp[0]
             outp_dict['object_type'] = outp[1]
             outp_dict['units'] = outp[2] if outp[2] != 'J' else 'kWh'
-            outp_dict['data_type'] = self._data_type_from_unit(outp_dict['units'])
+            outp_dict['data_type'], outp_dict['units'] = \
+                self._data_type_from_unit(outp_dict['units'])
             self._available_outputs_info.append(outp_dict)
             self._reporting_frequency = outp[3]
 
@@ -747,7 +748,9 @@ class SQLiteResult(object):
         """
         for key in ladybug.datatype.UNITS:
             if from_unit in ladybug.datatype.UNITS[key]:
-                return ladybug.datatype.TYPESDICT[key]()
+                return ladybug.datatype.TYPESDICT[key](), from_unit
+        # no units are specified; the values are dimensionless or fractional
+        return ladybug.datatype.TYPESDICT['Fraction'](), 'fraction'
 
     @staticmethod
     def _partition_timeseries(data, n_lists):
