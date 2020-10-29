@@ -269,7 +269,9 @@ output-table-summaryreports.html#outputtablesummaryreports)
                 * Latent - the latent load added to the zone
         """
         load_type = load_type.title()
-        always_sensible = ['Zone Windows Total Transmitted Solar Radiation Energy']
+        always_sensible = ['Zone Windows Total Transmitted Solar Radiation Energy',
+                           'AFN Zone Infiltration Sensible Heat Gain Energy',
+                           'AFN Zone Infiltration Sensible Heat Loss Energy']
         if load_type == 'Total':
             outputs = ['Zone People Total Heating Energy',
                        'Zone Ventilation Total Heat Loss Energy',
@@ -293,7 +295,9 @@ output-table-summaryreports.html#outputtablesummaryreports)
                        'Zone Ideal Loads Zone Latent Heating Energy',
                        'Zone Ideal Loads Zone Latent Cooling Energy',
                        'Zone Infiltration Latent Heat Loss Energy',
-                       'Zone Infiltration Latent Heat Gain Energy']
+                       'Zone Infiltration Latent Heat Gain Energy',
+                       'AFN Zone Infiltration Latent Heat Loss Energy',
+                       'AFN Zone Infiltration Latent Heat Gain Energy']
         else:
             raise ValueError('load_type {} is not valid'.format(load_type))
         for outp in outputs:

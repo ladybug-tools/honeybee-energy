@@ -6,7 +6,7 @@ import pytest
 
 
 def test_shade_init():
-    """Test the initalization of shade material objects and basic properties."""
+    """Test the initialization of shade material objects and basic properties."""
     shade_mat = EnergyWindowMaterialShade(
         'Low-e Diffusing Shade', 0.025, 0.15, 0.5, 0.25, 0.5, 0, 0.4,
         0.2, 0.1, 0.75, 0.25)
@@ -88,7 +88,7 @@ def test_shade_invalid():
 
 
 def test_shade_from_idf():
-    """Test the initalization of shade material objects from EnergyPlus strings."""
+    """Test the initialization of shade material objects from EnergyPlus strings."""
     ep_str_1 = "WindowMaterial:Shade,\n" \
         "Default Shade,             !- Name\n" \
         "0.05,                      !- Solar Transmittance\n" \
@@ -134,7 +134,7 @@ def test_shade_dict_methods():
 
 
 def test_blind_init():
-    """Test the initalization of blind material objects and basic properties."""
+    """Test the initialization of blind material objects and basic properties."""
     shade_mat = EnergyWindowMaterialBlind(
         'Plastic Blind', 'Vertical', 0.025, 0.01875, 0.003, 90, 0.2, 0.05, 0.4,
         0.05, 0.45, 0, 0.95, 0.1, 1)
@@ -175,7 +175,7 @@ def test_blind_init():
 
 def test_blind_defaults():
     """Test the EnergyWindowMaterialBlind default properties."""
-    shade_mat = EnergyWindowMaterialBlind('Metalic Blind')
+    shade_mat = EnergyWindowMaterialBlind('Metallic Blind')
 
     assert shade_mat.slat_orientation == 'Horizontal'
     assert shade_mat.slat_width == 0.025
@@ -207,7 +207,7 @@ def test_blind_defaults():
 
 def test_blind_invalid():
     """Test EnergyWindowMaterialShade objects with invalid properties."""
-    shade_mat = EnergyWindowMaterialBlind('Metalic Blind')
+    shade_mat = EnergyWindowMaterialBlind('Metallic Blind')
 
     with pytest.raises(TypeError):
         shade_mat.identifier = ['test_identifier']
@@ -245,7 +245,7 @@ def test_blind_invalid():
 
 
 def test_blind_from_idf():
-    """Test the initalization of shade material objects from EnergyPlus strings."""
+    """Test the initialization of shade material objects from EnergyPlus strings."""
     ep_str_1 = "WindowMaterial:Blind,\n" \
         "Default Shade,      !- Name\n" \
         "Horizontal,         !- Slat Orientation\n" \

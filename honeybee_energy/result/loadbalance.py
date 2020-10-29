@@ -69,6 +69,11 @@ class LoadBalance(object):
             * Inches
             * Centimeters
 
+        use_all_solar: Boolean to note whether all of the solar_data should be used in
+            the resulting load balance, regardless of whether it has been matched to
+            the rooms. This is useful for the case that air boundaries exist in a model
+            and solar data is reported for grouped zones. (Default: False).
+
     Properties:
         * rooms
         * cooling
@@ -158,7 +163,8 @@ class LoadBalance(object):
     def __init__(self, rooms, cooling_data=None, heating_data=None, lighting_data=None,
                  electric_equip_data=None, gas_equip_data=None, people_data=None,
                  solar_data=None, infiltration_data=None, mech_ventilation_data=None,
-                 nat_ventilation_data=None, surface_flow_data=None, units='Meters'):
+                 nat_ventilation_data=None, surface_flow_data=None, units='Meters',
+                 use_all_solar=False):
         """Initialize LoadBalance."""
         # Set defaults for values that are computed upon request
         self._conduction = None
@@ -181,7 +187,7 @@ class LoadBalance(object):
         self._people = self._match_room_input(
             people_data, rooms, 'People')
         self._solar = self._match_room_input(
-            solar_data, rooms, 'Solar')
+            solar_data, rooms, 'Solar', use_all=use_all_solar)
         self._infiltration = self._match_room_input(
             infiltration_data, rooms, 'Infiltration')
         self._mech_ventilation = self._match_room_input(
@@ -249,7 +255,7 @@ class LoadBalance(object):
 
         return cls(model.rooms, cooling, heating, lighting, electric_equip, gas_equip,
                    people_gain, solar_gain, infiltration, mech_vent, nat_vent,
-                   face_energy_flow, model.units)
+                   face_energy_flow, model.units, use_all_solar=True)
 
     @property
     def rooms(self):
@@ -458,7 +464,7 @@ class LoadBalance(object):
         return mech_vent_load
 
     def _match_room_input(self, data_collections, rooms, data_type,
-                          type_check_text=None, negate=False):
+                          type_check_text=None, negate=False, use_all=False):
         """Match a an array of input data collections to input rooms.
 
         Args:
@@ -468,11 +474,14 @@ class LoadBalance(object):
             type_check_text: Optional text, which will be used to check if the input
                 data_collections are of the right type.
             negate: Boolean to note whether the values should be negated.
+            use_all: Boolean to note whether all data_collections should be used instead
+                of those matched to the rooms.
         """
         # match the data collections to the rooms and check that everything makes sense
         if data_collections is None or len(data_collections) == 0:
             return None
-        matched_objs = match_rooms_to_data(data_collections, rooms)
+        matched_objs = match_rooms_to_data(data_collections, rooms) if not use_all else \
+            [(None, data, 1) for data in data_collections]
         assert len(matched_objs) != 0, \
             'None of the data collections could be matched to the input rooms.'
         self._rooms = tuple(obj[0] for obj in matched_objs)
