@@ -19,7 +19,7 @@ sys.path.insert(0, os.path.abspath('..'))
 # -- Project information -----------------------------------------------------
 
 project = 'honeybee energy'
-copyright = '2019, Ladybug Tools'
+copyright = '2020, Ladybug Tools'
 author = 'Ladybug Tools'
 
 # The full version, including alpha/beta/rc tags
@@ -280,14 +280,14 @@ def create_cli_files():
                   if name + ".rst" not in os.listdir(doc_folder)]
 
     if not cli_overwrite and not new_groups:
-        print ("[CLI]: No new CLI files created.")
+        print("[CLI]: No new CLI files created.")
         return
 
     # Create CLI reST files for each module(command group) found.
     click_groups = all_groups if cli_overwrite else new_groups
     result = write_cli_files(click_groups, lib_name, tool_name, doc_folder)
     if not result:
-        print ("[CLI]: Something went wrong during CLI docs generation")
+        print("[CLI]: Something went wrong during CLI docs generation")
 
     # Update/Create index file with command group section included
     update_cli_index(os.path.join(doc_folder, 'index.rst'), all_groups)
@@ -311,7 +311,7 @@ def get_cli_data(project_folder):
         -   tool_name: The name of the command line tool that is used for this
             library.
     """
-    print ("[CLI data]: Retrieveing CLI data from {}".format(project_folder))
+    print("[CLI data]: Retrieveing CLI data from {}".format(project_folder))
 
     # Check in hash table for a library name based on repository name
     repo_path = os.path.abspath(os.path.join(project_folder, os.pardir))
@@ -333,12 +333,12 @@ def get_cli_data(project_folder):
 
     lib_path = os.path.abspath(os.path.join(repo_path, lib_name))
     if not os.path.isdir(lib_path):
-        print ("[CLI data]: Cannot find library path")
+        print("[CLI data]: Cannot find library path")
         return None
 
     cli_path = os.path.join(lib_path, 'cli')
     if not os.path.isdir(lib_path):
-        print ("[CLI data]: No CLI library found")
+        print("[CLI data]: No CLI library found")
         return None
 
     # Generate a list with the module source files(.py).
@@ -350,7 +350,7 @@ def get_cli_data(project_folder):
         module_names.remove("__init__")
 
     if not module_names:
-        print ("[CLI data]: No CLI modules detected in /cli folder.")
+        print("[CLI data]: No CLI modules detected in /cli folder.")
         return None
 
     # Return library data
@@ -373,7 +373,7 @@ def write_cli_files(click_groups, library, tool, doc_folder):
     """
 
     # Creating missing CLI reST files
-    print ("[CLI files]: Creating ({}) CLI rst files: {}...".format(
+    print("[CLI files]: Creating ({}) CLI rst files: {}...".format(
         len(click_groups), click_groups))
 
     # Write sphinx-click directive with options for each CLI group
@@ -403,7 +403,7 @@ def update_cli_index(index_path, group_names):
             index \'Commands\' section.
     """
 
-    print ("[CLI index]: Updating index.rst file...")
+    print("[CLI index]: Updating index.rst file...")
 
     # Include exisitng index.rst data if present
     cli_content = []

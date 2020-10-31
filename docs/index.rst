@@ -11,17 +11,17 @@ Honeybee-energy adds EnergyPlus/OpenStudio functionalities to honeybee for energ
 Installation
 ============
 
-``pip install -U honeybee-energy``.
+``pip install -U honeybee-energy``
 
-If you want to also include the command line interface try:
+If you want to also include the command line interface use:
 
-``pip install -U honeybee-energy[cli]``.
+``pip install -U honeybee-energy[cli]``
 
-To check if the command line is installed correctly try ``honeybee energy --help`
+To check if the command line is installed correctly use ``honeybee energy --help``
 or ``honeybee-energy --help``
 
 
-Documentation
+CLI Docs
 =============
 
 For command line interface documentation and API documentation see the pages below.
@@ -31,4 +31,19 @@ For command line interface documentation and API documentation see the pages bel
    :maxdepth: 2
 
    cli/index
-   api
+
+
+honeybee_energy
+=============
+
+.. toctree::
+   :maxdepth: 4
+
+   modules
+
+Indices and tables
+------------------
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
