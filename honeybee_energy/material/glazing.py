@@ -502,7 +502,7 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
         * r_value
     """
     __slots__ = ('_u_factor', '_shgc', '_vt')
-    _film_resistance = (1 / 23) + (1 / 7)  # interior + exterior films resistance
+    _film_resistance = (1 / 23) + (1 / 8)  # interior + exterior films resistance
 
     def __init__(self, identifier, u_factor, shgc, vt=0.6):
         """Initialize energy window material simple glazing system."""
