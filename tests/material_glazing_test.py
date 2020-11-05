@@ -126,7 +126,7 @@ def test_glazing_dict_methods():
 
 
 def test_simple_sys_init():
-    """Test initalization of EnergyWindowMaterialSimpleGlazSys and properties."""
+    """Test initialization of EnergyWindowMaterialSimpleGlazSys and properties."""
     lowe_sys = EnergyWindowMaterialSimpleGlazSys(
         'Double Pane Low-e', 1.8, 0.35, 0.55)
     str(lowe_sys)  # test the string representation of the material
@@ -138,8 +138,8 @@ def test_simple_sys_init():
     assert lowe_sys.vt == lowe_sys_dup.vt == 0.55
 
     assert lowe_sys.r_factor == lowe_sys_dup.r_factor == pytest.approx(1 / 1.8, rel=1e-3)
-    assert lowe_sys.r_value == lowe_sys_dup.r_value == pytest.approx(0.36922, rel=1e-3)
-    assert lowe_sys.u_value == lowe_sys_dup.u_value == pytest.approx(2.7084, rel=1e-3)
+    assert lowe_sys.r_value == lowe_sys_dup.r_value == pytest.approx(0.387077, rel=1e-3)
+    assert lowe_sys.u_value == lowe_sys_dup.u_value == pytest.approx(2.58346333, rel=1e-3)
 
 
 def test_simple_sys_defaults():
