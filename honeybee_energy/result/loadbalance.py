@@ -135,11 +135,15 @@ class LoadBalance(object):
     INFIL_GAIN = (
         'Zone Infiltration Total Heat Gain Energy',
         'Zone Infiltration Sensible Heat Gain Energy',
-        'Zone Infiltration Latent Heat Gain Energy')
+        'Zone Infiltration Latent Heat Gain Energy',
+        'AFN Zone Infiltration Sensible Heat Gain Energy',
+        'AFN Zone Infiltration Latent Heat Gain Energy')
     INFIL_LOSS = (
         'Zone Infiltration Total Heat Loss Energy',
         'Zone Infiltration Sensible Heat Loss Energy',
-        'Zone Infiltration Latent Heat Loss Energy')
+        'Zone Infiltration Latent Heat Loss Energy',
+        'AFN Zone Infiltration Sensible Heat Loss Energy',
+        'AFN Zone Infiltration Latent Heat Loss Energy')
     VENT_LOSS = (
         'Zone Ideal Loads Zone Total Heating Energy',
         'Zone Ideal Loads Zone Sensible Heating Energy',
