@@ -289,7 +289,7 @@ output-table-summaryreports.html#outputtablesummaryreports)
                        'Zone Infiltration Sensible Heat Loss Energy',
                        'Zone Infiltration Sensible Heat Gain Energy'] + always_sensible
         elif load_type == 'Latent':
-            outputs = ['Zone People Sensible Latent Energy',
+            outputs = ['Zone People Latent Gain Energy',
                        'Zone Ventilation Latent Heat Loss Energy',
                        'Zone Ventilation Latent Heat Gain Energy',
                        'Zone Ideal Loads Zone Latent Heating Energy',
