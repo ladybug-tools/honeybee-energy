@@ -3,7 +3,7 @@ from click.testing import CliRunner
 from honeybee_energy.cli.result import data_by_output, available_results_info, \
     data_by_outputs, output_csv, zone_sizes, component_sizes, available_results, \
     available_run_period_info, all_available_info, output_csv_queryable, \
-    tabular_data, tabular_metadata
+    tabular_data, tabular_metadata, load_balance
 from honeybee_energy.result.sql import ZoneSize, ComponentSize
 from ladybug.datacollection import HourlyContinuousCollection
 
@@ -246,3 +246,15 @@ def test_component_sizes():
     data_list = json.loads(result.output)
     assert all(isinstance(ComponentSize.from_dict(comp), ComponentSize)
                for comp in data_list)
+
+
+def test_load_balance():
+    """Test the load_balance method."""
+    runner = CliRunner()
+    model_json = './tests/result/triangulated/TriangleModel.json'
+    sql_path = './tests/result/triangulated/eplusout.sql'
+
+    result = runner.invoke(load_balance, [model_json, sql_path])
+    assert result.exit_code == 0
+    data_list = json.loads(result.output)
+    assert len(data_list) == 11

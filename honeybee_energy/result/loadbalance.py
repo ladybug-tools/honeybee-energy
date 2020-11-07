@@ -185,9 +185,9 @@ class LoadBalance(object):
         self._lighting = self._match_room_input(
             lighting_data, rooms, 'Lighting', 'Lights')
         self._electric_equip = self._match_room_input(
-            electric_equip_data, rooms, 'Electric Equipment')
+            electric_equip_data, rooms, 'Electric Equipment', mult_per_room=True)
         self._gas_equip = self._match_room_input(
-            gas_equip_data, rooms, 'Gas Equipment')
+            gas_equip_data, rooms, 'Gas Equipment', mult_per_room=True)
         self._people = self._match_room_input(
             people_data, rooms, 'People')
         self._solar = self._match_room_input(
@@ -226,8 +226,6 @@ class LoadBalance(object):
         cooling = sql_obj.data_collections_by_output_name(cls.COOLING)
         heating = sql_obj.data_collections_by_output_name(cls.HEATING)
         lighting = sql_obj.data_collections_by_output_name(cls.LIGHTING)
-        electric_equip = sql_obj.data_collections_by_output_name(cls.ELECTRIC_EQUIP)
-        gas_equip = sql_obj.data_collections_by_output_name(cls.GAS_EQUIP)
         people_gain = sql_obj.data_collections_by_output_name(cls.PEOPLE_GAIN)
         solar_gain = sql_obj.data_collections_by_output_name(cls.SOLAR_GAIN)
         infil_gain = sql_obj.data_collections_by_output_name(cls.INFIL_GAIN)
@@ -236,6 +234,14 @@ class LoadBalance(object):
         vent_gain = sql_obj.data_collections_by_output_name(cls.VENT_GAIN)
         nat_vent_gain = sql_obj.data_collections_by_output_name(cls.NAT_VENT_GAIN)
         nat_vent_loss = sql_obj.data_collections_by_output_name(cls.NAT_VENT_LOSS)
+
+        # handle the case that both total elect/gas energy and zone gain are requested
+        electric_equip = sql_obj.data_collections_by_output_name(cls.ELECTRIC_EQUIP[1])
+        if len(electric_equip) == 0:
+            electric_equip = sql_obj.data_collections_by_output_name(cls.ELECTRIC_EQUIP)
+        gas_equip = sql_obj.data_collections_by_output_name(cls.GAS_EQUIP[1])
+        if len(gas_equip) == 0:
+            gas_equip = sql_obj.data_collections_by_output_name(cls.GAS_EQUIP)
 
         # subtract losses from gains
         infiltration = None
@@ -468,7 +474,8 @@ class LoadBalance(object):
         return mech_vent_load
 
     def _match_room_input(self, data_collections, rooms, data_type,
-                          type_check_text=None, negate=False, use_all=False):
+                          type_check_text=None, negate=False, use_all=False,
+                          mult_per_room=False):
         """Match a an array of input data collections to input rooms.
 
         Args:
@@ -480,16 +487,39 @@ class LoadBalance(object):
             negate: Boolean to note whether the values should be negated.
             use_all: Boolean to note whether all data_collections should be used instead
                 of those matched to the rooms.
+            mult_per_room: Boolean to note whether there are multiple data collections
+                for each room, which should be summed together.
         """
-        # match the data collections to the rooms and check that everything makes sense
+        # don't match anything if there are no collections
         if data_collections is None or len(data_collections) == 0:
             return None
-        matched_objs = match_rooms_to_data(data_collections, rooms) if not use_all else \
-            [(None, data, 1) for data in data_collections]
+
+        # match the data collections to the rooms
+        if use_all:  # firs try to see if all objects can be matched
+            matched_objs = match_rooms_to_data(data_collections, rooms)
+            if len(matched_objs) != len(rooms):  # take them all
+                matched_objs = [(None, data, rm.multiplier)
+                                for data, rm in zip(data_collections, rooms)]
+        elif mult_per_room:  # group the collections by their type
+            coll_dict = {}
+            for coll in data_collections:
+                try:
+                    coll_dict[coll.header.metadata['type']].append(coll)
+                except KeyError:
+                    coll_dict[coll.header.metadata['type']] = [coll]
+            all_match = [match_rooms_to_data(val, rooms) for val in coll_dict.values()]
+            matched_objs = [list(tup) for tup in all_match[0]]
+            for other_tups in all_match[1:]:
+                for i, tup in enumerate(other_tups):
+                    matched_objs[i][1] += tup[1]
+        else:
+            matched_objs = match_rooms_to_data(data_collections, rooms)
         assert len(matched_objs) != 0, \
             'None of the data collections could be matched to the input rooms.'
-        self._rooms = tuple(obj[0] for obj in matched_objs)
+        self._rooms = tuple(obj[0] for obj in matched_objs) if not use_all else rooms
         base_data = matched_objs[0][1]
+        
+        # check that the data if of the correct type.
         if 'type' in base_data.header.metadata:
             check_text = type_check_text if type_check_text is not None else data_type
             assert check_text in base_data.header.metadata['type'], \
