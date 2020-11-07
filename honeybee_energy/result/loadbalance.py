@@ -130,7 +130,7 @@ class LoadBalance(object):
     PEOPLE_GAIN = (
         'Zone People Total Heating Energy',
         'Zone People Sensible Heating Energy',
-        'Zone People Sensible Latent Energy')
+        'Zone People Latent Gain Energy')
     SOLAR_GAIN = 'Zone Windows Total Transmitted Solar Radiation Energy'
     INFIL_GAIN = (
         'Zone Infiltration Total Heat Gain Energy',
