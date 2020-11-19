@@ -19,6 +19,8 @@ from .settings import settings
 from .simulate import simulate
 from .result import result
 from .baseline import baseline
+from .validate import validate
+
 
 # command group for all energy extension commands.
 @click.group(help='honeybee energy commands.')
@@ -68,6 +70,7 @@ energy.add_command(settings)
 energy.add_command(simulate)
 energy.add_command(result)
 energy.add_command(baseline)
+energy.add_command(validate)
 
 # add energy sub-commands to honeybee CLI
 main.add_command(energy)
