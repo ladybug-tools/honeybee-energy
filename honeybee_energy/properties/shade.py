@@ -155,7 +155,11 @@ class ShadeEnergyProperties(object):
                 which will be used to re-assign schedules.
         """
         if 'construction' in abridged_data and abridged_data['construction'] is not None:
-            self.construction = constructions[abridged_data['construction']]
+            try:
+                self.construction = constructions[abridged_data['construction']]
+            except KeyError:
+                raise ValueError('Shade construction "{}" was not found in '
+                                 'constructions.'.format(abridged_data['construction']))
         if 'transmittance_schedule' in abridged_data and \
                 abridged_data['transmittance_schedule'] is not None:
             self.transmittance_schedule = \
