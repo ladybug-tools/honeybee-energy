@@ -145,7 +145,11 @@ class FaceEnergyProperties(object):
                 as keys, which will be used to re-assign constructions.
         """
         if 'construction' in abridged_data and abridged_data['construction'] is not None:
-            self.construction = constructions[abridged_data['construction']]
+            try:
+                self.construction = constructions[abridged_data['construction']]
+            except KeyError:
+                raise ValueError('Face construction "{}" was not found in '
+                                 'constructions.'.format(abridged_data['construction']))
         if 'vent_crack' in abridged_data and abridged_data['vent_crack'] is not None:
             self.vent_crack = AFNCrack.from_dict(abridged_data['vent_crack'])
 

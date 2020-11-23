@@ -722,13 +722,25 @@ class RoomEnergyProperties(object):
             schedules: A dictionary of Schedules with identifiers of the schedules ask
                 keys, which will be used to re-assign schedules.
         """
+        base_e = 'Room {0} "{1}" was not found in {0}s.'
         if 'construction_set' in abridged_data and \
                 abridged_data['construction_set'] is not None:
-            self.construction_set = construction_sets[abridged_data['construction_set']]
+            try:
+                self.construction_set = construction_sets[abridged_data['construction_set']]
+            except KeyError:
+                raise ValueError(
+                    base_e.format(abridged_data['construction_set'], 'construction_set'))
         if 'program_type' in abridged_data and abridged_data['program_type'] is not None:
-            self.program_type = program_types[abridged_data['program_type']]
+            try:
+                self.program_type = program_types[abridged_data['program_type']]
+            except KeyError:
+                raise ValueError(
+                    base_e.format(abridged_data['program_type'], 'program_type'))
         if 'hvac' in abridged_data and abridged_data['hvac'] is not None:
-            self.hvac = hvacs[abridged_data['hvac']]
+            try:
+                self.hvac = hvacs[abridged_data['hvac']]
+            except KeyError:
+                raise ValueError(base_e.format(abridged_data['hvac'], 'hvac'))
 
         if 'people' in abridged_data and abridged_data['people'] is not None:
             self.people = People.from_dict_abridged(
