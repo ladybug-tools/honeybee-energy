@@ -182,7 +182,7 @@ class Folders(object):
         JSON schema and OpenStudio Model schema (OSM).
         This folder must have the following sub-folders in order to be valid:
 
-        * from_honeybee - Ruby library with modules for model translation to OpenStudio.
+        * honeybee - Ruby library with modules for model translation to OpenStudio.
         * measures - folder with the actual measures that run the translation.
         * files - folder containing the openapi schemas
         """
@@ -195,8 +195,6 @@ class Folders(object):
 
         # check that the library's sub-folders exist
         if path:
-            assert os.path.isdir(os.path.join(path, 'from_honeybee')), \
-                '{} lacks a "from_honeybee" folder.'.format(path)
             assert os.path.isdir(os.path.join(path, 'measures')), \
                 '{} lacks a "measures" folder.'.format(path)
 
