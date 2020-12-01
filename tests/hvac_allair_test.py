@@ -173,12 +173,12 @@ def test_psz_init():
     assert hvac_sys.latent_heat_recovery == autosize
 
     hvac_sys.vintage = '90.1-2010'
-    hvac_sys.equipment_type = 'PSZ-AC district chilled water with baseboard district hot water'
+    hvac_sys.equipment_type = 'PSZ-AC district chilled water with district hot water'
     hvac_sys.economizer_type = 'DifferentialDryBulb'
     hvac_sys.sensible_heat_recovery = 0.8
     hvac_sys.latent_heat_recovery = 0.65
     assert hvac_sys.vintage == '90.1-2010'
-    assert hvac_sys.equipment_type == 'PSZ-AC district chilled water with baseboard district hot water'
+    assert hvac_sys.equipment_type == 'PSZ-AC district chilled water with district hot water'
     assert hvac_sys.economizer_type == 'DifferentialDryBulb'
     assert hvac_sys.sensible_heat_recovery == 0.8
     assert hvac_sys.latent_heat_recovery == 0.65
@@ -222,7 +222,7 @@ def test_psz_dict_methods():
     """Test the to/from dict methods."""
     hvac_sys = PSZ('High Efficiency HVAC System')
     hvac_sys.vintage = '90.1-2010'
-    hvac_sys.equipment_type = 'PSZ-AC district chilled water with baseboard district hot water'
+    hvac_sys.equipment_type = 'PSZ-AC district chilled water with district hot water'
     hvac_sys.economizer_type = 'DifferentialDryBulb'
     hvac_sys.sensible_heat_recovery = 0.8
     hvac_sys.latent_heat_recovery = 0.65
