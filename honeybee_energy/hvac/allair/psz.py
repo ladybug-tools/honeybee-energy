@@ -41,7 +41,6 @@ class PSZ(_AllAirBase):
             * PSZ-AC with no heat
             * PSZ-AC district chilled water with baseboard electric
             * PSZ-AC district chilled water with baseboard gas boiler
-            * PSZ-AC district chilled water with baseboard district hot water
             * PSZ-AC district chilled water with gas unit heaters
             * PSZ-AC district chilled water with electric coil
             * PSZ-AC district chilled water with gas coil
@@ -91,7 +90,6 @@ technical-resources/standards-and-guidelines/read-only-versions-of-ashrae-standa
         'PSZ-AC with no heat',
         'PSZ-AC district chilled water with baseboard electric',
         'PSZ-AC district chilled water with baseboard gas boiler',
-        'PSZ-AC district chilled water with baseboard district hot water',
         'PSZ-AC district chilled water with gas unit heaters',
         'PSZ-AC district chilled water with electric coil',
         'PSZ-AC district chilled water with gas coil',
