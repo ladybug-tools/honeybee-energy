@@ -84,8 +84,8 @@ jobs:
         run: |
           pip install -U .
           pip install -r dev-requirements.txt
-          sphinx-apidoc -f -e -d 4 -o ./docs/modules ./honeybee_energy
-          sphinx-build -b html ./docs ./docs/_build
+          sphinx-apidoc -f -e -d 4 -o ./docs ./honeybee_energy
+          sphinx-build -b html ./docs ./docs/_build/docs
 
       - name: deploy to github pages
         uses: peaceiris/actions-gh-pages@v3
