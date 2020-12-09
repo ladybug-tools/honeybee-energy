@@ -2,7 +2,6 @@
 """Module for constructing thermal load balances from energy result data collections."""
 from __future__ import division
 
-from .sql import SQLiteResult
 from .match import match_rooms_to_data, match_faces_to_data
 
 from honeybee.model import Model as hb_model
@@ -11,6 +10,7 @@ from honeybee.door import Door
 from honeybee.facetype import Wall, RoofCeiling, Floor
 from honeybee.boundarycondition import Surface, Adiabatic
 
+from ladybug.sql import SQLiteResult
 from ladybug.datacollection import HourlyContinuousCollection
 from ladybug.header import Header
 from ladybug.datatype.energyintensity import EnergyIntensity
@@ -113,16 +113,16 @@ class LoadBalance(object):
         'Zone Ideal Loads Zone Sensible Heating Energy',
         'Zone Ideal Loads Zone Latent Heating Energy')
     LIGHTING = (
-        'Zone Lights Electric Energy',
+        'Zone Lights Electricity Energy',
         'Zone Lights Total Heating Energy')
     ELECTRIC_EQUIP = (
-        'Zone Electric Equipment Electric Energy',
+        'Zone Electric Equipment Electricity Energy',
         'Zone Electric Equipment Total Heating Energy',
         'Zone Electric Equipment Radiant Heating Energy',
         'Zone Electric Equipment Convective Heating Energy',
         'Zone Electric Equipment Latent Gain Energy')
     GAS_EQUIP = (
-        'Zone Gas Equipment Gas Energy',
+        'Zone Gas Equipment NaturalGas Energy',
         'Zone Gas Equipment Total Heating Energy',
         'Zone Gas Equipment Radiant Heating Energy',
         'Zone Gas Equipment Convective Heating Energy',

@@ -7,7 +7,6 @@ except ImportError:
         'click is not installed. Try `pip install . [cli]` command.'
     )
 
-from honeybee_energy.result.sql import SQLiteResult
 from honeybee_energy.result.match import match_rooms_to_data, match_faces_to_data
 from honeybee_energy.result.loadbalance import LoadBalance
 
@@ -15,6 +14,7 @@ from honeybee.model import Model
 from honeybee.face import Face
 from ladybug.datacollection import HourlyContinuousCollection, DailyCollection, \
     MonthlyCollection
+from ladybug.sql import SQLiteResult
 from ladybug.dt import Date
 
 import sys

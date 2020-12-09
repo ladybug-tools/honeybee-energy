@@ -192,10 +192,10 @@ output-table-summaryreports.html#outputtablesummaryreports)
         if load_type == 'All':
             outputs = ['Zone Ideal Loads Supply Air Total Cooling Energy',
                        'Zone Ideal Loads Supply Air Total Heating Energy',
-                       'Zone Lights Electric Energy',
-                       'Zone Electric Equipment Electric Energy',
-                       'Zone Gas Equipment Gas Energy',
-                       'Zone Ventilation Fan Electric Energy']
+                       'Zone Lights Electricity Energy',
+                       'Zone Electric Equipment Electricity Energy',
+                       'Zone Gas Equipment NaturalGas Energy',
+                       'Zone Ventilation Fan Electricity Energy']
         elif load_type == 'Total':
             outputs = ['Zone Ideal Loads Supply Air Total Cooling Energy',
                        'Zone Ideal Loads Supply Air Total Heating Energy',
@@ -227,30 +227,30 @@ output-table-summaryreports.html#outputtablesummaryreports)
         which is meant to catch all energy-consuming parts of a system.
         (eg. chillers, boilers, coils, humidifiers, fans, pumps).
         """
-        outputs = ['Cooling Coil Electric Energy',
-                   'Chiller Electric Energy',
-                   'Boiler Gas Energy',
+        outputs = ['Cooling Coil Electricity Energy',
+                   'Chiller Electricity Energy',
+                   'Boiler NaturalGas Energy',
                    'Heating Coil Total Heating Energy',
-                   'Heating Coil Gas Energy',
-                   'Heating Coil Electric Energy',
-                   'Humidifier Electric Energy',
-                   'Fan Electric Energy',
-                   'Cooling Tower Fan Electric Energy',
-                   'Pump Electric Energy',
-                   'Zone VRF Air Terminal Cooling Electric Energy',
-                   'Zone VRF Air Terminal Heating Electric Energy',
-                   'VRF Heat Pump Cooling Electric Energy',
-                   'VRF Heat Pump Heating Electric Energy',
-                   'VRF Heat Pump Defrost Electric Energy',
-                   'VRF Heat Pump Crankcase Heater Electric Energy',
-                   'Chiller Heater System Cooling Electric Energy',
-                   'Chiller Heater System Heating Electric Energy',
+                   'Heating Coil NaturalGas Energy',
+                   'Heating Coil Electricity Energy',
+                   'Humidifier Electricity Energy',
+                   'Fan Electricity Energy',
+                   'Cooling Tower Fan Electricity Energy',
+                   'Pump Electricity Energy',
+                   'Zone VRF Air Terminal Cooling Electricity Energy',
+                   'Zone VRF Air Terminal Heating Electricity Energy',
+                   'VRF Heat Pump Cooling Electricity Energy',
+                   'VRF Heat Pump Heating Electricity Energy',
+                   'VRF Heat Pump Defrost Electricity Energy',
+                   'VRF Heat Pump Crankcase Heater Electricity Energy',
+                   'Chiller Heater System Cooling Electricity Energy',
+                   'Chiller Heater System Heating Electricity Energy',
                    'District Cooling Chilled Water Energy',
                    'District Heating Hot Water Energy',
-                   'Baseboard Electric Energy',
-                   'Evaporative Cooler Electric Energy',
-                   'Energy Management System Metered Output Variable 1']
-        # NOTE: The EMS output catches the electric energy of standards gem ASHP
+                   'Baseboard Electricity Energy',
+                   'Evaporative Cooler Electricity Energy',
+                   'Hot_Water_Loop_Central_Air_Source_Heat_Pump Electricity Consumption']
+        # NOTE: The EMS output catches the Electricity energy of standards gem ASHP
         for outp in outputs:
             self._outputs.add(outp)
 

@@ -20,7 +20,7 @@ def test_default_sim_par():
     sim_par = SimulationParameter.from_dict(simpar_dict)
 
     assert 'Zone Ideal Loads Supply Air Total Cooling Energy' in sim_par.output.outputs
-    assert 'Chiller Electric Energy' in sim_par.output.outputs
+    assert 'Chiller Electricity Energy' in sim_par.output.outputs
 
 
 def test_load_balance_sim_par():
