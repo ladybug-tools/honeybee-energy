@@ -6,12 +6,12 @@
         "include_sqlite": true,
         "include_html": true,
         "outputs": [
-            "Zone Electric Equipment Electric Energy",
-            "Zone Gas Equipment Gas Energy",
+            "Zone Electric Equipment Electricity Energy",
+            "Zone Gas Equipment NaturalGas Energy",
             "Zone Ideal Loads Supply Air Total Cooling Energy",
             "Zone Ideal Loads Supply Air Total Heating Energy",
-            "Zone Lights Electric Energy",
-            "Zone Ventilation Fan Electric Energy"
+            "Zone Lights Electricity Energy",
+            "Zone Ventilation Fan Electricity Energy"
         ],
         "summary_reports": [
             "AllSummary",

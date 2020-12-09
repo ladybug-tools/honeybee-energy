@@ -21,8 +21,8 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: install openstudio
         run: |
-          wget https://github.com/NREL/OpenStudio/releases/download/v3.0.0/OpenStudio-3.0.0+1c9617fa4e-Linux.deb
-          sudo dpkg -i ./OpenStudio-3.0.0+1c9617fa4e-Linux.deb
+          wget https://github.com/NREL/OpenStudio/releases/download/v3.1.0/OpenStudio-3.1.0+e165090621-Linux.deb
+          sudo dpkg -i ./OpenStudio-3.1.0+e165090621-Linux.deb
       - name: install python dependencies
         run: |
           python -m pip install --upgrade pip
