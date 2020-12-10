@@ -43,6 +43,7 @@ class Folders(object):
         * energyplus_version_str
         * energyplus_idd_path
         * honeybee_openstudio_gem_path
+        * honeybee_adapter_path
         * standards_data_folder
         * construction_lib
         * constructionset_lib
@@ -120,7 +121,6 @@ class Folders(object):
 
     @energyplus_path.setter
     def energyplus_path(self, path):
-        self._energyplus_version = None
         if not path:  # check the default installation location
             path = self._find_energyplus_folder()
         exe_name = 'energyplus.exe' if os.name == 'nt' else 'energyplus'
@@ -184,7 +184,7 @@ class Folders(object):
 
         * honeybee - Ruby library with modules for model translation to OpenStudio.
         * measures - folder with the actual measures that run the translation.
-        * files - folder containing the openapi schemas
+        * files - folder containing the adapter and other supporting files.
         """
         return self._honeybee_openstudio_gem_path
 
@@ -194,15 +194,29 @@ class Folders(object):
             path = self._find_honeybee_openstudio_gem_path()
 
         # check that the library's sub-folders exist
+        self._honeybee_adapter_path = None
         if path:
             assert os.path.isdir(os.path.join(path, 'measures')), \
                 '{} lacks a "measures" folder.'.format(path)
+            assert os.path.isdir(os.path.join(path, 'files')), \
+                '{} lacks a "files" folder.'.format(path)
+            adapter = os.path.join(path, 'files', 'honeybee_adapter.rb')
+            self._honeybee_adapter_path = adapter if os.path.isfile(adapter) else None
 
         # set the honeybee_openstudio_gem_path
         self._honeybee_openstudio_gem_path = path
         if path and not self.mute:
             print('Path to the honeybee_openstudio_gem is set to: '
                   '{}'.format(self._honeybee_openstudio_gem_path))
+
+    @property
+    def honeybee_adapter_path(self):
+        """Get the path to the honeybee adapter.
+
+        This adapter file is used to report the EnergyPlus simulation progress
+        when running simulations using the OpenStudio CLI.
+        """
+        return self._honeybee_adapter_path
 
     @property
     def standards_data_folder(self):
