@@ -133,12 +133,23 @@ def to_openstudio_osw(osw_directory, model_json_path, sim_par_json_path=None,
             m_dict[measure.type].append(measure)
         sorted_measures = m_dict['ModelMeasure'] + m_dict['EnergyPlusMeasure'] + \
             m_dict['ReportingMeasure']
+        # add the measures and the measure paths to the OSW
         for measure in sorted_measures:
             measure.validate()  # ensure that all required arguments have values
             measure_paths.add(os.path.dirname(measure.folder))
             osw_dict['steps'].append(measure.to_osw_dict())  # add measure to workflow
         for m_path in measure_paths:
             osw_dict['measure_paths'].append(m_path)
+        # if there were reporting measures, add the ladybug adapter to get sim progress
+        adapter = folders.honeybee_adapter_path
+        if len(m_dict['ReportingMeasure']) != 0 and adapter is not None:
+            if 'run_options' not in osw_dict:
+                osw_dict['run_options'] = {}
+            osw_dict['run_options']['output_adapter'] = {
+                'custom_file_name': adapter,
+                'class_name': 'HoneybeeAdapter',
+                'options': {}
+            }
 
     # assign the epw_file to the osw if it is input
     if epw_file is not None:
