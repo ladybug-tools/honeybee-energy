@@ -358,9 +358,13 @@ class People(_LoadBase):
     def _check_activity_schedule_type(self, schedule):
         """Check that the type limit of an input schedule is fractional."""
         if schedule.schedule_type_limit is not None:
-            assert schedule.schedule_type_limit.unit_type == 'ActivityLevel', 'Activity' \
-                ' schedule must have a unit type of ActivityLevel. Got a schedule' \
-                ' of unit type [{}].'.format(schedule.schedule_type_limit.unit_type)
+            t_lim = schedule.schedule_type_limit
+            assert t_lim.unit_type == 'ActivityLevel', 'Activity schedule must have a ' \
+                'unit type of ActivityLevel. Got a schedule' \
+                ' of unit type [{}].'.format(t_lim.unit_type)
+            assert t_lim.lower_limit == 0, 'Activity schedule should have either ' \
+                'no type limit or a lower limit of 0. Got a schedule type with ' \
+                'lower limit [{}].'.format(t_lim.lower_limit)
 
     @staticmethod
     def _optional_dict_keys(data):

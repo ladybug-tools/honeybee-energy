@@ -63,9 +63,16 @@ class _LoadBase(object):
     def _check_fractional_schedule_type(self, schedule, obj_name=''):
         """Check that the type limit of an input schedule is fractional."""
         if schedule.schedule_type_limit is not None:
-            assert schedule.schedule_type_limit.unit == 'fraction', '{} schedule ' \
-                'should be fractional [Dimensionless]. Got a schedule of unit_type ' \
-                '[{}].'.format(obj_name, schedule.schedule_type_limit.unit_type)
+            t_lim = schedule.schedule_type_limit
+            assert t_lim.unit == 'fraction', '{} schedule should be fractional ' \
+                '[Dimensionless]. Got a schedule of unit_type ' \
+                '[{}].'.format(obj_name, t_lim.unit_type)
+            assert t_lim.lower_limit == 0, '{} schedule should have either no type ' \
+                'limit or a lower limit of 0. Got a schedule type with lower limit ' \
+                '[{}].'.format(obj_name, t_lim.lower_limit)
+            assert t_lim.upper_limit == 1, '{} schedule should have either no type ' \
+                'limit or an upper limit of 1. Got a schedule type with upper limit ' \
+                '[{}].'.format(obj_name, t_lim.upper_limit)
 
     @staticmethod
     def _check_avg_weights(load_objects, weights, obj_name):
