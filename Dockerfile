@@ -21,9 +21,9 @@ WORKDIR /home/ladybugbot
 RUN mkdir ladybug_tools && touch ladybug_tools/config.json
 
 # Install Open Studio
-ENV OPENSTUDIO_VERSION=3.0.1
-ENV OPENSTUDIO_FILENAME=OpenStudio-3.0.1+09b7c8a554-Linux
-ENV OPENSTUDIO_DOWNLOAD_URL=https://openstudio-ci-builds.s3-us-west-2.amazonaws.com/3.0.1/OpenStudio-3.0.1%2B09b7c8a554-Linux.tar.gz
+ENV OPENSTUDIO_VERSION=3.1.0
+ENV OPENSTUDIO_FILENAME=OpenStudio-3.1.0+e165090621-Linux
+ENV OPENSTUDIO_DOWNLOAD_URL=https://openstudio-ci-builds.s3-us-west-2.amazonaws.com/3.1.0/OpenStudio-3.1.0%2Be165090621-Linux.tar.gz
 RUN mkdir ladybug_tools/openstudio/ \
     && curl -SL -o openstudio.tar.gz $OPENSTUDIO_DOWNLOAD_URL \
     && tar zxvf openstudio.tar.gz \
@@ -34,7 +34,7 @@ RUN mkdir ladybug_tools/openstudio/ \
 
 
 # Add honeybee-openstudio-gem lib to ladybug_tools folder
-ENV HONEYBEE_OPENSTUDIO_GEM_VERSION=2.6.5
+ENV HONEYBEE_OPENSTUDIO_GEM_VERSION=2.9.0
 RUN mkdir -p ladybug_tools/resources/measures/honeybee_openstudio_gem \
     && curl -SL -o honeybee-openstudio-gem.tar.gz https://github.com/ladybug-tools/honeybee-openstudio-gem/archive/v$HONEYBEE_OPENSTUDIO_GEM_VERSION.tar.gz \
     && tar zxvf honeybee-openstudio-gem.tar.gz \
