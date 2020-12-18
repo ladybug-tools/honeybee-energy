@@ -81,8 +81,8 @@ class SimulationParameter(object):
     @output.setter
     def output(self, value):
         if value is not None:
-            assert isinstance(value, SimulationOutput), 'Expected SimulationOutput for ' \
-                'SimulationParameter output. Got {}.'.format(type(value))
+            assert isinstance(value, SimulationOutput), 'Expected SimulationOutput ' \
+                'for SimulationParameter output. Got {}.'.format(type(value))
             self._output = value
         else:
             self._output = SimulationOutput()
@@ -248,6 +248,12 @@ class SimulationParameter(object):
                     'solar distribution')
         return generate_idf_string('Building', values, comments)
 
+    def water_mains_idf(self):
+        """Get an IDF string for the water mains object."""
+        return generate_idf_string(
+            'Site:WaterMainsTemperature', ('CorrelationFromWeatherFile',),
+            ('calculation method,'))
+
     @classmethod
     def from_idf(cls, idf_string):
         """Create a SimulationParameter object from an EnergyPlus IDF text string.
@@ -350,8 +356,8 @@ class SimulationParameter(object):
             location = loc_pattern.findall(idf_string)[0]
         except IndexError:  # No Site:Location in the file.
             location = None
-        sizing_par = SizingParameter.from_idf([dy[0] for dy in ddy_p.findall(idf_string)],
-                                              sizing_str, location)
+        sizing_par = SizingParameter.from_idf(
+            [dy[0] for dy in ddy_p.findall(idf_string)], sizing_str, location)
 
         return cls(output, run_period, timestep, sim_control, shadow_calc,
                    sizing_par, north_angle, terrain)
@@ -453,8 +459,9 @@ class SimulationParameter(object):
         # write the global geometry rules
         sim_param_str.append(self.global_geometry_rules)
 
-        # write the Building object
+        # write the Building and water mains object
         sim_param_str.append(self.building_idf(identifier))
+        sim_param_str.append(self.water_mains_idf())
 
         return '\n\n'.join(sim_param_str)
 

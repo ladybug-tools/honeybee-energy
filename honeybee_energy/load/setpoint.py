@@ -175,7 +175,7 @@ class Setpoint(_LoadBase):
         if value is not None:
             value = float_in_range(value, 0, 100, 'humidifying setpoint')
             schedule = ScheduleRuleset.from_constant_value(
-                '{}_DeHumidSetp'.format(self.identifier), value, _type_lib.humidity)
+                '{}_HumidSetp'.format(self.identifier), value, _type_lib.humidity)
             self.humidifying_schedule = schedule
         else:
             self.humidifying_schedule = None
@@ -532,9 +532,15 @@ class Setpoint(_LoadBase):
             'Expected ScheduleRuleset or ScheduleFixedInterval for {} ' \
             'schedule. Got {}.'.format(obj_name, type(schedule))
         if schedule.schedule_type_limit is not None:
-            assert schedule.schedule_type_limit.unit == '%', '{} schedule ' \
-                'should be in Percent units. Got a schedule of unit_type ' \
-                '{}.'.format(obj_name, schedule.schedule_type_limit.unit_type)
+            t_lim = schedule.schedule_type_limit
+            assert t_lim.unit == '%', '{} schedule should be in Percent units. ' \
+                'Got a schedule of unit_type {}.'.format(obj_name, t_lim.unit_type)
+            assert t_lim.lower_limit == 0, '{} schedule should have either no type ' \
+                'limit or a lower limit of 0. Got a schedule type with lower limit ' \
+                '[{}].'.format(obj_name, t_lim.lower_limit)
+            assert t_lim.upper_limit == 100, '{} schedule should have either no type ' \
+                'limit or an upper limit of 1. Got a schedule type with upper limit ' \
+                '[{}].'.format(obj_name, t_lim.upper_limit)
 
     def _min_schedule_value(self, schedule):
         """Extract the minimum value from a schedule."""

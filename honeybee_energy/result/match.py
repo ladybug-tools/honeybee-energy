@@ -44,9 +44,11 @@ def match_rooms_to_data(data_collections, rooms):
         else:  # it's HVAC system data and we need to see if it's matchable
             hvac_id = data.header.metadata['System']
             use_mult = True
-            if ' IDEAL LOADS AIR SYSTEM' in hvac_id:
+            if ' IDEAL LOADS AIR SYSTEM' in hvac_id:  # convention of E+ HVAC Templates
                 zone_ids.append(hvac_id.split(' IDEAL LOADS AIR SYSTEM')[0])
-            elif '_IDEALAIR' in hvac_id:
+            elif '..' in hvac_id:  # convention used for service hot water
+                zone_ids.append(hvac_id.split('..')[-1])
+            elif '_IDEALAIR' in hvac_id:  # TODO: Remove once test files are updated
                 zone_ids.append(hvac_id.split('_IDEALAIR')[0])
             else:
                 zone_ids.append(hvac_id)

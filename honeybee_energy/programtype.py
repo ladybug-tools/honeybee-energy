@@ -5,6 +5,7 @@ from __future__ import division
 from .load.people import People
 from .load.lighting import Lighting
 from .load.equipment import ElectricEquipment, GasEquipment
+from .load.hotwater import ServiceHotWater
 from .load.infiltration import Infiltration
 from .load.ventilation import Ventilation
 from .load.setpoint import Setpoint
@@ -22,24 +23,27 @@ class ProgramType(object):
             and not contain any EnergyPlus special characters. This will be used to
             identify the object across a model and in the exported IDF.
         people: A People object to describe the occupancy of the program. If None,
-            no occupancy will be assumed for the program. Default: None.
+            no occupancy will be assumed for the program. (Default: None).
         lighting: A Lighting object to describe the lighting usage of the program.
-            If None, no lighting will be assumed for the program. Default: None.
+            If None, no lighting will be assumed for the program. (Default: None).
         electric_equipment: An ElectricEquipment object to describe the usage
             of electric equipment within the program. If None, no electric equipment
-            will be assumed for the program. Default: None.
+            will be assumed for the program. (Default: None).
         gas_equipment: A GasEquipment object to describe the usage of gas equipment
             within the program. If None, no gas equipment will be assumed for
-            the program. Default: None.
+            the program. (Default: None).
+        service_hot_water: A ServiceHotWater object to describe the usage of hot
+            water within the program. If None, no hot water will be assumed for
+            the program. (Default: None).
         infiltration: An Infiltration object to describe the outdoor air leakage of
             the program. If None, no infiltration will be assumed for the program.
-            Default: None.
+            (Default: None).
         ventilation: A Ventilation object to describe the minimum outdoor air
             requirement of the program. If None, no ventilation requirement will
             be assumed for the program. Default: None
         setpoint: A Setpoint object to describe the temperature and humidity
             setpoints of the program.  If None, the ProgramType cannot be assigned
-            to a Room that is conditioned. Default: None.
+            to a Room that is conditioned. (Default: None).
 
     Properties:
         * identifier
@@ -48,6 +52,7 @@ class ProgramType(object):
         * lighting
         * electric_equipment
         * gas_equipment
+        * service_hot_water
         * infiltration
         * ventilation
         * setpoint
@@ -55,11 +60,12 @@ class ProgramType(object):
         * schedules_unique
     """
     __slots__ = ('_identifier', '_display_name', '_people', '_lighting',
-                 '_electric_equipment', '_gas_equipment', '_infiltration',
-                 '_ventilation', '_setpoint', '_locked')
+                 '_electric_equipment', '_gas_equipment', '_service_hot_water',
+                 '_infiltration', '_ventilation', '_setpoint', '_locked')
 
     def __init__(self, identifier, people=None, lighting=None, electric_equipment=None,
-                 gas_equipment=None, infiltration=None, ventilation=None, setpoint=None):
+                 gas_equipment=None, service_hot_water=None,
+                 infiltration=None, ventilation=None, setpoint=None):
         """Initialize ProgramType"""
         self._locked = False  # unlocked by default
         self.identifier = identifier
@@ -68,6 +74,7 @@ class ProgramType(object):
         self.lighting = lighting
         self.electric_equipment = electric_equipment
         self.gas_equipment = gas_equipment
+        self.service_hot_water = service_hot_water
         self.infiltration = infiltration
         self.ventilation = ventilation
         self.setpoint = setpoint
@@ -147,6 +154,18 @@ class ProgramType(object):
         self._gas_equipment = value
 
     @property
+    def service_hot_water(self):
+        """Get or set a ServiceHotWater object to describe the usage of hot water."""
+        return self._service_hot_water
+
+    @service_hot_water.setter
+    def service_hot_water(self, value):
+        if value is not None:
+            assert isinstance(value, ServiceHotWater), 'Expected ServiceHotWater ' \
+                'object for ProgramType.service_hot_water. Got {}.'.format(type(value))
+        self._service_hot_water = value
+
+    @property
     def infiltration(self):
         """Get or set an Infiltration object to describe the outdoor air leakage."""
         return self._infiltration
@@ -195,6 +214,8 @@ class ProgramType(object):
             sched.append(self.electric_equipment.schedule)
         if self.gas_equipment is not None:
             sched.append(self.gas_equipment.schedule)
+        if self.service_hot_water is not None:
+            sched.append(self.service_hot_water.schedule)
         if self.infiltration is not None:
             sched.append(self.infiltration.schedule)
         if self.ventilation is not None and self.ventilation.schedule is not None:
@@ -232,6 +253,7 @@ class ProgramType(object):
             'lighting': {},  # A Lighting dictionary
             'electric_equipment': {},  # A ElectricEquipment dictionary
             'gas_equipment': {},  # A GasEquipment dictionary
+            'service_hot_water': {},  # A ServiceHotWater dictionary
             'infiltration': {},  # A Infliltration dictionary
             'ventilation': {},  # A Ventilation dictionary
             'setpoint': {}  # A Setpoint dictionary
@@ -252,6 +274,9 @@ class ProgramType(object):
         gas_equipment = GasEquipment.from_dict(data['gas_equipment']) \
             if 'gas_equipment' in data and \
             data['gas_equipment'] is not None else None
+        shw = ServiceHotWater.from_dict(data['service_hot_water']) \
+            if 'service_hot_water' in data and \
+            data['service_hot_water'] is not None else None
         infiltration = Infiltration.from_dict(data['infiltration']) if 'infiltration' \
             in data and data['infiltration'] is not None else None
         ventilation = Ventilation.from_dict(data['ventilation']) if 'ventilation' \
@@ -260,7 +285,7 @@ class ProgramType(object):
             data['setpoint'] is not None else None
 
         new_obj = cls(data['identifier'], people, lighting, electric_equipment,
-                      gas_equipment, infiltration, ventilation, setpoint)
+                      gas_equipment, shw, infiltration, ventilation, setpoint)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
         return new_obj
@@ -286,6 +311,7 @@ class ProgramType(object):
             'lighting': {},  # A LightingAbridged dictionary
             'electric_equipment': {},  # A ElectricEquipmentAbridged dictionary
             'gas_equipment': {},  # A GasEquipmentAbridged dictionary
+            'service_hot_water': {},  # A ServiceHotWaterAbridged dictionary
             'infiltration': {},  # A InfliltrationAbridged dictionary
             'ventilation': {},  # A VentilationAbridged dictionary
             'setpoint': {}  # A SetpointAbridged dictionary
@@ -295,10 +321,10 @@ class ProgramType(object):
             'Expected ProgramTypeAbridged dictionary. Got {}.'.format(data['type'])
 
         # build each of the load objects
-        people, lighting, electric_equipment, gas_equipment, infiltration, \
+        people, lighting, electric_equipment, gas_equipment, shw, infiltration, \
             ventilation, setpoint = cls._get_loads_from_abridged(data, schedule_dict)
         new_obj = cls(data['identifier'], people, lighting, electric_equipment,
-                      gas_equipment, infiltration, ventilation, setpoint)
+                      gas_equipment, shw, infiltration, ventilation, setpoint)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
         return new_obj
@@ -322,6 +348,8 @@ class ProgramType(object):
             base['electric_equipment'] = self.electric_equipment.to_dict(abridged)
         if self.gas_equipment is not None:
             base['gas_equipment'] = self.gas_equipment.to_dict(abridged)
+        if self.service_hot_water is not None:
+            base['service_hot_water'] = self.service_hot_water.to_dict(abridged)
         if self.infiltration is not None:
             base['infiltration'] = self.infiltration.to_dict(abridged)
         if self.ventilation is not None:
@@ -347,11 +375,11 @@ class ProgramType(object):
             weights: An optional list of fractional numbers with the same length
                 as the input program_types that sum to 1. These will be used to weight
                 each of the ProgramType objects in the resulting average. If None, the
-                individual objects will be weighted equally. Default: None.
+                individual objects will be weighted equally. (Default: None).
             timestep_resolution: An optional integer for the timestep resolution
                 at which the schedules will be averaged. Any schedule details
                 smaller than this timestep will be lost in the averaging process.
-                Default: 1.
+                (Default: 1).
         """
         # check the weights input
         if weights is None:
@@ -368,10 +396,12 @@ class ProgramType(object):
                       if pr.people is not None]
         lighting_mtx = [[pr.lighting, w] for pr, w in zip(program_types, weights)
                         if pr.lighting is not None]
-        e_equip_mtx = [[pr.electric_equipment, w] for pr, w in zip(program_types, weights)
-                       if pr.electric_equipment is not None]
+        e_equip_mtx = [[p.electric_equipment, w] for p, w in zip(program_types, weights)
+                       if p.electric_equipment is not None]
         g_equip_mtx = [[pr.gas_equipment, w] for pr, w in zip(program_types, weights)
                        if pr.gas_equipment is not None]
+        shw_mtx = [[pr.service_hot_water, w] for pr, w in zip(program_types, weights)
+                   if pr.service_hot_water is not None]
         inf_mtx = [[pr.infiltration, w] for pr, w in zip(program_types, weights)
                    if pr.infiltration is not None]
         vent_mtx = [[pr.ventilation, w] for pr, w in zip(program_types, weights)
@@ -388,8 +418,9 @@ class ProgramType(object):
         lighting = None
         if len(lighting_mtx) != 0:
             t_lighting_mtx = tuple(zip(*lighting_mtx))
-            lighting = Lighting.average('{}_Lighting'.format(identifier), t_lighting_mtx[0],
-                                        t_lighting_mtx[1], timestep_resolution)
+            lighting = Lighting.average(
+                '{}_Lighting'.format(identifier), t_lighting_mtx[0], t_lighting_mtx[1],
+                timestep_resolution)
         electric_equipment = None
         if len(e_equip_mtx) != 0:
             t_e_equip_mtx = tuple(zip(*e_equip_mtx))
@@ -402,6 +433,12 @@ class ProgramType(object):
             gas_equipment = GasEquipment.average(
                 '{}_Gas Equipment'.format(identifier), t_g_equip_mtx[0],
                 t_g_equip_mtx[1], timestep_resolution)
+        shw = None
+        if len(shw_mtx) != 0:
+            t_shw_mtx = tuple(zip(*shw_mtx))
+            shw = ServiceHotWater.average(
+                '{}_Service Hot Water'.format(identifier), t_shw_mtx[0],
+                t_shw_mtx[1], timestep_resolution)
         infiltration = None
         if len(inf_mtx) != 0:
             t_inf_mtx = tuple(zip(*inf_mtx))
@@ -421,8 +458,9 @@ class ProgramType(object):
                                         t_setp_mtx[1], timestep_resolution)
 
         # return the averaged object
-        return ProgramType(identifier, people, lighting, electric_equipment, gas_equipment,
-                           infiltration, ventilation, setpoint)
+        return ProgramType(
+            identifier, people, lighting, electric_equipment, gas_equipment, shw,
+            infiltration, ventilation, setpoint)
 
     def duplicate(self):
         """Get a copy of this object."""
@@ -439,6 +477,8 @@ class ProgramType(object):
             self.electric_equipment.lock()
         if self.gas_equipment is not None:
             self.gas_equipment.lock()
+        if self.service_hot_water is not None:
+            self.service_hot_water.lock()
         if self.infiltration is not None:
             self.infiltration.lock()
         if self.ventilation is not None:
@@ -457,6 +497,8 @@ class ProgramType(object):
             self.electric_equipment.unlock()
         if self.gas_equipment is not None:
             self.gas_equipment.unlock()
+        if self.service_hot_water is not None:
+            self.service_hot_water.unlock()
         if self.infiltration is not None:
             self.infiltration.unlock()
         if self.ventilation is not None:
@@ -475,6 +517,7 @@ class ProgramType(object):
         lighting = None
         electric_equipment = None
         gas_equipment = None
+        shw = None
         infiltration = None
         ventilation = None
         setpoint = None
@@ -488,6 +531,9 @@ class ProgramType(object):
         if 'gas_equipment' in data and data['gas_equipment'] is not None:
             gas_equipment = GasEquipment.from_dict_abridged(
                 data['gas_equipment'], schedule_dict)
+        if 'service_hot_water' in data and data['service_hot_water'] is not None:
+            shw = ServiceHotWater.from_dict_abridged(
+                data['service_hot_water'], schedule_dict)
         if 'infiltration' in data and data['infiltration'] is not None:
             infiltration = Infiltration.from_dict_abridged(
                 data['infiltration'], schedule_dict)
@@ -496,8 +542,8 @@ class ProgramType(object):
                 data['ventilation'], schedule_dict)
         if 'setpoint' in data and data['setpoint'] is not None:
             setpoint = Setpoint.from_dict_abridged(data['setpoint'], schedule_dict)
-        return people, lighting, electric_equipment, gas_equipment, infiltration, \
-            ventilation, setpoint
+        return people, lighting, electric_equipment, gas_equipment, shw, \
+            infiltration, ventilation, setpoint
 
     @staticmethod
     def _instance_in_array(object_instance, object_array):
@@ -520,13 +566,15 @@ class ProgramType(object):
             self.electric_equipment is not None else None
         gas_equipment = self.gas_equipment.duplicate() if \
             self.gas_equipment is not None else None
+        shw = self.service_hot_water.duplicate() if \
+            self.service_hot_water is not None else None
         infiltration = self.infiltration.duplicate() if \
             self.infiltration is not None else None
         ventilation = self.ventilation.duplicate() if \
             self.ventilation is not None else None
         setpoint = self.setpoint.duplicate() if self.setpoint is not None else None
         new_obj = ProgramType(self.identifier, people, lighting, electric_equipment,
-                              gas_equipment, infiltration, ventilation, setpoint)
+                              gas_equipment, shw, infiltration, ventilation, setpoint)
         new_obj._display_name = self._display_name
         return new_obj
 
@@ -534,7 +582,8 @@ class ProgramType(object):
         """A tuple based on the object properties, useful for hashing."""
         return (self.identifier, hash(self.people), hash(self.lighting),
                 hash(self.electric_equipment), hash(self.gas_equipment),
-                hash(self.infiltration), hash(self.ventilation), hash(self.setpoint))
+                hash(self.service_hot_water), hash(self.infiltration),
+                hash(self.ventilation), hash(self.setpoint))
 
     def __hash__(self):
         return hash(self.__key())

@@ -8,14 +8,16 @@ import honeybee_energy.lib.scheduletypelimits as schedule_types
 from honeybee_energy.material.shade import EnergyWindowMaterialShade
 from honeybee_energy.construction.window import WindowConstruction
 from honeybee_energy.construction.windowshade import WindowConstructionShade
+from honeybee_energy.schedule.day import ScheduleDay
 from honeybee_energy.schedule.ruleset import ScheduleRuleset
+from honeybee_energy.load.hotwater import ServiceHotWater
 from honeybee_energy.load.setpoint import Setpoint
 from honeybee_energy.ventcool.opening import VentilationOpening
 from honeybee_energy.ventcool.control import VentilationControl
 from honeybee_energy.simulation.parameter import SimulationParameter
 from honeybee_energy.measure import Measure
 
-from ladybug.dt import Date
+from ladybug.dt import Date, Time
 from ladybug.futil import write_to_file
 from honeybee.model import Model
 from honeybee.room import Room
@@ -256,6 +258,47 @@ def test_run_idf_window_ventilation():
 
     # write the final string into an IDF
     idf = os.path.join(folders.default_simulation_folder, 'test_file_window_vent', 'in.idf')
+    write_to_file(idf, idf_str, True)
+
+    # prepare the IDF for simulation
+    epw_file = './tests/simulation/chicago.epw'
+    prepare_idf_for_simulation(idf, epw_file)
+
+    # run the IDF through EnergyPlus
+    sql, zsz, rdd, html, err = run_idf(idf, epw_file)
+
+    assert os.path.isfile(sql)
+    assert os.path.isfile(err)
+    err_obj = Err(err)
+    assert 'EnergyPlus Completed Successfully' in err_obj.file_contents
+
+
+def test_run_idf_hot_water():
+    """Test the Model.to.idf and run_idf method with a model possessing hot water."""
+    # Get input Model
+    room = Room.from_box('TinyHouseZone', 5, 10, 3)
+    room.properties.energy.program_type = office_program
+    simple_office = ScheduleDay('Simple Weekday', [0, 1, 0],
+                                [Time(0, 0), Time(9, 0), Time(17, 0)])
+    schedule = ScheduleRuleset('Office Water Use', simple_office,
+                               None, schedule_types.fractional)
+    shw = ServiceHotWater('Office Hot Water', 0.1, schedule)
+    room.properties.energy.service_hot_water = shw
+    room.properties.energy.add_default_ideal_air()
+    model = Model('TinyHouse', [room])
+
+    # Get the input SimulationParameter
+    sim_par = SimulationParameter()
+    sim_par.output.add_zone_energy_use()
+    ddy_file = './tests/ddy/chicago.ddy'
+    sim_par.sizing_parameter.add_from_ddy_996_004(ddy_file)
+    sim_par.run_period.end_date = Date(1, 7)
+
+    # create the IDF string for simulation paramters and model
+    idf_str = '\n\n'.join((sim_par.to_idf(), model.to.idf(model)))
+
+    # write the final string into an IDF
+    idf = os.path.join(folders.default_simulation_folder, 'test_file_shw', 'in.idf')
     write_to_file(idf, idf_str, True)
 
     # prepare the IDF for simulation

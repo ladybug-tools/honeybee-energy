@@ -333,6 +333,7 @@ def room_to_idf(room):
     lighting = room.properties.energy.lighting
     electric_equipment = room.properties.energy.electric_equipment
     gas_equipment = room.properties.energy.gas_equipment
+    shw = room.properties.energy.service_hot_water
     infiltration = room.properties.energy.infiltration
     ventilation = room.properties.energy.ventilation
 
@@ -344,17 +345,18 @@ def room_to_idf(room):
         zone_str.append(electric_equipment.to_idf(room.identifier))
     if gas_equipment is not None:
         zone_str.append(gas_equipment.to_idf(room.identifier))
+    if shw is not None:
+        shw_str, shw_sch = shw.to_idf(room)
+        zone_str.append(shw_str)
+        zone_str.extend(shw_sch)
     if infiltration is not None:
         zone_str.append(infiltration.to_idf(room.identifier))
 
-    # write the ventilation, thermostat, and ideal air system
+    # write the ventilation and thermostat
     if ventilation is not None:
         zone_str.append(ventilation.to_idf(room.identifier))
     if room.properties.energy.is_conditioned:
         zone_str.append(room.properties.energy.setpoint.to_idf(room.identifier))
-        humidistat = room.properties.energy.setpoint.to_idf_humidistat(room.identifier)
-        if humidistat is not None:
-            zone_str.append(humidistat)
 
     return '\n\n'.join(zone_str)
 

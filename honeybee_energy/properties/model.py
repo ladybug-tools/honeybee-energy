@@ -212,6 +212,7 @@ class ModelEnergyProperties(object):
             lighting = room.properties.energy._lighting
             electric_equipment = room.properties.energy._electric_equipment
             gas_equipment = room.properties.energy._gas_equipment
+            shw = room.properties.energy._service_hot_water
             infiltration = room.properties.energy._infiltration
             ventilation = room.properties.energy._ventilation
             setpoint = room.properties.energy._setpoint
@@ -225,6 +226,8 @@ class ModelEnergyProperties(object):
                 self._check_and_add_schedule(electric_equipment.schedule, scheds)
             if gas_equipment is not None:
                 self._check_and_add_schedule(gas_equipment.schedule, scheds)
+            if shw is not None:
+                self._check_and_add_schedule(shw.schedule, scheds)
             if infiltration is not None:
                 self._check_and_add_schedule(infiltration.schedule, scheds)
             if ventilation is not None and ventilation.schedule is not None:
@@ -553,7 +556,8 @@ class ModelEnergyProperties(object):
                 data['properties']['energy']['hvacs'] is not None:
             for hvac in data['properties']['energy']['hvacs']:
                 hvac_class = HVAC_TYPES_DICT[hvac['type'].replace('Abridged', '')]
-                hvacs[hvac['identifier']] = hvac_class.from_dict_abridged(hvac, schedules)
+                hvacs[hvac['identifier']] = \
+                    hvac_class.from_dict_abridged(hvac, schedules)
 
         return materials, constructions, construction_sets, schedule_type_limits, \
             schedules, program_types, hvacs
