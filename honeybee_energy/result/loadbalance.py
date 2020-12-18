@@ -35,6 +35,8 @@ class LoadBalance(object):
             Total Heating Energy' that correspond to the input rooms.
         gas_equip_data: Array of data collections for 'Zone Gas Equipment Total
             Heating Energy' that correspond to the input rooms.
+        service_hot_water_data: Array of data collections for 'Water Use Equipment
+            Zone Heat Gain Energy' that correspond to the input rooms.
         people_data: Array of data collections for 'Zone People Total Heating
             Energy' that correspond to the input rooms.
         solar_data: Array of data collections for 'Zone Windows Total Transmitted
@@ -81,6 +83,7 @@ class LoadBalance(object):
         * lighting
         * electric_equip
         * gas_equip
+        * service_hot_water
         * people
         * solar
         * infiltration
@@ -97,8 +100,9 @@ class LoadBalance(object):
     """
     __slots__ = \
         ('_rooms', '_units', '_cooling', '_heating', '_lighting', '_electric_equip',
-         '_gas_equip', '_people', '_solar', '_infiltration', '_mech_ventilation',
-         '_nat_ventilation', '_conduction', '_window_conduction', '_opaque_conduction',
+         '_gas_equip', '_service_hot_water', '_people', '_solar',
+         '_infiltration', '_mech_ventilation', '_nat_ventilation',
+         '_conduction', '_window_conduction', '_opaque_conduction',
          '_wall_conduction', '_roof_conduction', '_floor_conduction', '_storage')
 
     UNITS = hb_model.UNITS
@@ -127,6 +131,9 @@ class LoadBalance(object):
         'Zone Gas Equipment Radiant Heating Energy',
         'Zone Gas Equipment Convective Heating Energy',
         'Zone Gas Equipment Latent Gain Energy')
+    HOT_WATER = (
+        'Water Use Equipment Zone Sensible Heat Gain Energy',
+        'Water Use Equipment Zone Latent Gain Energy')
     PEOPLE_GAIN = (
         'Zone People Total Heating Energy',
         'Zone People Sensible Heating Energy',
@@ -165,7 +172,8 @@ class LoadBalance(object):
     WINDOW_GAIN = 'Surface Window Heat Gain Energy'
 
     def __init__(self, rooms, cooling_data=None, heating_data=None, lighting_data=None,
-                 electric_equip_data=None, gas_equip_data=None, people_data=None,
+                 electric_equip_data=None, gas_equip_data=None,
+                 service_hot_water_data=None, people_data=None,
                  solar_data=None, infiltration_data=None, mech_ventilation_data=None,
                  nat_ventilation_data=None, surface_flow_data=None, units='Meters',
                  use_all_solar=False):
@@ -188,6 +196,9 @@ class LoadBalance(object):
             electric_equip_data, rooms, 'Electric Equipment', mult_per_room=True)
         self._gas_equip = self._match_room_input(
             gas_equip_data, rooms, 'Gas Equipment', mult_per_room=True)
+        self._service_hot_water = self._match_room_input(
+            service_hot_water_data, rooms, 'Service Hot Water',
+            'Water Use Equipment Zone', mult_per_room=True)
         self._people = self._match_room_input(
             people_data, rooms, 'People')
         self._solar = self._match_room_input(
@@ -242,6 +253,9 @@ class LoadBalance(object):
         gas_equip = sql_obj.data_collections_by_output_name(cls.GAS_EQUIP[1])
         if len(gas_equip) == 0:
             gas_equip = sql_obj.data_collections_by_output_name(cls.GAS_EQUIP)
+        how_water = sql_obj.data_collections_by_output_name(cls.HOT_WATER[1])
+        if len(how_water) == 0:
+            how_water = sql_obj.data_collections_by_output_name(cls.HOT_WATER)
 
         # subtract losses from gains
         infiltration = None
@@ -264,7 +278,7 @@ class LoadBalance(object):
         face_energy_flow = opaque_flow + window_flow
 
         return cls(model.rooms, cooling, heating, lighting, electric_equip, gas_equip,
-                   people_gain, solar_gain, infiltration, mech_vent, nat_vent,
+                   how_water, people_gain, solar_gain, infiltration, mech_vent, nat_vent,
                    face_energy_flow, model.units, use_all_solar=True)
 
     @property
@@ -296,6 +310,11 @@ class LoadBalance(object):
     def gas_equip(self):
         """Get a data collection for the gas equipment gain of the load balance."""
         return self._gas_equip
+
+    @property
+    def service_hot_water(self):
+        """Get a data collection for the service hot water gain of the load balance."""
+        return self._service_hot_water
 
     @property
     def people(self):
@@ -417,8 +436,8 @@ class LoadBalance(object):
             include_storage: Boolean to note whether the storage term should
                 be included in the list.
         """
-        all_terms = [self.heating, self.solar, self.gas_equip, self.electric_equip,
-                     self.lighting, self.people, self.infiltration,
+        all_terms = [self.heating, self.solar, self.service_hot_water, self.gas_equip,
+                     self.electric_equip, self.lighting, self.people, self.infiltration,
                      self.mech_ventilation, self.nat_ventilation,
                      self.opaque_conduction, self.window_conduction, self.cooling]
         bal_terms = [term for term in all_terms if term is not None and term != []]

@@ -28,13 +28,13 @@ class Lighting(_LoadBase):
             watts_per_area to yield a complete lighting profile.
         return_air_fraction: A number between 0 and 1 for the fraction of the total
             lighting load that goes into the zone return air (into the zone outlet
-            node). Default: 0.0 (representative of pendant lighting).
+            node). (Default: 0.0). (representative of pendant lighting).
         radiant_fraction: A number between 0 and 1 for the fraction of the total
             lighting load given off as long wave radiant heat.
-            Default: 0.32 (representative of pendant lighting).
+            (Default: 0.32). (representative of pendant lighting).
         visible_fraction: A number between 0 and 1 for the fraction of the total
             lighting load given off as short wave visible light.
-            Default: 0.25  (representative of pendant lighting).
+            (Default: 0.25).  (representative of pendant lighting).
 
     Properties:
         * identifier
@@ -155,7 +155,7 @@ class Lighting(_LoadBase):
 
     @classmethod
     def from_idf(cls, idf_string, schedule_dict):
-        """Create an Lighting object from an EnergyPlus IDF text string.
+        """Create a Lighting object from an EnergyPlus IDF text string.
 
         Note that the Lighting idf_string must use the 'watts per zone floor area'
         method in order to be successfully imported.

@@ -50,6 +50,7 @@ def _scheds_from_ptype_dict(p_type_dict):
     add_schedule(scheds, p_type_dict, 'lighting', 'schedule')
     add_schedule(scheds, p_type_dict, 'electric_equipment', 'schedule')
     add_schedule(scheds, p_type_dict, 'gas_equipment', 'schedule')
+    add_schedule(scheds, p_type_dict, 'service_hot_water', 'schedule')
     add_schedule(scheds, p_type_dict, 'infiltration', 'schedule')
     add_schedule(scheds, p_type_dict, 'ventilation', 'schedule')
     add_schedule(scheds, p_type_dict, 'setpoint', 'heating_schedule')

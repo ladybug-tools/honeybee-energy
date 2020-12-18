@@ -12,6 +12,7 @@ from ..constructionset import ConstructionSet
 from ..load.people import People
 from ..load.lighting import Lighting
 from ..load.equipment import ElectricEquipment, GasEquipment
+from ..load.hotwater import ServiceHotWater
 from ..load.infiltration import Infiltration
 from ..load.ventilation import Ventilation
 from ..load.setpoint import Setpoint
@@ -56,6 +57,7 @@ class RoomEnergyProperties(object):
         * lighting
         * electric_equipment
         * gas_equipment
+        * service_hot_water
         * infiltration
         * ventilation
         * setpoint
@@ -65,7 +67,8 @@ class RoomEnergyProperties(object):
 
     __slots__ = ('_host', '_program_type', '_construction_set', '_hvac',
                  '_people', '_lighting', '_electric_equipment', '_gas_equipment',
-                 '_infiltration', '_ventilation', '_setpoint', '_window_vent_control')
+                 '_service_hot_water', '_infiltration', '_ventilation', '_setpoint',
+                 '_window_vent_control')
 
     def __init__(self, host, program_type=None, construction_set=None, hvac=None):
         """Initialize Room energy properties."""
@@ -80,6 +83,7 @@ class RoomEnergyProperties(object):
         self._lighting = None
         self._electric_equipment = None
         self._gas_equipment = None
+        self._service_hot_water = None
         self._infiltration = None
         self._ventilation = None
         self._setpoint = None
@@ -209,6 +213,22 @@ class RoomEnergyProperties(object):
         self._gas_equipment = value
 
     @property
+    def service_hot_water(self):
+        """Get or set a ServiceHotWater object to describe the hot water usage."""
+        if self._service_hot_water is not None:  # set by the user
+            return self._service_hot_water
+        else:
+            return self.program_type.service_hot_water
+
+    @service_hot_water.setter
+    def service_hot_water(self, value):
+        if value is not None:
+            assert isinstance(value, ServiceHotWater), 'Expected ServiceHotWater ' \
+                'for Room service_hot_water. Got {}'.format(type(value))
+            value.lock()   # lock because we don't duplicate the object
+        self._service_hot_water = value
+
+    @property
     def infiltration(self):
         """Get or set a Infiltration object to to describe the outdoor air leakage."""
         if self._infiltration is not None:  # set by the user
@@ -267,8 +287,8 @@ class RoomEnergyProperties(object):
     @window_vent_control.setter
     def window_vent_control(self, value):
         if value is not None:
-            assert isinstance(value, VentilationControl), 'Expected VentilationControl ' \
-                'object for Room window_vent_control. Got {}'.format(type(value))
+            assert isinstance(value, VentilationControl), 'Expected VentilationControl' \
+                ' object for Room window_vent_control. Got {}'.format(type(value))
             value.lock()   # lock because we don't duplicate the object
         self._window_vent_control = value
 
@@ -279,7 +299,7 @@ class RoomEnergyProperties(object):
 
     def abolute_people(self, person_count, conversion=1):
         """Set the abolute number of people in the Room.
-        
+
         This overwrites the RoomEnergyProperties's people per area but preserves
         all schedules and other people properties. If the Room has no people definition,
         a new one with an Always On schedule will be created. Note that, if the
@@ -297,7 +317,7 @@ class RoomEnergyProperties(object):
 
     def abolute_lighting(self, watts, conversion=1):
         """Set the abolute wattage of lighting in the Room.
-        
+
         This overwrites the RoomEnergyProperties's lighting per area but preserves all
         schedules and other lighting properties. If the Room has no lighting definition,
         a new one with an Always On schedule will be created. Note that, if the
@@ -315,7 +335,7 @@ class RoomEnergyProperties(object):
 
     def abolute_electric_equipment(self, watts, conversion=1):
         """Set the abolute wattage of electric equipment in the Room.
-        
+
         This overwrites the RoomEnergyProperties's electric equipment per area but
         preserves all schedules and other properties. If the Room has no electric
         equipment definition, a new one with an Always On schedule will be created.
@@ -334,7 +354,7 @@ class RoomEnergyProperties(object):
 
     def abolute_gas_equipment(self, watts, conversion=1):
         """Set the abolute wattage of gas equipment in the Room.
-        
+
         This overwrites the RoomEnergyProperties's gas equipment per area but
         preserves all schedules and other properties. If the Room has no gas
         equipment definition, a new one with an Always On schedule will be created.
@@ -350,6 +370,25 @@ class RoomEnergyProperties(object):
         gas_equipment = self._dup_load('gas_equipment', GasEquipment)
         self._absolute_by_floor(gas_equipment, 'watts_per_area', watts, conversion)
         self.gas_equipment = gas_equipment
+
+    def abolute_service_hot_water(self, flow, conversion=1):
+        """Set the abolute flow rate of service hot water use in the Room.
+
+        This overwrites the RoomEnergyProperties's hot water flow per area but
+        preserves all schedules and other properties. If the Room has no service
+        hot water definition, a new one with an Always On schedule will be created.
+        Note that, if the host Room has no floors, the service hot water flow
+        will be zero.
+
+        Args:
+            flow: Number for the peak flow rate of service hot water in the room.
+            conversion: Factor to account for the case where host Room geometry is
+                not in meters. This will be multiplied by the floor area so it should
+                be 0.001 for millimeters, 0.305 for feet, etc. (Default: 1).
+        """
+        shw = self._dup_load('service_hot_water', ServiceHotWater)
+        self._absolute_by_floor(shw, 'flow_per_area', flow, conversion)
+        self.service_hot_water = shw
 
     def abolute_infiltration(self, flow_rate, conversion=1):
         """Set the abolute flow rate of infiltration for the Room in m3/s.
@@ -638,6 +677,7 @@ class RoomEnergyProperties(object):
         self._lighting = None
         self._electric_equipment = None
         self._gas_equipment = None
+        self._service_hot_water = None
         self._infiltration = None
         self._ventilation = None
         self._setpoint = None
@@ -666,6 +706,7 @@ class RoomEnergyProperties(object):
             "lighting": {},  # A Lighting dictionary
             "electric_equipment": {},  # A ElectricEquipment dictionary
             "gas_equipment": {},  # A GasEquipment dictionary
+            "service_hot_water": {},  # A ServiceHotWater dictionary
             "infiltration": {},  # A Infiltration dictionary
             "ventilation": {},  # A Ventilation dictionary
             "setpoint": {}  # A Setpoint dictionary
@@ -694,6 +735,9 @@ class RoomEnergyProperties(object):
                 ElectricEquipment.from_dict(data['electric_equipment'])
         if 'gas_equipment' in data and data['gas_equipment'] is not None:
             new_prop.gas_equipment = GasEquipment.from_dict(data['gas_equipment'])
+        if 'service_hot_water' in data and data['service_hot_water'] is not None:
+            new_prop.service_hot_water = \
+                ServiceHotWater.from_dict(data['service_hot_water'])
         if 'infiltration' in data and data['infiltration'] is not None:
             new_prop.infiltration = Infiltration.from_dict(data['infiltration'])
         if 'ventilation' in data and data['ventilation'] is not None:
@@ -726,7 +770,8 @@ class RoomEnergyProperties(object):
         if 'construction_set' in abridged_data and \
                 abridged_data['construction_set'] is not None:
             try:
-                self.construction_set = construction_sets[abridged_data['construction_set']]
+                self.construction_set = \
+                    construction_sets[abridged_data['construction_set']]
             except KeyError:
                 raise ValueError(
                     base_e.format(abridged_data['construction_set'], 'construction_set'))
@@ -756,6 +801,10 @@ class RoomEnergyProperties(object):
                 abridged_data['gas_equipment'] is not None:
             self.gas_equipment = GasEquipment.from_dict_abridged(
                 abridged_data['gas_equipment'], schedules)
+        if 'service_hot_water' in abridged_data and \
+                abridged_data['service_hot_water'] is not None:
+            self.service_hot_water = ServiceHotWater.from_dict_abridged(
+                abridged_data['service_hot_water'], schedules)
         if 'infiltration' in abridged_data and abridged_data['infiltration'] is not None:
             self.infiltration = Infiltration.from_dict_abridged(
                 abridged_data['infiltration'], schedules)
@@ -809,6 +858,9 @@ class RoomEnergyProperties(object):
                 self._electric_equipment.to_dict(abridged)
         if self._gas_equipment is not None:
             base['energy']['gas_equipment'] = self._gas_equipment.to_dict(abridged)
+        if self._service_hot_water is not None:
+            base['energy']['service_hot_water'] = \
+                self._service_hot_water.to_dict(abridged)
         if self._infiltration is not None:
             base['energy']['infiltration'] = self._infiltration.to_dict(abridged)
         if self._ventilation is not None:
@@ -835,6 +887,7 @@ class RoomEnergyProperties(object):
         new_room._lighting = self._lighting
         new_room._electric_equipment = self._electric_equipment
         new_room._gas_equipment = self._gas_equipment
+        new_room._service_hot_water = self._service_hot_water
         new_room._infiltration = self._infiltration
         new_room._ventilation = self._ventilation
         new_room._setpoint = self._setpoint

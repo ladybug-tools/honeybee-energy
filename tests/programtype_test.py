@@ -41,7 +41,7 @@ def test_program_type_init():
     ventilation = Ventilation('Office Ventilation', 0.0025, 0.0003)
     setpoint = Setpoint('Office Setpoints', heat_setpt, cool_setpt)
     office_program = ProgramType('Open Office Program', people, lighting, equipment,
-                                 None, infiltration, ventilation, setpoint)
+                                 None, None, infiltration, ventilation, setpoint)
 
     str(office_program)  # test the string representation
 
@@ -149,11 +149,11 @@ def test_program_type_equality():
     ventilation = Ventilation('Office Ventilation', 0.0025, 0.0003)
     setpoint = Setpoint('Office Setpoints', heat_setpt, cool_setpt)
     office_program = ProgramType('Open Office Program', people, lighting, equipment,
-                                 None, infiltration, ventilation, setpoint)
+                                 None, None, infiltration, ventilation, setpoint)
     office_program_dup = office_program.duplicate()
     office_program_alt = ProgramType(
         'Open Office Program', people, led_lighting, equipment,
-        None, infiltration, ventilation, setpoint)
+        None, None, infiltration, ventilation, setpoint)
 
     assert office_program is office_program
     assert office_program is not office_program_dup
@@ -208,7 +208,7 @@ def test_program_type_dict_methods():
     ventilation = Ventilation('Office Ventilation', 0.0025, 0.0003)
     setpoint = Setpoint('Office Setpoints', heat_setpt, cool_setpt)
     office_program = ProgramType('Open Office Program', people, lighting, equipment,
-                                 None, infiltration, ventilation, setpoint)
+                                 None, None, infiltration, ventilation, setpoint)
 
     prog_dict = office_program.to_dict()
     new_office_program = ProgramType.from_dict(prog_dict)
@@ -240,7 +240,7 @@ def test_program_type_average():
     ventilation = Ventilation('Office Ventilation', 0.005, 0.0003)
     setpoint = Setpoint('Office Setpoints', heat_setpt, cool_setpt)
     office_program = ProgramType('Open Office Program', people, lighting, equipment,
-                                 None, infiltration, ventilation, setpoint)
+                                 None, None, infiltration, ventilation, setpoint)
     plenum_program = ProgramType('Plenum Program')
 
     office_avg = ProgramType.average(

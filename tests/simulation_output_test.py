@@ -65,19 +65,19 @@ def test_simulation_output_add_zone_energy_use():
     """Test the SimulationOutput add_zone_energy_use methods."""
     sim_output = SimulationOutput()
     sim_output.add_zone_energy_use('all')
-    assert len(sim_output.outputs) == 6
-
-    sim_output = SimulationOutput()
-    sim_output.add_zone_energy_use('total')
-    assert len(sim_output.outputs) == 5
-
-    sim_output = SimulationOutput()
-    sim_output.add_zone_energy_use('sensible')
     assert len(sim_output.outputs) == 7
 
     sim_output = SimulationOutput()
+    sim_output.add_zone_energy_use('total')
+    assert len(sim_output.outputs) == 7
+
+    sim_output = SimulationOutput()
+    sim_output.add_zone_energy_use('sensible')
+    assert len(sim_output.outputs) == 8
+
+    sim_output = SimulationOutput()
     sim_output.add_zone_energy_use('latent')
-    assert len(sim_output.outputs) == 4
+    assert len(sim_output.outputs) == 5
 
     with pytest.raises(ValueError):
         sim_output.add_zone_energy_use('convective')
@@ -147,7 +147,7 @@ def test_simulation_output_add_energy_balance_variables():
     """Test the SimulationOutput add_energy_balance_variables methods."""
     sim_output = SimulationOutput()
     sim_output.add_energy_balance_variables()
-    assert len(sim_output.outputs) == 18
+    assert len(sim_output.outputs) == 20
 
 
 def test_simulation_output_add_comfort_map_variables():

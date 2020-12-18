@@ -35,14 +35,14 @@ class People(_LoadBase):
             to the number of Watts given off by an individual person in the room.
             If None, it will a default constant schedule with 120 Watts per person
             will be used, which is typical of awake, adult humans who are seated.
-        radiant_fraction: A number between 0 and 1 for the fraction of the sensible
-            heat given off by people that is radiant (as opposed to convective).
-            Default: 0.3.
+        radiant_fraction: A number between 0 and 1 for the fraction of the
+            sensible heat given off by people that is radiant (as opposed to
+            convective). (Default: 0.3).
         latent_fraction: A number between 0 and 1 for the fraction of the heat
             given off by people that is latent (as opposed to sensible). This
             input can also be an Autocalculate object, which will automatically
             estimate the latent fraction based on the occupant's activity level.
-            Default: autocalculate.
+            (Default: autocalculate).
 
     Properties:
         * identifier

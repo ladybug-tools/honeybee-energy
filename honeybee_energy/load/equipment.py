@@ -27,13 +27,13 @@ class _EquipmentBase(_LoadBase):
             Fractional and the fractional values will get multiplied by the
             watts_per_area to yield a complete equipment profile.
         radiant_fraction: A number between 0 and 1 for the fraction of the total
-            equipment load given off as long wave radiant heat. Default: 0.
+            equipment load given off as long wave radiant heat. (Default: 0).
         latent_fraction: A number between 0 and 1 for the fraction of the total
-            equipment load that is latent (as opposed to sensible). Default: 0.
+            equipment load that is latent (as opposed to sensible). (Default: 0).
         lost_fraction: A number between 0 and 1 for the fraction of the total
             equipment load that is lost outside of the zone and the HVAC system.
             Typically, this is used to represent heat that is exhausted directly
-            out of a zone (as you would for a stove). Default: 0.
+            out of a zone (as you would for a stove). (Default: 0).
 
     Properties:
         * identifier
@@ -263,13 +263,13 @@ class ElectricEquipment(_EquipmentBase):
             Fractional and the fractional values will get multiplied by the
             watts_per_area to yield a complete equipment profile.
         radiant_fraction: A number between 0 and 1 for the fraction of the total
-            equipment load given off as long wave radiant heat. Default: 0.
+            equipment load given off as long wave radiant heat. (Default: 0).
         latent_fraction: A number between 0 and 1 for the fraction of the total
-            equipment load that is latent (as opposed to sensible). Default: 0.
+            equipment load that is latent (as opposed to sensible). (Default: 0).
         lost_fraction: A number between 0 and 1 for the fraction of the total
             equipment load that is lost outside of the zone and the HVAC system.
             Typically, this is used to represent heat that is exhausted directly
-            out of a zone (as you would for a stove). Default: 0.
+            out of a zone (as you would for a stove). (Default: 0).
 
     Properties:
         * identifier
@@ -475,13 +475,13 @@ class GasEquipment(_EquipmentBase):
             Fractional and the fractional values will get multiplied by the
             watts_per_area to yield a complete equipment profile.
         radiant_fraction: A number between 0 and 1 for the fraction of the total
-            equipment load given off as long wave radiant heat. Default: 0.
+            equipment load given off as long wave radiant heat. (Default: 0).
         latent_fraction: A number between 0 and 1 for the fraction of the total
-            equipment load that is latent (as opposed to sensible). Default: 0.
+            equipment load that is latent (as opposed to sensible). (Default: 0).
         lost_fraction: A number between 0 and 1 for the fraction of the total
             equipment load that is lost outside of the zone and the HVAC system.
             Typically, this is used to represent heat that is exhausted directly
-            out of a zone (as you would for a stove). Default: 0.
+            out of a zone (as you would for a stove). (Default: 0).
 
     Properties:
         * identifier

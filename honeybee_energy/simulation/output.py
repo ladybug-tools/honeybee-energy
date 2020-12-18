@@ -195,13 +195,16 @@ output-table-summaryreports.html#outputtablesummaryreports)
                        'Zone Lights Electricity Energy',
                        'Zone Electric Equipment Electricity Energy',
                        'Zone Gas Equipment NaturalGas Energy',
-                       'Zone Ventilation Fan Electricity Energy']
+                       'Zone Ventilation Fan Electricity Energy',
+                       'Water Use Equipment Heating Energy']
         elif load_type == 'Total':
             outputs = ['Zone Ideal Loads Supply Air Total Cooling Energy',
                        'Zone Ideal Loads Supply Air Total Heating Energy',
                        'Zone Lights Total Heating Energy',
                        'Zone Electric Equipment Total Heating Energy',
-                       'Zone Gas Equipment Total Heating Energy']
+                       'Zone Gas Equipment Total Heating Energy',
+                       'Water Use Equipment Zone Sensible Heat Gain Energy',
+                       'Water Use Equipment Zone Latent Gain Energy']
         elif load_type == 'Sensible':
             outputs = ['Zone Ideal Loads Supply Air Sensible Cooling Energy',
                        'Zone Ideal Loads Supply Air Sensible Heating Energy',
@@ -209,12 +212,14 @@ output-table-summaryreports.html#outputtablesummaryreports)
                        'Zone Electric Equipment Radiant Heating Energy',
                        'Zone Electric Equipment Convective Heating Energy',
                        'Zone Gas Equipment Radiant Heating Energy',
-                       'Zone Gas Equipment Convective Heating Energy']
+                       'Zone Gas Equipment Convective Heating Energy',
+                       'Water Use Equipment Zone Sensible Heat Gain Energy']
         elif load_type == 'Latent':
             outputs = ['Zone Ideal Loads Supply Air Latent Cooling Energy',
                        'Zone Ideal Loads Supply Air Latent Heating Energy',
                        'Zone Electric Equipment Latent Gain Energy',
-                       'Zone Gas Equipment Latent Gain Energy']
+                       'Zone Gas Equipment Latent Gain Energy',
+                       'Water Use Equipment Zone Latent Gain Energy']
         else:
             raise ValueError('load_type {} is not valid'.format(load_type))
         for outp in outputs:
@@ -250,7 +255,6 @@ output-table-summaryreports.html#outputtablesummaryreports)
                    'Baseboard Electricity Energy',
                    'Evaporative Cooler Electricity Energy',
                    'Hot_Water_Loop_Central_Air_Source_Heat_Pump Electricity Consumption']
-        # NOTE: The EMS output catches the Electricity energy of standards gem ASHP
         for outp in outputs:
             self._outputs.add(outp)
 

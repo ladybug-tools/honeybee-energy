@@ -585,8 +585,25 @@ class ScheduleRuleset(object):
         default_day_schedule = all_rules[0].schedule_day
         holiday_sch, summer_dd_sch, winter_dd_sch = week_dd_dict[year_sch[2]]
         sched = cls(year_sch[0], default_day_schedule, all_rules[1:], schedule_type)
-        cls._apply_designdays_with_check(sched, holiday_sch, summer_dd_sch, winter_dd_sch)
+        cls._apply_designdays_with_check(
+            sched, holiday_sch, summer_dd_sch, winter_dd_sch)
         return sched
+
+    @classmethod
+    def from_idf_constant(cls, idf_string, type_idf_string=None):
+        """Create a ScheduleRuleset from an EnergyPlus Schedule:Constant string.
+
+        Args:
+            idf_string: A text string fully describing an EnergyPlus Schedule:Constant.
+            type_idf_string: An optional text string for the ScheduleTypeLimits.
+                If None, the resulting schedule will have no ScheduleTypeLimit.
+        """
+        const_sch = parse_idf_string(idf_string)
+        sched_val = float(const_sch[2]) if const_sch[2] != '' else 0
+        schedule_type = ScheduleTypeLimit.from_idf(type_idf_string) if type_idf_string \
+            is not None else None
+        return ScheduleRuleset.from_constant_value(
+            const_sch[0], sched_val, schedule_type)
 
     @classmethod
     def from_dict(cls, data):
@@ -1149,7 +1166,7 @@ class ScheduleRuleset(object):
             week_fields.append(self._winter_designday_schedule.identifier)
         else:
             week_fields.append(self._default_day_schedule.identifier)
-        for i in range(2):  # add the extra 2 custom days that are rarely used in E+
+        for _ in range(2):  # add the extra 2 custom days that are rarely used in E+
             week_fields.append(self.default_day_schedule.identifier)
         return week_fields
 
