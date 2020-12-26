@@ -11,7 +11,6 @@ from ..lib.schedules import always_on
 
 from honeybee._lockable import lockable
 from honeybee.typing import float_in_range, float_positive
-from honeybee.altnumber import autocalculate
 
 
 @lockable
@@ -48,7 +47,6 @@ class ServiceHotWater(_LoadBase):
         * latent_fraction
         * lost_fraction
         * standard_watts_per_area
-        * is_target_autocalculated
     """
     __slots__ = ('_flow_per_area', '_schedule', '_target_temperature',
                  '_sensible_fraction', '_latent_fraction')
