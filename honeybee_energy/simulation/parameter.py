@@ -238,7 +238,7 @@ class SimulationParameter(object):
             identifier: Text string for to be used as a unique identifier for the
                 building object.
         """
-        values = (identifier, -self.north_angle, self.terrain_type, '', '',
+        values = (identifier, self.north_angle, self.terrain_type, '', '',
                   self.shadow_calculation.solar_distribution)
         comments = ('name',
                     'clockwise north axis',
@@ -330,7 +330,7 @@ class SimulationParameter(object):
         try:
             bldg_str = bldg_pattern.findall(idf_string)[0]
             bldg_prop = parse_idf_string(bldg_str)
-            north_angle = -float(bldg_prop[1]) if bldg_prop[1] != '' else 0
+            north_angle = float(bldg_prop[1]) if bldg_prop[1] != '' else 0
             terrain = bldg_prop[2].title() if bldg_prop[2] != '' else 'Suburbs'
             solar_dist = bldg_prop[5] if bldg_prop[5] != '' else 'FullExterior'
         except IndexError:  # No Building in the file. Use honeybee default.
