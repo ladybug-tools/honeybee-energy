@@ -1,18 +1,6 @@
-FROM ubuntu:eoan
+FROM python:3.7
 
-MAINTAINER Ladybug Tools info@ladybug.tools
-
-# Install core software deps
-RUN apt-get update && \
-    apt-get install --no-install-recommends -y \
-    curl \
-    ca-certificates \
-    dpkg \
-    python3.7 \
-    python3-pip \
-    libx11-6 \
-    git \
-    && rm -rf /var/lib/apt/lists/*
+LABEL maintainer="Ladybug Tools" email="info@ladybug.tools"
 
 # Create non-root user
 RUN adduser ladybugbot --uid 1000
