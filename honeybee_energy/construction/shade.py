@@ -240,6 +240,5 @@ class ShadeConstruction(object):
         return self.__repr__()
 
     def __repr__(self):
-        return 'ShadeConstruction,\n identifier: {}\n solar_ref: {}\n vis_ref: {}' \
-            '\n specular: {}'.format(self.identifier, self.solar_reflectance,
-                                     self.visible_reflectance, self.is_specular)
+        return 'ShadeConstruction: {} [solar_ref: {}]'.format(
+            self.display_name, self.solar_reflectance)

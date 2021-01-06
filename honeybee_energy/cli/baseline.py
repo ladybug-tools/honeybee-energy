@@ -278,7 +278,7 @@ def hvac_2004(model_json, climate_zone, nonresidential, fuel, floor_area,
         model = Model.from_dict(data)
 
         # determine the HVAC template from the input criteria
-        std = '90.1-2004'
+        std = 'ASHRAE_2004'
         if len(climate_zone) == 1:
             climate_zone = '{}A'.format(climate_zone)
         if nonresidential:
@@ -294,21 +294,21 @@ def hvac_2004(model_json, climate_zone, nonresidential, fuel, floor_area,
             hvac_id = 'Baseline 2004 {} HVAC'
             if story_count > 5 or floor_area > 13935.5:  # more than 150,000 ft2
                 hvac_id = hvac_id.format('VAV')
-                hvac_sys = VAV(hvac_id, std, 'VAV chiller with gas boiler reheat') \
-                    if fuel else VAV(hvac_id, std, 'VAV chiller with PFP boxes')
+                hvac_sys = VAV(hvac_id, std, 'VAV_Chiller_Boiler') \
+                    if fuel else VAV(hvac_id, std, 'VAV_Chiller_PFP')
             elif story_count > 3 or floor_area > 6967.7:  # more than 75,000 ft2
                 hvac_id = hvac_id.format('PVAV')
-                hvac_sys = PVAV(hvac_id, std, 'PVAV with gas boiler reheat') \
-                    if fuel else PVAV(hvac_id, std, 'PVAV with PFP boxes')
+                hvac_sys = PVAV(hvac_id, std, 'PVAV_Boiler') \
+                    if fuel else PVAV(hvac_id, std, 'PVAV_PFP')
             else:
                 hvac_id = hvac_id.format('PSZ')
-                hvac_sys = PSZ(hvac_id, std, 'PSZ-AC with gas boiler') \
-                    if fuel else PSZ(hvac_id, std, 'PSZ-HP')
+                hvac_sys = PSZ(hvac_id, std, 'PSZAC_Boiler') \
+                    if fuel else PSZ(hvac_id, std, 'PSZHP')
             if climate_zone not in ('1A', '1B', '2A', '3A', '4A'):
                 hvac_sys.economizer_type = 'DifferentialDryBulb'
         else:
             hvac_id = 'Baseline 2004 PT Residential HVAC'
-            hvac_sys = PTAC(hvac_id, std, 'PTAC with baseboard gas boiler') \
+            hvac_sys = PTAC(hvac_id, std, 'PTAC_BoilerBaseboard') \
                 if fuel else PTAC(hvac_id, std, 'PTHP')
 
         # apply the HVAC template to all conditioned rooms in the model

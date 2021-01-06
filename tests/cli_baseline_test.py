@@ -47,8 +47,8 @@ def test_hvac_2004():
     new_model = Model.from_dict(model_dict)
     new_hvac = new_model.rooms[0].properties.energy.hvac
     assert isinstance(new_hvac, VAV)
-    assert new_hvac.vintage == '90.1-2004'
-    assert new_hvac.equipment_type == 'VAV chiller with gas boiler reheat'
+    assert new_hvac.vintage == 'ASHRAE_2004'
+    assert new_hvac.equipment_type == 'VAV_Chiller_Boiler'
     assert new_hvac.economizer_type == 'DifferentialDryBulb'
 
 

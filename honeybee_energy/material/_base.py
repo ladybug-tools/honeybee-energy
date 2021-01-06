@@ -67,7 +67,7 @@ class _EnergyMaterialBase(object):
         return self.__repr__()
 
     def __repr__(self):
-        return 'Base Energy Material:\n{}'.format(self.identifier)
+        return 'Base Energy Material:\n{}'.format(self.display_name)
 
 
 @lockable
@@ -85,7 +85,7 @@ class _EnergyMaterialOpaqueBase(_EnergyMaterialBase):
         return False
 
     def __repr__(self):
-        return 'Base Opaque Energy Material:\n{}'.format(self.identifier)
+        return 'Base Opaque Energy Material:\n{}'.format(self.display_name)
 
 
 @lockable
@@ -114,4 +114,4 @@ class _EnergyMaterialWindowBase(_EnergyMaterialBase):
         return False
 
     def __repr__(self):
-        return 'Base Window Energy Material:\n{}'.format(self.identifier)
+        return 'Base Window Energy Material:\n{}'.format(self.display_name)

@@ -23,12 +23,12 @@ class _TemplateSystem(_HVACSystem):
             to set efficiencies for various pieces of equipment within the system.
             Choose from the following.
 
-            * DOE Ref Pre-1980
-            * DOE Ref 1980-2004
-            * 90.1-2004
-            * 90.1-2007
-            * 90.1-2010
-            * 90.1-2013
+            * DOE_Ref_Pre_1980
+            * DOE_Ref_1980_2004
+            * ASHRAE_2004
+            * ASHRAE_2007
+            * ASHRAE_2010
+            * ASHRAE_2013
 
         equipment_type: Text for the specific type of the system and equipment.
             For example, 'VAV chiller with gas boiler reheat'.
@@ -42,11 +42,11 @@ class _TemplateSystem(_HVACSystem):
     """
     __slots__ = ('_vintage', '_equipment_type')
 
-    VINTAGES = ('DOE Ref Pre-1980', 'DOE Ref 1980-2004', '90.1-2004', '90.1-2007',
-                '90.1-2010', '90.1-2013')
+    VINTAGES = ('DOE_Ref_Pre_1980', 'DOE_Ref_1980_2004', 'ASHRAE_2004', 'ASHRAE_2007',
+                'ASHRAE_2010', 'ASHRAE_2013')
     EQUIPMENT_TYPES = ('Inferred',)
 
-    def __init__(self, identifier, vintage='90.1-2013', equipment_type=None):
+    def __init__(self, identifier, vintage='ASHRAE_2013', equipment_type=None):
         """Initialize HVACSystem."""
         # initialize base HVAC system properties
         _HVACSystem.__init__(self, identifier)
@@ -59,12 +59,12 @@ class _TemplateSystem(_HVACSystem):
 
         Choose from the following options:
 
-        * DOE Ref Pre-1980
-        * DOE Ref 1980-2004
-        * 90.1-2004
-        * 90.1-2007
-        * 90.1-2010
-        * 90.1-2013
+        * DOE_Ref_Pre_1980
+        * DOE_Ref_1980_2004
+        * ASHRAE_2004
+        * ASHRAE_2007
+        * ASHRAE_2010
+        * ASHRAE_2013
         """
         return self._vintage
 
@@ -119,7 +119,7 @@ class _TemplateSystem(_HVACSystem):
             "type": "",  # text for the class name of the HVAC
             "identifier": "Classroom1_System",  # identifier for the HVAC
             "display_name": "Standard System",  # name for the HVAC
-            "vintage": "90.1-2013",  # text for the vintage of the template
+            "vintage": "ASHRAE_2013",  # text for the vintage of the template
             "equipment_type": ""  # text for the HVAC equipment type
             }
         """
@@ -147,7 +147,7 @@ class _TemplateSystem(_HVACSystem):
             "type": "",  # text for the class name of the HVAC
             "identifier": "Classroom1_System",  # identifier for the HVAC
             "display_name": "Standard System",  # name for the HVAC
-            "vintage": "90.1-2013",  # text for the vintage of the template
+            "vintage": "ASHRAE_2013",  # text for the vintage of the template
             "equipment_type": ""  # text for the HVAC equipment type
             }
         """
@@ -190,8 +190,9 @@ class _TemplateSystem(_HVACSystem):
         return not self.__eq__(other)
 
     def __repr__(self):
-        return '{}: {}\n type: {}\n vintage: {}'.format(
-            self.__class__.__name__, self.identifier, self.equipment_type, self.vintage)
+        return '{}: {} [type: {}] [vintage: {}]'.format(
+            self.__class__.__name__, self.display_name,
+            self.equipment_type, self.vintage)
 
 
 class _EnumerationBase(object):

@@ -19,17 +19,17 @@ class VRFwithDOAS(_DOASBase):
             to set efficiencies for various pieces of equipment within the system.
             Choose from the following.
 
-            * DOE Ref Pre-1980
-            * DOE Ref 1980-2004
-            * 90.1-2004
-            * 90.1-2007
-            * 90.1-2010
-            * 90.1-2013
+            * DOE_Ref_Pre_1980
+            * DOE_Ref_1980_2004
+            * ASHRAE_2004
+            * ASHRAE_2007
+            * ASHRAE_2010
+            * ASHRAE_2013
 
         equipment_type: Text for the specific type of the system and equipment. (Default:
             the first option below) Choose from.
 
-            * DOAS with VRF
+            * DOAS_VRF
 
         sensible_heat_recovery: A number between 0 and 1 for the effectiveness
             of sensible heat recovery within the system. If None, it will be
@@ -49,4 +49,4 @@ class VRFwithDOAS(_DOASBase):
     """
     __slots__ = ()
 
-    EQUIPMENT_TYPES = ('DOAS with VRF',)
+    EQUIPMENT_TYPES = ('DOAS_VRF',)

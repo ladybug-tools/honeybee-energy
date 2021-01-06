@@ -19,36 +19,36 @@ class PSZ(_AllAirBase):
             to set efficiencies for various pieces of equipment within the system.
             Choose from the following.
 
-            * DOE Ref Pre-1980
-            * DOE Ref 1980-2004
-            * 90.1-2004
-            * 90.1-2007
-            * 90.1-2010
-            * 90.1-2013
+            * DOE_Ref_Pre_1980
+            * DOE_Ref_1980_2004
+            * ASHRAE_2004
+            * ASHRAE_2007
+            * ASHRAE_2010
+            * ASHRAE_2013
 
         equipment_type: Text for the specific type of the system and equipment. (Default:
             the first option below) Choose from.
 
-            * PSZ-AC with baseboard electric
-            * PSZ-AC with baseboard gas boiler
-            * PSZ-AC with baseboard district hot water
-            * PSZ-AC with gas unit heaters
-            * PSZ-AC with electric coil
-            * PSZ-AC with gas coil
-            * PSZ-AC with gas boiler
-            * PSZ-AC with central air source heat pump
-            * PSZ-AC with district hot water
-            * PSZ-AC with no heat
-            * PSZ-AC district chilled water with baseboard electric
-            * PSZ-AC district chilled water with baseboard gas boiler
-            * PSZ-AC district chilled water with gas unit heaters
-            * PSZ-AC district chilled water with electric coil
-            * PSZ-AC district chilled water with gas coil
-            * PSZ-AC district chilled water with gas boiler
-            * PSZ-AC district chilled water with central air source heat pump
-            * PSZ-AC district chilled water with district hot water
-            * PSZ-AC district chilled water with no heat
-            * PSZ-HP
+            * PSZAC_ElectricBaseboard
+            * PSZAC_BoilerBaseboard
+            * PSZAC_DHWBaseboard
+            * PSZAC_GasHeaters
+            * PSZAC_ElectricCoil
+            * PSZAC_GasCoil
+            * PSZAC_Boiler
+            * PSZAC_ASHP
+            * PSZAC_DHW
+            * PSZAC
+            * PSZAC_DCW_ElectricBaseboard
+            * PSZAC_DCW_BoilerBaseboard
+            * PSZAC_DCW_GasHeaters
+            * PSZAC_DCW_ElectricCoil
+            * PSZAC_DCW_GasCoil
+            * PSZAC_DCW_Boiler
+            * PSZAC_DCW_ASHP
+            * PSZAC_DCW_DHW
+            * PSZAC_DCW
+            * PSZHP
 
         economizer_type: Text to indicate the type of air-side economizer used on
             the system. If Inferred, the economizer will be set to whatever is
@@ -78,24 +78,24 @@ technical-resources/standards-and-guidelines/read-only-versions-of-ashrae-standa
     __slots__ = ()
 
     EQUIPMENT_TYPES = (
-        'PSZ-AC with baseboard electric',
-        'PSZ-AC with baseboard gas boiler',
-        'PSZ-AC with baseboard district hot water',
-        'PSZ-AC with gas unit heaters',
-        'PSZ-AC with electric coil',
-        'PSZ-AC with gas coil',
-        'PSZ-AC with gas boiler',
-        'PSZ-AC with central air source heat pump',
-        'PSZ-AC with district hot water',
-        'PSZ-AC with no heat',
-        'PSZ-AC district chilled water with baseboard electric',
-        'PSZ-AC district chilled water with baseboard gas boiler',
-        'PSZ-AC district chilled water with gas unit heaters',
-        'PSZ-AC district chilled water with electric coil',
-        'PSZ-AC district chilled water with gas coil',
-        'PSZ-AC district chilled water with gas boiler',
-        'PSZ-AC district chilled water with central air source heat pump',
-        'PSZ-AC district chilled water with district hot water',
-        'PSZ-AC district chilled water with no heat',
-        'PSZ-HP'
+        'PSZAC_ElectricBaseboard',
+        'PSZAC_BoilerBaseboard',
+        'PSZAC_DHWBaseboard',
+        'PSZAC_GasHeaters',
+        'PSZAC_ElectricCoil',
+        'PSZAC_GasCoil',
+        'PSZAC_Boiler',
+        'PSZAC_ASHP',
+        'PSZAC_DHW',
+        'PSZAC',
+        'PSZAC_DCW_ElectricBaseboard',
+        'PSZAC_DCW_BoilerBaseboard',
+        'PSZAC_DCW_GasHeaters',
+        'PSZAC_DCW_ElectricCoil',
+        'PSZAC_DCW_GasCoil',
+        'PSZAC_DCW_Boiler',
+        'PSZAC_DCW_ASHP',
+        'PSZAC_DCW_DHW',
+        'PSZAC_DCW',
+        'PSZHP'
     )

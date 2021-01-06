@@ -1014,4 +1014,4 @@ class RoomEnergyProperties(object):
         return self.__repr__()
 
     def __repr__(self):
-        return 'Room Energy Properties:\n host: {}'.format(self.host.identifier)
+        return 'Room Energy Properties: [host: {}]'.format(self.host.display_name)

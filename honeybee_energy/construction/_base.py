@@ -298,5 +298,5 @@ class _ConstructionBase(object):
         return self.__repr__()
 
     def __repr__(self):
-        return 'Construction,\n {},\n {}'.format(
-            self.identifier, '\n '.join(tuple(mat.identifier for mat in self.materials)))
+        return 'Construction: {}, [{} materials]'.format(
+            self.display_name, len(self.materials))

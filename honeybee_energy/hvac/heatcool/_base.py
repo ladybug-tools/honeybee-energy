@@ -21,12 +21,12 @@ class _HeatCoolBase(_TemplateSystem):
             to set efficiencies for various pieces of equipment within the system.
             Choose from the following.
 
-            * DOE Ref Pre-1980
-            * DOE Ref 1980-2004
-            * 90.1-2004
-            * 90.1-2007
-            * 90.1-2010
-            * 90.1-2013
+            * DOE_Ref_Pre_1980
+            * DOE_Ref_1980_2004
+            * ASHRAE_2004
+            * ASHRAE_2007
+            * ASHRAE_2010
+            * ASHRAE_2013
 
         equipment_type: Text for the specific type of the system and equipment.
             For example, 'Baseboard gas boiler'.

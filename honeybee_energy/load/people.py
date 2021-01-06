@@ -413,6 +413,6 @@ class People(_LoadBase):
         return new_obj
 
     def __repr__(self):
-        return 'People:\n name: {}\n people per area: {}\n schedule: ' \
-            '{}'.format(self.identifier, self.people_per_area,
-                        self.occupancy_schedule.identifier)
+        return 'People: {} [{} people/m2] [schedule: {}]'.format(
+            self.display_name, round(self.people_per_area, 3),
+            self.occupancy_schedule.display_name)

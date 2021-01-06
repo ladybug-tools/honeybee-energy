@@ -691,4 +691,4 @@ class ModelEnergyProperties(object):
         return self.__repr__()
 
     def __repr__(self):
-        return 'Model Energy Properties:\n host: {}'.format(self.host.identifier)
+        return 'Model Energy Properties: [host: {}]'.format(self.host.display_name)

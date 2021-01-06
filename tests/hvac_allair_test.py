@@ -20,19 +20,19 @@ def test_vav_init():
     str(hvac_sys)  # test the string representation
 
     assert hvac_sys.identifier == 'Test System'
-    assert hvac_sys.vintage == '90.1-2013'
-    assert hvac_sys.equipment_type == 'VAV chiller with gas boiler reheat'
+    assert hvac_sys.vintage == 'ASHRAE_2013'
+    assert hvac_sys.equipment_type == 'VAV_Chiller_Boiler'
     assert hvac_sys.economizer_type == 'Inferred'
     assert hvac_sys.sensible_heat_recovery == autosize
     assert hvac_sys.latent_heat_recovery == autosize
 
-    hvac_sys.vintage = '90.1-2010'
-    hvac_sys.equipment_type = 'VAV district chilled water with district hot water reheat'
+    hvac_sys.vintage = 'ASHRAE_2010'
+    hvac_sys.equipment_type = 'VAV_DCW_DHW'
     hvac_sys.economizer_type = 'DifferentialDryBulb'
     hvac_sys.sensible_heat_recovery = 0.8
     hvac_sys.latent_heat_recovery = 0.65
-    assert hvac_sys.vintage == '90.1-2010'
-    assert hvac_sys.equipment_type == 'VAV district chilled water with district hot water reheat'
+    assert hvac_sys.vintage == 'ASHRAE_2010'
+    assert hvac_sys.equipment_type == 'VAV_DCW_DHW'
     assert hvac_sys.economizer_type == 'DifferentialDryBulb'
     assert hvac_sys.sensible_heat_recovery == 0.8
     assert hvac_sys.latent_heat_recovery == 0.65
@@ -75,8 +75,8 @@ def test_vav_multi_room():
 def test_vav_dict_methods():
     """Test the to/from dict methods."""
     hvac_sys = VAV('High Efficiency HVAC System')
-    hvac_sys.vintage = '90.1-2010'
-    hvac_sys.equipment_type = 'VAV district chilled water with district hot water reheat'
+    hvac_sys.vintage = 'ASHRAE_2010'
+    hvac_sys.equipment_type = 'VAV_DCW_DHW'
     hvac_sys.economizer_type = 'DifferentialDryBulb'
     hvac_sys.sensible_heat_recovery = 0.8
     hvac_sys.latent_heat_recovery = 0.65
@@ -93,19 +93,19 @@ def test_pvav_init():
     str(hvac_sys)  # test the string representation
 
     assert hvac_sys.identifier == 'Test System'
-    assert hvac_sys.vintage == '90.1-2013'
-    assert hvac_sys.equipment_type == 'PVAV with gas boiler reheat'
+    assert hvac_sys.vintage == 'ASHRAE_2013'
+    assert hvac_sys.equipment_type == 'PVAV_Boiler'
     assert hvac_sys.economizer_type == 'Inferred'
     assert hvac_sys.sensible_heat_recovery == autosize
     assert hvac_sys.latent_heat_recovery == autosize
 
-    hvac_sys.vintage = '90.1-2010'
-    hvac_sys.equipment_type = 'PVAV with district hot water reheat'
+    hvac_sys.vintage = 'ASHRAE_2010'
+    hvac_sys.equipment_type = 'PVAV_DHW'
     hvac_sys.economizer_type = 'DifferentialDryBulb'
     hvac_sys.sensible_heat_recovery = 0.8
     hvac_sys.latent_heat_recovery = 0.65
-    assert hvac_sys.vintage == '90.1-2010'
-    assert hvac_sys.equipment_type == 'PVAV with district hot water reheat'
+    assert hvac_sys.vintage == 'ASHRAE_2010'
+    assert hvac_sys.equipment_type == 'PVAV_DHW'
     assert hvac_sys.economizer_type == 'DifferentialDryBulb'
     assert hvac_sys.sensible_heat_recovery == 0.8
     assert hvac_sys.latent_heat_recovery == 0.65
@@ -148,8 +148,8 @@ def test_pvav_multi_room():
 def test_pvav_dict_methods():
     """Test the to/from dict methods."""
     hvac_sys = PVAV('High Efficiency HVAC System')
-    hvac_sys.vintage = '90.1-2010'
-    hvac_sys.equipment_type = 'PVAV with district hot water reheat'
+    hvac_sys.vintage = 'ASHRAE_2010'
+    hvac_sys.equipment_type = 'PVAV_DHW'
     hvac_sys.economizer_type = 'DifferentialDryBulb'
     hvac_sys.sensible_heat_recovery = 0.8
     hvac_sys.latent_heat_recovery = 0.65
@@ -166,19 +166,19 @@ def test_psz_init():
     str(hvac_sys)  # test the string representation
 
     assert hvac_sys.identifier == 'Test System'
-    assert hvac_sys.vintage == '90.1-2013'
-    assert hvac_sys.equipment_type == 'PSZ-AC with baseboard electric'
+    assert hvac_sys.vintage == 'ASHRAE_2013'
+    assert hvac_sys.equipment_type == 'PSZAC_ElectricBaseboard'
     assert hvac_sys.economizer_type == 'Inferred'
     assert hvac_sys.sensible_heat_recovery == autosize
     assert hvac_sys.latent_heat_recovery == autosize
 
-    hvac_sys.vintage = '90.1-2010'
-    hvac_sys.equipment_type = 'PSZ-AC district chilled water with district hot water'
+    hvac_sys.vintage = 'ASHRAE_2010'
+    hvac_sys.equipment_type = 'PSZAC_DCW_DHW'
     hvac_sys.economizer_type = 'DifferentialDryBulb'
     hvac_sys.sensible_heat_recovery = 0.8
     hvac_sys.latent_heat_recovery = 0.65
-    assert hvac_sys.vintage == '90.1-2010'
-    assert hvac_sys.equipment_type == 'PSZ-AC district chilled water with district hot water'
+    assert hvac_sys.vintage == 'ASHRAE_2010'
+    assert hvac_sys.equipment_type == 'PSZAC_DCW_DHW'
     assert hvac_sys.economizer_type == 'DifferentialDryBulb'
     assert hvac_sys.sensible_heat_recovery == 0.8
     assert hvac_sys.latent_heat_recovery == 0.65
@@ -221,8 +221,8 @@ def test_psz_multi_room():
 def test_psz_dict_methods():
     """Test the to/from dict methods."""
     hvac_sys = PSZ('High Efficiency HVAC System')
-    hvac_sys.vintage = '90.1-2010'
-    hvac_sys.equipment_type = 'PSZ-AC district chilled water with district hot water'
+    hvac_sys.vintage = 'ASHRAE_2010'
+    hvac_sys.equipment_type = 'PSZAC_DCW_DHW'
     hvac_sys.economizer_type = 'DifferentialDryBulb'
     hvac_sys.sensible_heat_recovery = 0.8
     hvac_sys.latent_heat_recovery = 0.65
@@ -239,22 +239,22 @@ def test_ptac_init():
     str(hvac_sys)  # test the string representation
 
     assert hvac_sys.identifier == 'Test System'
-    assert hvac_sys.vintage == '90.1-2013'
-    assert hvac_sys.equipment_type == 'PTAC with baseboard electric'
+    assert hvac_sys.vintage == 'ASHRAE_2013'
+    assert hvac_sys.equipment_type == 'PTAC_ElectricBaseboard'
     assert hvac_sys.economizer_type == 'Inferred'
     assert hvac_sys.sensible_heat_recovery == autosize
     assert hvac_sys.latent_heat_recovery == autosize
 
-    hvac_sys.vintage = '90.1-2010'
-    hvac_sys.equipment_type = 'PTAC with district hot water'
+    hvac_sys.vintage = 'ASHRAE_2010'
+    hvac_sys.equipment_type = 'PTAC_DHW'
     with pytest.raises(AssertionError):
         hvac_sys.economizer_type = 'DifferentialDryBulb'
     with pytest.raises(AssertionError):
         hvac_sys.sensible_heat_recovery = 0.8
     with pytest.raises(AssertionError):
         hvac_sys.latent_heat_recovery = 0.65
-    assert hvac_sys.vintage == '90.1-2010'
-    assert hvac_sys.equipment_type == 'PTAC with district hot water'
+    assert hvac_sys.vintage == 'ASHRAE_2010'
+    assert hvac_sys.equipment_type == 'PTAC_DHW'
 
 
 def test_ptac_equality():
@@ -262,12 +262,12 @@ def test_ptac_equality():
     hvac_sys = PTAC('Test System')
     hvac_sys_dup = hvac_sys.duplicate()
     hvac_sys_alt = PTAC(
-        'Test System', equipment_type='PTAC with district hot water')
+        'Test System', equipment_type='PTAC_DHW')
 
     assert hvac_sys is hvac_sys
     assert hvac_sys is not hvac_sys_dup
     assert hvac_sys == hvac_sys_dup
-    hvac_sys_dup.equipment_type = 'PTAC with gas coil'
+    hvac_sys_dup.equipment_type = 'PTAC_GasCoil'
     assert hvac_sys != hvac_sys_dup
     assert hvac_sys != hvac_sys_alt
 
@@ -275,8 +275,8 @@ def test_ptac_equality():
 def test_ptac_dict_methods():
     """Test the to/from dict methods."""
     hvac_sys = PTAC('High Efficiency HVAC System')
-    hvac_sys.vintage = '90.1-2010'
-    hvac_sys.equipment_type = 'PTAC with district hot water'
+    hvac_sys.vintage = 'ASHRAE_2010'
+    hvac_sys.equipment_type = 'PTAC_DHW'
 
     hvac_dict = hvac_sys.to_dict()
     new_hvac_sys = PTAC.from_dict(hvac_dict)
@@ -290,19 +290,19 @@ def test_furnace_init():
     str(hvac_sys)  # test the string representation
 
     assert hvac_sys.identifier == 'Test System'
-    assert hvac_sys.vintage == '90.1-2013'
-    assert hvac_sys.equipment_type == 'Forced air furnace'
+    assert hvac_sys.vintage == 'ASHRAE_2013'
+    assert hvac_sys.equipment_type == 'Furnace'
     assert hvac_sys.economizer_type == 'Inferred'
     assert hvac_sys.sensible_heat_recovery == autosize
     assert hvac_sys.latent_heat_recovery == autosize
 
-    hvac_sys.vintage = '90.1-2010'
+    hvac_sys.vintage = 'ASHRAE_2010'
     with pytest.raises(ValueError):
         hvac_sys.equipment_type = 'Air furnace'
     hvac_sys.economizer_type = 'DifferentialDryBulb'
     hvac_sys.sensible_heat_recovery = 0.8
     hvac_sys.latent_heat_recovery = 0.65
-    assert hvac_sys.vintage == '90.1-2010'
+    assert hvac_sys.vintage == 'ASHRAE_2010'
     assert hvac_sys.economizer_type == 'DifferentialDryBulb'
     assert hvac_sys.sensible_heat_recovery == 0.8
     assert hvac_sys.latent_heat_recovery == 0.65
@@ -326,7 +326,7 @@ def test_furnace_equality():
 def test_furnace_dict_methods():
     """Test the to/from dict methods."""
     hvac_sys = ForcedAirFurnace('High Efficiency HVAC System')
-    hvac_sys.vintage = '90.1-2010'
+    hvac_sys.vintage = 'ASHRAE_2010'
     hvac_sys.economizer_type = 'DifferentialDryBulb'
     hvac_sys.sensible_heat_recovery = 0.8
 

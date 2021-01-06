@@ -605,6 +605,6 @@ class ScheduleRule(object):
         return self.__repr__()
 
     def __repr__(self):
-        return 'ScheduleRule:\n schedule_day: {}\n days applied: {}\n date_range: ' \
-            '{} - {}'.format(self.schedule_day.identifier, ', '.join(self.days_applied),
-                             self.start_date, self.end_date)
+        return 'ScheduleRule: {} [days applied: {}] [date range: {} - {}]'.format(
+            self.schedule_day.display_name, ', '.join(self.days_applied),
+            self.start_date, self.end_date)

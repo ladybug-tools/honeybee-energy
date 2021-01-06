@@ -19,26 +19,26 @@ class PTAC(_AllAirBase):
             to set efficiencies for various pieces of equipment within the system.
             Choose from the following.
 
-            * DOE Ref Pre-1980
-            * DOE Ref 1980-2004
-            * 90.1-2004
-            * 90.1-2007
-            * 90.1-2010
-            * 90.1-2013
+            * DOE_Ref_Pre_1980
+            * DOE_Ref_1980_2004
+            * ASHRAE_2004
+            * ASHRAE_2007
+            * ASHRAE_2010
+            * ASHRAE_2013
 
         equipment_type: Text for the specific type of the system and equipment. (Default:
             the first option below) Choose from.
 
-            * PTAC with baseboard electric
-            * PTAC with baseboard gas boiler
-            * PTAC with baseboard district hot water
-            * PTAC with gas unit heaters
-            * PTAC with electric coil
-            * PTAC with gas coil
-            * PTAC with gas boiler
-            * PTAC with central air source heat pump
-            * PTAC with district hot water
-            * PTAC with no heat
+            * PTAC_ElectricBaseboard
+            * PTAC_BoilerBaseboard
+            * PTAC_DHWBaseboard
+            * PTAC_GasHeaters
+            * PTAC_ElectricCoil
+            * PTAC_GasCoil
+            * PTAC_Boiler
+            * PTAC_ASHP
+            * PTAC_DHW
+            * PTAC
             * PTHP
 
     Properties:
@@ -56,16 +56,16 @@ technical-resources/standards-and-guidelines/read-only-versions-of-ashrae-standa
     __slots__ = ()
 
     EQUIPMENT_TYPES = (
-        'PTAC with baseboard electric',
-        'PTAC with baseboard gas boiler',
-        'PTAC with baseboard district hot water',
-        'PTAC with gas unit heaters',
-        'PTAC with electric coil',
-        'PTAC with gas coil',
-        'PTAC with gas boiler',
-        'PTAC with central air source heat pump',
-        'PTAC with district hot water',
-        'PTAC with no heat',
+        'PTAC_ElectricBaseboard',
+        'PTAC_BoilerBaseboard',
+        'PTAC_DHWBaseboard',
+        'PTAC_GasHeaters',
+        'PTAC_ElectricCoil',
+        'PTAC_GasCoil',
+        'PTAC_Boiler',
+        'PTAC_ASHP',
+        'PTAC_DHW',
+        'PTAC',
         'PTHP'
     )
     _has_air_loop = False

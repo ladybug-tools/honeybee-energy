@@ -22,34 +22,34 @@ class FCUwithDOAS(_DOASBase):
             to set efficiencies for various pieces of equipment within the system.
             Choose from the following.
 
-            * DOE Ref Pre-1980
-            * DOE Ref 1980-2004
-            * 90.1-2004
-            * 90.1-2007
-            * 90.1-2010
-            * 90.1-2013
+            * DOE_Ref_Pre_1980
+            * DOE_Ref_1980_2004
+            * ASHRAE_2004
+            * ASHRAE_2007
+            * ASHRAE_2010
+            * ASHRAE_2013
 
         equipment_type: Text for the specific type of the system and equipment. (Default:
             the first option below) Choose from.
 
-            * DOAS with fan coil chiller with boiler
-            * DOAS with fan coil chiller with central air source heat pump
-            * DOAS with fan coil chiller with district hot water
-            * DOAS with fan coil chiller with baseboard electric
-            * DOAS with fan coil chiller with gas unit heaters
-            * DOAS with fan coil chiller with no heat
-            * DOAS with fan coil air-cooled chiller with boiler
-            * DOAS with fan coil air-cooled chiller with central air source heat pump
-            * DOAS with fan coil air-cooled chiller with district hot water
-            * DOAS with fan coil air-cooled chiller with baseboard electric
-            * DOAS with fan coil air-cooled chiller with gas unit heaters
-            * DOAS with fan coil air-cooled chiller with no heat
-            * DOAS with fan coil district chilled water with boiler
-            * DOAS with fan coil district chilled water with central air source heat pump
-            * DOAS with fan coil district chilled water with district hot water
-            * DOAS with fan coil district chilled water with baseboard electric
-            * DOAS with fan coil district chilled water with gas unit heaters
-            * DOAS with fan coil district chilled water with no heat
+            * DOAS_FCU_Chiller_Boiler
+            * DOAS_FCU_Chiller_ASHP
+            * DOAS_FCU_Chiller_DHW
+            * DOAS_FCU_Chiller_ElectricBaseboard
+            * DOAS_FCU_Chiller_GasHeaters
+            * DOAS_FCU_Chiller
+            * DOAS_FCU_ACChiller_Boiler
+            * DOAS_FCU_ACChiller_ASHP
+            * DOAS_FCU_ACChiller_DHW
+            * DOAS_FCU_ACChiller_ElectricBaseboard
+            * DOAS_FCU_ACChiller_GasHeaters
+            * DOAS_FCU_ACChiller
+            * DOAS_FCU_DCW_Boiler
+            * DOAS_FCU_DCW_ASHP
+            * DOAS_FCU_DCW_DHW
+            * DOAS_FCU_DCW_ElectricBaseboard
+            * DOAS_FCU_DCW_GasHeaters
+            * DOAS_FCU_DCW
 
         sensible_heat_recovery: A number between 0 and 1 for the effectiveness
             of sensible heat recovery within the system. If None, it will be
@@ -70,22 +70,22 @@ class FCUwithDOAS(_DOASBase):
     __slots__ = ()
 
     EQUIPMENT_TYPES = (
-        'DOAS with fan coil chiller with boiler',
-        'DOAS with fan coil chiller with central air source heat pump',
-        'DOAS with fan coil chiller with district hot water',
-        'DOAS with fan coil chiller with baseboard electric',
-        'DOAS with fan coil chiller with gas unit heaters',
-        'DOAS with fan coil chiller with no heat',
-        'DOAS with fan coil air-cooled chiller with boiler',
-        'DOAS with fan coil air-cooled chiller with central air source heat pump',
-        'DOAS with fan coil air-cooled chiller with district hot water',
-        'DOAS with fan coil air-cooled chiller with baseboard electric',
-        'DOAS with fan coil air-cooled chiller with gas unit heaters',
-        'DOAS with fan coil air-cooled chiller with no heat',
-        'DOAS with fan coil district chilled water with boiler',
-        'DOAS with fan coil district chilled water with central air source heat pump',
-        'DOAS with fan coil district chilled water with district hot water',
-        'DOAS with fan coil district chilled water with baseboard electric',
-        'DOAS with fan coil district chilled water with gas unit heaters',
-        'DOAS with fan coil district chilled water with no heat'
+        'DOAS_FCU_Chiller_Boiler',
+        'DOAS_FCU_Chiller_ASHP',
+        'DOAS_FCU_Chiller_DHW',
+        'DOAS_FCU_Chiller_ElectricBaseboard',
+        'DOAS_FCU_Chiller_GasHeaters',
+        'DOAS_FCU_Chiller',
+        'DOAS_FCU_ACChiller_Boiler',
+        'DOAS_FCU_ACChiller_ASHP',
+        'DOAS_FCU_ACChiller_DHW',
+        'DOAS_FCU_ACChiller_ElectricBaseboard',
+        'DOAS_FCU_ACChiller_GasHeaters',
+        'DOAS_FCU_ACChiller',
+        'DOAS_FCU_DCW_Boiler',
+        'DOAS_FCU_DCW_ASHP',
+        'DOAS_FCU_DCW_DHW',
+        'DOAS_FCU_DCW_ElectricBaseboard',
+        'DOAS_FCU_DCW_GasHeaters',
+        'DOAS_FCU_DCW'
     )

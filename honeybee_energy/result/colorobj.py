@@ -238,7 +238,7 @@ class _ColorObject(object):
         return self.__repr__()
 
     def __repr__(self):
-        return 'Color Object'
+        return 'Color Object:'
 
 
 class ColorRoom(_ColorObject):
@@ -427,7 +427,7 @@ class ColorRoom(_ColorObject):
 
     def __repr__(self):
         """Color Room representation."""
-        return 'Color Room:\n{} Rooms\n{}'.format(
+        return 'Color Room: [{} Rooms] [{}]'.format(
             len(self._matched_objects), self._base_collection.header)
 
 
@@ -604,5 +604,5 @@ class ColorFace(_ColorObject):
 
     def __repr__(self):
         """Color Face representation."""
-        return 'Color Face:\n{} Objects\n{}'.format(
+        return 'Color Face: [{} Objects] [{}]'.format(
             len(self._matched_objects), self._base_collection.header)

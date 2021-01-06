@@ -259,10 +259,8 @@ class VentilationControl(object):
         return self.__repr__()
 
     def __repr__(self):
-        return 'VentilationControl,\n min in temperature: {}\n ' \
-            'max in temperature: {}\n min out temperature: {}\n ' \
-            'max out temperature: {}\n delta temperature: {}\n' \
-            'schedule: {}'.format(
+        return 'VentilationControl, [min in: {}] [max in: {}] [min out: {}] ' \
+            '[max out: {}] [delta: {}]'.format(
                 self.min_indoor_temperature, self.max_indoor_temperature,
                 self.min_outdoor_temperature, self.max_outdoor_temperature,
-                self.delta_temperature, self.schedule.identifier)
+                self.delta_temperature)

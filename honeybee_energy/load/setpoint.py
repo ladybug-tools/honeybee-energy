@@ -584,7 +584,6 @@ class Setpoint(_LoadBase):
         return new_obj
 
     def __repr__(self):
-        return 'Setpoint:\n name: {}\n heating: {}\n cooling: ' \
-            '{}\n humidifying: {}\n dehumidifying: {}'.format(
-                self.identifier, self.heating_setpoint, self.cooling_setpoint,
-                self.humidifying_setpoint, self.dehumidifying_setpoint)
+        return 'Setpoint: {} [heating: {}C] [cooling: {}C]'.format(
+            self.display_name, round(self.heating_setpoint, 1),
+            round(self.cooling_setpoint, 1))

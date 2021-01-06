@@ -119,4 +119,4 @@ class _LoadBase(object):
         return self.__repr__()
 
     def __repr__(self):
-        return 'Load Base: {}'.format(self.identifier)
+        return 'Load Base: {}'.format(self.display_name)

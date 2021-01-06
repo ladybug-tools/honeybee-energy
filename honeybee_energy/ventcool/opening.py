@@ -342,11 +342,7 @@ class VentilationOpening(object):
         return self.__repr__()
 
     def __repr__(self):
-        return 'VentilationOpening,\n fraction area: {}\n ' \
-            'fraction height: {}\n discharge coeff: {}\n ' \
-            'flow_coefficient_closed: {}\n flow_exponent_closed: ' \
-            '{}\n two_way_threshold: {}'.format(
+        return 'VentilationOpening: [fraction area: {}] ' \
+            '[fraction height: {}] [discharge: {}]'.format(
                 self.fraction_area_operable, self.fraction_height_operable,
-                self.discharge_coefficient, self.flow_coefficient_closed,
-                self.flow_exponent_closed,
-                self.two_way_threshold)
+                self.discharge_coefficient)

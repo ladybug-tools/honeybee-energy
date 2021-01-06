@@ -122,5 +122,5 @@ class AFNCrack(object):
         return self.__repr__()
 
     def __repr__(self):
-        return 'AFNCrack,\n flow_coefficient: {}\n ' \
-            'flow_exponent: {}'.format(self.flow_coefficient, self.flow_exponent)
+        return 'AFNCrack: [coefficient: {}] [exponent: {}]'.format(
+            self.flow_coefficient, self.flow_exponent)

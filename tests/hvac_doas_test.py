@@ -18,17 +18,17 @@ def test_fcu_with_doas_init():
     str(hvac_sys)  # test the string representation
 
     assert hvac_sys.identifier == 'Test System'
-    assert hvac_sys.vintage == '90.1-2013'
-    assert hvac_sys.equipment_type == 'DOAS with fan coil chiller with boiler'
+    assert hvac_sys.vintage == 'ASHRAE_2013'
+    assert hvac_sys.equipment_type == 'DOAS_FCU_Chiller_Boiler'
     assert hvac_sys.sensible_heat_recovery == autosize
     assert hvac_sys.latent_heat_recovery == autosize
 
-    hvac_sys.vintage = '90.1-2010'
-    hvac_sys.equipment_type = 'DOAS with fan coil district chilled water with district hot water'
+    hvac_sys.vintage = 'ASHRAE_2010'
+    hvac_sys.equipment_type = 'DOAS_FCU_DCW_DHW'
     hvac_sys.sensible_heat_recovery = 0.8
     hvac_sys.latent_heat_recovery = 0.65
-    assert hvac_sys.vintage == '90.1-2010'
-    assert hvac_sys.equipment_type == 'DOAS with fan coil district chilled water with district hot water'
+    assert hvac_sys.vintage == 'ASHRAE_2010'
+    assert hvac_sys.equipment_type == 'DOAS_FCU_DCW_DHW'
     assert hvac_sys.sensible_heat_recovery == 0.8
     assert hvac_sys.latent_heat_recovery == 0.65
 
@@ -70,8 +70,8 @@ def test_fcu_with_doas_multi_room():
 def test_fcu_with_doas_dict_methods():
     """Test the to/from dict methods."""
     hvac_sys = FCUwithDOAS('High Efficiency HVAC System')
-    hvac_sys.vintage = '90.1-2010'
-    hvac_sys.equipment_type = 'DOAS with fan coil district chilled water with district hot water'
+    hvac_sys.vintage = 'ASHRAE_2010'
+    hvac_sys.equipment_type = 'DOAS_FCU_DCW_DHW'
     hvac_sys.sensible_heat_recovery = 0.8
     hvac_sys.latent_heat_recovery = 0.65
 
@@ -87,17 +87,17 @@ def test_vrf_with_doas_init():
     str(hvac_sys)  # test the string representation
 
     assert hvac_sys.identifier == 'Test System'
-    assert hvac_sys.vintage == '90.1-2013'
-    assert hvac_sys.equipment_type == 'DOAS with VRF'
+    assert hvac_sys.vintage == 'ASHRAE_2013'
+    assert hvac_sys.equipment_type == 'DOAS_VRF'
     assert hvac_sys.sensible_heat_recovery == autosize
     assert hvac_sys.latent_heat_recovery == autosize
 
-    hvac_sys.vintage = '90.1-2010'
+    hvac_sys.vintage = 'ASHRAE_2010'
     with pytest.raises(ValueError):
         hvac_sys.equipment_type = 'DOAS with ground sourced VRF'
     hvac_sys.sensible_heat_recovery = 0.8
     hvac_sys.latent_heat_recovery = 0.65
-    assert hvac_sys.vintage == '90.1-2010'
+    assert hvac_sys.vintage == 'ASHRAE_2010'
     assert hvac_sys.sensible_heat_recovery == 0.8
     assert hvac_sys.latent_heat_recovery == 0.65
 
@@ -120,7 +120,7 @@ def test_vrf_with_doas_equality():
 def test_vrf_with_doas_dict_methods():
     """Test the to/from dict methods."""
     hvac_sys = VRFwithDOAS('High Efficiency HVAC System')
-    hvac_sys.vintage = '90.1-2010'
+    hvac_sys.vintage = 'ASHRAE_2010'
     hvac_sys.sensible_heat_recovery = 0.8
     hvac_sys.latent_heat_recovery = 0.65
 
@@ -136,17 +136,17 @@ def test_wshp_with_doas_init():
     str(hvac_sys)  # test the string representation
 
     assert hvac_sys.identifier == 'Test System'
-    assert hvac_sys.vintage == '90.1-2013'
-    assert hvac_sys.equipment_type == 'DOAS with water source heat pumps fluid cooler with boiler'
+    assert hvac_sys.vintage == 'ASHRAE_2013'
+    assert hvac_sys.equipment_type == 'DOAS_WSHP_FluidCooler_Boiler'
     assert hvac_sys.sensible_heat_recovery == autosize
     assert hvac_sys.latent_heat_recovery == autosize
 
-    hvac_sys.vintage = '90.1-2010'
-    hvac_sys.equipment_type = 'DOAS with water source heat pumps with ground source heat pump'
+    hvac_sys.vintage = 'ASHRAE_2010'
+    hvac_sys.equipment_type = 'DOAS_WSHP_GSHP'
     hvac_sys.sensible_heat_recovery = 0.8
     hvac_sys.latent_heat_recovery = 0.65
-    assert hvac_sys.vintage == '90.1-2010'
-    assert hvac_sys.equipment_type == 'DOAS with water source heat pumps with ground source heat pump'
+    assert hvac_sys.vintage == 'ASHRAE_2010'
+    assert hvac_sys.equipment_type == 'DOAS_WSHP_GSHP'
     assert hvac_sys.sensible_heat_recovery == 0.8
     assert hvac_sys.latent_heat_recovery == 0.65
 
@@ -169,8 +169,8 @@ def test_wshp_with_doas_equality():
 def test_wshp_with_doas_dict_methods():
     """Test the to/from dict methods."""
     hvac_sys = WSHPwithDOAS('High Efficiency HVAC System')
-    hvac_sys.vintage = '90.1-2010'
-    hvac_sys.equipment_type = 'DOAS with water source heat pumps with ground source heat pump'
+    hvac_sys.vintage = 'ASHRAE_2010'
+    hvac_sys.equipment_type = 'DOAS_WSHP_GSHP'
     hvac_sys.sensible_heat_recovery = 0.8
     hvac_sys.latent_heat_recovery = 0.65
 
