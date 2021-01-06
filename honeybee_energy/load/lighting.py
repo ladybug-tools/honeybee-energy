@@ -398,5 +398,6 @@ class Lighting(_LoadBase):
         return new_obj
 
     def __repr__(self):
-        return 'Lighting:\n name: {}\n watts per area: {}\n schedule: ' \
-            '{}'.format(self.identifier, self.watts_per_area, self.schedule.identifier)
+        return 'Lighting: {} [{} W/m2] [schedule: {}]'.format(
+            self.display_name, round(self.watts_per_area, 1),
+            self.schedule.display_name)

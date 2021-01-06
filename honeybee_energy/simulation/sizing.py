@@ -325,5 +325,5 @@ class SizingParameter(object):
         return item in self._design_days
 
     def __repr__(self):
-        return 'SizingParameter:\n {} design days\n heating: {}\n cooling: ' \
-            '{}'.format(len(self._design_days), self.heating_factor, self.cooling_factor)
+        return 'SizingParameter: [{} design days] [heating: {}] [cooling: {}]'.format(
+            len(self._design_days), self.heating_factor, self.cooling_factor)

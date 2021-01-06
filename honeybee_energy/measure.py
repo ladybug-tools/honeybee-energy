@@ -278,7 +278,7 @@ class Measure(object):
         return self.__repr__()
 
     def __repr__(self):
-        return 'Measure: {}'.format(self.identifier)
+        return 'Measure: {}'.format(self.display_name)
 
 
 class MeasureArgument(object):
@@ -448,4 +448,4 @@ class MeasureArgument(object):
         return self.__repr__()
 
     def __repr__(self):
-        return '{} <{}> value: {}'.format(self.identifier, self.type_text, self.value)
+        return '{} <{}> value: {}'.format(self.display_name, self.type_text, self.value)

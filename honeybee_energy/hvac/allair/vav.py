@@ -19,31 +19,31 @@ class VAV(_AllAirBase):
             to set efficiencies for various pieces of equipment within the system.
             Choose from the following.
 
-            * DOE Ref Pre-1980
-            * DOE Ref 1980-2004
-            * 90.1-2004
-            * 90.1-2007
-            * 90.1-2010
-            * 90.1-2013
+            * DOE_Ref_Pre_1980
+            * DOE_Ref_1980_2004
+            * ASHRAE_2004
+            * ASHRAE_2007
+            * ASHRAE_2010
+            * ASHRAE_2013
 
         equipment_type: Text for the specific type of the system and equipment. (Default:
             the first option below) Choose from.
 
-            * VAV chiller with gas boiler reheat
-            * VAV chiller with central air source heat pump reheat
-            * VAV chiller with district hot water reheat
-            * VAV chiller with PFP boxes
-            * VAV chiller with gas coil reheat
-            * VAV air-cooled chiller with gas boiler reheat
-            * VAV air-cooled chiller with central air source heat pump reheat
-            * VAV air-cooled chiller with district hot water reheat
-            * VAV air-cooled chiller with PFP boxes
-            * VAV air-cooled chiller with gas coil reheat
-            * VAV district chilled water with gas boiler reheat
-            * VAV district chilled water with central air source heat pump reheat
-            * VAV district chilled water with district hot water reheat
-            * VAV district chilled water with PFP boxes
-            * VAV district chilled water with gas coil reheat
+            * VAV_Chiller_Boiler
+            * VAV_Chiller_ASHP
+            * VAV_Chiller_DHW
+            * VAV_Chiller_PFP
+            * VAV_Chiller_GasCoil
+            * VAV_ACChiller_Boiler
+            * VAV_ACChiller_ASHP
+            * VAV_ACChiller_DHW
+            * VAV_ACChiller_PFP
+            * VAV_ACChiller_GasCoil
+            * VAV_DCW_Boiler
+            * VAV_DCW_ASHP
+            * VAV_DCW_DHW
+            * VAV_DCW_PFP
+            * VAV_DCW_GasCoil
 
         economizer_type: Text to indicate the type of air-side economizer used on
             the system. If Inferred, the economizer will be set to whatever is
@@ -73,19 +73,19 @@ technical-resources/standards-and-guidelines/read-only-versions-of-ashrae-standa
     __slots__ = ()
 
     EQUIPMENT_TYPES = (
-        'VAV chiller with gas boiler reheat',
-        'VAV chiller with central air source heat pump reheat',
-        'VAV chiller with district hot water reheat',
-        'VAV chiller with PFP boxes',
-        'VAV chiller with gas coil reheat',
-        'VAV air-cooled chiller with gas boiler reheat',
-        'VAV air-cooled chiller with central air source heat pump reheat',
-        'VAV air-cooled chiller with district hot water reheat',
-        'VAV air-cooled chiller with PFP boxes',
-        'VAV air-cooled chiller with gas coil reheat',
-        'VAV district chilled water with gas boiler reheat',
-        'VAV district chilled water with central air source heat pump reheat',
-        'VAV district chilled water with district hot water reheat',
-        'VAV district chilled water with PFP boxes',
-        'VAV district chilled water with gas coil reheat'
+        'VAV_Chiller_Boiler',
+        'VAV_Chiller_ASHP',
+        'VAV_Chiller_DHW',
+        'VAV_Chiller_PFP',
+        'VAV_Chiller_GasCoil',
+        'VAV_ACChiller_Boiler',
+        'VAV_ACChiller_ASHP',
+        'VAV_ACChiller_DHW',
+        'VAV_ACChiller_PFP',
+        'VAV_ACChiller_GasCoil',
+        'VAV_DCW_Boiler',
+        'VAV_DCW_ASHP',
+        'VAV_DCW_DHW',
+        'VAV_DCW_PFP',
+        'VAV_DCW_GasCoil'
     )

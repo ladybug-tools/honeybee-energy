@@ -244,8 +244,9 @@ class _EquipmentBase(_LoadBase):
         return new_obj
 
     def __repr__(self):
-        return 'Equipment:\n name: {}\n watts per area: {}\n schedule: ' \
-            '{}'.format(self.identifier, self.watts_per_area, self.schedule.identifier)
+        return '{}: {} [{} W/m2] [schedule: {}]'.format(
+            self.__class__.__name__, self.display_name, round(self.watts_per_area, 1),
+            self.schedule.display_name)
 
 
 @lockable
@@ -455,10 +456,6 @@ class ElectricEquipment(_EquipmentBase):
         new_obj._display_name = self._display_name
         return new_obj
 
-    def __repr__(self):
-        return 'ElectricEquipment:\n name: {}\n watts per area: {}\n schedule: ' \
-            '{}'.format(self.identifier, self.watts_per_area, self.schedule.identifier)
-
 
 @lockable
 class GasEquipment(_EquipmentBase):
@@ -665,7 +662,3 @@ class GasEquipment(_EquipmentBase):
             self.radiant_fraction, self.latent_fraction, self.lost_fraction)
         new_obj._display_name = self._display_name
         return new_obj
-
-    def __repr__(self):
-        return 'GasEquipment:\n name: {}\n watts per area: {}\n schedule: ' \
-            '{}'.format(self.identifier, self.watts_per_area, self.schedule.identifier)

@@ -400,6 +400,6 @@ class Infiltration(_LoadBase):
         return new_obj
 
     def __repr__(self):
-        return 'Infiltration:\n name: {}\n flow per exterior area: {}\n schedule: ' \
-            '{}'.format(self.identifier, self.flow_per_exterior_area,
-                        self.schedule.identifier)
+        return 'Infiltration: {} [{} m3/s-m2] [schedule: {}]'.format(
+            self.display_name, round(self.flow_per_exterior_area, 6),
+            self.schedule.display_name)

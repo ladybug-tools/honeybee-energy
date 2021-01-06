@@ -308,10 +308,7 @@ class VentilationSimulationControl(object):
         return self.__repr__()
 
     def __repr__(self):
-        return 'VentilationSimulationControl,\n vent_control_type: {}\n ' \
-            'reference_temperature: {}\n reference_pressure: {}\n ' \
-            'reference_humidity_ratio: {}\n building_type: {}\n long_axis_angle: {}\n' \
-            ' aspect_ratio: {}' .format(
-                self.vent_control_type, self.reference_temperature,
-                self.reference_pressure, self.reference_humidity_ratio,
-                self.building_type, self.long_axis_angle, self.aspect_ratio)
+        return 'VentilationSimulationControl: [control type: {}] ' \
+            '[building_type: {}] [long axis: {}] [aspect_ratio: {}]' .format(
+                self.vent_control_type, self.building_type,
+                round(self.long_axis_angle), round(self.aspect_ratio, 2))

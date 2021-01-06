@@ -230,6 +230,6 @@ class AirBoundaryConstruction(object):
         return self.__repr__()
 
     def __repr__(self):
-        return 'AirBoundaryConstruction,\n identifier: {}\n mixing per area: {}\n ' \
-            'schedule: {}'.format(
-                self.identifier, self.air_mixing_per_area, self.air_mixing_schedule)
+        return 'AirBoundaryConstruction: {} [{} m3/s-m2] [schedule: {}]'.format(
+                self.display_name, round(self.air_mixing_per_area, 4),
+                self.air_mixing_schedule.display_name)

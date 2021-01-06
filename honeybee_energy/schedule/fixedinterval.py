@@ -833,6 +833,6 @@ class ScheduleFixedInterval(object):
         return self.__repr__()
 
     def __repr__(self):
-        return 'ScheduleFixedInterval:\n name: {}\n period: {} - {}\n timestep: ' \
-            '{}'.format(self.identifier, self.start_date, self.end_date_time.strftime('%d %b'),
-                        self.timestep)
+        return 'ScheduleFixedInterval: {} [{} - {}] [timestep: {}]'.format(
+            self.display_name, self.start_date,
+            self.end_date_time.strftime('%d %b'), self.timestep)

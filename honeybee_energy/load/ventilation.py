@@ -404,7 +404,6 @@ class Ventilation(_LoadBase):
         return new_obj
 
     def __repr__(self):
-        return 'Ventilation:\n name: {}\n flow per person: {}\n flow per area: ' \
-            '{}\n flow per zone: {}\n ACH: {}'.format(
-                self.identifier, self.flow_per_person, self.flow_per_area,
-                self.flow_per_zone, self.air_changes_per_hour)
+        return 'Ventilation: {} [{} m3/s-person] [{} m3/s-m2] [{} ACH]'.format(
+            self.display_name, round(self.flow_per_person, 4),
+            round(self.flow_per_area, 6), round(self.air_changes_per_hour, 2))

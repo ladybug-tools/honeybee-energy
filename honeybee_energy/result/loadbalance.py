@@ -644,4 +644,4 @@ class LoadBalance(object):
 
     def __repr__(self):
         """Load Balance representation."""
-        return 'Load Balance:\n{} Rooms'.format(len(self.rooms))
+        return 'Load Balance: [{} Rooms]'.format(len(self.rooms))

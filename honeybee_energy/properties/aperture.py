@@ -192,4 +192,4 @@ class ApertureEnergyProperties(object):
         return self.__repr__()
 
     def __repr__(self):
-        return 'Aperture Energy Properties:\n host: {}'.format(self.host.identifier)
+        return 'Aperture Energy Properties: [host: {}]'.format(self.host.display_name)

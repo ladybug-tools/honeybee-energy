@@ -623,7 +623,7 @@ class ConstructionSet(object):
         return not self.__eq__(other)
 
     def __repr__(self):
-        return 'Energy Construction Set: {}'.format(self.identifier)
+        return 'Energy Construction Set: {}'.format(self.display_name)
 
 
 @lockable
@@ -848,10 +848,10 @@ class WallConstructionSet(_FaceSetBase):
         self._ground_construction = value
 
     def __repr__(self):
-        return 'Wall Construction Set:\n Exterior: {}\n Interior: {}' \
-            '\n Ground: {}'.format(self.exterior_construction.identifier,
-                                   self.interior_construction.identifier,
-                                   self.ground_construction.identifier)
+        return 'Wall Construction Set: [Exterior: {}] [Interior: {}]' \
+            ' [Ground: {}]'.format(self.exterior_construction.display_name,
+                                   self.interior_construction.display_name,
+                                   self.ground_construction.display_name)
 
 
 @lockable
@@ -908,10 +908,10 @@ class FloorConstructionSet(_FaceSetBase):
         self._ground_construction = value
 
     def __repr__(self):
-        return 'Floor Construction Set:\n Exterior: {}\n Interior: {}' \
-            '\n Ground: {}'.format(self.exterior_construction.identifier,
-                                   self.interior_construction.identifier,
-                                   self.ground_construction.identifier)
+        return 'Floor Construction Set: [Exterior: {}] [Interior: {}]' \
+            ' [Ground: {}]'.format(self.exterior_construction.display_name,
+                                   self.interior_construction.display_name,
+                                   self.ground_construction.display_name)
 
 
 @lockable
@@ -968,10 +968,10 @@ class RoofCeilingConstructionSet(_FaceSetBase):
         self._ground_construction = value
 
     def __repr__(self):
-        return 'RoofCeiling Construction Set:\n Exterior: {}\n Interior: {}' \
-            '\n Ground: {}'.format(self.exterior_construction.identifier,
-                                   self.interior_construction.identifier,
-                                   self.ground_construction.identifier)
+        return 'RoofCeiling Construction Set: [Exterior: {}] [Interior: {}]' \
+            ' [Ground: {}]'.format(self.exterior_construction.display_name,
+                                   self.interior_construction.display_name,
+                                   self.ground_construction.display_name)
 
 
 @lockable
@@ -1190,12 +1190,12 @@ class ApertureConstructionSet(object):
             self._skylight_construction, self._operable_construction)
 
     def __repr__(self):
-        return 'Aperture Construction Set:\n Window: {}\n Interior: {}' \
-            '\n Skylight: {}\n Operable: {}'.format(
-                self.window_construction.identifier,
-                self.interior_construction.identifier,
-                self.skylight_construction.identifier,
-                self.operable_construction.identifier)
+        return 'Aperture Construction Set: [Window: {}] [Interior: {}]' \
+            ' [Skylight: {}] [Operable: {}]'.format(
+                self.window_construction.display_name,
+                self.interior_construction.display_name,
+                self.skylight_construction.display_name,
+                self.operable_construction.display_name)
 
 
 @lockable
@@ -1457,10 +1457,10 @@ class DoorConstructionSet(object):
             self._overhead_construction)
 
     def __repr__(self):
-        return 'Door Construction Set:\n Exterior: {}\n Interior: {}' \
-            '\n Exterior Glass: {}\n Interior Glass: {}\n Overhead: {}'.format(
-                self.exterior_construction.identifier,
-                self.interior_construction.identifier,
-                self.exterior_glass_construction.identifier,
-                self.interior_glass_construction.identifier,
-                self.overhead_construction.identifier)
+        return 'Door Construction Set: [Exterior: {}] [Interior: {}]' \
+            ' [Exterior Glass: {}] [Interior Glass: {}] [Overhead: {}]'.format(
+                self.exterior_construction.display_name,
+                self.interior_construction.display_name,
+                self.exterior_glass_construction.display_name,
+                self.interior_glass_construction.display_name,
+                self.overhead_construction.display_name)

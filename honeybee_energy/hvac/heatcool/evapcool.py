@@ -19,23 +19,23 @@ class EvaporativeCooler(_HeatCoolBase):
             to set efficiencies for various pieces of equipment within the system.
             Choose from the following.
 
-            * DOE Ref Pre-1980
-            * DOE Ref 1980-2004
-            * 90.1-2004
-            * 90.1-2007
-            * 90.1-2010
-            * 90.1-2013
+            * DOE_Ref_Pre_1980
+            * DOE_Ref_1980_2004
+            * ASHRAE_2004
+            * ASHRAE_2007
+            * ASHRAE_2010
+            * ASHRAE_2013
 
         equipment_type: Text for the specific type of the system and equipment. (Default:
             the first option below) Choose from.
 
-            * Direct evap coolers with baseboard electric
-            * Direct evap coolers with baseboard gas boiler
-            * Direct evap coolers with baseboard central air source heat pump
-            * Direct evap coolers with baseboard district hot water
-            * Direct evap coolers with forced air furnace
-            * Direct evap coolers with gas unit heaters
-            * Direct evap coolers with no heat
+            * EvapCoolers_ElectricBaseboard
+            * EvapCoolers_BoilerBaseboard
+            * EvapCoolers_ASHPBaseboard
+            * EvapCoolers_DHWBaseboard
+            * EvapCoolers_Furnace
+            * EvapCoolers_UnitHeaters
+            * EvapCoolers
 
     Properties:
         * identifier
@@ -47,11 +47,11 @@ class EvaporativeCooler(_HeatCoolBase):
     __slots__ = ()
 
     EQUIPMENT_TYPES = (
-        'Direct evap coolers with baseboard electric',
-        'Direct evap coolers with baseboard gas boiler',
-        'Direct evap coolers with baseboard central air source heat pump',
-        'Direct evap coolers with baseboard district hot water',
-        'Direct evap coolers with forced air furnace',
-        'Direct evap coolers with gas unit heaters',
-        'Direct evap coolers with no heat'
+        'EvapCoolers_ElectricBaseboard',
+        'EvapCoolers_BoilerBaseboard',
+        'EvapCoolers_ASHPBaseboard',
+        'EvapCoolers_DHWBaseboard',
+        'EvapCoolers_Furnace',
+        'EvapCoolers_UnitHeaters',
+        'EvapCoolers'
     )

@@ -19,20 +19,20 @@ class WSHP(_HeatCoolBase):
             to set efficiencies for various pieces of equipment within the system.
             Choose from the following.
 
-            * DOE Ref Pre-1980
-            * DOE Ref 1980-2004
-            * 90.1-2004
-            * 90.1-2007
-            * 90.1-2010
-            * 90.1-2013
+            * DOE_Ref_Pre_1980
+            * DOE_Ref_1980_2004
+            * ASHRAE_2004
+            * ASHRAE_2007
+            * ASHRAE_2010
+            * ASHRAE_2013
 
         equipment_type: Text for the specific type of the system and equipment. (Default:
             the first option below) Choose from.
 
-            * Water source heat pumps fluid cooler with boiler
-            * Water source heat pumps cooling tower with boiler
-            * Water source heat pumps with ground source heat pump
-            * Water source heat pumps district chilled water with district hot water
+            * WSHP_FluidCooler_Boiler
+            * WSHP_CoolingTower_Boiler
+            * WSHP_GSHP
+            * WSHP_DCW_DHW
 
     Properties:
         * identifier
@@ -44,8 +44,8 @@ class WSHP(_HeatCoolBase):
     __slots__ = ()
 
     EQUIPMENT_TYPES = (
-        'Water source heat pumps fluid cooler with boiler',
-        'Water source heat pumps cooling tower with boiler',
-        'Water source heat pumps with ground source heat pump',
-        'Water source heat pumps district chilled water with district hot water'
+        'WSHP_FluidCooler_Boiler',
+        'WSHP_CoolingTower_Boiler',
+        'WSHP_GSHP',
+        'WSHP_DCW_DHW'
     )

@@ -1400,7 +1400,6 @@ class ScheduleRuleset(object):
         return self.__repr__()
 
     def __repr__(self):
-        return 'ScheduleRuleset:\n name: {}\n default_day: {}\n' \
-            ' schedule_rules:\n  {}'.format(
-                self.identifier, self.default_day_schedule.identifier,
-                '\n  '.join([rule.schedule_day.identifier for rule in self._schedule_rules]))
+        return 'ScheduleRuleset: {} [default day: {}] [{} rules]'.format(
+            self.display_name, self.default_day_schedule.display_name,
+            len(self._schedule_rules))

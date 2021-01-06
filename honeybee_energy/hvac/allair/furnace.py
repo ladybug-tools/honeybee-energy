@@ -19,17 +19,17 @@ class ForcedAirFurnace(_AllAirBase):
             to set efficiencies for various pieces of equipment within the system.
             Choose from the following.
 
-            * DOE Ref Pre-1980
-            * DOE Ref 1980-2004
-            * 90.1-2004
-            * 90.1-2007
-            * 90.1-2010
-            * 90.1-2013
+            * DOE_Ref_Pre_1980
+            * DOE_Ref_1980_2004
+            * ASHRAE_2004
+            * ASHRAE_2007
+            * ASHRAE_2010
+            * ASHRAE_2013
 
         equipment_type: Text for the specific type of the system and equipment. (Default:
             the first option below) Choose from.
 
-            * Forced air furnace
+            * Furnace
 
         economizer_type: Text to indicate the type of air-side economizer used on
             the system. If Inferred, the economizer will be set to whatever is
@@ -58,4 +58,4 @@ technical-resources/standards-and-guidelines/read-only-versions-of-ashrae-standa
     """
     __slots__ = ()
 
-    EQUIPMENT_TYPES = ('Forced air furnace',)
+    EQUIPMENT_TYPES = ('Furnace',)

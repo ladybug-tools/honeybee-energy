@@ -99,4 +99,4 @@ class _HVACSystem(object):
         return new_obj
 
     def __repr__(self):
-        return 'HVACSystem: {}'.format(self.identifier)
+        return 'HVACSystem: {}'.format(self.display_name)

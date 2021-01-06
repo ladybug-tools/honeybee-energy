@@ -595,4 +595,4 @@ class ProgramType(object):
         return not self.__eq__(other)
 
     def __repr__(self):
-        return 'Program Type: {}'.format(self.identifier)
+        return 'Program Type: {}'.format(self.display_name)

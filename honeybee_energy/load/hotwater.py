@@ -465,5 +465,5 @@ class ServiceHotWater(_LoadBase):
         return new_obj
 
     def __repr__(self):
-        return 'ServiceHotWater:\n name: {}\n flow per area: {} L/h-m2\n schedule: ' \
-            '{}'.format(self.identifier, self.flow_per_area, self.schedule.identifier)
+        return 'ServiceHotWater: {} [{} L/h-m2] [schedule: {}]'.format(
+            self.identifier, self.flow_per_area, self.schedule.identifier)

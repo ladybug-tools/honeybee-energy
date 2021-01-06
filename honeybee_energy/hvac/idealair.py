@@ -620,7 +620,4 @@ class IdealAirSystem(_HVACSystem):
         return not self.__eq__(other)
 
     def __repr__(self):
-        return 'IdealAirSystem: {}\n economizer: {}\n dcv: {}\n sensible recovery: {}' \
-            '\n latent recovery: {}'.format(
-                self.identifier, self.economizer_type, self.demand_controlled_ventilation,
-                self.sensible_heat_recovery, self.latent_heat_recovery)
+        return 'IdealAirSystem: {}'.format(self.display_name)

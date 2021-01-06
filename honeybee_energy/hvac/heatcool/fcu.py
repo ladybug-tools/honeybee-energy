@@ -19,34 +19,34 @@ class FCU(_HeatCoolBase):
             to set efficiencies for various pieces of equipment within the system.
             Choose from the following.
 
-            * DOE Ref Pre-1980
-            * DOE Ref 1980-2004
-            * 90.1-2004
-            * 90.1-2007
-            * 90.1-2010
-            * 90.1-2013
+            * DOE_Ref_Pre_1980
+            * DOE_Ref_1980_2004
+            * ASHRAE_2004
+            * ASHRAE_2007
+            * ASHRAE_2010
+            * ASHRAE_2013
 
         equipment_type: Text for the specific type of the system and equipment. (Default:
             the first option below) Choose from.
 
-            * Fan coil chiller with boiler
-            * Fan coil chiller with central air source heat pump
-            * Fan coil chiller with district hot water
-            * Fan coil chiller with baseboard electric
-            * Fan coil chiller with gas unit heaters
-            * Fan coil chiller with no heat
-            * Fan coil air-cooled chiller with boiler
-            * Fan coil air-cooled chiller with central air source heat pump
-            * Fan coil air-cooled chiller with district hot water
-            * Fan coil air-cooled chiller with baseboard electric
-            * Fan coil air-cooled chiller with gas unit heaters
-            * Fan coil air-cooled chiller with no heat
-            * Fan coil district chilled water with boiler
-            * Fan coil district chilled water with central air source heat pump
-            * Fan coil district chilled water with district hot water
-            * Fan coil district chilled water with baseboard electric
-            * Fan coil district chilled water with gas unit heaters
-            * Fan coil district chilled water with no heat
+            * FCU_Chiller_Boiler
+            * FCU_Chiller_ASHP
+            * FCU_Chiller_DHW
+            * FCU_Chiller_ElectricBaseboard
+            * FCU_Chiller_GasHeaters
+            * FCU_Chiller
+            * FCU_ACChiller_Boiler
+            * FCU_ACChiller_ASHP
+            * FCU_ACChiller_DHW
+            * FCU_ACChiller_ElectricBaseboard
+            * FCU_ACChiller_GasHeaters
+            * FCU_ACChiller
+            * FCU_DCW_Boiler
+            * FCU_DCW_ASHP
+            * FCU_DCW_DHW
+            * FCU_DCW_ElectricBaseboard
+            * FCU_DCW_GasHeaters
+            * FCU_DCW
 
     Properties:
         * identifier
@@ -58,22 +58,22 @@ class FCU(_HeatCoolBase):
     __slots__ = ()
 
     EQUIPMENT_TYPES = (
-        'Fan coil chiller with boiler',
-        'Fan coil chiller with central air source heat pump',
-        'Fan coil chiller with district hot water',
-        'Fan coil chiller with baseboard electric',
-        'Fan coil chiller with gas unit heaters',
-        'Fan coil chiller with no heat',
-        'Fan coil air-cooled chiller with boiler',
-        'Fan coil air-cooled chiller with central air source heat pump',
-        'Fan coil air-cooled chiller with district hot water',
-        'Fan coil air-cooled chiller with baseboard electric',
-        'Fan coil air-cooled chiller with gas unit heaters',
-        'Fan coil air-cooled chiller with no heat',
-        'Fan coil district chilled water with boiler',
-        'Fan coil district chilled water with central air source heat pump',
-        'Fan coil district chilled water with district hot water',
-        'Fan coil district chilled water with baseboard electric',
-        'Fan coil district chilled water with gas unit heaters',
-        'Fan coil district chilled water with no heat'
+        'FCU_Chiller_Boiler',
+        'FCU_Chiller_ASHP',
+        'FCU_Chiller_DHW',
+        'FCU_Chiller_ElectricBaseboard',
+        'FCU_Chiller_GasHeaters',
+        'FCU_Chiller',
+        'FCU_ACChiller_Boiler',
+        'FCU_ACChiller_ASHP',
+        'FCU_ACChiller_DHW',
+        'FCU_ACChiller_ElectricBaseboard',
+        'FCU_ACChiller_GasHeaters',
+        'FCU_ACChiller',
+        'FCU_DCW_Boiler',
+        'FCU_DCW_ASHP',
+        'FCU_DCW_DHW',
+        'FCU_DCW_ElectricBaseboard',
+        'FCU_DCW_GasHeaters',
+        'FCU_DCW'
     )

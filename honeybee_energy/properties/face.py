@@ -186,4 +186,4 @@ class FaceEnergyProperties(object):
         return self.__repr__()
 
     def __repr__(self):
-        return 'Face Energy Properties:\n host: {}'.format(self.host.identifier)
+        return 'Face Energy Properties: [host: {}]'.format(self.host.display_name)

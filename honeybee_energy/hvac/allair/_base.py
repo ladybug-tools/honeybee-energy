@@ -23,12 +23,12 @@ class _AllAirBase(_TemplateSystem):
             to set efficiencies for various pieces of equipment within the system.
             Choose from the following.
 
-            * DOE Ref Pre-1980
-            * DOE Ref 1980-2004
-            * 90.1-2004
-            * 90.1-2007
-            * 90.1-2010
-            * 90.1-2013
+            * DOE_Ref_Pre_1980
+            * DOE_Ref_1980_2004
+            * ASHRAE_2004
+            * ASHRAE_2007
+            * ASHRAE_2010
+            * ASHRAE_2013
 
         equipment_type: Text for the specific type of the system and equipment.
             For example, 'VAV chiller with gas boiler reheat'.
@@ -57,7 +57,7 @@ class _AllAirBase(_TemplateSystem):
                         'DifferentialEnthalpy')
     _has_air_loop = True
 
-    def __init__(self, identifier, vintage='90.1-2013', equipment_type=None,
+    def __init__(self, identifier, vintage='ASHRAE_2013', equipment_type=None,
                  economizer_type='Inferred',
                  sensible_heat_recovery=autosize, latent_heat_recovery=autosize):
         """Initialize HVACSystem."""
@@ -147,7 +147,7 @@ class _AllAirBase(_TemplateSystem):
             "type": "",  # text for the class name of the HVAC
             "identifier": "Classroom1_System",  # identifier for the HVAC
             "display_name": "Standard System",  # name for the HVAC
-            "vintage": "90.1-2013",  # text for the vintage of the template
+            "vintage": "ASHRAE_2013",  # text for the vintage of the template
             "equipment_type": "",  # text for the HVAC equipment type
             "economizer_type": 'DifferentialDryBulb',  # Economizer type
             "sensible_heat_recovery": 0.75,  # Sensible heat recovery effectiveness
@@ -190,7 +190,7 @@ class _AllAirBase(_TemplateSystem):
             "type": "",  # text for the class name of the HVAC
             "identifier": "Classroom1_System",  # identifier for the HVAC
             "display_name": "Standard System",  # name for the HVAC
-            "vintage": "90.1-2013",  # text for the vintage of the template
+            "vintage": "ASHRAE_2013",  # text for the vintage of the template
             "equipment_type": "",  # text for the HVAC equipment type
             "economizer_type": 'DifferentialDryBulb',  # Economizer type
             "sensible_heat_recovery": 0.75,  # Sensible heat recovery effectiveness
@@ -244,13 +244,6 @@ class _AllAirBase(_TemplateSystem):
 
     def __ne__(self, other):
         return not self.__eq__(other)
-
-    def __repr__(self):
-        return '{}: {}\n type: {}\n vintage: {}\n economizer: {}\n sensible recovery:' \
-            ' {} \n latent recovery: {}'.format(
-                self.__class__.__name__, self.identifier, self.equipment_type,
-                self.vintage, self.economizer_type, self.sensible_heat_recovery,
-                self.latent_heat_recovery)
 
 
 class _AllAirEnumeration(_EnumerationBase):
