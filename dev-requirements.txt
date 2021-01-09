@@ -1,5 +1,5 @@
 click==7.1.2
-honeybee-schema==1.40.1;python_version>='3.7'
+honeybee-schema==1.40.2;python_version>='3.7'
 coverage==5.3.1
 coveralls==1.7.0;python_version<'3.0'
 coveralls==2.2.0;python_version>='3.6'
