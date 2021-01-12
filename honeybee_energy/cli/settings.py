@@ -32,9 +32,9 @@ def settings():
               ' JSON that describes the duration of the simulation. If None the simulation'
               'will be run for the whole year.', default=None, show_default=True,
               type=click.Path(exists=True, file_okay=True, dir_okay=False, resolve_path=True))
-@click.option('--filter-des-days', help='Boolean to note whether the design days in the '
-              'ddy-file should be filtered to only include 99.6 and 0.4 design days.',
-              type=bool, default=True, show_default=True)
+@click.option('--filter-des-days/--all-des-days', ' /-all',  help='Flag to note whether '
+              'the design days in the ddy-file should be filtered to only include 99.6 '
+              'and 0.4 design days.', default=True, show_default=True)
 @click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the simulation parameters. By default, it will be printed to stdout.',
               type=click.File('w'), default='-', show_default=True)
@@ -79,9 +79,9 @@ def default_sim_par(ddy_file, run_period_json, filter_des_days, output_file):
               ' JSON that describes the duration of the simulation. If None the simulation'
               'will be run for the whole year.', default=None, show_default=True,
               type=click.Path(exists=True, file_okay=True, dir_okay=False, resolve_path=True))
-@click.option('--filter-des-days', help='Boolean to note whether the design days in the '
-              'ddy-file should be filtered to only include 99.6 and 0.4 design days.',
-              type=bool, default=True, show_default=True)
+@click.option('--filter-des-days/--all-des-days', ' /-all',  help='Flag to note whether '
+              'the design days in the ddy-file should be filtered to only include 99.6 '
+              'and 0.4 design days.', default=True, show_default=True)
 @click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the simulation parameters. By default, it will be printed to stdout.',
               type=click.File('w'), default='-', show_default=True)
@@ -123,9 +123,9 @@ def load_balance_sim_par(ddy_file, load_type, run_period_json, filter_des_days,
               ' JSON that describes the duration of the simulation. If None the simulation'
               'will be run for the whole year.', default=None, show_default=True,
               type=click.Path(exists=True, file_okay=True, dir_okay=False, resolve_path=True))
-@click.option('--filter-des-days', help='Boolean to note whether the design days in the '
-              'ddy-file should be filtered to only include 99.6 and 0.4 design days.',
-              type=bool, default=True, show_default=True)
+@click.option('--filter-des-days/--all-des-days', ' /-all',  help='Flag to note whether '
+              'the design days in the ddy-file should be filtered to only include 99.6 '
+              'and 0.4 design days.', default=True, show_default=True)
 @click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the simulation parameters. By default, it will be printed to stdout.',
               type=click.File('w'), default='-', show_default=True)
@@ -166,9 +166,9 @@ def comfort_sim_par(ddy_file, run_period_json, filter_des_days, output_file):
               'zone (both sensible and latent)\nSensible - the sensible load added to '
               'the zone\nLatent - the latent load added to the zone.',
               type=str, default='Total', show_default=True)
-@click.option('--filter-des-days', help='Boolean to note whether the design days in the '
-              'ddy-file should be filtered to only include 99.6 and 0.4 design days.',
-              type=bool, default=True, show_default=True)
+@click.option('--filter-des-days/--all-des-days', ' /-all',  help='Flag to note whether '
+              'the design days in the ddy-file should be filtered to only include 99.6 '
+              'and 0.4 design days.', default=True, show_default=True)
 @click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the simulation parameters. By default, it will be printed to stdout.',
               type=click.File('w'), default='-', show_default=True)
@@ -207,9 +207,9 @@ def sizing_sim_par(ddy_file, load_type, filter_des_days, output_file):
               ' JSON that describes the duration of the simulation. If None the simulation'
               'will be run for the whole year.', default=None, show_default=True,
               type=click.Path(exists=True, file_okay=True, dir_okay=False, resolve_path=True))
-@click.option('--filter-des-days', help='Boolean to note whether the design days in the '
-              'ddy-file should be filtered to only include 99.6 and 0.4 design days.',
-              type=bool, default=True, show_default=True)
+@click.option('--filter-des-days/--all-des-days', ' /-all',  help='Flag to note whether '
+              'the design days in the ddy-file should be filtered to only include 99.6 '
+              'and 0.4 design days.', default=True, show_default=True)
 @click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the simulation parameters. By default, it will be printed to stdout.',
               type=click.File('w'), default='-', show_default=True)
