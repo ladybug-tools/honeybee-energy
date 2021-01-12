@@ -66,7 +66,8 @@ def measure_compatible_model_json(model_json_path, destination_directory=None):
 
 
 def to_openstudio_osw(osw_directory, model_json_path, sim_par_json_path=None,
-                      additional_measures=None, base_osw=None, epw_file=None):
+                      additional_measures=None, base_osw=None, epw_file=None,
+                      schedule_directory=None):
     """Create a .osw to translate honeybee JSONs to an .osm file.
 
     Args:
@@ -75,16 +76,21 @@ def to_openstudio_osw(osw_directory, model_json_path, sim_par_json_path=None,
         model_json_path: File path to the Model JSON.
         sim_par_json_path: Optional file path to the SimulationParameter JSON.
             If None, the resulting OSM will not have everything it needs to be
-            simulate-able.
+            simulate-able in EnergyPlus. (Default: None).
         additional_measures: An optional array of honeybee-energy Measure objects
             to be included in the output osw. These Measure objects must have
             values for all required input arguments or an exception will be
-            raised while running this function.
+            raised while running this function. (Default: None).
         base_osw: Optional file path to an existing OSW JSON be used as the base
             for the output .osw. This is another way that outside measures
-            can be incorporated into the workflow.
+            can be incorporated into the workflow. (Default: None).
         epw_file: Optional file path to an EPW that should be associated with the
-            output energy model.
+            output energy model. If None, no EPW file will be written into the
+            OSW. (Default: None).
+        schedule_directory: An optional file directory to which all file-based
+            schedules should be written to. If None, all ScheduleFixedIntervals
+            will be translated to Schedule:Compact and written fully into the
+            IDF string instead of to Schedule:File. (Default: None).
 
     Returns:
         The file path to the .osw written out by this method.
@@ -115,6 +121,8 @@ def to_openstudio_osw(osw_directory, model_json_path, sim_par_json_path=None,
         },
         'measure_dir_name': 'from_honeybee_model'
     }
+    if schedule_directory is not None:
+        model_measure_dict['arguments']['schedule_csv_dir'] = schedule_directory
     osw_dict['steps'].insert(0, model_measure_dict)
 
     # assign the measure_paths to the osw_dict

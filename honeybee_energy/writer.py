@@ -6,7 +6,6 @@ from honeybee.room import Room
 from honeybee.face import Face
 from honeybee.boundarycondition import Outdoors, Surface, Ground
 from honeybee.facetype import RoofCeiling, AirBoundary
-import honeybee.config as hb_config
 
 import os
 try:
@@ -374,9 +373,10 @@ def model_to_idf(model, schedule_directory=None):
 
     Args:
         model: A honeybee Model for which an IDF representation will be returned.
-        schedule_directory: An optional file directory to which any file-based
-            schedules should be written to. If None, it will be written to the
-            user folder assuming the project is entitled 'unnamed'.
+        schedule_directory: An optional file directory to which all file-based
+            schedules should be written to. If None, all ScheduleFixedIntervals
+            will be translated to Schedule:Compact and written fully into the
+            IDF string instead of to Schedule:File. (Default: None).
 
     Usage:
 
@@ -450,11 +450,9 @@ def model_to_idf(model, schedule_directory=None):
         except TypeError:  # ScheduleFixedInterval
             if sched_dir is None:
                 if schedule_directory is None:
-                    sched_dir = os.path.join(hb_config.folders.default_simulation_folder,
-                                             'unnamed', 'schedules')
+                    sched_strs.append(sched.to_idf_compact())
                 else:
-                    sched_dir = schedule_directory
-            sched_strs.append(sched.to_idf(sched_dir))
+                    sched_strs.append(sched.to_idf(schedule_directory))
         t_lim = sched.schedule_type_limit
         if t_lim is not None and not _instance_in_array(t_lim, type_limits):
             type_limits.append(t_lim)
