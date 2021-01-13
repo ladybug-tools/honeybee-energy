@@ -173,7 +173,7 @@ def comfort_sim_par(ddy_file, run_period_json, filter_des_days, output_file):
               'the simulation parameters. By default, it will be printed to stdout.',
               type=click.File('w'), default='-', show_default=True)
 def sizing_sim_par(ddy_file, load_type, filter_des_days, output_file):
-    """Get a SimulationParameter JSON with outputs and run periodfor HVAC sizing.
+    """Get a SimulationParameter JSON with outputs and run period for HVAC sizing.
 
     \b
     Args:
