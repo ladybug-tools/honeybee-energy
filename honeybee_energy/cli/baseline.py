@@ -43,7 +43,7 @@ def baseline():
 def geometry_2004(model_json, output_file):
     """Convert a Model's geometry to be conformant with ASHRAE 90.1-2004 appendix G.
 
-    This includes stripping out all child shades (leaving orphaned shade as context),
+    This includes stripping out all attached shades (leaving detached shade as context),
     reducing the vertical glazing ratio to 40% it it's above this value, and
     reducing the skylight ratio to 5% of it's above this value.
 
@@ -249,10 +249,10 @@ def lighting_2004(model_json, output_file):
               default=True, show_default=True)
 @click.option('--floor-area', '-a', help='A number for the floor area of the building'
               ' that the model is a part of in m2. If None, the model floor area '
-              'will be used.', type=float, default=None, show_default=True)
+              'will be used.', type=float, default=0, show_default=True)
 @click.option('--story-count', '-s', help='An integer for the number of stories of '
               'the building that the model is a part of. If None, the model stories '
-              'will be used.', type=int, default=None, show_default=True)
+              'will be used.', type=int, default=0, show_default=True)
 @click.option('--output-file', '-f', help='Optional hbjson file to output the JSON '
               'string of the converted model. By default this will be printed out '
               'to stdout', type=click.File('w'), default='-', show_default=True)
@@ -283,12 +283,12 @@ def hvac_2004(model_json, climate_zone, nonresidential, fuel, floor_area,
             climate_zone = '{}A'.format(climate_zone)
         if nonresidential:
             # determine the floor area if it is not input
-            if floor_area is None:
+            if floor_area == 0 or floor_area is None:
                 floor_area = model.floor_area
                 floor_area = floor_area if model.units == 'Meters' else \
                     floor_area * model.conversion_factor_to_meters(model.units)
             # determine the number of stories if it is not input
-            if story_count is None:
+            if story_count == 0 or story_count is None:
                 story_count = len(model.stories)
             # determine the HVAC from the floor area and stories
             hvac_id = 'Baseline 2004 {} HVAC'
@@ -334,7 +334,8 @@ def hvac_2004(model_json, climate_zone, nonresidential, fuel, floor_area,
 def remove_ecms(model_json, output_file):
     """Remove energy conservation strategies (ECMs) not associated with baseline models.
 
-    This includes removing the opening behavior of all opearable windows.
+    This includes removing the opening behavior of all operable windows, daylight
+    controls, etc.
 
     \b
     Args:

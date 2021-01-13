@@ -594,7 +594,7 @@ def zone_sizes(result_sql, output_file):
 @click.argument('result-sql', type=click.Path(
     exists=True, file_okay=True, dir_okay=False, resolve_path=True))
 @click.option('--component-type', '-ct', help='A name of a HVAC component type, which '
-              'will be used to filter the output HVAC components. If None, all HVAC '
+              'will be used to filter the output HVAC components. If "None", all HVAC '
               'component sizes will be output.',
               type=str, default=None, show_default=True)
 @click.option('--output-file', '-f', help='Optional file to output the JSON strings of '
@@ -610,7 +610,7 @@ def component_sizes(result_sql, component_type, output_file):
     try:
         sql_obj = SQLiteResult(result_sql)
         comp_sizes = []
-        if component_type is None:
+        if component_type is None or component_type == 'None':
             for comp_size in sql_obj.component_sizes:
                 comp_sizes.append(comp_size.to_dict())
         else:

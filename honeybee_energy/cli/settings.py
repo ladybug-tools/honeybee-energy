@@ -28,10 +28,11 @@ def settings():
 @settings.command('default-sim-par')
 @click.argument('ddy-file', type=click.Path(
     exists=True, file_okay=True, dir_okay=False, resolve_path=True))
-@click.option('--run-period-json', '-rp', help='Full path to a honeybee energy RunPeriod'
-              ' JSON that describes the duration of the simulation. If None the simulation'
-              'will be run for the whole year.', default=None, show_default=True,
-              type=click.Path(exists=True, file_okay=True, dir_okay=False, resolve_path=True))
+@click.option('--run-period-json', '-rp', help='Full path to a honeybee RunPeriod JSON '
+              'that describes the duration of the simulation. If not specified, the '
+              'simulation will be for the whole year.', default=None, show_default=True,
+              type=click.Path(exists=True, file_okay=True, dir_okay=False,
+              resolve_path=True))
 @click.option('--filter-des-days/--all-des-days', ' /-all',  help='Flag to note whether '
               'the design days in the ddy-file should be filtered to only include 99.6 '
               'and 0.4 design days.', default=True, show_default=True)
@@ -50,7 +51,7 @@ def default_sim_par(ddy_file, run_period_json, filter_des_days, output_file):
         sim_par = SimulationParameter()
         sim_par.output.add_zone_energy_use()
         sim_par.output.add_hvac_energy_use()
-        if run_period_json:
+        if run_period_json is not None:
             with open(run_period_json) as json_file:
                 data = json.load(json_file)
             sim_par.run_period = RunPeriod.from_dict(data)
@@ -75,10 +76,11 @@ def default_sim_par(ddy_file, run_period_json, filter_des_days, output_file):
               'zone (both sensible and latent)\nSensible - the sensible load added to '
               'the zone\nLatent - the latent load added to the zone.',
               type=str, default='Total', show_default=True)
-@click.option('--run-period-json', '-rp', help='Full path to a honeybee energy RunPeriod'
-              ' JSON that describes the duration of the simulation. If None the simulation'
-              'will be run for the whole year.', default=None, show_default=True,
-              type=click.Path(exists=True, file_okay=True, dir_okay=False, resolve_path=True))
+@click.option('--run-period-json', '-rp', help='Full path to a honeybee RunPeriod JSON '
+              'that describes the duration of the simulation. If not specified, the '
+              'simulation will be for the whole year.', default=None, show_default=True,
+              type=click.Path(exists=True, file_okay=True, dir_okay=False,
+              resolve_path=True))
 @click.option('--filter-des-days/--all-des-days', ' /-all',  help='Flag to note whether '
               'the design days in the ddy-file should be filtered to only include 99.6 '
               'and 0.4 design days.', default=True, show_default=True)
@@ -100,7 +102,7 @@ def load_balance_sim_par(ddy_file, load_type, run_period_json, filter_des_days,
         gl_load_type = load_type if load_type != 'All' else 'Total'
         sim_par.output.add_gains_and_losses(gl_load_type)
         sim_par.output.add_surface_energy_flow()
-        if run_period_json:
+        if run_period_json is not None:
             with open(run_period_json) as json_file:
                 data = json.load(json_file)
             sim_par.run_period = RunPeriod.from_dict(data)
@@ -119,10 +121,11 @@ def load_balance_sim_par(ddy_file, load_type, run_period_json, filter_des_days,
 @settings.command('comfort-sim-par')
 @click.argument('ddy-file', type=click.Path(
     exists=True, file_okay=True, dir_okay=False, resolve_path=True))
-@click.option('--run-period-json', '-rp', help='Full path to a honeybee energy RunPeriod'
-              ' JSON that describes the duration of the simulation. If None the simulation'
-              'will be run for the whole year.', default=None, show_default=True,
-              type=click.Path(exists=True, file_okay=True, dir_okay=False, resolve_path=True))
+@click.option('--run-period-json', '-rp', help='Full path to a honeybee RunPeriod JSON '
+              'that describes the duration of the simulation. If not specified, the '
+              'simulation will be for the whole year.', default=None, show_default=True,
+              type=click.Path(exists=True, file_okay=True, dir_okay=False,
+              resolve_path=True))
 @click.option('--filter-des-days/--all-des-days', ' /-all',  help='Flag to note whether '
               'the design days in the ddy-file should be filtered to only include 99.6 '
               'and 0.4 design days.', default=True, show_default=True)
@@ -141,7 +144,7 @@ def comfort_sim_par(ddy_file, run_period_json, filter_des_days, output_file):
         sim_par = SimulationParameter()
         sim_par.output.add_comfort_metrics()
         sim_par.output.add_surface_temperature()
-        if run_period_json:
+        if run_period_json is not None:
             with open(run_period_json) as json_file:
                 data = json.load(json_file)
             sim_par.run_period = RunPeriod.from_dict(data)
@@ -203,17 +206,19 @@ def sizing_sim_par(ddy_file, load_type, filter_des_days, output_file):
 @click.argument('ddy-file', type=click.Path(
     exists=True, file_okay=True, dir_okay=False, resolve_path=True))
 @click.argument('output-names', nargs=-1)
-@click.option('--run-period-json', '-rp', help='Full path to a honeybee energy RunPeriod'
-              ' JSON that describes the duration of the simulation. If None the simulation'
-              'will be run for the whole year.', default=None, show_default=True,
-              type=click.Path(exists=True, file_okay=True, dir_okay=False, resolve_path=True))
+@click.option('--run-period-json', '-rp', help='Full path to a honeybee RunPeriod JSON '
+              'that describes the duration of the simulation. If not specified, the '
+              'simulation will be for the whole year.', default=None, show_default=True,
+              type=click.Path(exists=True, file_okay=True, dir_okay=False,
+              resolve_path=True))
 @click.option('--filter-des-days/--all-des-days', ' /-all',  help='Flag to note whether '
               'the design days in the ddy-file should be filtered to only include 99.6 '
               'and 0.4 design days.', default=True, show_default=True)
 @click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the simulation parameters. By default, it will be printed to stdout.',
               type=click.File('w'), default='-', show_default=True)
-def custom_sim_par(ddy_file, output_names, run_period_json, filter_des_days, output_file):
+def custom_sim_par(ddy_file, output_names, run_period_json, filter_des_days,
+                   output_file):
     """Get a SimulationParameter JSON with outputs for thermal load balances.
 
     \b
@@ -228,7 +233,7 @@ def custom_sim_par(ddy_file, output_names, run_period_json, filter_des_days, out
         sim_par = SimulationParameter()
         for output_name in output_names:
             sim_par.output.add_output(output_name)
-        if run_period_json:
+        if run_period_json is not None:
             with open(run_period_json) as json_file:
                 data = json.load(json_file)
             sim_par.run_period = RunPeriod.from_dict(data)
@@ -251,11 +256,10 @@ def custom_sim_par(ddy_file, output_names, run_period_json, filter_des_days, out
 @click.argument('end-day', type=int)
 @click.option('--start-day-of-week', '-dow', help='Text for the day of the week on which '
               'the simulation starts.', type=str, default='Sunday', show_default=True)
-@click.option('--holidays', '-h', help='A JSON array of text for the holidays within the '
-              'simulation. Dates should be formatted as follows: [day int] [month text] '
-              '(eg. "1 Jan". The list should appear as a JSON-formatted array in [] '
-              'brackets. If None, no holidays are applied.',
-              type=str, default=None, show_default=True)
+@click.option('--holidays', '-h', help='Text for the holidays within the simulation. '
+              'Dates should be formatted as follows: "[day int] [month text]" '
+              '(eg. "25 Dec"). If not specified, no holidays are applied.',
+              type=str, default=None, show_default=True, multiple=True)
 @click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the run period. By default, it will be printed to stdout.',
               type=click.File('w'), default='-', show_default=True)
@@ -279,7 +283,7 @@ def run_period(start_month, start_day, end_month, end_day, start_day_of_week,
             run_period.start_day_of_week = start_day_of_week.title()
         # set the holidays if requested.
         if holidays:
-            dates = tuple(Date.from_date_string(date) for date in json.loads(holidays))
+            dates = tuple(Date.from_date_string(date) for date in holidays)
             run_period.holidays = dates
         output_file.write(json.dumps(run_period.to_dict()))
     except Exception as e:
