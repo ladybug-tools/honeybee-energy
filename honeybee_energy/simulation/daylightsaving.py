@@ -58,7 +58,7 @@ class DaylightSavingTime(object):
     @end_date.setter
     def end_date(self, value):
         if value is not None:
-            self._check_date(value, 'start_date')
+            self._check_date(value, 'end_date')
             self._end_date = value
         else:
             self._end_date = Date(12, 31)
