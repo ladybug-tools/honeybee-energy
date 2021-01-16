@@ -103,8 +103,7 @@ class SimulationParameter(object):
 
     @property
     def timestep(self):
-        """Get or set a integer for the number of days with unique shadow calculations.
-        """
+        """Get or set a integer for the number of simulation timesteps per hour."""
         return self._timestep
 
     @timestep.setter
