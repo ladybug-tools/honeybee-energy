@@ -132,6 +132,13 @@ def to_openstudio_osw(osw_directory, model_json_path, sim_par_json_path=None,
         measure_dir = os.path.join(folders.honeybee_openstudio_gem_path, 'measures')
         osw_dict['measure_paths'].append(measure_dir)
 
+    # assign the schedule_directory to the file_paths if it is specified
+    if schedule_directory is not None:
+        if 'file_paths' not in osw_dict:
+            osw_dict['file_paths'] = [schedule_directory]
+        else:
+            osw_dict['file_paths'].append(schedule_directory)
+
     # add any additional measures to the osw_dict
     if additional_measures:
         measure_paths = set()  # set of all unique measure paths
