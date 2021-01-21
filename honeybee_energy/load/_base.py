@@ -1,6 +1,7 @@
 # coding=utf-8
 """Base object for all load definitions."""
 from __future__ import division
+import random
 
 from ..schedule.ruleset import ScheduleRuleset
 from ..schedule.fixedinterval import ScheduleFixedInterval
@@ -108,6 +109,28 @@ class _LoadBase(object):
         else:
             raise NotImplementedError(
                 'Schedule {} is not supported.'.format(sch_dict['type']))
+
+    @staticmethod
+    def _shift_schedule(schedule, schedule_offset, timestep):
+        """Take a schedule and shift it behind and then ahead."""
+        if isinstance(schedule, ScheduleRuleset):
+            behind = schedule.shift_by_step(-schedule_offset, timestep)
+            ahead = schedule.shift_by_step(schedule_offset, timestep)
+            shifted_schs = [behind, schedule, ahead]
+        else:  # schedule FixedInterval; not worth it to shift
+            shifted_schs = [schedule] * 3
+        return shifted_schs
+
+    @staticmethod
+    def _gaussian_values(count, load_value, load_stdev):
+        """Generate Gaussian values for a load and a corresponding schedule integers."""
+        new_loads, sch_int = [], []
+        for _ in range(count):
+            val = random.gauss(load_value, load_stdev)
+            final_val = 1e-6 if val <= 0 else val  # avoid negative values
+            new_loads.append(final_val)
+            sch_int.append(random.randint(0, 2))
+        return new_loads, sch_int
 
     def __copy__(self):
         new_obj = _LoadBase(self.identifier)

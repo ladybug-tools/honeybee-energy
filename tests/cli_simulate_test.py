@@ -1,4 +1,4 @@
-"""Test cli translate module."""
+"""Test cli simulate module."""
 from click.testing import CliRunner
 from honeybee_energy.cli.simulate import simulate_osm, simulate_idf
 from honeybee.config import folders

@@ -216,6 +216,43 @@ def test_program_type_dict_methods():
     assert prog_dict == new_office_program.to_dict()
 
 
+def test_program_type_diversify():
+    """Test the diversify methods."""
+    simple_office = ScheduleDay('Simple Weekday Occupancy', [0, 1, 0],
+                                [Time(0, 0), Time(9, 0), Time(17, 0)])
+    occ_schedule = ScheduleRuleset('Office Occupancy Schedule', simple_office,
+                                   None, schedule_types.fractional)
+    light_schedule = occ_schedule.duplicate()
+    light_schedule.identifier = 'Office Lighting-Equip Schedule'
+    light_schedule.default_day_schedule.values = [0.25, 1, 0.25]
+    equip_schedule = light_schedule.duplicate()
+    inf_schedule = ScheduleRuleset.from_constant_value(
+        'Infiltration Schedule', 1, schedule_types.fractional)
+    heat_setpt = ScheduleRuleset.from_constant_value(
+        'Office Heating Schedule', 21, schedule_types.temperature)
+    cool_setpt = ScheduleRuleset.from_constant_value(
+        'Office Cooling Schedule', 24, schedule_types.temperature)
+
+    people = People('Open Office People', 0.05, occ_schedule)
+    lighting = Lighting('Open Office Lighting', 10, light_schedule)
+    equipment = ElectricEquipment('Open Office Equipment', 10, equip_schedule)
+    infiltration = Infiltration('Office Infiltration', 0.00015, inf_schedule)
+    ventilation = Ventilation('Office Ventilation', 0.0025, 0.0003)
+    setpoint = Setpoint('Office Setpoints', heat_setpt, cool_setpt)
+    office_program = ProgramType('Open Office Program', people, lighting, equipment,
+                                 None, None, infiltration, ventilation, setpoint)
+
+    div_programs = office_program.diversify(10)
+    assert len(div_programs) == 10
+    for prog in div_programs:
+        assert isinstance(prog, ProgramType)
+        assert prog.people.people_per_area != people.people_per_area
+        assert prog.lighting.watts_per_area != lighting.watts_per_area
+        assert prog.electric_equipment.watts_per_area != equipment.watts_per_area
+        assert prog.infiltration.flow_per_exterior_area != \
+            infiltration.flow_per_exterior_area
+
+
 def test_program_type_average():
     """Test the ProgramType.average method."""
     simple_office = ScheduleDay('Simple Weekday Occupancy', [0, 1, 0],

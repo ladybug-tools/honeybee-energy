@@ -1,12 +1,13 @@
 """Test cli settings module."""
 from click.testing import CliRunner
 from honeybee_energy.cli.settings import default_sim_par, load_balance_sim_par, \
-    comfort_sim_par, sizing_sim_par, custom_sim_par, run_period
+    comfort_sim_par, sizing_sim_par, custom_sim_par, run_period, orientation_sim_pars
 from honeybee_energy.simulation.parameter import SimulationParameter
 from honeybee_energy.simulation.runperiod import RunPeriod
 from ladybug.dt import Date
 
 import json
+import os
 
 
 def test_default_sim_par():
@@ -77,6 +78,18 @@ def test_custom_sim_par():
     sim_par = SimulationParameter.from_dict(simpar_dict)
 
     assert 'Surface Window Transmitted Beam Solar Radiation Energy' in sim_par.output.outputs
+
+
+def test_orientation_sim_pars():
+    """Test the orientation_sim_pars command."""
+    runner = CliRunner()
+    ddy_path = './tests/ddy/chicago.ddy'
+
+    result = runner.invoke(orientation_sim_pars, [ddy_path, '0', '90', '180', '270'])
+    assert result.exit_code == 0
+    simpar_list = json.loads(result.output)
+    for sp_json in simpar_list:
+        assert os.path.isfile(sp_json['full_path'])
 
 
 def test_run_period():

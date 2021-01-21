@@ -143,6 +143,48 @@ class People(_LoadBase):
             self._latent_fraction = float_in_range(
                 value, 0.0, 1.0, 'people latent fraction')
 
+    def diversify(self, count, occupancy_stdev=20, schedule_offset=1, timestep=1,
+                  schedule_indices=None):
+        """Get an array of diversified People derived from this "average" one.
+
+        Approximately 2/3 of the schedules in the output objects will be offset
+        from the mean by the input schedule_offset (1/3 ahead and another 1/3 behind).
+
+        Args:
+            count: An positive integer for the number of diversified objects to
+                generate from this mean object.
+            occupancy_stdev: A number between 0 and 100 for the percent of the
+                occupancy people_per_area representing one standard deviation
+                of diversification from the mean. (Default 20 percent).
+            schedule_offset: A positive integer for the number of timesteps at which
+                the occupancy schedule of the resulting objects will be shifted - roughly
+                1/3 of the objects ahead and another 1/3 behind. (Default: 1).
+            timestep: An integer for the number of timesteps per hour at which the
+                shifting is occurring. This must be a value between 1 and 60, which
+                is evenly divisible by 60. 1 indicates that each step is an hour
+                while 60 indicates that each step is a minute. (Default: 1).
+            schedule_indices: An optional list of integers from 0 to 2 with a length
+                equal to the input count, which will be used to set whether a given
+                schedule is behind (0), ahead (2), or the same (1). This can be
+                used to coordinate schedules across diversified programs. If None
+                a random list of integers will be genrated. (Default: None).
+        """
+        # generate shifted schedules and a gaussian distribution of people_per_area
+        occ_schs = self._shift_schedule(
+            self.occupancy_schedule, schedule_offset, timestep)
+        stdev = self.people_per_area * (occupancy_stdev / 100)
+        new_loads, sch_int = self._gaussian_values(count, self.people_per_area, stdev)
+        sch_int = sch_int if schedule_indices is None else schedule_indices
+
+        # generate the new objects and return them
+        new_objects = []
+        for load_val, sch_int in zip(new_loads, sch_int):
+            new_obj = self.duplicate()
+            new_obj.people_per_area = load_val
+            new_obj.occupancy_schedule = occ_schs[sch_int]
+            new_objects.append(new_obj)
+        return new_objects
+
     @classmethod
     def from_idf(cls, idf_string, schedule_dict):
         """Create an People object from an EnergyPlus IDF text string.
