@@ -1,6 +1,7 @@
 # coding=utf-8
 """Complete definition of a zone program, including schedules and loads."""
 from __future__ import division
+import random
 
 from .load.people import People
 from .load.lighting import Lighting
@@ -9,9 +10,10 @@ from .load.hotwater import ServiceHotWater
 from .load.infiltration import Infiltration
 from .load.ventilation import Ventilation
 from .load.setpoint import Setpoint
+from .schedule.ruleset import ScheduleRuleset
 
 from honeybee._lockable import lockable
-from honeybee.typing import valid_ep_string, tuple_with_length
+from honeybee.typing import valid_ep_string, tuple_with_length, clean_and_id_ep_string
 
 
 @lockable
@@ -360,6 +362,92 @@ class ProgramType(object):
         if self._display_name is not None:
             base['display_name'] = self.display_name
         return base
+
+    def diversify(self, program_count, occupancy_stdev=20, lighting_stdev=20,
+                  electric_equip_stdev=20, gas_equip_stdev=20, hot_water_stdev=20,
+                  infiltration_stdev=20, schedule_offset=1, timestep=1):
+        """Get an array of diversified ProgramTypes derived from this "average" one.
+
+        This method is useful when attempting to account for the fact that not
+        all rooms within a building will be used by occupants according to a
+        strict regimen. Some rooms will be used more than expected and others less.
+
+        This method uses a random number generator and gaussian distribution to
+        generate loads that vary about the mean program. Note that the generated
+        values can be set to something predictable by using the native Python
+        random.seed() method before running this method.
+        
+        In addition to diversifying load values, approximately 2/3 of the schedules
+        in the output programs will be offset from the mean by the input
+        schedule_offset (1/3 ahead and another 1/3 behind).
+
+        Args:
+            program_count: An positive integer for the number of diversified programs
+                to generate from this mean program.
+            occupancy_stdev: A number between 0 and 100 for the percent of the
+                occupancy people_per_area representing one standard deviation
+                of diversification from the mean. (Default 20 percent).
+            lighting_stdev: A number between 0 and 100 for the percent of the
+                lighting watts_per_area representing one standard deviation
+                of diversification from the mean. (Default 20 percent).
+            electric_equip_stdev: A number between 0 and 100 for the percent of the
+                electric equipment watts_per_area representing one standard deviation
+                of diversification from the mean. (Default 20 percent).
+            gas_equip_stdev: A number between 0 and 100 for the percent of the
+                gas equipment watts_per_area representing one standard deviation
+                of diversification from the mean. (Default 20 percent).
+            hot_water_stdev: A number between 0 and 100 for the percent of the
+                service hot water flow_per_area representing one standard deviation
+                of diversification from the mean. (Default 20 percent).
+            infiltration_stdev: A number between 0 and 100 for the percent of the
+                infiltration flow_per_exterior_area representing one standard deviation
+                of diversification from the mean. (Default 20 percent).
+            schedule_offset: A positive integer for the number of timesteps at which all
+                schedules of the resulting programs will be shifted - roughly 1/3 of
+                the programs ahead and another 1/3 behind. (Default: 1).
+            timestep: An integer for the number of timesteps per hour at which the
+                shifting is occurring. This must be a value between 1 and 60, which
+                is evenly divisible by 60. 1 indicates that each step is an hour
+                while 60 indicates that each step is a minute. (Default: 1).
+        """
+        # duplicate the input programs so that they can be diversified
+        div_programs = [self.duplicate() for i in range(program_count)]
+        for program in div_programs:
+            program.identifier = clean_and_id_ep_string(self.identifier)
+        sch_int = [random.randint(0, 2) for i in range(program_count)]
+
+        # go through each load and generate diversified versions for the div_programs
+        if self.people is not None and occupancy_stdev != 0:
+            div_people = self.people.diversify(
+                program_count, occupancy_stdev, schedule_offset, timestep, sch_int)
+            for i, ppl in enumerate(div_people):
+                div_programs[i].people = ppl
+        if self.lighting is not None and lighting_stdev != 0:
+            div_lighting = self.lighting.diversify(
+                program_count, lighting_stdev, schedule_offset, timestep, sch_int)
+            for i, light in enumerate(div_lighting):
+                div_programs[i].lighting = light
+        if self.electric_equipment is not None and electric_equip_stdev != 0:
+            div_e_equipment = self.electric_equipment.diversify(
+                program_count, electric_equip_stdev, schedule_offset, timestep, sch_int)
+            for i, e_equip in enumerate(div_e_equipment):
+                div_programs[i].electric_equipment = e_equip
+        if self.gas_equipment is not None and gas_equip_stdev != 0:
+            div_g_equipment = self.gas_equipment.diversify(
+                program_count, gas_equip_stdev, schedule_offset, timestep, sch_int)
+            for i, g_equip in enumerate(div_g_equipment):
+                div_programs[i].gas_equipment = g_equip
+        if self.service_hot_water is not None and hot_water_stdev != 0:
+            div_hot_water = self.service_hot_water.diversify(
+                program_count, hot_water_stdev, schedule_offset, timestep, sch_int)
+            for i, shw in enumerate(div_hot_water):
+                div_programs[i].service_hot_water = shw
+        if self.infiltration is not None and infiltration_stdev != 0:
+            div_infiltration = self.infiltration.diversify(
+                program_count, infiltration_stdev, schedule_offset, timestep, sch_int)
+            for i, inf in enumerate(div_infiltration):
+                div_programs[i].infiltration = inf
+        return div_programs
 
     @staticmethod
     def average(identifier, program_types, weights=None, timestep_resolution=1):

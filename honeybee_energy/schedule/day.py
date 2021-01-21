@@ -15,6 +15,7 @@ from ladybug.analysisperiod import AnalysisPeriod
 from ladybug.dt import Date, Time
 from ladybug.datatype.generic import GenericType
 
+from collections import deque
 try:
     from collections.abc import Iterable  # python < 3.7
 except ImportError:
@@ -244,14 +245,14 @@ class ScheduleDay(object):
         time_index = 1  # track the index of the next time of change
         until_mod = self._get_until_mod(time_index)  # get the mod of the next change
         if not self.interpolate:
-            for step in range(24 * timestep):
+            for _ in range(24 * timestep):
                 if mod >= until_mod:
                     time_index += 1
                     until_mod = self._get_until_mod(time_index)
                 values.append(self._values[time_index - 1])
                 mod += minute_delta
         else:
-            for step in range(24 * timestep):
+            for _ in range(24 * timestep):
                 if mod >= until_mod:
                     i = 0
                     delta = self._values[time_index] - self._values[time_index - 1]
@@ -299,6 +300,28 @@ class ScheduleDay(object):
                                   timestep, date.leap_year)
         header = Header(d_type, unit, a_period, metadata={'schedule': self.identifier})
         return HourlyContinuousCollection(header, self.values_at_timestep(timestep))
+
+    def shift_by_step(self, step_count=1, timestep=1):
+        """Get a version of this object where the values are shifted in time.
+        
+        This is useful when attempting to derive a set of diversified schedules
+        from a single average schedule.
+
+        Args:
+            step_count: An integer for the number of timesteps at which the schedule
+                will be shifted. Positive values indicate a shift of values forward
+                in time while negative values indicate a shift backwards in
+                time. (Default: 1).
+            timestep: An integer for the number of timesteps per hour at which the
+                shifting is occurring. This must be a value between 1 and 60, which
+                is evenly divisible by 60. 1 indicates that each step is an hour
+                while 60 indicates that each step is a minute. (Default: 1)
+        """
+        value_deque = deque(self.values_at_timestep(timestep))
+        value_deque.rotate(step_count)
+        new_id = '{}_Shift_{}mins'.format(
+            self.identifier, int((60 / timestep) * step_count))
+        return ScheduleDay.from_values_at_timestep(new_id, list(value_deque), timestep)
 
     @classmethod
     def from_values_at_timestep(cls, identifier, values, timestep=1,

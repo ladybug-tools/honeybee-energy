@@ -16,6 +16,9 @@ from ladybug.datacollection import HourlyContinuousCollection, DailyCollection, 
     MonthlyCollection
 from ladybug.sql import SQLiteResult
 from ladybug.dt import Date
+from ladybug.datatype.area import Area
+from ladybug.datatype.energyintensity import EnergyIntensity
+from ladybug.datatype.energy import Energy
 
 import sys
 import logging
@@ -183,6 +186,108 @@ def all_available_info(result_sql, output_file):
         output_file.write(json.dumps(all_info))
     except Exception as e:
         _logger.exception('Failed to parse sql file.\n{}'.format(e))
+        sys.exit(1)
+    else:
+        sys.exit(0)
+
+
+@result.command('energy-use-intensity')
+@click.argument('input-folder', type=click.Path(
+    exists=True, file_okay=False, dir_okay=True, resolve_path=True))
+@click.option('--si/--ip', help='Flag to note whether the EUI should be in '
+              'SI (kWh/m2) or IP (kBtu/ft2) units.', default=True, show_default=True)
+@click.option('--output-file', '-f', help='Optional file to output the result of the '
+              'EUI calculation. By default, it will be printed to stdout',
+              type=click.File('w'), default='-', show_default=True)
+def energy_use_intensity(input_folder, si, output_file):
+    """Get all the data within a table of a Summary Report using the table name.
+
+    \b
+    Args:
+        input_folder: Path to folder containing SQLite files that were generated
+            by EnergyPlus. This can be a single EnergyPlus simulation folder or
+            it can be a folder with multiple sql files, in which case EUI will
+            be computed across all results.
+    """
+    try:
+        # set initial values that will be computed based on results
+        total_floor_area, conditioned_floor_area, total_energy = 0, 0, 0
+        end_uses = {
+            'heating': 0,
+            'cooling': 0,
+            'interior_lighting': 0,
+            'exterior_lighting': 0,
+            'interior_equipment': 0,
+            'exterior_equipment': 0,
+            'fans': 0,
+            'pumps': 0,
+            'heat_rejection': 0,
+            'humidification': 0,
+            'heat_recovery': 0,
+            'water_systems': 0,
+            'refrigeration': 0,
+            'generators': 0
+        }
+
+        # loop through the sql files in the directory and add the energy use
+        for result_file in os.listdir(input_folder):
+            if result_file.endswith('.sql'):
+                # parse the SQL file
+                sql_obj = SQLiteResult(os.path.join(input_folder, result_file))
+                # get the total floor area of the model
+                area_dict = sql_obj.tabular_data_by_name('Building Area')
+                areas = tuple(area_dict.values())
+                total_floor_area += areas[0][0]
+                conditioned_floor_area += areas[1][0]
+                # get the energy use
+                eui_dict = sql_obj.tabular_data_by_name('End Uses')
+                euis = tuple(eui_dict.values())
+                total_energy += sum([val for val in euis[-2][:12]])
+                end_uses['heating'] += sum([val for val in euis[0][:12]])
+                end_uses['cooling'] += sum([val for val in euis[1][:12]])
+                end_uses['interior_lighting'] += sum([val for val in euis[2][:12]])
+                end_uses['exterior_lighting'] += sum([val for val in euis[3][:12]])
+                end_uses['interior_equipment'] += sum([val for val in euis[4][:12]])
+                end_uses['exterior_equipment'] += sum([val for val in euis[5][:12]])
+                end_uses['fans'] += sum([val for val in euis[6][:12]])
+                end_uses['pumps'] += sum([val for val in euis[7][:12]])
+                end_uses['heat_rejection'] += sum([val for val in euis[8][:12]])
+                end_uses['humidification'] += sum([val for val in euis[9][:12]])
+                end_uses['heat_recovery'] += sum([val for val in euis[10][:12]])
+                end_uses['water_systems'] += sum([val for val in euis[11][:12]])
+                end_uses['refrigeration'] += sum([val for val in euis[12][:12]])
+                end_uses['generators'] += sum([val for val in euis[13][:12]])
+
+        # assemble all of the results into a final dictionary
+        result_dict = {
+            'eui': round(total_energy / total_floor_area, 3),
+            'total_floor_area': total_floor_area,
+            'conditioned_floor_area': conditioned_floor_area,
+            'total_energy': round(total_energy, 3)
+        }
+        result_dict['end_uses'] = {key: round(val / total_floor_area, 3)
+                                   for key, val in end_uses.items() if val != 0}
+
+        # convert data to IP if requested
+        if not si:
+            eui_typ, a_typ, e_typ = EnergyIntensity(), Area(), Energy()
+            result_dict['eui'] = \
+                round(eui_typ.to_ip([result_dict['eui']], 'kWh/m2')[0][0], 3)
+            result_dict['total_floor_area'] = \
+                round(a_typ.to_ip([result_dict['total_floor_area']], 'm2')[0][0], 3)
+            result_dict['conditioned_floor_area'] = \
+                round(a_typ.to_ip(
+                    [result_dict['conditioned_floor_area']], 'm2')[0][0], 3)
+            result_dict['total_energy'] = \
+                round(e_typ.to_ip([result_dict['total_energy']], 'kWh')[0][0], 3)
+            result_dict['end_uses'] = \
+                {key: round(eui_typ.to_ip([val], 'kWh/m2')[0][0], 3)
+                 for key, val in result_dict['end_uses'].items()}
+
+        # write everthing into the output file
+        output_file.write(json.dumps(result_dict, indent=4))
+    except Exception as e:
+        _logger.exception('Failed to compute EUI from sql files.\n{}'.format(e))
         sys.exit(1)
     else:
         sys.exit(0)

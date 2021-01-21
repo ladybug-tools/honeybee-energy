@@ -138,6 +138,25 @@ def test_schedule_ruleset_data_collection():
     assert sch_data.header.analysis_period == AnalysisPeriod()
 
 
+def test_schedule_ruleset_shift_by_step():
+    """Test the ScheduleRuleset shift_by_step method."""
+    weekday_office = ScheduleDay('Weekday Office Occupancy', [0, 1, 0],
+                                 [Time(0, 0), Time(9, 0), Time(17, 0)])
+    saturday_office = ScheduleDay('Saturday Office Occupancy', [0, 0.25, 0],
+                                  [Time(0, 0), Time(9, 0), Time(17, 0)])
+    sunday_office = ScheduleDay('Sunday Office Occupancy', [0])
+    sat_rule = ScheduleRule(saturday_office, apply_saturday=True)
+    sun_rule = ScheduleRule(sunday_office, apply_sunday=True)
+
+    schedule = ScheduleRuleset('Office Occupancy', weekday_office,
+                               [sat_rule, sun_rule], schedule_types.fractional)
+    shift_schedule = schedule.shift_by_step(-1)
+
+    default_vals = weekday_office.values_at_timestep()
+    shift_vals = default_vals[1:] + [default_vals[0]]
+    assert shift_schedule.default_day_schedule.values_at_timestep() == shift_vals
+
+
 def test_schedule_ruleset_from_constant_value():
     """Test the initialization of ScheduleRuleset from_constant_value."""
     sched = ScheduleRuleset.from_constant_value('Shade Transmittance', 0.5)

@@ -3,7 +3,7 @@ from click.testing import CliRunner
 from honeybee_energy.cli.result import data_by_output, available_results_info, \
     data_by_outputs, output_csv, zone_sizes, component_sizes, available_results, \
     available_run_period_info, all_available_info, output_csv_queryable, \
-    tabular_data, tabular_metadata, load_balance
+    tabular_data, tabular_metadata, load_balance, energy_use_intensity
 from ladybug.sql import ZoneSize, ComponentSize
 from ladybug.datacollection import HourlyContinuousCollection
 
@@ -85,6 +85,21 @@ def test_all_available_info():
     assert all(isinstance(obj, dict) for obj in all_output['outputs'])
     assert len(all_output['run_periods']) == 8
     assert all(isinstance(obj, dict) for obj in all_output['run_periods'])
+
+
+def test_energy_use_intensity():
+    """Test the energy_use_intensity command."""
+    runner = CliRunner()
+    sql_path = './tests/result/eplusout_hourly.sql'
+
+    sql_path = './tests/result/sub_folder'
+    result = runner.invoke(energy_use_intensity, [sql_path, '--ip'])
+    assert result.exit_code == 0
+    result_dict = json.loads(result.output)
+    assert 'eui' in result_dict
+    assert 'total_floor_area' in result_dict
+    assert 'conditioned_floor_area' in result_dict
+    assert 'total_energy' in result_dict
 
 
 def test_data_by_output():

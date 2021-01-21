@@ -370,6 +370,46 @@ class ScheduleRuleset(object):
                              holidays, leap_year)
         return HourlyContinuousCollection(header, values)
 
+    def shift_by_step(self, step_count=1, timestep=1):
+        """Get a version of this object where the day_schedule values are shifted.
+        
+        This is useful when attempting to derive a set of diversified schedules
+        from a single average schedule.
+
+        Args:
+            step_count: An integer for the number of timesteps at which the schedule
+                will be shifted. Positive values indicate a shift of values forward
+                in time while negative values indicate a shift backwards in
+                time. (Default: 1).
+            timestep: An integer for the number of timesteps per hour at which the
+                shifting is occurring. This must be a value between 1 and 60, which
+                is evenly divisible by 60. 1 indicates that each step is an hour
+                while 60 indicates that each step is a minute. (Default: 1).
+        """
+        # shift all of the day schedules according to the inputs
+        day_scheds = self.day_schedules
+        shift_dict = {sch.identifier: sch.shift_by_step(step_count, timestep)
+                      for sch in day_scheds}
+        # figure out where each of the shifted schedules belong
+        new_default = shift_dict[self.default_day_schedule.identifier]
+        new_summer = shift_dict[self._summer_designday_schedule.identifier] \
+            if self._summer_designday_schedule is not None else None
+        new_winter = shift_dict[self._winter_designday_schedule.identifier] \
+            if self._winter_designday_schedule is not None else None
+        new_holiday = shift_dict[self._holiday_schedule.identifier] \
+            if self._holiday_schedule is not None else None
+        new_rules = []
+        for rule in self.schedule_rules:
+            new_rule = rule.duplicate()
+            new_rule.schedule_day = shift_dict[rule.schedule_day.identifier]
+            new_rules.append(new_rule)
+        # retrun the shifted schedule
+        new_id = '{}_Shift_{}mins'.format(
+            self.identifier, int((60 / timestep) * step_count))
+        return ScheduleRuleset(
+            new_id, new_default, new_rules, self.schedule_type_limit, new_holiday,
+            new_summer, new_winter)
+
     @classmethod
     def from_constant_value(cls, identifier, value, schedule_type_limit=None):
         """Create a ScheduleRuleset fromm a single constant value.
