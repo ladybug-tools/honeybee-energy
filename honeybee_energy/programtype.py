@@ -373,9 +373,9 @@ class ProgramType(object):
         strict regimen. Some rooms will be used more than expected and others less.
 
         This method uses a random number generator and gaussian distribution to
-        generate loads that vary about the mean program. Note that the generated
-        values can be set to something predictable by using the native Python
-        random.seed() method before running this method.
+        generate loads that vary about the mean program. Note that the randomly
+        generated values can be set to something predictable by using the native
+        Python random.seed() method before running this method.
         
         In addition to diversifying load values, approximately 2/3 of the schedules
         in the output programs will be offset from the mean by the input

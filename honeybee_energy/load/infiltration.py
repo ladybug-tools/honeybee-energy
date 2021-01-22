@@ -9,7 +9,7 @@ from ..reader import parse_idf_string
 from ..writer import generate_idf_string
 
 from honeybee._lockable import lockable
-from honeybee.typing import float_positive
+from honeybee.typing import float_positive, clean_and_id_ep_string
 
 
 @lockable
@@ -172,6 +172,7 @@ class Infiltration(_LoadBase):
         new_objects = []
         for load_val, sch_int in zip(new_loads, sch_int):
             new_obj = self.duplicate()
+            new_obj.identifier = clean_and_id_ep_string(self.identifier)
             new_obj.flow_per_exterior_area = load_val
             new_obj.schedule = usage_schs[sch_int]
             new_objects.append(new_obj)
