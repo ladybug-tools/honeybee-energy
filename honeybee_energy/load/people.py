@@ -11,7 +11,7 @@ from ..writer import generate_idf_string
 import honeybee_energy.lib.schedules as _sched_lib
 
 from honeybee._lockable import lockable
-from honeybee.typing import float_in_range, float_positive
+from honeybee.typing import float_in_range, float_positive, clean_and_id_ep_string
 from honeybee.altnumber import autocalculate
 
 
@@ -180,6 +180,7 @@ class People(_LoadBase):
         new_objects = []
         for load_val, sch_int in zip(new_loads, sch_int):
             new_obj = self.duplicate()
+            new_obj.identifier = clean_and_id_ep_string(self.identifier)
             new_obj.people_per_area = load_val
             new_obj.occupancy_schedule = occ_schs[sch_int]
             new_objects.append(new_obj)
