@@ -252,6 +252,10 @@ def test_program_type_diversify():
         assert prog.infiltration.flow_per_exterior_area != \
             infiltration.flow_per_exterior_area
 
+    div_programs = office_program.diversify(10, schedule_offset=0)
+    for prog in div_programs:
+        assert prog.people.occupancy_schedule == people.occupancy_schedule
+
 
 def test_program_type_average():
     """Test the ProgramType.average method."""

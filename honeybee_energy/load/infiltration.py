@@ -164,13 +164,13 @@ class Infiltration(_LoadBase):
         # generate shifted schedules and gaussian distribution of flow_per_exterior_area
         usage_schs = self._shift_schedule(self.schedule, schedule_offset, timestep)
         stdev = self.flow_per_exterior_area * (flow_stdev / 100)
-        new_loads, sch_int = self._gaussian_values(
+        new_loads, sch_ints = self._gaussian_values(
             count, self.flow_per_exterior_area, stdev)
-        sch_int = sch_int if schedule_indices is None else schedule_indices
+        sch_ints = sch_ints if schedule_indices is None else schedule_indices
 
         # generate the new objects and return them
         new_objects = []
-        for load_val, sch_int in zip(new_loads, sch_int):
+        for load_val, sch_int in zip(new_loads, sch_ints):
             new_obj = self.duplicate()
             new_obj.identifier = clean_and_id_ep_string(self.identifier)
             new_obj.flow_per_exterior_area = load_val

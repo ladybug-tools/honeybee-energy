@@ -1,6 +1,7 @@
 # coding=utf-8
 """Temperature (thermostat) and humidity (humidistat) setpoints for a thermal zone."""
 from __future__ import division
+import random
 
 from ._base import _LoadBase
 from ..schedule.ruleset import ScheduleRuleset
@@ -11,7 +12,7 @@ from ..writer import generate_idf_string
 import honeybee_energy.lib.scheduletypelimits as _type_lib
 
 from honeybee._lockable import lockable
-from honeybee.typing import float_in_range
+from honeybee.typing import float_in_range, clean_and_id_ep_string
 
 
 @lockable
@@ -270,6 +271,52 @@ class Setpoint(_LoadBase):
         # assign the properties to this object
         self.humidifying_schedule = humid_sched
         self.dehumidifying_schedule = dehumid_sched
+
+    def diversify(self, count, schedule_offset=1, timestep=1, schedule_indices=None):
+        """Get an array of diversified Setpoints derived from this "average" one.
+
+        Approximately 2/3 of the schedules in the output objects will be offset
+        from the mean by the input schedule_offset (1/3 ahead and another 1/3 behind).
+
+        Args:
+            count: An positive integer for the number of diversified objects to
+                generate from this mean object.
+            schedule_offset: A positive integer for the number of timesteps at which
+                the setpoint schedule of the resulting objects will be shifted - roughly
+                1/3 of the objects ahead and another 1/3 behind. (Default: 1).
+            timestep: An integer for the number of timesteps per hour at which the
+                shifting is occurring. This must be a value between 1 and 60, which
+                is evenly divisible by 60. 1 indicates that each step is an hour
+                while 60 indicates that each step is a minute. (Default: 1).
+            schedule_indices: An optional list of integers from 0 to 2 with a length
+                equal to the input count, which will be used to set whether a given
+                schedule is behind (0), ahead (2), or the same (1). This can be
+                used to coordinate schedules across diversified programs. If None
+                a random list of integers will be genrated. (Default: None).
+        """
+        # generate shifted schedules
+        heats = self._shift_schedule(self.heating_schedule, schedule_offset, timestep)
+        cools = self._shift_schedule(self.cooling_schedule, schedule_offset, timestep)
+        if self.humidifying_schedule is not None:
+            humids = self._shift_schedule(
+                self.humidifying_schedule, schedule_offset, timestep)
+            dehumids = self._shift_schedule(
+                self.dehumidifying_schedule, schedule_offset, timestep)
+        if schedule_indices is None:
+            schedule_indices = [random.randint(0, 2) for i in range(count)]
+
+        # generate the new objects and return them
+        new_objects = []
+        for sch_int in schedule_indices:
+            new_obj = self.duplicate()
+            new_obj.identifier = clean_and_id_ep_string(self.identifier)
+            new_obj.heating_schedule = heats[sch_int]
+            new_obj.cooling_schedule = cools[sch_int]
+            if self.humidifying_schedule is not None:
+                new_obj.humidifying_schedule = humids[sch_int]
+                new_obj.dehumidifying_schedule = dehumids[sch_int]
+            new_objects.append(new_obj)
+        return new_objects
 
     @classmethod
     def from_idf(cls, idf_string, schedule_dict):
