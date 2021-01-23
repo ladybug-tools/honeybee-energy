@@ -447,6 +447,11 @@ class ProgramType(object):
                 program_count, infiltration_stdev, schedule_offset, timestep, sch_int)
             for i, inf in enumerate(div_infiltration):
                 div_programs[i].infiltration = inf
+        if self.setpoint is not None and schedule_offset != 0:
+            div_setpoint = self.setpoint.diversify(
+                program_count, schedule_offset, timestep, sch_int)
+            for i, setpt in enumerate(div_setpoint):
+                div_programs[i].setpoint = setpt
         return div_programs
 
     @staticmethod

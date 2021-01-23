@@ -173,12 +173,12 @@ class People(_LoadBase):
         occ_schs = self._shift_schedule(
             self.occupancy_schedule, schedule_offset, timestep)
         stdev = self.people_per_area * (occupancy_stdev / 100)
-        new_loads, sch_int = self._gaussian_values(count, self.people_per_area, stdev)
-        sch_int = sch_int if schedule_indices is None else schedule_indices
+        new_loads, sch_ints = self._gaussian_values(count, self.people_per_area, stdev)
+        sch_ints = sch_ints if schedule_indices is None else schedule_indices
 
         # generate the new objects and return them
         new_objects = []
-        for load_val, sch_int in zip(new_loads, sch_int):
+        for load_val, sch_int in zip(new_loads, sch_ints):
             new_obj = self.duplicate()
             new_obj.identifier = clean_and_id_ep_string(self.identifier)
             new_obj.people_per_area = load_val
