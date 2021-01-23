@@ -192,19 +192,19 @@ def all_available_info(result_sql, output_file):
 
 
 @result.command('energy-use-intensity')
-@click.argument('input-folder', type=click.Path(
+@click.argument('result-folder', type=click.Path(
     exists=True, file_okay=False, dir_okay=True, resolve_path=True))
 @click.option('--si/--ip', help='Flag to note whether the EUI should be in '
               'SI (kWh/m2) or IP (kBtu/ft2) units.', default=True, show_default=True)
 @click.option('--output-file', '-f', help='Optional file to output the result of the '
               'EUI calculation. By default, it will be printed to stdout',
               type=click.File('w'), default='-', show_default=True)
-def energy_use_intensity(input_folder, si, output_file):
-    """Get all the data within a table of a Summary Report using the table name.
+def energy_use_intensity(result_folder, si, output_file):
+    """Get information about energy use intensity and an EUI breakdown by end use.
 
     \b
     Args:
-        input_folder: Path to folder containing SQLite files that were generated
+        result_folder: Path to folder containing SQLite files that were generated
             by EnergyPlus. This can be a single EnergyPlus simulation folder or
             it can be a folder with multiple sql files, in which case EUI will
             be computed across all results.
@@ -230,10 +230,10 @@ def energy_use_intensity(input_folder, si, output_file):
         }
 
         # loop through the sql files in the directory and add the energy use
-        for result_file in os.listdir(input_folder):
+        for result_file in os.listdir(result_folder):
             if result_file.endswith('.sql'):
                 # parse the SQL file
-                sql_obj = SQLiteResult(os.path.join(input_folder, result_file))
+                sql_obj = SQLiteResult(os.path.join(result_folder, result_file))
                 # get the total floor area of the model
                 area_dict = sql_obj.tabular_data_by_name('Building Area')
                 areas = tuple(area_dict.values())
