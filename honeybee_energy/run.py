@@ -37,11 +37,9 @@ def measure_compatible_model_json(model_json_path, destination_directory=None):
         'No JSON file found at {}.'.format(model_json_path)
 
     # get the directory and the file path for the new Model JSON
-    directory, init_file_name = os.path.split(model_json_path)
+    directory, _ = os.path.split(model_json_path)
     dest_dir = directory if destination_directory is None else destination_directory
-    base_file_name = init_file_name.replace('.json', '').replace('.hbjson', '')
-    file_name = '{}_osm.hbjson'.format(base_file_name)
-    dest_file_path = os.path.join(dest_dir, file_name)
+    dest_file_path = os.path.join(dest_dir, 'in.hbjson')
 
     # serialize the Model to Python
     with open(model_json_path) as json_file:
