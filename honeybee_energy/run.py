@@ -20,8 +20,9 @@ def measure_compatible_model_json(model_json_path, destination_directory=None):
     automatically ensure that all Apertures and Doors point in the same direction
     as their parent Face. If the Model tolerance is non-zero and Rooms are closed
     solids, this will also ensure that all Room Faces point outwards from their
-    parent's volume. Lastly, if the Model units are not Meters, the model will
-    be scaled to be in Meters.
+    parent's volume. If the Model units are not Meters, the model will be scaled
+    to be in Meters. Lastly, apertures and doors with more than 4 vertices will
+    be triangulated to ensure EnergyPlus accepts them.
 
     Args:
         model_json_path: File path to the Model JSON.
