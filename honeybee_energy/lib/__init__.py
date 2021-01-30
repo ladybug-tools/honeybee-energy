@@ -1,1 +1,1 @@
-"""Library of schedules, constructions, and other templates used in honeybee-energy."""
+"""Library of schedules, constructions, and other template objects."""
