@@ -4,6 +4,9 @@ import setuptools
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
+with open('cli-requirements.txt') as f:
+    cli_requirements = f.read().splitlines()
+
 with open('requirements.txt') as f:
     requirements = f.read().splitlines()
 
@@ -21,7 +24,7 @@ setuptools.setup(
     include_package_data=True,
     install_requires=requirements,
     extras_require={
-        'cli': ['click==7.1.2', 'honeybee-core[cli]==1.42.1', 'honeybee-energy-standards==2.1.1']
+        'cli': cli_requirements
     },
     entry_points={
         "console_scripts": ["honeybee-energy = honeybee_energy.cli:energy"]

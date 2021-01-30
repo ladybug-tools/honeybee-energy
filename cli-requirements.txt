@@ -1,0 +1,3 @@
+click==7.1.2
+honeybee-schema==1.42.0;python_version>='3.6'
+honeybee-energy-standards==2.1.1
