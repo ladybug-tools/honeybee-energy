@@ -212,22 +212,14 @@ def energy_use_intensity(result_folder, si, output_file):
     try:
         # set initial values that will be computed based on results
         total_floor_area, conditioned_floor_area, total_energy = 0, 0, 0
-        end_uses = {
-            'heating': 0,
-            'cooling': 0,
-            'interior_lighting': 0,
-            'exterior_lighting': 0,
-            'interior_equipment': 0,
-            'exterior_equipment': 0,
-            'fans': 0,
-            'pumps': 0,
-            'heat_rejection': 0,
-            'humidification': 0,
-            'heat_recovery': 0,
-            'water_systems': 0,
-            'refrigeration': 0,
-            'generators': 0
-        }
+        all_uses = \
+            ('heating', 'cooling', 'interior_lighting', 'exterior_lighting',
+            'interior_equipment', 'exterior_equipment', 'fans', 'pumps',
+            'heat_rejection', 'humidification', 'heat_recovery', 'water_systems',
+            'refrigeration', 'generators')
+        end_uses = {}
+        for use in all_uses:
+            end_uses[use] = 0
 
         # loop through the sql files in the directory and add the energy use
         for result_file in os.listdir(result_folder):
