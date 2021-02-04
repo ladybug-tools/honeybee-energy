@@ -1,12 +1,5 @@
 """honeybee-energy commands which will be added to honeybee command line interface."""
-
-try:
-    import click
-except ImportError:
-    raise ImportError(
-        'click is not installed. Try `pip install . [cli]` command.'
-    )
-
+import click
 import sys
 import logging
 import json
@@ -21,15 +14,14 @@ from .result import result
 from .baseline import baseline
 from .validate import validate
 
+_logger = logging.getLogger(__name__)
+
 
 # command group for all energy extension commands.
 @click.group(help='honeybee energy commands.')
 @click.version_option()
 def energy():
     pass
-
-
-_logger = logging.getLogger(__name__)
 
 
 @energy.command('config')

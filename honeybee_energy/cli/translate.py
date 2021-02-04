@@ -1,11 +1,9 @@
 """honeybee energy translation commands."""
-
-try:
-    import click
-except ImportError:
-    raise ImportError(
-        'click is not installed. Try `pip install . [cli]` command.'
-    )
+import click
+import sys
+import os
+import logging
+import json
 
 from ladybug.futil import preparedir
 from honeybee.model import Model
@@ -20,11 +18,6 @@ from honeybee_energy.run import measure_compatible_model_json, to_openstudio_osw
     run_osw
 from honeybee_energy.writer import energyplus_idf_version
 from honeybee_energy.config import folders
-
-import sys
-import os
-import logging
-import json
 
 _logger = logging.getLogger(__name__)
 
@@ -41,7 +34,8 @@ def translate():
               'SimulationParameter JSON that describes all of the settings for '
               'the simulation. If None default parameters will be generated.',
               default=None, show_default=True,
-              type=click.Path(exists=True, file_okay=True, dir_okay=False, resolve_path=True))
+              type=click.Path(exists=True, file_okay=True, dir_okay=False,
+                              resolve_path=True))
 @click.option('--folder', '-f', help='Folder on this computer, into which the OSM '
               'and IDF files will be written. If None, the files will be output in the'
               'same location as the model_json.', default=None, show_default=True,
@@ -109,11 +103,12 @@ def model_to_osm(model_json, sim_par_json, folder, check_model, log_file):
               'SimulationParameter JSON that describes all of the settings for the '
               'simulation. If None default parameters will be generated.',
               default=None, show_default=True,
-              type=click.Path(exists=True, file_okay=True, dir_okay=False, resolve_path=True))
+              type=click.Path(exists=True, file_okay=True, dir_okay=False,
+                              resolve_path=True))
 @click.option('--additional-str', '-a', help='Text string for additional lines that '
               'should be added to the IDF.', type=str, default='', show_default=True)
-@click.option('--output-file', '-f', help='Optional IDF file to output the IDF string of the '
-              'translation. By default this will be printed out to stdout',
+@click.option('--output-file', '-f', help='Optional IDF file to output the IDF string '
+              'of the translation. By default this will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
 def model_to_idf(model_json, sim_par_json, additional_str, output_file):
     """Translate a Model JSON file to an IDF using direct-to-idf translators.

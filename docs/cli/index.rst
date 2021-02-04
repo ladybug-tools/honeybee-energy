@@ -4,6 +4,4 @@ CLI Docs
 Installation
 ------------
 
-You can install the `honeybee-energy` cli tool using the following command::
-
-pip install -U honeybee-energy[cli]
+To check if the command line interface is installed correctly use `honeybee-energy --help`.

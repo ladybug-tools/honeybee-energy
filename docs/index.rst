@@ -13,12 +13,12 @@ Installation
 
 ``pip install -U honeybee-energy``
 
-If you want to also include the command line interface use:
+If you want to also include the standards library of typical ProgramTypes and
+ConstructionSets use.
 
-``pip install -U honeybee-energy[cli]``
+``pip install -U honeybee-energy[standards]``
 
-To check if the command line is installed correctly use ``honeybee energy --help``
-or ``honeybee-energy --help``
+To check if the command line interface is installed correctly use ``honeybee-energy --help``
 
 
 CLI Docs

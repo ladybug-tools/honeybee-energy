@@ -1,11 +1,9 @@
 """commands to generate honeybee energy simulation settings."""
-
-try:
-    import click
-except ImportError:
-    raise ImportError(
-        'click is not installed. Try `pip install . [cli]` command.'
-    )
+import click
+import sys
+import logging
+import json
+import os
 
 from honeybee_energy.simulation.parameter import SimulationParameter
 from honeybee_energy.simulation.runperiod import RunPeriod
@@ -14,11 +12,6 @@ from honeybee.config import folders
 from ladybug.futil import preparedir
 from ladybug.analysisperiod import AnalysisPeriod
 from ladybug.dt import Date
-
-import sys
-import logging
-import json
-import os
 
 _logger = logging.getLogger(__name__)
 

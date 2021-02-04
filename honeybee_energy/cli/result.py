@@ -1,11 +1,9 @@
 """honeybee energy result parsing commands."""
-
-try:
-    import click
-except ImportError:
-    raise ImportError(
-        'click is not installed. Try `pip install . [cli]` command.'
-    )
+import click
+import sys
+import logging
+import os
+import json
 
 from honeybee_energy.result.match import match_rooms_to_data, match_faces_to_data
 from honeybee_energy.result.loadbalance import LoadBalance
@@ -19,11 +17,6 @@ from ladybug.dt import Date
 from ladybug.datatype.area import Area
 from ladybug.datatype.energyintensity import EnergyIntensity
 from ladybug.datatype.energy import Energy
-
-import sys
-import logging
-import os
-import json
 
 _logger = logging.getLogger(__name__)
 
