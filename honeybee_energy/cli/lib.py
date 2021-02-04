@@ -1,11 +1,8 @@
 """honeybee energy standards library commands."""
-
-try:
-    import click
-except ImportError:
-    raise ImportError(
-        'click is not installed. Try `pip install . [cli]` command.'
-    )
+import click
+import sys
+import logging
+import json
 
 from honeybee_energy.lib.materials import opaque_material_by_identifier, \
     window_material_by_identifier, OPAQUE_MATERIALS, WINDOW_MATERIALS
@@ -18,10 +15,6 @@ from honeybee_energy.lib.scheduletypelimits import schedule_type_limit_by_identi
     SCHEDULE_TYPE_LIMITS
 from honeybee_energy.lib.schedules import schedule_by_identifier, SCHEDULES
 from honeybee_energy.lib.programtypes import program_type_by_identifier, PROGRAM_TYPES
-
-import sys
-import logging
-import json
 
 _logger = logging.getLogger(__name__)
 

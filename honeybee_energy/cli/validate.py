@@ -1,11 +1,8 @@
 """honeybee-energy validation commands."""
-
-try:
-    import click
-except ImportError:
-    raise ImportError(
-        'click is not installed. Try `pip install . [cli]` command.'
-    )
+import click
+import sys
+import logging
+import json
 
 from honeybee_energy.simulation.parameter import SimulationParameter
 from honeybee_energy.programtype import ProgramType
@@ -15,10 +12,6 @@ from honeybee_energy.schedule.typelimit import ScheduleTypeLimit
 from honeybee_energy.constructionset import ConstructionSet
 
 from honeybee.model import Model
-
-import sys
-import logging
-import json
 
 _logger = logging.getLogger(__name__)
 
@@ -30,7 +23,8 @@ try:
     import honeybee_schema.energy.constructionset as schema_constructionset
 except ImportError:
     _logger.exception(
-        'honeybee_schema is not installed. Try `pip install . [cli]` command.'
+        'honeybee_schema is not installed and validation commands are unavailable.\n'
+        'You must use Python 3.7 or above to run validation commands.'
     )
 
 
@@ -73,7 +67,8 @@ def validate_model_properties(model_json):
         energy_prop.check_duplicate_hvac_identifiers()
         click.echo('Unique identifier checks passed.')
         # if we made it to this point, report that the model is valid
-        click.echo('Congratulations! The energy properties of your Model JSON are valid!')
+        click.echo(
+            'Congratulations! The energy properties of your Model JSON are valid!')
     except Exception as e:
         _logger.exception('Model validation failed.\n{}'.format(e))
         sys.exit(1)

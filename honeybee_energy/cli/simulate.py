@@ -1,11 +1,10 @@
 """honeybee energy simulation running commands."""
-
-try:
-    import click
-except ImportError:
-    raise ImportError(
-        'click is not installed. Try `pip install . [cli]` command.'
-    )
+import click
+import sys
+import os
+import shutil
+import logging
+import json
 
 from honeybee_energy.simulation.parameter import SimulationParameter
 from honeybee_energy.run import measure_compatible_model_json, to_openstudio_osw, \
@@ -14,12 +13,6 @@ from honeybee_energy.result.err import Err
 from honeybee.config import folders
 from ladybug.futil import preparedir
 from ladybug.epw import EPW
-
-import sys
-import os
-import shutil
-import logging
-import json
 
 _logger = logging.getLogger(__name__)
 
@@ -36,12 +29,14 @@ def simulate():
     exists=True, file_okay=True, dir_okay=False, resolve_path=True))
 @click.option('--sim-par-json', '-sp', help='Full path to a honeybee energy '
               'SimulationParameter JSON that describes all of the settings for '
-              'the simulation.',default=None, show_default=True,
-              type=click.Path(exists=True, file_okay=True, dir_okay=False, resolve_path=True))
+              'the simulation.', default=None, show_default=True,
+              type=click.Path(exists=True, file_okay=True, dir_okay=False,
+                              resolve_path=True))
 @click.option('--base-osw', '-osw', help='Full path to an OSW JSON be used as the '
               'base for the execution of the OpenStuduo CLI. This can be used to add '
               'measures in the workflow.', default=None, show_default=True,
-              type=click.Path(exists=True, file_okay=True, dir_okay=False, resolve_path=True))
+              type=click.Path(exists=True, file_okay=True, dir_okay=False,
+                              resolve_path=True))
 @click.option('--folder', '-f', help='Folder on this computer, into which the IDF '
               'and result files will be written. If None, the files will be output '
               'to the honeybee default simulation folder and placed in a project '

@@ -1,11 +1,9 @@
 """honeybee energy commands for creating baseline buildings conforming to standards."""
-
-try:
-    import click
-except ImportError:
-    raise ImportError(
-        'click is not installed. Try `pip install . [cli]` command.'
-    )
+import click
+import sys
+import logging
+import os
+import json
 
 from honeybee_energy.hvac.allair.vav import VAV
 from honeybee_energy.hvac.allair.pvav import PVAV
@@ -20,11 +18,6 @@ from ladybug.futil import csv_to_matrix
 from honeybee.model import Model
 from honeybee.boundarycondition import Outdoors
 from honeybee.facetype import RoofCeiling
-
-import sys
-import logging
-import os
-import json
 
 _logger = logging.getLogger(__name__)
 

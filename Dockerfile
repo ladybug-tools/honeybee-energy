@@ -31,11 +31,11 @@ RUN mkdir -p ladybug_tools/resources/measures/honeybee_openstudio_gem \
     && rm honeybee-openstudio-gem.tar.gz
 
 
-# Install honeybee-energy cli
+# Install honeybee-energy
 ENV PATH="/home/ladybugbot/.local/bin:${PATH}"
 COPY . honeybee-energy
 RUN pip3 install setuptools wheel\
-    && pip3 install ./honeybee-energy[cli]
+    && pip3 install ./honeybee-energy[standards]
 
 # Set up working directory
 RUN mkdir -p /home/ladybugbot/run/simulation
