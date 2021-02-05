@@ -4,9 +4,6 @@ import setuptools
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
-with open('cli-requirements.txt') as f:
-    cli_requirements = f.read().splitlines()
-
 with open('requirements.txt') as f:
     requirements = f.read().splitlines()
 
