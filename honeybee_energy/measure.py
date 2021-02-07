@@ -376,10 +376,10 @@ class MeasureArgument(object):
             except Exception:
                 raise TypeError('Value for measure argument "{}" must be a {}. '
                                 'Got {}'.format(self.identifier, self._type, type(val)))
-        if self._valid_choices:
-            assert val in self._valid_choices, 'Choice measure argument "{}" ' \
-                'must be one of the following:\n{}\nGot {}'.format(
-                    self.identifier, self._valid_choices, val)
+            if self._valid_choices:
+                assert val in self._valid_choices, 'Choice measure argument "{}" ' \
+                    'must be one of the following:\n{}\nGot {}'.format(
+                        self.identifier, self._valid_choices, val)
         self._value = val
 
     @property
