@@ -1,12 +1,20 @@
 # coding=utf-8
 """Model Energy Properties."""
+try:
+    from itertools import izip as zip  # python 2
+except ImportError:
+    pass   # python 3
+
 from ladybug_geometry.geometry2d.pointvector import Vector2D
+from honeybee.face import Face
+from honeybee.boundarycondition import Outdoors
 from honeybee.extensionutil import model_extension_dicts
 from honeybee.checkdup import check_duplicate_identifiers
 
 from ..material.dictutil import dict_to_material
 from ..construction.dictutil import CONSTRUCTION_TYPES, dict_to_construction, \
     dict_abridged_to_construction
+from ..construction.opaque import OpaqueConstruction
 from ..construction.windowshade import WindowConstructionShade
 from ..construction.air import AirBoundaryConstruction
 from ..constructionset import ConstructionSet
@@ -17,10 +25,7 @@ from ..programtype import ProgramType
 from ..hvac import HVAC_TYPES_DICT
 from ..ventcool.simulation import VentilationSimulationControl
 
-try:
-    from itertools import izip as zip  # python 2
-except ImportError:
-    pass   # python 3
+from ..lib.constructionsets import generic_construction_set
 
 
 class ModelEnergyProperties(object):
@@ -343,6 +348,102 @@ class ModelEnergyProperties(object):
             room.properties.energy.window_construction_by_orientation(
                 construction, orientation, offset, north_vector)
 
+    def assign_radiance_solar_interior(self):
+        """Assign honeybee Radiance modifiers based on interior solar properties."""
+        mod_sets = {}
+        for constr_set in self.construction_sets + [generic_construction_set]:
+            mod_sets[constr_set.identifier] = constr_set.to_radiance_solar_interior()
+        self._assing_room_modifier_sets(mod_sets)
+        mods = {}
+        for con in self.face_constructions + self.shade_constructions:
+            mods[con.identifier] = con.to_radiance_solar_interior() \
+                if isinstance(con, OpaqueConstruction) else con.to_radiance_solar()
+        self._assign_face_modifiers(mods)
+
+    def assign_radiance_visible_interior(self):
+        """Assign honeybee Radiance modifiers based on interior visible properties."""
+        mod_sets = {}
+        for constr_set in self.construction_sets + [generic_construction_set]:
+            mod_sets[constr_set.identifier] = constr_set.to_radiance_visible_interior()
+        self._assing_room_modifier_sets(mod_sets)
+        mods = {}
+        for con in self.face_constructions + self.shade_constructions:
+            mods[con.identifier] = con.to_radiance_visible_interior() \
+                if isinstance(con, OpaqueConstruction) else con.to_radiance_visible()
+        self._assign_face_modifiers(mods)
+
+    def assign_radiance_solar_exterior(self):
+        """Assign honeybee Radiance modifiers based on exterior solar properties."""
+        mod_sets = {}
+        for constr_set in self.construction_sets + [generic_construction_set]:
+            mod_sets[constr_set.identifier] = constr_set.to_radiance_solar_exterior()
+        self._assing_room_modifier_sets(mod_sets)
+        mods = {}
+        for con in self.face_constructions + self.shade_constructions:
+            mods[con.identifier] = con.to_radiance_solar_exterior() \
+                if isinstance(con, OpaqueConstruction) else con.to_radiance_solar()
+        self._assign_face_modifiers(mods)
+
+    def assign_radiance_visible_exterior(self):
+        """Assign honeybee Radiance modifiers based on exterior visible properties."""
+        mod_sets = {}
+        for constr_set in self.construction_sets + [generic_construction_set]:
+            mod_sets[constr_set.identifier] = constr_set.to_radiance_visible_exterior()
+        self._assing_room_modifier_sets(mod_sets)
+        mods = {}
+        for con in self.face_constructions + self.shade_constructions:
+            mods[con.identifier] = con.to_radiance_visible_exterior() \
+                if isinstance(con, OpaqueConstruction) else con.to_radiance_visible()
+        self._assign_face_modifiers(mods)
+
+    def offset_and_assign_exterior_face_modifiers(
+            self, reflectance_type='Solar', offset=0.02):
+        """Offset all exterior Faces and assign them a modifier based on exterior layer.
+
+        This is often useful in conjunction with the assign_radiance_solar_interior
+        or the assign_radiance_visible_interior to make a radiance model that
+        accounts for both the interior and exterior material layers.
+
+        Note that this method will add the offset faces as orphaned faces and so the
+        model will not be simulate-able in EnergyPlus after running this method
+        (it is only intended to be simulated within Radiance).
+
+        Args:
+            reflectance_type: Text for the type of reflectance to be used in the
+                assigned modifier. Must be either Solar or Visible. (Default: Solar).
+            offset: A number for the distance at which the exterior Faces should
+                be offset. (Default: 0.02, suitable for models in meters).
+        """
+        # collect all of the unique exterior face constructions
+        constructions = []
+        for room in self.host.rooms:
+            for face in room.faces:  # check all Face constructions
+                if isinstance(face.boundary_condition, Outdoors):
+                    constr = face.properties.energy.construction
+                    if not self._instance_in_array(constr, constructions):
+                        constructions.append(constr)
+        constructions = set(constructions)
+        # convert constructions into modifiers
+        mods = {}
+        for con in constructions:
+            mods[con.identifier] = con.to_radiance_visible_exterior() \
+                if reflectance_type == 'Visible' else con.to_radiance_solar_exterior()
+        # loop thorugh the faces and create new offset exterior ones
+        new_faces = []
+        for room in self._host.rooms:
+            for face in room.faces:
+                if isinstance(face.boundary_condition, Outdoors):
+                    new_geo = face.punched_geometry.move(face.normal * offset)
+                    new_id = '{}_ext'.format(face.identifier)
+                    new_face = Face(
+                        new_id, new_geo, face.type, face.boundary_condition)
+                    new_face.properties.radiance.modifier = \
+                        mods[face.properties.energy.construction.identifier]
+                    new_faces.append(new_face)
+        # add the new faces to the host model
+        for face in new_faces:
+            self._host.add_face(face)
+
     def check_duplicate_material_identifiers(self, raise_exception=True):
         """Check that there are no duplicate Material identifiers in the model."""
         return check_duplicate_identifiers(
@@ -387,9 +488,8 @@ class ModelEnergyProperties(object):
         """
         assert 'energy' in data['properties'], \
             'Dictionary possesses no ModelEnergyProperties.'
-
-        materials, constructions, construction_sets, schedule_type_limits, \
-            schedules, program_types, hvacs = self.load_properties_from_dict(data)
+        _, constructions, construction_sets, _, schedules, program_types, hvacs = \
+            self.load_properties_from_dict(data)
 
         # collect lists of energy property dictionaries
         room_e_dicts, face_e_dicts, shd_e_dicts, ap_e_dicts, dr_e_dicts = \
@@ -672,6 +772,40 @@ class ModelEnergyProperties(object):
         """Check if a schedule is in a list and add it if not."""
         if not self._instance_in_array(sched, schedules):
             schedules.append(sched)
+
+    def _assing_room_modifier_sets(self, unique_mod_sets):
+        """Assign modifier sets to rooms using a dictionary of unique modifier sets."""
+        for room in self._host.rooms:
+            room.properties.radiance.modifier_set = \
+                unique_mod_sets[room.properties.energy.construction_set.identifier]
+
+    def _assign_face_modifiers(self, unique_mods):
+        """Assign modifiers to faces, apertures, doors and shades using a dictionary."""
+        for room in self._host.rooms:
+            for face in room.faces:  # check all Face constructions
+                self._assign_obj_modifier_shade(face, unique_mods)
+                for ap in face.apertures:  # check all Aperture constructions
+                    self._assign_obj_modifier_shade(ap, unique_mods)
+                for dr in face.doors:  # check all Door constructions
+                    self._assign_obj_modifier_shade(dr, unique_mods)
+            for shade in room.shades:
+                self._assign_obj_modifier(shade, unique_mods)
+        for shade in self.host.orphaned_shades:
+            self._assign_obj_modifier(shade, unique_mods)
+
+    def _assign_obj_modifier_shade(self, obj, unique_mods):
+        """Check if an object or child shades have a unique constr and assign a modifier.
+        """
+        self._assign_obj_modifier(obj, unique_mods)
+        for shade in obj.shades:
+            self._assign_obj_modifier(shade, unique_mods)
+
+    @staticmethod
+    def _assign_obj_modifier(obj, unique_mods):
+        """Check if an object has a unique construction and assign a modifier."""
+        if obj.properties.energy._construction is not None:
+            obj.properties.radiance.modifier = \
+                unique_mods[obj.properties.energy._construction.identifier]
 
     @staticmethod
     def _instance_in_array(object_instance, object_array):

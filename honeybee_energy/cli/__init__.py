@@ -8,6 +8,7 @@ from honeybee.cli import main
 from ..config import folders
 from .lib import lib
 from .translate import translate
+from .edit import edit
 from .settings import settings
 from .simulate import simulate
 from .result import result
@@ -58,6 +59,7 @@ def config(output_file):
 # add sub-commands to energy
 energy.add_command(lib)
 energy.add_command(translate)
+energy.add_command(edit)
 energy.add_command(settings)
 energy.add_command(simulate)
 energy.add_command(result)
