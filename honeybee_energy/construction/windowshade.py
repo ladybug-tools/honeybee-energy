@@ -120,7 +120,7 @@ class WindowConstructionShade(object):
             'Got {}.'.format(type(shade_material))
         assert shade_location in self.SHADE_LOCATIONS, \
             'Invalid input "{}" for shade location.  Must be one ' \
-            'of the following:\n'.format(shade_location, self.SHADE_LOCATIONS)
+            'of the following:\n{}'.format(shade_location, self.SHADE_LOCATIONS)
         if isinstance(shade_material, EnergyWindowMaterialGlazing):
             ext_pane = window_construction[0]
             assert not isinstance(ext_pane, EnergyWindowMaterialSimpleGlazSys), \
@@ -134,7 +134,8 @@ class WindowConstructionShade(object):
             if isinstance(shade_material, EnergyWindowMaterialBlind):
                 assert shade_material.slat_width < int_gap.thickness, \
                     'Blind slat_width must be less than the width of the gap in which ' \
-                    'it sits. {} > {}.'.format(shade_material.slat_width, int_gap.thickness)
+                    'it sits. {} > {}.'.format(
+                        shade_material.slat_width, int_gap.thickness)
             shd_thick = 0 if isinstance(shade_material, EnergyWindowMaterialBlind) \
                 else shade_material.thickness
             gap_thick = (int_gap.thickness - shd_thick) / 2
@@ -154,7 +155,7 @@ class WindowConstructionShade(object):
         # assign the control type, setpoint and schedule
         assert control_type in self.CONTROL_TYPES, \
             'Invalid input "{}" for shading control type.' \
-            ' Must be one of the following:\n'.format(control_type, self.CONTROL_TYPES)
+            ' Must be one of the following:\n{}'.format(control_type, self.CONTROL_TYPES)
         self._control_type = control_type
         self.setpoint = setpoint
         self.schedule = schedule
@@ -227,7 +228,7 @@ class WindowConstructionShade(object):
     def control_type(self, value):
         assert value in self.CONTROL_TYPES, \
             'Invalid input "{}" for shading control type.' \
-            ' Must be one of the following:\n'.format(value, self.CONTROL_TYPES)
+            ' Must be one of the following:\n{}'.format(value, self.CONTROL_TYPES)
         if value != 'AlwaysOn':
             assert self._setpoint is not None, 'Control setpoint must not ' \
                 'be None to use "{}" control type.'.format(value)
@@ -317,7 +318,8 @@ class WindowConstructionShade(object):
         layers if the consruction is a switchable glazing.
         """
         if self.is_switchable_glazing:
-            return list(set(self._window_construction.materials + (self.shade_material,)))
+            return list(set(
+                self._window_construction.materials + (self.shade_material,)))
         return list(set(self.materials))
 
     @property

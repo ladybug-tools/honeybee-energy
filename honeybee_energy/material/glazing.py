@@ -161,8 +161,8 @@ class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
     def solar_reflectance_back(self, s_ref):
         if s_ref is not None:
             s_ref = float_in_range(s_ref, 0.0, 1.0, 'glazing material solar reflectance')
-            assert s_ref + self._solar_transmittance <= 1, 'Sum of window transmittance ' \
-                'and reflectance ({}) is greater than 1.'.format(
+            assert s_ref + self._solar_transmittance <= 1, 'Sum of window ' \
+                'transmittance and reflectance ({}) is greater than 1.'.format(
                     s_ref + self._solar_transmittance)
         self._solar_reflectance_back = s_ref
 
@@ -518,7 +518,7 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
 
     @u_factor.setter
     def u_factor(self, u_fac):
-        # NOTE: u-values above 5.8 are not usually realistic but 12 is used as a hard limit
+        # NOTE: u-values above 5.8 are not realistic but 12 is the absolute hard limit
         self._u_factor = float_in_range(u_fac, 0.0, 12, 'glazing material u-factor')
 
     @property

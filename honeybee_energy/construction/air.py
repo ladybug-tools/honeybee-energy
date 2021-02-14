@@ -200,6 +200,24 @@ class AirBoundaryConstruction(object):
             base['display_name'] = self.display_name
         return base
 
+    def to_radiance_solar(self):
+        """Honeybee Radiance completely transparent material."""
+        return self._transparent_radiance_material()
+
+    def to_radiance_visible(self):
+        """Honeybee Radiance completely transparent material."""
+        return self._transparent_radiance_material()
+
+    @staticmethod
+    def _transparent_radiance_material():
+        """Get a transparent radiance material for the air boundary."""
+        try:
+            from honeybee_radiance.modifier.material import Glass
+        except ImportError as e:
+            raise ImportError('honeybee_radiance library must be installed to use '
+                              'to_radiance() method. {}'.format(e))
+        return Glass('air_boundary', 1, 1, 1)
+
     def duplicate(self):
         """Get a copy of this construction."""
         return self.__copy__()

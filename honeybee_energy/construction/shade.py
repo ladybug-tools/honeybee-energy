@@ -165,7 +165,8 @@ class ShadeConstruction(object):
             host_shade_identifier: Text string for the identifier of a Shade object that
                 possesses this ShadeConstruction.
         """
-        values = [host_shade_identifier, self.solar_reflectance, self.visible_reflectance]
+        values = [host_shade_identifier, self.solar_reflectance,
+                  self.visible_reflectance]
         if self.is_specular:
             values.extend([1, self.identifier])
             comments = ('shading surface name', 'solar reflectance',

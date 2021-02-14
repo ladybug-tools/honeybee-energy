@@ -191,7 +191,7 @@ class WindowConstruction(_ConstructionBase):
     def gap_count(self):
         """The number of gas gaps contained within the window construction."""
         count = 0
-        for i, mat in enumerate(self.materials):
+        for mat in self.materials:
             if isinstance(mat, _EnergyWindowMaterialGasBase):
                 count += 1
         return count

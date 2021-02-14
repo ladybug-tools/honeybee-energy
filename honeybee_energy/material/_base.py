@@ -75,7 +75,7 @@ class _EnergyMaterialOpaqueBase(_EnergyMaterialBase):
     """Base energy material for all opaque material types."""
     ROUGHTYPES = ('VeryRough', 'Rough', 'MediumRough',
                   'MediumSmooth', 'Smooth', 'VerySmooth')
-    RADIANCEROUGHTYPES = {'VeryRough': 0.3, 'Rough': 0.2, 'MediumRough': 0.15,
+    RADIANCEROUGHTYPES = {'VeryRough': 0.2, 'Rough': 0.2, 'MediumRough': 0.15,
                           'MediumSmooth': 0.1, 'Smooth': 0.05, 'VerySmooth': 0}
     __slots__ = ()
 

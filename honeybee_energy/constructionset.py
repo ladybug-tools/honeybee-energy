@@ -11,7 +11,7 @@ from .construction.air import AirBoundaryConstruction
 import honeybee_energy.lib.constructions as _lib
 
 from honeybee._lockable import lockable
-from honeybee.typing import valid_ep_string
+from honeybee.typing import valid_ep_string, clean_rad_string
 
 
 @lockable
@@ -369,7 +369,8 @@ class ConstructionSet(object):
             in data and data['wall_set'] is not None else None
         floor_set = FloorConstructionSet.from_dict(data['floor_set']) if 'floor_set' \
             in data and data['floor_set'] is not None else None
-        roof_ceiling_set = RoofCeilingConstructionSet.from_dict(data['roof_ceiling_set']) \
+        roof_ceiling_set = \
+            RoofCeilingConstructionSet.from_dict(data['roof_ceiling_set']) \
             if 'roof_ceiling_set' in data and data['roof_ceiling_set'] \
             is not None else None
         aperture_set = ApertureConstructionSet.from_dict(data['aperture_set']) if \
@@ -472,6 +473,44 @@ class ConstructionSet(object):
             base['display_name'] = self.display_name
         return base
 
+    def to_radiance_solar_interior(self):
+        """Honeybee Radiance modifier set for the interior solar properties."""
+        # convert all interior constructions into modifiers
+        unique_mods = {}
+        for constr in self.constructions_unique:
+            unique_mods[constr.identifier] = constr.to_radiance_solar_interior() \
+                if isinstance(constr, OpaqueConstruction) else constr.to_radiance_solar()
+        return self._create_modifier_set('Solar_Interior', unique_mods)
+
+    def to_radiance_visible_interior(self):
+        """Honeybee Radiance modifier set for the interior visible properties."""
+        # convert all interior constructions into modifiers
+        unique_mods = {}
+        for constr in self.constructions_unique:
+                unique_mods[constr.identifier] = constr.to_radiance_visible_interior() \
+                    if isinstance(constr, OpaqueConstruction) \
+                    else constr.to_radiance_visible()
+        return self._create_modifier_set('Visible_Interior', unique_mods)
+
+    def to_radiance_solar_exterior(self):
+        """Honeybee Radiance modifier set for the exterior solar properties."""
+        # convert all exterior constructions into modifiers
+        unique_mods = {}
+        for constr in self.constructions_unique:
+            unique_mods[constr.identifier] = constr.to_radiance_solar_exterior() \
+                if isinstance(constr, OpaqueConstruction) else constr.to_radiance_solar()
+        return self._create_modifier_set('Solar_Exterior', unique_mods)
+
+    def to_radiance_visible_exterior(self):
+        """Honeybee Radiance modifier set for the exterior visible properties."""
+        # convert all exterior constructions into modifiers
+        unique_mods = {}
+        for constr in self.constructions_unique:
+            unique_mods[constr.identifier] = constr.to_radiance_visible_exterior() \
+                    if isinstance(constr, OpaqueConstruction) \
+                    else constr.to_radiance_visible()
+        return self._create_modifier_set('Visible_Exterior', unique_mods)
+
     def duplicate(self):
         """Get a copy of this ConstructionSet."""
         return self.__copy__()
@@ -493,6 +532,53 @@ class ConstructionSet(object):
         self._roof_ceiling_set.unlock()
         self._aperture_set.unlock()
         self._door_set.unlock()
+
+    def _create_modifier_set(self, mod_type, unique_mods):
+        """Create a modifier set from a dictionary of radiance modifiers."""
+        # import the radiance dependency
+        try:
+            from honeybee_radiance.modifierset import ModifierSet
+        except ImportError as e:
+            raise ImportError('honeybee_radiance library must be installed to use '
+                              'to_radiance_solar() method. {}'.format(e))
+        # create the modifier set object
+        mod_set = ModifierSet(
+            '{}_{}'.format(clean_rad_string(self.identifier), mod_type))
+        mod_set.wall_set.exterior_modifier = \
+            unique_mods[self.wall_set.exterior_construction.identifier]
+        mod_set.wall_set.interior_modifier = \
+            unique_mods[self.wall_set.interior_construction.identifier]
+        mod_set.floor_set.exterior_modifier = \
+            unique_mods[self.floor_set.exterior_construction.identifier]
+        mod_set.floor_set.interior_modifier = \
+            unique_mods[self.floor_set.interior_construction.identifier]
+        mod_set.roof_ceiling_set.exterior_modifier = \
+            unique_mods[self.roof_ceiling_set.exterior_construction.identifier]
+        mod_set.roof_ceiling_set.interior_modifier = \
+            unique_mods[self.roof_ceiling_set.interior_construction.identifier]
+        mod_set.aperture_set.window_modifier = \
+            unique_mods[self.aperture_set.window_construction.identifier]
+        mod_set.aperture_set.interior_modifier = \
+            unique_mods[self.aperture_set.interior_construction.identifier]
+        mod_set.aperture_set.skylight_modifier = \
+            unique_mods[self.aperture_set.skylight_construction.identifier]
+        mod_set.aperture_set.operable_modifier = \
+            unique_mods[self.aperture_set.operable_construction.identifier]
+        mod_set.door_set.exterior_modifier = \
+            unique_mods[self.door_set.exterior_construction.identifier]
+        mod_set.door_set.interior_modifier = \
+            unique_mods[self.door_set.interior_construction.identifier]
+        mod_set.door_set.exterior_glass_modifier = \
+            unique_mods[self.door_set.exterior_glass_construction.identifier]
+        mod_set.door_set.interior_glass_modifier = \
+            unique_mods[self.door_set.interior_glass_construction.identifier]
+        mod_set.door_set.overhead_modifier = \
+            unique_mods[self.door_set.overhead_construction.identifier]
+        mod_set.shade_set.exterior_modifier = \
+            unique_mods[self.shade_construction.identifier]
+        mod_set.air_boundary_modifier = \
+            unique_mods[self.air_boundary_construction.identifier]
+        return mod_set
 
     def _get_constr_from_set(self, face_type_set, boundary_condition):
         """Get a specific construction from a face_type_set."""
@@ -1136,9 +1222,11 @@ class ApertureConstructionSet(object):
             if abridged:
                 base['window_construction'] = self._window_construction.identifier if \
                     self._window_construction is not None else None
-                base['interior_construction'] = self._interior_construction.identifier if \
+                base['interior_construction'] = \
+                    self._interior_construction.identifier if \
                     self._interior_construction is not None else None
-                base['skylight_construction'] = self._skylight_construction.identifier if \
+                base['skylight_construction'] = \
+                    self._skylight_construction.identifier if \
                     self._skylight_construction is not None else None
                 base['operable_construction'] = \
                     self._operable_construction.identifier if \
