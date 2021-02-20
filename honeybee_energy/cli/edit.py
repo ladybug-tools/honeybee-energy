@@ -14,26 +14,30 @@ def edit():
     pass
 
 
-@edit.command('radiance-from-energy')
+@edit.command('modifiers-from-constructions')
 @click.argument('model-json', type=click.Path(
     exists=True, file_okay=True, dir_okay=False, resolve_path=True))
 @click.option('--solar/--visible', ' /-v', help='Flag to note whether the assigned '
               'radiance modifiers should follow the solar properties of the '
               'constructions or the visible properties.', default=True)
 @click.option('--exterior-offset', '-o', help='A number for the distance at which the '
-              'exterior Faces should be offset in meters. This is used to account for '
-              'the fact that the exterior material layer of the construction usually '
-              'needs a different modifier from the interior. If set to 0, no offset '
-              'will occur and all modifiers will be interior.',
+              'exterior Room faces should be offset in meters. This is used to account '
+              'for the fact that the exterior material layer of the construction '
+              'usually needs a different modifier from the interior. If set to 0, '
+              'no offset will occur and all assigned modifiers will be interior.',
               type=float, default=0, show_default=True)
 @click.option('--output-file', '-f', help='Optional hbjson file to output the JSON '
               'string of the converted model. By default this will be printed out to '
               'stdout', type=click.File('w'), default='-', show_default=True)
-def radiance_from_energy(model_json, solar, exterior_offset, output_file):
+def modifiers_from_constructions(model_json, solar, exterior_offset, output_file):
     """Assign honeybee Radiance modifiers based on energy construction properties.
 
     Note that the honeybee-radiance extension must be installed in order for this
     command to be run successfully.
+
+    Also note that setting the --exterior-offset to a non-zero value will add the
+    offset faces as orphaned faces and so the model will not be simulate-able in
+    EnergyPlus after running this method (it is only intended for Radiance).
 
     \b
     Args:
