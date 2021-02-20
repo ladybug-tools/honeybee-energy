@@ -5,13 +5,16 @@ import logging
 import json
 import os
 
-from honeybee_energy.simulation.parameter import SimulationParameter
-from honeybee_energy.simulation.runperiod import RunPeriod
-from honeybee_energy.simulation.control import SimulationControl
-from honeybee.config import folders
 from ladybug.futil import preparedir
 from ladybug.analysisperiod import AnalysisPeriod
 from ladybug.dt import Date
+from honeybee.config import folders
+
+from honeybee_energy.simulation.parameter import SimulationParameter
+from honeybee_energy.simulation.runperiod import RunPeriod
+from honeybee_energy.simulation.control import SimulationControl
+from ._helper import _load_run_period_json
+
 
 _logger = logging.getLogger(__name__)
 
@@ -24,18 +27,19 @@ def settings():
 @settings.command('default-sim-par')
 @click.argument('ddy-file', type=click.Path(
     exists=True, file_okay=True, dir_okay=False, resolve_path=True))
-@click.option('--run-period-json', '-rp', help='Full path to a honeybee RunPeriod JSON '
+@click.option('--run-period', '-rp', help='Path to a RunPeriod of AnalysisPeriod JSON '
               'that describes the duration of the simulation. If not specified, the '
-              'simulation will be for the whole year.', default=None, show_default=True,
-              type=click.Path(
-                  exists=True, file_okay=True, dir_okay=False, resolve_path=True))
+              'simulation will be for the whole year.', default=None, type=str)
+@click.option('--north', '-n', default=0, type=float, show_default=True,
+              help='Number from -360 to 360 for the counterclockwise difference between '
+              'North and the positive Y-axis in degrees. 90 is west; 270 is east')
 @click.option('--filter-des-days/--all-des-days', ' /-all',  help='Flag to note whether '
               'the design days in the ddy-file should be filtered to only include 99.6 '
               'and 0.4 design days.', default=True, show_default=True)
 @click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the simulation parameters. By default, it will be printed to stdout.',
               type=click.File('w'), default='-', show_default=True)
-def default_sim_par(ddy_file, run_period_json, filter_des_days, output_file):
+def default_sim_par(ddy_file, run_period, north, filter_des_days, output_file):
     """Get a SimulationParameter JSON with default outputs for energy use only.
 
     \b
@@ -47,14 +51,9 @@ def default_sim_par(ddy_file, run_period_json, filter_des_days, output_file):
         sim_par = SimulationParameter()
         sim_par.output.add_zone_energy_use()
         sim_par.output.add_hvac_energy_use()
-        if run_period_json is not None:
-            with open(run_period_json) as json_file:
-                data = json.load(json_file)
-            sim_par.run_period = RunPeriod.from_dict(data)
-        if filter_des_days:
-            sim_par.sizing_parameter.add_from_ddy_996_004(ddy_file)
-        else:
-            sim_par.sizing_parameter.add_from_ddy(ddy_file)
+        _apply_run_period(run_period, sim_par)
+        sim_par.north_angle = north
+        _apply_design_days(ddy_file, filter_des_days, sim_par)
         output_file.write(json.dumps(sim_par.to_dict()))
     except Exception as e:
         _logger.exception('Failed to generate simulation parameter.\n{}'.format(e))
@@ -72,18 +71,19 @@ def default_sim_par(ddy_file, run_period_json, filter_des_days, output_file):
               'zone (both sensible and latent)\nSensible - the sensible load added to '
               'the zone\nLatent - the latent load added to the zone.',
               type=str, default='Total', show_default=True)
-@click.option('--run-period-json', '-rp', help='Full path to a honeybee RunPeriod JSON '
+@click.option('--run-period', '-rp', help='Path to a RunPeriod of AnalysisPeriod JSON '
               'that describes the duration of the simulation. If not specified, the '
-              'simulation will be for the whole year.', default=None, show_default=True,
-              type=click.Path(exists=True, file_okay=True, dir_okay=False,
-                              resolve_path=True))
+              'simulation will be for the whole year.', default=None, type=str)
+@click.option('--north', '-n', default=0, type=float, show_default=True,
+              help='Number from -360 to 360 for the counterclockwise difference between '
+              'North and the positive Y-axis in degrees. 90 is west; 270 is east')
 @click.option('--filter-des-days/--all-des-days', ' /-all',  help='Flag to note whether '
               'the design days in the ddy-file should be filtered to only include 99.6 '
               'and 0.4 design days.', default=True, show_default=True)
 @click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the simulation parameters. By default, it will be printed to stdout.',
               type=click.File('w'), default='-', show_default=True)
-def load_balance_sim_par(ddy_file, load_type, run_period_json, filter_des_days,
+def load_balance_sim_par(ddy_file, load_type, run_period, north, filter_des_days,
                          output_file):
     """Get a SimulationParameter JSON with outputs for thermal load balances.
 
@@ -98,14 +98,9 @@ def load_balance_sim_par(ddy_file, load_type, run_period_json, filter_des_days,
         gl_load_type = load_type if load_type != 'All' else 'Total'
         sim_par.output.add_gains_and_losses(gl_load_type)
         sim_par.output.add_surface_energy_flow()
-        if run_period_json is not None:
-            with open(run_period_json) as json_file:
-                data = json.load(json_file)
-            sim_par.run_period = RunPeriod.from_dict(data)
-        if filter_des_days:
-            sim_par.sizing_parameter.add_from_ddy_996_004(ddy_file)
-        else:
-            sim_par.sizing_parameter.add_from_ddy(ddy_file)
+        _apply_run_period(run_period, sim_par)
+        sim_par.north_angle = north
+        _apply_design_days(ddy_file, filter_des_days, sim_par)
         output_file.write(json.dumps(sim_par.to_dict()))
     except Exception as e:
         _logger.exception('Failed to generate simulation parameter.\n{}'.format(e))
@@ -117,18 +112,19 @@ def load_balance_sim_par(ddy_file, load_type, run_period_json, filter_des_days,
 @settings.command('comfort-sim-par')
 @click.argument('ddy-file', type=click.Path(
     exists=True, file_okay=True, dir_okay=False, resolve_path=True))
-@click.option('--run-period-json', '-rp', help='Full path to a honeybee RunPeriod JSON '
+@click.option('--run-period', '-rp', help='Path to a RunPeriod of AnalysisPeriod JSON '
               'that describes the duration of the simulation. If not specified, the '
-              'simulation will be for the whole year.', default=None, show_default=True,
-              type=click.Path(exists=True, file_okay=True, dir_okay=False,
-                              resolve_path=True))
+              'simulation will be for the whole year.', default=None, type=str)
+@click.option('--north', '-n', default=0, type=float, show_default=True,
+              help='Number from -360 to 360 for the counterclockwise difference between '
+              'North and the positive Y-axis in degrees. 90 is west; 270 is east')
 @click.option('--filter-des-days/--all-des-days', ' /-all',  help='Flag to note whether '
               'the design days in the ddy-file should be filtered to only include 99.6 '
               'and 0.4 design days.', default=True, show_default=True)
 @click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the simulation parameters. By default, it will be printed to stdout.',
               type=click.File('w'), default='-', show_default=True)
-def comfort_sim_par(ddy_file, run_period_json, filter_des_days, output_file):
+def comfort_sim_par(ddy_file, run_period, north, filter_des_days, output_file):
     """Get a SimulationParameter JSON with outputs for thermal comfort mapping.
 
     \b
@@ -140,14 +136,9 @@ def comfort_sim_par(ddy_file, run_period_json, filter_des_days, output_file):
         sim_par = SimulationParameter()
         sim_par.output.add_comfort_metrics()
         sim_par.output.add_surface_temperature()
-        if run_period_json is not None:
-            with open(run_period_json) as json_file:
-                data = json.load(json_file)
-            sim_par.run_period = RunPeriod.from_dict(data)
-        if filter_des_days:
-            sim_par.sizing_parameter.add_from_ddy_996_004(ddy_file)
-        else:
-            sim_par.sizing_parameter.add_from_ddy(ddy_file)
+        _apply_run_period(run_period, sim_par)
+        sim_par.north_angle = north
+        _apply_design_days(ddy_file, filter_des_days, sim_par)
         output_file.write(json.dumps(sim_par.to_dict()))
     except Exception as e:
         _logger.exception('Failed to generate simulation parameter.\n{}'.format(e))
@@ -165,13 +156,16 @@ def comfort_sim_par(ddy_file, run_period_json, filter_des_days, output_file):
               'zone (both sensible and latent)\nSensible - the sensible load added to '
               'the zone\nLatent - the latent load added to the zone.',
               type=str, default='Total', show_default=True)
+@click.option('--north', '-n', default=0, type=float, show_default=True,
+              help='Number from -360 to 360 for the counterclockwise difference between '
+              'North and the positive Y-axis in degrees. 90 is west; 270 is east')
 @click.option('--filter-des-days/--all-des-days', ' /-all',  help='Flag to note whether '
               'the design days in the ddy-file should be filtered to only include 99.6 '
               'and 0.4 design days.', default=True, show_default=True)
 @click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the simulation parameters. By default, it will be printed to stdout.',
               type=click.File('w'), default='-', show_default=True)
-def sizing_sim_par(ddy_file, load_type, filter_des_days, output_file):
+def sizing_sim_par(ddy_file, load_type, north, filter_des_days, output_file):
     """Get a SimulationParameter JSON with outputs and run period for HVAC sizing.
 
     \b
@@ -186,10 +180,8 @@ def sizing_sim_par(ddy_file, load_type, filter_des_days, output_file):
         sim_par.output.add_gains_and_losses(gl_load_type)
         sim_par.output.add_surface_energy_flow()
         sim_par.simulation_control = SimulationControl(True, True, True, True, False)
-        if filter_des_days:
-            sim_par.sizing_parameter.add_from_ddy_996_004(ddy_file)
-        else:
-            sim_par.sizing_parameter.add_from_ddy(ddy_file)
+        sim_par.north_angle = north
+        _apply_design_days(ddy_file, filter_des_days, sim_par)
         output_file.write(json.dumps(sim_par.to_dict()))
     except Exception as e:
         _logger.exception('Failed to generate simulation parameter.\n{}'.format(e))
@@ -202,18 +194,19 @@ def sizing_sim_par(ddy_file, load_type, filter_des_days, output_file):
 @click.argument('ddy-file', type=click.Path(
     exists=True, file_okay=True, dir_okay=False, resolve_path=True))
 @click.argument('output-names', nargs=-1)
-@click.option('--run-period-json', '-rp', help='Full path to a honeybee RunPeriod JSON '
+@click.option('--run-period', '-rp', help='Path to a RunPeriod of AnalysisPeriod JSON '
               'that describes the duration of the simulation. If not specified, the '
-              'simulation will be for the whole year.', default=None, show_default=True,
-              type=click.Path(exists=True, file_okay=True, dir_okay=False,
-                              resolve_path=True))
+              'simulation will be for the whole year.', default=None, type=str)
+@click.option('--north', '-n', default=0, type=float, show_default=True,
+              help='Number from -360 to 360 for the counterclockwise difference between '
+              'North and the positive Y-axis in degrees. 90 is west; 270 is east')
 @click.option('--filter-des-days/--all-des-days', ' /-all',  help='Flag to note whether '
               'the design days in the ddy-file should be filtered to only include 99.6 '
               'and 0.4 design days.', default=True, show_default=True)
 @click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the simulation parameters. By default, it will be printed to stdout.',
               type=click.File('w'), default='-', show_default=True)
-def custom_sim_par(ddy_file, output_names, run_period_json, filter_des_days,
+def custom_sim_par(ddy_file, output_names, run_period, north, filter_des_days,
                    output_file):
     """Get a SimulationParameter JSON with an option for custom outputs.
 
@@ -229,14 +222,9 @@ def custom_sim_par(ddy_file, output_names, run_period_json, filter_des_days,
         sim_par = SimulationParameter()
         for output_name in output_names:
             sim_par.output.add_output(output_name)
-        if run_period_json is not None:
-            with open(run_period_json) as json_file:
-                data = json.load(json_file)
-            sim_par.run_period = RunPeriod.from_dict(data)
-        if filter_des_days:
-            sim_par.sizing_parameter.add_from_ddy_996_004(ddy_file)
-        else:
-            sim_par.sizing_parameter.add_from_ddy(ddy_file)
+        _apply_run_period(run_period, sim_par)
+        sim_par.north_angle = north
+        _apply_design_days(ddy_file, filter_des_days, sim_par)
         output_file.write(json.dumps(sim_par.to_dict()))
     except Exception as e:
         _logger.exception('Failed to generate simulation parameter.\n{}'.format(e))
@@ -253,11 +241,12 @@ def custom_sim_par(ddy_file, output_names, run_period_json, filter_des_days,
               'strings (eg. Surface Window System Solar Transmittance). These outputs '
               'will be requested from the simulation.',
               type=click.STRING, multiple=True, default=None, show_default=True)
-@click.option('--run-period-json', '-rp', help='Full path to a honeybee RunPeriod JSON '
+@click.option('--run-period', '-rp', help='Path to a RunPeriod of AnalysisPeriod JSON '
               'that describes the duration of the simulation. If not specified, the '
-              'simulation will be for the whole year.', default=None, show_default=True,
-              type=click.Path(exists=True, file_okay=True, dir_okay=False,
-                              resolve_path=True))
+              'simulation will be for the whole year.', default=None, type=str)
+@click.option('--start-north', '-n', default=0, type=float, show_default=True,
+              help='Number from -360 to 360 for the starting north angle. This will be '
+              'added to the north-angles in order to shift all norths.')
 @click.option('--filter-des-days/--all-des-days', ' /-all',  help='Flag to note whether '
               'the design days in the ddy-file should be filtered to only include 99.6 '
               'and 0.4 design days.', default=True, show_default=True)
@@ -267,7 +256,7 @@ def custom_sim_par(ddy_file, output_names, run_period_json, filter_des_days,
 @click.option('--log-file', '-log', help='Optional log file to output the paths of the '
               'simulation parameters. By default the list will be printed out to stdout.',
               type=click.File('w'), default='-')
-def orientation_sim_pars(ddy_file, north_angles, output_name, run_period_json,
+def orientation_sim_pars(ddy_file, north_angles, output_name, run_period, start_north,
                          filter_des_days, folder, log_file):
     """Get SimulationParameter JSONs with different north angles for orientation studies.
 
@@ -289,14 +278,16 @@ def orientation_sim_pars(ddy_file, north_angles, output_name, run_period_json,
         sim_par = SimulationParameter()
         for out_name in output_name:
             sim_par.output.add_output(out_name)
-        if run_period_json is not None:
-            with open(run_period_json) as json_file:
-                data = json.load(json_file)
-            sim_par.run_period = RunPeriod.from_dict(data)
-        if filter_des_days:
-            sim_par.sizing_parameter.add_from_ddy_996_004(ddy_file)
-        else:
-            sim_par.sizing_parameter.add_from_ddy(ddy_file)
+        _apply_run_period(run_period, sim_par)
+        _apply_design_days(ddy_file, filter_des_days, sim_par)
+
+        # shift all of the north angles by the start_north if specified
+        if start_north != 0:
+            north_angles = [angle + start_north for angle in north_angles]
+            for i, angle in enumerate(north_angles):
+                angle = angle - 360 if angle > 360 else angle
+                angle = angle + 360 if angle < -360 else angle
+                north_angles[i] = angle
 
         # loop through the north angles and write a simulation parameter for each
         json_files = []
@@ -363,3 +354,29 @@ def run_period(start_month, start_day, end_month, end_day, start_day_of_week,
         sys.exit(1)
     else:
         sys.exit(0)
+
+
+def _apply_run_period(run_period_json, sim_par):
+    """Helper function to apply a RunPeriod from a JSON to simulation parameters.
+
+    Args:
+        run_period_json: A JSON file of a RunPeriod or AnalysisPeriod to be loaded.
+        sim_par: A SimulationParameter object.
+    """
+    run_period = _load_run_period_json(run_period_json)
+    if run_period is not None:
+        sim_par.run_period = run_period
+
+
+def _apply_design_days(ddy_file, filter_des_days, sim_par):
+    """Apply design days from a DDY file to simulation parameters.
+
+    Args:
+        ddy_file: Path to a .ddy file.
+        filter_des_days: Boolean for whether design days should be filtered.
+        sim_par: A SimulationPArameter object.
+    """
+    if filter_des_days:
+        sim_par.sizing_parameter.add_from_ddy_996_004(ddy_file)
+    else:
+        sim_par.sizing_parameter.add_from_ddy(ddy_file)

@@ -85,7 +85,8 @@ def test_orientation_sim_pars():
     runner = CliRunner()
     ddy_path = './tests/ddy/chicago.ddy'
 
-    result = runner.invoke(orientation_sim_pars, [ddy_path, '0', '90', '180', '270'])
+    result = runner.invoke(orientation_sim_pars,
+                           [ddy_path, '0', '90', '180', '270', '-n', '100'])
     assert result.exit_code == 0
     simpar_list = json.loads(result.output)
     for sp_json in simpar_list:

@@ -206,7 +206,7 @@ def window_material_by_id(material_id, output_file):
 @lib.command('opaque-construction-by-id')
 @click.argument('construction-id', type=str)
 @click.option('--complete/--abridged', ' /-a', help='Flag to note wether an abridged '
-              'defintion should be returned.', type=bool, default=True)
+              'defintion should be returned.', default=True)
 @click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the object. By default, it will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
@@ -232,7 +232,7 @@ def opaque_construction_by_id(construction_id, complete, output_file):
 @lib.command('window-construction-by-id')
 @click.argument('construction-id', type=str)
 @click.option('--complete/--abridged', ' /-a', help='Flag to note wether an abridged '
-              'defintion should be returned.', type=bool, default=True)
+              'defintion should be returned.', default=True)
 @click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the object. By default, it will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
@@ -282,10 +282,9 @@ def shade_construction_by_id(construction_id, output_file):
 @click.argument('construction-set-id', type=str)
 @click.option('--none-defaults/--include-defaults', ' /-d', help='Flag to note whether '
               'default constructions in the set should be included in or should be '
-              'None.', type=bool, default=True, show_default=True)
+              'None.', default=True, show_default=True)
 @click.option('--complete/--abridged', ' /-a', help='Flag to note wether an abridged '
-              'definition should be returned.',
-              type=bool, default=True, show_default=True)
+              'definition should be returned.', default=True, show_default=True)
 @click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the object. By default, it will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
@@ -335,8 +334,7 @@ def schedule_type_limit_by_id(schedule_type_limit_id, output_file):
 @lib.command('schedule-by-id')
 @click.argument('schedule-id', type=str)
 @click.option('--complete/--abridged', ' /-a', help='Flag to note wether an abridged '
-              'definition should be returned.',
-              type=bool, default=True, show_default=True)
+              'definition should be returned.', default=True, show_default=True)
 @click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the object. By default, it will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
@@ -361,8 +359,7 @@ def schedule_by_id(schedule_id, complete, output_file):
 @lib.command('program-type-by-id')
 @click.argument('program-type-id', type=str)
 @click.option('--complete/--abridged', ' /-a', help='Flag to note wether an abridged '
-              'definition should be returned.',
-              type=bool, default=True, show_default=True)
+              'definition should be returned.', default=True, show_default=True)
 @click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the object. By default, it will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
@@ -416,8 +413,7 @@ def materials_by_id(material_ids, output_file):
 @lib.command('constructions-by-id')
 @click.argument('construction-ids', nargs=-1)
 @click.option('--complete/--abridged', ' /-a', help='Flag to note wether an abridged '
-              'definition should be returned.',
-              type=bool, default=True, show_default=True)
+              'definition should be returned.', default=True, show_default=True)
 @click.option('--output-file', '-f', help='Optional file to output the JSON strings of '
               'the objects. By default, it will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
@@ -455,10 +451,10 @@ def constructions_by_id(construction_ids, complete, output_file):
 @click.argument('construction-set-ids', nargs=-1)
 @click.option('--none-defaults/--include-defaults', ' /-d', help='Flag to note whether '
               'default constructions in the set should be included in detail or should '
-              'be None.', type=bool, default=True, show_default=True)
+              'be None.', default=True, show_default=True)
 @click.option('--complete/--abridged', ' /-a', help='Flag to note wether an abridged '
               'definition should be returned.',
-              type=bool, default=True, show_default=True)
+              default=True, show_default=True)
 @click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the object. By default, it will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
@@ -514,8 +510,7 @@ def schedule_type_limits_by_id(schedule_type_limit_ids, output_file):
 @lib.command('schedules-by-id')
 @click.argument('schedule-ids', nargs=-1)
 @click.option('--complete/--abridged', ' /-a', help='Flag to note wether an abridged '
-              'definition should be returned.',
-              type=bool, default=True, show_default=True)
+              'definition should be returned.', default=True, show_default=True)
 @click.option('--output-file', '-f', help='Optional file to output the JSON strings of '
               'the objects. By default, it will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
@@ -543,8 +538,7 @@ def schedules_by_id(schedule_ids, complete, output_file):
 @lib.command('program-types-by-id')
 @click.argument('program-type-ids', nargs=-1)
 @click.option('--complete/--abridged', ' /-a', help='Flag to note wether an abridged '
-              'definition should be returned.',
-              type=bool, default=True, show_default=True)
+              'definition should be returned.', default=True, show_default=True)
 @click.option('--output-file', '-f', help='Optional file to output the JSON strings of '
               'the objects. By default, it will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
