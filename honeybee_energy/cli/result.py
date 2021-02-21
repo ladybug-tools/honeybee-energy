@@ -207,9 +207,9 @@ def energy_use_intensity(result_folder, si, output_file):
         total_floor_area, conditioned_floor_area, total_energy = 0, 0, 0
         all_uses = \
             ('heating', 'cooling', 'interior_lighting', 'exterior_lighting',
-            'interior_equipment', 'exterior_equipment', 'fans', 'pumps',
-            'heat_rejection', 'humidification', 'heat_recovery', 'water_systems',
-            'refrigeration', 'generators')
+             'interior_equipment', 'exterior_equipment', 'fans', 'pumps',
+             'heat_rejection', 'humidification', 'heat_recovery', 'water_systems',
+             'refrigeration', 'generators')
         end_uses = {}
         for use in all_uses:
             end_uses[use] = 0
@@ -326,7 +326,8 @@ def tabular_metadata(result_sql, table_name, output_file):
         table_dict = sql_obj.tabular_data_by_name(str(table_name))
         row_names = list(table_dict.keys())
         col_names = sql_obj.tabular_column_names(str(table_name))
-        output_file.write(json.dumps({'row_names': row_names, 'column_names': col_names}))
+        output_file.write(json.dumps(
+            {'row_names': row_names, 'column_names': col_names}))
     except Exception as e:
         _logger.exception('Failed to retrieve table data from sql file.\n{}'.format(e))
         sys.exit(1)
@@ -523,7 +524,8 @@ def output_csv_queryable(result_sql, model_json, run_period_name, output_names,
                     col = sql_obj.data_collections_by_output_name_run_period(outp, per_i)
                     data_colls.append(col)
             else:
-                col = sql_obj.data_collections_by_output_name_run_period(output_name, per_i)
+                col = sql_obj.data_collections_by_output_name_run_period(
+                    output_name, per_i)
                 data_colls.append(col)
 
         # convert the data to IP if it was requested
@@ -556,7 +558,8 @@ def output_csv_queryable(result_sql, model_json, run_period_name, output_names,
                 match_data = match_faces_to_data(colls, faces)
                 if len(match_data) != 0:
                     face_csv_data.append(match_data)
-            elif 'Zone' in colls[0].header.metadata or 'System' in colls[0].header.metadata:
+            elif 'Zone' in colls[0].header.metadata \
+                    or 'System' in colls[0].header.metadata:
                 match_data = match_rooms_to_data(colls, model.rooms)
                 if len(match_data) != 0:
                     room_csv_data.append(match_data)
@@ -573,7 +576,8 @@ def output_csv_queryable(result_sql, model_json, run_period_name, output_names,
                         matched_tup[1].values = \
                             [val / area for val in matched_tup[1].values]
         for matched_data in room_csv_data:  # normalize room data
-            if normalize and matched_data[0][1].header.data_type.normalized_type is not None:
+            if normalize and matched_data[0][1].header.data_type.normalized_type \
+                    is not None:
                 for matched_tup in matched_data:
                     area = matched_tup[0].floor_area
                     try:

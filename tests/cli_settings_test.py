@@ -34,7 +34,8 @@ def test_load_balance_sim_par():
     simpar_dict = json.loads(result.output)
     sim_par = SimulationParameter.from_dict(simpar_dict)
 
-    assert 'Zone Ideal Loads Supply Air Sensible Cooling Energy' in sim_par.output.outputs
+    assert 'Zone Ideal Loads Supply Air Sensible Cooling Energy' \
+        in sim_par.output.outputs
     assert 'Zone People Sensible Heating Energy' in sim_par.output.outputs
 
 
@@ -62,7 +63,8 @@ def test_sizing_sim_par():
     simpar_dict = json.loads(result.output)
     sim_par = SimulationParameter.from_dict(simpar_dict)
 
-    assert 'Zone Ideal Loads Supply Air Sensible Cooling Energy' in sim_par.output.outputs
+    assert 'Zone Ideal Loads Supply Air Sensible Cooling Energy' \
+        in sim_par.output.outputs
     assert 'Zone People Sensible Heating Energy' in sim_par.output.outputs
     assert sim_par.simulation_control.run_for_sizing_periods
 
@@ -72,12 +74,15 @@ def test_custom_sim_par():
     runner = CliRunner()
     ddy_path = './tests/ddy/chicago.ddy'
 
-    result = runner.invoke(custom_sim_par, [ddy_path, 'Surface Window Transmitted Beam Solar Radiation Energy'])
+    result = runner.invoke(
+        custom_sim_par,
+        [ddy_path, 'Surface Window Transmitted Beam Solar Radiation Energy'])
     assert result.exit_code == 0
     simpar_dict = json.loads(result.output)
     sim_par = SimulationParameter.from_dict(simpar_dict)
 
-    assert 'Surface Window Transmitted Beam Solar Radiation Energy' in sim_par.output.outputs
+    assert 'Surface Window Transmitted Beam Solar Radiation Energy' \
+        in sim_par.output.outputs
 
 
 def test_orientation_sim_pars():
@@ -99,8 +104,7 @@ def test_run_period():
 
     result = runner.invoke(run_period, ['1', '6', '1', '12'])
     assert result.exit_code == 0
-    run_per_dict = json.loads(result.output)
-    run_per = RunPeriod.from_dict(run_per_dict)
+    run_per = RunPeriod.from_string(result.output)
 
     assert run_per.start_date == Date(1, 6)
     assert run_per.end_date == Date(1, 12)

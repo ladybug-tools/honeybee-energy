@@ -13,7 +13,6 @@ from honeybee.config import folders
 from honeybee_energy.simulation.parameter import SimulationParameter
 from honeybee_energy.simulation.runperiod import RunPeriod
 from honeybee_energy.simulation.control import SimulationControl
-from ._helper import _load_run_period_json
 
 
 _logger = logging.getLogger(__name__)
@@ -27,8 +26,9 @@ def settings():
 @settings.command('default-sim-par')
 @click.argument('ddy-file', type=click.Path(
     exists=True, file_okay=True, dir_okay=False, resolve_path=True))
-@click.option('--run-period', '-rp', help='Path to a RunPeriod of AnalysisPeriod JSON '
-              'that describes the duration of the simulation. If not specified, the '
+@click.option('--run-period', '-rp', help='An AnalysisPeriod or RunPeriod string '
+              'to dictate the start and end of the simulation '
+              '(eg. "6/21 to 9/21 between 0 and 23 @1"). If unspecified, the '
               'simulation will be for the whole year.', default=None, type=str)
 @click.option('--north', '-n', default=0, type=float, show_default=True,
               help='Number from -360 to 360 for the counterclockwise difference between '
@@ -71,8 +71,9 @@ def default_sim_par(ddy_file, run_period, north, filter_des_days, output_file):
               'zone (both sensible and latent)\nSensible - the sensible load added to '
               'the zone\nLatent - the latent load added to the zone.',
               type=str, default='Total', show_default=True)
-@click.option('--run-period', '-rp', help='Path to a RunPeriod of AnalysisPeriod JSON '
-              'that describes the duration of the simulation. If not specified, the '
+@click.option('--run-period', '-rp', help='An AnalysisPeriod or RunPeriod string '
+              'to dictate the start and end of the simulation '
+              '(eg. "6/21 to 9/21 between 0 and 23 @1"). If unspecified, the '
               'simulation will be for the whole year.', default=None, type=str)
 @click.option('--north', '-n', default=0, type=float, show_default=True,
               help='Number from -360 to 360 for the counterclockwise difference between '
@@ -112,8 +113,9 @@ def load_balance_sim_par(ddy_file, load_type, run_period, north, filter_des_days
 @settings.command('comfort-sim-par')
 @click.argument('ddy-file', type=click.Path(
     exists=True, file_okay=True, dir_okay=False, resolve_path=True))
-@click.option('--run-period', '-rp', help='Path to a RunPeriod of AnalysisPeriod JSON '
-              'that describes the duration of the simulation. If not specified, the '
+@click.option('--run-period', '-rp', help='An AnalysisPeriod or RunPeriod string '
+              'to dictate the start and end of the simulation '
+              '(eg. "6/21 to 9/21 between 0 and 23 @1"). If unspecified, the '
               'simulation will be for the whole year.', default=None, type=str)
 @click.option('--north', '-n', default=0, type=float, show_default=True,
               help='Number from -360 to 360 for the counterclockwise difference between '
@@ -194,8 +196,9 @@ def sizing_sim_par(ddy_file, load_type, north, filter_des_days, output_file):
 @click.argument('ddy-file', type=click.Path(
     exists=True, file_okay=True, dir_okay=False, resolve_path=True))
 @click.argument('output-names', nargs=-1)
-@click.option('--run-period', '-rp', help='Path to a RunPeriod of AnalysisPeriod JSON '
-              'that describes the duration of the simulation. If not specified, the '
+@click.option('--run-period', '-rp', help='An AnalysisPeriod or RunPeriod string '
+              'to dictate the start and end of the simulation '
+              '(eg. "6/21 to 9/21 between 0 and 23 @1"). If unspecified, the '
               'simulation will be for the whole year.', default=None, type=str)
 @click.option('--north', '-n', default=0, type=float, show_default=True,
               help='Number from -360 to 360 for the counterclockwise difference between '
@@ -241,8 +244,9 @@ def custom_sim_par(ddy_file, output_names, run_period, north, filter_des_days,
               'strings (eg. Surface Window System Solar Transmittance). These outputs '
               'will be requested from the simulation.',
               type=click.STRING, multiple=True, default=None, show_default=True)
-@click.option('--run-period', '-rp', help='Path to a RunPeriod of AnalysisPeriod JSON '
-              'that describes the duration of the simulation. If not specified, the '
+@click.option('--run-period', '-rp', help='An AnalysisPeriod or RunPeriod string '
+              'to dictate the start and end of the simulation '
+              '(eg. "6/21 to 9/21 between 0 and 23 @1"). If unspecified, the '
               'simulation will be for the whole year.', default=None, type=str)
 @click.option('--start-north', '-n', default=0, type=float, show_default=True,
               help='Number from -360 to 360 for the starting north angle. This will be '
@@ -254,8 +258,8 @@ def custom_sim_par(ddy_file, output_names, run_period, north, filter_des_days,
               default=None, show_default=True,
               type=click.Path(file_okay=False, dir_okay=True, resolve_path=True))
 @click.option('--log-file', '-log', help='Optional log file to output the paths of the '
-              'simulation parameters. By default the list will be printed out to stdout.',
-              type=click.File('w'), default='-')
+              'simulation parameters. By default the list will be printed out to '
+              'stdout.', type=click.File('w'), default='-')
 def orientation_sim_pars(ddy_file, north_angles, output_name, run_period, start_north,
                          filter_des_days, folder, log_file):
     """Get SimulationParameter JSONs with different north angles for orientation studies.
@@ -317,8 +321,9 @@ def orientation_sim_pars(ddy_file, north_angles, output_name, run_period, start_
 @click.argument('start-day', type=int)
 @click.argument('end-month', type=int)
 @click.argument('end-day', type=int)
-@click.option('--start-day-of-week', '-dow', help='Text for the day of the week on which '
-              'the simulation starts.', type=str, default='Sunday', show_default=True)
+@click.option('--start-day-of-week', '-dow', help='Text for the day of the week '
+              'on which the simulation starts.', type=str, default='Sunday',
+              show_default=True)
 @click.option('--holidays', '-h', help='Text for the holidays within the simulation. '
               'Dates should be formatted as follows: "[day int] [month text]" '
               '(eg. "25 Dec"). If not specified, no holidays are applied.',
@@ -328,7 +333,7 @@ def orientation_sim_pars(ddy_file, north_angles, output_name, run_period, start_
               type=click.File('w'), default='-', show_default=True)
 def run_period(start_month, start_day, end_month, end_day, start_day_of_week,
                holidays, output_file):
-    """Get a RunPeriod JSON that can be used to set the simulation run period.
+    """Get a RunPeriod string that can be used to set the simulation run period.
 
     \b
     Args:
@@ -348,12 +353,26 @@ def run_period(start_month, start_day, end_month, end_day, start_day_of_week,
         if holidays:
             dates = tuple(Date.from_date_string(date) for date in holidays)
             run_period.holidays = dates
-        output_file.write(json.dumps(run_period.to_dict()))
+        output_file.write(str(run_period))
     except Exception as e:
         _logger.exception('Failed to generate run period.\n{}'.format(e))
         sys.exit(1)
     else:
         sys.exit(0)
+
+
+def _load_run_period_str(run_period_str):
+    """Load a RunPeriod from a string of a run period or analysis period.
+
+    Args:
+        run_period_str: A string of a RunPeriod or AnalysisPeriod to be loaded.
+    """
+    if run_period_str is not None and run_period_str != 'None':
+        if run_period_str.startswith('RunPeriod'):
+            return RunPeriod.from_string(run_period_str)
+        else:
+            return RunPeriod.from_analysis_period(
+                AnalysisPeriod.from_string(run_period_str))
 
 
 def _apply_run_period(run_period_json, sim_par):
@@ -363,7 +382,7 @@ def _apply_run_period(run_period_json, sim_par):
         run_period_json: A JSON file of a RunPeriod or AnalysisPeriod to be loaded.
         sim_par: A SimulationParameter object.
     """
-    run_period = _load_run_period_json(run_period_json)
+    run_period = _load_run_period_str(run_period_json)
     if run_period is not None:
         sim_par.run_period = run_period
 
