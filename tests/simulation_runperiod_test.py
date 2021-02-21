@@ -142,3 +142,16 @@ def test_run_period_dict_methods():
     new_run_period = RunPeriod.from_dict(rp_dict)
     assert new_run_period == run_period
     assert rp_dict == new_run_period.to_dict()
+
+
+def test_run_period_string_methods():
+    """Test the to/from string methods."""
+    run_period = RunPeriod()
+    run_period.start_date = Date(1, 1)
+    run_period.end_date = Date(6, 21)
+    run_period.start_day_of_week = 'Monday'
+    run_period.holidays = (Date(1, 1), Date(3, 17))
+    run_period.daylight_saving_time = DaylightSavingTime()
+
+    new_run_period = RunPeriod.from_string(str(run_period))
+    assert new_run_period == run_period

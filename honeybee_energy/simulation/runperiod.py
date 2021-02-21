@@ -2,14 +2,13 @@
 """EnergyPlus Simulation Run Period."""
 from __future__ import division
 
+from ladybug.dt import Date
+from ladybug.analysisperiod import AnalysisPeriod
+from honeybee.typing import valid_string
+
 from .daylightsaving import DaylightSavingTime
 from ..reader import parse_idf_string
 from ..writer import generate_idf_string
-
-from honeybee.typing import valid_string
-
-from ladybug.analysisperiod import AnalysisPeriod
-from ladybug.dt import Date
 
 
 class RunPeriod(object):
@@ -304,6 +303,23 @@ class RunPeriod(object):
 
         return cls(start_date, end_date, start_day_of_week, holidays, daylight_saving)
 
+    @classmethod
+    def from_string(cls, run_period_string):
+        """Create an RunPeriod object from an RunPeriod string."""
+        # split the various objects that make us the run period
+        run_per_objs = run_period_string.split('\n\n')
+        holidays, dl_saving = None, None
+        if len(run_per_objs) > 1:
+            for obj in run_per_objs:
+                if obj.startswith('RunPeriodControl:DaylightSavingTime'):
+                    dl_saving = obj
+                elif obj.startswith('RunPeriodControl:SpecialDays'):
+                    holidays = []
+                    lines = obj.split('\n')
+                    for i in range(0, len(lines), 3):
+                        holidays.append('\n'.join(lines[i:i+3]))
+        return cls.from_idf(run_per_objs[0], holidays, dl_saving)
+
     def to_idf(self):
         """Get an EnergyPlus string representation of the RunPeriod.
 
@@ -312,9 +328,9 @@ class RunPeriod(object):
 
             -   run_period: An IDF string representation of the RunPeriod object.
 
-            -   holidays: A list of IDF RunPeriodControl:SpecialDays strings that represent
-                the holidays applied to the simulation. Will be None if no holidays
-                are applied to this RunPeriod.
+            -   holidays: A list of IDF RunPeriodControl:SpecialDays strings that
+                represent the holidays applied to the simulation. Will be None
+                if no holidays are applied to this RunPeriod.
 
             -   daylight_saving_time: An IDF RunPeriodControl:DaylightSavingTime string
                 that notes the start and ends dates of Daylight Savings time. Will be
@@ -402,4 +418,10 @@ class RunPeriod(object):
         return not self.__eq__(other)
 
     def __repr__(self):
-        return self.to_idf()[0]
+        """Represent run period."""
+        run_per, holidays, dl_saving = self.to_idf()
+        if holidays is not None:
+            run_per = run_per + '\n\n' + '\n'.join(holidays)
+        if dl_saving is not None:
+            run_per = run_per + '\n\n' + dl_saving
+        return run_per
