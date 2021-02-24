@@ -704,7 +704,7 @@ def component_sizes(result_sql, component_type, output_file):
     try:
         sql_obj = SQLiteResult(result_sql)
         comp_sizes = []
-        if component_type is None or component_type == 'None':
+        if component_type is None or component_type == '' or component_type == 'None':
             for comp_size in sql_obj.component_sizes:
                 comp_sizes.append(comp_size.to_dict())
         else:
