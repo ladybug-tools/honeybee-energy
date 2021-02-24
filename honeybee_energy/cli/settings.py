@@ -367,7 +367,8 @@ def _load_run_period_str(run_period_str):
     Args:
         run_period_str: A string of a RunPeriod or AnalysisPeriod to be loaded.
     """
-    if run_period_str is not None and run_period_str != 'None':
+    if run_period_str is not None and run_period_str != '' \
+            and run_period_str != 'None':
         if run_period_str.startswith('RunPeriod'):
             return RunPeriod.from_string(run_period_str)
         else:
