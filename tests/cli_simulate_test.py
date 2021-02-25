@@ -1,6 +1,6 @@
 """Test cli simulate module."""
 from click.testing import CliRunner
-from honeybee_energy.cli.simulate import simulate_osm, simulate_idf
+from honeybee_energy.cli.simulate import simulate_model, simulate_osm, simulate_idf
 from honeybee.config import folders
 from ladybug.futil import nukedir
 
@@ -31,5 +31,19 @@ def test_simulate_osm():
 
     folder = os.path.join(folders.default_simulation_folder, 'shoe_box')
     output_sql = os.path.join(folder, 'run', 'eplusout.sql')
+    assert os.path.isfile(output_sql)
+    nukedir(folder)
+
+
+def test_simulate_model():
+    runner = CliRunner()
+    input_model = './tests/json/ShoeBox.json'
+    input_epw = './tests/epw/chicago.epw'
+
+    result = runner.invoke(simulate_model, [input_model, input_epw])
+    assert result.exit_code == 0
+
+    folder = os.path.join(folders.default_simulation_folder, 'ShoeBox')
+    output_sql = os.path.join(folder, 'OpenStudio', 'run', 'eplusout.sql')
     assert os.path.isfile(output_sql)
     nukedir(folder)
