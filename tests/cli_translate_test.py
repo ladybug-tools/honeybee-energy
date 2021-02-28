@@ -1,9 +1,12 @@
 """Test cli translate module."""
 from click.testing import CliRunner
-from honeybee_energy.cli.translate import model_to_idf, construction_from_idf, \
-    construction_to_idf, schedule_to_idf, schedule_from_idf
-
 import os
+import json
+
+from ladybug.analysisperiod import AnalysisPeriod
+
+from honeybee_energy.cli.translate import model_to_idf, construction_from_idf, \
+    construction_to_idf, schedule_to_idf, schedule_from_idf, model_occ_schedules
 
 
 def test_model_to_idf():
@@ -14,7 +17,8 @@ def test_model_to_idf():
     assert result.exit_code == 0
 
     output_hb_model = './tests/json/ShoeBox.idf'
-    result = runner.invoke(model_to_idf, [input_hb_model, '--output-file', output_hb_model])
+    result = runner.invoke(
+        model_to_idf, [input_hb_model, '--output-file', output_hb_model])
     assert result.exit_code == 0
     assert os.path.isfile(output_hb_model)
     os.remove(output_hb_model)
@@ -56,3 +60,21 @@ def test_schedule_to_from_idf():
     assert result.exit_code == 0
 
     os.remove(output_hb_json)
+
+
+def test_model_occ_schedules():
+    runner = CliRunner()
+    input_model = './tests/json/ShoeBox.json'
+
+    result = runner.invoke(model_occ_schedules, [input_model])
+    assert result.exit_code == 0
+    occ_dict = json.loads(result.output)
+    assert len(occ_dict['schedules']) == 1
+    assert len(list(occ_dict['schedules'].values())[0]) == 8760
+
+    a_per = AnalysisPeriod(6, 21, 8, 9, 21, 16)
+    result = runner.invoke(model_occ_schedules, [input_model, '--period', str(a_per)])
+    assert result.exit_code == 0
+    occ_dict = json.loads(result.output)
+    assert len(occ_dict['schedules']) == 1
+    assert len(list(occ_dict['schedules'].values())[0]) == len(a_per)
