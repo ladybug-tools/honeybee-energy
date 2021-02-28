@@ -372,7 +372,7 @@ class ScheduleRuleset(object):
 
     def shift_by_step(self, step_count=1, timestep=1):
         """Get a version of this object where the day_schedule values are shifted.
-        
+
         This is useful when attempting to derive a set of diversified schedules
         from a single average schedule.
 
