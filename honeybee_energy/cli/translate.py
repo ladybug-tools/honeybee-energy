@@ -341,7 +341,7 @@ def schedule_from_idf(schedule_idf, output_file):
               'at and above which a schedule value is considered occupied.',
               type=float, default=0.1, show_default=True)
 @click.option('--period', '-p', help='An AnalysisPeriod string to dictate '
-              'the start and end of the exported occupancy data collections '
+              'the start and end of the exported occupancy values '
               '(eg. "6/21 to 9/21 between 0 and 23 @1"). Note that the timestep '
               'of the period will determine the timestep of output values. If '
               'unspecified, the values will be annual.', default=None, type=str)
@@ -349,7 +349,7 @@ def schedule_from_idf(schedule_idf, output_file):
               'occupancy values. By default this will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
 def model_occ_schedules(model_json, threshold, period, output_file):
-    """Translate a Model's occupancy schedules into datacollections of 0/1 values.
+    """Translate a Model's occupancy schedules into a JSON of 0/1 values.
 
     \b
     Args:
