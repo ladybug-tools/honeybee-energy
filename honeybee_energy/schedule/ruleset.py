@@ -2,23 +2,22 @@
 """Complete annual schedule object built from ScheduleDay and rules for applying them."""
 from __future__ import division
 
+import os
+import re
+
+from honeybee._lockable import lockable
+from honeybee.typing import tuple_with_length, valid_ep_string
+from ladybug.analysisperiod import AnalysisPeriod
+from ladybug.datacollection import HourlyContinuousCollection
+from ladybug.datatype.generic import GenericType
+from ladybug.dt import Date, Time
+from ladybug.header import Header
+
+from ..reader import parse_idf_string
+from ..writer import generate_idf_string
 from .day import ScheduleDay
 from .rule import ScheduleRule
 from .typelimit import ScheduleTypeLimit
-from ..reader import parse_idf_string
-from ..writer import generate_idf_string
-
-from honeybee._lockable import lockable
-from honeybee.typing import valid_ep_string, tuple_with_length
-
-from ladybug.datacollection import HourlyContinuousCollection
-from ladybug.header import Header
-from ladybug.analysisperiod import AnalysisPeriod
-from ladybug.dt import Date
-from ladybug.datatype.generic import GenericType
-
-import re
-import os
 
 
 @lockable
