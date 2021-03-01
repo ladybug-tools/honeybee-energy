@@ -257,7 +257,9 @@ def test_schedule_ruleset_from_idf_file():
 
 
 def test_schedule_ruleset_from_idf_file_compact():
-    """Test the initalization of ScheduleRuleset from file with Schedule:Week:Compact."""
+    """Test the initalization of ScheduleRuleset from file with Schedule:Week:Compact
+    and Schedule:Compact.
+    """
     office_sched_idf = './tests/idf/OfficeOccupancySchedule_Compact.idf'
     office_scheds = ScheduleRuleset.extract_all_from_idf_file(office_sched_idf)
 
@@ -276,6 +278,10 @@ def test_schedule_ruleset_from_idf_file_compact():
         'Medium Office Bldg Occ Saturday Schedule'
     assert office_occ.schedule_rules[1].schedule_day.identifier == \
         'Medium Office Bldg Occ Sunday Schedule'
+
+    office_occ = office_scheds[1]
+    assert office_occ.schedule_rules[0].schedule_day.identifier == \
+        "saturday"
 
     assert isinstance(office_occ.schedule_type_limit, ScheduleTypeLimit)
 
