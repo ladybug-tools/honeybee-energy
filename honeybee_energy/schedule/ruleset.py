@@ -1003,6 +1003,10 @@ class ScheduleRuleset(object):
         constant_pattern = re.compile(r"(?i)(Schedule:Constant,[\s\S]*?;)")
         constant_props = tuple(parse_idf_string(idf_string) for
                                idf_string in constant_pattern.findall(file_contents))
+        # extract all of the Schedule:Compact objects and convert to ScheduleRuleset
+        conpact_pattern = re.compile(r"(?i)(Schedule:Compact,[\s\S]*?;)")
+        compact_props = tuple(parse_idf_string(idf_string) for
+                              idf_string in conpact_pattern.findall(file_contents))
         # compile all of the ScheduleRuleset objects from extracted properties
         schedules = []
         for year_sch in year_props:
@@ -1041,6 +1045,151 @@ class ScheduleRuleset(object):
             schedule_type = sch_type_dict[const_sch[1]] if const_sch[1] != '' else None
             sch_ruleset = ScheduleRuleset.from_constant_value(
                 const_sch[0], sched_val, schedule_type)
+            schedules.append(sch_ruleset)
+        for compact_sch in compact_props:
+            schedule_type = (
+                sch_type_dict[compact_sch[1]] if compact_sch[1] != "" else None
+            )
+            schedule_rules = []
+            holiday_schedule = None
+            winter_designday_schedule = None
+            summer_designday_schedule = None
+            start_date = Date.from_doy(1)
+            end_date = Date.from_doy(365)
+            untils = [Time(0, 0)]  # initialize list of until times.
+            n = -1  # initialize the n-th until time
+            rules = []  # initialize list of rules.
+            for field in compact_sch[2:]:
+                field = field.lower()
+                if "through" in field:
+                    # Each `through` field generates a new ScheduleRule
+                    # initialize rule with ScheduleDay as placeholder.
+                    rule = ScheduleRule(ScheduleDay(compact_sch[0], [0], [Time(0, 0)]))
+
+                    # start_date is either Jan 1st or end_date from previous
+                    # `through` field
+                    start_date = (
+                        start_date if end_date == Date.from_doy(365) else end_date
+                    )
+
+                    _, date = field.split(":")  # get end_date from field
+                    month, day = date.split("/")
+                    end_date = Date.from_dict({"month": int(month), "day": int(day)})
+                elif "for" in field:
+                    # reset values for new set; each `for` is a new rule
+                    n = -1  # reset the n-th until time
+                    untils = [Time(0, 0)]  # reset list of until times.
+                    rules = []  # reset list of rules for this `for` field.
+
+                    # Create a rule; all different `if` statements because we want to
+                    # catch more than one case,
+                    # eg. `For: Sunday Holidays AllOtherDays, !- Field 54`
+                    if "alldays" in field:
+                        rule = ScheduleRule(ScheduleDay("alldays", [0], [Time(0, 0)]))
+                        rule.apply_all = True
+                        rules.append(rule)
+                    if "weekdays" in field:
+                        rule = ScheduleRule(ScheduleDay("weekdays", [0], [Time(0, 0)]))
+                        rule.apply_weekday = True
+                        rules.append(rule)
+                    if "weekends" in field:
+                        rule = ScheduleRule(ScheduleDay("weekends", [0], [Time(0, 0)]))
+                        rule.apply_weekend = True
+                        rules.append(rule)
+                    if "sunday" in field:
+                        rule = ScheduleRule(ScheduleDay("sunday", [0], [Time(0, 0)]))
+                        rule.apply_sunday = True
+                        rules.append(rule)
+                    if "monday" in field:
+                        rule = ScheduleRule(ScheduleDay("monday", [0], [Time(0, 0)]))
+                        rule.apply_monday = True
+                        rules.append(rule)
+                    if "tuesday" in field:
+                        rule = ScheduleRule(ScheduleDay("tuesday", [0], [Time(0, 0)]))
+                        rule.apply_tuesday = True
+                        rules.append(rule)
+                    if "wednesday" in field:
+                        rule = ScheduleRule(ScheduleDay("wednesday", [0], [Time(0, 0)]))
+                        rule.apply_wednesday = True
+                        rules.append(rule)
+                    if "thursday" in field:
+                        rule = ScheduleRule(ScheduleDay("thursday", [0], [Time(0, 0)]))
+                        rule.apply_thursday = True
+                        rules.append(rule)
+                    if "friday" in field:
+                        rule = ScheduleRule(ScheduleDay("friday", [0], [Time(0, 0)]))
+                        rule.apply_friday = True
+                        rules.append(rule)
+                    if "saturday" in field:
+                        rule = ScheduleRule(ScheduleDay("saturday", [0], [Time(0, 0)]))
+                        rule.apply_saturday = True
+                        rules.append(rule)
+                    if "holiday" in field:
+                        rule = ScheduleRule(ScheduleDay("holiday", [0], [Time(0, 0)]))
+                        holiday_schedule = rule.schedule_day
+                        rules.append(rule)
+                    if "summerdesignday" in field:
+                        rule = ScheduleRule(ScheduleDay("summerdesignday", [0], [Time(0, 0)]))
+                        summer_designday_schedule = rule.schedule_day
+                        rules.append(rule)
+                    if "winterdesignday" in field:
+                        rule = ScheduleRule(ScheduleDay("winterdesignday", [0], [Time(0, 0)]))
+                        winter_designday_schedule = rule.schedule_day
+                        rules.append(rule)
+                    if "allotherdays" in field:
+                        rule = ScheduleRule(ScheduleDay("allotherdays", [0], [Time(0, 0)]))
+                        apply_mtx = [rul.week_apply_tuple for rul in schedule_rules]
+                        for j, dow in enumerate(zip(*apply_mtx)):
+                            if not any(dow):
+                                rule.apply_day_by_dow(j + 1)
+                        rules.append(rule)
+
+                    for rule in rules:
+                        # for each rule in this `for` field, add rules to
+                        # ScheduleRuleset list of rules and set start_date and end_date.
+                        if len(rule.days_applied) != 0:
+                            schedule_rules.append(rule)
+
+                        # set range for rule (from previous `through` field)
+                        rule.start_date = start_date
+                        rule.end_date = end_date
+                elif "until" in field:
+                    _, hour, min = field.split(":")  # get hour and minutes
+
+                    # value is applied `until` a certain Time, but `ScheduleDay` is
+                    # applied `from` a certain Time. Also, Time is 0:23 Hours while IDF
+                    # is 1:24 Hours.
+                    until = Time(int(hour) - 1, int(min))  # to 0:23 Hours repr
+                    untils.append(until)
+
+                    # increment n
+                    n += 1
+                elif "interpolate" in field:
+                    # Set interpolate on all rules for this `for` field
+                    _, interpolate = field.split(":")
+                    for rule in rules:
+                        rule.schedule_day.interpolate = interpolate != "no"
+                else:
+                    begin = untils[n]  # index list of `until` times
+                    for rule in rules:
+                        # apply field value for each rules; try to replace the
+                        # placeholder value first, else add the value.
+                        try:
+                            rule.schedule_day.replace_value_by_time(begin, float(field))
+                        except ValueError:
+                            rule.schedule_day.add_value(float(field), begin)
+            default_day_schedule = schedule_rules[0].schedule_day
+            sch_ruleset = ScheduleRuleset(
+                default_day_schedule=default_day_schedule,
+                identifier=compact_sch[0],
+                schedule_type_limit=schedule_type,
+                schedule_rules=schedule_rules[1:]
+            )
+            ScheduleRuleset._apply_designdays_with_check(
+                sch_ruleset,
+                holiday_schedule,
+                summer_designday_schedule,
+                winter_designday_schedule)
             schedules.append(sch_ruleset)
         return schedules
 
