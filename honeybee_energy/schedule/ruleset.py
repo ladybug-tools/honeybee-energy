@@ -1084,46 +1084,42 @@ class ScheduleRuleset(object):
                     # Create a rule; all different `if` statements because we want to
                     # catch more than one case,
                     # eg. `For: Sunday Holidays AllOtherDays, !- Field 54`
-                    if "alldays" in field:
-                        rule = ScheduleRule(ScheduleDay("alldays", [0], [Time(0, 0)]))
-                        rule.apply_all = True
-                        rules.append(rule)
-                    if "weekdays" in field:
-                        rule = ScheduleRule(ScheduleDay("weekdays", [0], [Time(0, 0)]))
-                        rule.apply_weekday = True
-                        rules.append(rule)
-                    if "weekends" in field:
-                        rule = ScheduleRule(ScheduleDay("weekends", [0], [Time(0, 0)]))
-                        rule.apply_weekend = True
-                        rules.append(rule)
-                    if "sunday" in field:
-                        rule = ScheduleRule(ScheduleDay("sunday", [0], [Time(0, 0)]))
-                        rule.apply_sunday = True
-                        rules.append(rule)
-                    if "monday" in field:
-                        rule = ScheduleRule(ScheduleDay("monday", [0], [Time(0, 0)]))
-                        rule.apply_monday = True
-                        rules.append(rule)
-                    if "tuesday" in field:
-                        rule = ScheduleRule(ScheduleDay("tuesday", [0], [Time(0, 0)]))
-                        rule.apply_tuesday = True
-                        rules.append(rule)
-                    if "wednesday" in field:
-                        rule = ScheduleRule(ScheduleDay("wednesday", [0], [Time(0, 0)]))
-                        rule.apply_wednesday = True
-                        rules.append(rule)
-                    if "thursday" in field:
-                        rule = ScheduleRule(ScheduleDay("thursday", [0], [Time(0, 0)]))
-                        rule.apply_thursday = True
-                        rules.append(rule)
-                    if "friday" in field:
-                        rule = ScheduleRule(ScheduleDay("friday", [0], [Time(0, 0)]))
-                        rule.apply_friday = True
-                        rules.append(rule)
-                    if "saturday" in field:
-                        rule = ScheduleRule(ScheduleDay("saturday", [0], [Time(0, 0)]))
-                        rule.apply_saturday = True
-                        rules.append(rule)
+                    def create_rule_for(apply_to):
+                        """Return ScheduleRule with the `apply_to` rule set to True."""
+                        apply_to_attr_map = {
+                            "alldays": "apply_all",
+                            "weekdays": "apply_weekday",
+                            "weekends": "apply_weekday",
+                            "sunday": "apply_sunday",
+                            "monday": "apply_monday",
+                            "tuesday": "apply_tuesday",
+                            "wednesday": "apply_wednesday",
+                            "thursday": "apply_thursday",
+                            "friday": "apply_friday",
+                            "saturday": "apply_saturday",
+                        }
+                        rule = ScheduleRule(ScheduleDay(apply_to, [0], [Time(0, 0)]))
+                        setattr(rule, apply_to_attr_map[apply_to], True)
+                        return rule
+
+                    # Create rules for regular days
+                    for rule_name in [
+                        "alldays",
+                        "weekdays",
+                        "weekends",
+                        "sunday",
+                        "monday",
+                        "tuesday",
+                        "wednesday",
+                        "thursday",
+                        "friday",
+                        "saturday",
+                    ]:
+                        if rule_name in field:
+                            rule = create_rule_for(rule_name)
+                            rules.append(rule)
+
+                    # Create rules for holidays and designdays
                     if "holiday" in field:
                         rule = ScheduleRule(ScheduleDay("holiday", [0], [Time(0, 0)]))
                         holiday_schedule = rule.schedule_day
@@ -1145,7 +1141,7 @@ class ScheduleRuleset(object):
                         rules.append(rule)
 
                     for rule in rules:
-                        # for each rule in this `for` field, add rules to
+                        # for each created rule in this `for` field, add rules to
                         # ScheduleRuleset list of rules and set start_date and end_date.
                         if len(rule.days_applied) != 0:
                             schedule_rules.append(rule)
@@ -1172,7 +1168,7 @@ class ScheduleRuleset(object):
                 else:
                     begin = untils[n]  # index list of `until` times
                     for rule in rules:
-                        # apply field value for each rules; try to replace the
+                        # apply field value for each created rules; try to replace the
                         # placeholder value first, else add the value.
                         try:
                             rule.schedule_day.replace_value_by_time(begin, float(field))
