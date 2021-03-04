@@ -1089,7 +1089,7 @@ class ScheduleRuleset(object):
                         apply_to_attr_map = {
                             "alldays": "apply_all",
                             "weekdays": "apply_weekday",
-                            "weekends": "apply_weekday",
+                            "weekends": "apply_weekend",
                             "sunday": "apply_sunday",
                             "monday": "apply_monday",
                             "tuesday": "apply_tuesday",
