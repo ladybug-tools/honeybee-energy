@@ -961,13 +961,16 @@ class ScheduleRuleset(object):
             rule.unlock()
 
     @staticmethod
-    def extract_all_from_idf_file(idf_file):
+    def extract_all_from_idf_file(idf_file, import_compact=False):
         """Extract all ScheduleRuleset objects from an EnergyPlus IDF file.
 
         Args:
             idf_file: A path to an IDF file containing objects for Schedule:Year and
                 corresponding Schedule:Week and Schedule:Day objects. The Schedule:Year
                 will be used to assemble all of these into a ScheduleRuleset.
+            import_compact: Boolean to note whether to parse Schedule:Compact (True)
+                or not (False).
+                Default: False.
 
         Returns:
             schedules --
@@ -1005,8 +1008,15 @@ class ScheduleRuleset(object):
                                idf_string in constant_pattern.findall(file_contents))
         # extract all of the Schedule:Compact objects and convert to ScheduleRuleset
         conpact_pattern = re.compile(r"(?i)(Schedule:Compact,[\s\S]*?;)")
-        compact_props = tuple(parse_idf_string(idf_string) for
-                              idf_string in conpact_pattern.findall(file_contents))
+        compact_props = (
+            tuple(
+                parse_idf_string(idf_string)
+                for idf_string in conpact_pattern.findall(file_contents)
+            )
+            if import_compact  # only if user chooses so.
+            else []
+        )
+
         # compile all of the ScheduleRuleset objects from extracted properties
         schedules = []
         for year_sch in year_props:
