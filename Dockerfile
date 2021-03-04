@@ -1,24 +1,26 @@
-FROM python:3.7
+FROM python:3.7-slim
 
 LABEL maintainer="Ladybug Tools" email="info@ladybug.tools"
 
-# Create non-root user
-RUN adduser ladybugbot --uid 1000
-USER ladybugbot
-WORKDIR /home/ladybugbot
-RUN mkdir ladybug_tools && touch ladybug_tools/config.json
+ARG OPENSTUDIO_VERSION
+ARG OPENSTUDIO_FILENAME
 
-# Install Open Studio
-ENV OPENSTUDIO_VERSION=3.1.0
-ENV OPENSTUDIO_FILENAME=OpenStudio-3.1.0+e165090621-Linux
-ENV OPENSTUDIO_DOWNLOAD_URL=https://openstudio-ci-builds.s3-us-west-2.amazonaws.com/3.1.0/OpenStudio-3.1.0%2Be165090621-Linux.tar.gz
-RUN mkdir ladybug_tools/openstudio/ \
-    && curl -SL -o openstudio.tar.gz $OPENSTUDIO_DOWNLOAD_URL \
-    && tar zxvf openstudio.tar.gz \
-    && mv $OPENSTUDIO_FILENAME/usr/local/openstudio-$OPENSTUDIO_VERSION/EnergyPlus ladybug_tools/openstudio/EnergyPlus \
-    && mv $OPENSTUDIO_FILENAME/usr/local/openstudio-$OPENSTUDIO_VERSION/bin ladybug_tools/openstudio/bin \
-    && rm -r $OPENSTUDIO_FILENAME \
-    && rm openstudio.tar.gz
+ENV HOME_PATH='/home/ladybugbot'
+ENV LBT_PATH="${HOME_PATH}/ladybug_tools"
+ENV LOCAL_OPENSTUDIO_PATH="${LBT_PATH}/openstudio"
+
+# Create non-root user
+RUN adduser ladybugbot --uid 1000 --disabled-password --gecos ""
+USER ladybugbot
+WORKDIR ${HOME_PATH}
+RUN mkdir -p ${LOCAL_OPENSTUDIO_PATH} && touch ${LBT_PATH}/config.json
+
+# keep
+COPY ${OPENSTUDIO_FILENAME}/usr/local/openstudio-${OPENSTUDIO_VERSION}/EnergyPlus \
+    ${LOCAL_OPENSTUDIO_PATH}/EnergyPlus
+
+COPY ${OPENSTUDIO_FILENAME}/usr/local/openstudio-${OPENSTUDIO_VERSION}/bin \
+    ${LOCAL_OPENSTUDIO_PATH}/bin
 
 
 # Add honeybee-openstudio-gem lib to ladybug_tools folder
