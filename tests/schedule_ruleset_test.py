@@ -261,7 +261,7 @@ def test_schedule_ruleset_from_idf_file_compact():
     and Schedule:Compact.
     """
     office_sched_idf = './tests/idf/OfficeOccupancySchedule_Compact.idf'
-    office_scheds = ScheduleRuleset.extract_all_from_idf_file(office_sched_idf)
+    office_scheds = ScheduleRuleset.extract_all_from_idf_file(office_sched_idf, True)
 
     office_occ = office_scheds[0]
 
