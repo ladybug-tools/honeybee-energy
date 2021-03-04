@@ -1135,9 +1135,12 @@ class ScheduleRuleset(object):
                     if "allotherdays" in field:
                         rule = ScheduleRule(ScheduleDay("allotherdays", [0], [Time(0, 0)]))
                         apply_mtx = [rul.week_apply_tuple for rul in schedule_rules]
-                        for j, dow in enumerate(zip(*apply_mtx)):
-                            if not any(dow):
-                                rule.apply_day_by_dow(j + 1)
+                        if not apply_mtx:  # situation if allotherdays is the only rule.
+                            rule.apply_all = True
+                        else:
+                            for j, dow in enumerate(zip(*apply_mtx)):
+                                if not any(dow):
+                                    rule.apply_day_by_dow(j + 1)
                         rules.append(rule)
 
                     for rule in rules:
