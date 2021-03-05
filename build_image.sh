@@ -4,7 +4,7 @@ set -e
 error_help="Usage: $0 CONTAINER_NAME TAG [REMOVE_DOWNLOADS=false|true]"
 
 export CONTAINER_NAME="${1:?$error_help}"
-export NEXT_RELEASE_VERSION="${2:?$error_help}"
+export TAG="${2:?$error_help}"
 
 # Get OpenStudio
 
@@ -29,7 +29,7 @@ tar zxvf ${HONEYBEE_OPENSTUDIO_GEM_TAR}
 mv honeybee-openstudio-gem-*/ ${HONEYBEE_GEM_FILENAME}
 
 docker build . \
-  -t $CONTAINER_NAME:$NEXT_RELEASE_VERSION \
+  -t $CONTAINER_NAME:$TAG \
   --build-arg OPENSTUDIO_VERSION=${OPENSTUDIO_VERSION} \
   --build-arg OPENSTUDIO_FILENAME=${OPENSTUDIO_FILENAME} \
   --build-arg HONEYBEE_GEM_FILENAME=${HONEYBEE_GEM_FILENAME}
