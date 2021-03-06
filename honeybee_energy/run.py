@@ -209,7 +209,7 @@ def run_osw(osw_json, measures_only=True, silent=False):
     return _output_openstudio_files(directory)
 
 
-def prepare_idf_for_simulation(idf_file_path, epw_file_path):
+def prepare_idf_for_simulation(idf_file_path, epw_file_path=None):
     """Prepare an IDF file to be run through EnergyPlus.
 
     This includes checking that the EPW file and IDF file exist and renaming the
@@ -218,7 +218,9 @@ def prepare_idf_for_simulation(idf_file_path, epw_file_path):
 
     Args:
         idf_file_path: The full path to an IDF file.
-        epw_file_path: The full path to an EPW file.
+        epw_file_path: The full path to an EPW file. Note that inputting None here
+            is only appropriate when the simulation is just for design days and has
+            no weather file run period. (Default: None).
 
     Returns:
         directory -- The folder in which the IDF exists and out of which the EnergyPlus
@@ -232,8 +234,9 @@ def prepare_idf_for_simulation(idf_file_path, epw_file_path):
     # check the input files
     assert os.path.isfile(idf_file_path), \
         'No IDF file found at {}.'.format(idf_file_path)
-    assert os.path.isfile(epw_file_path), \
-        'No EPW file found at {}.'.format(epw_file_path)
+    if epw_file_path is not None:
+        assert os.path.isfile(epw_file_path), \
+            'No EPW file found at {}.'.format(epw_file_path)
 
     # rename the idf file to in.idf if it isn't named that already
     directory = os.path.split(idf_file_path)[0]
@@ -249,12 +252,14 @@ def prepare_idf_for_simulation(idf_file_path, epw_file_path):
     return directory
 
 
-def run_idf(idf_file_path, epw_file_path, expand_objects=True, silent=False):
+def run_idf(idf_file_path, epw_file_path=None, expand_objects=True, silent=False):
     """Run an IDF file through energyplus on any operating system.
 
     Args:
         idf_file_path: The full path to an IDF file.
-        epw_file_path: The full path to an EPW file.
+        epw_file_path: The full path to an EPW file. Note that inputting None here
+            is only appropriate when the simulation is just for design days and has
+            no weather file run period. (Default: None).
         expand_objects: If True, the IDF run will include the expansion of any
             HVAC Template objects in the file before beginning the simulation.
             This is a necessary step whenever there are HVAC Template objects in
@@ -468,14 +473,16 @@ def _output_openstudio_files(directory):
     return osm, idf
 
 
-def _run_idf_windows(idf_file_path, epw_file_path, expand_objects=True, silent=False):
+def _run_idf_windows(idf_file_path, epw_file_path=None, expand_objects=True, silent=False):
     """Run an IDF file through energyplus on a Windows-based operating system.
 
     A batch file will be used to run the simulation.
 
     Args:
         idf_file_path: The full path to an IDF file.
-        epw_file_path: The full path to an EPW file.
+        epw_file_path: The full path to an EPW file. Note that inputting None here
+            is only appropriate when the simulation is just for design days and has
+            no weather file run period. (Default: None).
         expand_objects: If True, the IDF run will include the expansion of any
             HVAC Template objects in the file before beginning the simulation.
             This is a necessary step whenever there are HVAC Template objects in
@@ -493,7 +500,8 @@ def _run_idf_windows(idf_file_path, epw_file_path, expand_objects=True, silent=F
 
     if not silent:  # run the simulations using a batch file
         # generate various arguments to pass to the energyplus command
-        epw_str = '-w "{}"'.format(os.path.abspath(epw_file_path))
+        epw_str = '-w "{}"'.format(os.path.abspath(epw_file_path)) \
+            if epw_file_path is not None else ''
         idd_str = '-i "{}"'.format(folders.energyplus_idd_path)
         expand_str = ' -x' if expand_objects else ''
         working_drive = directory[:2]
@@ -505,8 +513,10 @@ def _run_idf_windows(idf_file_path, epw_file_path, expand_objects=True, silent=F
         write_to_file(batch_file, batch, True)
         os.system('"{}"'.format(batch_file))  # run the batch file
     else:  # run the simulation using subprocess
-        cmds = [folders.energyplus_exe, '-w', os.path.abspath(epw_file_path),
-                '-i', folders.energyplus_idd_path]
+        cmds = [folders.energyplus_exe, '-i', folders.energyplus_idd_path]
+        if epw_file_path is not None:
+            cmds.append('-w')
+            cmds.append(os.path.abspath(epw_file_path))
         if expand_objects:
             cmds.append('-x')
         process = subprocess.Popen(cmds, cwd=directory, stdout=subprocess.PIPE, shell=True)
@@ -515,7 +525,7 @@ def _run_idf_windows(idf_file_path, epw_file_path, expand_objects=True, silent=F
     return directory
 
 
-def _run_idf_unix(idf_file_path, epw_file_path, expand_objects=True):
+def _run_idf_unix(idf_file_path, epw_file_path=None, expand_objects=True):
     """Run an IDF file through energyplus on a Unix-based operating system.
 
     This includes both Mac OS and Linux since a shell will be used to run
@@ -523,7 +533,9 @@ def _run_idf_unix(idf_file_path, epw_file_path, expand_objects=True):
 
     Args:
         idf_file_path: The full path to an IDF file.
-        epw_file_path: The full path to an EPW file.
+        epw_file_path: The full path to an EPW file. Note that inputting None here
+            is only appropriate when the simulation is just for design days and has
+            no weather file run period. (Default: None).
         expand_objects: If True, the IDF run will include the expansion of any
             HVAC Template objects in the file before beginning the simulation.
             This is a necessary step whenever there are HVAC Template objects in
@@ -537,7 +549,8 @@ def _run_idf_unix(idf_file_path, epw_file_path, expand_objects=True):
     directory = prepare_idf_for_simulation(idf_file_path, epw_file_path)
 
     # generate various arguments to pass to the energyplus command
-    epw_str = '-w "{}"'.format(os.path.abspath(epw_file_path))
+    epw_str = '-w "{}"'.format(os.path.abspath(epw_file_path))\
+        if epw_file_path is not None else ''
     idd_str = '-i "{}"'.format(folders.energyplus_idd_path)
     expand_str = ' -x' if expand_objects else ''
 
