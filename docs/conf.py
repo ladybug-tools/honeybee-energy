@@ -14,12 +14,14 @@
 #
 import os
 import sys
+import datetime
+now = datetime.datetime.now()
 sys.path.insert(0, os.path.abspath('..'))
 
 # -- Project information -----------------------------------------------------
 
 project = 'honeybee energy'
-copyright = '2020, Ladybug Tools'
+copyright = '{}, Ladybug Tools'.format(str(now.year))
 author = 'Ladybug Tools'
 
 # The full version, including alpha/beta/rc tags
@@ -232,25 +234,38 @@ In order to have separate html pages for each module inside library\\cli
 additional documentation reST files(.rst) need to be generated in docs\\cli folder.
 
 Note:
-    This process assumes that each cli module represent a group of subcommands.
+    This process assumes that each CLI module represent a group of subcommands.
+    Important: Use hash tables below to address special cases such as
+    command group names different from their module file name.
 """
 # Activate this CLI documentation process
 custom_cli_docs = True
+# Override existing reSt files found in docs//cli folder
+cli_overwrite = False
 
-# Repository-library hash table.
+# Repository/library hash table.
 # If respository not found in table, the module name will be extracted from the
 # modules.rst file in the project folder.
-# Format: {repository_name : library_name}
+# Format: {repository_name: library_name}
 ht_repo_lib = {}
 
-# Library-command hash table.
+# Library/command hash table.
 # Created to address CLI tool names that differ from their library name beyond
 # the underscore(_) to dash(-) difference.
-# Format: {library_name : tool_name}
+# Format: {library_name: tool_name}
 ht_lib_tool = {}
 
-# Define if existig reSt files found in docs//cli folder are overwritten.
-cli_overwrite = False
+# Cli_file/cli_group hash table.
+# Created to address CLI file names that differ from the included CLI group name
+# Format: {
+#    library_name_1: {CLI_filename_1: group_name_1,
+#                     CLI_filename_2: group_name_2
+#                    },
+#    library_name_2: {CLI_filename_3: group_name_3,
+#                     CLI_filename_4: group_name_4
+#                    }
+# }
+ht_cli_file_group = {}
 
 
 def create_cli_files():
@@ -346,8 +361,8 @@ def get_cli_data(project_folder):
                     if os.path.splitext(file)[1] == ".py"]
 
     # Remove files that aren't a cli module
-    if "__init__" in module_names:
-        module_names.remove("__init__")
+    discard_names = ["__init__", "util"]
+    module_names = [name for name in module_names if name not in discard_names]
 
     if not module_names:
         print("[CLI data]: No CLI modules detected in /cli folder.")
@@ -357,16 +372,16 @@ def get_cli_data(project_folder):
     return module_names, lib_name, tool_name
 
 
-def write_cli_files(click_groups, library, tool, doc_folder):
+def write_cli_files(group_filenames, lib_name, tool_name, doc_folder):
     """Writes a reST file with CLI directives for each click group provided.
 
     Args:
-        click_groups: A list containing the names of the CLI groups that rst
-            files wil be generated for.
-        library: The name of the library the click groups belong to. For
+        group_filenames: A list containing the names of the CLI files that
+            rst files will be generated for.
+        lib_name: The name of the library the click groups belong to. For
             example ``honeybee_energy``, ``dragonfly`` or ``honeybee_radiance``
             are possible library names.
-        tool: The command line tool name for the specified library. For
+        tool_name: The command line tool name for the specified library. For
             instance ``honeybee-energy`` is the CLI tool used for the
             honeybee_energy library.
         doc_folder: The path where the CLI documentation files will be saved.
@@ -374,32 +389,41 @@ def write_cli_files(click_groups, library, tool, doc_folder):
 
     # Creating missing CLI reST files
     print("[CLI files]: Creating ({}) CLI rst files: {}...".format(
-        len(click_groups), click_groups))
+        len(group_filenames), group_filenames))
+
+    # Retrieve valid group names where the file name and CLI group name don't
+    # match
+    group_names = list.copy(group_filenames)
+    if lib_name in ht_cli_file_group:
+        ht_file_group = ht_cli_file_group[lib_name]
+        group_names = [ht_file_group[
+            name] if name in ht_file_group else name for name in group_names]
 
     # Write sphinx-click directive with options for each CLI group
-    for group in click_groups:
-        cli_content = ["{}\n".format(group),
-                       "{}\n".format("=" * len(group)),
+    for file, group in zip(group_filenames, group_names):
+        cli_content = ["{}\n".format(file),
+                       "{}\n".format("=" * len(file)),
                        "\n",
-                       ".. click:: {0}.cli.{1}:{1}\n".format(library, group),
-                       "   :prog: {} {}\n".format(tool, group),
+                       ".. click:: {}.cli.{}:{}\n".format(
+                           lib_name, file, group),
+                       "   :prog: {} {}\n".format(tool_name, group),
                        "   :show-nested:\n"
                        ]
 
         # Create CLI group reST file
-        with open(os.path.join(doc_folder, group + ".rst"), 'w') as group_file:
+        with open(os.path.join(doc_folder, file + ".rst"), 'w') as group_file:
             group_file.writelines(cli_content)
 
     return True
 
 
-def update_cli_index(index_path, group_names):
+def update_cli_index(index_path, group_filenames):
     """Create or update the index.rst file inside the docs\\cli folder to include
     links to the click groups found.
 
     Args:
         index_path: index.rst file path to be updated or created from scratch.
-        group_names: Name of the click groups to include in the
+        group_filenames: Name of the click groups to include in the
             index \'Commands\' section.
     """
 
@@ -426,8 +450,8 @@ def update_cli_index(index_path, group_names):
                     ]
 
     # Add sub-command groups to content
-    for group in group_names:
-        cli_content.append("   {}\n".format(group))
+    for file in group_filenames:
+        cli_content.append("   {}\n".format(file))
 
     # Append section to file
     with open(index_path, 'w') as index_file:
