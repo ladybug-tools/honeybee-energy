@@ -53,6 +53,7 @@ for f in os.listdir(folders.programtype_lib):
 # then load honeybee extension data into a dictionary but don't make the objects yet
 _program_types_standards_dict = {}
 _program_types_standards_registry = {}
+_building_programs_dict = {}
 
 for ext_folder in folders.standards_extension_folders:
     _data_dir = os.path.join(ext_folder, 'programtypes')
@@ -72,3 +73,7 @@ for ext_folder in folders.standards_extension_folders:
                         _program_types_standards_registry[vintage] = json.load(f)
                 except FileNotFoundError:
                     pass
+    _bld_file = os.path.join(ext_folder, 'building_mix.json')
+    if os.path.isfile(_bld_file):
+        with open(_bld_file, 'r') as f:
+            _building_programs_dict.update(json.load(f))

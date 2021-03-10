@@ -85,7 +85,7 @@ class _LoadBase(object):
             weights = tuple_with_length(weights, len(load_objects), float,
                                         'average {} weights'.format(obj_name))
             total_weight = sum(weights)
-            assert total_weight <= 1 + 1e-9, 'Average {} weights must be less than ' \
+            assert total_weight <= 1 + 1e-3, 'Average {} weights must be less than ' \
                 'or equal to 1. Got {}.'.format(obj_name, sum(weights))
             unity_weights = [w / total_weight for w in weights]
 
