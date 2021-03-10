@@ -2,7 +2,7 @@
 from honeybee_energy.programtype import ProgramType
 
 from ._loadprogramtypes import _program_types, _program_types_standards_dict, \
-    _program_types_standards_registry
+    _program_types_standards_registry, _building_programs_dict
 import honeybee_energy.lib.schedules as _s
 
 
@@ -15,6 +15,7 @@ office_program = _program_types['Generic Office Program']
 PROGRAM_TYPES = tuple(_program_types.keys()) + \
     tuple(_program_types_standards_dict.keys())
 STANDARDS_REGISTRY = _program_types_standards_registry
+BUILDING_TYPES = tuple(_building_programs_dict.keys())
 
 
 def program_type_by_identifier(program_type_identifier):
@@ -33,6 +34,33 @@ def program_type_by_identifier(program_type_identifier):
         except KeyError:  # construction is nowhere to be found; raise an error
             raise ValueError('"{}" was not found in the program type library.'.format(
                 program_type_identifier))
+
+
+def building_program_type_by_identifier(building_type):
+    """Get a program_type representing the program mix of a building_type.
+
+    Args:
+        building_type: A text string for the type of building. This must appear
+            under the BUILDING_TYPES contant of this module.
+    """
+    program_id = '{} Building'.format(building_type)
+    try:
+        return _program_types[program_id]
+    except KeyError:
+        try:  # search the extension data
+            bld_mix_dict = _building_programs_dict[building_type]
+            progs, ratios = [], []
+            for key, val in bld_mix_dict.items():
+                progs.append(program_type_by_identifier(key))
+                ratios.append(val)
+            bld_program = ProgramType.average(program_id, progs, ratios)
+            bld_program.lock()
+            _program_types[program_id] = bld_program  # cache the object for next time
+            return bld_program
+        except KeyError:  # construction is nowhere to be found; raise an error
+            raise ValueError(
+                '"{}" was not found in the building types.\nChoose from:\n{}'.format(
+                    building_type, '\n'.join(BUILDING_TYPES)))
 
 
 def _scheds_from_ptype_dict(p_type_dict):

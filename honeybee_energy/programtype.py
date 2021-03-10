@@ -481,7 +481,7 @@ class ProgramType(object):
         else:
             weights = tuple_with_length(weights, len(program_types), float,
                                         'average ProgramType weights')
-        assert abs(sum(weights) - 1.0) <= 1e-9, 'Average ProgramType weights ' \
+        assert abs(sum(weights) - 1.0) <= 1e-3, 'Average ProgramType weights ' \
             'must be equal to 1. Got {}.'.format(sum(weights))
 
         # gather all of the load objects across all of the programs
