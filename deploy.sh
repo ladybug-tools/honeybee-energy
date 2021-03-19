@@ -8,21 +8,21 @@ else
   exit 1
 fi
 
-CONTAINER_NAME="ladybugtools/honeybee-energy"
 
 echo "PyPi Deployment..."
 echo "Building distribution"
 python setup.py sdist bdist_wheel
 echo "Pushing new version to PyPi"
-twine upload dist/* -u $PYPI_USERNAME -p $PYPI_PASSWORD 
-
+twine upload dist/* -u $PYPI_USERNAME -p $PYPI_PASSWORD
 
 echo "Docker Deployment..."
 echo "Login to Docker"
 echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+CONTAINER_NAME="ladybugtools/honeybee-energy"
 
-docker build . -t $CONTAINER_NAME:$NEXT_RELEASE_VERSION 
+./build_image.sh ${CONTAINER_NAME} ${NEXT_RELEASE_VERSION}
+
 docker tag $CONTAINER_NAME:$NEXT_RELEASE_VERSION $CONTAINER_NAME:latest
 
 docker push $CONTAINER_NAME:latest
-docker push $CONTAINER_NAME:$NEXT_RELEASE_VERSION 
+docker push $CONTAINER_NAME:$NEXT_RELEASE_VERSION
