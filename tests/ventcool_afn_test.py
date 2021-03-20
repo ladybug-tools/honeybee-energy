@@ -102,7 +102,7 @@ def test_afn_single_zone():
     room = model.rooms[0]
     faces = room.faces
 
-    # Test that no cracks to roofs/floors were added
+    # Test that no cracks to floors were added
     assert faces[0].properties.energy.vent_crack is None
 
     # Test that we have cracks in walls
@@ -127,24 +127,20 @@ def test_afn_single_zone():
     # Test flow coefficients and exponents
     for i in range(1, 6):
 
-        opening_area = 0
         # check openings
         if i == 1 or i == 3:
             if i == 1:
-                opening_area = faces[i].apertures[0].area
                 vface = faces[i].apertures[0]
             elif i == 3:
-                opening_area = faces[i].doors[0].area
                 vface = faces[i].doors[0]
             v = vface.properties.energy.vent_opening
-            chk_cq = qv * d / (dP ** n) * vface.area / vface.perimeter
-            cq = v.flow_coefficient_closed
-            n = v.flow_exponent_closed
-            assert chk_cq == pytest.approx(cq, abs=1e-10)
-            assert 0.65 == pytest.approx(n, abs=1e-10)
+            _cq = v.flow_coefficient_closed
+            _n = v.flow_exponent_closed
+            assert 1e-9 == pytest.approx(_cq, abs=1e-10)
+            assert 0.5 == pytest.approx(_n, abs=1e-10)
 
         # check opaque areas
-        chk_cq = qv * d / (dP ** n) * (faces[i].area - opening_area)
+        chk_cq = (qv * d) / (dP ** n) * faces[i].area
         cq = faces[i].properties.energy.vent_crack.flow_coefficient
         n = faces[i].properties.energy.vent_crack.flow_exponent
         assert chk_cq == pytest.approx(cq, abs=1e-10)
@@ -153,15 +149,59 @@ def test_afn_single_zone():
     # confirm that auto-calculated flow coefficients produce room.infiltration rate
     total_room_flow = 0
     for i in range(1, 6):
-        if i == 1 or i == 3:
-            if i == 1:
-                vface = faces[i].apertures[0]
-            elif i == 3:
-                vface = faces[i].doors[0]
-            v = vface.properties.energy.vent_opening
-            cq = v.flow_coefficient_closed * vface.perimeter
-            total_room_flow += cq * (dP ** v.flow_exponent_closed) / d
+        crack = faces[i].properties.energy.vent_crack
+        cq = crack.flow_coefficient
+        total_room_flow += cq * (dP ** crack.flow_exponent) / d
 
+    chk_infil = total_room_flow / room.exposed_area  # m3/s/m2
+    assert qv == pytest.approx(chk_infil, abs=1e-10)
+
+
+def test_afn_single_zone_delta_pressure():
+    """Test adding afn to single zone with custome delta pressure."""
+    zone_pts = Face3D(
+        [Point3D(0, 0), Point3D(20, 0), Point3D(20, 10), Point3D(0, 10)])
+    room = Room.from_polyface3d(
+        'SouthRoom', Polyface3D.from_offset_face(zone_pts, 3))
+
+    # Make model
+    room.properties.energy.program_type = prog_type_lib.office_program
+    model = Model('Single_Zone_Simple', [room])
+    afn.generate(model.rooms, delta_pressure=8)
+
+    # Check that walls have AFNCrack in face
+    room = model.rooms[0]
+    faces = room.faces
+
+    # Test that no cracks to floors were added
+    assert faces[0].properties.energy.vent_crack is None
+
+    # Test that we have cracks in walls
+    assert isinstance(faces[1].properties.energy.vent_crack, AFNCrack)
+    assert isinstance(faces[2].properties.energy.vent_crack, AFNCrack)
+    assert isinstance(faces[3].properties.energy.vent_crack, AFNCrack)
+    assert isinstance(faces[4].properties.energy.vent_crack, AFNCrack)
+    assert isinstance(faces[5].properties.energy.vent_crack, AFNCrack)
+
+    # Calculate parameters for checks
+    qv = room.properties.energy.infiltration.flow_per_exterior_area
+    n = 0.65
+    dP = 8
+    d = afn._air_density_from_pressure()
+
+    # Test flow coefficients and exponents
+    for i in range(1, 6):
+        print(faces[i])
+        # check opaque areas
+        chk_cq = (qv * d) / (dP ** n) * faces[i].area
+        cq = faces[i].properties.energy.vent_crack.flow_coefficient
+        n = faces[i].properties.energy.vent_crack.flow_exponent
+        assert chk_cq == pytest.approx(cq, abs=1e-10)
+        assert 0.65 == pytest.approx(n, abs=1e-10)
+
+    # confirm that auto-calculated flow coefficients produce room.infiltration rate
+    total_room_flow = 0
+    for i in range(1, 6):
         crack = faces[i].properties.energy.vent_crack
         cq = crack.flow_coefficient
         total_room_flow += cq * (dP ** crack.flow_exponent) / d
@@ -301,7 +341,8 @@ def test_compute_bounding_box_extents_simple():
     # South Room 1: 20 x 6 x 3
     szone1 = Face3D(
         [Point3D(-10, -3), Point3D(10, -3), Point3D(10, 3), Point3D(-10, 3)])
-    sroom1 = Room.from_polyface3d('SouthRoom1', Polyface3D.from_offset_face(szone1, 3))
+    sroom1 = Room.from_polyface3d(
+        'SouthRoom1', Polyface3D.from_offset_face(szone1, 3))
     theta = 90.0
     sroom1.rotate_xy(theta, Point3D(0, 0, 0))
     xx, yy, zz = bounding_box_extents([sroom1.geometry], math.radians(theta))
@@ -316,22 +357,26 @@ def test_compute_bounding_box_extents_complex():
     # South Room 1: 21 x 10.5 x 3
     szone1 = Face3D(
         [Point3D(0, 0), Point3D(21, 0), Point3D(21, 10.5), Point3D(0, 10.5)])
-    sroom1 = Room.from_polyface3d('SouthRoom1', Polyface3D.from_offset_face(szone1, 3))
+    sroom1 = Room.from_polyface3d(
+        'SouthRoom1', Polyface3D.from_offset_face(szone1, 3))
 
     # North Room 1: 21 x 10.5 x 3
     nzone1 = Face3D(
         [Point3D(0, 10.5), Point3D(21, 10.5), Point3D(21, 21), Point3D(0, 21)])
-    nroom1 = Room.from_polyface3d('NorthRoom1', Polyface3D.from_offset_face(nzone1, 3))
+    nroom1 = Room.from_polyface3d(
+        'NorthRoom1', Polyface3D.from_offset_face(nzone1, 3))
 
     # South Room 2: 21 x 10.5 x 3
     szone2 = Face3D(
         [Point3D(0, 0, 3), Point3D(21, 0, 3), Point3D(21, 10.5, 3), Point3D(0, 10.5, 3)])
-    sroom2 = Room.from_polyface3d('SouthRoom2', Polyface3D.from_offset_face(szone2, 3))
+    sroom2 = Room.from_polyface3d(
+        'SouthRoom2', Polyface3D.from_offset_face(szone2, 3))
 
     # North Room 2: 21 x 10.5 x 3
     nzone2 = Face3D(
         [Point3D(0, 10.5, 3), Point3D(21, 10.5, 3), Point3D(21, 21, 3), Point3D(0, 21, 3)])
-    nroom2 = Room.from_polyface3d('NorthRoom2', Polyface3D.from_offset_face(nzone2, 3))
+    nroom2 = Room.from_polyface3d(
+        'NorthRoom2', Polyface3D.from_offset_face(nzone2, 3))
 
     rooms = [sroom1, nroom1, sroom2, nroom2]
     model = Model('Four_Zone_Simple', rooms)
