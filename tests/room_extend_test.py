@@ -350,8 +350,8 @@ def test_solve_norm_area_flow_coefficient():
 def test_solve_norm_perimeter_flow_coefficient():
     """Test calculation of leakage parameters from infiltration for opening edges."""
 
-    L = 6  # 2 x 1 meter opening
-    A = 2  # m2
+    L = 6.0  # 2 x 1 meter opening
+    A = 2.0  # m2
     refn = 0.65
     rep = RoomEnergyProperties
     d = 1.204
