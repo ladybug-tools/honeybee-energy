@@ -601,7 +601,7 @@ class RoomEnergyProperties(object):
                 ap.properties.energy.vent_opening = None
 
     def exterior_afn_from_infiltration_load(self, exterior_face_groups,
-                                            air_density=1.2041):
+                                            air_density=1.2041, delta_pressure=4):
         """Assign AirflowNetwork parameters using the room's infiltration rate.
 
         This will assign air leakage parameters to the Room's exterior Faces that
@@ -634,6 +634,12 @@ class RoomEnergyProperties(object):
 
             air_density: Air density in kg/m3. (Default: 1.2041 represents
                 air density at a temperature of 20 C and 101325 Pa).
+            delta_pressure: Reference air pressure difference across the building
+                envelope orifice in Pascals used to calculate infiltration crack flow
+                coefficients. If attempting to replicate the room infiltration rate per
+                exterior area, this value should approximate the average positive
+                simulated pressure differences from the exterior to the interior.
+                Default 4 represents typical building pressures.
         """
         # simplify parameters
         ext_walls, ext_roofs, ext_floors, ext_apertures, ext_doors = exterior_face_groups
@@ -642,14 +648,14 @@ class RoomEnergyProperties(object):
         infil_flow = self.infiltration.flow_per_exterior_area
 
         # derive normalized flow coefficient
-        flow_cof_area = self.solve_norm_area_flow_coefficient(
-            infil_flow, air_density=air_density)
+        flow_cof_per_area = self.solve_norm_area_flow_coefficient(
+            infil_flow, air_density=air_density, delta_pressure=delta_pressure)
 
         # add exterior crack leakage components
         for ext_face in ext_faces:
-            opening_area = sum([aper.area for aper in ext_face.apertures])
-            opening_area += sum([door.area for door in ext_face.doors])
-            flow_cof = flow_cof_area * (ext_face.area - opening_area)
+            # Note: this calculation includes opening areas to be consistent with
+            # assumption behind the Infiltration Flow per Exterior Area measure.
+            flow_cof = flow_cof_per_area * ext_face.area
             ext_face.properties.energy.vent_crack = AFNCrack(flow_cof)
 
         # add exterior opening leakage components
@@ -658,11 +664,14 @@ class RoomEnergyProperties(object):
                 if isinstance(ext_opening, Aperture):
                     ext_opening.is_operable = True
                 ext_opening.properties.energy.vent_opening = \
-                    VentilationOpening(fraction_area_operable=0)
+                    VentilationOpening(fraction_area_operable=0.0)
             vent_opening = ext_opening.properties.energy.vent_opening
-            ext_flow_cof_perimeter = self.solve_norm_perimeter_flow_coefficient(
-                flow_cof_area, ext_opening.area, ext_opening.perimeter)
-            vent_opening.flow_coefficient_closed = ext_flow_cof_perimeter
+            # Note: can be calculated with solve_norm_perimeter_flow_coefficient
+            # but since openings are accounted for in area calculations set this to a be
+            # order of magnitude very small epsilon soley for purpose of AFN
+            # participation. For reference 1e-5, 0.7 ~ tight external window crack.
+            vent_opening.flow_coefficient_closed = 1e-9
+            vent_opening.flow_exponent_closed = 0.5
 
     def envelope_components_by_type(self):
         """Get groups for room envelope components by boundary condition and type.
@@ -727,8 +736,10 @@ class RoomEnergyProperties(object):
                 elif isinstance(face.type, AirBoundary):
                     int_air.append(face)
 
-        ext_faces = (ext_walls, ext_roofs, ext_floors, ext_apertures, ext_doors)
-        int_faces = (int_walls, int_floorceilings, int_apertures, int_doors, int_air)
+        ext_faces = (ext_walls, ext_roofs, ext_floors,
+                     ext_apertures, ext_doors)
+        int_faces = (int_walls, int_floorceilings,
+                     int_apertures, int_doors, int_air)
 
         return ext_faces, int_faces
 
@@ -1034,7 +1045,8 @@ class RoomEnergyProperties(object):
         AirflowNetwork requires an un-normalized value so this value needs to be
         multiplied by its corresponding exposed surface area. The normalized area air
         mass flow coefficient is derived from a zone's infiltration flow rate using the
-        following formula::
+        power law relationship between pressure and air flow described by the orifice
+        equation:
 
             Qva * d = Cqa * dP^n
 
@@ -1042,12 +1054,12 @@ class RoomEnergyProperties(object):
                 Cqa: Air mass flow coefficient per unit meter at 1 Pa [kg/m2/s/P^n]
                 Qva: Volumetric air flow rate per area [m3/s/m2]
                 d: Air density [kg/m3]
-                dP: Change in pressure across building envelope [Pa]
+                dP: Change in pressure across building envelope orifice [Pa]
                 n: Air mass flow exponent [-]
 
         Rearranged to solve for ``Cqa`` ::
 
-            Cqa = Qv * d / dP^n
+            Cqa = (Qva * d) / dP^n
 
         Args:
             flow_per_exterior_area: A numerical value for the intensity of infiltration
@@ -1056,8 +1068,8 @@ class RoomEnergyProperties(object):
                 air density at a temperature of 20 C and 101325 Pa).
             flow_exponent: A numerical value for the air mass flow exponent.
                 (Default: 0.65).
-            delta_pressure: Reference building air pressure in Pascals. (Default: 4).
-                represents typical building pressures.
+            delta_pressure: Reference air pressure difference across building envelope
+                orifice in Pascals. Default 4 represents typical building pressures.
 
         Returns:
             Air mass flow coefficient per unit meter at 1 Pa [kg/m2/s/P^n]
@@ -1066,7 +1078,8 @@ class RoomEnergyProperties(object):
         n = flow_exponent
         d = air_density
         dp = delta_pressure
-        return qva * d / (dp ** n)
+        # group similiar magnitude terms to preserve precision
+        return (qva * d) / (dp ** n)
 
     @staticmethod
     def solve_norm_perimeter_flow_coefficient(norm_area_flow_coefficient, face_area,
@@ -1084,22 +1097,23 @@ class RoomEnergyProperties(object):
         not normalized. The normalized perimeter air mass flow coefficient is derived
         from its infiltration flow rate using the following formula::
 
-            Qv * d * A = Cql * L * dP^n
+            Qva * d * A = Cql * L * dP^n
 
             where:
                 Cql: Air mass flow coefficient per unit length at 1 Pa [kg/m/s/P^n]
-                Qv: Volumetric air flow rate per length [m3/s/m]
+                Qva: Volumetric air flow rate per length [m3/s/m]
                 d: Air density [kg/m3]
                 A: Surface area of opening [m2]
                 L: Surface perimeter of opening [m]
                 dP: Change in pressure across building envelope [Pa]
                 n: Air mass flow exponent [-]
 
-        Since ``Qv * d / dP^n`` equals ``Cqa`` the normalized area flow coefficient,
+        Since ``(Qva * d) / dP^n`` equals ``Cqa`` the normalized area flow coefficient,
         this can be simplified and rearranged to solve for ``Cql`` with the following
-        formula::
-
-            Cql = Cqa * A / L
+        formula:
+            (Cqa * dP^n) * A = Cql * L * dP^n
+            Cql = ((Cqa * dP^n) * A) / (L * dP^n)
+                = Cqa * A / L
 
         Args:
             norm_area_flow_coefficient: Air mass flow coefficient per unit meter at
@@ -1113,7 +1127,8 @@ class RoomEnergyProperties(object):
         cqa = norm_area_flow_coefficient
         a = face_area
         ln = face_perimeter
-        return cqa * a / ln
+        # group similiar magnitude terms to preserve precision
+        return cqa * (a / ln)
 
     def _dup_load(self, load_name, load_class):
         """Duplicate a load object assigned to this Room or get a new one if none exists.

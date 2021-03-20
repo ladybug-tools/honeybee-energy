@@ -202,7 +202,7 @@ def _exterior_afn(exterior_face_groups, ext_cracks):
 
 
 def generate(rooms, leakage_type='Medium', use_room_infiltration=True,
-             atmospheric_pressure=101325):
+             atmospheric_pressure=101325, delta_pressure=4):
     """
     Mutate a list of Honeybee Room objects to represent an EnergyPlus AirflowNetwork.
 
@@ -252,6 +252,12 @@ def generate(rooms, leakage_type='Medium', use_room_infiltration=True,
             leakage_type.
         atmospheric_pressure: Optional number to define the atmospheric pressure
             measurement in Pascals used to calculate dry air density. (Default: 101325).
+        delta_pressure: Optional reference air pressure difference across the building
+            envelope orifice in Pascals, used to calculate infiltration crack flow
+            coefficients if use_room_infiltration is set to True. If attempting to
+            replicate the room infiltration rate per exterior area, this value should
+            approximate the average positive simulated pressure differences from the
+            exterior to the interior. Default 4 represents typical building pressures.
     """
     # simplify parameters
     if leakage_type == 'Excellent':
@@ -275,7 +281,8 @@ def generate(rooms, leakage_type='Medium', use_room_infiltration=True,
         # mutate surfaces with AFN flow parameters
         rho = _air_density_from_pressure(atmospheric_pressure)
         if use_room_infiltration and room.properties.energy.infiltration is not None:
-            room.properties.energy.exterior_afn_from_infiltration_load(ext_faces, rho)
+            room.properties.energy.exterior_afn_from_infiltration_load(
+                ext_faces, air_density=rho, delta_pressure=delta_pressure)
         else:
             _exterior_afn(ext_faces, ext_cracks)
         _interior_afn(int_faces, int_cracks, rho)
