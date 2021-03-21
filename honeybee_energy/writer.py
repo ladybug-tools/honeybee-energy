@@ -7,7 +7,6 @@ from honeybee.face import Face
 from honeybee.boundarycondition import Outdoors, Surface, Ground
 from honeybee.facetype import RoofCeiling, AirBoundary
 
-import os
 try:
     from itertools import izip as zip  # python 2
 except ImportError:
@@ -357,6 +356,10 @@ def room_to_idf(room):
     if room.properties.energy.is_conditioned:
         zone_str.append(room.properties.energy.setpoint.to_idf(room.identifier))
 
+    # write the daylighting control
+    if room.properties.energy.daylighting_control is not None:
+        zone_str.extend(room.properties.energy.daylighting_control.to_idf())
+
     return '\n\n'.join(zone_str)
 
 
@@ -524,11 +527,11 @@ def model_to_idf(model, schedule_directory=None):
             model_str.append(shade.to.idf(shade))
 
     # triangulate any apertures or doors with more than 4 vertices
-    tri_apertures, parents_to_edit = model.triangulated_apertures()
+    tri_apertures, _ = model.triangulated_apertures()
     for tri_aps in tri_apertures:
         for ap in tri_aps:
             model_str.append(ap.to.idf(ap))
-    tri_doors, parents_to_edit = model.triangulated_doors()
+    tri_doors, _ = model.triangulated_doors()
     for tri_drs in tri_doors:
         for dr in tri_drs:
             model_str.append(dr.to.idf(dr))

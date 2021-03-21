@@ -95,7 +95,8 @@ class _LoadBase(object):
     def _average_schedule(identifier, scheds, weights, timestep):
         """Average a set of schedules together (no matter their type)."""
         try:
-            return ScheduleRuleset.average_schedules(identifier, scheds, weights, timestep)
+            return ScheduleRuleset.average_schedules(
+                identifier, scheds, weights, timestep)
         except AttributeError:
             return ScheduleFixedInterval.average_schedules(identifier, scheds, weights)
 

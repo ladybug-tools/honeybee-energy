@@ -17,6 +17,7 @@ from honeybee_energy.ventcool.control import VentilationControl
 from honeybee_energy.simulation.parameter import SimulationParameter
 from honeybee_energy.measure import Measure
 
+from ladybug_geometry.geometry3d.pointvector import Vector3D
 from ladybug.dt import Date, Time
 from ladybug.futil import write_to_file
 from honeybee.model import Model
@@ -299,6 +300,53 @@ def test_run_idf_hot_water():
 
     # write the final string into an IDF
     idf = os.path.join(folders.default_simulation_folder, 'test_file_shw', 'in.idf')
+    write_to_file(idf, idf_str, True)
+
+    # prepare the IDF for simulation
+    epw_file = './tests/simulation/chicago.epw'
+    prepare_idf_for_simulation(idf, epw_file)
+
+    # run the IDF through EnergyPlus
+    sql, zsz, rdd, html, err = run_idf(idf, epw_file)
+
+    assert os.path.isfile(sql)
+    assert os.path.isfile(err)
+    err_obj = Err(err)
+    assert 'EnergyPlus Completed Successfully' in err_obj.file_contents
+
+
+def test_run_idf_daylight_control():
+    """Test Model.to.idf and run_idf with a model possessing daylight controls."""
+    room = Room.from_box('TinyHouseZone', 5, 10, 3)
+    room.properties.energy.program_type = office_program
+    room.properties.energy.add_default_ideal_air()
+    south_face = room[3]
+    south_face.apertures_by_ratio(0.4, 0.01)
+
+    room.properties.energy.add_daylight_control_to_center(0.8, 500, 0.5)
+    sens_pt = room.properties.energy.daylighting_control.sensor_position
+    assert sens_pt.x == pytest.approx(2.5, rel=1e-3)
+    assert sens_pt.y == pytest.approx(5, rel=1e-3)
+    assert sens_pt.z == pytest.approx(0.8, rel=1e-3)
+    room.move(Vector3D(5, 5, 0))
+    assert room.properties.energy.daylighting_control.sensor_position == \
+        sens_pt.move(Vector3D(5, 5, 0))
+
+    model = Model('TinyHouse', [room])
+
+    # Get the input SimulationParameter
+    sim_par = SimulationParameter()
+    sim_par.output.add_zone_energy_use()
+    ddy_file = './tests/ddy/chicago.ddy'
+    sim_par.sizing_parameter.add_from_ddy_996_004(ddy_file)
+    sim_par.run_period.end_date = Date(6, 7)
+    sim_par.run_period.start_date = Date(6, 1)
+
+    # create the IDF string for simulation paramters and model
+    idf_str = '\n\n'.join((sim_par.to_idf(), model.to.idf(model)))
+
+    # write the final string into an IDF
+    idf = os.path.join(folders.default_simulation_folder, 'test_file_daylight', 'in.idf')
     write_to_file(idf, idf_str, True)
 
     # prepare the IDF for simulation
