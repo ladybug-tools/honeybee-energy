@@ -2,6 +2,7 @@
 """Room Energy Properties."""
 # import honeybee-core and ladybug-geometry modules
 from ladybug_geometry.geometry2d.pointvector import Vector2D
+from ladybug_geometry.geometry3d.pointvector import Point3D
 from honeybee.boundarycondition import Outdoors, Surface
 from honeybee.facetype import Wall, RoofCeiling, Floor, AirBoundary
 from honeybee.aperture import Aperture
@@ -16,6 +17,7 @@ from ..load.hotwater import ServiceHotWater
 from ..load.infiltration import Infiltration
 from ..load.ventilation import Ventilation
 from ..load.setpoint import Setpoint
+from ..load.daylight import DaylightingControl
 from ..ventcool.control import VentilationControl
 from ..ventcool.crack import AFNCrack
 from ..ventcool.opening import VentilationOpening
@@ -68,7 +70,7 @@ class RoomEnergyProperties(object):
     __slots__ = ('_host', '_program_type', '_construction_set', '_hvac',
                  '_people', '_lighting', '_electric_equipment', '_gas_equipment',
                  '_service_hot_water', '_infiltration', '_ventilation', '_setpoint',
-                 '_window_vent_control')
+                 '_daylighting_control', '_window_vent_control')
 
     def __init__(self, host, program_type=None, construction_set=None, hvac=None):
         """Initialize Room energy properties."""
@@ -87,6 +89,7 @@ class RoomEnergyProperties(object):
         self._infiltration = None
         self._ventilation = None
         self._setpoint = None
+        self._daylighting_control = None
         self._window_vent_control = None
 
     @property
@@ -275,6 +278,23 @@ class RoomEnergyProperties(object):
                 'for Room setpoint. Got {}'.format(type(value))
             value.lock()   # lock because we don't duplicate the object
         self._setpoint = value
+
+    @property
+    def daylighting_control(self):
+        """Get or set a DaylightingControl object to dictate the dimming of lights.
+
+        If None, the lighting will respond only to the schedule and not the
+        daylight conditions within the room.
+        """
+        return self._daylighting_control
+
+    @daylighting_control.setter
+    def daylighting_control(self, value):
+        if value is not None:
+            assert isinstance(value, DaylightingControl), 'Expected DaylightingControl' \
+                ' object for Room daylighting_control. Got {}'.format(type(value))
+            value._parent = self.host
+        self._daylighting_control = value
 
     @property
     def window_vent_control(self):
@@ -505,6 +525,51 @@ class RoomEnergyProperties(object):
         hvac_id = '{} Ideal Loads Air System'.format(self.host.identifier)
         self.hvac = IdealAirSystem(hvac_id)
 
+    def add_daylight_control_to_center(
+            self, distance_from_floor, illuminance_setpoint=300, control_fraction=1,
+            min_power_input=0.3, min_light_output=0.2, off_at_minimum=False):
+        """Try to assign a DaylightingControl object to the center of the Room.
+
+        If the Room is too concave and the center point does not lie within the
+        Room volume, this method wil return None and no daylighting control will
+        be assigned.
+
+        Args:
+            distance_from_floor: A number for the distance that the daylight sensor
+                is from the floor. Typical values are around 0.8 meters.
+            illuminance_setpoint: A number for the illuminance setpoint in lux
+                beyond which electric lights are dimmed if there is sufficient
+                daylight. (Default: 300 lux).
+            control_fraction: A number between 0 and 1 that represents the fraction of
+                the Room lights that are dimmed when the illuminance at the sensor
+                position is at the specified illuminance. 1 indicates that all lights are
+                dim-able while 0 indicates that no lights are dim-able. Deeper rooms
+                should have lower control fractions to account for the face that the
+                lights in the back of the space do not dim in response to suitable
+                daylight at the front of the room. (Default: 1).
+            min_power_input: A number between 0 and 1 for the the lowest power the
+                lighting system can dim down to, expressed as a fraction of maximum
+                input power. (Default: 0.3).
+            min_light_output: A number between 0 and 1 the lowest lighting output the
+                lighting system can dim down to, expressed as a fraction of maximum
+                light output. (Default: 0.2).
+            off_at_minimum: Boolean to note whether lights should switch off completely
+                when they get to the minimum power input. (Default: False).
+
+        Returns:
+            A DaylightingControl object if the sensor was successfully assigned
+            to the center of the Room. Will be None if the zone was so concave
+            that a sensor would not be assigned.
+        """
+        cen_pt, min_pt = self.host.geometry.center, self.host.geometry.min
+        sensor_pt = Point3D(cen_pt.x, cen_pt.y, min_pt.z + distance_from_floor)
+        if self.host.geometry.is_point_inside(sensor_pt):
+            dl_control = DaylightingControl(
+                sensor_pt, illuminance_setpoint, control_fraction,
+                min_power_input, min_light_output, off_at_minimum)
+            self.daylighting_control = dl_control
+            return dl_control
+
     def assign_ventilation_opening(self, vent_opening):
         """Assign a VentilationOpening object to all operable Apertures on this Room.
 
@@ -667,6 +732,60 @@ class RoomEnergyProperties(object):
 
         return ext_faces, int_faces
 
+    def move(self, moving_vec):
+        """Move this object along a vector.
+
+        Args:
+            moving_vec: A ladybug_geometry Vector3D with the direction and distance
+                to move the object.
+        """
+        if self.daylighting_control is not None:
+            self.daylighting_control.move(moving_vec)
+
+    def rotate(self, angle, axis, origin):
+        """Rotate this object by a certain angle around an axis and origin.
+
+        Args:
+            angle: An angle for rotation in degrees.
+            axis: Rotation axis as a Vector3D.
+            origin: A ladybug_geometry Point3D for the origin around which the
+                object will be rotated.
+        """
+        if self.daylighting_control is not None:
+            self.daylighting_control.rotate(angle, axis, origin)
+
+    def rotate_xy(self, angle, origin):
+        """Rotate this object counterclockwise in the world XY plane by a certain angle.
+
+        Args:
+            angle: An angle in degrees.
+            origin: A ladybug_geometry Point3D for the origin around which the
+                object will be rotated.
+        """
+        if self.daylighting_control is not None:
+            self.daylighting_control.rotate_xy(angle, origin)
+
+    def reflect(self, plane):
+        """Reflect this object across a plane.
+
+        Args:
+            plane: A ladybug_geometry Plane across which the object will
+                be reflected.
+        """
+        if self.daylighting_control is not None:
+            self.daylighting_control.reflect(plane)
+
+    def scale(self, factor, origin=None):
+        """Scale this object by a factor from an origin point.
+
+        Args:
+            factor: A number representing how much the object should be scaled.
+            origin: A ladybug_geometry Point3D representing the origin from which
+                to scale. If None, it will be scaled from the World origin (0, 0, 0).
+        """
+        if self.daylighting_control is not None:
+            self.daylighting_control.scale(factor, origin)
+
     def reset_to_default(self):
         """Reset all of the properties assigned at the level of this Room to the default.
         """
@@ -681,6 +800,7 @@ class RoomEnergyProperties(object):
         self._infiltration = None
         self._ventilation = None
         self._setpoint = None
+        self._daylighting_control = None
         self._window_vent_control = None
 
     @classmethod
@@ -709,7 +829,8 @@ class RoomEnergyProperties(object):
             "service_hot_water": {},  # A ServiceHotWater dictionary
             "infiltration": {},  # A Infiltration dictionary
             "ventilation": {},  # A Ventilation dictionary
-            "setpoint": {}  # A Setpoint dictionary
+            "setpoint": {},  # A Setpoint dictionary
+            "daylighting_control": {},  # A DaylightingControl dictionary
             "window_vent_control": {}  # A VentilationControl dictionary
             }
         """
@@ -744,6 +865,9 @@ class RoomEnergyProperties(object):
             new_prop.ventilation = Ventilation.from_dict(data['ventilation'])
         if 'setpoint' in data and data['setpoint'] is not None:
             new_prop.setpoint = Setpoint.from_dict(data['setpoint'])
+        if 'daylighting_control' in data and data['daylighting_control'] is not None:
+            new_prop.daylighting_control = \
+                DaylightingControl.from_dict(data['daylighting_control'])
         if 'window_vent_control' in data and data['window_vent_control'] is not None:
             new_prop.window_vent_control = \
                 VentilationControl.from_dict(data['window_vent_control'])
@@ -814,6 +938,10 @@ class RoomEnergyProperties(object):
         if 'setpoint' in abridged_data and abridged_data['setpoint'] is not None:
             self.setpoint = Setpoint.from_dict_abridged(
                 abridged_data['setpoint'], schedules)
+        if 'daylighting_control' in abridged_data and \
+                abridged_data['daylighting_control'] is not None:
+            self.daylighting_control = DaylightingControl.from_dict(
+                abridged_data['daylighting_control'])
         if 'window_vent_control' in abridged_data and \
                 abridged_data['window_vent_control'] is not None:
             self.window_vent_control = VentilationControl.from_dict_abridged(
@@ -867,6 +995,8 @@ class RoomEnergyProperties(object):
             base['energy']['ventilation'] = self._ventilation.to_dict(abridged)
         if self._setpoint is not None:
             base['energy']['setpoint'] = self._setpoint.to_dict(abridged)
+        if self._daylighting_control is not None:
+            base['energy']['daylighting_control'] = self._daylighting_control.to_dict()
         if self._window_vent_control is not None:
             base['energy']['window_vent_control'] = \
                 self._window_vent_control.to_dict(abridged)
@@ -891,6 +1021,7 @@ class RoomEnergyProperties(object):
         new_room._infiltration = self._infiltration
         new_room._ventilation = self._ventilation
         new_room._setpoint = self._setpoint
+        new_room._daylighting_control = self._daylighting_control
         new_room._window_vent_control = self._window_vent_control
         return new_room
 
