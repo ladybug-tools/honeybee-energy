@@ -636,10 +636,23 @@ class RoomEnergyProperties(object):
                 air density at a temperature of 20 C and 101325 Pa).
             delta_pressure: Reference air pressure difference across the building
                 envelope orifice in Pascals used to calculate infiltration crack flow
-                coefficients. If attempting to replicate the room infiltration rate per
-                exterior area, this value should approximate the average positive
-                simulated pressure differences from the exterior to the interior.
-                Default 4 represents typical building pressures.
+                coefficients. The resulting average simulated air pressure difference
+                will roughly equal this delta_pressure times the nth root of the ratio
+                between the simulated and target room infiltration rates::
+
+                    dP_sim = (Q_sim / Q_target)^(1/n) * dP_ref
+
+                    where:
+                        dP: delta_pressure, the reference air pressure difference [Pa]
+                        dP_sim: Simulated air pressure difference [Pa]
+                        Q_sim: Simulated volumetric air flow rate per area [m3/s/m2]
+                        Q_target: Target volumetric air flow rate per area [m3/s/m2]
+                        n: Air mass flow exponent [-]
+
+                If attempting to replicate the room infiltration rate per exterior area,
+                delta_pressure should be set to an approximation of the simulated air
+                pressure difference described in the above formula. Default 4 represents
+                typical building pressures.
         """
         # simplify parameters
         ext_walls, ext_roofs, ext_floors, ext_apertures, ext_doors = exterior_face_groups
@@ -667,10 +680,11 @@ class RoomEnergyProperties(object):
                     VentilationOpening(fraction_area_operable=0.0)
             vent_opening = ext_opening.properties.energy.vent_opening
             # Note: can be calculated with solve_norm_perimeter_flow_coefficient
-            # but since openings are accounted for in area calculations set this to a be
-            # order of magnitude very small epsilon soley for purpose of AFN
-            # participation. For reference 1e-5, 0.7 ~ tight external window crack.
-            vent_opening.flow_coefficient_closed = 1e-9
+            # but it adds an additional degree of freedom when attempting to calculate
+            # reference delta pressure from simulated delta pressure and infiltration
+            # data. Setting to zero simplifies assumptions by constraining infiltration
+            # to just area-based method.
+            vent_opening.flow_coefficient_closed = 0.0
             vent_opening.flow_exponent_closed = 0.5
 
     def envelope_components_by_type(self):
@@ -1041,12 +1055,9 @@ class RoomEnergyProperties(object):
                                          air_density=1.2041, delta_pressure=4):
         """Get normalized mass flow coefficient [kg/(m2 s P^n)] from infiltration per area.
 
-        Note that this coefficient is normalized per unit area. The EnergyPlus
-        AirflowNetwork requires an un-normalized value so this value needs to be
-        multiplied by its corresponding exposed surface area. The normalized area air
-        mass flow coefficient is derived from a zone's infiltration flow rate using the
-        power law relationship between pressure and air flow described by the orifice
-        equation:
+        The normalized area air mass flow coefficient is derived from a zone's
+        infiltration flow rate using the power law relationship between pressure
+        and air flow::
 
             Qva * d = Cqa * dP^n
 
@@ -1060,6 +1071,13 @@ class RoomEnergyProperties(object):
         Rearranged to solve for ``Cqa`` ::
 
             Cqa = (Qva * d) / dP^n
+
+        The resulting value has units of kg/(m2-s-P^n) @ <delta_pressure> Pa, while the
+        EnergyPlus AirflowNetwork requires this value to be in kg/(s-Pa) @ 1 Pa. Thus
+        this value needs to be multiplied by its corresponding exposed surface area.
+        Since the actual ratio between mass infiltration and pressure difference (raised
+        by n) is constant, we assume solving for the flow coefficient at the
+        delta_pressure value is equivalent to solving it at the required 1 Pa.
 
         Args:
             flow_per_exterior_area: A numerical value for the intensity of infiltration
@@ -1091,11 +1109,8 @@ class RoomEnergyProperties(object):
         and one on each side. Since this value is derived from the infiltration flow
         rate per exterior area, which represents an average over many types of air
         leakage rates, this value is not intended to be representative of actual opening
-        edges flow coefficients. Note that, unlike the surface area flow_coefficient,
-        this coefficient is normalized per unit length, which is the required input unit
-        the EnergyPlus AirflowNetwork, whereas the flow coefficient for surface cracks is
-        not normalized. The normalized perimeter air mass flow coefficient is derived
-        from its infiltration flow rate using the following formula::
+        edges flow coefficients. The normalized perimeter air mass flow coefficient is
+        derived from its infiltration flow rate using the following formula::
 
             Qva * d * A = Cql * L * dP^n
 
@@ -1110,10 +1125,19 @@ class RoomEnergyProperties(object):
 
         Since ``(Qva * d) / dP^n`` equals ``Cqa`` the normalized area flow coefficient,
         this can be simplified and rearranged to solve for ``Cql`` with the following
-        formula:
+        formula::
+
             (Cqa * dP^n) * A = Cql * L * dP^n
             Cql = ((Cqa * dP^n) * A) / (L * dP^n)
                 = Cqa * A / L
+
+
+        The resulting value has units of kg/(m-s-P^n) @ <delta_pressure> Pa, while the
+        EnergyPlus AirflowNetwork requires this value to be in kg/(s-Pa) @ 1 Pa. Thus
+        unlike the surface area flow_coefficient, this coefficient is normalized per
+        unit length. Since the actual ratio between mass infiltration and pressure
+        difference (raised by n) is constant, we assume solving for the flow coefficient
+        at the delta_pressure value is equivalent to solving it at the required 1 Pa.
 
         Args:
             norm_area_flow_coefficient: Air mass flow coefficient per unit meter at
