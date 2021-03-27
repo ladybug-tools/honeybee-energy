@@ -136,7 +136,7 @@ def test_afn_single_zone():
             v = vface.properties.energy.vent_opening
             _cq = v.flow_coefficient_closed
             _n = v.flow_exponent_closed
-            assert 1e-9 == pytest.approx(_cq, abs=1e-10)
+            assert 0.0 == pytest.approx(_cq, abs=1e-10)
             assert 0.5 == pytest.approx(_n, abs=1e-10)
 
         # check opaque areas
@@ -191,7 +191,6 @@ def test_afn_single_zone_delta_pressure():
 
     # Test flow coefficients and exponents
     for i in range(1, 6):
-        print(faces[i])
         # check opaque areas
         chk_cq = (qv * d) / (dP ** n) * faces[i].area
         cq = faces[i].properties.energy.vent_crack.flow_coefficient

@@ -253,11 +253,12 @@ def generate(rooms, leakage_type='Medium', use_room_infiltration=True,
         atmospheric_pressure: Optional number to define the atmospheric pressure
             measurement in Pascals used to calculate dry air density. (Default: 101325).
         delta_pressure: Optional reference air pressure difference across the building
-            envelope orifice in Pascals, used to calculate infiltration crack flow
-            coefficients if use_room_infiltration is set to True. If attempting to
-            replicate the room infiltration rate per exterior area, this value should
-            approximate the average positive simulated pressure differences from the
-            exterior to the interior. Default 4 represents typical building pressures.
+            envelope orifice in Pascals. delta_pressure is used to calculate
+            infiltration crack flow coefficients if the use_room_infiltration argument
+            is True. See the exterior_afn_from_infiltration method in the
+            RoomEnergyProperties class for details on how to set this value if
+            attempting to replicate the room infiltration rate per exterior area.
+            Default 4 represents typical building pressures.
     """
     # simplify parameters
     if leakage_type == 'Excellent':
