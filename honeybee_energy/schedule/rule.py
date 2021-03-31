@@ -414,8 +414,8 @@ class ScheduleRule(object):
         .. code-block:: python
 
             {
-            "type": 'ScheduleRule'
-            "schedule_day": str, // ScheduleDay identifier
+            "type": 'ScheduleRuleAbridged',
+            "schedule_day": str,
             "apply_sunday": False,
             "apply_monday": True,
             "apply_tuesday": True,
