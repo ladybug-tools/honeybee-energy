@@ -37,6 +37,11 @@ def simulate():
               'measures in the workflow.', default=None, show_default=True,
               type=click.Path(exists=True, file_okay=True, dir_okay=False,
                               resolve_path=True))
+@click.option('--additional-string', '-as', help='An additional text string to get '
+              'appended to the IDF before simulation. The input should include '
+              'complete EnergyPlus objects as a single string following the IDF '
+              'format. This input can be used to include EnergyPlus objects that '
+              'are not currently supported by honeybee.', default=None, type=str)
 @click.option('--folder', '-f', help='Folder on this computer, into which the IDF '
               'and result files will be written. If None, the files will be output '
               'to the honeybee default simulation folder and placed in a project '
@@ -52,8 +57,8 @@ def simulate():
               'generated files (osw, osm, idf, sql, zsz, rdd, html, err) if successfully'
               ' created. By default the list will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
-def simulate_model(model_json, epw_file, sim_par_json, base_osw, folder,
-                   check_model, log_file):
+def simulate_model(model_json, epw_file, sim_par_json, base_osw, additional_string,
+                   folder, check_model, log_file):
     """Simulate a Model JSON file in EnergyPlus.
 
     \b
@@ -122,6 +127,10 @@ def simulate_model(model_json, epw_file, sim_par_json, base_osw, folder,
                 osm, idf = run_osw(osw)
                 # run the resulting idf through EnergyPlus
                 if idf is not None and os.path.isfile(idf):
+                    # process the additional string if specified
+                    if additional_string is not None and additional_string != '':
+                        with open(idf, "a") as idf_file:
+                            idf_file.write(additional_string)
                     gen_files.extend([osm, idf])
                     sql, eio, rdd, html, err = run_idf(idf, epw_file)
                     if err is not None and os.path.isfile(err):
