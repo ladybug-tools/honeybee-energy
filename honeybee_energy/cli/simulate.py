@@ -30,7 +30,7 @@ def simulate():
 @click.option('--sim-par-json', '-sp', help='Full path to a honeybee energy '
               'SimulationParameter JSON that describes all of the settings for '
               'the simulation.', default=None, show_default=True,
-              type=click.Path(exists=True, file_okay=True, dir_okay=False,
+              type=click.Path(exists=False, file_okay=True, dir_okay=False,
                               resolve_path=True))
 @click.option('--base-osw', '-osw', help='Full path to an OSW JSON be used as the '
               'base for the execution of the OpenStuduo CLI. This can be used to add '
@@ -95,7 +95,7 @@ def simulate_model(model_json, epw_file, sim_par_json, base_osw, additional_stri
                 json.dump(sim_par_dict, fp)
             return sp_json
 
-        if sim_par_json is None:  # generate some default simulation parameters
+        if sim_par_json is None or not os.path.isfile(sim_par_json):
             sim_par = SimulationParameter()
             sim_par.output.add_zone_energy_use()
             sim_par.output.add_hvac_energy_use()
