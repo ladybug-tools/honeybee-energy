@@ -1096,7 +1096,7 @@ class RoomEnergyProperties(object):
         n = flow_exponent
         d = air_density
         dp = delta_pressure
-        # group similiar magnitude terms to preserve precision
+        # group similar magnitude terms to preserve precision
         return (qva * d) / (dp ** n)
 
     @staticmethod
