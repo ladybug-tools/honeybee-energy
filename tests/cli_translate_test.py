@@ -6,8 +6,9 @@ import json
 from ladybug.analysisperiod import AnalysisPeriod
 from honeybee.model import Model
 
-from honeybee_energy.cli.translate import model_to_idf, model_from_gbxml, \
-    model_from_osm, model_from_idf, construction_from_idf, construction_to_idf, \
+from honeybee_energy.cli.translate import model_to_idf, model_to_gbxml, \
+    model_from_gbxml, model_from_osm, model_from_idf, \
+    construction_from_idf, construction_to_idf, \
     schedule_to_idf, schedule_from_idf, model_occ_schedules
 
 
@@ -21,6 +22,21 @@ def test_model_to_idf():
     output_hb_model = './tests/json/ShoeBox.idf'
     result = runner.invoke(
         model_to_idf, [input_hb_model, '--output-file', output_hb_model])
+    assert result.exit_code == 0
+    assert os.path.isfile(output_hb_model)
+    os.remove(output_hb_model)
+
+
+def test_model_to_gbxml():
+    runner = CliRunner()
+    input_hb_model = './tests/json/ShoeBox.json'
+
+    result = runner.invoke(model_to_gbxml, [input_hb_model])
+    assert result.exit_code == 0
+
+    output_hb_model = './tests/gbxml/ShoeBox.gbxml'
+    result = runner.invoke(
+        model_to_gbxml, [input_hb_model, '--output-file', output_hb_model])
     assert result.exit_code == 0
     assert os.path.isfile(output_hb_model)
     os.remove(output_hb_model)

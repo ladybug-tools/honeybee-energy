@@ -104,6 +104,47 @@ def measure_compatible_model_json(model_json_path, destination_directory=None):
     return os.path.abspath(dest_file_path)
 
 
+def to_gbxml_osw(model_path, output_path=None, osw_directory=None):
+    """Create a .osw to translate HBJSON to a gbXML file.
+
+    Args:
+        model_path: File path to Honeybee Model (HBJSON).
+        output_path: File path to where the gbXML will be written. If None, it
+            will be output right next to the input file and given the same name.
+        osw_directory: The directory into which the .osw should be written. If None,
+            it will be written into the a temp folder in the default simulation folder.
+    """
+    # create the dictionary with the OSW steps
+    osw_dict = {'steps': []}
+    model_measure_dict = {
+        'arguments': {
+            'model_json': model_path
+        },
+        'measure_dir_name': 'from_honeybee_model_to_gbxml'
+    }
+    if output_path is not None:
+        model_measure_dict['arguments']['output_file_path'] = output_path
+    osw_dict['steps'].append(model_measure_dict)
+
+    # add measure paths
+    osw_dict['measure_paths'] = []
+    if folders.honeybee_openstudio_gem_path:  # include honeybee-openstudio measure path
+        measure_dir = os.path.join(folders.honeybee_openstudio_gem_path, 'measures')
+        osw_dict['measure_paths'].append(measure_dir)
+
+    # write the dictionary to a workflow.osw
+    if osw_directory is None:
+        osw_directory = os.path.join(
+            hb_folders.default_simulation_folder, 'temp_translate')
+        if not os.path.isdir(osw_directory):
+            os.mkdir(osw_directory)
+    osw_json = os.path.join(osw_directory, 'translate_honeybee.osw')
+    with open(osw_json, 'w') as fp:
+        json.dump(osw_dict, fp, indent=4)
+
+    return os.path.abspath(osw_json)
+
+
 def to_openstudio_osw(osw_directory, model_json_path, sim_par_json_path=None,
                       additional_measures=None, base_osw=None, epw_file=None,
                       schedule_directory=None):

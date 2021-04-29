@@ -21,7 +21,7 @@ from honeybee_energy.construction.window import WindowConstruction
 from honeybee_energy.schedule.dictutil import dict_to_schedule
 from honeybee_energy.schedule.ruleset import ScheduleRuleset
 from honeybee_energy.run import measure_compatible_model_json, to_openstudio_osw, \
-    run_osw, from_gbxml_osw, from_osm_osw, from_idf_osw
+    to_gbxml_osw, run_osw, from_gbxml_osw, from_osm_osw, from_idf_osw
 from honeybee_energy.writer import energyplus_idf_version
 from honeybee_energy.config import folders
 
@@ -60,7 +60,7 @@ def model_to_osm(model_json, sim_par_json, folder, check_model, log_file):
 
     \b
     Args:
-        model_json: Full path to a Model JSON file.
+        model_json: Full path to a Honeybee Model JSON file (HBJSON).
     """
     try:
         # set the default folder if it's not specified
@@ -121,7 +121,7 @@ def model_to_idf(model_json, sim_par_json, additional_str, output_file):
 
     \b
     Args:
-        model_json: Full path to a Model JSON file.
+        model_json: Full path to a Honeybee Model JSON file (HBJSON).
     """
     try:
         # load simulation parameters or generate default ones
@@ -160,37 +160,46 @@ def model_to_idf(model_json, sim_par_json, additional_str, output_file):
         sys.exit(0)
 
 
-@translate.command('model-from-gbxml')
-@click.argument('gbxml-file', type=click.Path(
+@translate.command('model-to-gbxml')
+@click.argument('model-json', type=click.Path(
     exists=True, file_okay=True, dir_okay=False, resolve_path=True))
 @click.option('--osw-folder', '-osw', help='Folder on this computer, into which the '
               'working files will be written. If None, it will be written into the a '
               'temp folder in the default simulation folder.', default=None,
               type=click.Path(file_okay=False, dir_okay=True, resolve_path=True))
-@click.option('--output-file', '-f', help='Optional HBJSON file to output the string '
+@click.option('--check-model/--bypass-check', ' /-bc', help='Flag to note whether the '
+              'Model should be re-serialized to Python and checked before it is '
+              'translated to .osm. The check is not needed if the model-json was '
+              'expored directly from the honeybee-energy Python library.',
+              default=True, show_default=True)
+@click.option('--output-file', '-f', help='Optional gbXML file to output the string '
               'of the translation. By default it printed out to stdout', default='-',
               type=click.Path(file_okay=True, dir_okay=False, resolve_path=True))
-def model_from_gbxml(gbxml_file, osw_folder, output_file):
-    """Translate a gbXML to a Honeybee Model (HBJSON).
+def model_to_gbxml(model_json, osw_folder, check_model, output_file):
+    """Translate a Honeybee Model (HBJSON) to a gbXML file.
 
     \b
     Args:
-        gbxml_file: Path to a gbXML file.
+        model_json: Full path to a Honeybee Model JSON file (HBJSON).
     """
     try:
         # set the default folder if it's not specified
         out_path = None
-        if output_file.endswith('-'):
-            out_directory = os.path.join(
+        out_directory = os.path.join(
                 hb_folders.default_simulation_folder, 'temp_translate')
-            f_name = os.path.basename(gbxml_file).lower()
-            f_name = f_name.replace('.gbxml', '.hbjson').replace('.xml', '.hbjson')
+        if output_file.endswith('-'):
+            f_name = os.path.basename(model_json).lower()
+            f_name = f_name.replace('.hbjson', '.gbxml').replace('.json', '.gbxml')
             out_path = os.path.join(out_directory, f_name)
 
-        # Write the osw file and translate the model to HBJSON
+        # run the Model re-serialization and check if specified
+        if check_model:
+            model_json = measure_compatible_model_json(model_json, out_directory)
+
+        # Write the osw file and translate the model to gbXML
         out_f = out_path if output_file.endswith('-') else output_file
-        osw = from_gbxml_osw(gbxml_file, out_f, osw_folder)
-        _run_import_osw(osw, out_path)
+        osw = to_gbxml_osw(model_json, out_f, osw_folder)
+        _run_translation_osw(osw, out_path)
     except Exception as e:
         _logger.exception('Model translation failed.\n{}'.format(e))
         sys.exit(1)
@@ -227,7 +236,7 @@ def model_from_osm(osm_file, osw_folder, output_file):
         # Write the osw file and translate the model to HBJSON
         out_f = out_path if output_file.endswith('-') else output_file
         osw = from_osm_osw(osm_file, out_f, osw_folder)
-        _run_import_osw(osw, out_path)
+        _run_translation_osw(osw, out_path)
     except Exception as e:
         _logger.exception('Model translation failed.\n{}'.format(e))
         sys.exit(1)
@@ -264,7 +273,45 @@ def model_from_idf(idf_file, osw_folder, output_file):
         # Write the osw file and translate the model to HBJSON
         out_f = out_path if output_file.endswith('-') else output_file
         osw = from_idf_osw(idf_file, out_f, osw_folder)
-        _run_import_osw(osw, out_path)
+        _run_translation_osw(osw, out_path)
+    except Exception as e:
+        _logger.exception('Model translation failed.\n{}'.format(e))
+        sys.exit(1)
+    else:
+        sys.exit(0)
+
+
+@translate.command('model-from-gbxml')
+@click.argument('gbxml-file', type=click.Path(
+    exists=True, file_okay=True, dir_okay=False, resolve_path=True))
+@click.option('--osw-folder', '-osw', help='Folder on this computer, into which the '
+              'working files will be written. If None, it will be written into the a '
+              'temp folder in the default simulation folder.', default=None,
+              type=click.Path(file_okay=False, dir_okay=True, resolve_path=True))
+@click.option('--output-file', '-f', help='Optional HBJSON file to output the string '
+              'of the translation. By default it printed out to stdout', default='-',
+              type=click.Path(file_okay=True, dir_okay=False, resolve_path=True))
+def model_from_gbxml(gbxml_file, osw_folder, output_file):
+    """Translate a gbXML to a Honeybee Model (HBJSON).
+
+    \b
+    Args:
+        gbxml_file: Path to a gbXML file.
+    """
+    try:
+        # set the default folder if it's not specified
+        out_path = None
+        if output_file.endswith('-'):
+            out_directory = os.path.join(
+                hb_folders.default_simulation_folder, 'temp_translate')
+            f_name = os.path.basename(gbxml_file).lower()
+            f_name = f_name.replace('.gbxml', '.hbjson').replace('.xml', '.hbjson')
+            out_path = os.path.join(out_directory, f_name)
+
+        # Write the osw file and translate the model to HBJSON
+        out_f = out_path if output_file.endswith('-') else output_file
+        osw = from_gbxml_osw(gbxml_file, out_f, osw_folder)
+        _run_translation_osw(osw, out_path)
     except Exception as e:
         _logger.exception('Model translation failed.\n{}'.format(e))
         sys.exit(1)
@@ -517,11 +564,10 @@ def model_occ_schedules(model_json, threshold, period, output_file):
         sys.exit(0)
 
 
-def _run_import_osw(osw, out_path):
+def _run_translation_osw(osw, out_path):
     """Generic function used by all import methods that run OpenStudio CLI."""
     # run the measure to translate the model JSON to an openstudio measure
     osm, idf = run_osw(osw, silent=True)
-    # run the resulting idf through EnergyPlus
     if idf is not None and os.path.isfile(idf):
         if out_path is not None:  # load the JSON string to stdout
             with open(out_path) as json_file:
