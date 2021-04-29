@@ -121,38 +121,35 @@ def simulate_model(model_json, epw_file, sim_par_json, base_osw, additional_stri
                                 base_osw=base_osw, epw_file=epw_file)
 
         # run the measure to translate the model JSON to an openstudio measure
-        if osw is not None and os.path.isfile(osw):
-            gen_files = [osw]
-            if base_osw is None:  # separate the OS CLI run from the E+ run
-                osm, idf = run_osw(osw)
-                # run the resulting idf through EnergyPlus
-                if idf is not None and os.path.isfile(idf):
-                    # process the additional string if specified
-                    if additional_string is not None and additional_string != '':
-                        with open(idf, "a") as idf_file:
-                            idf_file.write(additional_string)
-                    gen_files.extend([osm, idf])
-                    sql, eio, rdd, html, err = run_idf(idf, epw_file)
-                    if err is not None and os.path.isfile(err):
-                        gen_files.extend([sql, eio, rdd, html, err])
-                    else:
-                        raise Exception('Running EnergyPlus failed.')
-                else:
-                    raise Exception('Running OpenStudio CLI failed.')
-            else:  # run the whole simulation with the OpenStudio CLI
-                osm, idf = run_osw(osw, measures_only=False)
-                if idf is not None and os.path.isfile(idf):
-                    gen_files.extend([osm, idf])
-                else:
-                    raise Exception('Running OpenStudio CLI failed.')
-                sql, eio, rdd, html, err = output_energyplus_files(os.path.dirname(idf))
-                if os.path.isfile(err):
+        gen_files = [osw]
+        if base_osw is None:  # separate the OS CLI run from the E+ run
+            osm, idf = run_osw(osw)
+            # run the resulting idf through EnergyPlus
+            if idf is not None and os.path.isfile(idf):
+                # process the additional string if specified
+                if additional_string is not None and additional_string != '':
+                    with open(idf, "a") as idf_file:
+                        idf_file.write(additional_string)
+                gen_files.extend([osm, idf])
+                sql, eio, rdd, html, err = run_idf(idf, epw_file)
+                if err is not None and os.path.isfile(err):
                     gen_files.extend([sql, eio, rdd, html, err])
                 else:
                     raise Exception('Running EnergyPlus failed.')
-            log_file.write(json.dumps(gen_files))
-        else:
-            raise Exception('Writing OSW file failed.')
+            else:
+                raise Exception('Running OpenStudio CLI failed.')
+        else:  # run the whole simulation with the OpenStudio CLI
+            osm, idf = run_osw(osw, measures_only=False)
+            if idf is not None and os.path.isfile(idf):
+                gen_files.extend([osm, idf])
+            else:
+                raise Exception('Running OpenStudio CLI failed.')
+            sql, eio, rdd, html, err = output_energyplus_files(os.path.dirname(idf))
+            if os.path.isfile(err):
+                gen_files.extend([sql, eio, rdd, html, err])
+            else:
+                raise Exception('Running EnergyPlus failed.')
+        log_file.write(json.dumps(gen_files))
     except Exception as e:
         _logger.exception('Model simulation failed.\n{}'.format(e))
         sys.exit(1)

@@ -9,8 +9,48 @@ import subprocess
 from .config import folders
 
 from honeybee.model import Model
+from honeybee.config import folders as hb_folders
 
 from ladybug.futil import write_to_file, preparedir
+
+
+def from_gbxml_osw(gbxml_path, model_path=None, osw_directory=None):
+    """Create a .osw to translate gbXML to a HBJSON file.
+
+    Args:
+        gbxml_path: File path to the gbXML to be translated to HBJSON.
+        model_path: File path to where the Model HBJSON will be written. If None, it
+            will be output right next to the input file and given the same name.
+        osw_directory: The directory into which the .osw should be written. If None,
+            it will be written into the a temp folder in the default simulation folder.
+    """
+    return _import_model_osw(gbxml_path, 'gbxml', model_path, osw_directory)
+
+
+def from_osm_osw(osm_path, model_path=None, osw_directory=None):
+    """Create a .osw to translate OSM to a HBJSON file.
+
+    Args:
+        osm_path: File path to the OSM to be translated to HBJSON.
+        model_path: File path to where the Model HBJSON will be written. If None, it
+            will be output right next to the input file and given the same name.
+        osw_directory: The directory into which the .osw should be written. If None,
+            it will be written into the a temp folder in the default simulation folder.
+    """
+    return _import_model_osw(osm_path, 'openstudio', model_path, osw_directory)
+
+
+def from_idf_osw(idf_path, model_path=None, osw_directory=None):
+    """Create a .osw to translate IDF to a HBJSON file.
+
+    Args:
+        osm_path: File path to the IDF to be translated to HBJSON.
+        model_path: File path to where the Model HBJSON will be written. If None, it
+            will be output right next to the input file and given the same name.
+        osw_directory: The directory into which the .osw should be written. If None,
+            it will be written into the a temp folder in the default simulation folder.
+    """
+    return _import_model_osw(idf_path, 'idf', model_path, osw_directory)
 
 
 def measure_compatible_model_json(model_json_path, destination_directory=None):
@@ -290,7 +330,8 @@ def run_idf(idf_file_path, epw_file_path=None, expand_objects=True, silent=False
     """
     # run the simulation
     if os.name == 'nt':  # we are on Windows
-        directory = _run_idf_windows(idf_file_path, epw_file_path, expand_objects, silent)
+        directory = _run_idf_windows(
+            idf_file_path, epw_file_path, expand_objects, silent)
     else:  # we are on Mac, Linux, or some other unix-based system
         directory = _run_idf_unix(idf_file_path, epw_file_path, expand_objects)
 
@@ -338,6 +379,46 @@ def output_energyplus_files(directory):
     err = err_file if os.path.isfile(err_file) else None
 
     return sql, zsz, rdd, html, err
+
+
+def _import_model_osw(model_path, extension, output_path=None, osw_directory=None):
+    """Base function used for OSW transating from various formats to HBJSON.
+
+    Args:
+        model_path: File path to the file to be translated to HBJSON.
+        extension: Name of the file type to be translated (eg. gbxml).
+        output_path: File path to where the Model HBJSON will be written.
+        osw_directory: The directory into which the .osw should be written.
+    """
+    # create the dictionary with the OSW steps
+    osw_dict = {'steps': []}
+    model_measure_dict = {
+        'arguments': {
+            '{}_model'.format(extension): model_path
+        },
+        'measure_dir_name': 'from_{}_model'.format(extension)
+    }
+    if output_path is not None:
+        model_measure_dict['arguments']['output_file_path'] = output_path
+    osw_dict['steps'].append(model_measure_dict)
+
+    # add measure paths
+    osw_dict['measure_paths'] = []
+    if folders.honeybee_openstudio_gem_path:  # include honeybee-openstudio measure path
+        measure_dir = os.path.join(folders.honeybee_openstudio_gem_path, 'measures')
+        osw_dict['measure_paths'].append(measure_dir)
+
+    # write the dictionary to a workflow.osw
+    if osw_directory is None:
+        osw_directory = os.path.join(
+            hb_folders.default_simulation_folder, 'temp_translate')
+        if not os.path.isdir(osw_directory):
+            os.mkdir(osw_directory)
+    osw_json = os.path.join(osw_directory, 'translate_{}.osw'.format(extension))
+    with open(osw_json, 'w') as fp:
+        json.dump(osw_dict, fp, indent=4)
+
+    return os.path.abspath(osw_json)
 
 
 def _check_osw(osw_json):
@@ -473,7 +554,8 @@ def _output_openstudio_files(directory):
     return osm, idf
 
 
-def _run_idf_windows(idf_file_path, epw_file_path=None, expand_objects=True, silent=False):
+def _run_idf_windows(idf_file_path, epw_file_path=None, expand_objects=True,
+                     silent=False):
     """Run an IDF file through energyplus on a Windows-based operating system.
 
     A batch file will be used to run the simulation.
@@ -519,7 +601,8 @@ def _run_idf_windows(idf_file_path, epw_file_path=None, expand_objects=True, sil
             cmds.append(os.path.abspath(epw_file_path))
         if expand_objects:
             cmds.append('-x')
-        process = subprocess.Popen(cmds, cwd=directory, stdout=subprocess.PIPE, shell=True)
+        process = subprocess.Popen(
+            cmds, cwd=directory, stdout=subprocess.PIPE, shell=True)
         process.communicate()  # prevents the script from running before command is done
 
     return directory
