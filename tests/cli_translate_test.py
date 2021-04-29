@@ -4,9 +4,11 @@ import os
 import json
 
 from ladybug.analysisperiod import AnalysisPeriod
+from honeybee.model import Model
 
-from honeybee_energy.cli.translate import model_to_idf, construction_from_idf, \
-    construction_to_idf, schedule_to_idf, schedule_from_idf, model_occ_schedules
+from honeybee_energy.cli.translate import model_to_idf, model_from_gbxml, \
+    model_from_osm, model_from_idf, construction_from_idf, construction_to_idf, \
+    schedule_to_idf, schedule_from_idf, model_occ_schedules
 
 
 def test_model_to_idf():
@@ -22,6 +24,39 @@ def test_model_to_idf():
     assert result.exit_code == 0
     assert os.path.isfile(output_hb_model)
     os.remove(output_hb_model)
+
+
+def test_model_from_gbxml():
+    runner = CliRunner()
+    input_gbxml_model = os.path.abspath('./tests/gbxml/SampleGBXMLfromRevit.xml')
+
+    result = runner.invoke(model_from_gbxml, [input_gbxml_model])
+    assert result.exit_code == 0
+    result_dict = json.loads(result.output)
+    model = Model.from_dict(result_dict)
+    assert isinstance(model, Model)
+
+
+def test_model_from_osm():
+    runner = CliRunner()
+    input_osm_model = os.path.abspath('./tests/osm/shoe_box.osm')
+
+    result = runner.invoke(model_from_osm, [input_osm_model])
+    assert result.exit_code == 0
+    result_dict = json.loads(result.output)
+    model = Model.from_dict(result_dict)
+    assert isinstance(model, Model)
+
+
+def test_model_from_idf():
+    runner = CliRunner()
+    input_idf_model = os.path.abspath('./tests/idf/test_shoe_box.idf')
+
+    result = runner.invoke(model_from_idf, [input_idf_model])
+    assert result.exit_code == 0
+    result_dict = json.loads(result.output)
+    model = Model.from_dict(result_dict)
+    assert isinstance(model, Model)
 
 
 def test_construction_to_from_idf():
