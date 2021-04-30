@@ -13,6 +13,7 @@ from honeybee_energy.load.equipment import ElectricEquipment
 from honeybee_energy.load.ventilation import Ventilation
 from honeybee_energy.schedule.day import ScheduleDay
 from honeybee_energy.schedule.ruleset import ScheduleRuleset
+from honeybee_energy.lib.materials import concrete_hw
 import honeybee_energy.lib.scheduletypelimits as schedule_types
 
 from honeybee_energy.lib.programtypes import office_program
@@ -192,6 +193,39 @@ def test_loads_absolute():
     room.properties.energy.abolute_infiltration_ach(1, 0.001)
     assert room.properties.energy.infiltration.flow_per_exterior_area == \
         pytest.approx(300. / (220. * 3600.), abs=1e-3)
+
+
+def test_make_plenum():
+    """Test the make_plenum method."""
+    room = Room.from_box('ShoeBox', 5, 10, 3)
+    room.properties.energy.program_type = office_program
+    room.properties.energy.add_default_ideal_air()
+
+    assert room.properties.energy.people is not None
+    assert room.properties.energy.infiltration is not None
+    assert room.properties.energy.is_conditioned
+
+    room.properties.energy.make_plenum()
+    assert room.properties.energy.people is None
+    assert room.properties.energy.infiltration is not None
+    assert not room.properties.energy.is_conditioned
+
+
+def test_make_ground():
+    """Test the make_ground method."""
+    room = Room.from_box('ShoeBox', 5, 10, 3)
+    room.properties.energy.program_type = office_program
+    room.properties.energy.add_default_ideal_air()
+
+    assert room.properties.energy.people is not None
+    assert room.properties.energy.infiltration is not None
+    assert room.properties.energy.is_conditioned
+
+    soil_constr = OpaqueConstruction('Conc_Pavement', [concrete_hw])
+    room.properties.energy.make_ground(soil_constr)
+    assert room.properties.energy.people is None
+    assert room.properties.energy.infiltration is None
+    assert not room.properties.energy.is_conditioned
 
 
 def test_duplicate():
