@@ -3,7 +3,7 @@
 # import honeybee-core and ladybug-geometry modules
 from ladybug_geometry.geometry2d.pointvector import Vector2D
 from ladybug_geometry.geometry3d.pointvector import Point3D
-from honeybee.boundarycondition import Outdoors, Surface
+from honeybee.boundarycondition import Outdoors, Surface, boundary_conditions
 from honeybee.facetype import Wall, RoofCeiling, Floor, AirBoundary
 from honeybee.aperture import Aperture
 
@@ -21,6 +21,7 @@ from ..load.daylight import DaylightingControl
 from ..ventcool.control import VentilationControl
 from ..ventcool.crack import AFNCrack
 from ..ventcool.opening import VentilationOpening
+from ..construction.opaque import OpaqueConstruction
 
 # import all hvac modules to ensure they are all re-serialize-able in Room.from_dict
 from ..hvac import HVAC_TYPES_DICT
@@ -811,6 +812,83 @@ class RoomEnergyProperties(object):
         if self.daylighting_control is not None:
             self.daylighting_control.scale(factor, origin)
 
+    def make_plenum(self, conditioned=False, remove_infiltration=False):
+        """Turn the host Room into a plenum with no internal loads.
+
+        This includes removing all people, lighting, equipment, hot water, and
+        mechanical ventilation. By
+        default, the heating/cooling system and setpoints will also be removed but they
+        can optionally be kept. Infiltration is kept by default but can optionally be
+        removed as well.
+
+        This is useful to appropriately assign properties for closets, underfloor spaces,
+        and drop ceilings.
+
+        Args:
+            conditioned: Boolean to indicate whether the plenum is conditioned with a
+                heating/cooling system. If True, the setpoints of the Room will also
+                be kept in addition to the heating/cooling system (Default: False).
+            remove_infiltration: Boolean to indicate whether infiltration should be
+                removed from the Rooms. (Default: False).
+        """
+        # remove or add the HVAC system as needed
+        if conditioned and not self.is_conditioned:
+            self.add_default_ideal_air()
+        elif not conditioned:
+            self.hvac = None
+
+        # remove the loads and reapply infiltration/setpoints as needed
+        infiltration = None if remove_infiltration else self.infiltration
+        setpt = self.setpoint if conditioned else None
+        self._program_type = None
+        self._people = None
+        self._lighting = None
+        self._electric_equipment = None
+        self._gas_equipment = None
+        self._service_hot_water = None
+        self._ventilation = None
+        self._infiltration = infiltration
+        self._setpoint = setpt
+
+    def make_ground(self, soil_construction):
+        """Change the properties of the host Room to reflect those of a ground surface.
+
+        This is particularly useful for setting up outdoor thermal comfort maps
+        to account for the surface temperature of the ground. Modeling the ground
+        as a room this way will ensure that shadows other objects cast upon it
+        are accounted for along with the storage of heat in the ground surface.
+
+        The turning of a Room into a ground entails:
+
+        * Setting all constructions to be indicative of a certain soil type.
+        * Setting all Faces except the roof to have a Ground boundary condition.
+        * Removing all loads and schedules assigned to the Room.
+
+        Args:
+            soil_construction: An OpaqueConstruction that reflects the soil type of
+                the ground. If a multi-layered construction is input, the multiple
+                layers will only be used for the roof Face of the Room and all other
+                Faces will get a construction with the inner-most layer assigned.
+        """
+        # process the input soil_construction
+        assert isinstance(soil_construction, OpaqueConstruction), 'Expected ' \
+            'OpaqueConstruction for soil_construction. Got {}.'.format(
+                type(soil_construction))
+        int_soil = soil_construction if len(soil_construction.materials) == 1 else \
+            OpaqueConstruction('{}_BelowGrade'.format(soil_construction.identifier),
+                               (soil_construction.materials[-1],))
+
+        # reset all of the properties of the room to reflect the ground
+        self.reset_to_default()
+        for face in self.host.faces:
+            face.remove_sub_faces()
+            if isinstance(face.type, RoofCeiling):
+                face.boundary_condition = boundary_conditions.outdoors
+                face.properties.energy.construction = soil_construction
+            else:
+                face.boundary_condition = boundary_conditions.ground
+                face.properties.energy.construction = int_soil
+
     def reset_to_default(self):
         """Reset all of the properties assigned at the level of this Room to the default.
         """
@@ -1151,7 +1229,7 @@ class RoomEnergyProperties(object):
         cqa = norm_area_flow_coefficient
         a = face_area
         ln = face_perimeter
-        # group similiar magnitude terms to preserve precision
+        # group similar magnitude terms to preserve precision
         return cqa * (a / ln)
 
     def _dup_load(self, load_name, load_class):
