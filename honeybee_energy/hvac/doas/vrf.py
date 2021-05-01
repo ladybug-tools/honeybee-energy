@@ -32,11 +32,19 @@ class VRFwithDOAS(_DOASBase):
             * DOAS_VRF
 
         sensible_heat_recovery: A number between 0 and 1 for the effectiveness
-            of sensible heat recovery within the system. If None, it will be
-            whatever is recommended for the given vintage (Default: None).
+            of sensible heat recovery within the system. (Default: 0).
         latent_heat_recovery: A number between 0 and 1 for the effectiveness
-            of latent heat recovery within the system. If None, it will be
-            whatever is recommended for the given vintage (Default: None).
+            of latent heat recovery within the system. (Default: 0).
+        demand_controlled_ventilation: Boolean to note whether demand controlled
+            ventilation should be used on the system, which will vary the amount
+            of ventilation air according to the occupancy schedule of the
+            Rooms. (Default: False).
+        doas_availability_schedule: An optional On/Off discrete schedule to set when
+            the dedicated outdoor air system (DOAS) shuts off. This will not only
+            prevent any outdoor air from flowing thorough the system but will also
+            shut off the fans, which can result in more energy savings when spaces
+            served by the DOAS are completely unoccupied. If None, the DOAS will be
+            always on. (Default: None).
 
     Properties:
         * identifier
@@ -45,6 +53,8 @@ class VRFwithDOAS(_DOASBase):
         * equipment_type
         * sensible_heat_recovery
         * latent_heat_recovery
+        * demand_controlled_ventilation
+        * doas_availability_schedule
         * schedules
     """
     __slots__ = ()

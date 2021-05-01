@@ -20,8 +20,8 @@ def test_fcu_with_doas_init():
     assert hvac_sys.identifier == 'Test System'
     assert hvac_sys.vintage == 'ASHRAE_2013'
     assert hvac_sys.equipment_type == 'DOAS_FCU_Chiller_Boiler'
-    assert hvac_sys.sensible_heat_recovery == autosize
-    assert hvac_sys.latent_heat_recovery == autosize
+    assert hvac_sys.sensible_heat_recovery == 0
+    assert hvac_sys.latent_heat_recovery == 0
 
     hvac_sys.vintage = 'ASHRAE_2010'
     hvac_sys.equipment_type = 'DOAS_FCU_DCW_DHW'
@@ -89,8 +89,8 @@ def test_vrf_with_doas_init():
     assert hvac_sys.identifier == 'Test System'
     assert hvac_sys.vintage == 'ASHRAE_2013'
     assert hvac_sys.equipment_type == 'DOAS_VRF'
-    assert hvac_sys.sensible_heat_recovery == autosize
-    assert hvac_sys.latent_heat_recovery == autosize
+    assert hvac_sys.sensible_heat_recovery == 0
+    assert hvac_sys.latent_heat_recovery == 0
 
     hvac_sys.vintage = 'ASHRAE_2010'
     with pytest.raises(ValueError):
@@ -138,8 +138,8 @@ def test_wshp_with_doas_init():
     assert hvac_sys.identifier == 'Test System'
     assert hvac_sys.vintage == 'ASHRAE_2013'
     assert hvac_sys.equipment_type == 'DOAS_WSHP_FluidCooler_Boiler'
-    assert hvac_sys.sensible_heat_recovery == autosize
-    assert hvac_sys.latent_heat_recovery == autosize
+    assert hvac_sys.sensible_heat_recovery == 0
+    assert hvac_sys.latent_heat_recovery == 0
 
     hvac_sys.vintage = 'ASHRAE_2010'
     hvac_sys.equipment_type = 'DOAS_WSHP_GSHP'

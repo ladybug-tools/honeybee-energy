@@ -22,9 +22,9 @@ def test_vav_init():
     assert hvac_sys.identifier == 'Test System'
     assert hvac_sys.vintage == 'ASHRAE_2013'
     assert hvac_sys.equipment_type == 'VAV_Chiller_Boiler'
-    assert hvac_sys.economizer_type == 'Inferred'
-    assert hvac_sys.sensible_heat_recovery == autosize
-    assert hvac_sys.latent_heat_recovery == autosize
+    assert hvac_sys.economizer_type == 'NoEconomizer'
+    assert hvac_sys.sensible_heat_recovery == 0
+    assert hvac_sys.latent_heat_recovery == 0
 
     hvac_sys.vintage = 'ASHRAE_2010'
     hvac_sys.equipment_type = 'VAV_DCW_DHW'
@@ -95,9 +95,9 @@ def test_pvav_init():
     assert hvac_sys.identifier == 'Test System'
     assert hvac_sys.vintage == 'ASHRAE_2013'
     assert hvac_sys.equipment_type == 'PVAV_Boiler'
-    assert hvac_sys.economizer_type == 'Inferred'
-    assert hvac_sys.sensible_heat_recovery == autosize
-    assert hvac_sys.latent_heat_recovery == autosize
+    assert hvac_sys.economizer_type == 'NoEconomizer'
+    assert hvac_sys.sensible_heat_recovery == 0
+    assert hvac_sys.latent_heat_recovery == 0
 
     hvac_sys.vintage = 'ASHRAE_2010'
     hvac_sys.equipment_type = 'PVAV_DHW'
@@ -168,9 +168,9 @@ def test_psz_init():
     assert hvac_sys.identifier == 'Test System'
     assert hvac_sys.vintage == 'ASHRAE_2013'
     assert hvac_sys.equipment_type == 'PSZAC_ElectricBaseboard'
-    assert hvac_sys.economizer_type == 'Inferred'
-    assert hvac_sys.sensible_heat_recovery == autosize
-    assert hvac_sys.latent_heat_recovery == autosize
+    assert hvac_sys.economizer_type == 'NoEconomizer'
+    assert hvac_sys.sensible_heat_recovery == 0
+    assert hvac_sys.latent_heat_recovery == 0
 
     hvac_sys.vintage = 'ASHRAE_2010'
     hvac_sys.equipment_type = 'PSZAC_DCW_DHW'
@@ -241,9 +241,9 @@ def test_ptac_init():
     assert hvac_sys.identifier == 'Test System'
     assert hvac_sys.vintage == 'ASHRAE_2013'
     assert hvac_sys.equipment_type == 'PTAC_ElectricBaseboard'
-    assert hvac_sys.economizer_type == 'Inferred'
-    assert hvac_sys.sensible_heat_recovery == autosize
-    assert hvac_sys.latent_heat_recovery == autosize
+    assert hvac_sys.economizer_type == 'NoEconomizer'
+    assert hvac_sys.sensible_heat_recovery == 0
+    assert hvac_sys.latent_heat_recovery == 0
 
     hvac_sys.vintage = 'ASHRAE_2010'
     hvac_sys.equipment_type = 'PTAC_DHW'
@@ -292,9 +292,9 @@ def test_furnace_init():
     assert hvac_sys.identifier == 'Test System'
     assert hvac_sys.vintage == 'ASHRAE_2013'
     assert hvac_sys.equipment_type == 'Furnace'
-    assert hvac_sys.economizer_type == 'Inferred'
-    assert hvac_sys.sensible_heat_recovery == autosize
-    assert hvac_sys.latent_heat_recovery == autosize
+    assert hvac_sys.economizer_type == 'NoEconomizer'
+    assert hvac_sys.sensible_heat_recovery == 0
+    assert hvac_sys.latent_heat_recovery == 0
 
     hvac_sys.vintage = 'ASHRAE_2010'
     with pytest.raises(ValueError):
