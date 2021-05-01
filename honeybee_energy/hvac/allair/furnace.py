@@ -32,14 +32,24 @@ class ForcedAirFurnace(_AllAirBase):
             * Furnace
 
         economizer_type: Text to indicate the type of air-side economizer used on
-            the system. If Inferred, the economizer will be set to whatever is
-            recommended for the given vintage. (Default: Inferred).
+            the system. (Default: NoEconomizer). Choose from the following.
+
+            * NoEconomizer
+            * DifferentialDryBulb
+            * DifferentialEnthalpy
+            * DifferentialDryBulbAndEnthalpy
+            * FixedDryBulb
+            * FixedEnthalpy
+            * ElectronicEnthalpy
+
         sensible_heat_recovery: A number between 0 and 1 for the effectiveness
-            of sensible heat recovery within the system. If None, it will be
-            whatever is recommended for the given vintage (Default: None).
+            of sensible heat recovery within the system. (Default: 0).
         latent_heat_recovery: A number between 0 and 1 for the effectiveness
-            of latent heat recovery within the system. If None, it will be
-            whatever is recommended for the given vintage (Default: None).
+            of latent heat recovery within the system. (Default: 0).
+        demand_controlled_ventilation: Boolean to note whether demand controlled
+            ventilation should be used on the system, which will vary the amount
+            of ventilation air according to the occupancy schedule of the
+            Rooms. (Default: False).
 
     Properties:
         * identifier
@@ -49,6 +59,7 @@ class ForcedAirFurnace(_AllAirBase):
         * economizer_type
         * sensible_heat_recovery
         * latent_heat_recovery
+        * demand_controlled_ventilation
         * schedules
 
     Note:

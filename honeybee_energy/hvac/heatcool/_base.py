@@ -1,12 +1,11 @@
 # coding=utf-8
 """Base class for all heating/cooling systems without any ventilation."""
 from __future__ import division
-
-from .._template import _TemplateSystem, _EnumerationBase
+import os
 
 from honeybee._lockable import lockable
 
-import os
+from .._template import _TemplateSystem, _EnumerationBase
 
 
 @lockable
