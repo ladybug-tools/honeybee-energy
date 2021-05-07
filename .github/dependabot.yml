@@ -1,0 +1,22 @@
+version: 2
+updates:
+- package-ecosystem: pip
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "11:00"
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: importlib-metadata
+    versions:
+    - 3.9.0
+  - dependency-name: honeybee-core
+    versions:
+    - 1.42.16
+  - dependency-name: coveralls
+    versions:
+    - 3.0.1
+  commit-message:
+    prefix: fix
+    prefix-development: chore
+    include: scope
