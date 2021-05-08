@@ -300,20 +300,13 @@ class WindowConstruction(_ConstructionBase):
             "type": 'WindowConstruction',
             "identifier": 'Generic Double Pane U-250 SHGC-035',
             "display_name": 'Double Pane Window',
-            "materials": []  # list of material objects
-            "layers": [],  # list of material identifiers (from outside to inside)
+            "materials": []  # list of material objects (from outside to inside)
             }
         """
         assert data['type'] == 'WindowConstruction', \
             'Expected WindowConstruction. Got {}.'.format(data['type'])
-        materials = {}
-        for mat in data['materials']:
-            materials[mat['identifier']] = dict_to_material(mat)
-        try:
-            mat_layers = [materials[mat_id] for mat_id in data['layers']]
-        except KeyError as e:
-            raise ValueError(
-                'Failed to find {} in window construction materials.'.format(e))
+        mat_layers = cls._old_schema_materials(data) if 'layers' in data else \
+            [dict_to_material(mat) for mat in data['materials']]
         new_obj = cls(data['identifier'], mat_layers)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
@@ -334,13 +327,14 @@ class WindowConstruction(_ConstructionBase):
             "type": 'WindowConstructionAbridged',
             "identifier": 'Generic Double Pane U-250 SHGC-035',
             "display_name": 'Double Pane Window',
-            "layers": [],  # list of material identifiers (from outside to inside)
+            "materials": [],  # list of material identifiers (from outside to inside)
             }
         """
         assert data['type'] == 'WindowConstructionAbridged', \
             'Expected WindowConstructionAbridged. Got {}.'.format(data['type'])
+        mat_key = 'layers' if 'layers' in data else 'materials'
         try:
-            mat_layers = [materials[mat_id] for mat_id in data['layers']]
+            mat_layers = [materials[mat_id] for mat_id in data[mat_key]]
         except KeyError as e:
             raise ValueError('Failed to find {} in materials.'.format(e))
         new_obj = cls(data['identifier'], mat_layers)
@@ -427,9 +421,8 @@ class WindowConstruction(_ConstructionBase):
         base = {'type': 'WindowConstruction'} if not \
             abridged else {'type': 'WindowConstructionAbridged'}
         base['identifier'] = self.identifier
-        base['layers'] = self.layers
-        if not abridged:
-            base['materials'] = [m.to_dict() for m in self.unique_materials]
+        base['materials'] = self.layers if abridged else \
+            [m.to_dict() for m in self.materials]
         if self._display_name is not None:
             base['display_name'] = self.display_name
         return base
@@ -553,6 +546,22 @@ class WindowConstruction(_ConstructionBase):
         avg_temp = ((temperatures[-1] + temperatures[-2]) / 2) + 273.15
         r_vals.append(1 / self.in_h(avg_temp, delta_t, height, angle, pressure))
         return r_vals
+
+    @staticmethod
+    def _old_schema_materials(data):
+        """Get material objects from an old schema definition of WindowConstruction.
+
+        The schema is from before May 2021 and this method should eventually be removed.
+        """
+        materials = {}
+        for mat in data['materials']:
+            materials[mat['identifier']] = dict_to_material(mat)
+        try:
+            mat_layers = [materials[mat_id] for mat_id in data['layers']]
+        except KeyError as e:
+            raise ValueError(
+                'Failed to find {} in window construction materials.'.format(e))
+        return mat_layers
 
     def __repr__(self):
         """Represent window energy construction."""

@@ -52,14 +52,14 @@
                 {
                     "type": "OpaqueConstructionAbridged",
                     "identifier": "Typical Overhead Door-R2",
-                    "layers": [
+                    "materials": [
                         "Typical Insulation-R2"
                     ]
                 },
                 {
                     "type": "WindowConstructionAbridged",
                     "identifier": "U 0.44 SHGC 0.26 Dbl Ref-B-H Clr 6mm/13mm Air",
-                    "layers": [
+                    "materials": [
                         "REF B CLEAR HI 6MM",
                         "AIR 13MM",
                         "CLEAR 6MM"
@@ -68,7 +68,7 @@
                 {
                     "type": "WindowConstructionAbridged",
                     "identifier": "U 0.48 SHGC 0.40 Dbl Ref-D Clr 6mm/13mm",
-                    "layers": [
+                    "materials": [
                         "REF D CLEAR 6MM",
                         "AIR 13MM",
                         "CLEAR 6MM"
@@ -77,7 +77,7 @@
                 {
                     "type": "OpaqueConstructionAbridged",
                     "identifier": "Typical Insulated Metal Door-R2",
-                    "layers": [
+                    "materials": [
                         "F08 Metal surface",
                         "Typical Insulation-R2"
                     ]
@@ -85,7 +85,7 @@
                 {
                     "type": "OpaqueConstructionAbridged",
                     "identifier": "Typical Insulated Basement Mass Wall-R8",
-                    "layers": [
+                    "materials": [
                         "Typical Insulation-R7",
                         "8 in. Concrete Block Basement Wall"
                     ]
@@ -93,7 +93,7 @@
                 {
                     "type": "OpaqueConstructionAbridged",
                     "identifier": "Typical IEAD Roof-R32",
-                    "layers": [
+                    "materials": [
                         "Roof Membrane",
                         "Typical Insulation-R31",
                         "Metal Roof Surface"
@@ -102,7 +102,7 @@
                 {
                     "type": "WindowConstructionAbridged",
                     "identifier": "Window_U_0.50_SHGC_0.40_Skylight_Frame_Width_0.430_in",
-                    "layers": [
+                    "materials": [
                         "Glass_2052_LayerAvg",
                         "Gap_1_W_0_0038",
                         "Glass_2027F_LayerAvg"
@@ -111,7 +111,7 @@
                 {
                     "type": "OpaqueConstructionAbridged",
                     "identifier": "Typical Insulated Steel Framed Exterior Wall-R19",
-                    "layers": [
+                    "materials": [
                         "25mm Stucco",
                         "5/8 in. Gypsum Board",
                         "Typical Insulation-R17",
@@ -121,7 +121,7 @@
                 {
                     "type": "OpaqueConstructionAbridged",
                     "identifier": "Typical Insulated Carpeted 8in Slab Floor-R5",
-                    "layers": [
+                    "materials": [
                         "Typical Insulation-R4",
                         "8 in. Normalweight Concrete Floor",
                         "Typical Carpet Pad"
@@ -130,7 +130,7 @@
                 {
                     "type": "OpaqueConstructionAbridged",
                     "identifier": "Typical Insulated Steel Framed Exterior Floor-R27",
-                    "layers": [
+                    "materials": [
                         "25mm Stucco",
                         "5/8 in. Gypsum Board",
                         "Typical Insulation-R24",
