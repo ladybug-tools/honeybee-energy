@@ -6,26 +6,7 @@
         "exterior_construction": {
             "type": "OpaqueConstruction",
             "identifier": "Generic Exterior Wall",
-            "layers": [
-                "Generic Brick",
-                "Generic LW Concrete",
-                "Generic 50mm Insulation",
-                "Generic Wall Air Gap",
-                "Generic Gypsum Board"
-            ],
             "materials": [
-                {
-                    "type": "EnergyMaterial",
-                    "identifier": "Generic 50mm Insulation",
-                    "roughness": "MediumRough",
-                    "thickness": 0.05,
-                    "conductivity": 0.03,
-                    "density": 43.0,
-                    "specific_heat": 1210.0,
-                    "thermal_absorptance": 0.9,
-                    "solar_absorptance": 0.7,
-                    "visible_absorptance": 0.7
-                },
                 {
                     "type": "EnergyMaterial",
                     "identifier": "Generic Brick",
@@ -40,18 +21,6 @@
                 },
                 {
                     "type": "EnergyMaterial",
-                    "identifier": "Generic Wall Air Gap",
-                    "roughness": "Smooth",
-                    "thickness": 0.1,
-                    "conductivity": 0.667,
-                    "density": 1.28,
-                    "specific_heat": 1000.0,
-                    "thermal_absorptance": 0.9,
-                    "solar_absorptance": 0.7,
-                    "visible_absorptance": 0.7
-                },
-                {
-                    "type": "EnergyMaterial",
                     "identifier": "Generic LW Concrete",
                     "roughness": "MediumRough",
                     "thickness": 0.1,
@@ -61,6 +30,30 @@
                     "thermal_absorptance": 0.9,
                     "solar_absorptance": 0.8,
                     "visible_absorptance": 0.8
+                },
+                {
+                    "type": "EnergyMaterial",
+                    "identifier": "Generic 50mm Insulation",
+                    "roughness": "MediumRough",
+                    "thickness": 0.05,
+                    "conductivity": 0.03,
+                    "density": 43.0,
+                    "specific_heat": 1210.0,
+                    "thermal_absorptance": 0.9,
+                    "solar_absorptance": 0.7,
+                    "visible_absorptance": 0.7
+                },
+                {
+                    "type": "EnergyMaterial",
+                    "identifier": "Generic Wall Air Gap",
+                    "roughness": "Smooth",
+                    "thickness": 0.1,
+                    "conductivity": 0.667,
+                    "density": 1.28,
+                    "specific_heat": 1000.0,
+                    "thermal_absorptance": 0.9,
+                    "solar_absorptance": 0.7,
+                    "visible_absorptance": 0.7
                 },
                 {
                     "type": "EnergyMaterial",
@@ -79,26 +72,7 @@
         "interior_construction": {
             "type": "OpaqueConstruction",
             "identifier": "Generic Exterior Wall",
-            "layers": [
-                "Generic Brick",
-                "Generic LW Concrete",
-                "Generic 50mm Insulation",
-                "Generic Wall Air Gap",
-                "Generic Gypsum Board"
-            ],
             "materials": [
-                {
-                    "type": "EnergyMaterial",
-                    "identifier": "Generic 50mm Insulation",
-                    "roughness": "MediumRough",
-                    "thickness": 0.05,
-                    "conductivity": 0.03,
-                    "density": 43.0,
-                    "specific_heat": 1210.0,
-                    "thermal_absorptance": 0.9,
-                    "solar_absorptance": 0.7,
-                    "visible_absorptance": 0.7
-                },
                 {
                     "type": "EnergyMaterial",
                     "identifier": "Generic Brick",
@@ -113,18 +87,6 @@
                 },
                 {
                     "type": "EnergyMaterial",
-                    "identifier": "Generic Wall Air Gap",
-                    "roughness": "Smooth",
-                    "thickness": 0.1,
-                    "conductivity": 0.667,
-                    "density": 1.28,
-                    "specific_heat": 1000.0,
-                    "thermal_absorptance": 0.9,
-                    "solar_absorptance": 0.7,
-                    "visible_absorptance": 0.7
-                },
-                {
-                    "type": "EnergyMaterial",
                     "identifier": "Generic LW Concrete",
                     "roughness": "MediumRough",
                     "thickness": 0.1,
@@ -134,6 +96,30 @@
                     "thermal_absorptance": 0.9,
                     "solar_absorptance": 0.8,
                     "visible_absorptance": 0.8
+                },
+                {
+                    "type": "EnergyMaterial",
+                    "identifier": "Generic 50mm Insulation",
+                    "roughness": "MediumRough",
+                    "thickness": 0.05,
+                    "conductivity": 0.03,
+                    "density": 43.0,
+                    "specific_heat": 1210.0,
+                    "thermal_absorptance": 0.9,
+                    "solar_absorptance": 0.7,
+                    "visible_absorptance": 0.7
+                },
+                {
+                    "type": "EnergyMaterial",
+                    "identifier": "Generic Wall Air Gap",
+                    "roughness": "Smooth",
+                    "thickness": 0.1,
+                    "conductivity": 0.667,
+                    "density": 1.28,
+                    "specific_heat": 1000.0,
+                    "thermal_absorptance": 0.9,
+                    "solar_absorptance": 0.7,
+                    "visible_absorptance": 0.7
                 },
                 {
                     "type": "EnergyMaterial",
@@ -152,26 +138,7 @@
         "ground_construction": {
             "type": "OpaqueConstruction",
             "identifier": "Generic Exterior Wall",
-            "layers": [
-                "Generic Brick",
-                "Generic LW Concrete",
-                "Generic 50mm Insulation",
-                "Generic Wall Air Gap",
-                "Generic Gypsum Board"
-            ],
             "materials": [
-                {
-                    "type": "EnergyMaterial",
-                    "identifier": "Generic 50mm Insulation",
-                    "roughness": "MediumRough",
-                    "thickness": 0.05,
-                    "conductivity": 0.03,
-                    "density": 43.0,
-                    "specific_heat": 1210.0,
-                    "thermal_absorptance": 0.9,
-                    "solar_absorptance": 0.7,
-                    "visible_absorptance": 0.7
-                },
                 {
                     "type": "EnergyMaterial",
                     "identifier": "Generic Brick",
@@ -186,18 +153,6 @@
                 },
                 {
                     "type": "EnergyMaterial",
-                    "identifier": "Generic Wall Air Gap",
-                    "roughness": "Smooth",
-                    "thickness": 0.1,
-                    "conductivity": 0.667,
-                    "density": 1.28,
-                    "specific_heat": 1000.0,
-                    "thermal_absorptance": 0.9,
-                    "solar_absorptance": 0.7,
-                    "visible_absorptance": 0.7
-                },
-                {
-                    "type": "EnergyMaterial",
                     "identifier": "Generic LW Concrete",
                     "roughness": "MediumRough",
                     "thickness": 0.1,
@@ -207,6 +162,30 @@
                     "thermal_absorptance": 0.9,
                     "solar_absorptance": 0.8,
                     "visible_absorptance": 0.8
+                },
+                {
+                    "type": "EnergyMaterial",
+                    "identifier": "Generic 50mm Insulation",
+                    "roughness": "MediumRough",
+                    "thickness": 0.05,
+                    "conductivity": 0.03,
+                    "density": 43.0,
+                    "specific_heat": 1210.0,
+                    "thermal_absorptance": 0.9,
+                    "solar_absorptance": 0.7,
+                    "visible_absorptance": 0.7
+                },
+                {
+                    "type": "EnergyMaterial",
+                    "identifier": "Generic Wall Air Gap",
+                    "roughness": "Smooth",
+                    "thickness": 0.1,
+                    "conductivity": 0.667,
+                    "density": 1.28,
+                    "specific_heat": 1000.0,
+                    "thermal_absorptance": 0.9,
+                    "solar_absorptance": 0.7,
+                    "visible_absorptance": 0.7
                 },
                 {
                     "type": "EnergyMaterial",
@@ -228,12 +207,6 @@
         "exterior_construction": {
             "type": "OpaqueConstruction",
             "identifier": "Generic Exposed Floor",
-            "layers": [
-                "Generic Painted Metal",
-                "Generic Ceiling Air Gap",
-                "Generic 50mm Insulation",
-                "Generic LW Concrete"
-            ],
             "materials": [
                 {
                     "type": "EnergyMaterial",
@@ -261,18 +234,6 @@
                 },
                 {
                     "type": "EnergyMaterial",
-                    "identifier": "Generic LW Concrete",
-                    "roughness": "MediumRough",
-                    "thickness": 0.1,
-                    "conductivity": 0.53,
-                    "density": 1280.0,
-                    "specific_heat": 840.0,
-                    "thermal_absorptance": 0.9,
-                    "solar_absorptance": 0.8,
-                    "visible_absorptance": 0.8
-                },
-                {
-                    "type": "EnergyMaterial",
                     "identifier": "Generic 50mm Insulation",
                     "roughness": "MediumRough",
                     "thickness": 0.05,
@@ -282,18 +243,24 @@
                     "thermal_absorptance": 0.9,
                     "solar_absorptance": 0.7,
                     "visible_absorptance": 0.7
+                },
+                {
+                    "type": "EnergyMaterial",
+                    "identifier": "Generic LW Concrete",
+                    "roughness": "MediumRough",
+                    "thickness": 0.1,
+                    "conductivity": 0.53,
+                    "density": 1280.0,
+                    "specific_heat": 840.0,
+                    "thermal_absorptance": 0.9,
+                    "solar_absorptance": 0.8,
+                    "visible_absorptance": 0.8
                 }
             ]
         },
         "interior_construction": {
             "type": "OpaqueConstruction",
             "identifier": "Generic Exposed Floor",
-            "layers": [
-                "Generic Painted Metal",
-                "Generic Ceiling Air Gap",
-                "Generic 50mm Insulation",
-                "Generic LW Concrete"
-            ],
             "materials": [
                 {
                     "type": "EnergyMaterial",
@@ -321,18 +288,6 @@
                 },
                 {
                     "type": "EnergyMaterial",
-                    "identifier": "Generic LW Concrete",
-                    "roughness": "MediumRough",
-                    "thickness": 0.1,
-                    "conductivity": 0.53,
-                    "density": 1280.0,
-                    "specific_heat": 840.0,
-                    "thermal_absorptance": 0.9,
-                    "solar_absorptance": 0.8,
-                    "visible_absorptance": 0.8
-                },
-                {
-                    "type": "EnergyMaterial",
                     "identifier": "Generic 50mm Insulation",
                     "roughness": "MediumRough",
                     "thickness": 0.05,
@@ -342,18 +297,24 @@
                     "thermal_absorptance": 0.9,
                     "solar_absorptance": 0.7,
                     "visible_absorptance": 0.7
+                },
+                {
+                    "type": "EnergyMaterial",
+                    "identifier": "Generic LW Concrete",
+                    "roughness": "MediumRough",
+                    "thickness": 0.1,
+                    "conductivity": 0.53,
+                    "density": 1280.0,
+                    "specific_heat": 840.0,
+                    "thermal_absorptance": 0.9,
+                    "solar_absorptance": 0.8,
+                    "visible_absorptance": 0.8
                 }
             ]
         },
         "ground_construction": {
             "type": "OpaqueConstruction",
             "identifier": "Generic Exposed Floor",
-            "layers": [
-                "Generic Painted Metal",
-                "Generic Ceiling Air Gap",
-                "Generic 50mm Insulation",
-                "Generic LW Concrete"
-            ],
             "materials": [
                 {
                     "type": "EnergyMaterial",
@@ -381,18 +342,6 @@
                 },
                 {
                     "type": "EnergyMaterial",
-                    "identifier": "Generic LW Concrete",
-                    "roughness": "MediumRough",
-                    "thickness": 0.1,
-                    "conductivity": 0.53,
-                    "density": 1280.0,
-                    "specific_heat": 840.0,
-                    "thermal_absorptance": 0.9,
-                    "solar_absorptance": 0.8,
-                    "visible_absorptance": 0.8
-                },
-                {
-                    "type": "EnergyMaterial",
                     "identifier": "Generic 50mm Insulation",
                     "roughness": "MediumRough",
                     "thickness": 0.05,
@@ -402,6 +351,18 @@
                     "thermal_absorptance": 0.9,
                     "solar_absorptance": 0.7,
                     "visible_absorptance": 0.7
+                },
+                {
+                    "type": "EnergyMaterial",
+                    "identifier": "Generic LW Concrete",
+                    "roughness": "MediumRough",
+                    "thickness": 0.1,
+                    "conductivity": 0.53,
+                    "density": 1280.0,
+                    "specific_heat": 840.0,
+                    "thermal_absorptance": 0.9,
+                    "solar_absorptance": 0.8,
+                    "visible_absorptance": 0.8
                 }
             ]
         }
@@ -411,13 +372,6 @@
         "exterior_construction": {
             "type": "OpaqueConstruction",
             "identifier": "Generic Roof",
-            "layers": [
-                "Generic Roof Membrane",
-                "Generic 50mm Insulation",
-                "Generic LW Concrete",
-                "Generic Ceiling Air Gap",
-                "Generic Acoustic Tile"
-            ],
             "materials": [
                 {
                     "type": "EnergyMaterial",
@@ -430,18 +384,6 @@
                     "thermal_absorptance": 0.9,
                     "solar_absorptance": 0.65,
                     "visible_absorptance": 0.65
-                },
-                {
-                    "type": "EnergyMaterial",
-                    "identifier": "Generic Ceiling Air Gap",
-                    "roughness": "Smooth",
-                    "thickness": 0.1,
-                    "conductivity": 0.556,
-                    "density": 1.28,
-                    "specific_heat": 1000.0,
-                    "thermal_absorptance": 0.9,
-                    "solar_absorptance": 0.7,
-                    "visible_absorptance": 0.7
                 },
                 {
                     "type": "EnergyMaterial",
@@ -466,6 +408,18 @@
                     "thermal_absorptance": 0.9,
                     "solar_absorptance": 0.8,
                     "visible_absorptance": 0.8
+                },
+                {
+                    "type": "EnergyMaterial",
+                    "identifier": "Generic Ceiling Air Gap",
+                    "roughness": "Smooth",
+                    "thickness": 0.1,
+                    "conductivity": 0.556,
+                    "density": 1.28,
+                    "specific_heat": 1000.0,
+                    "thermal_absorptance": 0.9,
+                    "solar_absorptance": 0.7,
+                    "visible_absorptance": 0.7
                 },
                 {
                     "type": "EnergyMaterial",
@@ -484,13 +438,6 @@
         "interior_construction": {
             "type": "OpaqueConstruction",
             "identifier": "Generic Roof",
-            "layers": [
-                "Generic Roof Membrane",
-                "Generic 50mm Insulation",
-                "Generic LW Concrete",
-                "Generic Ceiling Air Gap",
-                "Generic Acoustic Tile"
-            ],
             "materials": [
                 {
                     "type": "EnergyMaterial",
@@ -503,18 +450,6 @@
                     "thermal_absorptance": 0.9,
                     "solar_absorptance": 0.65,
                     "visible_absorptance": 0.65
-                },
-                {
-                    "type": "EnergyMaterial",
-                    "identifier": "Generic Ceiling Air Gap",
-                    "roughness": "Smooth",
-                    "thickness": 0.1,
-                    "conductivity": 0.556,
-                    "density": 1.28,
-                    "specific_heat": 1000.0,
-                    "thermal_absorptance": 0.9,
-                    "solar_absorptance": 0.7,
-                    "visible_absorptance": 0.7
                 },
                 {
                     "type": "EnergyMaterial",
@@ -539,6 +474,18 @@
                     "thermal_absorptance": 0.9,
                     "solar_absorptance": 0.8,
                     "visible_absorptance": 0.8
+                },
+                {
+                    "type": "EnergyMaterial",
+                    "identifier": "Generic Ceiling Air Gap",
+                    "roughness": "Smooth",
+                    "thickness": 0.1,
+                    "conductivity": 0.556,
+                    "density": 1.28,
+                    "specific_heat": 1000.0,
+                    "thermal_absorptance": 0.9,
+                    "solar_absorptance": 0.7,
+                    "visible_absorptance": 0.7
                 },
                 {
                     "type": "EnergyMaterial",
@@ -557,13 +504,6 @@
         "ground_construction": {
             "type": "OpaqueConstruction",
             "identifier": "Generic Roof",
-            "layers": [
-                "Generic Roof Membrane",
-                "Generic 50mm Insulation",
-                "Generic LW Concrete",
-                "Generic Ceiling Air Gap",
-                "Generic Acoustic Tile"
-            ],
             "materials": [
                 {
                     "type": "EnergyMaterial",
@@ -576,18 +516,6 @@
                     "thermal_absorptance": 0.9,
                     "solar_absorptance": 0.65,
                     "visible_absorptance": 0.65
-                },
-                {
-                    "type": "EnergyMaterial",
-                    "identifier": "Generic Ceiling Air Gap",
-                    "roughness": "Smooth",
-                    "thickness": 0.1,
-                    "conductivity": 0.556,
-                    "density": 1.28,
-                    "specific_heat": 1000.0,
-                    "thermal_absorptance": 0.9,
-                    "solar_absorptance": 0.7,
-                    "visible_absorptance": 0.7
                 },
                 {
                     "type": "EnergyMaterial",
@@ -612,6 +540,18 @@
                     "thermal_absorptance": 0.9,
                     "solar_absorptance": 0.8,
                     "visible_absorptance": 0.8
+                },
+                {
+                    "type": "EnergyMaterial",
+                    "identifier": "Generic Ceiling Air Gap",
+                    "roughness": "Smooth",
+                    "thickness": 0.1,
+                    "conductivity": 0.556,
+                    "density": 1.28,
+                    "specific_heat": 1000.0,
+                    "thermal_absorptance": 0.9,
+                    "solar_absorptance": 0.7,
+                    "visible_absorptance": 0.7
                 },
                 {
                     "type": "EnergyMaterial",
@@ -633,11 +573,6 @@
         "window_construction": {
             "type": "WindowConstruction",
             "identifier": "Generic Double Pane",
-            "layers": [
-                "Generic Low-e Glass",
-                "Generic Window Air Gap",
-                "Generic Clear Glass"
-            ],
             "materials": [
                 {
                     "type": "EnergyWindowMaterialGlazing",
@@ -684,9 +619,6 @@
         "interior_construction": {
             "type": "WindowConstruction",
             "identifier": "Generic Single Pane",
-            "layers": [
-                "Generic Clear Glass"
-            ],
             "materials": [
                 {
                     "type": "EnergyWindowMaterialGlazing",
@@ -710,11 +642,6 @@
         "skylight_construction": {
             "type": "WindowConstruction",
             "identifier": "Generic Double Pane",
-            "layers": [
-                "Generic Low-e Glass",
-                "Generic Window Air Gap",
-                "Generic Clear Glass"
-            ],
             "materials": [
                 {
                     "type": "EnergyWindowMaterialGlazing",
@@ -761,11 +688,6 @@
         "operable_construction": {
             "type": "WindowConstruction",
             "identifier": "Generic Double Pane",
-            "layers": [
-                "Generic Low-e Glass",
-                "Generic Window Air Gap",
-                "Generic Clear Glass"
-            ],
             "materials": [
                 {
                     "type": "EnergyWindowMaterialGlazing",
@@ -815,11 +737,6 @@
         "exterior_construction": {
             "type": "OpaqueConstruction",
             "identifier": "Generic Exterior Door",
-            "layers": [
-                "Generic Painted Metal",
-                "Generic 25mm Insulation",
-                "Generic Painted Metal"
-            ],
             "materials": [
                 {
                     "type": "EnergyMaterial",
@@ -844,15 +761,24 @@
                     "thermal_absorptance": 0.9,
                     "solar_absorptance": 0.7,
                     "visible_absorptance": 0.7
+                },
+                {
+                    "type": "EnergyMaterial",
+                    "identifier": "Generic Painted Metal",
+                    "roughness": "Smooth",
+                    "thickness": 0.0015,
+                    "conductivity": 45.0,
+                    "density": 7690.0,
+                    "specific_heat": 410.0,
+                    "thermal_absorptance": 0.9,
+                    "solar_absorptance": 0.5,
+                    "visible_absorptance": 0.5
                 }
             ]
         },
         "interior_construction": {
             "type": "OpaqueConstruction",
             "identifier": "Generic Interior Door",
-            "layers": [
-                "Generic 25mm Wood"
-            ],
             "materials": [
                 {
                     "type": "EnergyMaterial",
@@ -871,11 +797,6 @@
         "exterior_glass_construction": {
             "type": "WindowConstruction",
             "identifier": "Generic Double Pane",
-            "layers": [
-                "Generic Low-e Glass",
-                "Generic Window Air Gap",
-                "Generic Clear Glass"
-            ],
             "materials": [
                 {
                     "type": "EnergyWindowMaterialGlazing",
@@ -922,9 +843,6 @@
         "interior_glass_construction": {
             "type": "WindowConstruction",
             "identifier": "Generic Single Pane",
-            "layers": [
-                "Generic Clear Glass"
-            ],
             "materials": [
                 {
                     "type": "EnergyWindowMaterialGlazing",
@@ -948,11 +866,6 @@
         "overhead_construction": {
             "type": "OpaqueConstruction",
             "identifier": "Generic Exterior Door",
-            "layers": [
-                "Generic Painted Metal",
-                "Generic 25mm Insulation",
-                "Generic Painted Metal"
-            ],
             "materials": [
                 {
                     "type": "EnergyMaterial",
@@ -977,6 +890,18 @@
                     "thermal_absorptance": 0.9,
                     "solar_absorptance": 0.7,
                     "visible_absorptance": 0.7
+                },
+                {
+                    "type": "EnergyMaterial",
+                    "identifier": "Generic Painted Metal",
+                    "roughness": "Smooth",
+                    "thickness": 0.0015,
+                    "conductivity": 45.0,
+                    "density": 7690.0,
+                    "specific_heat": 410.0,
+                    "thermal_absorptance": 0.9,
+                    "solar_absorptance": 0.5,
+                    "visible_absorptance": 0.5
                 }
             ]
         }

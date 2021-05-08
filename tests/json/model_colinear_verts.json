@@ -52,7 +52,7 @@
           "type": "ShadeConstruction"
         },
         {
-          "layers": [
+          "materials": [
             "Generic Painted Metal",
             "Generic Ceiling Air Gap",
             "Generic 50mm Insulation",
@@ -62,7 +62,7 @@
           "type": "OpaqueConstructionAbridged"
         },
         {
-          "layers": [
+          "materials": [
             "Generic Roof Membrane",
             "Generic 50mm Insulation",
             "Generic LW Concrete",
@@ -73,7 +73,7 @@
           "type": "OpaqueConstructionAbridged"
         },
         {
-          "layers": [
+          "materials": [
             "Generic Painted Metal",
             "Generic 25mm Insulation",
             "Generic Painted Metal"
@@ -82,7 +82,7 @@
           "type": "OpaqueConstructionAbridged"
         },
         {
-          "layers": [
+          "materials": [
             "Generic 50mm Insulation",
             "Generic HW Concrete"
           ],
@@ -90,7 +90,7 @@
           "type": "OpaqueConstructionAbridged"
         },
         {
-          "layers": [
+          "materials": [
             "Generic 50mm Insulation",
             "Generic HW Concrete",
             "Generic Ceiling Air Gap",
@@ -100,7 +100,7 @@
           "type": "OpaqueConstructionAbridged"
         },
         {
-          "layers": [
+          "materials": [
             "Generic LW Concrete",
             "Generic Ceiling Air Gap",
             "Generic Acoustic Tile"
@@ -109,14 +109,14 @@
           "type": "OpaqueConstructionAbridged"
         },
         {
-          "layers": [
+          "materials": [
             "Generic Clear Glass"
           ],
           "identifier": "Generic Single Pane",
           "type": "WindowConstructionAbridged"
         },
         {
-          "layers": [
+          "materials": [
             "Generic Brick",
             "Generic LW Concrete",
             "Generic 50mm Insulation",
@@ -127,7 +127,7 @@
           "type": "OpaqueConstructionAbridged"
         },
         {
-          "layers": [
+          "materials": [
             "Generic Low-e Glass",
             "Generic Window Air Gap",
             "Generic Clear Glass"
@@ -136,7 +136,7 @@
           "type": "WindowConstructionAbridged"
         },
         {
-          "layers": [
+          "materials": [
             "Generic Gypsum Board",
             "Generic Wall Air Gap",
             "Generic Gypsum Board"
@@ -145,7 +145,7 @@
           "type": "OpaqueConstructionAbridged"
         },
         {
-          "layers": [
+          "materials": [
             "Generic Acoustic Tile",
             "Generic Ceiling Air Gap",
             "Generic LW Concrete"
@@ -160,7 +160,7 @@
           "type": "AirBoundaryConstructionAbridged"
         },
         {
-          "layers": [
+          "materials": [
             "Generic 50mm Insulation",
             "Generic HW Concrete",
             "Generic Wall Air Gap",
@@ -170,7 +170,7 @@
           "type": "OpaqueConstructionAbridged"
         },
         {
-          "layers": [
+          "materials": [
             "Generic 25mm Wood"
           ],
           "identifier": "Generic Interior Door",
