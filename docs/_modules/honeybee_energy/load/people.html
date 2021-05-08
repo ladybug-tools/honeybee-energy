@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>honeybee_energy.load.people &#8212; honeybee energy  documentation</title>
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../../../_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="../../../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../../../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../../../_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-inverse navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../../index.html">
+          honeybee energy</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli/index.html">CLI Docs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../cli/index.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../cli/index.html#commands">Commands</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../cli/main.html">main</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../cli/main.html#honeybee-energy">honeybee-energy</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/main.html#honeybee-energy-config">config</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../cli/settings.html">settings</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../cli/settings.html#honeybee-energy-settings">honeybee-energy settings</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/settings.html#honeybee-energy-settings-comfort-sim-par">comfort-sim-par</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/settings.html#honeybee-energy-settings-custom-sim-par">custom-sim-par</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/settings.html#honeybee-energy-settings-default-sim-par">default-sim-par</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/settings.html#honeybee-energy-settings-load-balance-sim-par">load-balance-sim-par</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/settings.html#honeybee-energy-settings-orientation-sim-pars">orientation-sim-pars</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/settings.html#honeybee-energy-settings-run-period">run-period</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/settings.html#honeybee-energy-settings-sizing-sim-par">sizing-sim-par</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../cli/simulate.html">simulate</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../cli/simulate.html#honeybee-energy-simulate">honeybee-energy simulate</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/simulate.html#honeybee-energy-simulate-idf">idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/simulate.html#honeybee-energy-simulate-model">model</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/simulate.html#honeybee-energy-simulate-osm">osm</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../cli/baseline.html">baseline</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../cli/baseline.html#honeybee-energy-baseline">honeybee-energy baseline</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/baseline.html#honeybee-energy-baseline-constructions-2004">constructions-2004</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/baseline.html#honeybee-energy-baseline-geometry-2004">geometry-2004</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/baseline.html#honeybee-energy-baseline-hvac-2004">hvac-2004</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/baseline.html#honeybee-energy-baseline-lighting-2004">lighting-2004</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/baseline.html#honeybee-energy-baseline-remove-ecms">remove-ecms</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../cli/edit.html">edit</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../cli/edit.html#honeybee-energy-edit">honeybee-energy edit</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/edit.html#honeybee-energy-edit-modifiers-from-constructions">modifiers-from-constructions</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../cli/validate.html">validate</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../cli/validate.html#honeybee-energy-validate">honeybee-energy validate</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/validate.html#honeybee-energy-validate-construction-set">construction-set</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/validate.html#honeybee-energy-validate-model-properties">model-properties</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/validate.html#honeybee-energy-validate-program-type">program-type</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/validate.html#honeybee-energy-validate-schedule">schedule</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/validate.html#honeybee-energy-validate-schedule-type-limit">schedule-type-limit</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/validate.html#honeybee-energy-validate-sim-par">sim-par</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../cli/result.html">result</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result">honeybee-energy result</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-all-available-info">all-available-info</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-available-results">available-results</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-available-results-info">available-results-info</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-available-run-period-info">available-run-period-info</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-component-sizes">component-sizes</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-data-by-output">data-by-output</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-data-by-outputs">data-by-outputs</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-energy-use-intensity">energy-use-intensity</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-load-balance">load-balance</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-output-csv">output-csv</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-output-csv-queryable">output-csv-queryable</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-tabular-data">tabular-data</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-tabular-metadata">tabular-metadata</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-zone-sizes">zone-sizes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../cli/lib.html">lib</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib">honeybee-energy lib</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-construction-set-by-id">construction-set-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-construction-sets">construction-sets</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-construction-sets-by-id">construction-sets-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-constructions-by-id">constructions-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-materials-by-id">materials-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-opaque-construction-by-id">opaque-construction-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-opaque-constructions">opaque-constructions</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-opaque-material-by-id">opaque-material-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-opaque-materials">opaque-materials</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-program-type-by-id">program-type-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-program-types">program-types</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-program-types-by-id">program-types-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-schedule-by-id">schedule-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-schedule-type-limit-by-id">schedule-type-limit-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-schedule-type-limits">schedule-type-limits</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-schedule-type-limits-by-id">schedule-type-limits-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-schedules">schedules</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-schedules-by-id">schedules-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-shade-construction-by-id">shade-construction-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-shade-constructions">shade-constructions</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-window-construction-by-id">window-construction-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-window-constructions">window-constructions</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-window-material-by-id">window-material-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-window-materials">window-materials</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../cli/translate.html">translate</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate">honeybee-energy translate</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate-constructions-from-idf">constructions-from-idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate-constructions-to-idf">constructions-to-idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate-model-from-gbxml">model-from-gbxml</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate-model-from-idf">model-from-idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate-model-from-osm">model-from-osm</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate-model-occ-schedules">model-occ-schedules</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate-model-to-gbxml">model-to-gbxml</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate-model-to-idf">model-to-idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate-model-to-osm">model-to-osm</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate-schedules-from-idf">schedules-from-idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate-schedules-to-idf">schedules-to-idf</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">honeybee_energy</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../honeybee_energy.html">honeybee_energy package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../honeybee_energy.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.cli.html">honeybee_energy.cli package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.cli.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.cli.data.html">honeybee_energy.cli.data package</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="../../../honeybee_energy.cli.data.html#module-honeybee_energy.cli.data">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.cli.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.cli.baseline.html">honeybee_energy.cli.baseline module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.cli.edit.html">honeybee_energy.cli.edit module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.cli.lib.html">honeybee_energy.cli.lib module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.cli.result.html">honeybee_energy.cli.result module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.cli.settings.html">honeybee_energy.cli.settings module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.cli.simulate.html">honeybee_energy.cli.simulate module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.cli.translate.html">honeybee_energy.cli.translate module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.cli.validate.html">honeybee_energy.cli.validate module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.cli.html#module-honeybee_energy.cli">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.construction.html">honeybee_energy.construction package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.construction.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.construction.air.html">honeybee_energy.construction.air module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.construction.dictutil.html">honeybee_energy.construction.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.construction.opaque.html">honeybee_energy.construction.opaque module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.construction.shade.html">honeybee_energy.construction.shade module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.construction.window.html">honeybee_energy.construction.window module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.construction.windowshade.html">honeybee_energy.construction.windowshade module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.construction.html#module-honeybee_energy.construction">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.hvac.html">honeybee_energy.hvac package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.hvac.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.hvac.allair.html">honeybee_energy.hvac.allair package</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="../../../honeybee_energy.hvac.allair.html#submodules">Submodules</a><ul>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.allair.furnace.html">honeybee_energy.hvac.allair.furnace module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.allair.psz.html">honeybee_energy.hvac.allair.psz module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.allair.ptac.html">honeybee_energy.hvac.allair.ptac module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.allair.pvav.html">honeybee_energy.hvac.allair.pvav module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.allair.vav.html">honeybee_energy.hvac.allair.vav module</a></li>
+</ul>
+</li>
+<li class="toctree-l7"><a class="reference internal" href="../../../honeybee_energy.hvac.allair.html#module-honeybee_energy.hvac.allair">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.hvac.doas.html">honeybee_energy.hvac.doas package</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="../../../honeybee_energy.hvac.doas.html#submodules">Submodules</a><ul>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.doas.fcu.html">honeybee_energy.hvac.doas.fcu module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.doas.vrf.html">honeybee_energy.hvac.doas.vrf module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.doas.wshp.html">honeybee_energy.hvac.doas.wshp module</a></li>
+</ul>
+</li>
+<li class="toctree-l7"><a class="reference internal" href="../../../honeybee_energy.hvac.doas.html#module-honeybee_energy.hvac.doas">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.hvac.heatcool.html">honeybee_energy.hvac.heatcool package</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="../../../honeybee_energy.hvac.heatcool.html#submodules">Submodules</a><ul>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.heatcool.baseboard.html">honeybee_energy.hvac.heatcool.baseboard module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.heatcool.evapcool.html">honeybee_energy.hvac.heatcool.evapcool module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.heatcool.fcu.html">honeybee_energy.hvac.heatcool.fcu module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.heatcool.gasunit.html">honeybee_energy.hvac.heatcool.gasunit module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.heatcool.residential.html">honeybee_energy.hvac.heatcool.residential module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.heatcool.vrf.html">honeybee_energy.hvac.heatcool.vrf module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.heatcool.windowac.html">honeybee_energy.hvac.heatcool.windowac module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.heatcool.wshp.html">honeybee_energy.hvac.heatcool.wshp module</a></li>
+</ul>
+</li>
+<li class="toctree-l7"><a class="reference internal" href="../../../honeybee_energy.hvac.heatcool.html#module-honeybee_energy.hvac.heatcool">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.hvac.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.hvac.idealair.html">honeybee_energy.hvac.idealair module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.hvac.html#module-honeybee_energy.hvac">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.lib.html">honeybee_energy.lib package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.lib.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.lib.constructions.html">honeybee_energy.lib.constructions module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.lib.constructionsets.html">honeybee_energy.lib.constructionsets module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.lib.materials.html">honeybee_energy.lib.materials module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.lib.programtypes.html">honeybee_energy.lib.programtypes module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.lib.schedules.html">honeybee_energy.lib.schedules module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.lib.scheduletypelimits.html">honeybee_energy.lib.scheduletypelimits module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.lib.html#module-honeybee_energy.lib">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.load.html">honeybee_energy.load package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.load.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.load.daylight.html">honeybee_energy.load.daylight module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.load.dictutil.html">honeybee_energy.load.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.load.equipment.html">honeybee_energy.load.equipment module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.load.hotwater.html">honeybee_energy.load.hotwater module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.load.infiltration.html">honeybee_energy.load.infiltration module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.load.lighting.html">honeybee_energy.load.lighting module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.load.people.html">honeybee_energy.load.people module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.load.setpoint.html">honeybee_energy.load.setpoint module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.load.ventilation.html">honeybee_energy.load.ventilation module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.load.html#module-honeybee_energy.load">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.material.html">honeybee_energy.material package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.material.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.material.dictutil.html">honeybee_energy.material.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.material.gas.html">honeybee_energy.material.gas module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.material.glazing.html">honeybee_energy.material.glazing module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.material.opaque.html">honeybee_energy.material.opaque module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.material.shade.html">honeybee_energy.material.shade module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.material.html#module-honeybee_energy.material">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.properties.html">honeybee_energy.properties package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.properties.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.properties.aperture.html">honeybee_energy.properties.aperture module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.properties.door.html">honeybee_energy.properties.door module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.properties.face.html">honeybee_energy.properties.face module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.properties.model.html">honeybee_energy.properties.model module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.properties.room.html">honeybee_energy.properties.room module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.properties.shade.html">honeybee_energy.properties.shade module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.properties.html#module-honeybee_energy.properties">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.result.html">honeybee_energy.result package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.result.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.result.colorobj.html">honeybee_energy.result.colorobj module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.result.err.html">honeybee_energy.result.err module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.result.loadbalance.html">honeybee_energy.result.loadbalance module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.result.match.html">honeybee_energy.result.match module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.result.osw.html">honeybee_energy.result.osw module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.result.rdd.html">honeybee_energy.result.rdd module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.result.zsz.html">honeybee_energy.result.zsz module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.result.html#module-honeybee_energy.result">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.schedule.html">honeybee_energy.schedule package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.schedule.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.schedule.day.html">honeybee_energy.schedule.day module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.schedule.dictutil.html">honeybee_energy.schedule.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.schedule.fixedinterval.html">honeybee_energy.schedule.fixedinterval module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.schedule.rule.html">honeybee_energy.schedule.rule module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.schedule.ruleset.html">honeybee_energy.schedule.ruleset module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.schedule.typelimit.html">honeybee_energy.schedule.typelimit module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.schedule.html#module-honeybee_energy.schedule">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.simulation.html">honeybee_energy.simulation package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.simulation.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.simulation.control.html">honeybee_energy.simulation.control module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.simulation.daylightsaving.html">honeybee_energy.simulation.daylightsaving module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.simulation.dictutil.html">honeybee_energy.simulation.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.simulation.output.html">honeybee_energy.simulation.output module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.simulation.parameter.html">honeybee_energy.simulation.parameter module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.simulation.runperiod.html">honeybee_energy.simulation.runperiod module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.simulation.shadowcalculation.html">honeybee_energy.simulation.shadowcalculation module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.simulation.sizing.html">honeybee_energy.simulation.sizing module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.simulation.html#module-honeybee_energy.simulation">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.ventcool.html">honeybee_energy.ventcool package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.ventcool.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.ventcool.afn.html">honeybee_energy.ventcool.afn module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.ventcool.control.html">honeybee_energy.ventcool.control module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.ventcool.crack.html">honeybee_energy.ventcool.crack module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.ventcool.opening.html">honeybee_energy.ventcool.opening module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.ventcool.simulation.html">honeybee_energy.ventcool.simulation module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.ventcool.html#module-honeybee_energy.ventcool">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../honeybee_energy.html#submodules">Submodules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.altnumber.html">honeybee_energy.altnumber module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.boundarycondition.html">honeybee_energy.boundarycondition module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.config.html">honeybee_energy.config module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.constructionset.html">honeybee_energy.constructionset module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.dictutil.html">honeybee_energy.dictutil module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.measure.html">honeybee_energy.measure module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.programtype.html">honeybee_energy.programtype module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.reader.html">honeybee_energy.reader module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.run.html">honeybee_energy.run module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.writer.html">honeybee_energy.writer module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../honeybee_energy.html#module-honeybee_energy">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli/index.html">CLI Docs</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">honeybee_energy</a></li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+              
+            
+            
+            
+            
+              <li class="hidden-sm"></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+      <div class="col-md-4">
+        <div id="sidebar" class="bs-sidenav" role="complementary"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli/index.html">CLI Docs</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">honeybee_energy</a></li>
+</ul>
+
+        </div>
+      </div>
+    <div class="body col-md-8 content" role="main">
+      
+  <h1>Source code for honeybee_energy.load.people</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding=utf-8</span>
+<span class="sd">&quot;&quot;&quot;Complete definition of people in a simulation, including schedule and load.&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
+
+<span class="kn">from</span> <span class="nn">._base</span> <span class="kn">import</span> <span class="n">_LoadBase</span>
+<span class="kn">from</span> <span class="nn">..schedule.ruleset</span> <span class="kn">import</span> <span class="n">ScheduleRuleset</span>
+<span class="kn">from</span> <span class="nn">..schedule.fixedinterval</span> <span class="kn">import</span> <span class="n">ScheduleFixedInterval</span>
+<span class="kn">from</span> <span class="nn">..reader</span> <span class="kn">import</span> <span class="n">parse_idf_string</span>
+<span class="kn">from</span> <span class="nn">..writer</span> <span class="kn">import</span> <span class="n">generate_idf_string</span>
+
+<span class="kn">import</span> <span class="nn">honeybee_energy.lib.schedules</span> <span class="k">as</span> <span class="nn">_sched_lib</span>
+
+<span class="kn">from</span> <span class="nn">honeybee._lockable</span> <span class="kn">import</span> <span class="n">lockable</span>
+<span class="kn">from</span> <span class="nn">honeybee.typing</span> <span class="kn">import</span> <span class="n">float_in_range</span><span class="p">,</span> <span class="n">float_positive</span><span class="p">,</span> <span class="n">clean_and_id_ep_string</span>
+<span class="kn">from</span> <span class="nn">honeybee.altnumber</span> <span class="kn">import</span> <span class="n">autocalculate</span>
+
+
+<div class="viewcode-block" id="People"><a class="viewcode-back" href="../../../honeybee_energy.load.people.html#honeybee_energy.load.people.People">[docs]</a><span class="nd">@lockable</span>
+<span class="k">class</span> <span class="nc">People</span><span class="p">(</span><span class="n">_LoadBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A complete definition of people, including schedules and load.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        identifier: Text string for a unique People ID. Must be &lt; 100 characters</span>
+<span class="sd">            and not contain any EnergyPlus special characters. This will be used to</span>
+<span class="sd">            identify the object across a model and in the exported IDF.</span>
+<span class="sd">        people_per_area: A numerical value for the number of people per square</span>
+<span class="sd">            meter of floor area.</span>
+<span class="sd">        occupancy_schedule: A ScheduleRuleset or ScheduleFixedInterval for the</span>
+<span class="sd">            occupancy over the course of the year. The type of this schedule</span>
+<span class="sd">            should be Fractional and the fractional values will get multiplied by</span>
+<span class="sd">            the people_per_area to yield a complete occupancy profile.</span>
+<span class="sd">        activity_schedule: A ScheduleRuleset or ScheduleFixedInterval for the</span>
+<span class="sd">            activity of the occupants over the course of the year. The type of</span>
+<span class="sd">            this schedule should be ActivityLevel and the values of the schedule equal</span>
+<span class="sd">            to the number of Watts given off by an individual person in the room.</span>
+<span class="sd">            If None, it will a default constant schedule with 120 Watts per person</span>
+<span class="sd">            will be used, which is typical of awake, adult humans who are seated.</span>
+<span class="sd">        radiant_fraction: A number between 0 and 1 for the fraction of the</span>
+<span class="sd">            sensible heat given off by people that is radiant (as opposed to</span>
+<span class="sd">            convective). (Default: 0.3).</span>
+<span class="sd">        latent_fraction: A number between 0 and 1 for the fraction of the heat</span>
+<span class="sd">            given off by people that is latent (as opposed to sensible). This</span>
+<span class="sd">            input can also be an Autocalculate object, which will automatically</span>
+<span class="sd">            estimate the latent fraction based on the occupant&#39;s activity level.</span>
+<span class="sd">            (Default: autocalculate).</span>
+
+<span class="sd">    Properties:</span>
+<span class="sd">        * identifier</span>
+<span class="sd">        * display_name</span>
+<span class="sd">        * people_per_area</span>
+<span class="sd">        * area_per_person</span>
+<span class="sd">        * occupancy_schedule</span>
+<span class="sd">        * activity_schedule</span>
+<span class="sd">        * radiant_fraction</span>
+<span class="sd">        * latent_fraction</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;_people_per_area&#39;</span><span class="p">,</span> <span class="s1">&#39;_occupancy_schedule&#39;</span><span class="p">,</span> <span class="s1">&#39;_activity_schedule&#39;</span><span class="p">,</span>
+                 <span class="s1">&#39;_radiant_fraction&#39;</span><span class="p">,</span> <span class="s1">&#39;_latent_fraction&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">identifier</span><span class="p">,</span> <span class="n">people_per_area</span><span class="p">,</span> <span class="n">occupancy_schedule</span><span class="p">,</span>
+                 <span class="n">activity_schedule</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">radiant_fraction</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">latent_fraction</span><span class="o">=</span><span class="n">autocalculate</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize People.&quot;&quot;&quot;</span>
+        <span class="n">_LoadBase</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">identifier</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">people_per_area</span> <span class="o">=</span> <span class="n">people_per_area</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">occupancy_schedule</span> <span class="o">=</span> <span class="n">occupancy_schedule</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">activity_schedule</span> <span class="o">=</span> <span class="n">activity_schedule</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">radiant_fraction</span> <span class="o">=</span> <span class="n">radiant_fraction</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">latent_fraction</span> <span class="o">=</span> <span class="n">latent_fraction</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">people_per_area</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get or set the number of people per square meter of floor area.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_people_per_area</span>
+
+    <span class="nd">@people_per_area</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">people_per_area</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_people_per_area</span> <span class="o">=</span> <span class="n">float_positive</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s1">&#39;people per area&#39;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">area_per_person</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get or set the number of square meters of floor area per person.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="mi">1</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">_people_per_area</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_people_per_area</span> <span class="o">!=</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span>
+
+    <span class="nd">@area_per_person</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">area_per_person</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_people_per_area</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">float_positive</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s1">&#39;area per person&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_people_per_area</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">occupancy_schedule</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get or set a ScheduleRuleset or ScheduleFixedInterval for the occupancy.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_occupancy_schedule</span>
+
+    <span class="nd">@occupancy_schedule</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">occupancy_schedule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="n">ScheduleRuleset</span><span class="p">,</span> <span class="n">ScheduleFixedInterval</span><span class="p">)),</span> \
+            <span class="s1">&#39;Expected ScheduleRuleset or ScheduleFixedInterval for People &#39;</span> \
+            <span class="s1">&#39;occupancy_schedule. Got </span><span class="si">{}</span><span class="s1">.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_fractional_schedule_type</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s1">&#39;Occupancy&#39;</span><span class="p">)</span>
+        <span class="n">value</span><span class="o">.</span><span class="n">lock</span><span class="p">()</span>   <span class="c1"># lock editing in case schedule has multiple references</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_occupancy_schedule</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">activity_schedule</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get or set a ScheduleRuleset or ScheduleFixedInterval for the occupancy.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_activity_schedule</span>
+
+    <span class="nd">@activity_schedule</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">activity_schedule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="n">ScheduleRuleset</span><span class="p">,</span> <span class="n">ScheduleFixedInterval</span><span class="p">)),</span> \
+                <span class="s1">&#39;Expected ScheduleRuleset or ScheduleFixedInterval for People&#39;</span> \
+                <span class="s1">&#39; activity_schedule. Got </span><span class="si">{}</span><span class="s1">.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_check_activity_schedule_type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="n">value</span><span class="o">.</span><span class="n">lock</span><span class="p">()</span>   <span class="c1"># lock editing in case schedule has multiple references</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_activity_schedule</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_activity_schedule</span> <span class="o">=</span> <span class="n">_sched_lib</span><span class="o">.</span><span class="n">seated_activity</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">radiant_fraction</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get or set the radiant fraction of sensible heat given off by people.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_radiant_fraction</span>
+
+    <span class="nd">@radiant_fraction</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">radiant_fraction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_radiant_fraction</span> <span class="o">=</span> <span class="n">float_in_range</span><span class="p">(</span>
+            <span class="n">value</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s1">&#39;people radiant fraction&#39;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">latent_fraction</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get or set the fraction of the heat given off by people that is latent.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_latent_fraction</span>
+
+    <span class="nd">@latent_fraction</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">latent_fraction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="n">autocalculate</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_latent_fraction</span> <span class="o">=</span> <span class="n">autocalculate</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_latent_fraction</span> <span class="o">=</span> <span class="n">float_in_range</span><span class="p">(</span>
+                <span class="n">value</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s1">&#39;people latent fraction&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="People.diversify"><a class="viewcode-back" href="../../../honeybee_energy.load.people.html#honeybee_energy.load.people.People.diversify">[docs]</a>    <span class="k">def</span> <span class="nf">diversify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span> <span class="n">occupancy_stdev</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">schedule_offset</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">timestep</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                  <span class="n">schedule_indices</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get an array of diversified People derived from this &quot;average&quot; one.</span>
+
+<span class="sd">        Approximately 2/3 of the schedules in the output objects will be offset</span>
+<span class="sd">        from the mean by the input schedule_offset (1/3 ahead and another 1/3 behind).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            count: An positive integer for the number of diversified objects to</span>
+<span class="sd">                generate from this mean object.</span>
+<span class="sd">            occupancy_stdev: A number between 0 and 100 for the percent of the</span>
+<span class="sd">                occupancy people_per_area representing one standard deviation</span>
+<span class="sd">                of diversification from the mean. (Default 20 percent).</span>
+<span class="sd">            schedule_offset: A positive integer for the number of timesteps at which</span>
+<span class="sd">                the occupancy schedule of the resulting objects will be shifted - roughly</span>
+<span class="sd">                1/3 of the objects ahead and another 1/3 behind. (Default: 1).</span>
+<span class="sd">            timestep: An integer for the number of timesteps per hour at which the</span>
+<span class="sd">                shifting is occurring. This must be a value between 1 and 60, which</span>
+<span class="sd">                is evenly divisible by 60. 1 indicates that each step is an hour</span>
+<span class="sd">                while 60 indicates that each step is a minute. (Default: 1).</span>
+<span class="sd">            schedule_indices: An optional list of integers from 0 to 2 with a length</span>
+<span class="sd">                equal to the input count, which will be used to set whether a given</span>
+<span class="sd">                schedule is behind (0), ahead (2), or the same (1). This can be</span>
+<span class="sd">                used to coordinate schedules across diversified programs. If None</span>
+<span class="sd">                a random list of integers will be genrated. (Default: None).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># generate shifted schedules and a gaussian distribution of people_per_area</span>
+        <span class="n">occ_schs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shift_schedule</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">occupancy_schedule</span><span class="p">,</span> <span class="n">schedule_offset</span><span class="p">,</span> <span class="n">timestep</span><span class="p">)</span>
+        <span class="n">stdev</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">people_per_area</span> <span class="o">*</span> <span class="p">(</span><span class="n">occupancy_stdev</span> <span class="o">/</span> <span class="mi">100</span><span class="p">)</span>
+        <span class="n">new_loads</span><span class="p">,</span> <span class="n">sch_ints</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gaussian_values</span><span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">people_per_area</span><span class="p">,</span> <span class="n">stdev</span><span class="p">)</span>
+        <span class="n">sch_ints</span> <span class="o">=</span> <span class="n">sch_ints</span> <span class="k">if</span> <span class="n">schedule_indices</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">schedule_indices</span>
+
+        <span class="c1"># generate the new objects and return them</span>
+        <span class="n">new_objects</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">load_val</span><span class="p">,</span> <span class="n">sch_int</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">new_loads</span><span class="p">,</span> <span class="n">sch_ints</span><span class="p">):</span>
+            <span class="n">new_obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">duplicate</span><span class="p">()</span>
+            <span class="n">new_obj</span><span class="o">.</span><span class="n">identifier</span> <span class="o">=</span> <span class="n">clean_and_id_ep_string</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">identifier</span><span class="p">)</span>
+            <span class="n">new_obj</span><span class="o">.</span><span class="n">people_per_area</span> <span class="o">=</span> <span class="n">load_val</span>
+            <span class="n">new_obj</span><span class="o">.</span><span class="n">occupancy_schedule</span> <span class="o">=</span> <span class="n">occ_schs</span><span class="p">[</span><span class="n">sch_int</span><span class="p">]</span>
+            <span class="n">new_objects</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_obj</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">new_objects</span></div>
+
+<div class="viewcode-block" id="People.from_idf"><a class="viewcode-back" href="../../../honeybee_energy.load.people.html#honeybee_energy.load.people.People.from_idf">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_idf</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">idf_string</span><span class="p">,</span> <span class="n">schedule_dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create an People object from an EnergyPlus IDF text string.</span>
+
+<span class="sd">        Note that the People idf_string must use the &#39;people per zone floor area&#39;</span>
+<span class="sd">        method in order to be successfully imported.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            idf_string: A text string fully describing an EnergyPlus people definition.</span>
+<span class="sd">            schedule_dict: A dictionary with schedule identifiers as keys and honeybee</span>
+<span class="sd">                schedule objects as values (either ScheduleRuleset or</span>
+<span class="sd">                ScheduleFixedInterval). These will be used to assign the schedules to</span>
+<span class="sd">                the People object.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A tuple with four elements</span>
+
+<span class="sd">            -   people: A People object loaded from the idf_string.</span>
+
+<span class="sd">            -   zone_identifier: The identifier of the zone to which the People</span>
+<span class="sd">                object should be assigned.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># check the inputs</span>
+        <span class="n">ep_strs</span> <span class="o">=</span> <span class="n">parse_idf_string</span><span class="p">(</span><span class="n">idf_string</span><span class="p">,</span> <span class="s1">&#39;People,&#39;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">ep_strs</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;people/area&#39;</span><span class="p">,</span> \
+            <span class="s1">&#39;People must use People/Area method to be loaded from IDF to honeybee.&#39;</span>
+
+        <span class="c1"># extract the properties from the string</span>
+        <span class="n">lat_fract</span> <span class="o">=</span> <span class="n">autocalculate</span> <span class="k">if</span> <span class="n">ep_strs</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span> <span class="ow">or</span> \
+            <span class="n">ep_strs</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;autocalculate&#39;</span> <span class="k">else</span> <span class="mi">1</span> <span class="o">-</span> <span class="nb">float</span><span class="p">(</span><span class="n">ep_strs</span><span class="p">[</span><span class="mi">8</span><span class="p">])</span>
+        <span class="n">rad_fract</span> <span class="o">=</span> <span class="n">ep_strs</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span> <span class="k">if</span> <span class="n">ep_strs</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span> <span class="k">else</span> <span class="mf">0.3</span>
+
+        <span class="c1"># extract the schedules from the string</span>
+        <span class="n">occ_sched</span><span class="p">,</span> <span class="n">activity_sched</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_get_occ_act_schedules_from_dict</span><span class="p">(</span>
+            <span class="n">schedule_dict</span><span class="p">,</span> <span class="n">ep_strs</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">ep_strs</span><span class="p">[</span><span class="mi">9</span><span class="p">])</span>
+
+        <span class="c1"># return the people object and the zone id for the people object</span>
+        <span class="n">obj_id</span> <span class="o">=</span> <span class="n">ep_strs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;..&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">zone_id</span> <span class="o">=</span> <span class="n">ep_strs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">people</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">obj_id</span><span class="p">,</span> <span class="n">ep_strs</span><span class="p">[</span><span class="mi">5</span><span class="p">],</span> <span class="n">occ_sched</span><span class="p">,</span> <span class="n">activity_sched</span><span class="p">,</span>
+                     <span class="n">rad_fract</span><span class="p">,</span> <span class="n">lat_fract</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">people</span><span class="p">,</span> <span class="n">zone_id</span></div>
+
+<div class="viewcode-block" id="People.from_dict"><a class="viewcode-back" href="../../../honeybee_energy.load.people.html#honeybee_energy.load.people.People.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a People object from a dictionary.</span>
+
+<span class="sd">        Note that the dictionary must be a non-abridged version for this classmethod</span>
+<span class="sd">        to work.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data: A People dictionary in following the format below.</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            {</span>
+<span class="sd">            &quot;type&quot;: &#39;People&#39;,</span>
+<span class="sd">            &quot;identifier&quot;: &#39;Open_Office_People_005_03_02&#39;,</span>
+<span class="sd">            &quot;display_name&quot;: &#39;Office People&#39;,</span>
+<span class="sd">            &quot;people_per_area&quot;: 0.05, # number of people per square meter of floor area</span>
+<span class="sd">            &quot;occupancy_schedule&quot;: {}, # ScheduleRuleset/ScheduleFixedInterval dictionary</span>
+<span class="sd">            &quot;activity_schedule&quot;: {}, # ScheduleRuleset/ScheduleFixedInterval dictionary</span>
+<span class="sd">            &quot;radiant_fraction&quot;: 0.3, # fraction of sensible heat that is radiant</span>
+<span class="sd">            &quot;latent_fraction&quot;: 0.2 # fraction of total heat that is latent</span>
+<span class="sd">            }</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;People&#39;</span><span class="p">,</span> \
+            <span class="s1">&#39;Expected People dictionary. Got </span><span class="si">{}</span><span class="s1">.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">])</span>
+        <span class="n">occ_sched</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_get_schedule_from_dict</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;occupancy_schedule&#39;</span><span class="p">])</span>
+        <span class="n">act_sched</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_get_schedule_from_dict</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;activity_schedule&#39;</span><span class="p">])</span> <span class="k">if</span> \
+            <span class="s1">&#39;activity_schedule&#39;</span> <span class="ow">in</span> <span class="n">data</span> <span class="ow">and</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;activity_schedule&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">rad_fract</span><span class="p">,</span> <span class="n">lat_fract</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_optional_dict_keys</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">new_obj</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;identifier&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;people_per_area&#39;</span><span class="p">],</span> <span class="n">occ_sched</span><span class="p">,</span> <span class="n">act_sched</span><span class="p">,</span>
+                      <span class="n">rad_fract</span><span class="p">,</span> <span class="n">lat_fract</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s1">&#39;display_name&#39;</span> <span class="ow">in</span> <span class="n">data</span> <span class="ow">and</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;display_name&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">new_obj</span><span class="o">.</span><span class="n">display_name</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;display_name&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">new_obj</span></div>
+
+<div class="viewcode-block" id="People.from_dict_abridged"><a class="viewcode-back" href="../../../honeybee_energy.load.people.html#honeybee_energy.load.people.People.from_dict_abridged">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict_abridged</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">schedule_dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a People object from an abridged dictionary.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data: A PeopleAbridged dictionary in following the format below.</span>
+<span class="sd">            schedule_dict: A dictionary with schedule identifiers as keys and</span>
+<span class="sd">                honeybee schedule objects as values (either ScheduleRuleset or</span>
+<span class="sd">                ScheduleFixedInterval). These will be used to assign the schedules</span>
+<span class="sd">                to the People object.</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            {</span>
+<span class="sd">            &quot;type&quot;: &quot;PeopleAbridged&quot;,</span>
+<span class="sd">            &quot;identifier&quot;: &#39;Open_Office_People_005_03_02&#39;,</span>
+<span class="sd">            &quot;display_name&quot;: &#39;Office People&#39;,</span>
+<span class="sd">            &quot;people_per_area&quot;: 0.05, # number of people per square meter of floor area</span>
+<span class="sd">            &quot;occupancy_schedule&quot;: &quot;Office Occupancy&quot;, # Schedule identifier</span>
+<span class="sd">            &quot;activity_schedule&quot;: &quot;Office Activity&quot;, # Schedule identifier</span>
+<span class="sd">            &quot;radiant_fraction&quot;: 0.3, # fraction of sensible heat that is radiant</span>
+<span class="sd">            &quot;latent_fraction&quot;: 0.2 # fraction of total heat that is latent</span>
+<span class="sd">            }</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;PeopleAbridged&#39;</span><span class="p">,</span> \
+            <span class="s1">&#39;Expected PeopleAbridged dictionary. Got </span><span class="si">{}</span><span class="s1">.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">])</span>
+        <span class="n">act_sch_id</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;activity_schedule&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;activity_schedule&#39;</span> <span class="ow">in</span> <span class="n">data</span> <span class="ow">and</span> \
+            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;activity_schedule&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+        <span class="n">occ_sched</span><span class="p">,</span> <span class="n">activity_sched</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_get_occ_act_schedules_from_dict</span><span class="p">(</span>
+            <span class="n">schedule_dict</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;occupancy_schedule&#39;</span><span class="p">],</span> <span class="n">act_sch_id</span><span class="p">)</span>
+        <span class="n">rad_fract</span><span class="p">,</span> <span class="n">lat_fract</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_optional_dict_keys</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">new_obj</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;identifier&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;people_per_area&#39;</span><span class="p">],</span> <span class="n">occ_sched</span><span class="p">,</span>
+                      <span class="n">activity_sched</span><span class="p">,</span> <span class="n">rad_fract</span><span class="p">,</span> <span class="n">lat_fract</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s1">&#39;display_name&#39;</span> <span class="ow">in</span> <span class="n">data</span> <span class="ow">and</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;display_name&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">new_obj</span><span class="o">.</span><span class="n">display_name</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;display_name&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">new_obj</span></div>
+
+<div class="viewcode-block" id="People.to_idf"><a class="viewcode-back" href="../../../honeybee_energy.load.people.html#honeybee_energy.load.people.People.to_idf">[docs]</a>    <span class="k">def</span> <span class="nf">to_idf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">zone_identifier</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;IDF string representation of People object.</span>
+
+<span class="sd">        Note that this method only outputs a single string for the People object and,</span>
+<span class="sd">        to write everything needed to describe the object into an IDF, this object&#39;s</span>
+<span class="sd">        occupancy_schedule and activity_schedule must also be written. This is done</span>
+<span class="sd">        to give more control over the export process since you typically want to check</span>
+<span class="sd">        whether these schedules are used by multiple People objects and write the</span>
+<span class="sd">        schedule into the IDF only once.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            zone_identifier: Text for the zone identifier that the People object</span>
+<span class="sd">                is assigned to.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sens_fract</span> <span class="o">=</span> <span class="s1">&#39;autocalculate&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">latent_fraction</span> <span class="o">==</span> <span class="n">autocalculate</span> <span class="k">else</span> \
+            <span class="mi">1</span> <span class="o">-</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">latent_fraction</span><span class="p">)</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">..</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">identifier</span><span class="p">,</span> <span class="n">zone_identifier</span><span class="p">),</span> <span class="n">zone_identifier</span><span class="p">,</span>
+                  <span class="bp">self</span><span class="o">.</span><span class="n">occupancy_schedule</span><span class="o">.</span><span class="n">identifier</span><span class="p">,</span> <span class="s1">&#39;People/Area&#39;</span><span class="p">,</span>
+                  <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">people_per_area</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">radiant_fraction</span><span class="p">,</span> <span class="n">sens_fract</span><span class="p">,</span>
+                  <span class="bp">self</span><span class="o">.</span><span class="n">activity_schedule</span><span class="o">.</span><span class="n">identifier</span><span class="p">)</span>
+        <span class="n">comments</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;zone name&#39;</span><span class="p">,</span> <span class="s1">&#39;occupancy schedule name&#39;</span><span class="p">,</span> <span class="s1">&#39;occupancy method&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;number of people </span><span class="si">{ppl}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;people per floor area {ppl/m2}&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;floor area per person {m2/ppl}&#39;</span><span class="p">,</span> <span class="s1">&#39;radiant fration&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;sensible heat fraction&#39;</span><span class="p">,</span> <span class="s1">&#39;activity schedule name&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">generate_idf_string</span><span class="p">(</span><span class="s1">&#39;People&#39;</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">comments</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="People.to_dict"><a class="viewcode-back" href="../../../honeybee_energy.load.people.html#honeybee_energy.load.people.People.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">abridged</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;People dictionary representation.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            abridged: Boolean to note whether the full dictionary describing the</span>
+<span class="sd">                object should be returned (False) or just an abridged version (True),</span>
+<span class="sd">                which only specifies the identifiers of schedules. Default: False.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">base</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;People&#39;</span><span class="p">}</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">abridged</span> <span class="k">else</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;PeopleAbridged&#39;</span><span class="p">}</span>
+        <span class="n">base</span><span class="p">[</span><span class="s1">&#39;identifier&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">identifier</span>
+        <span class="n">base</span><span class="p">[</span><span class="s1">&#39;people_per_area&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">people_per_area</span>
+        <span class="n">base</span><span class="p">[</span><span class="s1">&#39;radiant_fraction&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">radiant_fraction</span>
+        <span class="n">base</span><span class="p">[</span><span class="s1">&#39;latent_fraction&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">latent_fraction</span> <span class="k">if</span> \
+            <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">latent_fraction</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">latent_fraction</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">abridged</span><span class="p">:</span>
+            <span class="n">base</span><span class="p">[</span><span class="s1">&#39;occupancy_schedule&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">occupancy_schedule</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+            <span class="n">base</span><span class="p">[</span><span class="s1">&#39;activity_schedule&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">activity_schedule</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">base</span><span class="p">[</span><span class="s1">&#39;occupancy_schedule&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">occupancy_schedule</span><span class="o">.</span><span class="n">identifier</span>
+            <span class="n">base</span><span class="p">[</span><span class="s1">&#39;activity_schedule&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">activity_schedule</span><span class="o">.</span><span class="n">identifier</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_display_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">base</span><span class="p">[</span><span class="s1">&#39;display_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">display_name</span>
+        <span class="k">return</span> <span class="n">base</span></div>
+
+<div class="viewcode-block" id="People.average"><a class="viewcode-back" href="../../../honeybee_energy.load.people.html#honeybee_energy.load.people.People.average">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">average</span><span class="p">(</span><span class="n">identifier</span><span class="p">,</span> <span class="n">peoples</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">timestep_resolution</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get a People object that&#39;s a weighted average between other People objects.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            identifier: Text string for a unique ID for the new averaged People.</span>
+<span class="sd">                Must be &lt; 100 characters and not contain any EnergyPlus special</span>
+<span class="sd">                characters. This will be used to identify the object across a model</span>
+<span class="sd">                and in the exported IDF.</span>
+<span class="sd">            peoples: A list of People objects that will be averaged together to make</span>
+<span class="sd">                a new People.</span>
+<span class="sd">            weights: An optional list of fractional numbers with the same length</span>
+<span class="sd">                as the input peoples. These will be used to weight each of the People</span>
+<span class="sd">                objects in the resulting average. Note that these weights</span>
+<span class="sd">                can sum to less than 1 in which case the average people_per_area will</span>
+<span class="sd">                assume 0 for the unaccounted fraction of the weights.</span>
+<span class="sd">                If None, the objects will be weighted equally. Default: None.</span>
+<span class="sd">            timestep_resolution: An optional integer for the timestep resolution</span>
+<span class="sd">                at which the schedules will be averaged. Any schedule details</span>
+<span class="sd">                smaller than this timestep will be lost in the averaging process.</span>
+<span class="sd">                Default: 1.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">weights</span><span class="p">,</span> <span class="n">u_weights</span> <span class="o">=</span> <span class="n">People</span><span class="o">.</span><span class="n">_check_avg_weights</span><span class="p">(</span><span class="n">peoples</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="s1">&#39;People&#39;</span><span class="p">)</span>
+
+        <span class="c1"># calculate the average values</span>
+        <span class="n">ppl_area</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">ppl</span><span class="o">.</span><span class="n">people_per_area</span> <span class="o">*</span> <span class="n">w</span> <span class="k">for</span> <span class="n">ppl</span><span class="p">,</span> <span class="n">w</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">peoples</span><span class="p">,</span> <span class="n">weights</span><span class="p">)])</span>
+        <span class="n">rad_fract</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">ppl</span><span class="o">.</span><span class="n">radiant_fraction</span> <span class="o">*</span> <span class="n">w</span> <span class="k">for</span> <span class="n">ppl</span><span class="p">,</span> <span class="n">w</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">peoples</span><span class="p">,</span> <span class="n">u_weights</span><span class="p">)])</span>
+        <span class="n">lat_fracts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">ppl</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">peoples</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">ppl</span><span class="o">.</span><span class="n">latent_fraction</span> <span class="o">==</span> <span class="n">autocalculate</span><span class="p">:</span>
+                <span class="n">lat_fract</span> <span class="o">=</span> <span class="n">autocalculate</span>
+                <span class="k">break</span>
+            <span class="n">lat_fracts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ppl</span><span class="o">.</span><span class="n">latent_fraction</span> <span class="o">*</span> <span class="n">u_weights</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">lat_fract</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">lat_fracts</span><span class="p">)</span>
+
+        <span class="c1"># calculate the average schedules</span>
+        <span class="n">occ_sched</span> <span class="o">=</span> <span class="n">People</span><span class="o">.</span><span class="n">_average_schedule</span><span class="p">(</span>
+            <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_Occ Schedule&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">identifier</span><span class="p">),</span>
+            <span class="p">[</span><span class="n">ppl</span><span class="o">.</span><span class="n">occupancy_schedule</span> <span class="k">for</span> <span class="n">ppl</span> <span class="ow">in</span> <span class="n">peoples</span><span class="p">],</span> <span class="n">u_weights</span><span class="p">,</span> <span class="n">timestep_resolution</span><span class="p">)</span>
+        <span class="n">act_sched</span> <span class="o">=</span> <span class="n">People</span><span class="o">.</span><span class="n">_average_schedule</span><span class="p">(</span>
+            <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_Act Schedule&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">identifier</span><span class="p">),</span>
+            <span class="p">[</span><span class="n">ppl</span><span class="o">.</span><span class="n">activity_schedule</span> <span class="k">for</span> <span class="n">ppl</span> <span class="ow">in</span> <span class="n">peoples</span><span class="p">],</span> <span class="n">u_weights</span><span class="p">,</span> <span class="n">timestep_resolution</span><span class="p">)</span>
+
+        <span class="c1"># return the averaged people object</span>
+        <span class="k">return</span> <span class="n">People</span><span class="p">(</span><span class="n">identifier</span><span class="p">,</span> <span class="n">ppl_area</span><span class="p">,</span> <span class="n">occ_sched</span><span class="p">,</span> <span class="n">act_sched</span><span class="p">,</span> <span class="n">rad_fract</span><span class="p">,</span> <span class="n">lat_fract</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_check_activity_schedule_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">schedule</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check that the type limit of an input schedule is fractional.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">schedule</span><span class="o">.</span><span class="n">schedule_type_limit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">t_lim</span> <span class="o">=</span> <span class="n">schedule</span><span class="o">.</span><span class="n">schedule_type_limit</span>
+            <span class="k">assert</span> <span class="n">t_lim</span><span class="o">.</span><span class="n">unit_type</span> <span class="o">==</span> <span class="s1">&#39;ActivityLevel&#39;</span><span class="p">,</span> <span class="s1">&#39;Activity schedule must have a &#39;</span> \
+                <span class="s1">&#39;unit type of ActivityLevel. Got a schedule&#39;</span> \
+                <span class="s1">&#39; of unit type [</span><span class="si">{}</span><span class="s1">].&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t_lim</span><span class="o">.</span><span class="n">unit_type</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">t_lim</span><span class="o">.</span><span class="n">lower_limit</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;Activity schedule should have either &#39;</span> \
+                <span class="s1">&#39;no type limit or a lower limit of 0. Got a schedule type with &#39;</span> \
+                <span class="s1">&#39;lower limit [</span><span class="si">{}</span><span class="s1">].&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t_lim</span><span class="o">.</span><span class="n">lower_limit</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_optional_dict_keys</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the optional keys from a People dictionary.&quot;&quot;&quot;</span>
+        <span class="n">rad_fract</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;radiant_fraction&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;radiant_fraction&#39;</span> <span class="ow">in</span> <span class="n">data</span> <span class="k">else</span> <span class="mf">0.3</span>
+        <span class="n">lat_fract</span> <span class="o">=</span> <span class="n">autocalculate</span> <span class="k">if</span> <span class="s1">&#39;latent_fraction&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span> <span class="ow">or</span> \
+            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;latent_fraction&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">autocalculate</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span> <span class="k">else</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;latent_fraction&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">rad_fract</span><span class="p">,</span> <span class="n">lat_fract</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_get_occ_act_schedules_from_dict</span><span class="p">(</span><span class="n">schedule_dict</span><span class="p">,</span> <span class="n">occ_sch_id</span><span class="p">,</span> <span class="n">act_sch_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get schedule objects from a dictionary.&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">occ_sched</span> <span class="o">=</span> <span class="n">schedule_dict</span><span class="p">[</span><span class="n">occ_sch_id</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Failed to find </span><span class="si">{}</span><span class="s1"> in the schedule_dict.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">act_sch_id</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;seated adult activity&#39;</span><span class="p">:</span>
+            <span class="n">activity_sched</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">activity_sched</span> <span class="o">=</span> <span class="n">schedule_dict</span><span class="p">[</span><span class="n">act_sch_id</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Failed to find </span><span class="si">{}</span><span class="s1"> in the People schedule_dict.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">occ_sched</span><span class="p">,</span> <span class="n">activity_sched</span>
+
+    <span class="k">def</span> <span class="nf">__key</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;A tuple based on the object properties, useful for hashing.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">identifier</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">people_per_area</span><span class="p">,</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">occupancy_schedule</span><span class="p">),</span>
+                <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">activity_schedule</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">radiant_fraction</span><span class="p">,</span>
+                <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">latent_fraction</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__key</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">People</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">__key</span><span class="p">()</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">__key</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__copy__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">new_obj</span> <span class="o">=</span> <span class="n">People</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">identifier</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">people_per_area</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">occupancy_schedule</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">activity_schedule</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">radiant_fraction</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">latent_fraction</span><span class="p">)</span>
+        <span class="n">new_obj</span><span class="o">.</span><span class="n">_display_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_display_name</span>
+        <span class="k">return</span> <span class="n">new_obj</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;People: </span><span class="si">{}</span><span class="s1"> [</span><span class="si">{}</span><span class="s1"> people/m2] [schedule: </span><span class="si">{}</span><span class="s1">]&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">display_name</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">people_per_area</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">occupancy_schedule</span><span class="o">.</span><span class="n">display_name</span><span class="p">)</span></div>
+</pre></div>
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2021, Ladybug Tools.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.4.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

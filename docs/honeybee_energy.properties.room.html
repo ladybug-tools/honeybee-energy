@@ -1,0 +1,1363 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>honeybee_energy.properties.room module &#8212; honeybee energy  documentation</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="honeybee_energy.properties.shade module" href="honeybee_energy.properties.shade.html" />
+    <link rel="prev" title="honeybee_energy.properties.model module" href="honeybee_energy.properties.model.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-inverse navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="index.html">
+          honeybee energy</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="cli/index.html">CLI Docs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cli/index.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli/index.html#commands">Commands</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cli/main.html">main</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cli/main.html#honeybee-energy">honeybee-energy</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="cli/main.html#honeybee-energy-config">config</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cli/settings.html">settings</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cli/settings.html#honeybee-energy-settings">honeybee-energy settings</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="cli/settings.html#honeybee-energy-settings-comfort-sim-par">comfort-sim-par</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/settings.html#honeybee-energy-settings-custom-sim-par">custom-sim-par</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/settings.html#honeybee-energy-settings-default-sim-par">default-sim-par</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/settings.html#honeybee-energy-settings-load-balance-sim-par">load-balance-sim-par</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/settings.html#honeybee-energy-settings-orientation-sim-pars">orientation-sim-pars</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/settings.html#honeybee-energy-settings-run-period">run-period</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/settings.html#honeybee-energy-settings-sizing-sim-par">sizing-sim-par</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cli/simulate.html">simulate</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cli/simulate.html#honeybee-energy-simulate">honeybee-energy simulate</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="cli/simulate.html#honeybee-energy-simulate-idf">idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/simulate.html#honeybee-energy-simulate-model">model</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/simulate.html#honeybee-energy-simulate-osm">osm</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cli/baseline.html">baseline</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cli/baseline.html#honeybee-energy-baseline">honeybee-energy baseline</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="cli/baseline.html#honeybee-energy-baseline-constructions-2004">constructions-2004</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/baseline.html#honeybee-energy-baseline-geometry-2004">geometry-2004</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/baseline.html#honeybee-energy-baseline-hvac-2004">hvac-2004</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/baseline.html#honeybee-energy-baseline-lighting-2004">lighting-2004</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/baseline.html#honeybee-energy-baseline-remove-ecms">remove-ecms</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cli/edit.html">edit</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cli/edit.html#honeybee-energy-edit">honeybee-energy edit</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="cli/edit.html#honeybee-energy-edit-modifiers-from-constructions">modifiers-from-constructions</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cli/validate.html">validate</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cli/validate.html#honeybee-energy-validate">honeybee-energy validate</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="cli/validate.html#honeybee-energy-validate-construction-set">construction-set</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/validate.html#honeybee-energy-validate-model-properties">model-properties</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/validate.html#honeybee-energy-validate-program-type">program-type</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/validate.html#honeybee-energy-validate-schedule">schedule</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/validate.html#honeybee-energy-validate-schedule-type-limit">schedule-type-limit</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/validate.html#honeybee-energy-validate-sim-par">sim-par</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cli/result.html">result</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cli/result.html#honeybee-energy-result">honeybee-energy result</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="cli/result.html#honeybee-energy-result-all-available-info">all-available-info</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/result.html#honeybee-energy-result-available-results">available-results</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/result.html#honeybee-energy-result-available-results-info">available-results-info</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/result.html#honeybee-energy-result-available-run-period-info">available-run-period-info</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/result.html#honeybee-energy-result-component-sizes">component-sizes</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/result.html#honeybee-energy-result-data-by-output">data-by-output</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/result.html#honeybee-energy-result-data-by-outputs">data-by-outputs</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/result.html#honeybee-energy-result-energy-use-intensity">energy-use-intensity</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/result.html#honeybee-energy-result-load-balance">load-balance</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/result.html#honeybee-energy-result-output-csv">output-csv</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/result.html#honeybee-energy-result-output-csv-queryable">output-csv-queryable</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/result.html#honeybee-energy-result-tabular-data">tabular-data</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/result.html#honeybee-energy-result-tabular-metadata">tabular-metadata</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/result.html#honeybee-energy-result-zone-sizes">zone-sizes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cli/lib.html">lib</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib">honeybee-energy lib</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-construction-set-by-id">construction-set-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-construction-sets">construction-sets</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-construction-sets-by-id">construction-sets-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-constructions-by-id">constructions-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-materials-by-id">materials-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-opaque-construction-by-id">opaque-construction-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-opaque-constructions">opaque-constructions</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-opaque-material-by-id">opaque-material-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-opaque-materials">opaque-materials</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-program-type-by-id">program-type-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-program-types">program-types</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-program-types-by-id">program-types-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-schedule-by-id">schedule-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-schedule-type-limit-by-id">schedule-type-limit-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-schedule-type-limits">schedule-type-limits</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-schedule-type-limits-by-id">schedule-type-limits-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-schedules">schedules</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-schedules-by-id">schedules-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-shade-construction-by-id">shade-construction-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-shade-constructions">shade-constructions</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-window-construction-by-id">window-construction-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-window-constructions">window-constructions</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-window-material-by-id">window-material-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-window-materials">window-materials</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cli/translate.html">translate</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cli/translate.html#honeybee-energy-translate">honeybee-energy translate</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="cli/translate.html#honeybee-energy-translate-constructions-from-idf">constructions-from-idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/translate.html#honeybee-energy-translate-constructions-to-idf">constructions-to-idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/translate.html#honeybee-energy-translate-model-from-gbxml">model-from-gbxml</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/translate.html#honeybee-energy-translate-model-from-idf">model-from-idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/translate.html#honeybee-energy-translate-model-from-osm">model-from-osm</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/translate.html#honeybee-energy-translate-model-occ-schedules">model-occ-schedules</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/translate.html#honeybee-energy-translate-model-to-gbxml">model-to-gbxml</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/translate.html#honeybee-energy-translate-model-to-idf">model-to-idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/translate.html#honeybee-energy-translate-model-to-osm">model-to-osm</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/translate.html#honeybee-energy-translate-schedules-from-idf">schedules-from-idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/translate.html#honeybee-energy-translate-schedules-to-idf">schedules-to-idf</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">honeybee_energy</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="honeybee_energy.html">honeybee_energy package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="honeybee_energy.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.cli.html">honeybee_energy.cli package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.cli.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.cli.data.html">honeybee_energy.cli.data package</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="honeybee_energy.cli.data.html#module-honeybee_energy.cli.data">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.cli.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.cli.baseline.html">honeybee_energy.cli.baseline module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.cli.edit.html">honeybee_energy.cli.edit module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.cli.lib.html">honeybee_energy.cli.lib module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.cli.result.html">honeybee_energy.cli.result module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.cli.settings.html">honeybee_energy.cli.settings module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.cli.simulate.html">honeybee_energy.cli.simulate module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.cli.translate.html">honeybee_energy.cli.translate module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.cli.validate.html">honeybee_energy.cli.validate module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.cli.html#module-honeybee_energy.cli">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.construction.html">honeybee_energy.construction package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.construction.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.construction.air.html">honeybee_energy.construction.air module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.construction.dictutil.html">honeybee_energy.construction.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.construction.opaque.html">honeybee_energy.construction.opaque module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.construction.shade.html">honeybee_energy.construction.shade module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.construction.window.html">honeybee_energy.construction.window module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.construction.windowshade.html">honeybee_energy.construction.windowshade module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.construction.html#module-honeybee_energy.construction">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.hvac.html">honeybee_energy.hvac package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.hvac.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.hvac.allair.html">honeybee_energy.hvac.allair package</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="honeybee_energy.hvac.allair.html#submodules">Submodules</a><ul>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.allair.furnace.html">honeybee_energy.hvac.allair.furnace module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.allair.psz.html">honeybee_energy.hvac.allair.psz module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.allair.ptac.html">honeybee_energy.hvac.allair.ptac module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.allair.pvav.html">honeybee_energy.hvac.allair.pvav module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.allair.vav.html">honeybee_energy.hvac.allair.vav module</a></li>
+</ul>
+</li>
+<li class="toctree-l7"><a class="reference internal" href="honeybee_energy.hvac.allair.html#module-honeybee_energy.hvac.allair">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.hvac.doas.html">honeybee_energy.hvac.doas package</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="honeybee_energy.hvac.doas.html#submodules">Submodules</a><ul>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.doas.fcu.html">honeybee_energy.hvac.doas.fcu module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.doas.vrf.html">honeybee_energy.hvac.doas.vrf module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.doas.wshp.html">honeybee_energy.hvac.doas.wshp module</a></li>
+</ul>
+</li>
+<li class="toctree-l7"><a class="reference internal" href="honeybee_energy.hvac.doas.html#module-honeybee_energy.hvac.doas">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.hvac.heatcool.html">honeybee_energy.hvac.heatcool package</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="honeybee_energy.hvac.heatcool.html#submodules">Submodules</a><ul>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.heatcool.baseboard.html">honeybee_energy.hvac.heatcool.baseboard module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.heatcool.evapcool.html">honeybee_energy.hvac.heatcool.evapcool module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.heatcool.fcu.html">honeybee_energy.hvac.heatcool.fcu module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.heatcool.gasunit.html">honeybee_energy.hvac.heatcool.gasunit module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.heatcool.residential.html">honeybee_energy.hvac.heatcool.residential module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.heatcool.vrf.html">honeybee_energy.hvac.heatcool.vrf module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.heatcool.windowac.html">honeybee_energy.hvac.heatcool.windowac module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.heatcool.wshp.html">honeybee_energy.hvac.heatcool.wshp module</a></li>
+</ul>
+</li>
+<li class="toctree-l7"><a class="reference internal" href="honeybee_energy.hvac.heatcool.html#module-honeybee_energy.hvac.heatcool">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.hvac.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.hvac.idealair.html">honeybee_energy.hvac.idealair module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.hvac.html#module-honeybee_energy.hvac">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.lib.html">honeybee_energy.lib package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.lib.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.lib.constructions.html">honeybee_energy.lib.constructions module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.lib.constructionsets.html">honeybee_energy.lib.constructionsets module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.lib.materials.html">honeybee_energy.lib.materials module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.lib.programtypes.html">honeybee_energy.lib.programtypes module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.lib.schedules.html">honeybee_energy.lib.schedules module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.lib.scheduletypelimits.html">honeybee_energy.lib.scheduletypelimits module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.lib.html#module-honeybee_energy.lib">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.load.html">honeybee_energy.load package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.load.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.load.daylight.html">honeybee_energy.load.daylight module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.load.dictutil.html">honeybee_energy.load.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.load.equipment.html">honeybee_energy.load.equipment module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.load.hotwater.html">honeybee_energy.load.hotwater module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.load.infiltration.html">honeybee_energy.load.infiltration module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.load.lighting.html">honeybee_energy.load.lighting module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.load.people.html">honeybee_energy.load.people module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.load.setpoint.html">honeybee_energy.load.setpoint module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.load.ventilation.html">honeybee_energy.load.ventilation module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.load.html#module-honeybee_energy.load">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.material.html">honeybee_energy.material package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.material.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.material.dictutil.html">honeybee_energy.material.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.material.gas.html">honeybee_energy.material.gas module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.material.glazing.html">honeybee_energy.material.glazing module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.material.opaque.html">honeybee_energy.material.opaque module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.material.shade.html">honeybee_energy.material.shade module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.material.html#module-honeybee_energy.material">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4 current"><a class="reference internal" href="honeybee_energy.properties.html">honeybee_energy.properties package</a><ul class="current">
+<li class="toctree-l5 current"><a class="reference internal" href="honeybee_energy.properties.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.properties.aperture.html">honeybee_energy.properties.aperture module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.properties.door.html">honeybee_energy.properties.door module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.properties.face.html">honeybee_energy.properties.face module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.properties.model.html">honeybee_energy.properties.model module</a></li>
+<li class="toctree-l6 current"><a class="current reference internal" href="#">honeybee_energy.properties.room module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.properties.shade.html">honeybee_energy.properties.shade module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.properties.html#module-honeybee_energy.properties">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.result.html">honeybee_energy.result package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.result.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.result.colorobj.html">honeybee_energy.result.colorobj module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.result.err.html">honeybee_energy.result.err module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.result.loadbalance.html">honeybee_energy.result.loadbalance module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.result.match.html">honeybee_energy.result.match module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.result.osw.html">honeybee_energy.result.osw module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.result.rdd.html">honeybee_energy.result.rdd module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.result.zsz.html">honeybee_energy.result.zsz module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.result.html#module-honeybee_energy.result">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.schedule.html">honeybee_energy.schedule package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.schedule.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.schedule.day.html">honeybee_energy.schedule.day module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.schedule.dictutil.html">honeybee_energy.schedule.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.schedule.fixedinterval.html">honeybee_energy.schedule.fixedinterval module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.schedule.rule.html">honeybee_energy.schedule.rule module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.schedule.ruleset.html">honeybee_energy.schedule.ruleset module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.schedule.typelimit.html">honeybee_energy.schedule.typelimit module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.schedule.html#module-honeybee_energy.schedule">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.simulation.html">honeybee_energy.simulation package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.simulation.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.simulation.control.html">honeybee_energy.simulation.control module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.simulation.daylightsaving.html">honeybee_energy.simulation.daylightsaving module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.simulation.dictutil.html">honeybee_energy.simulation.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.simulation.output.html">honeybee_energy.simulation.output module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.simulation.parameter.html">honeybee_energy.simulation.parameter module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.simulation.runperiod.html">honeybee_energy.simulation.runperiod module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.simulation.shadowcalculation.html">honeybee_energy.simulation.shadowcalculation module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.simulation.sizing.html">honeybee_energy.simulation.sizing module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.simulation.html#module-honeybee_energy.simulation">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.ventcool.html">honeybee_energy.ventcool package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.ventcool.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.ventcool.afn.html">honeybee_energy.ventcool.afn module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.ventcool.control.html">honeybee_energy.ventcool.control module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.ventcool.crack.html">honeybee_energy.ventcool.crack module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.ventcool.opening.html">honeybee_energy.ventcool.opening module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.ventcool.simulation.html">honeybee_energy.ventcool.simulation module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.ventcool.html#module-honeybee_energy.ventcool">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="honeybee_energy.html#submodules">Submodules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.altnumber.html">honeybee_energy.altnumber module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.boundarycondition.html">honeybee_energy.boundarycondition module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.config.html">honeybee_energy.config module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.constructionset.html">honeybee_energy.constructionset module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.dictutil.html">honeybee_energy.dictutil module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.measure.html">honeybee_energy.measure module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.programtype.html">honeybee_energy.programtype module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.reader.html">honeybee_energy.reader module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.run.html">honeybee_energy.run module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.writer.html">honeybee_energy.writer module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="honeybee_energy.html#module-honeybee_energy">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="cli/index.html">CLI Docs</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">honeybee_energy</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="honeybee_energy.html">honeybee_energy package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="honeybee_energy.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.cli.html">honeybee_energy.cli package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.construction.html">honeybee_energy.construction package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.hvac.html">honeybee_energy.hvac package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.lib.html">honeybee_energy.lib package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.load.html">honeybee_energy.load package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.material.html">honeybee_energy.material package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="honeybee_energy.properties.html">honeybee_energy.properties package</a><ul class="current">
+<li class="toctree-l5 current"><a class="reference internal" href="honeybee_energy.properties.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.properties.aperture.html">honeybee_energy.properties.aperture module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.properties.door.html">honeybee_energy.properties.door module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.properties.face.html">honeybee_energy.properties.face module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.properties.model.html">honeybee_energy.properties.model module</a></li>
+<li class="toctree-l6 current"><a class="current reference internal" href="#">honeybee_energy.properties.room module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.properties.shade.html">honeybee_energy.properties.shade module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.properties.html#module-honeybee_energy.properties">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.result.html">honeybee_energy.result package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.schedule.html">honeybee_energy.schedule package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.simulation.html">honeybee_energy.simulation package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.ventcool.html">honeybee_energy.ventcool package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="honeybee_energy.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="honeybee_energy.html#module-honeybee_energy">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li>
+    <a href="honeybee_energy.properties.model.html" title="Previous Chapter: honeybee_energy.properties.model module"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; honeybee_ener...</span>
+    </a>
+  </li>
+  <li>
+    <a href="honeybee_energy.properties.shade.html" title="Next Chapter: honeybee_energy.properties.shade module"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">honeybee_ener... &raquo;</span>
+    </a>
+  </li>
+              
+            
+            
+            
+            
+              <li class="hidden-sm">
+<div id="sourcelink">
+  <a href="_sources/honeybee_energy.properties.room.rst.txt"
+     rel="nofollow">Source</a>
+</div></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+      <div class="col-md-4">
+        <div id="sidebar" class="bs-sidenav" role="complementary"><ul>
+<li class="toctree-l1"><a class="reference internal" href="cli/index.html">CLI Docs</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">honeybee_energy</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="honeybee_energy.html">honeybee_energy package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="honeybee_energy.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.cli.html">honeybee_energy.cli package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.construction.html">honeybee_energy.construction package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.hvac.html">honeybee_energy.hvac package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.lib.html">honeybee_energy.lib package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.load.html">honeybee_energy.load package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.material.html">honeybee_energy.material package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="honeybee_energy.properties.html">honeybee_energy.properties package</a><ul class="current">
+<li class="toctree-l5 current"><a class="reference internal" href="honeybee_energy.properties.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.properties.aperture.html">honeybee_energy.properties.aperture module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.properties.door.html">honeybee_energy.properties.door module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.properties.face.html">honeybee_energy.properties.face module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.properties.model.html">honeybee_energy.properties.model module</a></li>
+<li class="toctree-l6 current"><a class="current reference internal" href="#">honeybee_energy.properties.room module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.properties.shade.html">honeybee_energy.properties.shade module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.properties.html#module-honeybee_energy.properties">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.result.html">honeybee_energy.result package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.schedule.html">honeybee_energy.schedule package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.simulation.html">honeybee_energy.simulation package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.ventcool.html">honeybee_energy.ventcool package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="honeybee_energy.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="honeybee_energy.html#module-honeybee_energy">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    <div class="body col-md-8 content" role="main">
+      
+  <div class="section" id="module-honeybee_energy.properties.room">
+<span id="honeybee-energy-properties-room-module"></span><h1>honeybee_energy.properties.room module<a class="headerlink" href="#module-honeybee_energy.properties.room" title="Permalink to this headline">¶</a></h1>
+<p>Room Energy Properties.</p>
+<dl class="py class">
+<dt id="honeybee_energy.properties.room.RoomEnergyProperties">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">honeybee_energy.properties.room.</span></code><code class="sig-name descname"><span class="pre">RoomEnergyProperties</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">host</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">program_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">construction_set</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hvac</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/properties/room.html#RoomEnergyProperties"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.properties.room.RoomEnergyProperties" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Energy Properties for Honeybee Room.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>host</strong> – A honeybee_core Room object that hosts these properties.</p></li>
+<li><p><strong>program_type</strong> – A honeybee ProgramType object to specify all default
+schedules and loads for the Room. If None, the Room will have a Plenum
+program (with no loads or setpoints). Default: None.</p></li>
+<li><p><strong>construction_set</strong> – A honeybee ConstructionSet object to specify all
+default constructions for the Faces of the Room. If None, the Room
+will use the honeybee default construction set, which is not
+representative of a particular building code or climate zone.
+Default: None.</p></li>
+<li><p><strong>hvac</strong> – A honeybee HVAC object (such as an IdealAirSystem) that specifies
+how the Room is conditioned. If None, it will be assumed that the
+Room is not conditioned. Default: None.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Properties:</dt><dd><ul class="simple">
+<li><p>host</p></li>
+<li><p>program_type</p></li>
+<li><p>construction_set</p></li>
+<li><p>hvac</p></li>
+<li><p>people</p></li>
+<li><p>lighting</p></li>
+<li><p>electric_equipment</p></li>
+<li><p>gas_equipment</p></li>
+<li><p>service_hot_water</p></li>
+<li><p>infiltration</p></li>
+<li><p>ventilation</p></li>
+<li><p>setpoint</p></li>
+<li><p>window_vent_control</p></li>
+<li><p>is_conditioned</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="honeybee_energy.properties.room.RoomEnergyProperties.ToString">
+<code class="sig-name descname"><span class="pre">ToString</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/properties/room.html#RoomEnergyProperties.ToString"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.properties.room.RoomEnergyProperties.ToString" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.properties.room.RoomEnergyProperties.abolute_electric_equipment">
+<code class="sig-name descname"><span class="pre">abolute_electric_equipment</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">watts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conversion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/properties/room.html#RoomEnergyProperties.abolute_electric_equipment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.properties.room.RoomEnergyProperties.abolute_electric_equipment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the abolute wattage of electric equipment in the Room.</p>
+<p>This overwrites the RoomEnergyProperties’s electric equipment per area but
+preserves all schedules and other properties. If the Room has no electric
+equipment definition, a new one with an Always On schedule will be created.
+Note that, if the host Room has no floors, the electric equipment load
+will be zero.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>watts</strong> – Number for the installed wattage of electric equipment in the room.</p></li>
+<li><p><strong>conversion</strong> – Factor to account for the case where host Room geometry is
+not in meters. This will be multiplied by the floor area so it should
+be 0.001 for millimeters, 0.305 for feet, etc. (Default: 1).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.properties.room.RoomEnergyProperties.abolute_gas_equipment">
+<code class="sig-name descname"><span class="pre">abolute_gas_equipment</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">watts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conversion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/properties/room.html#RoomEnergyProperties.abolute_gas_equipment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.properties.room.RoomEnergyProperties.abolute_gas_equipment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the abolute wattage of gas equipment in the Room.</p>
+<p>This overwrites the RoomEnergyProperties’s gas equipment per area but
+preserves all schedules and other properties. If the Room has no gas
+equipment definition, a new one with an Always On schedule will be created.
+Note that, if the host Room has no floors, the gas equipment load
+will be zero.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>watts</strong> – Number for the installed wattage of gas equipment in the room.</p></li>
+<li><p><strong>conversion</strong> – Factor to account for the case where host Room geometry is
+not in meters. This will be multiplied by the floor area so it should
+be 0.001 for millimeters, 0.305 for feet, etc. (Default: 1).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.properties.room.RoomEnergyProperties.abolute_infiltration">
+<code class="sig-name descname"><span class="pre">abolute_infiltration</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flow_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conversion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/properties/room.html#RoomEnergyProperties.abolute_infiltration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.properties.room.RoomEnergyProperties.abolute_infiltration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the abolute flow rate of infiltration for the Room in m3/s.</p>
+<p>This overwrites the RoomEnergyProperties’s infiltration flow per exterior area
+but preserves all schedules and other properties. If the Room has no
+infiltration definition, a new one with an Always On schedule will be created.
+Note that, if the host Room has no exterior faces, the infiltration load
+will be zero.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>flow_rate</strong> – Number for the infiltration flow rate in m3/s.</p></li>
+<li><p><strong>conversion</strong> – Factor to account for the case where host Room geometry is
+not in meters. This will be multiplied by the floor area so it should
+be 0.001 for millimeters, 0.305 for feet, etc. (Default: 1).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.properties.room.RoomEnergyProperties.abolute_infiltration_ach">
+<code class="sig-name descname"><span class="pre">abolute_infiltration_ach</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">air_changes_per_hour</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conversion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/properties/room.html#RoomEnergyProperties.abolute_infiltration_ach"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.properties.room.RoomEnergyProperties.abolute_infiltration_ach" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the abolute flow rate of infiltration for the Room in ACH.</p>
+<p>This overwrites the RoomEnergyProperties’s infiltration flow per exterior area
+but preserves all schedules and other properties. If the Room has no
+infiltration definition, a new one with an Always On schedule will be created.
+Note that, if the host Room has no exterior faces, the infiltration load
+will be zero.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>air_changes_per_hour</strong> – Number for the infiltration flow rate in ACH.</p></li>
+<li><p><strong>conversion</strong> – Factor to account for the case where host Room geometry is
+not in meters. This will be multiplied by the floor area so it should
+be 0.001 for millimeters, 0.305 for feet, etc. (Default: 1).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.properties.room.RoomEnergyProperties.abolute_lighting">
+<code class="sig-name descname"><span class="pre">abolute_lighting</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">watts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conversion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/properties/room.html#RoomEnergyProperties.abolute_lighting"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.properties.room.RoomEnergyProperties.abolute_lighting" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the abolute wattage of lighting in the Room.</p>
+<p>This overwrites the RoomEnergyProperties’s lighting per area but preserves all
+schedules and other lighting properties. If the Room has no lighting definition,
+a new one with an Always On schedule will be created. Note that, if the
+host Room has no floors, the lighting load will be zero.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>watts</strong> – Number for the installed wattage of lighting in the room.</p></li>
+<li><p><strong>conversion</strong> – Factor to account for the case where host Room geometry is
+not in meters. This will be multiplied by the floor area so it should
+be 0.001 for millimeters, 0.305 for feet, etc. (Default: 1).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.properties.room.RoomEnergyProperties.abolute_people">
+<code class="sig-name descname"><span class="pre">abolute_people</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">person_count</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conversion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/properties/room.html#RoomEnergyProperties.abolute_people"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.properties.room.RoomEnergyProperties.abolute_people" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the abolute number of people in the Room.</p>
+<p>This overwrites the RoomEnergyProperties’s people per area but preserves
+all schedules and other people properties. If the Room has no people definition,
+a new one with an Always On schedule will be created. Note that, if the
+host Room has no floors, the people load will be zero.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>person_count</strong> – Number for the maximum quantity of people in the room.</p></li>
+<li><p><strong>conversion</strong> – Factor to account for the case where host Room geometry is
+not in meters. This will be multiplied by the floor area so it should
+be 0.001 for millimeters, 0.305 for feet, etc. (Default: 1).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.properties.room.RoomEnergyProperties.abolute_service_hot_water">
+<code class="sig-name descname"><span class="pre">abolute_service_hot_water</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flow</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conversion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/properties/room.html#RoomEnergyProperties.abolute_service_hot_water"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.properties.room.RoomEnergyProperties.abolute_service_hot_water" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the abolute flow rate of service hot water use in the Room.</p>
+<p>This overwrites the RoomEnergyProperties’s hot water flow per area but
+preserves all schedules and other properties. If the Room has no service
+hot water definition, a new one with an Always On schedule will be created.
+Note that, if the host Room has no floors, the service hot water flow
+will be zero.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>flow</strong> – Number for the peak flow rate of service hot water in the room.</p></li>
+<li><p><strong>conversion</strong> – Factor to account for the case where host Room geometry is
+not in meters. This will be multiplied by the floor area so it should
+be 0.001 for millimeters, 0.305 for feet, etc. (Default: 1).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.properties.room.RoomEnergyProperties.add_daylight_control_to_center">
+<code class="sig-name descname"><span class="pre">add_daylight_control_to_center</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">distance_from_floor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">illuminance_setpoint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">300</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">control_fraction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_power_input</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_light_output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">off_at_minimum</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/properties/room.html#RoomEnergyProperties.add_daylight_control_to_center"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.properties.room.RoomEnergyProperties.add_daylight_control_to_center" title="Permalink to this definition">¶</a></dt>
+<dd><p>Try to assign a DaylightingControl object to the center of the Room.</p>
+<p>If the Room is too concave and the center point does not lie within the
+Room volume, this method wil return None and no daylighting control will
+be assigned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>distance_from_floor</strong> – A number for the distance that the daylight sensor
+is from the floor. Typical values are around 0.8 meters.</p></li>
+<li><p><strong>illuminance_setpoint</strong> – A number for the illuminance setpoint in lux
+beyond which electric lights are dimmed if there is sufficient
+daylight. (Default: 300 lux).</p></li>
+<li><p><strong>control_fraction</strong> – A number between 0 and 1 that represents the fraction of
+the Room lights that are dimmed when the illuminance at the sensor
+position is at the specified illuminance. 1 indicates that all lights are
+dim-able while 0 indicates that no lights are dim-able. Deeper rooms
+should have lower control fractions to account for the face that the
+lights in the back of the space do not dim in response to suitable
+daylight at the front of the room. (Default: 1).</p></li>
+<li><p><strong>min_power_input</strong> – A number between 0 and 1 for the the lowest power the
+lighting system can dim down to, expressed as a fraction of maximum
+input power. (Default: 0.3).</p></li>
+<li><p><strong>min_light_output</strong> – A number between 0 and 1 the lowest lighting output the
+lighting system can dim down to, expressed as a fraction of maximum
+light output. (Default: 0.2).</p></li>
+<li><p><strong>off_at_minimum</strong> – Boolean to note whether lights should switch off completely
+when they get to the minimum power input. (Default: False).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A DaylightingControl object if the sensor was successfully assigned
+to the center of the Room. Will be None if the zone was so concave
+that a sensor would not be assigned.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.properties.room.RoomEnergyProperties.add_default_ideal_air">
+<code class="sig-name descname"><span class="pre">add_default_ideal_air</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/properties/room.html#RoomEnergyProperties.add_default_ideal_air"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.properties.room.RoomEnergyProperties.add_default_ideal_air" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a default IdealAirSystem to this Room.</p>
+<p>The identifier of this system will be derived from the room identifier
+and will align with the naming convention that EnergyPlus uses for
+templates Ideal Air systems.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.properties.room.RoomEnergyProperties.apply_properties_from_dict">
+<code class="sig-name descname"><span class="pre">apply_properties_from_dict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">abridged_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">construction_sets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">program_types</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hvacs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schedules</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/properties/room.html#RoomEnergyProperties.apply_properties_from_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.properties.room.RoomEnergyProperties.apply_properties_from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply properties from a RoomEnergyPropertiesAbridged dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>abridged_data</strong> – A RoomEnergyPropertiesAbridged dictionary (typically
+coming from a Model).</p></li>
+<li><p><strong>construction_sets</strong> – A dictionary of ConstructionSets with identifiers
+of the sets as keys, which will be used to re-assign construction_sets.</p></li>
+<li><p><strong>program_types</strong> – A dictionary of ProgramTypes with identifiers of the types as
+keys, which will be used to re-assign program_types.</p></li>
+<li><p><strong>hvacs</strong> – A dictionary of HVACSystems with the identifiers of the systems as
+keys, which will be used to re-assign hvac to the Room.</p></li>
+<li><p><strong>schedules</strong> – A dictionary of Schedules with identifiers of the schedules ask
+keys, which will be used to re-assign schedules.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.properties.room.RoomEnergyProperties.assign_ventilation_opening">
+<code class="sig-name descname"><span class="pre">assign_ventilation_opening</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vent_opening</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/properties/room.html#RoomEnergyProperties.assign_ventilation_opening"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.properties.room.RoomEnergyProperties.assign_ventilation_opening" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assign a VentilationOpening object to all operable Apertures on this Room.</p>
+<p>This method will handle the duplication of the VentilationOpening object to
+ensure that each aperture gets a unique object that can export the correct
+area and height properties of its parent.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>vent_opening</strong> – A VentilationOpening object to be duplicated and assigned
+to all of the operable apertures of the Room.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list of Apertures for which ventilation opening properties were set.
+This can be used to perform additional operations on the apertures, such
+as changing their construction.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.properties.room.RoomEnergyProperties.duplicate">
+<code class="sig-name descname"><span class="pre">duplicate</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_host</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/properties/room.html#RoomEnergyProperties.duplicate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.properties.room.RoomEnergyProperties.duplicate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a copy of this object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>new_host</strong> – A new Room object that hosts these properties.
+If None, the properties will be duplicated with the same host.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.properties.room.RoomEnergyProperties.envelope_components_by_type">
+<code class="sig-name descname"><span class="pre">envelope_components_by_type</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/properties/room.html#RoomEnergyProperties.envelope_components_by_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.properties.room.RoomEnergyProperties.envelope_components_by_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get groups for room envelope components by boundary condition and type.</p>
+<p>The groups created by this function correspond to the structure of the
+crack template data used to generate the AirflowNetwork but can be
+useful for other purposes. However, any parts of the envelope with a
+boundary condition other than Outdoors and Surface will be excluded
+(eg. Ground or Adiabatic).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><p>A tuple with five groups of exterior envelope types</p>
+<ul class="simple">
+<li><p>ext_walls - A list of exterior Wall type Face objects.</p></li>
+<li><p>ext_roofs - A list of exterior RoofCeiling type Face objects.</p></li>
+<li><p>ext_floors - A list of exterior Floor type Face objects, like you
+would find in a cantilevered Room.</p></li>
+<li><p>ext_apertures - A list of exterior Aperture Face objects.</p></li>
+<li><p>ext_doors - A list of exterior Door Face objects.</p></li>
+</ul>
+<p>A tuple with four groups of interior faces types</p>
+<ul class="simple">
+<li><p>int_walls: List of interior Wall type Face objects.</p></li>
+<li><p>int_floorceilings: List of interior RoofCeiling and Floor type Face
+objects.</p></li>
+<li><p>int_apertures: List of interior Aperture Face objects.</p></li>
+<li><p>int_doors: List of interior Door Face objects.</p></li>
+<li><p>int_air: List of interior Faces with AirBoundary face type.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.properties.room.RoomEnergyProperties.exterior_afn_from_infiltration_load">
+<code class="sig-name descname"><span class="pre">exterior_afn_from_infiltration_load</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exterior_face_groups</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">air_density</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.2041</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_pressure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/properties/room.html#RoomEnergyProperties.exterior_afn_from_infiltration_load"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.properties.room.RoomEnergyProperties.exterior_afn_from_infiltration_load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Assign AirflowNetwork parameters using the room’s infiltration rate.</p>
+<p>This will assign air leakage parameters to the Room’s exterior Faces that
+produce a total air flow rate equivalent to the room infiltration rate at
+an envelope pressure difference of 4 Pa. However, the individual flow air
+leakage parameters are not meant to be representative of real values, since the
+infiltration flow rate is an average of the actual, variable surface flow
+dynamics.</p>
+<p>VentilationOpening objects will be added to Aperture and Door objects if not
+already defined, with the fraction_area_operable set to 0. If VentilationOpening
+objects are already defined, only the parameters defining leakage when the
+openings are closed will be overwritten. AFNCrack objects will be added
+to all external and internal Face objects, and any existing AFNCrack
+objects will be overwritten.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>exterior_face_groups</strong> – <p>A tuple with five types of the exterior room envelope</p>
+<ul>
+<li><p>ext_walls - A list of exterior Wall type Face objects.</p></li>
+<li><p>ext_roofs - A list of exterior RoofCeiling type Face objects.</p></li>
+<li><p>ext_floors - A list of exterior Floor type Face objects, like you
+would find in a cantilevered Room.</p></li>
+<li><p>ext_apertures - A list of exterior Aperture Face objects.</p></li>
+<li><p>ext_doors - A list of exterior Door Face objects.</p></li>
+</ul>
+</p></li>
+<li><p><strong>air_density</strong> – Air density in kg/m3. (Default: 1.2041 represents
+air density at a temperature of 20 C and 101325 Pa).</p></li>
+<li><p><strong>delta_pressure</strong> – <p>Reference air pressure difference across the building
+envelope orifice in Pascals used to calculate infiltration crack flow
+coefficients. The resulting average simulated air pressure difference
+will roughly equal this delta_pressure times the nth root of the ratio
+between the simulated and target room infiltration rates:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">dP_sim</span> <span class="o">=</span> <span class="p">(</span><span class="n">Q_sim</span> <span class="o">/</span> <span class="n">Q_target</span><span class="p">)</span><span class="o">^</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">n</span><span class="p">)</span> <span class="o">*</span> <span class="n">dP_ref</span>
+
+<span class="n">where</span><span class="p">:</span>
+    <span class="n">dP</span><span class="p">:</span> <span class="n">delta_pressure</span><span class="p">,</span> <span class="n">the</span> <span class="n">reference</span> <span class="n">air</span> <span class="n">pressure</span> <span class="n">difference</span> <span class="p">[</span><span class="n">Pa</span><span class="p">]</span>
+    <span class="n">dP_sim</span><span class="p">:</span> <span class="n">Simulated</span> <span class="n">air</span> <span class="n">pressure</span> <span class="n">difference</span> <span class="p">[</span><span class="n">Pa</span><span class="p">]</span>
+    <span class="n">Q_sim</span><span class="p">:</span> <span class="n">Simulated</span> <span class="n">volumetric</span> <span class="n">air</span> <span class="n">flow</span> <span class="n">rate</span> <span class="n">per</span> <span class="n">area</span> <span class="p">[</span><span class="n">m3</span><span class="o">/</span><span class="n">s</span><span class="o">/</span><span class="n">m2</span><span class="p">]</span>
+    <span class="n">Q_target</span><span class="p">:</span> <span class="n">Target</span> <span class="n">volumetric</span> <span class="n">air</span> <span class="n">flow</span> <span class="n">rate</span> <span class="n">per</span> <span class="n">area</span> <span class="p">[</span><span class="n">m3</span><span class="o">/</span><span class="n">s</span><span class="o">/</span><span class="n">m2</span><span class="p">]</span>
+    <span class="n">n</span><span class="p">:</span> <span class="n">Air</span> <span class="n">mass</span> <span class="n">flow</span> <span class="n">exponent</span> <span class="p">[</span><span class="o">-</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>If attempting to replicate the room infiltration rate per exterior area,
+delta_pressure should be set to an approximation of the simulated air
+pressure difference described in the above formula. Default 4 represents
+typical building pressures.</p>
+</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.properties.room.RoomEnergyProperties.from_dict">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">from_dict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">host</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/properties/room.html#RoomEnergyProperties.from_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.properties.room.RoomEnergyProperties.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create RoomEnergyProperties from a dictionary.</p>
+<p>Note that the dictionary must be a non-abridged version for this
+classmethod to work.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – A dictionary representation of RoomEnergyProperties with the
+format below.</p></li>
+<li><p><strong>host</strong> – A Room object that hosts these properties.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s1">&#39;RoomEnergyProperties&#39;</span><span class="p">,</span>
+<span class="s2">&quot;construction_set&quot;</span><span class="p">:</span> <span class="p">{},</span>  <span class="c1"># A ConstructionSet dictionary</span>
+<span class="s2">&quot;program_type&quot;</span><span class="p">:</span> <span class="p">{},</span>  <span class="c1"># A ProgramType dictionary</span>
+<span class="s2">&quot;hvac&quot;</span><span class="p">:</span> <span class="p">{},</span> <span class="c1"># A HVACSystem dictionary</span>
+<span class="s2">&quot;people&quot;</span><span class="p">:{},</span>  <span class="c1"># A People dictionary</span>
+<span class="s2">&quot;lighting&quot;</span><span class="p">:</span> <span class="p">{},</span>  <span class="c1"># A Lighting dictionary</span>
+<span class="s2">&quot;electric_equipment&quot;</span><span class="p">:</span> <span class="p">{},</span>  <span class="c1"># A ElectricEquipment dictionary</span>
+<span class="s2">&quot;gas_equipment&quot;</span><span class="p">:</span> <span class="p">{},</span>  <span class="c1"># A GasEquipment dictionary</span>
+<span class="s2">&quot;service_hot_water&quot;</span><span class="p">:</span> <span class="p">{},</span>  <span class="c1"># A ServiceHotWater dictionary</span>
+<span class="s2">&quot;infiltration&quot;</span><span class="p">:</span> <span class="p">{},</span>  <span class="c1"># A Infiltration dictionary</span>
+<span class="s2">&quot;ventilation&quot;</span><span class="p">:</span> <span class="p">{},</span>  <span class="c1"># A Ventilation dictionary</span>
+<span class="s2">&quot;setpoint&quot;</span><span class="p">:</span> <span class="p">{},</span>  <span class="c1"># A Setpoint dictionary</span>
+<span class="s2">&quot;daylighting_control&quot;</span><span class="p">:</span> <span class="p">{},</span>  <span class="c1"># A DaylightingControl dictionary</span>
+<span class="s2">&quot;window_vent_control&quot;</span><span class="p">:</span> <span class="p">{}</span>  <span class="c1"># A VentilationControl dictionary</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.properties.room.RoomEnergyProperties.make_ground">
+<code class="sig-name descname"><span class="pre">make_ground</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">soil_construction</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/properties/room.html#RoomEnergyProperties.make_ground"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.properties.room.RoomEnergyProperties.make_ground" title="Permalink to this definition">¶</a></dt>
+<dd><p>Change the properties of the host Room to reflect those of a ground surface.</p>
+<p>This is particularly useful for setting up outdoor thermal comfort maps
+to account for the surface temperature of the ground. Modeling the ground
+as a room this way will ensure that shadows other objects cast upon it
+are accounted for along with the storage of heat in the ground surface.</p>
+<p>The turning of a Room into a ground entails:</p>
+<ul class="simple">
+<li><p>Setting all constructions to be indicative of a certain soil type.</p></li>
+<li><p>Setting all Faces except the roof to have a Ground boundary condition.</p></li>
+<li><p>Removing all loads and schedules assigned to the Room.</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>soil_construction</strong> – An OpaqueConstruction that reflects the soil type of
+the ground. If a multi-layered construction is input, the multiple
+layers will only be used for the roof Face of the Room and all other
+Faces will get a construction with the inner-most layer assigned.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.properties.room.RoomEnergyProperties.make_plenum">
+<code class="sig-name descname"><span class="pre">make_plenum</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conditioned</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_infiltration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/properties/room.html#RoomEnergyProperties.make_plenum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.properties.room.RoomEnergyProperties.make_plenum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Turn the host Room into a plenum with no internal loads.</p>
+<p>This includes removing all people, lighting, equipment, hot water, and
+mechanical ventilation. By
+default, the heating/cooling system and setpoints will also be removed but they
+can optionally be kept. Infiltration is kept by default but can optionally be
+removed as well.</p>
+<p>This is useful to appropriately assign properties for closets, underfloor spaces,
+and drop ceilings.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>conditioned</strong> – Boolean to indicate whether the plenum is conditioned with a
+heating/cooling system. If True, the setpoints of the Room will also
+be kept in addition to the heating/cooling system (Default: False).</p></li>
+<li><p><strong>remove_infiltration</strong> – Boolean to indicate whether infiltration should be
+removed from the Rooms. (Default: False).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.properties.room.RoomEnergyProperties.move">
+<code class="sig-name descname"><span class="pre">move</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">moving_vec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/properties/room.html#RoomEnergyProperties.move"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.properties.room.RoomEnergyProperties.move" title="Permalink to this definition">¶</a></dt>
+<dd><p>Move this object along a vector.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>moving_vec</strong> – A ladybug_geometry Vector3D with the direction and distance
+to move the object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.properties.room.RoomEnergyProperties.reflect">
+<code class="sig-name descname"><span class="pre">reflect</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plane</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/properties/room.html#RoomEnergyProperties.reflect"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.properties.room.RoomEnergyProperties.reflect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reflect this object across a plane.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>plane</strong> – A ladybug_geometry Plane across which the object will
+be reflected.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.properties.room.RoomEnergyProperties.remove_child_constructions">
+<code class="sig-name descname"><span class="pre">remove_child_constructions</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/properties/room.html#RoomEnergyProperties.remove_child_constructions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.properties.room.RoomEnergyProperties.remove_child_constructions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove constructions assigned to the Room’s Faces, Apertures, Doors and Shades.</p>
+<p>This means that all constructions of the Room will be assigned by the Room’s
+construction_set (or the Honeybee default ConstructionSet if the Room has
+no construction set).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.properties.room.RoomEnergyProperties.remove_ventilation_opening">
+<code class="sig-name descname"><span class="pre">remove_ventilation_opening</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/properties/room.html#RoomEnergyProperties.remove_ventilation_opening"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.properties.room.RoomEnergyProperties.remove_ventilation_opening" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove all VentilationOpening objects assigned to the Room’s Apertures.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.properties.room.RoomEnergyProperties.reset_to_default">
+<code class="sig-name descname"><span class="pre">reset_to_default</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/properties/room.html#RoomEnergyProperties.reset_to_default"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.properties.room.RoomEnergyProperties.reset_to_default" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reset all of the properties assigned at the level of this Room to the default.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.properties.room.RoomEnergyProperties.rotate">
+<code class="sig-name descname"><span class="pre">rotate</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">angle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">origin</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/properties/room.html#RoomEnergyProperties.rotate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.properties.room.RoomEnergyProperties.rotate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rotate this object by a certain angle around an axis and origin.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>angle</strong> – An angle for rotation in degrees.</p></li>
+<li><p><strong>axis</strong> – Rotation axis as a Vector3D.</p></li>
+<li><p><strong>origin</strong> – A ladybug_geometry Point3D for the origin around which the
+object will be rotated.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.properties.room.RoomEnergyProperties.rotate_xy">
+<code class="sig-name descname"><span class="pre">rotate_xy</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">angle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">origin</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/properties/room.html#RoomEnergyProperties.rotate_xy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.properties.room.RoomEnergyProperties.rotate_xy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rotate this object counterclockwise in the world XY plane by a certain angle.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>angle</strong> – An angle in degrees.</p></li>
+<li><p><strong>origin</strong> – A ladybug_geometry Point3D for the origin around which the
+object will be rotated.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.properties.room.RoomEnergyProperties.scale">
+<code class="sig-name descname"><span class="pre">scale</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">factor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">origin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/properties/room.html#RoomEnergyProperties.scale"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.properties.room.RoomEnergyProperties.scale" title="Permalink to this definition">¶</a></dt>
+<dd><p>Scale this object by a factor from an origin point.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>factor</strong> – A number representing how much the object should be scaled.</p></li>
+<li><p><strong>origin</strong> – A ladybug_geometry Point3D representing the origin from which
+to scale. If None, it will be scaled from the World origin (0, 0, 0).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.properties.room.RoomEnergyProperties.solve_norm_area_flow_coefficient">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">solve_norm_area_flow_coefficient</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flow_per_exterior_area</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flow_exponent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.65</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">air_density</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.2041</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_pressure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/properties/room.html#RoomEnergyProperties.solve_norm_area_flow_coefficient"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.properties.room.RoomEnergyProperties.solve_norm_area_flow_coefficient" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get normalized mass flow coefficient [kg/(m2 s P^n)] from infiltration per area.</p>
+<p>The normalized area air mass flow coefficient is derived from a zone’s
+infiltration flow rate using the power law relationship between pressure
+and air flow:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Qva</span> <span class="o">*</span> <span class="n">d</span> <span class="o">=</span> <span class="n">Cqa</span> <span class="o">*</span> <span class="n">dP</span><span class="o">^</span><span class="n">n</span>
+
+<span class="n">where</span><span class="p">:</span>
+    <span class="n">Cqa</span><span class="p">:</span> <span class="n">Air</span> <span class="n">mass</span> <span class="n">flow</span> <span class="n">coefficient</span> <span class="n">per</span> <span class="n">unit</span> <span class="n">meter</span> <span class="n">at</span> <span class="mi">1</span> <span class="n">Pa</span> <span class="p">[</span><span class="n">kg</span><span class="o">/</span><span class="n">m2</span><span class="o">/</span><span class="n">s</span><span class="o">/</span><span class="n">P</span><span class="o">^</span><span class="n">n</span><span class="p">]</span>
+    <span class="n">Qva</span><span class="p">:</span> <span class="n">Volumetric</span> <span class="n">air</span> <span class="n">flow</span> <span class="n">rate</span> <span class="n">per</span> <span class="n">area</span> <span class="p">[</span><span class="n">m3</span><span class="o">/</span><span class="n">s</span><span class="o">/</span><span class="n">m2</span><span class="p">]</span>
+    <span class="n">d</span><span class="p">:</span> <span class="n">Air</span> <span class="n">density</span> <span class="p">[</span><span class="n">kg</span><span class="o">/</span><span class="n">m3</span><span class="p">]</span>
+    <span class="n">dP</span><span class="p">:</span> <span class="n">Change</span> <span class="ow">in</span> <span class="n">pressure</span> <span class="n">across</span> <span class="n">building</span> <span class="n">envelope</span> <span class="n">orifice</span> <span class="p">[</span><span class="n">Pa</span><span class="p">]</span>
+    <span class="n">n</span><span class="p">:</span> <span class="n">Air</span> <span class="n">mass</span> <span class="n">flow</span> <span class="n">exponent</span> <span class="p">[</span><span class="o">-</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Rearranged to solve for <code class="docutils literal notranslate"><span class="pre">Cqa</span></code></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Cqa</span> <span class="o">=</span> <span class="p">(</span><span class="n">Qva</span> <span class="o">*</span> <span class="n">d</span><span class="p">)</span> <span class="o">/</span> <span class="n">dP</span><span class="o">^</span><span class="n">n</span>
+</pre></div>
+</div>
+<p>The resulting value has units of kg/(m2-s-P^n) &#64; &lt;delta_pressure&gt; Pa, while the
+EnergyPlus AirflowNetwork requires this value to be in kg/(s-Pa) &#64; 1 Pa. Thus
+this value needs to be multiplied by its corresponding exposed surface area.
+Since the actual ratio between mass infiltration and pressure difference (raised
+by n) is constant, we assume solving for the flow coefficient at the
+delta_pressure value is equivalent to solving it at the required 1 Pa.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>flow_per_exterior_area</strong> – A numerical value for the intensity of infiltration
+in m3/s per square meter of exterior surface area.</p></li>
+<li><p><strong>air_density</strong> – Air density in kg/m3. (Default: 1.2041 represents
+air density at a temperature of 20 C and 101325 Pa).</p></li>
+<li><p><strong>flow_exponent</strong> – A numerical value for the air mass flow exponent.
+(Default: 0.65).</p></li>
+<li><p><strong>delta_pressure</strong> – Reference air pressure difference across building envelope
+orifice in Pascals. Default 4 represents typical building pressures.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Air mass flow coefficient per unit meter at 1 Pa [kg/m2/s/P^n]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.properties.room.RoomEnergyProperties.solve_norm_perimeter_flow_coefficient">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">solve_norm_perimeter_flow_coefficient</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">norm_area_flow_coefficient</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">face_area</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">face_perimeter</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/properties/room.html#RoomEnergyProperties.solve_norm_perimeter_flow_coefficient"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.properties.room.RoomEnergyProperties.solve_norm_perimeter_flow_coefficient" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get mass flow coefficient [kg/(s m P^n)] from a normalied one and geometry.</p>
+<p>This parameter is used to derive air flow for the four cracks around the
+perimeter of a closed window or door: one along the bottom, one along the top,
+and one on each side. Since this value is derived from the infiltration flow
+rate per exterior area, which represents an average over many types of air
+leakage rates, this value is not intended to be representative of actual opening
+edges flow coefficients. The normalized perimeter air mass flow coefficient is
+derived from its infiltration flow rate using the following formula:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Qva</span> <span class="o">*</span> <span class="n">d</span> <span class="o">*</span> <span class="n">A</span> <span class="o">=</span> <span class="n">Cql</span> <span class="o">*</span> <span class="n">L</span> <span class="o">*</span> <span class="n">dP</span><span class="o">^</span><span class="n">n</span>
+
+<span class="n">where</span><span class="p">:</span>
+    <span class="n">Cql</span><span class="p">:</span> <span class="n">Air</span> <span class="n">mass</span> <span class="n">flow</span> <span class="n">coefficient</span> <span class="n">per</span> <span class="n">unit</span> <span class="n">length</span> <span class="n">at</span> <span class="mi">1</span> <span class="n">Pa</span> <span class="p">[</span><span class="n">kg</span><span class="o">/</span><span class="n">m</span><span class="o">/</span><span class="n">s</span><span class="o">/</span><span class="n">P</span><span class="o">^</span><span class="n">n</span><span class="p">]</span>
+    <span class="n">Qva</span><span class="p">:</span> <span class="n">Volumetric</span> <span class="n">air</span> <span class="n">flow</span> <span class="n">rate</span> <span class="n">per</span> <span class="n">length</span> <span class="p">[</span><span class="n">m3</span><span class="o">/</span><span class="n">s</span><span class="o">/</span><span class="n">m</span><span class="p">]</span>
+    <span class="n">d</span><span class="p">:</span> <span class="n">Air</span> <span class="n">density</span> <span class="p">[</span><span class="n">kg</span><span class="o">/</span><span class="n">m3</span><span class="p">]</span>
+    <span class="n">A</span><span class="p">:</span> <span class="n">Surface</span> <span class="n">area</span> <span class="n">of</span> <span class="n">opening</span> <span class="p">[</span><span class="n">m2</span><span class="p">]</span>
+    <span class="n">L</span><span class="p">:</span> <span class="n">Surface</span> <span class="n">perimeter</span> <span class="n">of</span> <span class="n">opening</span> <span class="p">[</span><span class="n">m</span><span class="p">]</span>
+    <span class="n">dP</span><span class="p">:</span> <span class="n">Change</span> <span class="ow">in</span> <span class="n">pressure</span> <span class="n">across</span> <span class="n">building</span> <span class="n">envelope</span> <span class="p">[</span><span class="n">Pa</span><span class="p">]</span>
+    <span class="n">n</span><span class="p">:</span> <span class="n">Air</span> <span class="n">mass</span> <span class="n">flow</span> <span class="n">exponent</span> <span class="p">[</span><span class="o">-</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Since <code class="docutils literal notranslate"><span class="pre">(Qva</span> <span class="pre">*</span> <span class="pre">d)</span> <span class="pre">/</span> <span class="pre">dP^n</span></code> equals <code class="docutils literal notranslate"><span class="pre">Cqa</span></code> the normalized area flow coefficient,
+this can be simplified and rearranged to solve for <code class="docutils literal notranslate"><span class="pre">Cql</span></code> with the following
+formula:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">Cqa</span> <span class="o">*</span> <span class="n">dP</span><span class="o">^</span><span class="n">n</span><span class="p">)</span> <span class="o">*</span> <span class="n">A</span> <span class="o">=</span> <span class="n">Cql</span> <span class="o">*</span> <span class="n">L</span> <span class="o">*</span> <span class="n">dP</span><span class="o">^</span><span class="n">n</span>
+<span class="n">Cql</span> <span class="o">=</span> <span class="p">((</span><span class="n">Cqa</span> <span class="o">*</span> <span class="n">dP</span><span class="o">^</span><span class="n">n</span><span class="p">)</span> <span class="o">*</span> <span class="n">A</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">L</span> <span class="o">*</span> <span class="n">dP</span><span class="o">^</span><span class="n">n</span><span class="p">)</span>
+    <span class="o">=</span> <span class="n">Cqa</span> <span class="o">*</span> <span class="n">A</span> <span class="o">/</span> <span class="n">L</span>
+</pre></div>
+</div>
+<p>The resulting value has units of kg/(m-s-P^n) &#64; &lt;delta_pressure&gt; Pa, while the
+EnergyPlus AirflowNetwork requires this value to be in kg/(s-Pa) &#64; 1 Pa. Thus
+unlike the surface area flow_coefficient, this coefficient is normalized per
+unit length. Since the actual ratio between mass infiltration and pressure
+difference (raised by n) is constant, we assume solving for the flow coefficient
+at the delta_pressure value is equivalent to solving it at the required 1 Pa.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>norm_area_flow_coefficient</strong> – Air mass flow coefficient per unit meter at
+1 Pa [kg/m2/s/P^n]</p></li>
+<li><p><strong>face_area</strong> – A numerical value for the total exterior area in m2.</p></li>
+<li><p><strong>face_perimeter</strong> – A numerical value for the total exterior perimeter in meters.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Air mass flow coefficient per unit length at 1 Pa [kg/m/s/P^n]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.properties.room.RoomEnergyProperties.to_dict">
+<code class="sig-name descname"><span class="pre">to_dict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">abridged</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/properties/room.html#RoomEnergyProperties.to_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.properties.room.RoomEnergyProperties.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return Room energy properties as a dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>abridged</strong> – Boolean for whether the full dictionary of the Room should
+be written (False) or just the identifier of the the individual
+properties (True). Default: False.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.properties.room.RoomEnergyProperties.window_construction_by_orientation">
+<code class="sig-name descname"><span class="pre">window_construction_by_orientation</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">construction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orientation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">45</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">north_vector</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Vector2D(0.0,</span> <span class="pre">1.0)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/properties/room.html#RoomEnergyProperties.window_construction_by_orientation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.properties.room.RoomEnergyProperties.window_construction_by_orientation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the construction of exterior Apertures in Walls facing a given orientation.</p>
+<p>This is useful for testing orientation-specific energy conservation
+strategies or creating AHSRAE baseline buildings.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>construction</strong> – A WindowConstruction that will be assigned to all of the
+room’s Apertures in Walls that are facing a certain orientation.</p></li>
+<li><p><strong>orientation</strong> – A number between 0 and 360 that represents the orientation
+in degrees to which the construction will be assigned. 0 = North,
+90 = East, 180 = South, 270 = West. (Default: 0 for North).</p></li>
+<li><p><strong>offset</strong> – A number between 0 and 180 that represents the offset from the
+orientation in degrees for which the construction will be assigned.
+For example, a value of 45 indicates that any Apertures falling
+in the 90 degree range around the orientation will get the input
+construction. (Default: 45).</p></li>
+<li><p><strong>north_vector</strong> – A ladybug_geometry Vector3D for the north direction.
+Default is the Y-axis (0, 1).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.properties.room.RoomEnergyProperties.construction_set">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">construction_set</span></code><a class="headerlink" href="#honeybee_energy.properties.room.RoomEnergyProperties.construction_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the Room ConstructionSet object.</p>
+<p>If not set, it will be the Honeybee default generic ConstructionSet.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.properties.room.RoomEnergyProperties.daylighting_control">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">daylighting_control</span></code><a class="headerlink" href="#honeybee_energy.properties.room.RoomEnergyProperties.daylighting_control" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set a DaylightingControl object to dictate the dimming of lights.</p>
+<p>If None, the lighting will respond only to the schedule and not the
+daylight conditions within the room.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.properties.room.RoomEnergyProperties.electric_equipment">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">electric_equipment</span></code><a class="headerlink" href="#honeybee_energy.properties.room.RoomEnergyProperties.electric_equipment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set an ElectricEquipment object to describe the equipment usage.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.properties.room.RoomEnergyProperties.gas_equipment">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">gas_equipment</span></code><a class="headerlink" href="#honeybee_energy.properties.room.RoomEnergyProperties.gas_equipment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set a GasEquipment object to describe the equipment usage.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.properties.room.RoomEnergyProperties.host">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">host</span></code><a class="headerlink" href="#honeybee_energy.properties.room.RoomEnergyProperties.host" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the Room object hosting these properties.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.properties.room.RoomEnergyProperties.hvac">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">hvac</span></code><a class="headerlink" href="#honeybee_energy.properties.room.RoomEnergyProperties.hvac" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the HVAC object for the Room.</p>
+<p>If None, it will be assumed that the Room is not conditioned.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.properties.room.RoomEnergyProperties.infiltration">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">infiltration</span></code><a class="headerlink" href="#honeybee_energy.properties.room.RoomEnergyProperties.infiltration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set a Infiltration object to to describe the outdoor air leakage.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.properties.room.RoomEnergyProperties.is_conditioned">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">is_conditioned</span></code><a class="headerlink" href="#honeybee_energy.properties.room.RoomEnergyProperties.is_conditioned" title="Permalink to this definition">¶</a></dt>
+<dd><p>Boolean to note whether the Room is conditioned.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.properties.room.RoomEnergyProperties.lighting">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">lighting</span></code><a class="headerlink" href="#honeybee_energy.properties.room.RoomEnergyProperties.lighting" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set a Lighting object to describe the lighting usage of the Room.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.properties.room.RoomEnergyProperties.people">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">people</span></code><a class="headerlink" href="#honeybee_energy.properties.room.RoomEnergyProperties.people" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set a People object to describe the occupancy of the Room.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.properties.room.RoomEnergyProperties.program_type">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">program_type</span></code><a class="headerlink" href="#honeybee_energy.properties.room.RoomEnergyProperties.program_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the ProgramType object for the Room.</p>
+<p>If not set, it will default to a plenum ProgramType (with no loads assigned).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.properties.room.RoomEnergyProperties.service_hot_water">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">service_hot_water</span></code><a class="headerlink" href="#honeybee_energy.properties.room.RoomEnergyProperties.service_hot_water" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set a ServiceHotWater object to describe the hot water usage.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.properties.room.RoomEnergyProperties.setpoint">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">setpoint</span></code><a class="headerlink" href="#honeybee_energy.properties.room.RoomEnergyProperties.setpoint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set a Setpoint object for the temperature setpoints of the Room.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.properties.room.RoomEnergyProperties.ventilation">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">ventilation</span></code><a class="headerlink" href="#honeybee_energy.properties.room.RoomEnergyProperties.ventilation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set a Ventilation object for the minimum outdoor air requirement.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.properties.room.RoomEnergyProperties.window_vent_control">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">window_vent_control</span></code><a class="headerlink" href="#honeybee_energy.properties.room.RoomEnergyProperties.window_vent_control" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set a VentilationControl object to dictate the opening of windows.</p>
+<p>If None, the windows will never open.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2021, Ladybug Tools.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.4.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

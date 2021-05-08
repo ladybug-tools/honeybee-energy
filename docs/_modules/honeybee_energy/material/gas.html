@@ -1,0 +1,1469 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>honeybee_energy.material.gas &#8212; honeybee energy  documentation</title>
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../../../_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="../../../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../../../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../../../_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-inverse navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../../index.html">
+          honeybee energy</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli/index.html">CLI Docs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../cli/index.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../cli/index.html#commands">Commands</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../cli/main.html">main</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../cli/main.html#honeybee-energy">honeybee-energy</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/main.html#honeybee-energy-config">config</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../cli/settings.html">settings</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../cli/settings.html#honeybee-energy-settings">honeybee-energy settings</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/settings.html#honeybee-energy-settings-comfort-sim-par">comfort-sim-par</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/settings.html#honeybee-energy-settings-custom-sim-par">custom-sim-par</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/settings.html#honeybee-energy-settings-default-sim-par">default-sim-par</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/settings.html#honeybee-energy-settings-load-balance-sim-par">load-balance-sim-par</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/settings.html#honeybee-energy-settings-orientation-sim-pars">orientation-sim-pars</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/settings.html#honeybee-energy-settings-run-period">run-period</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/settings.html#honeybee-energy-settings-sizing-sim-par">sizing-sim-par</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../cli/simulate.html">simulate</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../cli/simulate.html#honeybee-energy-simulate">honeybee-energy simulate</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/simulate.html#honeybee-energy-simulate-idf">idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/simulate.html#honeybee-energy-simulate-model">model</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/simulate.html#honeybee-energy-simulate-osm">osm</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../cli/baseline.html">baseline</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../cli/baseline.html#honeybee-energy-baseline">honeybee-energy baseline</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/baseline.html#honeybee-energy-baseline-constructions-2004">constructions-2004</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/baseline.html#honeybee-energy-baseline-geometry-2004">geometry-2004</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/baseline.html#honeybee-energy-baseline-hvac-2004">hvac-2004</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/baseline.html#honeybee-energy-baseline-lighting-2004">lighting-2004</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/baseline.html#honeybee-energy-baseline-remove-ecms">remove-ecms</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../cli/edit.html">edit</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../cli/edit.html#honeybee-energy-edit">honeybee-energy edit</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/edit.html#honeybee-energy-edit-modifiers-from-constructions">modifiers-from-constructions</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../cli/validate.html">validate</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../cli/validate.html#honeybee-energy-validate">honeybee-energy validate</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/validate.html#honeybee-energy-validate-construction-set">construction-set</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/validate.html#honeybee-energy-validate-model-properties">model-properties</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/validate.html#honeybee-energy-validate-program-type">program-type</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/validate.html#honeybee-energy-validate-schedule">schedule</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/validate.html#honeybee-energy-validate-schedule-type-limit">schedule-type-limit</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/validate.html#honeybee-energy-validate-sim-par">sim-par</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../cli/result.html">result</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result">honeybee-energy result</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-all-available-info">all-available-info</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-available-results">available-results</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-available-results-info">available-results-info</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-available-run-period-info">available-run-period-info</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-component-sizes">component-sizes</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-data-by-output">data-by-output</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-data-by-outputs">data-by-outputs</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-energy-use-intensity">energy-use-intensity</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-load-balance">load-balance</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-output-csv">output-csv</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-output-csv-queryable">output-csv-queryable</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-tabular-data">tabular-data</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-tabular-metadata">tabular-metadata</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-zone-sizes">zone-sizes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../cli/lib.html">lib</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib">honeybee-energy lib</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-construction-set-by-id">construction-set-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-construction-sets">construction-sets</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-construction-sets-by-id">construction-sets-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-constructions-by-id">constructions-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-materials-by-id">materials-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-opaque-construction-by-id">opaque-construction-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-opaque-constructions">opaque-constructions</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-opaque-material-by-id">opaque-material-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-opaque-materials">opaque-materials</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-program-type-by-id">program-type-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-program-types">program-types</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-program-types-by-id">program-types-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-schedule-by-id">schedule-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-schedule-type-limit-by-id">schedule-type-limit-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-schedule-type-limits">schedule-type-limits</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-schedule-type-limits-by-id">schedule-type-limits-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-schedules">schedules</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-schedules-by-id">schedules-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-shade-construction-by-id">shade-construction-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-shade-constructions">shade-constructions</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-window-construction-by-id">window-construction-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-window-constructions">window-constructions</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-window-material-by-id">window-material-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-window-materials">window-materials</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../cli/translate.html">translate</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate">honeybee-energy translate</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate-constructions-from-idf">constructions-from-idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate-constructions-to-idf">constructions-to-idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate-model-from-gbxml">model-from-gbxml</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate-model-from-idf">model-from-idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate-model-from-osm">model-from-osm</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate-model-occ-schedules">model-occ-schedules</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate-model-to-gbxml">model-to-gbxml</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate-model-to-idf">model-to-idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate-model-to-osm">model-to-osm</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate-schedules-from-idf">schedules-from-idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate-schedules-to-idf">schedules-to-idf</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">honeybee_energy</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../honeybee_energy.html">honeybee_energy package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../honeybee_energy.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.cli.html">honeybee_energy.cli package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.cli.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.cli.data.html">honeybee_energy.cli.data package</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="../../../honeybee_energy.cli.data.html#module-honeybee_energy.cli.data">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.cli.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.cli.baseline.html">honeybee_energy.cli.baseline module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.cli.edit.html">honeybee_energy.cli.edit module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.cli.lib.html">honeybee_energy.cli.lib module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.cli.result.html">honeybee_energy.cli.result module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.cli.settings.html">honeybee_energy.cli.settings module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.cli.simulate.html">honeybee_energy.cli.simulate module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.cli.translate.html">honeybee_energy.cli.translate module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.cli.validate.html">honeybee_energy.cli.validate module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.cli.html#module-honeybee_energy.cli">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.construction.html">honeybee_energy.construction package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.construction.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.construction.air.html">honeybee_energy.construction.air module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.construction.dictutil.html">honeybee_energy.construction.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.construction.opaque.html">honeybee_energy.construction.opaque module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.construction.shade.html">honeybee_energy.construction.shade module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.construction.window.html">honeybee_energy.construction.window module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.construction.windowshade.html">honeybee_energy.construction.windowshade module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.construction.html#module-honeybee_energy.construction">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.hvac.html">honeybee_energy.hvac package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.hvac.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.hvac.allair.html">honeybee_energy.hvac.allair package</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="../../../honeybee_energy.hvac.allair.html#submodules">Submodules</a><ul>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.allair.furnace.html">honeybee_energy.hvac.allair.furnace module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.allair.psz.html">honeybee_energy.hvac.allair.psz module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.allair.ptac.html">honeybee_energy.hvac.allair.ptac module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.allair.pvav.html">honeybee_energy.hvac.allair.pvav module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.allair.vav.html">honeybee_energy.hvac.allair.vav module</a></li>
+</ul>
+</li>
+<li class="toctree-l7"><a class="reference internal" href="../../../honeybee_energy.hvac.allair.html#module-honeybee_energy.hvac.allair">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.hvac.doas.html">honeybee_energy.hvac.doas package</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="../../../honeybee_energy.hvac.doas.html#submodules">Submodules</a><ul>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.doas.fcu.html">honeybee_energy.hvac.doas.fcu module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.doas.vrf.html">honeybee_energy.hvac.doas.vrf module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.doas.wshp.html">honeybee_energy.hvac.doas.wshp module</a></li>
+</ul>
+</li>
+<li class="toctree-l7"><a class="reference internal" href="../../../honeybee_energy.hvac.doas.html#module-honeybee_energy.hvac.doas">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.hvac.heatcool.html">honeybee_energy.hvac.heatcool package</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="../../../honeybee_energy.hvac.heatcool.html#submodules">Submodules</a><ul>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.heatcool.baseboard.html">honeybee_energy.hvac.heatcool.baseboard module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.heatcool.evapcool.html">honeybee_energy.hvac.heatcool.evapcool module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.heatcool.fcu.html">honeybee_energy.hvac.heatcool.fcu module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.heatcool.gasunit.html">honeybee_energy.hvac.heatcool.gasunit module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.heatcool.residential.html">honeybee_energy.hvac.heatcool.residential module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.heatcool.vrf.html">honeybee_energy.hvac.heatcool.vrf module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.heatcool.windowac.html">honeybee_energy.hvac.heatcool.windowac module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.heatcool.wshp.html">honeybee_energy.hvac.heatcool.wshp module</a></li>
+</ul>
+</li>
+<li class="toctree-l7"><a class="reference internal" href="../../../honeybee_energy.hvac.heatcool.html#module-honeybee_energy.hvac.heatcool">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.hvac.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.hvac.idealair.html">honeybee_energy.hvac.idealair module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.hvac.html#module-honeybee_energy.hvac">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.lib.html">honeybee_energy.lib package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.lib.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.lib.constructions.html">honeybee_energy.lib.constructions module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.lib.constructionsets.html">honeybee_energy.lib.constructionsets module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.lib.materials.html">honeybee_energy.lib.materials module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.lib.programtypes.html">honeybee_energy.lib.programtypes module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.lib.schedules.html">honeybee_energy.lib.schedules module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.lib.scheduletypelimits.html">honeybee_energy.lib.scheduletypelimits module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.lib.html#module-honeybee_energy.lib">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.load.html">honeybee_energy.load package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.load.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.load.daylight.html">honeybee_energy.load.daylight module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.load.dictutil.html">honeybee_energy.load.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.load.equipment.html">honeybee_energy.load.equipment module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.load.hotwater.html">honeybee_energy.load.hotwater module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.load.infiltration.html">honeybee_energy.load.infiltration module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.load.lighting.html">honeybee_energy.load.lighting module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.load.people.html">honeybee_energy.load.people module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.load.setpoint.html">honeybee_energy.load.setpoint module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.load.ventilation.html">honeybee_energy.load.ventilation module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.load.html#module-honeybee_energy.load">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.material.html">honeybee_energy.material package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.material.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.material.dictutil.html">honeybee_energy.material.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.material.gas.html">honeybee_energy.material.gas module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.material.glazing.html">honeybee_energy.material.glazing module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.material.opaque.html">honeybee_energy.material.opaque module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.material.shade.html">honeybee_energy.material.shade module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.material.html#module-honeybee_energy.material">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.properties.html">honeybee_energy.properties package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.properties.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.properties.aperture.html">honeybee_energy.properties.aperture module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.properties.door.html">honeybee_energy.properties.door module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.properties.face.html">honeybee_energy.properties.face module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.properties.model.html">honeybee_energy.properties.model module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.properties.room.html">honeybee_energy.properties.room module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.properties.shade.html">honeybee_energy.properties.shade module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.properties.html#module-honeybee_energy.properties">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.result.html">honeybee_energy.result package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.result.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.result.colorobj.html">honeybee_energy.result.colorobj module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.result.err.html">honeybee_energy.result.err module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.result.loadbalance.html">honeybee_energy.result.loadbalance module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.result.match.html">honeybee_energy.result.match module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.result.osw.html">honeybee_energy.result.osw module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.result.rdd.html">honeybee_energy.result.rdd module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.result.zsz.html">honeybee_energy.result.zsz module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.result.html#module-honeybee_energy.result">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.schedule.html">honeybee_energy.schedule package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.schedule.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.schedule.day.html">honeybee_energy.schedule.day module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.schedule.dictutil.html">honeybee_energy.schedule.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.schedule.fixedinterval.html">honeybee_energy.schedule.fixedinterval module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.schedule.rule.html">honeybee_energy.schedule.rule module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.schedule.ruleset.html">honeybee_energy.schedule.ruleset module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.schedule.typelimit.html">honeybee_energy.schedule.typelimit module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.schedule.html#module-honeybee_energy.schedule">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.simulation.html">honeybee_energy.simulation package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.simulation.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.simulation.control.html">honeybee_energy.simulation.control module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.simulation.daylightsaving.html">honeybee_energy.simulation.daylightsaving module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.simulation.dictutil.html">honeybee_energy.simulation.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.simulation.output.html">honeybee_energy.simulation.output module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.simulation.parameter.html">honeybee_energy.simulation.parameter module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.simulation.runperiod.html">honeybee_energy.simulation.runperiod module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.simulation.shadowcalculation.html">honeybee_energy.simulation.shadowcalculation module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.simulation.sizing.html">honeybee_energy.simulation.sizing module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.simulation.html#module-honeybee_energy.simulation">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.ventcool.html">honeybee_energy.ventcool package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.ventcool.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.ventcool.afn.html">honeybee_energy.ventcool.afn module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.ventcool.control.html">honeybee_energy.ventcool.control module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.ventcool.crack.html">honeybee_energy.ventcool.crack module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.ventcool.opening.html">honeybee_energy.ventcool.opening module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.ventcool.simulation.html">honeybee_energy.ventcool.simulation module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.ventcool.html#module-honeybee_energy.ventcool">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../honeybee_energy.html#submodules">Submodules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.altnumber.html">honeybee_energy.altnumber module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.boundarycondition.html">honeybee_energy.boundarycondition module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.config.html">honeybee_energy.config module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.constructionset.html">honeybee_energy.constructionset module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.dictutil.html">honeybee_energy.dictutil module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.measure.html">honeybee_energy.measure module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.programtype.html">honeybee_energy.programtype module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.reader.html">honeybee_energy.reader module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.run.html">honeybee_energy.run module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.writer.html">honeybee_energy.writer module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../honeybee_energy.html#module-honeybee_energy">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli/index.html">CLI Docs</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">honeybee_energy</a></li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+              
+            
+            
+            
+            
+              <li class="hidden-sm"></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+      <div class="col-md-4">
+        <div id="sidebar" class="bs-sidenav" role="complementary"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli/index.html">CLI Docs</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">honeybee_energy</a></li>
+</ul>
+
+        </div>
+      </div>
+    <div class="body col-md-8 content" role="main">
+      
+  <h1>Source code for honeybee_energy.material.gas</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding=utf-8</span>
+<span class="sd">&quot;&quot;&quot;Gas materials representing gaps within window constructions.</span>
+
+<span class="sd">They can only exist within window constructions bounded by glazing materials</span>
+<span class="sd">(they cannot be in the interior or exterior layer).</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
+
+<span class="kn">from</span> <span class="nn">._base</span> <span class="kn">import</span> <span class="n">_EnergyMaterialWindowBase</span>
+<span class="kn">from</span> <span class="nn">..reader</span> <span class="kn">import</span> <span class="n">parse_idf_string</span>
+<span class="kn">from</span> <span class="nn">..writer</span> <span class="kn">import</span> <span class="n">generate_idf_string</span>
+
+<span class="kn">from</span> <span class="nn">honeybee._lockable</span> <span class="kn">import</span> <span class="n">lockable</span>
+<span class="kn">from</span> <span class="nn">honeybee.typing</span> <span class="kn">import</span> <span class="n">float_positive</span><span class="p">,</span> <span class="n">float_in_range</span><span class="p">,</span> <span class="n">tuple_with_length</span>
+
+<span class="kn">import</span> <span class="nn">math</span>
+
+
+<span class="nd">@lockable</span>
+<span class="k">class</span> <span class="nc">_EnergyWindowMaterialGasBase</span><span class="p">(</span><span class="n">_EnergyMaterialWindowBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base for gas gap layer.&quot;&quot;&quot;</span>
+    <span class="n">GASES</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;Air&#39;</span><span class="p">,</span> <span class="s1">&#39;Argon&#39;</span><span class="p">,</span> <span class="s1">&#39;Krypton&#39;</span><span class="p">,</span> <span class="s1">&#39;Xenon&#39;</span><span class="p">)</span>
+    <span class="n">CONDUCTIVITYCURVES</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Air&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.002873</span><span class="p">,</span> <span class="mf">0.0000776</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
+                          <span class="s1">&#39;Argon&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.002285</span><span class="p">,</span> <span class="mf">0.00005149</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
+                          <span class="s1">&#39;Krypton&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.0009443</span><span class="p">,</span> <span class="mf">0.00002826</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
+                          <span class="s1">&#39;Xenon&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.0004538</span><span class="p">,</span> <span class="mf">0.00001723</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)}</span>
+    <span class="n">VISCOSITYCURVES</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Air&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.00000372</span><span class="p">,</span> <span class="mf">0.00000005</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
+                       <span class="s1">&#39;Argon&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.00000338</span><span class="p">,</span> <span class="mf">0.00000006</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
+                       <span class="s1">&#39;Krypton&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.00000221</span><span class="p">,</span> <span class="mf">0.00000008</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
+                       <span class="s1">&#39;Xenon&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.00000107</span><span class="p">,</span> <span class="mf">0.00000007</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)}</span>
+    <span class="n">SPECIFICHEATCURVES</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Air&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mf">1002.73699951</span><span class="p">,</span> <span class="mf">0.012324</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
+                          <span class="s1">&#39;Argon&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mf">521.92852783</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
+                          <span class="s1">&#39;Krypton&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mf">248.09069824</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
+                          <span class="s1">&#39;Xenon&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mf">158.33970642</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)}</span>
+    <span class="n">MOLECULARWEIGHTS</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Air&#39;</span><span class="p">:</span> <span class="mf">28.97</span><span class="p">,</span> <span class="s1">&#39;Argon&#39;</span><span class="p">:</span> <span class="mf">39.948</span><span class="p">,</span>
+                        <span class="s1">&#39;Krypton&#39;</span><span class="p">:</span> <span class="mf">83.8</span><span class="p">,</span> <span class="s1">&#39;Xenon&#39;</span><span class="p">:</span> <span class="mf">131.3</span><span class="p">}</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;_thickness&#39;</span><span class="p">,)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">identifier</span><span class="p">,</span> <span class="n">thickness</span><span class="o">=</span><span class="mf">0.0125</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize gas base material.&quot;&quot;&quot;</span>
+        <span class="n">_EnergyMaterialWindowBase</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">identifier</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">thickness</span> <span class="o">=</span> <span class="n">thickness</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_gas_material</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Boolean to note whether the material is a gas gap layer.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">thickness</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get or set the thickess of the gas layer [m].&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_thickness</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">molecular_weight</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Default placeholder gas molecular weight.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">MOLECULARWEIGHTS</span><span class="p">[</span><span class="s1">&#39;Air&#39;</span><span class="p">]</span>
+
+    <span class="nd">@thickness</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">thickness</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thick</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_thickness</span> <span class="o">=</span> <span class="n">float_positive</span><span class="p">(</span><span class="n">thick</span><span class="p">,</span> <span class="s1">&#39;gas gap thickness&#39;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">conductivity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Conductivity of the gas in the absence of convection at 0C [W/m-K].&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">conductivity_at_temperature</span><span class="p">(</span><span class="mf">273.15</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">viscosity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Viscosity of the gas at 0C [kg/m-s].&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">viscosity_at_temperature</span><span class="p">(</span><span class="mf">273.15</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">specific_heat</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Specific heat of the gas at 0C [J/kg-K].&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">specific_heat_at_temperature</span><span class="p">(</span><span class="mf">273.15</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">density</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Density of the gas at 0C and sea-level pressure [J/kg-K].&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">density_at_temperature</span><span class="p">(</span><span class="mf">273.15</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">prandtl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Prandtl number of the gas at 0C.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">prandtl_at_temperature</span><span class="p">(</span><span class="mf">273.15</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">density_at_temperature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t_kelvin</span><span class="p">,</span> <span class="n">pressure</span><span class="o">=</span><span class="mi">101325</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the density of the gas [kg/m3] at a given temperature and pressure.</span>
+
+<span class="sd">        This method uses the ideal gas law to estimate the density.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            t_kelvin: The average temperature of the gas cavity in Kelvin.</span>
+<span class="sd">            pressure: The average pressure of the gas cavity in Pa.</span>
+<span class="sd">                Default is 101325 Pa for standard pressure at sea level.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">pressure</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">molecular_weight</span> <span class="o">*</span> <span class="mf">0.001</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">8.314</span> <span class="o">*</span> <span class="n">t_kelvin</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">prandtl_at_temperature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t_kelvin</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the Prandtl number of the gas at a given Kelvin temperature.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">viscosity_at_temperature</span><span class="p">(</span><span class="n">t_kelvin</span><span class="p">)</span> <span class="o">*</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">specific_heat_at_temperature</span><span class="p">(</span><span class="n">t_kelvin</span><span class="p">)</span> <span class="o">/</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">conductivity_at_temperature</span><span class="p">(</span><span class="n">t_kelvin</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">grashof</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delta_t</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">t_kelvin</span><span class="o">=</span><span class="mf">273.15</span><span class="p">,</span> <span class="n">pressure</span><span class="o">=</span><span class="mi">101325</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get Grashof number given the temperature difference across the cavity.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            delta_t: The temperature difference across the gas cavity [C]. Default is</span>
+<span class="sd">                15C, which is consistent with the NFRC standard for double glazed units.</span>
+<span class="sd">            t_kelvin: The average temperature of the gas cavity in Kelvin.</span>
+<span class="sd">                Default: 273.15 K (0C).</span>
+<span class="sd">            pressure: The average pressure of the gas cavity in Pa.</span>
+<span class="sd">                Default is 101325 Pa for standard pressure at sea level.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="mf">9.81</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">thickness</span> <span class="o">**</span> <span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="n">delta_t</span> <span class="o">*</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">density_at_temperature</span><span class="p">(</span><span class="n">t_kelvin</span><span class="p">,</span> <span class="n">pressure</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> \
+            <span class="p">(</span><span class="n">t_kelvin</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">viscosity_at_temperature</span><span class="p">(</span><span class="n">t_kelvin</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">rayleigh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delta_t</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">t_kelvin</span><span class="o">=</span><span class="mf">273.15</span><span class="p">,</span> <span class="n">pressure</span><span class="o">=</span><span class="mi">101325</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get Rayleigh number given the temperature difference across the cavity.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            delta_t: The temperature difference across the gas cavity [C]. Default is</span>
+<span class="sd">                15C, which is consistent with the NFRC standard for double glazed units.</span>
+<span class="sd">            t_kelvin: The average temperature of the gas cavity in Kelvin.</span>
+<span class="sd">                Default: 273.15 K (0C).</span>
+<span class="sd">            pressure: The average pressure of the gas cavity in Pa.</span>
+<span class="sd">                Default is 101325 Pa for standard pressure at sea level.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_numerator</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">density_at_temperature</span><span class="p">(</span><span class="n">t_kelvin</span><span class="p">,</span> <span class="n">pressure</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> \
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">thickness</span> <span class="o">**</span> <span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="mf">9.81</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">specific_heat_at_temperature</span><span class="p">(</span><span class="n">t_kelvin</span><span class="p">)</span> \
+            <span class="o">*</span> <span class="n">delta_t</span>
+        <span class="n">_denominator</span> <span class="o">=</span> <span class="n">t_kelvin</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">viscosity_at_temperature</span><span class="p">(</span><span class="n">t_kelvin</span><span class="p">)</span> <span class="o">*</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">conductivity_at_temperature</span><span class="p">(</span><span class="n">t_kelvin</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_numerator</span> <span class="o">/</span> <span class="n">_denominator</span>
+
+    <span class="k">def</span> <span class="nf">nusselt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delta_t</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">t_kelvin</span><span class="o">=</span><span class="mf">273.15</span><span class="p">,</span> <span class="n">pressure</span><span class="o">=</span><span class="mi">101325</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get Nusselt number for a vertical cavity given the temp difference and height.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            delta_t: The temperature difference across the gas cavity [C]. Default is</span>
+<span class="sd">                15C, which is consistent with the NFRC standard for double glazed units.</span>
+<span class="sd">            height: An optional height for the cavity in meters. Default is 1.0,</span>
+<span class="sd">                which is consistent with NFRC standards.</span>
+<span class="sd">            t_kelvin: The average temperature of the gas cavity in Kelvin.</span>
+<span class="sd">                Default: 273.15 K (0C).</span>
+<span class="sd">            pressure: The average pressure of the gas cavity in Pa.</span>
+<span class="sd">                Default is 101325 Pa for standard pressure at sea level.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">rayleigh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rayleigh</span><span class="p">(</span><span class="n">delta_t</span><span class="p">,</span> <span class="n">t_kelvin</span><span class="p">,</span> <span class="n">pressure</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">rayleigh</span> <span class="o">&gt;</span> <span class="mi">50000</span><span class="p">:</span>
+            <span class="n">n_u1</span> <span class="o">=</span> <span class="mf">0.0673838</span> <span class="o">*</span> <span class="p">(</span><span class="n">rayleigh</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">rayleigh</span> <span class="o">&gt;</span> <span class="mi">10000</span><span class="p">:</span>
+            <span class="n">n_u1</span> <span class="o">=</span> <span class="mf">0.028154</span> <span class="o">*</span> <span class="p">(</span><span class="n">rayleigh</span> <span class="o">**</span> <span class="mf">0.4134</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">n_u1</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="mf">1.7596678e-10</span> <span class="o">*</span> <span class="p">(</span><span class="n">rayleigh</span> <span class="o">**</span> <span class="mf">2.2984755</span><span class="p">)</span>
+        <span class="n">n_u2</span> <span class="o">=</span> <span class="mf">0.242</span> <span class="o">*</span> <span class="p">((</span><span class="n">rayleigh</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">thickness</span> <span class="o">/</span> <span class="n">height</span><span class="p">))</span> <span class="o">**</span> <span class="mf">0.272</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">n_u1</span><span class="p">,</span> <span class="n">n_u2</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">nusselt_at_angle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delta_t</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span>
+                         <span class="n">t_kelvin</span><span class="o">=</span><span class="mf">273.15</span><span class="p">,</span> <span class="n">pressure</span><span class="o">=</span><span class="mi">101325</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get Nusselt number for a cavity at a given angle, temp difference and height.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            delta_t: The temperature difference across the gas cavity [C]. Default is</span>
+<span class="sd">                15C, which is consistent with the NFRC standard for double glazed units.</span>
+<span class="sd">            height: An optional height for the cavity in meters. Default is 1.0,</span>
+<span class="sd">                which is consistent with NFRC standards.</span>
+<span class="sd">            angle: An angle in degrees between 0 and 180.</span>
+
+<span class="sd">                * 0 = A horizontal cavity with downward heat flow through the layer.</span>
+<span class="sd">                * 90 = A vertical cavity</span>
+<span class="sd">                * 180 = A horizontal cavity with upward heat flow through the layer.</span>
+
+<span class="sd">            t_kelvin: The average temperature of the gas cavity in Kelvin.</span>
+<span class="sd">                Default: 273.15 K (0C).</span>
+<span class="sd">            pressure: The average pressure of the gas cavity in Pa.</span>
+<span class="sd">                Default is 101325 Pa for standard pressure at sea level.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">def</span> <span class="nf">dot_x</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="nb">abs</span><span class="p">(</span><span class="n">x</span><span class="p">))</span> <span class="o">/</span> <span class="mi">2</span>
+
+        <span class="n">rayleigh</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rayleigh</span><span class="p">(</span><span class="n">delta_t</span><span class="p">,</span> <span class="n">t_kelvin</span><span class="p">,</span> <span class="n">pressure</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">angle</span> <span class="o">&lt;</span> <span class="mi">60</span><span class="p">:</span>
+            <span class="n">cos_a</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">angle</span><span class="p">))</span>
+            <span class="n">sin_a_18</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mf">1.8</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">angle</span><span class="p">))</span>
+            <span class="n">term_1</span> <span class="o">=</span> <span class="n">dot_x</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="mi">1708</span> <span class="o">/</span> <span class="p">(</span><span class="n">rayleigh</span> <span class="o">*</span> <span class="n">cos_a</span><span class="p">)))</span>
+            <span class="n">term_2</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="p">((</span><span class="mi">1708</span> <span class="o">*</span> <span class="p">(</span><span class="n">sin_a_18</span> <span class="o">**</span> <span class="mf">1.6</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="n">rayleigh</span> <span class="o">*</span> <span class="n">cos_a</span><span class="p">))</span>
+            <span class="n">term_3</span> <span class="o">=</span> <span class="n">dot_x</span><span class="p">(((</span><span class="n">rayleigh</span> <span class="o">*</span> <span class="n">cos_a</span><span class="p">)</span> <span class="o">/</span> <span class="mi">5830</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">return</span> <span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1.44</span> <span class="o">*</span> <span class="n">term_1</span> <span class="o">*</span> <span class="n">term_2</span><span class="p">)</span> <span class="o">+</span> <span class="n">term_3</span>
+        <span class="k">elif</span> <span class="n">angle</span> <span class="o">&lt;</span> <span class="mi">90</span><span class="p">:</span>
+            <span class="n">g</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">/</span> <span class="p">((</span><span class="mi">1</span> <span class="o">+</span> <span class="p">((</span><span class="n">rayleigh</span> <span class="o">/</span> <span class="mi">3160</span><span class="p">)</span> <span class="o">**</span> <span class="mf">20.6</span><span class="p">))</span> <span class="o">**</span> <span class="mf">0.1</span><span class="p">)</span>
+            <span class="n">n_u1</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="p">(((</span><span class="mf">0.0936</span> <span class="o">*</span> <span class="p">(</span><span class="n">rayleigh</span> <span class="o">**</span> <span class="mf">0.314</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">g</span><span class="p">))</span> <span class="o">**</span> <span class="mi">7</span><span class="p">))</span> <span class="o">**</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">7</span><span class="p">)</span>
+            <span class="n">n_u2</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.104</span> <span class="o">+</span> <span class="p">(</span><span class="mf">0.175</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">thickness</span> <span class="o">/</span> <span class="n">height</span><span class="p">)))</span> <span class="o">*</span> <span class="p">(</span><span class="n">rayleigh</span> <span class="o">**</span> <span class="mf">0.283</span><span class="p">)</span>
+            <span class="n">n_u_60</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">n_u1</span><span class="p">,</span> <span class="n">n_u2</span><span class="p">)</span>
+            <span class="n">n_u_90</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nusselt</span><span class="p">(</span><span class="n">delta_t</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">t_kelvin</span><span class="p">,</span> <span class="n">pressure</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">n_u_60</span> <span class="o">+</span> <span class="n">n_u_90</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="k">elif</span> <span class="n">angle</span> <span class="o">==</span> <span class="mi">90</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">nusselt</span><span class="p">(</span><span class="n">delta_t</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">t_kelvin</span><span class="p">,</span> <span class="n">pressure</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">n_u_90</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nusselt</span><span class="p">(</span><span class="n">delta_t</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">t_kelvin</span><span class="p">,</span> <span class="n">pressure</span><span class="p">)</span>
+            <span class="k">return</span> <span class="mi">1</span> <span class="o">+</span> <span class="p">((</span><span class="n">n_u_90</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">angle</span><span class="p">)))</span>
+
+    <span class="k">def</span> <span class="nf">convective_conductance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delta_t</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+                               <span class="n">t_kelvin</span><span class="o">=</span><span class="mf">273.15</span><span class="p">,</span> <span class="n">pressure</span><span class="o">=</span><span class="mi">101325</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get convective conductance of the cavity in a vertical position.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            delta_t: The temperature difference across the gas cavity [C]. Default is</span>
+<span class="sd">                15C, which is consistent with the NFRC standard for double glazed units.</span>
+<span class="sd">            height: An optional height for the cavity in meters. Default is 1.0,</span>
+<span class="sd">                which is consistent with NFRC standards.</span>
+<span class="sd">            t_kelvin: The average temperature of the gas cavity in Kelvin.</span>
+<span class="sd">                Default: 273.15 K (0C).</span>
+<span class="sd">            pressure: The average pressure of the gas cavity in Pa.</span>
+<span class="sd">                Default is 101325 Pa for standard pressure at sea level.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">nusselt</span><span class="p">(</span><span class="n">delta_t</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">t_kelvin</span><span class="p">,</span> <span class="n">pressure</span><span class="p">)</span> <span class="o">*</span> \
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conductivity_at_temperature</span><span class="p">(</span><span class="n">t_kelvin</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">thickness</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">convective_conductance_at_angle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delta_t</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span>
+                                        <span class="n">t_kelvin</span><span class="o">=</span><span class="mf">273.15</span><span class="p">,</span> <span class="n">pressure</span><span class="o">=</span><span class="mi">101325</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get convective conductance of the cavity in an angle.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            delta_t: The temperature difference across the gas cavity [C]. Default is</span>
+<span class="sd">                15C, which is consistent with the NFRC standard for double glazed units.</span>
+<span class="sd">            height: An optional height for the cavity in meters. Default is 1.0,</span>
+<span class="sd">                which is consistent with NFRC standards.</span>
+<span class="sd">            angle: An angle in degrees between 0 and 180.</span>
+
+<span class="sd">                * 0 = A horizontal cavity with downward heat flow through the layer.</span>
+<span class="sd">                * 90 = A vertical cavity</span>
+<span class="sd">                * 180 = A horizontal cavity with upward heat flow through the layer.</span>
+
+<span class="sd">            t_kelvin: The average temperature of the gas cavity in Kelvin.</span>
+<span class="sd">                Default: 273.15 K (0C).</span>
+<span class="sd">            pressure: The average pressure of the gas cavity in Pa.</span>
+<span class="sd">                Default is 101325 Pa for standard pressure at sea level.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">nusselt_at_angle</span><span class="p">(</span><span class="n">delta_t</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">angle</span><span class="p">,</span> <span class="n">t_kelvin</span><span class="p">,</span> <span class="n">pressure</span><span class="p">)</span> <span class="o">*</span> \
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conductivity_at_temperature</span><span class="p">(</span><span class="n">t_kelvin</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">thickness</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">radiative_conductance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">emissivity_1</span><span class="o">=</span><span class="mf">0.84</span><span class="p">,</span> <span class="n">emissivity_2</span><span class="o">=</span><span class="mf">0.84</span><span class="p">,</span>
+                              <span class="n">t_kelvin</span><span class="o">=</span><span class="mf">273.15</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the radiative conductance of the cavity given emissivities on both sides.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            emissivity_1: The emissivity of the surface on one side of the cavity.</span>
+<span class="sd">                Default is 0.84, which is typical of clear, uncoated glass.</span>
+<span class="sd">            emissivity_2: The emissivity of the surface on the other side of the cavity.</span>
+<span class="sd">                Default is 0.84, which is typical of clear, uncoated glass.</span>
+<span class="sd">            t_kelvin: The average temperature of the gas cavity in Kelvin.</span>
+<span class="sd">                Default: 273.15 K (0C).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="mf">5.6697e-8</span><span class="p">)</span> <span class="o">*</span> <span class="p">(((</span><span class="mi">1</span> <span class="o">/</span> <span class="n">emissivity_1</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">emissivity_2</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">**</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> \
+            <span class="o">*</span> <span class="p">(</span><span class="n">t_kelvin</span> <span class="o">**</span> <span class="mi">3</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">u_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delta_t</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">emissivity_1</span><span class="o">=</span><span class="mf">0.84</span><span class="p">,</span> <span class="n">emissivity_2</span><span class="o">=</span><span class="mf">0.84</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+                <span class="n">t_kelvin</span><span class="o">=</span><span class="mf">273.15</span><span class="p">,</span> <span class="n">pressure</span><span class="o">=</span><span class="mi">101325</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the U-value of a vertical gas cavity given temp difference and emissivity.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            delta_t: The temperature difference across the gas cavity [C]. This</span>
+<span class="sd">                influences how strong the convection is within the gas gap. Default is</span>
+<span class="sd">                15C, which is consistent with the NFRC standard for double glazed units.</span>
+<span class="sd">            emissivity_1: The emissivity of the surface on one side of the cavity.</span>
+<span class="sd">                Default is 0.84, which is typical of clear, uncoated glass.</span>
+<span class="sd">            emissivity_2: The emissivity of the surface on the other side of the cavity.</span>
+<span class="sd">                Default is 0.84, which is typical of clear, uncoated glass.</span>
+<span class="sd">            height: An optional height for the cavity in meters. Default is 1.0,</span>
+<span class="sd">                which is consistent with NFRC standards.</span>
+<span class="sd">            t_kelvin: The average temperature of the gas cavity in Kelvin.</span>
+<span class="sd">                Default: 273.15 K (0C).</span>
+<span class="sd">            pressure: The average pressure of the gas cavity in Pa.</span>
+<span class="sd">                Default is 101325 Pa for standard pressure at sea level.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">convective_conductance</span><span class="p">(</span><span class="n">delta_t</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">t_kelvin</span><span class="p">,</span> <span class="n">pressure</span><span class="p">)</span> <span class="o">+</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">radiative_conductance</span><span class="p">(</span><span class="n">emissivity_1</span><span class="p">,</span> <span class="n">emissivity_2</span><span class="p">,</span> <span class="n">t_kelvin</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">u_value_at_angle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delta_t</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">emissivity_1</span><span class="o">=</span><span class="mf">0.84</span><span class="p">,</span> <span class="n">emissivity_2</span><span class="o">=</span><span class="mf">0.84</span><span class="p">,</span>
+                         <span class="n">height</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">angle</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span> <span class="n">t_kelvin</span><span class="o">=</span><span class="mf">273.15</span><span class="p">,</span> <span class="n">pressure</span><span class="o">=</span><span class="mi">101325</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the U-value of a vertical gas cavity given temp difference and emissivity.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            delta_t: The temperature difference across the gas cavity [C]. This</span>
+<span class="sd">                influences how strong the convection is within the gas gap. Default is</span>
+<span class="sd">                15C, which is consistent with the NFRC standard for double glazed units.</span>
+<span class="sd">            emissivity_1: The emissivity of the surface on one side of the cavity.</span>
+<span class="sd">                Default is 0.84, which is typical of clear, uncoated glass.</span>
+<span class="sd">            emissivity_2: The emissivity of the surface on the other side of the cavity.</span>
+<span class="sd">                Default is 0.84, which is typical of clear, uncoated glass.</span>
+<span class="sd">            height: An optional height for the cavity in meters. Default is 1.0,</span>
+<span class="sd">                which is consistent with NFRC standards.</span>
+<span class="sd">            angle: An angle in degrees between 0 and 180.</span>
+<span class="sd">                0 = A horizontal cavity with downward heat flow through the layer.</span>
+<span class="sd">                90 = A vertical cavity</span>
+<span class="sd">                180 = A horizontal cavity with upward heat flow through the layer.</span>
+<span class="sd">            t_kelvin: The average temperature of the gas cavity in Kelvin.</span>
+<span class="sd">                Default: 273.15 K (0C).</span>
+<span class="sd">            pressure: The average pressure of the gas cavity in Pa.</span>
+<span class="sd">                Default is 101325 Pa for standard pressure at sea level.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">convective_conductance_at_angle</span><span class="p">(</span>
+            <span class="n">delta_t</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">angle</span><span class="p">,</span> <span class="n">t_kelvin</span><span class="p">,</span> <span class="n">pressure</span><span class="p">)</span> <span class="o">+</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">radiative_conductance</span><span class="p">(</span><span class="n">emissivity_1</span><span class="p">,</span> <span class="n">emissivity_2</span><span class="p">,</span> <span class="n">t_kelvin</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="EnergyWindowMaterialGas"><a class="viewcode-back" href="../../../honeybee_energy.material.gas.html#honeybee_energy.material.gas.EnergyWindowMaterialGas">[docs]</a><span class="nd">@lockable</span>
+<span class="k">class</span> <span class="nc">EnergyWindowMaterialGas</span><span class="p">(</span><span class="n">_EnergyWindowMaterialGasBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Gas gap layer.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        identifier: Text string for a unique Material ID. Must be &lt; 100 characters</span>
+<span class="sd">            and not contain any EnergyPlus special characters. This will be used to</span>
+<span class="sd">            identify the object across a model and in the exported IDF.</span>
+<span class="sd">        thickness: Number for the thickness of the air gap layer [m].</span>
+<span class="sd">            Default: 0.0125</span>
+<span class="sd">        gas_type: Text describing the type of gas in the gap.</span>
+<span class="sd">            Must be one of the following: &#39;Air&#39;, &#39;Argon&#39;, &#39;Krypton&#39;, &#39;Xenon&#39;.</span>
+<span class="sd">            Default: &#39;Air&#39;</span>
+
+<span class="sd">    Properties:</span>
+<span class="sd">        * identifier</span>
+<span class="sd">        * display_name</span>
+<span class="sd">        * thickness</span>
+<span class="sd">        * gas_type</span>
+<span class="sd">        * conductivity</span>
+<span class="sd">        * viscosity</span>
+<span class="sd">        * specific_heat</span>
+<span class="sd">        * density</span>
+<span class="sd">        * prandtl</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;_gas_type&#39;</span><span class="p">,)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">identifier</span><span class="p">,</span> <span class="n">thickness</span><span class="o">=</span><span class="mf">0.0125</span><span class="p">,</span> <span class="n">gas_type</span><span class="o">=</span><span class="s1">&#39;Air&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize gas energy material.&quot;&quot;&quot;</span>
+        <span class="n">_EnergyWindowMaterialGasBase</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">identifier</span><span class="p">,</span> <span class="n">thickness</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gas_type</span> <span class="o">=</span> <span class="n">gas_type</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">gas_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get or set the text describing the gas in the gas gap layer.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gas_type</span>
+
+    <span class="nd">@gas_type</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">gas_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gas</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">gas</span><span class="o">.</span><span class="n">title</span><span class="p">()</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">GASES</span><span class="p">,</span> <span class="s1">&#39;Invalid input &quot;</span><span class="si">{}</span><span class="s1">&quot; for gas type.&#39;</span> \
+            <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Gas type must be one of the following:</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">gas</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">GASES</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gas_type</span> <span class="o">=</span> <span class="n">gas</span><span class="o">.</span><span class="n">title</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">molecular_weight</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the gas molecular weight.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">MOLECULARWEIGHTS</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_gas_type</span><span class="p">]</span>
+
+<div class="viewcode-block" id="EnergyWindowMaterialGas.conductivity_at_temperature"><a class="viewcode-back" href="../../../honeybee_energy.material.gas.html#honeybee_energy.material.gas.EnergyWindowMaterialGas.conductivity_at_temperature">[docs]</a>    <span class="k">def</span> <span class="nf">conductivity_at_temperature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t_kelvin</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the conductivity of the gas [W/m-K] at a given Kelvin temperature.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_coeff_property</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">CONDUCTIVITYCURVES</span><span class="p">,</span> <span class="n">t_kelvin</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="EnergyWindowMaterialGas.viscosity_at_temperature"><a class="viewcode-back" href="../../../honeybee_energy.material.gas.html#honeybee_energy.material.gas.EnergyWindowMaterialGas.viscosity_at_temperature">[docs]</a>    <span class="k">def</span> <span class="nf">viscosity_at_temperature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t_kelvin</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the viscosity of the gas [kg/m-s] at a given Kelvin temperature.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_coeff_property</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">VISCOSITYCURVES</span><span class="p">,</span> <span class="n">t_kelvin</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="EnergyWindowMaterialGas.specific_heat_at_temperature"><a class="viewcode-back" href="../../../honeybee_energy.material.gas.html#honeybee_energy.material.gas.EnergyWindowMaterialGas.specific_heat_at_temperature">[docs]</a>    <span class="k">def</span> <span class="nf">specific_heat_at_temperature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t_kelvin</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the specific heat of the gas [J/kg-K] at a given Kelvin temperature.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_coeff_property</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">SPECIFICHEATCURVES</span><span class="p">,</span> <span class="n">t_kelvin</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="EnergyWindowMaterialGas.from_idf"><a class="viewcode-back" href="../../../honeybee_energy.material.gas.html#honeybee_energy.material.gas.EnergyWindowMaterialGas.from_idf">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_idf</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">idf_string</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create EnergyWindowMaterialGas from an EnergyPlus text string.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            idf_string: A text string fully describing an EnergyPlus material.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ep_strs</span> <span class="o">=</span> <span class="n">parse_idf_string</span><span class="p">(</span><span class="n">idf_string</span><span class="p">,</span> <span class="s1">&#39;WindowMaterial:Gas,&#39;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">ep_strs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">title</span><span class="p">()</span> <span class="o">!=</span> <span class="s1">&#39;Custom&#39;</span><span class="p">,</span> \
+            <span class="s1">&#39;Honeybee EnergyWindowMaterialGas cannot use EnergyPlus Custom gas type.</span><span class="se">\n</span><span class="s1">&#39;</span> \
+            <span class="s1">&#39;Use honeybee EnergyWindowMaterialGasCustom instead.&#39;</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">ep_strs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ep_strs</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">ep_strs</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="EnergyWindowMaterialGas.from_dict"><a class="viewcode-back" href="../../../honeybee_energy.material.gas.html#honeybee_energy.material.gas.EnergyWindowMaterialGas.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a EnergyWindowMaterialGas from a dictionary.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data: A python dictionary in the following format</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            {</span>
+<span class="sd">            &quot;type&quot;: &#39;EnergyWindowMaterialGas&#39;,</span>
+<span class="sd">            &quot;identifier&quot;: &#39;Argon_Gap_0010&#39;,</span>
+<span class="sd">            &quot;display_name&quot;: &#39;Argon Gap&#39;,</span>
+<span class="sd">            &quot;thickness&quot;: 0.01,</span>
+<span class="sd">            &quot;gas_type&quot;: &#39;Argon&#39;</span>
+<span class="sd">            }</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;EnergyWindowMaterialGas&#39;</span><span class="p">,</span> \
+            <span class="s1">&#39;Expected EnergyWindowMaterialGas. Got </span><span class="si">{}</span><span class="s1">.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">])</span>
+        <span class="n">thickness</span> <span class="o">=</span> <span class="mf">0.0125</span> <span class="k">if</span> <span class="s1">&#39;thickness&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span> <span class="k">else</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;thickness&#39;</span><span class="p">]</span>
+        <span class="n">gas_type</span> <span class="o">=</span> <span class="s1">&#39;Air&#39;</span> <span class="k">if</span> <span class="s1">&#39;gas_type&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span> <span class="k">else</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;gas_type&#39;</span><span class="p">]</span>
+        <span class="n">new_obj</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;identifier&#39;</span><span class="p">],</span> <span class="n">thickness</span><span class="p">,</span> <span class="n">gas_type</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s1">&#39;display_name&#39;</span> <span class="ow">in</span> <span class="n">data</span> <span class="ow">and</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;display_name&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">new_obj</span><span class="o">.</span><span class="n">display_name</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;display_name&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">new_obj</span></div>
+
+<div class="viewcode-block" id="EnergyWindowMaterialGas.to_idf"><a class="viewcode-back" href="../../../honeybee_energy.material.gas.html#honeybee_energy.material.gas.EnergyWindowMaterialGas.to_idf">[docs]</a>    <span class="k">def</span> <span class="nf">to_idf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get an EnergyPlus string representation of the material.&quot;&quot;&quot;</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">identifier</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">gas_type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">thickness</span><span class="p">)</span>
+        <span class="n">comments</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;gas type&#39;</span><span class="p">,</span> <span class="s1">&#39;thickness </span><span class="si">{m}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">generate_idf_string</span><span class="p">(</span><span class="s1">&#39;WindowMaterial:Gas&#39;</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">comments</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="EnergyWindowMaterialGas.to_dict"><a class="viewcode-back" href="../../../honeybee_energy.material.gas.html#honeybee_energy.material.gas.EnergyWindowMaterialGas.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Energy Material Gas dictionary representation.&quot;&quot;&quot;</span>
+        <span class="n">base</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;EnergyWindowMaterialGas&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;identifier&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">identifier</span><span class="p">,</span>
+            <span class="s1">&#39;thickness&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">thickness</span><span class="p">,</span>
+            <span class="s1">&#39;gas_type&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">gas_type</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_display_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">base</span><span class="p">[</span><span class="s1">&#39;display_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">display_name</span>
+        <span class="k">return</span> <span class="n">base</span></div>
+
+    <span class="k">def</span> <span class="nf">_coeff_property</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dictionary</span><span class="p">,</span> <span class="n">t_kelvin</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get a property given a dictionary of coefficients and kelvin temperature.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">dictionary</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_gas_type</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> \
+            <span class="n">dictionary</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_gas_type</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">t_kelvin</span> <span class="o">+</span> \
+            <span class="n">dictionary</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_gas_type</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">t_kelvin</span> <span class="o">**</span> <span class="mi">2</span>
+
+    <span class="k">def</span> <span class="nf">__key</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;A tuple based on the object properties, useful for hashing.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">identifier</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">thickness</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">gas_type</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__key</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">EnergyWindowMaterialGas</span><span class="p">)</span> <span class="ow">and</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">__key</span><span class="p">()</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">__key</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_idf</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__copy__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">new_obj</span> <span class="o">=</span> <span class="n">EnergyWindowMaterialGas</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">identifier</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">thickness</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">gas_type</span><span class="p">)</span>
+        <span class="n">new_obj</span><span class="o">.</span><span class="n">_display_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_display_name</span>
+        <span class="k">return</span> <span class="n">new_obj</span></div>
+
+
+<div class="viewcode-block" id="EnergyWindowMaterialGasMixture"><a class="viewcode-back" href="../../../honeybee_energy.material.gas.html#honeybee_energy.material.gas.EnergyWindowMaterialGasMixture">[docs]</a><span class="nd">@lockable</span>
+<span class="k">class</span> <span class="nc">EnergyWindowMaterialGasMixture</span><span class="p">(</span><span class="n">_EnergyWindowMaterialGasBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Gas gap layer with a mixture of gasses.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        identifier: Text string for a unique Material ID. Must be &lt; 100 characters</span>
+<span class="sd">            and not contain any EnergyPlus special characters. This will be used to</span>
+<span class="sd">            identify the object across a model and in the exported IDF.</span>
+<span class="sd">        thickness: Number for the thickness of the air gap layer [m].</span>
+<span class="sd">            Default: 0.0125</span>
+<span class="sd">        gas_types: A list of text describing the types of gas in the gap.</span>
+<span class="sd">            Text must be one of the following: &#39;Air&#39;, &#39;Argon&#39;, &#39;Krypton&#39;, &#39;Xenon&#39;.</span>
+<span class="sd">            Default: (&#39;Argon&#39;, &#39;Air&#39;)</span>
+<span class="sd">        gas_fractions: A list of fractional numbers describing the volumetric</span>
+<span class="sd">            fractions of gas types in the mixture.  This list must align with</span>
+<span class="sd">            the gas_types input list and must sum to 1. Default: (0.9, 0.1).</span>
+
+<span class="sd">    Properties:</span>
+<span class="sd">        * identifier</span>
+<span class="sd">        * display_name</span>
+<span class="sd">        * thickness</span>
+<span class="sd">        * gas_types</span>
+<span class="sd">        * gas_fractions</span>
+<span class="sd">        * gas_count</span>
+<span class="sd">        * conductivity</span>
+<span class="sd">        * viscosity</span>
+<span class="sd">        * specific_heat</span>
+<span class="sd">        * density</span>
+<span class="sd">        * prandtl</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;_gas_count&#39;</span><span class="p">,</span> <span class="s1">&#39;_gas_types&#39;</span><span class="p">,</span> <span class="s1">&#39;_gas_fractions&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">identifier</span><span class="p">,</span> <span class="n">thickness</span><span class="o">=</span><span class="mf">0.0125</span><span class="p">,</span>
+                 <span class="n">gas_types</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;Argon&#39;</span><span class="p">,</span> <span class="s1">&#39;Air&#39;</span><span class="p">),</span> <span class="n">gas_fractions</span><span class="o">=</span><span class="p">(</span><span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize gas mixture energy material.&quot;&quot;&quot;</span>
+        <span class="n">_EnergyWindowMaterialGasBase</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">identifier</span><span class="p">,</span> <span class="n">thickness</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>  <span class="c1"># check the number of gases</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_gas_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">gas_types</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="s1">&#39;Expected list for gas_types. Got </span><span class="si">{}</span><span class="s1">.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">gas_types</span><span class="p">)))</span>
+        <span class="k">assert</span> <span class="mi">2</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gas_count</span> <span class="o">&lt;=</span> <span class="mi">4</span><span class="p">,</span> <span class="s1">&#39;Number of gases in gas mixture must be &#39;</span> \
+            <span class="s1">&#39;between 2 anf 4. Got </span><span class="si">{}</span><span class="s1">.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gas_count</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gas_types</span> <span class="o">=</span> <span class="n">gas_types</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gas_fractions</span> <span class="o">=</span> <span class="n">gas_fractions</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">gas_types</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get or set a tuple of text describing the gases in the gas gap layer.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gas_types</span>
+
+    <span class="nd">@gas_types</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">gas_types</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">g_types</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gas_types</span> <span class="o">=</span> <span class="n">tuple_with_length</span><span class="p">(</span>
+            <span class="n">g_types</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gas_count</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="s1">&#39;gas mixture gas_types&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gas_types</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">gas</span><span class="o">.</span><span class="n">title</span><span class="p">()</span> <span class="k">for</span> <span class="n">gas</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gas_types</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">gas</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gas_types</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">gas</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">GASES</span><span class="p">,</span> <span class="s1">&#39;Invalid input &quot;</span><span class="si">{}</span><span class="s1">&quot; for gas type.&#39;</span> \
+                <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Gas type must be one of the following:</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">gas</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">GASES</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">gas_fractions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get or set a tuple of numbers the fractions of gases in the gas gap layer.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gas_fractions</span>
+
+    <span class="nd">@gas_fractions</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">gas_fractions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">g_fracs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gas_fractions</span> <span class="o">=</span> <span class="n">tuple_with_length</span><span class="p">(</span>
+            <span class="n">g_fracs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gas_count</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="s1">&#39;gas mixture gas_fractions&#39;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gas_fractions</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;Gas fractions must sum to 1. &#39;</span> \
+            <span class="s1">&#39;Got </span><span class="si">{}</span><span class="s1">.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gas_fractions</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">molecular_weight</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the gas molecular weight.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">MOLECULARWEIGHTS</span><span class="p">[</span><span class="n">gas</span><span class="p">]</span> <span class="o">*</span> <span class="n">frac</span> <span class="k">for</span> <span class="n">gas</span><span class="p">,</span> <span class="n">frac</span>
+                         <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_gas_types</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gas_fractions</span><span class="p">)))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">gas_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;An integer indicating the number of gasses in the mixture.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gas_count</span>
+
+<div class="viewcode-block" id="EnergyWindowMaterialGasMixture.conductivity_at_temperature"><a class="viewcode-back" href="../../../honeybee_energy.material.gas.html#honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.conductivity_at_temperature">[docs]</a>    <span class="k">def</span> <span class="nf">conductivity_at_temperature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t_kelvin</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the conductivity of the gas [W/m-K] at a given Kelvin temperature.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_weighted_avg_coeff_property</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">CONDUCTIVITYCURVES</span><span class="p">,</span> <span class="n">t_kelvin</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="EnergyWindowMaterialGasMixture.viscosity_at_temperature"><a class="viewcode-back" href="../../../honeybee_energy.material.gas.html#honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.viscosity_at_temperature">[docs]</a>    <span class="k">def</span> <span class="nf">viscosity_at_temperature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t_kelvin</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the viscosity of the gas [kg/m-s] at a given Kelvin temperature.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_weighted_avg_coeff_property</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">VISCOSITYCURVES</span><span class="p">,</span> <span class="n">t_kelvin</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="EnergyWindowMaterialGasMixture.specific_heat_at_temperature"><a class="viewcode-back" href="../../../honeybee_energy.material.gas.html#honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.specific_heat_at_temperature">[docs]</a>    <span class="k">def</span> <span class="nf">specific_heat_at_temperature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t_kelvin</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the specific heat of the gas [J/kg-K] at a given Kelvin temperature.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_weighted_avg_coeff_property</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">SPECIFICHEATCURVES</span><span class="p">,</span> <span class="n">t_kelvin</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="EnergyWindowMaterialGasMixture.from_idf"><a class="viewcode-back" href="../../../honeybee_energy.material.gas.html#honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.from_idf">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_idf</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">idf_string</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create EnergyWindowMaterialGas from an EnergyPlus text string.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            idf_string: A text string fully describing an EnergyPlus material.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">prop_types</span> <span class="o">=</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
+        <span class="n">ep_strs</span> <span class="o">=</span> <span class="n">parse_idf_string</span><span class="p">(</span><span class="n">idf_string</span><span class="p">,</span> <span class="s1">&#39;WindowMaterial:GasMixture,&#39;</span><span class="p">)</span>
+        <span class="n">ep_s</span> <span class="o">=</span> <span class="p">[</span><span class="n">typ</span><span class="p">(</span><span class="n">prop</span><span class="p">)</span> <span class="k">for</span> <span class="n">typ</span><span class="p">,</span> <span class="n">prop</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">prop_types</span><span class="p">,</span> <span class="n">ep_strs</span><span class="p">)]</span>
+        <span class="n">gas_types</span> <span class="o">=</span> <span class="p">[</span><span class="n">ep_s</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span> <span class="o">+</span> <span class="n">ep_s</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)]</span>
+        <span class="n">gas_fracs</span> <span class="o">=</span> <span class="p">[</span><span class="n">ep_s</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span> <span class="o">+</span> <span class="n">ep_s</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">ep_s</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ep_s</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">gas_types</span><span class="p">,</span> <span class="n">gas_fracs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="EnergyWindowMaterialGasMixture.from_dict"><a class="viewcode-back" href="../../../honeybee_energy.material.gas.html#honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a EnergyWindowMaterialGasMixture from a dictionary.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data: A python dictionary in the following format</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            {</span>
+<span class="sd">            &#39;type&#39;: &#39;EnergyWindowMaterialGasMixture&#39;,</span>
+<span class="sd">            &#39;identifier&#39;: &#39;Argon_Mixture_001_095_005&#39;,</span>
+<span class="sd">            &#39;display_name&#39;: &#39;Argon Mixture&#39;,</span>
+<span class="sd">            &#39;thickness&#39;: 0.01,</span>
+<span class="sd">            &#39;gas_types&#39;: [&#39;Argon&#39;, &#39;Air&#39;],</span>
+<span class="sd">            &#39;gas_fractions&#39;: [0.95, 0.05]</span>
+<span class="sd">            }</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;EnergyWindowMaterialGasMixture&#39;</span><span class="p">,</span> \
+            <span class="s1">&#39;Expected EnergyWindowMaterialGasMixture. Got </span><span class="si">{}</span><span class="s1">.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">])</span>
+        <span class="n">required_keys</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;identifier&#39;</span><span class="p">,</span> <span class="s1">&#39;gas_types&#39;</span><span class="p">,</span> <span class="s1">&#39;gas_fractions&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">required_keys</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">data</span><span class="p">,</span> <span class="s1">&#39;Required key &quot;</span><span class="si">{}</span><span class="s1">&quot; is missing.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="n">thickness</span> <span class="o">=</span> <span class="mf">0.0125</span> <span class="k">if</span> <span class="s1">&#39;thickness&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span> <span class="ow">or</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;thickness&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span> \
+            <span class="k">else</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;thickness&#39;</span><span class="p">]</span>
+        <span class="n">new_obj</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;identifier&#39;</span><span class="p">],</span> <span class="n">thickness</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;gas_types&#39;</span><span class="p">],</span>
+                      <span class="n">data</span><span class="p">[</span><span class="s1">&#39;gas_fractions&#39;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="s1">&#39;display_name&#39;</span> <span class="ow">in</span> <span class="n">data</span> <span class="ow">and</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;display_name&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">new_obj</span><span class="o">.</span><span class="n">display_name</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;display_name&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">new_obj</span></div>
+
+<div class="viewcode-block" id="EnergyWindowMaterialGasMixture.to_idf"><a class="viewcode-back" href="../../../honeybee_energy.material.gas.html#honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.to_idf">[docs]</a>    <span class="k">def</span> <span class="nf">to_idf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get an EnergyPlus string representation of the material.&quot;&quot;&quot;</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">identifier</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">thickness</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gas_types</span><span class="p">)]</span>
+        <span class="n">comments</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;thickness </span><span class="si">{m}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;number of gases&#39;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gas_types</span><span class="p">)):</span>
+            <span class="n">values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gas_types</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="n">values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gas_fractions</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="n">comments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;gas </span><span class="si">{}</span><span class="s1"> type&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+            <span class="n">comments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;gas </span><span class="si">{}</span><span class="s1"> fraction&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">generate_idf_string</span><span class="p">(</span><span class="s1">&#39;WindowMaterial:GasMixture&#39;</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">comments</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="EnergyWindowMaterialGasMixture.to_dict"><a class="viewcode-back" href="../../../honeybee_energy.material.gas.html#honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Energy Material Gas Mixture dictionary representation.&quot;&quot;&quot;</span>
+        <span class="n">base</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;EnergyWindowMaterialGasMixture&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;identifier&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">identifier</span><span class="p">,</span>
+            <span class="s1">&#39;thickness&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">thickness</span><span class="p">,</span>
+            <span class="s1">&#39;gas_types&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">gas_types</span><span class="p">,</span>
+            <span class="s1">&#39;gas_fractions&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">gas_fractions</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_display_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">base</span><span class="p">[</span><span class="s1">&#39;display_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">display_name</span>
+        <span class="k">return</span> <span class="n">base</span></div>
+
+    <span class="k">def</span> <span class="nf">_weighted_avg_coeff_property</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dictionary</span><span class="p">,</span> <span class="n">t_kelvin</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get a weighted average property given a dictionary of coefficients.&quot;&quot;&quot;</span>
+        <span class="nb">property</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">gas</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gas_types</span><span class="p">:</span>
+            <span class="nb">property</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dictionary</span><span class="p">[</span><span class="n">gas</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">dictionary</span><span class="p">[</span><span class="n">gas</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">t_kelvin</span> <span class="o">+</span>
+                            <span class="n">dictionary</span><span class="p">[</span><span class="n">gas</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">t_kelvin</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">pr</span> <span class="o">*</span> <span class="n">frac</span> <span class="k">for</span> <span class="n">pr</span><span class="p">,</span> <span class="n">frac</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="nb">property</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gas_fractions</span><span class="p">)))</span>
+
+    <span class="k">def</span> <span class="nf">__key</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;A tuple based on the object properties, useful for hashing.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">identifier</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">thickness</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">gas_types</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">gas_fractions</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__key</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">EnergyWindowMaterialGasMixture</span><span class="p">)</span> <span class="ow">and</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">__key</span><span class="p">()</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">__key</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_idf</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__copy__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">new_obj</span> <span class="o">=</span> <span class="n">EnergyWindowMaterialGasMixture</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">identifier</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">thickness</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">gas_types</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">gas_fractions</span><span class="p">)</span>
+        <span class="n">new_obj</span><span class="o">.</span><span class="n">_display_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_display_name</span>
+        <span class="k">return</span> <span class="n">new_obj</span></div>
+
+
+<div class="viewcode-block" id="EnergyWindowMaterialGasCustom"><a class="viewcode-back" href="../../../honeybee_energy.material.gas.html#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom">[docs]</a><span class="nd">@lockable</span>
+<span class="k">class</span> <span class="nc">EnergyWindowMaterialGasCustom</span><span class="p">(</span><span class="n">_EnergyWindowMaterialGasBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Custom gas gap layer.</span>
+
+<span class="sd">    This object allows you to specify specific values for conductivity,</span>
+<span class="sd">    viscosity and specific heat through the following formula:</span>
+
+<span class="sd">    property = A + (B * T) + (C * T ** 2)</span>
+
+<span class="sd">    where:</span>
+
+<span class="sd">    * A, B, and C = regression coefficients for the gas</span>
+<span class="sd">    * T = temperature [K]</span>
+
+<span class="sd">    Note that setting properties B and C to 0 will mean the property will be</span>
+<span class="sd">    equal to the A coefficient.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        identifier: Text string for a unique Material ID. Must be &lt; 100 characters</span>
+<span class="sd">            and not contain any EnergyPlus special characters. This will be used to</span>
+<span class="sd">            identify the object across a model and in the exported IDF.</span>
+<span class="sd">        thickness: Number for the thickness of the air gap layer [m].</span>
+<span class="sd">            Default: 0.0125</span>
+<span class="sd">        conductivity_coeff_a: First conductivity coefficient.</span>
+<span class="sd">            Or conductivity in [W/m-K] if b and c coefficients are 0.</span>
+<span class="sd">        viscosity_coeff_a: First viscosity coefficient.</span>
+<span class="sd">            Or viscosity in [kg/m-s] if b and c coefficients are 0.</span>
+<span class="sd">        specific_heat_coeff_a: First specific heat coefficient.</span>
+<span class="sd">            Or specific heat in [J/kg-K] if b and c coefficients are 0.</span>
+<span class="sd">        conductivity_coeff_b: Second conductivity coefficient. Default = 0.</span>
+<span class="sd">        viscosity_coeff_b: Second viscosity coefficient. Default = 0.</span>
+<span class="sd">        specific_heat_coeff_b: Second specific heat coefficient. Default = 0.</span>
+<span class="sd">        conductivity_coeff_c: Third conductivity coefficient. Default = 0.</span>
+<span class="sd">        viscosity_coeff_c: Third viscosity coefficient. Default = 0.</span>
+<span class="sd">        specific_heat_coeff_c: Third specific heat coefficient. Default = 0.</span>
+<span class="sd">        specific_heat_ratio: A number for the the ratio of the specific heat at</span>
+<span class="sd">            contant pressure, to the specific heat at constant volume.</span>
+<span class="sd">            Default is 1.0 for Air.</span>
+<span class="sd">        molecular_weight: Number between 20 and 200 for the mass of 1 mol of</span>
+<span class="sd">            the substance in grams. Default is 20.0.</span>
+
+<span class="sd">    Properties:</span>
+<span class="sd">        * identifier</span>
+<span class="sd">        * display_name</span>
+<span class="sd">        * thickness</span>
+<span class="sd">        * conductivity_coeff_a</span>
+<span class="sd">        * viscosity_coeff_a</span>
+<span class="sd">        * specific_heat_coeff_a</span>
+<span class="sd">        * conductivity_coeff_b</span>
+<span class="sd">        * viscosity_coeff_b</span>
+<span class="sd">        * specific_heat_coeff_b</span>
+<span class="sd">        * conductivity_coeff_c</span>
+<span class="sd">        * viscosity_coeff_c</span>
+<span class="sd">        * specific_heat_coeff_c</span>
+<span class="sd">        * specific_heat_ratio</span>
+<span class="sd">        * molecular_weight</span>
+<span class="sd">        * conductivity</span>
+<span class="sd">        * viscosity</span>
+<span class="sd">        * specific_heat</span>
+<span class="sd">        * density</span>
+<span class="sd">        * prandtl</span>
+
+<span class="sd">    Usage:</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        co2_gap = EnergyWindowMaterialGasCustom(&#39;CO2&#39;, 0.0125, 0.0146, 0.000014, 827.73)</span>
+<span class="sd">        co2_gap.specific_heat_ratio = 1.4</span>
+<span class="sd">        co2_gap.molecular_weight = 44</span>
+<span class="sd">        print(co2_gap)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;_conductivity_coeff_a&#39;</span><span class="p">,</span> <span class="s1">&#39;_viscosity_coeff_a&#39;</span><span class="p">,</span> <span class="s1">&#39;_specific_heat_coeff_a&#39;</span><span class="p">,</span>
+                 <span class="s1">&#39;_conductivity_coeff_b&#39;</span><span class="p">,</span> <span class="s1">&#39;_viscosity_coeff_b&#39;</span><span class="p">,</span> <span class="s1">&#39;_specific_heat_coeff_b&#39;</span><span class="p">,</span>
+                 <span class="s1">&#39;_conductivity_coeff_c&#39;</span><span class="p">,</span> <span class="s1">&#39;_viscosity_coeff_c&#39;</span><span class="p">,</span> <span class="s1">&#39;_specific_heat_coeff_c&#39;</span><span class="p">,</span>
+                 <span class="s1">&#39;_specific_heat_ratio&#39;</span><span class="p">,</span> <span class="s1">&#39;_molecular_weight&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">identifier</span><span class="p">,</span> <span class="n">thickness</span><span class="p">,</span>
+                 <span class="n">conductivity_coeff_a</span><span class="p">,</span> <span class="n">viscosity_coeff_a</span><span class="p">,</span> <span class="n">specific_heat_coeff_a</span><span class="p">,</span>
+                 <span class="n">conductivity_coeff_b</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">viscosity_coeff_b</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">specific_heat_coeff_b</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                 <span class="n">conductivity_coeff_c</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">viscosity_coeff_c</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">specific_heat_coeff_c</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                 <span class="n">specific_heat_ratio</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">molecular_weight</span><span class="o">=</span><span class="mf">20.0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize custom gas energy material.&quot;&quot;&quot;</span>
+        <span class="n">_EnergyWindowMaterialGasBase</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">identifier</span><span class="p">,</span> <span class="n">thickness</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conductivity_coeff_a</span> <span class="o">=</span> <span class="n">conductivity_coeff_a</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">viscosity_coeff_a</span> <span class="o">=</span> <span class="n">viscosity_coeff_a</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">specific_heat_coeff_a</span> <span class="o">=</span> <span class="n">specific_heat_coeff_a</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conductivity_coeff_b</span> <span class="o">=</span> <span class="n">conductivity_coeff_b</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">viscosity_coeff_b</span> <span class="o">=</span> <span class="n">viscosity_coeff_b</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">specific_heat_coeff_b</span> <span class="o">=</span> <span class="n">specific_heat_coeff_b</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conductivity_coeff_c</span> <span class="o">=</span> <span class="n">conductivity_coeff_c</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">viscosity_coeff_c</span> <span class="o">=</span> <span class="n">viscosity_coeff_c</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">specific_heat_coeff_c</span> <span class="o">=</span> <span class="n">specific_heat_coeff_c</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">specific_heat_ratio</span> <span class="o">=</span> <span class="n">specific_heat_ratio</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">molecular_weight</span> <span class="o">=</span> <span class="n">molecular_weight</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">conductivity_coeff_a</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get or set the first conductivity coefficient.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conductivity_coeff_a</span>
+
+    <span class="nd">@conductivity_coeff_a</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">conductivity_coeff_a</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coeff</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_conductivity_coeff_a</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">coeff</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">viscosity_coeff_a</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get or set the first viscosity coefficient.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viscosity_coeff_a</span>
+
+    <span class="nd">@viscosity_coeff_a</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">viscosity_coeff_a</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coeff</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_viscosity_coeff_a</span> <span class="o">=</span> <span class="n">float_positive</span><span class="p">(</span><span class="n">coeff</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">specific_heat_coeff_a</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get or set the first specific heat coefficient.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_specific_heat_coeff_a</span>
+
+    <span class="nd">@specific_heat_coeff_a</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">specific_heat_coeff_a</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coeff</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_specific_heat_coeff_a</span> <span class="o">=</span> <span class="n">float_positive</span><span class="p">(</span><span class="n">coeff</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">conductivity_coeff_b</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get or set the second conductivity coefficient.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conductivity_coeff_b</span>
+
+    <span class="nd">@conductivity_coeff_b</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">conductivity_coeff_b</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coeff</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_conductivity_coeff_b</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">coeff</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">viscosity_coeff_b</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get or set the second viscosity coefficient.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viscosity_coeff_b</span>
+
+    <span class="nd">@viscosity_coeff_b</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">viscosity_coeff_b</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coeff</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_viscosity_coeff_b</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">coeff</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">specific_heat_coeff_b</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get or set the second specific heat coefficient.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_specific_heat_coeff_b</span>
+
+    <span class="nd">@specific_heat_coeff_b</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">specific_heat_coeff_b</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coeff</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_specific_heat_coeff_b</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">coeff</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">conductivity_coeff_c</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get or set the third conductivity coefficient.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conductivity_coeff_c</span>
+
+    <span class="nd">@conductivity_coeff_c</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">conductivity_coeff_c</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coeff</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_conductivity_coeff_c</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">coeff</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">viscosity_coeff_c</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get or set the third viscosity coefficient.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viscosity_coeff_c</span>
+
+    <span class="nd">@viscosity_coeff_c</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">viscosity_coeff_c</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coeff</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_viscosity_coeff_c</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">coeff</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">specific_heat_coeff_c</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get or set the third specific heat coefficient.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_specific_heat_coeff_c</span>
+
+    <span class="nd">@specific_heat_coeff_c</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">specific_heat_coeff_c</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coeff</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_specific_heat_coeff_c</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">coeff</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">specific_heat_ratio</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get or set the specific heat ratio.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_specific_heat_ratio</span>
+
+    <span class="nd">@specific_heat_ratio</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">specific_heat_ratio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number</span><span class="p">):</span>
+        <span class="n">number</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">number</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="mi">1</span> <span class="o">&lt;=</span> <span class="n">number</span><span class="p">,</span> <span class="s1">&#39;Input specific_heat_ratio (</span><span class="si">{}</span><span class="s1">) must be &gt; 1.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">number</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_specific_heat_ratio</span> <span class="o">=</span> <span class="n">number</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">molecular_weight</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get or set the molecular weight.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_molecular_weight</span>
+
+    <span class="nd">@molecular_weight</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">molecular_weight</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_molecular_weight</span> <span class="o">=</span> <span class="n">float_in_range</span><span class="p">(</span>
+            <span class="n">number</span><span class="p">,</span> <span class="mf">20.0</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">,</span> <span class="s1">&#39;gas material molecular weight&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="EnergyWindowMaterialGasCustom.conductivity_at_temperature"><a class="viewcode-back" href="../../../honeybee_energy.material.gas.html#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.conductivity_at_temperature">[docs]</a>    <span class="k">def</span> <span class="nf">conductivity_at_temperature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t_kelvin</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the conductivity of the gas [W/m-K] at a given Kelvin temperature.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">conductivity_coeff_a</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">conductivity_coeff_b</span> <span class="o">*</span> <span class="n">t_kelvin</span> <span class="o">+</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">conductivity_coeff_c</span> <span class="o">*</span> <span class="n">t_kelvin</span> <span class="o">**</span> <span class="mi">2</span></div>
+
+<div class="viewcode-block" id="EnergyWindowMaterialGasCustom.viscosity_at_temperature"><a class="viewcode-back" href="../../../honeybee_energy.material.gas.html#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.viscosity_at_temperature">[docs]</a>    <span class="k">def</span> <span class="nf">viscosity_at_temperature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t_kelvin</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the viscosity of the gas [kg/m-s] at a given Kelvin temperature.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">viscosity_coeff_a</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">viscosity_coeff_b</span> <span class="o">*</span> <span class="n">t_kelvin</span> <span class="o">+</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">viscosity_coeff_c</span> <span class="o">*</span> <span class="n">t_kelvin</span> <span class="o">**</span> <span class="mi">2</span></div>
+
+<div class="viewcode-block" id="EnergyWindowMaterialGasCustom.specific_heat_at_temperature"><a class="viewcode-back" href="../../../honeybee_energy.material.gas.html#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.specific_heat_at_temperature">[docs]</a>    <span class="k">def</span> <span class="nf">specific_heat_at_temperature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t_kelvin</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the specific heat of the gas [J/kg-K] at a given Kelvin temperature.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">specific_heat_coeff_a</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">specific_heat_coeff_b</span> <span class="o">*</span> <span class="n">t_kelvin</span> <span class="o">+</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">specific_heat_coeff_c</span> <span class="o">*</span> <span class="n">t_kelvin</span> <span class="o">**</span> <span class="mi">2</span></div>
+
+<div class="viewcode-block" id="EnergyWindowMaterialGasCustom.from_idf"><a class="viewcode-back" href="../../../honeybee_energy.material.gas.html#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.from_idf">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_idf</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">idf_string</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create EnergyWindowMaterialGasCustom from an EnergyPlus text string.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            idf_string: A text string fully describing an EnergyPlus material.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ep_s</span> <span class="o">=</span> <span class="n">parse_idf_string</span><span class="p">(</span><span class="n">idf_string</span><span class="p">,</span> <span class="s1">&#39;WindowMaterial:Gas,&#39;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">ep_s</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">title</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;Custom&#39;</span><span class="p">,</span> <span class="s1">&#39;Exected Custom Gas. Got a specific one.&#39;</span>
+        <span class="n">ep_s</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">*</span><span class="n">ep_s</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="EnergyWindowMaterialGasCustom.from_dict"><a class="viewcode-back" href="../../../honeybee_energy.material.gas.html#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a EnergyWindowMaterialGasCustom from a dictionary.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data: A python dictionary in the following format</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            {</span>
+<span class="sd">            &quot;type&quot;: &#39;EnergyWindowMaterialGasCustom&#39;,</span>
+<span class="sd">            &quot;identifier&quot;: &#39;CO2_0010_00146_0000014_82773_140_44&#39;,</span>
+<span class="sd">            &quot;display_name&quot;: &#39;CO2&#39;</span>
+<span class="sd">            &quot;thickness&quot;: 0.01,</span>
+<span class="sd">            &quot;conductivity_coeff_a&quot;: 0.0146,</span>
+<span class="sd">            &quot;viscosity_coeff_a&quot;: 0.000014,</span>
+<span class="sd">            &quot;specific_heat_coeff_a&quot;: 827.73,</span>
+<span class="sd">            &quot;specific_heat_ratio&quot;: 1.4</span>
+<span class="sd">            &quot;molecular_weight&quot;: 44</span>
+<span class="sd">            }</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;EnergyWindowMaterialGasCustom&#39;</span><span class="p">,</span> \
+            <span class="s1">&#39;Expected EnergyWindowMaterialGasCustom. Got </span><span class="si">{}</span><span class="s1">.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">])</span>
+        <span class="n">con_b</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="s1">&#39;conductivity_coeff_b&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span> <span class="k">else</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;conductivity_coeff_b&#39;</span><span class="p">]</span>
+        <span class="n">vis_b</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="s1">&#39;viscosity_coeff_b&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span> <span class="k">else</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;viscosity_coeff_b&#39;</span><span class="p">]</span>
+        <span class="n">sph_b</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="s1">&#39;specific_heat_coeff_b&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span> <span class="k">else</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;specific_heat_coeff_b&#39;</span><span class="p">]</span>
+        <span class="n">con_c</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="s1">&#39;conductivity_coeff_c&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span> <span class="k">else</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;conductivity_coeff_c&#39;</span><span class="p">]</span>
+        <span class="n">vis_c</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="s1">&#39;viscosity_coeff_c&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span> <span class="k">else</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;viscosity_coeff_c&#39;</span><span class="p">]</span>
+        <span class="n">sph_c</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="s1">&#39;specific_heat_coeff_c&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span> <span class="k">else</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;specific_heat_coeff_c&#39;</span><span class="p">]</span>
+        <span class="n">sphr</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="k">if</span> <span class="s1">&#39;specific_heat_ratio&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span> <span class="k">else</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;specific_heat_ratio&#39;</span><span class="p">]</span>
+        <span class="n">mw</span> <span class="o">=</span> <span class="mf">20.0</span> <span class="k">if</span> <span class="s1">&#39;molecular_weight&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span> <span class="k">else</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;molecular_weight&#39;</span><span class="p">]</span>
+        <span class="n">new_obj</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;identifier&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;thickness&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;conductivity_coeff_a&#39;</span><span class="p">],</span>
+                      <span class="n">data</span><span class="p">[</span><span class="s1">&#39;viscosity_coeff_a&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;specific_heat_coeff_a&#39;</span><span class="p">],</span>
+                      <span class="n">con_b</span><span class="p">,</span> <span class="n">vis_b</span><span class="p">,</span> <span class="n">sph_b</span><span class="p">,</span> <span class="n">con_c</span><span class="p">,</span> <span class="n">vis_c</span><span class="p">,</span> <span class="n">sph_c</span><span class="p">,</span> <span class="n">sphr</span><span class="p">,</span> <span class="n">mw</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s1">&#39;display_name&#39;</span> <span class="ow">in</span> <span class="n">data</span> <span class="ow">and</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;display_name&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">new_obj</span><span class="o">.</span><span class="n">display_name</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;display_name&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">new_obj</span></div>
+
+<div class="viewcode-block" id="EnergyWindowMaterialGasCustom.to_idf"><a class="viewcode-back" href="../../../honeybee_energy.material.gas.html#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.to_idf">[docs]</a>    <span class="k">def</span> <span class="nf">to_idf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get an EnergyPlus string representation of the material.&quot;&quot;&quot;</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">identifier</span><span class="p">,</span> <span class="s1">&#39;Custom&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">thickness</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">conductivity_coeff_a</span><span class="p">,</span>
+                  <span class="bp">self</span><span class="o">.</span><span class="n">conductivity_coeff_b</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">conductivity_coeff_c</span><span class="p">,</span>
+                  <span class="bp">self</span><span class="o">.</span><span class="n">viscosity_coeff_a</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">viscosity_coeff_b</span><span class="p">,</span>
+                  <span class="bp">self</span><span class="o">.</span><span class="n">viscosity_coeff_c</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">specific_heat_coeff_a</span><span class="p">,</span>
+                  <span class="bp">self</span><span class="o">.</span><span class="n">specific_heat_coeff_b</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">specific_heat_coeff_c</span><span class="p">,</span>
+                  <span class="bp">self</span><span class="o">.</span><span class="n">molecular_weight</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">specific_heat_ratio</span><span class="p">)</span>
+        <span class="n">comments</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;gas type&#39;</span><span class="p">,</span> <span class="s1">&#39;thickness&#39;</span><span class="p">,</span> <span class="s1">&#39;conductivity coeff a&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;conductivity coeff b&#39;</span><span class="p">,</span> <span class="s1">&#39;conductivity coeff c&#39;</span><span class="p">,</span> <span class="s1">&#39;viscosity coeff a&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;viscosity coeff b&#39;</span><span class="p">,</span> <span class="s1">&#39;viscosity coeff c&#39;</span><span class="p">,</span> <span class="s1">&#39;specific heat coeff a&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;specific heat coeff b&#39;</span><span class="p">,</span> <span class="s1">&#39;specific heat coeff c&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;molecular weight&#39;</span><span class="p">,</span> <span class="s1">&#39;specific heat ratio&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">generate_idf_string</span><span class="p">(</span><span class="s1">&#39;WindowMaterial:Gas&#39;</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">comments</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="EnergyWindowMaterialGasCustom.to_dict"><a class="viewcode-back" href="../../../honeybee_energy.material.gas.html#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Energy Material Gas Custom dictionary representation.&quot;&quot;&quot;</span>
+        <span class="n">base</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;EnergyWindowMaterialGasCustom&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;identifier&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">identifier</span><span class="p">,</span>
+            <span class="s1">&#39;thickness&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">thickness</span><span class="p">,</span>
+            <span class="s1">&#39;conductivity_coeff_a&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">conductivity_coeff_a</span><span class="p">,</span>
+            <span class="s1">&#39;viscosity_coeff_a&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">viscosity_coeff_a</span><span class="p">,</span>
+            <span class="s1">&#39;specific_heat_coeff_a&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">specific_heat_coeff_a</span><span class="p">,</span>
+            <span class="s1">&#39;conductivity_coeff_b&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">conductivity_coeff_b</span><span class="p">,</span>
+            <span class="s1">&#39;viscosity_coeff_b&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">viscosity_coeff_b</span><span class="p">,</span>
+            <span class="s1">&#39;specific_heat_coeff_b&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">specific_heat_coeff_b</span><span class="p">,</span>
+            <span class="s1">&#39;conductivity_coeff_c&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">conductivity_coeff_c</span><span class="p">,</span>
+            <span class="s1">&#39;viscosity_coeff_c&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">viscosity_coeff_c</span><span class="p">,</span>
+            <span class="s1">&#39;specific_heat_coeff_c&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">specific_heat_coeff_c</span><span class="p">,</span>
+            <span class="s1">&#39;specific_heat_ratio&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">specific_heat_ratio</span><span class="p">,</span>
+            <span class="s1">&#39;molecular_weight&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">molecular_weight</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_display_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">base</span><span class="p">[</span><span class="s1">&#39;display_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">display_name</span>
+        <span class="k">return</span> <span class="n">base</span></div>
+
+    <span class="k">def</span> <span class="nf">__key</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;A tuple based on the object properties, useful for hashing.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">identifier</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">thickness</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">conductivity_coeff_a</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">viscosity_coeff_a</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">specific_heat_coeff_a</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">conductivity_coeff_b</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">viscosity_coeff_b</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">specific_heat_coeff_b</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">conductivity_coeff_c</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">viscosity_coeff_c</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">specific_heat_coeff_c</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">specific_heat_ratio</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">molecular_weight</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__key</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">EnergyWindowMaterialGasCustom</span><span class="p">)</span> <span class="ow">and</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">__key</span><span class="p">()</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">__key</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_idf</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__copy__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">new_obj</span> <span class="o">=</span> <span class="n">EnergyWindowMaterialGasCustom</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">identifier</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">thickness</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">conductivity_coeff_a</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">viscosity_coeff_a</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">specific_heat_coeff_a</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">conductivity_coeff_b</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">viscosity_coeff_b</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">specific_heat_coeff_b</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">conductivity_coeff_c</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">viscosity_coeff_c</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">specific_heat_coeff_c</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">specific_heat_ratio</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">molecular_weight</span><span class="p">)</span>
+        <span class="n">new_obj</span><span class="o">.</span><span class="n">_display_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_display_name</span>
+        <span class="k">return</span> <span class="n">new_obj</span></div>
+</pre></div>
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2021, Ladybug Tools.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.4.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

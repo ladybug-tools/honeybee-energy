@@ -1,0 +1,23 @@
+honeybee\_energy.construction package
+=====================================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   honeybee_energy.construction.air
+   honeybee_energy.construction.dictutil
+   honeybee_energy.construction.opaque
+   honeybee_energy.construction.shade
+   honeybee_energy.construction.window
+   honeybee_energy.construction.windowshade
+
+Module contents
+---------------
+
+.. automodule:: honeybee_energy.construction
+   :members:
+   :undoc-members:
+   :show-inheritance:

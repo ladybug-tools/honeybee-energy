@@ -1,0 +1,1451 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>honeybee_energy.material.shade module &#8212; honeybee energy  documentation</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="honeybee_energy.properties package" href="honeybee_energy.properties.html" />
+    <link rel="prev" title="honeybee_energy.material.opaque module" href="honeybee_energy.material.opaque.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-inverse navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="index.html">
+          honeybee energy</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="cli/index.html">CLI Docs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cli/index.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli/index.html#commands">Commands</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cli/main.html">main</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cli/main.html#honeybee-energy">honeybee-energy</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="cli/main.html#honeybee-energy-config">config</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cli/settings.html">settings</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cli/settings.html#honeybee-energy-settings">honeybee-energy settings</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="cli/settings.html#honeybee-energy-settings-comfort-sim-par">comfort-sim-par</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/settings.html#honeybee-energy-settings-custom-sim-par">custom-sim-par</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/settings.html#honeybee-energy-settings-default-sim-par">default-sim-par</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/settings.html#honeybee-energy-settings-load-balance-sim-par">load-balance-sim-par</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/settings.html#honeybee-energy-settings-orientation-sim-pars">orientation-sim-pars</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/settings.html#honeybee-energy-settings-run-period">run-period</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/settings.html#honeybee-energy-settings-sizing-sim-par">sizing-sim-par</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cli/simulate.html">simulate</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cli/simulate.html#honeybee-energy-simulate">honeybee-energy simulate</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="cli/simulate.html#honeybee-energy-simulate-idf">idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/simulate.html#honeybee-energy-simulate-model">model</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/simulate.html#honeybee-energy-simulate-osm">osm</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cli/baseline.html">baseline</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cli/baseline.html#honeybee-energy-baseline">honeybee-energy baseline</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="cli/baseline.html#honeybee-energy-baseline-constructions-2004">constructions-2004</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/baseline.html#honeybee-energy-baseline-geometry-2004">geometry-2004</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/baseline.html#honeybee-energy-baseline-hvac-2004">hvac-2004</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/baseline.html#honeybee-energy-baseline-lighting-2004">lighting-2004</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/baseline.html#honeybee-energy-baseline-remove-ecms">remove-ecms</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cli/edit.html">edit</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cli/edit.html#honeybee-energy-edit">honeybee-energy edit</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="cli/edit.html#honeybee-energy-edit-modifiers-from-constructions">modifiers-from-constructions</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cli/validate.html">validate</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cli/validate.html#honeybee-energy-validate">honeybee-energy validate</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="cli/validate.html#honeybee-energy-validate-construction-set">construction-set</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/validate.html#honeybee-energy-validate-model-properties">model-properties</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/validate.html#honeybee-energy-validate-program-type">program-type</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/validate.html#honeybee-energy-validate-schedule">schedule</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/validate.html#honeybee-energy-validate-schedule-type-limit">schedule-type-limit</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/validate.html#honeybee-energy-validate-sim-par">sim-par</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cli/result.html">result</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cli/result.html#honeybee-energy-result">honeybee-energy result</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="cli/result.html#honeybee-energy-result-all-available-info">all-available-info</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/result.html#honeybee-energy-result-available-results">available-results</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/result.html#honeybee-energy-result-available-results-info">available-results-info</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/result.html#honeybee-energy-result-available-run-period-info">available-run-period-info</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/result.html#honeybee-energy-result-component-sizes">component-sizes</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/result.html#honeybee-energy-result-data-by-output">data-by-output</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/result.html#honeybee-energy-result-data-by-outputs">data-by-outputs</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/result.html#honeybee-energy-result-energy-use-intensity">energy-use-intensity</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/result.html#honeybee-energy-result-load-balance">load-balance</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/result.html#honeybee-energy-result-output-csv">output-csv</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/result.html#honeybee-energy-result-output-csv-queryable">output-csv-queryable</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/result.html#honeybee-energy-result-tabular-data">tabular-data</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/result.html#honeybee-energy-result-tabular-metadata">tabular-metadata</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/result.html#honeybee-energy-result-zone-sizes">zone-sizes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cli/lib.html">lib</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib">honeybee-energy lib</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-construction-set-by-id">construction-set-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-construction-sets">construction-sets</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-construction-sets-by-id">construction-sets-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-constructions-by-id">constructions-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-materials-by-id">materials-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-opaque-construction-by-id">opaque-construction-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-opaque-constructions">opaque-constructions</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-opaque-material-by-id">opaque-material-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-opaque-materials">opaque-materials</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-program-type-by-id">program-type-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-program-types">program-types</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-program-types-by-id">program-types-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-schedule-by-id">schedule-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-schedule-type-limit-by-id">schedule-type-limit-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-schedule-type-limits">schedule-type-limits</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-schedule-type-limits-by-id">schedule-type-limits-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-schedules">schedules</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-schedules-by-id">schedules-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-shade-construction-by-id">shade-construction-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-shade-constructions">shade-constructions</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-window-construction-by-id">window-construction-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-window-constructions">window-constructions</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-window-material-by-id">window-material-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-window-materials">window-materials</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cli/translate.html">translate</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cli/translate.html#honeybee-energy-translate">honeybee-energy translate</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="cli/translate.html#honeybee-energy-translate-constructions-from-idf">constructions-from-idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/translate.html#honeybee-energy-translate-constructions-to-idf">constructions-to-idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/translate.html#honeybee-energy-translate-model-from-gbxml">model-from-gbxml</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/translate.html#honeybee-energy-translate-model-from-idf">model-from-idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/translate.html#honeybee-energy-translate-model-from-osm">model-from-osm</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/translate.html#honeybee-energy-translate-model-occ-schedules">model-occ-schedules</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/translate.html#honeybee-energy-translate-model-to-gbxml">model-to-gbxml</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/translate.html#honeybee-energy-translate-model-to-idf">model-to-idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/translate.html#honeybee-energy-translate-model-to-osm">model-to-osm</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/translate.html#honeybee-energy-translate-schedules-from-idf">schedules-from-idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/translate.html#honeybee-energy-translate-schedules-to-idf">schedules-to-idf</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">honeybee_energy</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="honeybee_energy.html">honeybee_energy package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="honeybee_energy.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.cli.html">honeybee_energy.cli package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.cli.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.cli.data.html">honeybee_energy.cli.data package</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="honeybee_energy.cli.data.html#module-honeybee_energy.cli.data">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.cli.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.cli.baseline.html">honeybee_energy.cli.baseline module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.cli.edit.html">honeybee_energy.cli.edit module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.cli.lib.html">honeybee_energy.cli.lib module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.cli.result.html">honeybee_energy.cli.result module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.cli.settings.html">honeybee_energy.cli.settings module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.cli.simulate.html">honeybee_energy.cli.simulate module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.cli.translate.html">honeybee_energy.cli.translate module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.cli.validate.html">honeybee_energy.cli.validate module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.cli.html#module-honeybee_energy.cli">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.construction.html">honeybee_energy.construction package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.construction.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.construction.air.html">honeybee_energy.construction.air module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.construction.dictutil.html">honeybee_energy.construction.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.construction.opaque.html">honeybee_energy.construction.opaque module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.construction.shade.html">honeybee_energy.construction.shade module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.construction.window.html">honeybee_energy.construction.window module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.construction.windowshade.html">honeybee_energy.construction.windowshade module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.construction.html#module-honeybee_energy.construction">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.hvac.html">honeybee_energy.hvac package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.hvac.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.hvac.allair.html">honeybee_energy.hvac.allair package</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="honeybee_energy.hvac.allair.html#submodules">Submodules</a><ul>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.allair.furnace.html">honeybee_energy.hvac.allair.furnace module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.allair.psz.html">honeybee_energy.hvac.allair.psz module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.allair.ptac.html">honeybee_energy.hvac.allair.ptac module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.allair.pvav.html">honeybee_energy.hvac.allair.pvav module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.allair.vav.html">honeybee_energy.hvac.allair.vav module</a></li>
+</ul>
+</li>
+<li class="toctree-l7"><a class="reference internal" href="honeybee_energy.hvac.allair.html#module-honeybee_energy.hvac.allair">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.hvac.doas.html">honeybee_energy.hvac.doas package</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="honeybee_energy.hvac.doas.html#submodules">Submodules</a><ul>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.doas.fcu.html">honeybee_energy.hvac.doas.fcu module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.doas.vrf.html">honeybee_energy.hvac.doas.vrf module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.doas.wshp.html">honeybee_energy.hvac.doas.wshp module</a></li>
+</ul>
+</li>
+<li class="toctree-l7"><a class="reference internal" href="honeybee_energy.hvac.doas.html#module-honeybee_energy.hvac.doas">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.hvac.heatcool.html">honeybee_energy.hvac.heatcool package</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="honeybee_energy.hvac.heatcool.html#submodules">Submodules</a><ul>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.heatcool.baseboard.html">honeybee_energy.hvac.heatcool.baseboard module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.heatcool.evapcool.html">honeybee_energy.hvac.heatcool.evapcool module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.heatcool.fcu.html">honeybee_energy.hvac.heatcool.fcu module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.heatcool.gasunit.html">honeybee_energy.hvac.heatcool.gasunit module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.heatcool.residential.html">honeybee_energy.hvac.heatcool.residential module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.heatcool.vrf.html">honeybee_energy.hvac.heatcool.vrf module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.heatcool.windowac.html">honeybee_energy.hvac.heatcool.windowac module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.heatcool.wshp.html">honeybee_energy.hvac.heatcool.wshp module</a></li>
+</ul>
+</li>
+<li class="toctree-l7"><a class="reference internal" href="honeybee_energy.hvac.heatcool.html#module-honeybee_energy.hvac.heatcool">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.hvac.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.hvac.idealair.html">honeybee_energy.hvac.idealair module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.hvac.html#module-honeybee_energy.hvac">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.lib.html">honeybee_energy.lib package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.lib.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.lib.constructions.html">honeybee_energy.lib.constructions module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.lib.constructionsets.html">honeybee_energy.lib.constructionsets module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.lib.materials.html">honeybee_energy.lib.materials module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.lib.programtypes.html">honeybee_energy.lib.programtypes module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.lib.schedules.html">honeybee_energy.lib.schedules module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.lib.scheduletypelimits.html">honeybee_energy.lib.scheduletypelimits module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.lib.html#module-honeybee_energy.lib">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.load.html">honeybee_energy.load package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.load.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.load.daylight.html">honeybee_energy.load.daylight module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.load.dictutil.html">honeybee_energy.load.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.load.equipment.html">honeybee_energy.load.equipment module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.load.hotwater.html">honeybee_energy.load.hotwater module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.load.infiltration.html">honeybee_energy.load.infiltration module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.load.lighting.html">honeybee_energy.load.lighting module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.load.people.html">honeybee_energy.load.people module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.load.setpoint.html">honeybee_energy.load.setpoint module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.load.ventilation.html">honeybee_energy.load.ventilation module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.load.html#module-honeybee_energy.load">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4 current"><a class="reference internal" href="honeybee_energy.material.html">honeybee_energy.material package</a><ul class="current">
+<li class="toctree-l5 current"><a class="reference internal" href="honeybee_energy.material.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.material.dictutil.html">honeybee_energy.material.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.material.gas.html">honeybee_energy.material.gas module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.material.glazing.html">honeybee_energy.material.glazing module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.material.opaque.html">honeybee_energy.material.opaque module</a></li>
+<li class="toctree-l6 current"><a class="current reference internal" href="#">honeybee_energy.material.shade module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.material.html#module-honeybee_energy.material">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.properties.html">honeybee_energy.properties package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.properties.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.properties.aperture.html">honeybee_energy.properties.aperture module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.properties.door.html">honeybee_energy.properties.door module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.properties.face.html">honeybee_energy.properties.face module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.properties.model.html">honeybee_energy.properties.model module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.properties.room.html">honeybee_energy.properties.room module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.properties.shade.html">honeybee_energy.properties.shade module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.properties.html#module-honeybee_energy.properties">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.result.html">honeybee_energy.result package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.result.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.result.colorobj.html">honeybee_energy.result.colorobj module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.result.err.html">honeybee_energy.result.err module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.result.loadbalance.html">honeybee_energy.result.loadbalance module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.result.match.html">honeybee_energy.result.match module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.result.osw.html">honeybee_energy.result.osw module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.result.rdd.html">honeybee_energy.result.rdd module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.result.zsz.html">honeybee_energy.result.zsz module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.result.html#module-honeybee_energy.result">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.schedule.html">honeybee_energy.schedule package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.schedule.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.schedule.day.html">honeybee_energy.schedule.day module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.schedule.dictutil.html">honeybee_energy.schedule.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.schedule.fixedinterval.html">honeybee_energy.schedule.fixedinterval module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.schedule.rule.html">honeybee_energy.schedule.rule module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.schedule.ruleset.html">honeybee_energy.schedule.ruleset module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.schedule.typelimit.html">honeybee_energy.schedule.typelimit module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.schedule.html#module-honeybee_energy.schedule">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.simulation.html">honeybee_energy.simulation package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.simulation.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.simulation.control.html">honeybee_energy.simulation.control module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.simulation.daylightsaving.html">honeybee_energy.simulation.daylightsaving module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.simulation.dictutil.html">honeybee_energy.simulation.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.simulation.output.html">honeybee_energy.simulation.output module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.simulation.parameter.html">honeybee_energy.simulation.parameter module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.simulation.runperiod.html">honeybee_energy.simulation.runperiod module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.simulation.shadowcalculation.html">honeybee_energy.simulation.shadowcalculation module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.simulation.sizing.html">honeybee_energy.simulation.sizing module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.simulation.html#module-honeybee_energy.simulation">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.ventcool.html">honeybee_energy.ventcool package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.ventcool.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.ventcool.afn.html">honeybee_energy.ventcool.afn module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.ventcool.control.html">honeybee_energy.ventcool.control module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.ventcool.crack.html">honeybee_energy.ventcool.crack module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.ventcool.opening.html">honeybee_energy.ventcool.opening module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.ventcool.simulation.html">honeybee_energy.ventcool.simulation module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.ventcool.html#module-honeybee_energy.ventcool">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="honeybee_energy.html#submodules">Submodules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.altnumber.html">honeybee_energy.altnumber module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.boundarycondition.html">honeybee_energy.boundarycondition module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.config.html">honeybee_energy.config module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.constructionset.html">honeybee_energy.constructionset module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.dictutil.html">honeybee_energy.dictutil module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.measure.html">honeybee_energy.measure module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.programtype.html">honeybee_energy.programtype module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.reader.html">honeybee_energy.reader module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.run.html">honeybee_energy.run module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.writer.html">honeybee_energy.writer module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="honeybee_energy.html#module-honeybee_energy">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="cli/index.html">CLI Docs</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">honeybee_energy</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="honeybee_energy.html">honeybee_energy package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="honeybee_energy.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.cli.html">honeybee_energy.cli package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.construction.html">honeybee_energy.construction package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.hvac.html">honeybee_energy.hvac package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.lib.html">honeybee_energy.lib package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.load.html">honeybee_energy.load package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="honeybee_energy.material.html">honeybee_energy.material package</a><ul class="current">
+<li class="toctree-l5 current"><a class="reference internal" href="honeybee_energy.material.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.material.dictutil.html">honeybee_energy.material.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.material.gas.html">honeybee_energy.material.gas module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.material.glazing.html">honeybee_energy.material.glazing module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.material.opaque.html">honeybee_energy.material.opaque module</a></li>
+<li class="toctree-l6 current"><a class="current reference internal" href="#">honeybee_energy.material.shade module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.material.html#module-honeybee_energy.material">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.properties.html">honeybee_energy.properties package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.result.html">honeybee_energy.result package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.schedule.html">honeybee_energy.schedule package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.simulation.html">honeybee_energy.simulation package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.ventcool.html">honeybee_energy.ventcool package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="honeybee_energy.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="honeybee_energy.html#module-honeybee_energy">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li>
+    <a href="honeybee_energy.material.opaque.html" title="Previous Chapter: honeybee_energy.material.opaque module"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; honeybee_ener...</span>
+    </a>
+  </li>
+  <li>
+    <a href="honeybee_energy.properties.html" title="Next Chapter: honeybee_energy.properties package"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">honeybee_ener... &raquo;</span>
+    </a>
+  </li>
+              
+            
+            
+            
+            
+              <li class="hidden-sm">
+<div id="sourcelink">
+  <a href="_sources/honeybee_energy.material.shade.rst.txt"
+     rel="nofollow">Source</a>
+</div></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+      <div class="col-md-4">
+        <div id="sidebar" class="bs-sidenav" role="complementary"><ul>
+<li class="toctree-l1"><a class="reference internal" href="cli/index.html">CLI Docs</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">honeybee_energy</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="honeybee_energy.html">honeybee_energy package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="honeybee_energy.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.cli.html">honeybee_energy.cli package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.construction.html">honeybee_energy.construction package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.hvac.html">honeybee_energy.hvac package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.lib.html">honeybee_energy.lib package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.load.html">honeybee_energy.load package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="honeybee_energy.material.html">honeybee_energy.material package</a><ul class="current">
+<li class="toctree-l5 current"><a class="reference internal" href="honeybee_energy.material.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.material.dictutil.html">honeybee_energy.material.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.material.gas.html">honeybee_energy.material.gas module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.material.glazing.html">honeybee_energy.material.glazing module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.material.opaque.html">honeybee_energy.material.opaque module</a></li>
+<li class="toctree-l6 current"><a class="current reference internal" href="#">honeybee_energy.material.shade module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.material.html#module-honeybee_energy.material">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.properties.html">honeybee_energy.properties package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.result.html">honeybee_energy.result package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.schedule.html">honeybee_energy.schedule package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.simulation.html">honeybee_energy.simulation package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.ventcool.html">honeybee_energy.ventcool package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="honeybee_energy.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="honeybee_energy.html#module-honeybee_energy">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    <div class="body col-md-8 content" role="main">
+      
+  <div class="section" id="module-honeybee_energy.material.shade">
+<span id="honeybee-energy-material-shade-module"></span><h1>honeybee_energy.material.shade module<a class="headerlink" href="#module-honeybee_energy.material.shade" title="Permalink to this headline">¶</a></h1>
+<p>Shade materials representing shades, blinds, or screens in a window construction.</p>
+<p>They can exist in only one of three possible locations in a window construction:</p>
+<ol class="arabic simple">
+<li><p>On the innermost material layer.</p></li>
+<li><p>On the outermost material layer.</p></li>
+<li><p>In between two glazing materials. In the case of window constructions with
+multiple glazing surfaces, the shade material must be between the two
+inner glass layers.</p></li>
+</ol>
+<p>Note that shade materials should never be bounded by gas gap layers in honeybee-energy.</p>
+<dl class="py class">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialBlind">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">honeybee_energy.material.shade.</span></code><code class="sig-name descname"><span class="pre">EnergyWindowMaterialBlind</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">identifier</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slat_orientation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Horizontal'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slat_width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.025</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slat_separation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01875</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slat_thickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slat_angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">45</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slat_conductivity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">221</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solar_transmittance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solar_reflectance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visible_transmittance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visible_reflectance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">infrared_transmittance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emissivity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.9</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_to_glass</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opening_multiplier</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/material/shade.html#EnergyWindowMaterialBlind"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialBlind" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">honeybee_energy.material.shade._EnergyWindowMaterialShadeBase</span></code></p>
+<p>A material for a blind layer in a window construction.</p>
+<p>Window blind properties consist of flat, equally-spaced slats.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>identifier</strong> – Text string for a unique Material ID. Must be &lt; 100 characters
+and not contain any EnergyPlus special characters. This will be used to
+identify the object across a model and in the exported IDF.</p></li>
+<li><p><strong>slat_orientation</strong> – Text describing the orientation of the slats.
+Only the following two options are acceptable:
+“Horizontal”, “Vertical”. Default: “Horizontal”</p></li>
+<li><p><strong>slat_width</strong> – The width of slat measured from edge to edge [m].
+Default: 0.025 m (25 mm).</p></li>
+<li><p><strong>slat_separation</strong> – The distance between each of the slats [m].
+Default: 0.01875 m (18.75 mm).</p></li>
+<li><p><strong>slat_thickness</strong> – A number between 0 and 0.1 for the thickness of the slat [m].
+Default: 0.001 m (1 mm).</p></li>
+<li><p><strong>slat_angle</strong> – A number between 0 and 180 for the angle between the slats
+and the glazing normal in degrees. 90 signifies slats that are
+perpendicular to the glass. Default: 45.</p></li>
+<li><p><strong>slat_conductivity</strong> – The thermal conductivity of the blind material [W/m-K].
+Default is 221, which is characteristic of metal blinds.</p></li>
+<li><p><strong>solar_transmittance</strong> – Number between 0 and 1 for the transmittance
+of solar radiation through the blind material. Default: 0.</p></li>
+<li><p><strong>solar_reflectance</strong> – Number between 0 and 1 for the front reflectance
+of solar radiation off of the blind, averaged over the solar
+spectrum. Default: 0.5.</p></li>
+<li><p><strong>visible_transmittance</strong> – Number between 0 and 1 for the transmittance
+of visible light through the blind material. Default : 0.</p></li>
+<li><p><strong>visible_reflectance</strong> – Number between 0 and 1 for the reflectance of
+visible light off of the blind. Default: 0.5.</p></li>
+<li><p><strong>infrared_transmittance</strong> – Long-wave hemispherical transmittance of the blind.
+Default value is 0.</p></li>
+<li><p><strong>emissivity</strong> – Number between 0 and 1 for the infrared hemispherical
+emissivity of the blind.  Default is 0.9.</p></li>
+<li><p><strong>distance_to_glass</strong> – A number between 0.001 and 1.0 for the distance from
+the mid-plane of the blind to the adjacent glass layers [m].
+Default is 0.05 (50 mm).</p></li>
+<li><p><strong>opening_multiplier</strong> – Factor between 0 and 1 that is multiplied by the
+area at the top, bottom and sides of the shade for air flow
+calculations. Default: 0.5.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Properties:</dt><dd><ul class="simple">
+<li><p>identifier</p></li>
+<li><p>display_name</p></li>
+<li><p>slat_orientation</p></li>
+<li><p>slat_width</p></li>
+<li><p>slat_separation</p></li>
+<li><p>slat_thickness</p></li>
+<li><p>slat_angle</p></li>
+<li><p>slat_conductivity</p></li>
+<li><p>beam_solar_transmittance</p></li>
+<li><p>beam_solar_reflectance</p></li>
+<li><p>beam_solar_reflectance_back</p></li>
+<li><p>diffuse_solar_transmittance</p></li>
+<li><p>diffuse_solar_reflectance</p></li>
+<li><p>diffuse_solar_reflectance_back</p></li>
+<li><p>beam_visible_transmittance</p></li>
+<li><p>beam_visible_reflectance</p></li>
+<li><p>beam_visible_reflectance_back</p></li>
+<li><p>diffuse_visible_transmittance</p></li>
+<li><p>diffuse_visible_reflectance</p></li>
+<li><p>diffuse_visible_reflectance_back</p></li>
+<li><p>infrared_transmittance</p></li>
+<li><p>emissivity</p></li>
+<li><p>emissivity_back</p></li>
+<li><p>distance_to_glass</p></li>
+<li><p>top_opening_multiplier</p></li>
+<li><p>bottom_opening_multiplier</p></li>
+<li><p>left_opening_multiplier</p></li>
+<li><p>right_opening_multiplier</p></li>
+<li><p>slat_resistivity</p></li>
+<li><p>u_value</p></li>
+<li><p>r_value</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialBlind.ToString">
+<code class="sig-name descname"><span class="pre">ToString</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialBlind.ToString" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overwrite .NET ToString.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialBlind.duplicate">
+<code class="sig-name descname"><span class="pre">duplicate</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialBlind.duplicate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a copy of this construction.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialBlind.from_dict">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">from_dict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/material/shade.html#EnergyWindowMaterialBlind.from_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialBlind.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a EnergyWindowMaterialBlind from a dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> – A python dictionary in the following format</p>
+</dd>
+</dl>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s1">&#39;EnergyWindowMaterialBlind&#39;</span><span class="p">,</span>
+<span class="s2">&quot;identifier&quot;</span><span class="p">:</span> <span class="s1">&#39;Plastic_Blind_Horiz_0040_0030_0002_90&#39;</span><span class="p">,</span>
+<span class="s2">&quot;display_name&quot;</span><span class="p">:</span> <span class="s1">&#39;Plastic Blind&#39;</span><span class="p">,</span>
+<span class="s2">&quot;slat_orientation&quot;</span><span class="p">:</span> <span class="s1">&#39;Horizontal&#39;</span><span class="p">,</span>
+<span class="s2">&quot;slat_width&quot;</span><span class="p">:</span> <span class="mf">0.04</span><span class="p">,</span>
+<span class="s2">&quot;slat_separation&quot;</span><span class="p">:</span> <span class="mf">0.03</span><span class="p">,</span>
+<span class="s2">&quot;slat_thickness&quot;</span><span class="p">:</span> <span class="mf">0.002</span><span class="p">,</span>
+<span class="s2">&quot;slat_angle&quot;</span><span class="p">:</span> <span class="mi">90</span><span class="p">,</span>
+<span class="s2">&quot;slat_conductivity&quot;</span><span class="p">:</span> <span class="mf">0.2</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialBlind.from_idf">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">from_idf</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idf_string</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/material/shade.html#EnergyWindowMaterialBlind.from_idf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialBlind.from_idf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create EnergyWindowMaterialBlind from an EnergyPlus text string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>idf_string</strong> – A text string fully describing an EnergyPlus material.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialBlind.lock">
+<code class="sig-name descname"><span class="pre">lock</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialBlind.lock" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialBlind.r_value_between">
+<code class="sig-name descname"><span class="pre">r_value_between</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">7.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emissivity_1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.84</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emissivity_2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.84</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">90</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_kelvin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">273.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">101325</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialBlind.r_value_between" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get an estimate of the R-value of the shade + air gap when it is interior.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>delta_t</strong> – The temperature difference across the air gap [C]. This
+influences how strong the convection is within the air gap. Default is
+7.5C, which is consistent with the NFRC standard for double glazed units.</p></li>
+<li><p><strong>emissivity_1</strong> – The emissivity of the glazing surface on one side of the shade.
+Default is 0.84, which is typical of clear, uncoated glass.</p></li>
+<li><p><strong>emissivity_2</strong> – The emissivity of the glazing surface on the other side of
+the shade. Default is 0.84, which is typical of clear, uncoated glass.</p></li>
+<li><p><strong>height</strong> – An optional height for the cavity between the shade and the
+glass in meters. Default is 1.0.</p></li>
+<li><p><strong>angle</strong> – <p>An angle in degrees between 0 and 180.</p>
+<ul>
+<li><p>0 = A horizontal surface with downward heat flow through the layer.</p></li>
+<li><p>90 = A vertical surface</p></li>
+<li><p>180 = A horizontal surface with upward heat flow through the layer.</p></li>
+</ul>
+</p></li>
+<li><p><strong>t_kelvin</strong> – The average temperature of the gas cavity in Kelvin.
+Default: 273.15 K (0C).</p></li>
+<li><p><strong>pressure</strong> – The average air pressure in Pa. Default is 101325 Pa for sea level.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialBlind.r_value_exterior">
+<code class="sig-name descname"><span class="pre">r_value_exterior</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">7.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emissivity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.84</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">90</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_kelvin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">273.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">101325</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialBlind.r_value_exterior" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get an estimate of the R-value of the shade + air gap when it is exterior.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>delta_t</strong> – The temperature difference across the air gap [C]. This
+influences how strong the convection is within the air gap. Default is
+7.5C, which is consistent with the NFRC standard for double glazed units.</p></li>
+<li><p><strong>emissivity</strong> – The emissivity of the glazing surface adjacent to the shade.
+Default is 0.84, which is typical of clear, uncoated glass.</p></li>
+<li><p><strong>height</strong> – An optional height for the cavity between the shade and the
+glass in meters. Default is 1.0.</p></li>
+<li><p><strong>angle</strong> – <p>An angle in degrees between 0 and 180.</p>
+<ul>
+<li><p>0 = A horizontal surface with downward heat flow through the layer.</p></li>
+<li><p>90 = A vertical surface</p></li>
+<li><p>180 = A horizontal surface with upward heat flow through the layer.</p></li>
+</ul>
+</p></li>
+<li><p><strong>t_kelvin</strong> – The average temperature of the gas cavity in Kelvin.
+Default: 273.15 K (0C).</p></li>
+<li><p><strong>pressure</strong> – The average air pressure in Pa. Default is 101325 Pa for sea level.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialBlind.r_value_interior">
+<code class="sig-name descname"><span class="pre">r_value_interior</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">7.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emissivity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.84</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">90</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_kelvin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">273.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">101325</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialBlind.r_value_interior" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get an estimate of the R-value of the shade + air gap when it is interior.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>delta_t</strong> – The temperature difference across the air gap [C]. This
+influences how strong the convection is within the air gap. Default is
+7.5C, which is consistent with the NFRC standard for double glazed units.</p></li>
+<li><p><strong>emissivity</strong> – The emissivity of the glazing surface adjacent to the shade.
+Default is 0.84, which is typical of clear, uncoated glass.</p></li>
+<li><p><strong>height</strong> – An optional height for the cavity between the shade and the
+glass in meters. Default is 1.0.</p></li>
+<li><p><strong>angle</strong> – <p>An angle in degrees between 0 and 180.</p>
+<ul>
+<li><p>0 = A horizontal surface with downward heat flow through the layer.</p></li>
+<li><p>90 = A vertical surface</p></li>
+<li><p>180 = A horizontal surface with upward heat flow through the layer.</p></li>
+</ul>
+</p></li>
+<li><p><strong>t_kelvin</strong> – The average temperature of the gas cavity in Kelvin.
+Default: 273.15 K (0C).</p></li>
+<li><p><strong>pressure</strong> – The average air pressure in Pa. Default is 101325 Pa for sea level.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialBlind.set_all_opening_multipliers">
+<code class="sig-name descname"><span class="pre">set_all_opening_multipliers</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">multiplier</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialBlind.set_all_opening_multipliers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set all opening multipliers to the same value at once.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialBlind.set_all_solar_reflectance">
+<code class="sig-name descname"><span class="pre">set_all_solar_reflectance</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reflectance</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/material/shade.html#EnergyWindowMaterialBlind.set_all_solar_reflectance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialBlind.set_all_solar_reflectance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set all solar reflectance to the same value at once.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialBlind.set_all_solar_transmittance">
+<code class="sig-name descname"><span class="pre">set_all_solar_transmittance</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transmittance</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/material/shade.html#EnergyWindowMaterialBlind.set_all_solar_transmittance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialBlind.set_all_solar_transmittance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set all solar transmittance to the same value at once.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialBlind.set_all_visible_reflectance">
+<code class="sig-name descname"><span class="pre">set_all_visible_reflectance</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reflectance</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/material/shade.html#EnergyWindowMaterialBlind.set_all_visible_reflectance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialBlind.set_all_visible_reflectance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set all visible reflectance to the same value at once.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialBlind.set_all_visible_transmittance">
+<code class="sig-name descname"><span class="pre">set_all_visible_transmittance</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transmittance</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/material/shade.html#EnergyWindowMaterialBlind.set_all_visible_transmittance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialBlind.set_all_visible_transmittance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set all solar transmittance to the same value at once.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialBlind.to_dict">
+<code class="sig-name descname"><span class="pre">to_dict</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/material/shade.html#EnergyWindowMaterialBlind.to_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialBlind.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Energy Window Material Blind dictionary representation.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialBlind.to_idf">
+<code class="sig-name descname"><span class="pre">to_idf</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/material/shade.html#EnergyWindowMaterialBlind.to_idf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialBlind.to_idf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get an EnergyPlus string representation of the material.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialBlind.unlock">
+<code class="sig-name descname"><span class="pre">unlock</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialBlind.unlock" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialBlind.ORIENTATIONS">
+<code class="sig-name descname"><span class="pre">ORIENTATIONS</span></code><em class="property"> <span class="pre">=</span> <span class="pre">('Horizontal',</span> <span class="pre">'Vertical')</span></em><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialBlind.ORIENTATIONS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialBlind.beam_solar_reflectance">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">beam_solar_reflectance</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialBlind.beam_solar_reflectance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the front beam solar reflectance of the blind.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialBlind.beam_solar_reflectance_back">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">beam_solar_reflectance_back</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialBlind.beam_solar_reflectance_back" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the back beam solar reflectance of the blind.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialBlind.beam_solar_transmittance">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">beam_solar_transmittance</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialBlind.beam_solar_transmittance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the beam solar transmittance of the blind material.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialBlind.beam_visible_reflectance">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">beam_visible_reflectance</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialBlind.beam_visible_reflectance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the front beam visible reflectance of the blind.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialBlind.beam_visible_reflectance_back">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">beam_visible_reflectance_back</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialBlind.beam_visible_reflectance_back" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the back beam visible reflectance of the blind.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialBlind.beam_visible_transmittance">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">beam_visible_transmittance</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialBlind.beam_visible_transmittance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the beam visible transmittance of the blind material.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialBlind.bottom_opening_multiplier">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">bottom_opening_multiplier</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialBlind.bottom_opening_multiplier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the bottom opening multiplier.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialBlind.diffuse_solar_reflectance">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">diffuse_solar_reflectance</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialBlind.diffuse_solar_reflectance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the front diffuse solar reflectance of the blind.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialBlind.diffuse_solar_reflectance_back">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">diffuse_solar_reflectance_back</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialBlind.diffuse_solar_reflectance_back" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the back diffuse solar reflectance of the blind.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialBlind.diffuse_solar_transmittance">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">diffuse_solar_transmittance</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialBlind.diffuse_solar_transmittance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the diffuse solar transmittance of the blind material.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialBlind.diffuse_visible_reflectance">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">diffuse_visible_reflectance</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialBlind.diffuse_visible_reflectance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the front diffuse visible reflectance of the blind.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialBlind.diffuse_visible_reflectance_back">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">diffuse_visible_reflectance_back</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialBlind.diffuse_visible_reflectance_back" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the back diffuse visible reflectance of the blind.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialBlind.diffuse_visible_transmittance">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">diffuse_visible_transmittance</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialBlind.diffuse_visible_transmittance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the diffuse visible transmittance of the blind material.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialBlind.display_name">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">display_name</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialBlind.display_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set a string for the object name without any character restrictions.</p>
+<p>If not set, this will be equal to the identifier.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialBlind.distance_to_glass">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">distance_to_glass</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialBlind.distance_to_glass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the shade distance to the glass [m].</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialBlind.emissivity">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">emissivity</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialBlind.emissivity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the hemispherical emissivity of the shade.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialBlind.emissivity_back">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">emissivity_back</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialBlind.emissivity_back" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the hemispherical emissivity of the back side of the glass.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialBlind.identifier">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">identifier</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialBlind.identifier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the text string for material identifier.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialBlind.infrared_transmittance">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">infrared_transmittance</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialBlind.infrared_transmittance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the infrared transmittance of the shade.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialBlind.is_gas_material">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">is_gas_material</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialBlind.is_gas_material" title="Permalink to this definition">¶</a></dt>
+<dd><p>Boolean to note whether the material is a gas gap layer.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialBlind.is_glazing_material">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">is_glazing_material</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialBlind.is_glazing_material" title="Permalink to this definition">¶</a></dt>
+<dd><p>Boolean to note whether the material is a glazing layer.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialBlind.is_shade_material">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">is_shade_material</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialBlind.is_shade_material" title="Permalink to this definition">¶</a></dt>
+<dd><p>Boolean to note whether the material is a shade layer.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialBlind.is_window_material">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">is_window_material</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialBlind.is_window_material" title="Permalink to this definition">¶</a></dt>
+<dd><p>Boolean to note whether the material can be used for window surfaces.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialBlind.left_opening_multiplier">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">left_opening_multiplier</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialBlind.left_opening_multiplier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the left opening multiplier.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialBlind.r_value">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">r_value</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialBlind.r_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>R-value of the blind slats [m2-K/W] (excluding air film resistance).</p>
+<p>Note that this value assumes that blinds are completely closed (at 0 degrees).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialBlind.right_opening_multiplier">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">right_opening_multiplier</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialBlind.right_opening_multiplier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the right opening multiplier.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialBlind.slat_angle">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">slat_angle</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialBlind.slat_angle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the angle between the slats and the glazing normal.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialBlind.slat_conductivity">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">slat_conductivity</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialBlind.slat_conductivity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the conductivity of the blind material [W/m-K].</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialBlind.slat_orientation">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">slat_orientation</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialBlind.slat_orientation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set text describing the slat orientation.</p>
+<p>Must be one of the following: [“Horizontal”, “Vertical”].</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialBlind.slat_resistivity">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">slat_resistivity</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialBlind.slat_resistivity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the resistivity of the blind layer [m-K/W].</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialBlind.slat_separation">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">slat_separation</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialBlind.slat_separation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the distance between each of the slats [m]</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialBlind.slat_thickness">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">slat_thickness</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialBlind.slat_thickness" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the thickness of the slat [m].</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialBlind.slat_width">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">slat_width</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialBlind.slat_width" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the width of slat measured from edge to edge [m]</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialBlind.top_opening_multiplier">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">top_opening_multiplier</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialBlind.top_opening_multiplier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the top opening multiplier.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialBlind.u_value">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">u_value</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialBlind.u_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>U-value of the blind slats [W/m2-K] (excluding air film resistance).</p>
+<p>Note that this value assumes that blinds are completely closed (at 0 degrees).</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialShade">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">honeybee_energy.material.shade.</span></code><code class="sig-name descname"><span class="pre">EnergyWindowMaterialShade</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">identifier</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.005</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solar_transmittance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solar_reflectance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visible_transmittance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visible_reflectance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">infrared_transmittance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emissivity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.9</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conductivity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_to_glass</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opening_multiplier</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">airflow_permeability</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/material/shade.html#EnergyWindowMaterialShade"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialShade" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">honeybee_energy.material.shade._EnergyWindowMaterialShadeBase</span></code></p>
+<p>A material for a shade layer in a window construction.</p>
+<p>Reflectance and emissivity properties are assumed to be the same on both sides of
+the shade. Shades are considered to be perfect diffusers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>identifier</strong> – Text string for a unique Material ID. Must be &lt; 100 characters
+and not contain any EnergyPlus special characters. This will be used to
+identify the object across a model and in the exported IDF.</p></li>
+<li><p><strong>thickness</strong> – Number for the thickness of the shade layer [m].
+Default: 0.005 meters (5 mm).</p></li>
+<li><p><strong>solar_transmittance</strong> – Number between 0 and 1 for the transmittance
+of solar radiation through the shade.
+Default: 0.4, which is typical of a white diffusing shade.</p></li>
+<li><p><strong>solar_reflectance</strong> – Number between 0 and 1 for the reflectance of solar
+radiation off of the shade, averaged over the solar spectrum.
+Default: 0.5, which is typical of a white diffusing shade.</p></li>
+<li><p><strong>visible_transmittance</strong> – Number between 0 and 1 for the transmittance
+of visible light through the shade.
+Default: 0.4, which is typical of a white diffusing shade.</p></li>
+<li><p><strong>visible_reflectance</strong> – Number between 0 and 1 for the reflectance of
+visible light off of the shade.
+Default: 0.4, which is typical of a white diffusing shade.</p></li>
+<li><p><strong>infrared_transmittance</strong> – Long-wave hemispherical transmittance of the shade.
+Default: 0, which is typical of diffusing shades.</p></li>
+<li><p><strong>emissivity</strong> – Number between 0 and 1 for the infrared hemispherical
+emissivity of the front side of the shade.  Default: 0.9, which
+is typical of most diffusing shade materials.</p></li>
+<li><p><strong>conductivity</strong> – Number for the thermal conductivity of the shade [W/m-K].
+Default: 0.05, typical of cotton shades.</p></li>
+<li><p><strong>distance_to_glass</strong> – A number between 0.001 and 1.0 for the distance
+between the shade and neighboring glass layers [m].
+Default: 0.05 (50 mm).</p></li>
+<li><p><strong>opening_multiplier</strong> – Factor between 0 and 1 that is multiplied by the
+area at the top, bottom and sides of the shade for air flow
+calculations. Default: 0.5.</p></li>
+<li><p><strong>airflow_permeability</strong> – The fraction of the shade surface that is open to
+air flow. Must be between 0 and 0.8. Default: 0 for no permeability.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Properties:</dt><dd><ul class="simple">
+<li><p>identifier</p></li>
+<li><p>display_name</p></li>
+<li><p>thickness</p></li>
+<li><p>solar_transmittance</p></li>
+<li><p>solar_reflectance</p></li>
+<li><p>visible_transmittance</p></li>
+<li><p>visible_reflectance</p></li>
+<li><p>infrared_transmittance</p></li>
+<li><p>emissivity</p></li>
+<li><p>conductivity</p></li>
+<li><p>distance_to_glass</p></li>
+<li><p>top_opening_multiplier</p></li>
+<li><p>bottom_opening_multiplier</p></li>
+<li><p>left_opening_multiplier</p></li>
+<li><p>right_opening_multiplier</p></li>
+<li><p>airflow_permeability</p></li>
+<li><p>resistivity</p></li>
+<li><p>u_value</p></li>
+<li><p>r_value</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialShade.ToString">
+<code class="sig-name descname"><span class="pre">ToString</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialShade.ToString" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overwrite .NET ToString.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialShade.duplicate">
+<code class="sig-name descname"><span class="pre">duplicate</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialShade.duplicate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a copy of this construction.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialShade.from_dict">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">from_dict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/material/shade.html#EnergyWindowMaterialShade.from_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialShade.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a EnergyWindowMaterialShade from a dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> – A python dictionary in the following format</p>
+</dd>
+</dl>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s1">&#39;EnergyWindowMaterialShade&#39;</span><span class="p">,</span>
+<span class="s2">&quot;identifier&quot;</span><span class="p">:</span> <span class="s1">&#39;Insulating_Shade_0020_005_020_010&#39;</span><span class="p">,</span>
+<span class="s2">&quot;identifier&quot;</span><span class="p">:</span> <span class="s1">&#39;Dark Insulating Shade&#39;</span><span class="p">,</span>
+<span class="s2">&quot;thickness&quot;</span><span class="p">:</span> <span class="mf">0.02</span><span class="p">,</span>
+<span class="s2">&quot;solar_transmittance&quot;</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">,</span>
+<span class="s2">&quot;solar_reflectance&quot;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>
+<span class="s2">&quot;visible_transmittance&quot;</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">,</span>
+<span class="s2">&quot;visible_reflectance&quot;</span><span class="p">:</span> <span class="mf">0.15</span><span class="p">,</span>
+<span class="s2">&quot;emissivity&quot;</span><span class="p">:</span> <span class="mf">0.9</span><span class="p">,</span>
+<span class="s2">&quot;infrared_transmittance&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<span class="s2">&quot;conductivity&quot;</span><span class="p">:</span> <span class="mf">0.1</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialShade.from_idf">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">from_idf</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idf_string</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/material/shade.html#EnergyWindowMaterialShade.from_idf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialShade.from_idf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create EnergyWindowMaterialShade from an EnergyPlus text string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>idf_string</strong> – A text string fully describing an EnergyPlus material.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialShade.lock">
+<code class="sig-name descname"><span class="pre">lock</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialShade.lock" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialShade.r_value_between">
+<code class="sig-name descname"><span class="pre">r_value_between</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">7.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emissivity_1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.84</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emissivity_2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.84</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">90</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_kelvin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">273.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">101325</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialShade.r_value_between" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get an estimate of the R-value of the shade + air gap when it is interior.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>delta_t</strong> – The temperature difference across the air gap [C]. This
+influences how strong the convection is within the air gap. Default is
+7.5C, which is consistent with the NFRC standard for double glazed units.</p></li>
+<li><p><strong>emissivity_1</strong> – The emissivity of the glazing surface on one side of the shade.
+Default is 0.84, which is typical of clear, uncoated glass.</p></li>
+<li><p><strong>emissivity_2</strong> – The emissivity of the glazing surface on the other side of
+the shade. Default is 0.84, which is typical of clear, uncoated glass.</p></li>
+<li><p><strong>height</strong> – An optional height for the cavity between the shade and the
+glass in meters. Default is 1.0.</p></li>
+<li><p><strong>angle</strong> – <p>An angle in degrees between 0 and 180.</p>
+<ul>
+<li><p>0 = A horizontal surface with downward heat flow through the layer.</p></li>
+<li><p>90 = A vertical surface</p></li>
+<li><p>180 = A horizontal surface with upward heat flow through the layer.</p></li>
+</ul>
+</p></li>
+<li><p><strong>t_kelvin</strong> – The average temperature of the gas cavity in Kelvin.
+Default: 273.15 K (0C).</p></li>
+<li><p><strong>pressure</strong> – The average air pressure in Pa. Default is 101325 Pa for sea level.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialShade.r_value_exterior">
+<code class="sig-name descname"><span class="pre">r_value_exterior</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">7.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emissivity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.84</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">90</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_kelvin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">273.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">101325</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialShade.r_value_exterior" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get an estimate of the R-value of the shade + air gap when it is exterior.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>delta_t</strong> – The temperature difference across the air gap [C]. This
+influences how strong the convection is within the air gap. Default is
+7.5C, which is consistent with the NFRC standard for double glazed units.</p></li>
+<li><p><strong>emissivity</strong> – The emissivity of the glazing surface adjacent to the shade.
+Default is 0.84, which is typical of clear, uncoated glass.</p></li>
+<li><p><strong>height</strong> – An optional height for the cavity between the shade and the
+glass in meters. Default is 1.0.</p></li>
+<li><p><strong>angle</strong> – <p>An angle in degrees between 0 and 180.</p>
+<ul>
+<li><p>0 = A horizontal surface with downward heat flow through the layer.</p></li>
+<li><p>90 = A vertical surface</p></li>
+<li><p>180 = A horizontal surface with upward heat flow through the layer.</p></li>
+</ul>
+</p></li>
+<li><p><strong>t_kelvin</strong> – The average temperature of the gas cavity in Kelvin.
+Default: 273.15 K (0C).</p></li>
+<li><p><strong>pressure</strong> – The average air pressure in Pa. Default is 101325 Pa for sea level.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialShade.r_value_interior">
+<code class="sig-name descname"><span class="pre">r_value_interior</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">7.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emissivity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.84</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">90</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_kelvin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">273.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">101325</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialShade.r_value_interior" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get an estimate of the R-value of the shade + air gap when it is interior.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>delta_t</strong> – The temperature difference across the air gap [C]. This
+influences how strong the convection is within the air gap. Default is
+7.5C, which is consistent with the NFRC standard for double glazed units.</p></li>
+<li><p><strong>emissivity</strong> – The emissivity of the glazing surface adjacent to the shade.
+Default is 0.84, which is typical of clear, uncoated glass.</p></li>
+<li><p><strong>height</strong> – An optional height for the cavity between the shade and the
+glass in meters. Default is 1.0.</p></li>
+<li><p><strong>angle</strong> – <p>An angle in degrees between 0 and 180.</p>
+<ul>
+<li><p>0 = A horizontal surface with downward heat flow through the layer.</p></li>
+<li><p>90 = A vertical surface</p></li>
+<li><p>180 = A horizontal surface with upward heat flow through the layer.</p></li>
+</ul>
+</p></li>
+<li><p><strong>t_kelvin</strong> – The average temperature of the gas cavity in Kelvin.
+Default: 273.15 K (0C).</p></li>
+<li><p><strong>pressure</strong> – The average air pressure in Pa. Default is 101325 Pa for sea level.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialShade.set_all_opening_multipliers">
+<code class="sig-name descname"><span class="pre">set_all_opening_multipliers</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">multiplier</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialShade.set_all_opening_multipliers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set all opening multipliers to the same value at once.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialShade.to_dict">
+<code class="sig-name descname"><span class="pre">to_dict</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/material/shade.html#EnergyWindowMaterialShade.to_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialShade.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Energy Window Material Shade dictionary representation.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialShade.to_idf">
+<code class="sig-name descname"><span class="pre">to_idf</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/material/shade.html#EnergyWindowMaterialShade.to_idf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialShade.to_idf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get an EnergyPlus string representation of the material.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialShade.unlock">
+<code class="sig-name descname"><span class="pre">unlock</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialShade.unlock" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialShade.airflow_permeability">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">airflow_permeability</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialShade.airflow_permeability" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the fraction of the shade surface open to air flow.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialShade.bottom_opening_multiplier">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">bottom_opening_multiplier</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialShade.bottom_opening_multiplier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the bottom opening multiplier.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialShade.conductivity">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">conductivity</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialShade.conductivity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the conductivity of the shade layer [W/m-K].</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialShade.display_name">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">display_name</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialShade.display_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set a string for the object name without any character restrictions.</p>
+<p>If not set, this will be equal to the identifier.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialShade.distance_to_glass">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">distance_to_glass</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialShade.distance_to_glass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the shade distance to the glass [m].</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialShade.emissivity">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">emissivity</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialShade.emissivity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the hemispherical emissivity of the shade.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialShade.identifier">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">identifier</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialShade.identifier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the text string for material identifier.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialShade.infrared_transmittance">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">infrared_transmittance</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialShade.infrared_transmittance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the infrared transmittance of the shade.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialShade.is_gas_material">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">is_gas_material</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialShade.is_gas_material" title="Permalink to this definition">¶</a></dt>
+<dd><p>Boolean to note whether the material is a gas gap layer.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialShade.is_glazing_material">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">is_glazing_material</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialShade.is_glazing_material" title="Permalink to this definition">¶</a></dt>
+<dd><p>Boolean to note whether the material is a glazing layer.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialShade.is_shade_material">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">is_shade_material</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialShade.is_shade_material" title="Permalink to this definition">¶</a></dt>
+<dd><p>Boolean to note whether the material is a shade layer.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialShade.is_window_material">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">is_window_material</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialShade.is_window_material" title="Permalink to this definition">¶</a></dt>
+<dd><p>Boolean to note whether the material can be used for window surfaces.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialShade.left_opening_multiplier">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">left_opening_multiplier</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialShade.left_opening_multiplier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the left opening multiplier.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialShade.r_value">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">r_value</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialShade.r_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>R-value of the material layer [m2-K/W] (excluding air film resistance).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialShade.resistivity">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">resistivity</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialShade.resistivity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the resistivity of the shade layer [m-K/W].</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialShade.right_opening_multiplier">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">right_opening_multiplier</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialShade.right_opening_multiplier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the right opening multiplier.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialShade.solar_reflectance">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">solar_reflectance</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialShade.solar_reflectance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the front solar reflectance of the shade.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialShade.solar_transmittance">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">solar_transmittance</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialShade.solar_transmittance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the solar transmittance of the shade.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialShade.thickness">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">thickness</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialShade.thickness" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the thickess of the shade material layer [m].</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialShade.top_opening_multiplier">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">top_opening_multiplier</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialShade.top_opening_multiplier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the top opening multiplier.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialShade.u_value">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">u_value</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialShade.u_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>U-value of the material layer [W/m2-K] (excluding air film resistance).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialShade.visible_reflectance">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">visible_reflectance</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialShade.visible_reflectance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the front visible reflectance of the shade.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialShade.visible_reflectance_back">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">visible_reflectance_back</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialShade.visible_reflectance_back" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the back visible reflectance of the glass at normal incidence.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.shade.EnergyWindowMaterialShade.visible_transmittance">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">visible_transmittance</span></code><a class="headerlink" href="#honeybee_energy.material.shade.EnergyWindowMaterialShade.visible_transmittance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the visible transmittance of the shade.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2021, Ladybug Tools.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.4.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

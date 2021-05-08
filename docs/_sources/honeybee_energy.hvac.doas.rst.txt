@@ -1,0 +1,20 @@
+honeybee\_energy.hvac.doas package
+==================================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   honeybee_energy.hvac.doas.fcu
+   honeybee_energy.hvac.doas.vrf
+   honeybee_energy.hvac.doas.wshp
+
+Module contents
+---------------
+
+.. automodule:: honeybee_energy.hvac.doas
+   :members:
+   :undoc-members:
+   :show-inheritance:

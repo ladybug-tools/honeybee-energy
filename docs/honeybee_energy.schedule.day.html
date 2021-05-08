@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>honeybee_energy.schedule.day module &#8212; honeybee energy  documentation</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="honeybee_energy.schedule.dictutil module" href="honeybee_energy.schedule.dictutil.html" />
+    <link rel="prev" title="honeybee_energy.schedule package" href="honeybee_energy.schedule.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-inverse navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="index.html">
+          honeybee energy</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="cli/index.html">CLI Docs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cli/index.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli/index.html#commands">Commands</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cli/main.html">main</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cli/main.html#honeybee-energy">honeybee-energy</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="cli/main.html#honeybee-energy-config">config</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cli/settings.html">settings</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cli/settings.html#honeybee-energy-settings">honeybee-energy settings</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="cli/settings.html#honeybee-energy-settings-comfort-sim-par">comfort-sim-par</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/settings.html#honeybee-energy-settings-custom-sim-par">custom-sim-par</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/settings.html#honeybee-energy-settings-default-sim-par">default-sim-par</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/settings.html#honeybee-energy-settings-load-balance-sim-par">load-balance-sim-par</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/settings.html#honeybee-energy-settings-orientation-sim-pars">orientation-sim-pars</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/settings.html#honeybee-energy-settings-run-period">run-period</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/settings.html#honeybee-energy-settings-sizing-sim-par">sizing-sim-par</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cli/simulate.html">simulate</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cli/simulate.html#honeybee-energy-simulate">honeybee-energy simulate</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="cli/simulate.html#honeybee-energy-simulate-idf">idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/simulate.html#honeybee-energy-simulate-model">model</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/simulate.html#honeybee-energy-simulate-osm">osm</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cli/baseline.html">baseline</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cli/baseline.html#honeybee-energy-baseline">honeybee-energy baseline</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="cli/baseline.html#honeybee-energy-baseline-constructions-2004">constructions-2004</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/baseline.html#honeybee-energy-baseline-geometry-2004">geometry-2004</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/baseline.html#honeybee-energy-baseline-hvac-2004">hvac-2004</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/baseline.html#honeybee-energy-baseline-lighting-2004">lighting-2004</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/baseline.html#honeybee-energy-baseline-remove-ecms">remove-ecms</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cli/edit.html">edit</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cli/edit.html#honeybee-energy-edit">honeybee-energy edit</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="cli/edit.html#honeybee-energy-edit-modifiers-from-constructions">modifiers-from-constructions</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cli/validate.html">validate</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cli/validate.html#honeybee-energy-validate">honeybee-energy validate</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="cli/validate.html#honeybee-energy-validate-construction-set">construction-set</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/validate.html#honeybee-energy-validate-model-properties">model-properties</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/validate.html#honeybee-energy-validate-program-type">program-type</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/validate.html#honeybee-energy-validate-schedule">schedule</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/validate.html#honeybee-energy-validate-schedule-type-limit">schedule-type-limit</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/validate.html#honeybee-energy-validate-sim-par">sim-par</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cli/result.html">result</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cli/result.html#honeybee-energy-result">honeybee-energy result</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="cli/result.html#honeybee-energy-result-all-available-info">all-available-info</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/result.html#honeybee-energy-result-available-results">available-results</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/result.html#honeybee-energy-result-available-results-info">available-results-info</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/result.html#honeybee-energy-result-available-run-period-info">available-run-period-info</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/result.html#honeybee-energy-result-component-sizes">component-sizes</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/result.html#honeybee-energy-result-data-by-output">data-by-output</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/result.html#honeybee-energy-result-data-by-outputs">data-by-outputs</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/result.html#honeybee-energy-result-energy-use-intensity">energy-use-intensity</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/result.html#honeybee-energy-result-load-balance">load-balance</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/result.html#honeybee-energy-result-output-csv">output-csv</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/result.html#honeybee-energy-result-output-csv-queryable">output-csv-queryable</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/result.html#honeybee-energy-result-tabular-data">tabular-data</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/result.html#honeybee-energy-result-tabular-metadata">tabular-metadata</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/result.html#honeybee-energy-result-zone-sizes">zone-sizes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cli/lib.html">lib</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib">honeybee-energy lib</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-construction-set-by-id">construction-set-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-construction-sets">construction-sets</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-construction-sets-by-id">construction-sets-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-constructions-by-id">constructions-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-materials-by-id">materials-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-opaque-construction-by-id">opaque-construction-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-opaque-constructions">opaque-constructions</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-opaque-material-by-id">opaque-material-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-opaque-materials">opaque-materials</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-program-type-by-id">program-type-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-program-types">program-types</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-program-types-by-id">program-types-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-schedule-by-id">schedule-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-schedule-type-limit-by-id">schedule-type-limit-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-schedule-type-limits">schedule-type-limits</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-schedule-type-limits-by-id">schedule-type-limits-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-schedules">schedules</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-schedules-by-id">schedules-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-shade-construction-by-id">shade-construction-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-shade-constructions">shade-constructions</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-window-construction-by-id">window-construction-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-window-constructions">window-constructions</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-window-material-by-id">window-material-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-window-materials">window-materials</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cli/translate.html">translate</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cli/translate.html#honeybee-energy-translate">honeybee-energy translate</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="cli/translate.html#honeybee-energy-translate-constructions-from-idf">constructions-from-idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/translate.html#honeybee-energy-translate-constructions-to-idf">constructions-to-idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/translate.html#honeybee-energy-translate-model-from-gbxml">model-from-gbxml</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/translate.html#honeybee-energy-translate-model-from-idf">model-from-idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/translate.html#honeybee-energy-translate-model-from-osm">model-from-osm</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/translate.html#honeybee-energy-translate-model-occ-schedules">model-occ-schedules</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/translate.html#honeybee-energy-translate-model-to-gbxml">model-to-gbxml</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/translate.html#honeybee-energy-translate-model-to-idf">model-to-idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/translate.html#honeybee-energy-translate-model-to-osm">model-to-osm</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/translate.html#honeybee-energy-translate-schedules-from-idf">schedules-from-idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/translate.html#honeybee-energy-translate-schedules-to-idf">schedules-to-idf</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">honeybee_energy</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="honeybee_energy.html">honeybee_energy package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="honeybee_energy.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.cli.html">honeybee_energy.cli package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.cli.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.cli.data.html">honeybee_energy.cli.data package</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="honeybee_energy.cli.data.html#module-honeybee_energy.cli.data">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.cli.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.cli.baseline.html">honeybee_energy.cli.baseline module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.cli.edit.html">honeybee_energy.cli.edit module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.cli.lib.html">honeybee_energy.cli.lib module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.cli.result.html">honeybee_energy.cli.result module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.cli.settings.html">honeybee_energy.cli.settings module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.cli.simulate.html">honeybee_energy.cli.simulate module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.cli.translate.html">honeybee_energy.cli.translate module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.cli.validate.html">honeybee_energy.cli.validate module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.cli.html#module-honeybee_energy.cli">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.construction.html">honeybee_energy.construction package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.construction.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.construction.air.html">honeybee_energy.construction.air module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.construction.dictutil.html">honeybee_energy.construction.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.construction.opaque.html">honeybee_energy.construction.opaque module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.construction.shade.html">honeybee_energy.construction.shade module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.construction.window.html">honeybee_energy.construction.window module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.construction.windowshade.html">honeybee_energy.construction.windowshade module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.construction.html#module-honeybee_energy.construction">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.hvac.html">honeybee_energy.hvac package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.hvac.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.hvac.allair.html">honeybee_energy.hvac.allair package</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="honeybee_energy.hvac.allair.html#submodules">Submodules</a><ul>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.allair.furnace.html">honeybee_energy.hvac.allair.furnace module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.allair.psz.html">honeybee_energy.hvac.allair.psz module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.allair.ptac.html">honeybee_energy.hvac.allair.ptac module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.allair.pvav.html">honeybee_energy.hvac.allair.pvav module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.allair.vav.html">honeybee_energy.hvac.allair.vav module</a></li>
+</ul>
+</li>
+<li class="toctree-l7"><a class="reference internal" href="honeybee_energy.hvac.allair.html#module-honeybee_energy.hvac.allair">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.hvac.doas.html">honeybee_energy.hvac.doas package</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="honeybee_energy.hvac.doas.html#submodules">Submodules</a><ul>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.doas.fcu.html">honeybee_energy.hvac.doas.fcu module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.doas.vrf.html">honeybee_energy.hvac.doas.vrf module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.doas.wshp.html">honeybee_energy.hvac.doas.wshp module</a></li>
+</ul>
+</li>
+<li class="toctree-l7"><a class="reference internal" href="honeybee_energy.hvac.doas.html#module-honeybee_energy.hvac.doas">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.hvac.heatcool.html">honeybee_energy.hvac.heatcool package</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="honeybee_energy.hvac.heatcool.html#submodules">Submodules</a><ul>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.heatcool.baseboard.html">honeybee_energy.hvac.heatcool.baseboard module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.heatcool.evapcool.html">honeybee_energy.hvac.heatcool.evapcool module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.heatcool.fcu.html">honeybee_energy.hvac.heatcool.fcu module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.heatcool.gasunit.html">honeybee_energy.hvac.heatcool.gasunit module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.heatcool.residential.html">honeybee_energy.hvac.heatcool.residential module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.heatcool.vrf.html">honeybee_energy.hvac.heatcool.vrf module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.heatcool.windowac.html">honeybee_energy.hvac.heatcool.windowac module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.heatcool.wshp.html">honeybee_energy.hvac.heatcool.wshp module</a></li>
+</ul>
+</li>
+<li class="toctree-l7"><a class="reference internal" href="honeybee_energy.hvac.heatcool.html#module-honeybee_energy.hvac.heatcool">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.hvac.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.hvac.idealair.html">honeybee_energy.hvac.idealair module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.hvac.html#module-honeybee_energy.hvac">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.lib.html">honeybee_energy.lib package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.lib.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.lib.constructions.html">honeybee_energy.lib.constructions module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.lib.constructionsets.html">honeybee_energy.lib.constructionsets module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.lib.materials.html">honeybee_energy.lib.materials module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.lib.programtypes.html">honeybee_energy.lib.programtypes module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.lib.schedules.html">honeybee_energy.lib.schedules module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.lib.scheduletypelimits.html">honeybee_energy.lib.scheduletypelimits module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.lib.html#module-honeybee_energy.lib">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.load.html">honeybee_energy.load package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.load.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.load.daylight.html">honeybee_energy.load.daylight module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.load.dictutil.html">honeybee_energy.load.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.load.equipment.html">honeybee_energy.load.equipment module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.load.hotwater.html">honeybee_energy.load.hotwater module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.load.infiltration.html">honeybee_energy.load.infiltration module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.load.lighting.html">honeybee_energy.load.lighting module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.load.people.html">honeybee_energy.load.people module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.load.setpoint.html">honeybee_energy.load.setpoint module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.load.ventilation.html">honeybee_energy.load.ventilation module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.load.html#module-honeybee_energy.load">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.material.html">honeybee_energy.material package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.material.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.material.dictutil.html">honeybee_energy.material.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.material.gas.html">honeybee_energy.material.gas module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.material.glazing.html">honeybee_energy.material.glazing module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.material.opaque.html">honeybee_energy.material.opaque module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.material.shade.html">honeybee_energy.material.shade module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.material.html#module-honeybee_energy.material">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.properties.html">honeybee_energy.properties package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.properties.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.properties.aperture.html">honeybee_energy.properties.aperture module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.properties.door.html">honeybee_energy.properties.door module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.properties.face.html">honeybee_energy.properties.face module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.properties.model.html">honeybee_energy.properties.model module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.properties.room.html">honeybee_energy.properties.room module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.properties.shade.html">honeybee_energy.properties.shade module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.properties.html#module-honeybee_energy.properties">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.result.html">honeybee_energy.result package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.result.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.result.colorobj.html">honeybee_energy.result.colorobj module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.result.err.html">honeybee_energy.result.err module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.result.loadbalance.html">honeybee_energy.result.loadbalance module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.result.match.html">honeybee_energy.result.match module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.result.osw.html">honeybee_energy.result.osw module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.result.rdd.html">honeybee_energy.result.rdd module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.result.zsz.html">honeybee_energy.result.zsz module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.result.html#module-honeybee_energy.result">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4 current"><a class="reference internal" href="honeybee_energy.schedule.html">honeybee_energy.schedule package</a><ul class="current">
+<li class="toctree-l5 current"><a class="reference internal" href="honeybee_energy.schedule.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l6 current"><a class="current reference internal" href="#">honeybee_energy.schedule.day module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.schedule.dictutil.html">honeybee_energy.schedule.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.schedule.fixedinterval.html">honeybee_energy.schedule.fixedinterval module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.schedule.rule.html">honeybee_energy.schedule.rule module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.schedule.ruleset.html">honeybee_energy.schedule.ruleset module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.schedule.typelimit.html">honeybee_energy.schedule.typelimit module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.schedule.html#module-honeybee_energy.schedule">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.simulation.html">honeybee_energy.simulation package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.simulation.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.simulation.control.html">honeybee_energy.simulation.control module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.simulation.daylightsaving.html">honeybee_energy.simulation.daylightsaving module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.simulation.dictutil.html">honeybee_energy.simulation.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.simulation.output.html">honeybee_energy.simulation.output module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.simulation.parameter.html">honeybee_energy.simulation.parameter module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.simulation.runperiod.html">honeybee_energy.simulation.runperiod module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.simulation.shadowcalculation.html">honeybee_energy.simulation.shadowcalculation module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.simulation.sizing.html">honeybee_energy.simulation.sizing module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.simulation.html#module-honeybee_energy.simulation">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.ventcool.html">honeybee_energy.ventcool package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.ventcool.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.ventcool.afn.html">honeybee_energy.ventcool.afn module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.ventcool.control.html">honeybee_energy.ventcool.control module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.ventcool.crack.html">honeybee_energy.ventcool.crack module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.ventcool.opening.html">honeybee_energy.ventcool.opening module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.ventcool.simulation.html">honeybee_energy.ventcool.simulation module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.ventcool.html#module-honeybee_energy.ventcool">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="honeybee_energy.html#submodules">Submodules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.altnumber.html">honeybee_energy.altnumber module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.boundarycondition.html">honeybee_energy.boundarycondition module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.config.html">honeybee_energy.config module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.constructionset.html">honeybee_energy.constructionset module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.dictutil.html">honeybee_energy.dictutil module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.measure.html">honeybee_energy.measure module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.programtype.html">honeybee_energy.programtype module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.reader.html">honeybee_energy.reader module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.run.html">honeybee_energy.run module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.writer.html">honeybee_energy.writer module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="honeybee_energy.html#module-honeybee_energy">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="cli/index.html">CLI Docs</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">honeybee_energy</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="honeybee_energy.html">honeybee_energy package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="honeybee_energy.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.cli.html">honeybee_energy.cli package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.construction.html">honeybee_energy.construction package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.hvac.html">honeybee_energy.hvac package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.lib.html">honeybee_energy.lib package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.load.html">honeybee_energy.load package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.material.html">honeybee_energy.material package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.properties.html">honeybee_energy.properties package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.result.html">honeybee_energy.result package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="honeybee_energy.schedule.html">honeybee_energy.schedule package</a><ul class="current">
+<li class="toctree-l5 current"><a class="reference internal" href="honeybee_energy.schedule.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l6 current"><a class="current reference internal" href="#">honeybee_energy.schedule.day module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.schedule.dictutil.html">honeybee_energy.schedule.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.schedule.fixedinterval.html">honeybee_energy.schedule.fixedinterval module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.schedule.rule.html">honeybee_energy.schedule.rule module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.schedule.ruleset.html">honeybee_energy.schedule.ruleset module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.schedule.typelimit.html">honeybee_energy.schedule.typelimit module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.schedule.html#module-honeybee_energy.schedule">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.simulation.html">honeybee_energy.simulation package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.ventcool.html">honeybee_energy.ventcool package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="honeybee_energy.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="honeybee_energy.html#module-honeybee_energy">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li>
+    <a href="honeybee_energy.schedule.html" title="Previous Chapter: honeybee_energy.schedule package"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; honeybee_ener...</span>
+    </a>
+  </li>
+  <li>
+    <a href="honeybee_energy.schedule.dictutil.html" title="Next Chapter: honeybee_energy.schedule.dictutil module"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">honeybee_ener... &raquo;</span>
+    </a>
+  </li>
+              
+            
+            
+            
+            
+              <li class="hidden-sm">
+<div id="sourcelink">
+  <a href="_sources/honeybee_energy.schedule.day.rst.txt"
+     rel="nofollow">Source</a>
+</div></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+      <div class="col-md-4">
+        <div id="sidebar" class="bs-sidenav" role="complementary"><ul>
+<li class="toctree-l1"><a class="reference internal" href="cli/index.html">CLI Docs</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">honeybee_energy</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="honeybee_energy.html">honeybee_energy package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="honeybee_energy.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.cli.html">honeybee_energy.cli package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.construction.html">honeybee_energy.construction package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.hvac.html">honeybee_energy.hvac package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.lib.html">honeybee_energy.lib package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.load.html">honeybee_energy.load package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.material.html">honeybee_energy.material package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.properties.html">honeybee_energy.properties package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.result.html">honeybee_energy.result package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="honeybee_energy.schedule.html">honeybee_energy.schedule package</a><ul class="current">
+<li class="toctree-l5 current"><a class="reference internal" href="honeybee_energy.schedule.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l6 current"><a class="current reference internal" href="#">honeybee_energy.schedule.day module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.schedule.dictutil.html">honeybee_energy.schedule.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.schedule.fixedinterval.html">honeybee_energy.schedule.fixedinterval module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.schedule.rule.html">honeybee_energy.schedule.rule module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.schedule.ruleset.html">honeybee_energy.schedule.ruleset module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.schedule.typelimit.html">honeybee_energy.schedule.typelimit module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.schedule.html#module-honeybee_energy.schedule">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.simulation.html">honeybee_energy.simulation package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.ventcool.html">honeybee_energy.ventcool package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="honeybee_energy.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="honeybee_energy.html#module-honeybee_energy">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    <div class="body col-md-8 content" role="main">
+      
+  <div class="section" id="module-honeybee_energy.schedule.day">
+<span id="honeybee-energy-schedule-day-module"></span><h1>honeybee_energy.schedule.day module<a class="headerlink" href="#module-honeybee_energy.schedule.day" title="Permalink to this headline">¶</a></h1>
+<p>Schedule describing a single day.</p>
+<dl class="py class">
+<dt id="honeybee_energy.schedule.day.ScheduleDay">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">honeybee_energy.schedule.day.</span></code><code class="sig-name descname"><span class="pre">ScheduleDay</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">identifier</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">times</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/schedule/day.html#ScheduleDay"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.schedule.day.ScheduleDay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Schedule for a single day.</p>
+<p>Note that a ScheduleDay cannot be assigned to Rooms, Shades, etc.  The ScheduleDay
+must be added to a ScheduleRuleset or a ScheduleRule and then the ScheduleRuleset
+can be applied to such objects.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>identifier</strong> – Text string for a unique ScheduleDay ID. Must be &lt; 100 characters
+and not contain any EnergyPlus special characters. This will be used to
+identify the object across a model and in the exported IDF.</p></li>
+<li><p><strong>values</strong> – A list of floats or integers for the values of the schedule.
+The length of this list must match the length of the times list.</p></li>
+<li><p><strong>times</strong> – A list of ladybug Time objects with the same length as the input
+values. Each time represents the time of day that the corresponding
+value begins to take effect. For example [0:00, 9:00, 17:00] in
+combination with the values [0, 1, 0] denotes a schedule value of
+0 from 0:00 to 9:00, a value of 1 from 9:00 to 17:00 and 0 from 17:00
+to the end of the day.
+If this input is None, the default will be a single time at 0:00,
+indicating the <cite>values</cite> input should be a single constant value that
+goes all of the way until the end of the day.
+Note that these times follow a different convention than EnergyPlus,
+which uses “time until” instead of “time of beginning”.</p></li>
+<li><p><strong>interpolate</strong> – Boolean to note whether values in between times should be
+linearly interpolated or whether successive values should take effect
+immediately upon the beginning time corresponding to them. Default: False</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Properties:</dt><dd><ul class="simple">
+<li><p>identifier</p></li>
+<li><p>display_name</p></li>
+<li><p>times</p></li>
+<li><p>values</p></li>
+<li><p>interpolate</p></li>
+<li><p>is_constant</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="honeybee_energy.schedule.day.ScheduleDay.ToString">
+<code class="sig-name descname"><span class="pre">ToString</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/schedule/day.html#ScheduleDay.ToString"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.schedule.day.ScheduleDay.ToString" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overwrite .NET ToString.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.schedule.day.ScheduleDay.add_value">
+<code class="sig-name descname"><span class="pre">add_value</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/schedule/day.html#ScheduleDay.add_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.schedule.day.ScheduleDay.add_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a value to the schedule along with the time it begins to take effect.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>value</strong> – A number for the schedule value.</p></li>
+<li><p><strong>time</strong> – The ladybug Time object for the time at which the value begins to
+take effect.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.schedule.day.ScheduleDay.average_schedules">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">average_schedules</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">identifier</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schedules</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestep_resolution</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/schedule/day.html#ScheduleDay.average_schedules"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.schedule.day.ScheduleDay.average_schedules" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a ScheduleDay that is a weighted average between other ScheduleDays.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>identifier</strong> – Text string for a unique ID for the new unique ScheduleDay.
+Must be &lt; 100 characters and not contain any EnergyPlus special
+characters. This will be used to identify the object across a
+model and in the exported IDF.</p></li>
+<li><p><strong>schedules</strong> – A list of ScheduleDay objects that will be averaged together
+to make a new ScheduleDay.</p></li>
+<li><p><strong>weights</strong> – An optional list of fractional numbers with the same length
+as the input schedules that sum to 1. These will be used to weight
+each of the ScheduleDay objects in the resulting average schedule.
+If None, the individual schedules will be weighted equally.</p></li>
+<li><p><strong>timestep_resolution</strong> – An optional integer for the timestep resolution
+at which the schedules will be averaged. Any schedule details
+smaller than this timestep will be lost in the averaging process.
+Default: 1.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.schedule.day.ScheduleDay.data_collection">
+<code class="sig-name descname"><span class="pre">data_collection</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">date=01</span> <span class="pre">Jan</span></em>, <em class="sig-param"><span class="pre">schedule_type_limit=None</span></em>, <em class="sig-param"><span class="pre">timestep=1</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/schedule/day.html#ScheduleDay.data_collection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.schedule.day.ScheduleDay.data_collection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a ladybug DataCollection representing this schedule at a given timestep.</p>
+<p>Note that ladybug DataCollections always follow the “Ladybug Tools
+Interpretation” of date time values as noted in the values_at_timestep
+documentation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>date</strong> – A ladybug Date object for the day of the year the DataCollection
+is representing. (Default: 1 Jan)</p></li>
+<li><p><strong>schedule_type_limit</strong> – A ScheduleTypeLimit object that describes the schedule,
+which will be used to make the header for the DataCollection. If None,
+a generic “Unknown” type will be used. (Default: None)</p></li>
+<li><p><strong>timestep</strong> – An integer for the number of steps per hour at which to make
+the resulting DataCollection.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.schedule.day.ScheduleDay.duplicate">
+<code class="sig-name descname"><span class="pre">duplicate</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/schedule/day.html#ScheduleDay.duplicate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.schedule.day.ScheduleDay.duplicate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a copy of this object.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.schedule.day.ScheduleDay.from_dict">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">from_dict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/schedule/day.html#ScheduleDay.from_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.schedule.day.ScheduleDay.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a ScheduleDay from a dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> – ScheduleDay dictionary following the format below.</p>
+</dd>
+</dl>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s1">&#39;ScheduleDay&#39;</span><span class="p">,</span>
+<span class="s2">&quot;identifier&quot;</span><span class="p">:</span> <span class="s1">&#39;Office_Occ_900_1700&#39;</span><span class="p">,</span>
+<span class="s2">&quot;display_name&quot;</span><span class="p">:</span> <span class="s1">&#39;Office Occupancy&#39;</span><span class="p">,</span>
+<span class="s2">&quot;values&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+<span class="s2">&quot;times&quot;</span><span class="p">:</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">17</span><span class="p">,</span> <span class="mi">0</span><span class="p">)],</span>
+<span class="s2">&quot;interpolate&quot;</span><span class="p">:</span> <span class="kc">False</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.schedule.day.ScheduleDay.from_idf">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">from_idf</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idf_string</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/schedule/day.html#ScheduleDay.from_idf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.schedule.day.ScheduleDay.from_idf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a ScheduleDay from an EnergyPlus IDF text string.</p>
+<p>Note that this method can accept all 3 types of EnergyPlus Schedule:Day
+(Schedule:Day:Interval, Schedule:Day:Hourly, and Schedule:Day:List).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>idf_string</strong> – A text string fully describing an EnergyPlus
+Schedule:Day:Interval.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.schedule.day.ScheduleDay.from_values_at_timestep">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">from_values_at_timestep</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">identifier</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_repeated</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/schedule/day.html#ScheduleDay.from_values_at_timestep"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.schedule.day.ScheduleDay.from_values_at_timestep" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a ScheduleDay from a list of values at a certain timestep.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>identifier</strong> – Text string for a unique Schedule ID. Must be &lt; 100 characters
+and not contain any EnergyPlus special characters. This will be used to
+identify the object across a model and in the exported IDF.</p></li>
+<li><p><strong>values</strong> – A list of numerical values with a length equal to 24 * timestep.</p></li>
+<li><p><strong>timestep</strong> – An integer for the number of steps per hour that the input
+values correspond to.  For example, if each value represents 30
+minutes, the timestep is 2. For 15 minutes, it is 4. Default is 1,
+meaning each value represents a single hour. Must be one of the
+following: (1, 2, 3, 4, 5, 6, 10, 12, 15, 20, 30, 60)</p></li>
+<li><p><strong>remove_repeated</strong> – Boolean to note whether sequentially repeated values
+should be removed from the resulting <cite>values</cite> and <cite>times</cite> comprising
+the schedule. Default is True, which results in a lighter, more compact
+schedule. However, you may want to set this to False when planning to
+set the schedule’s <cite>interpolate</cite> property to True as this avoids
+interpolation over long, multi-hour periods.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.schedule.day.ScheduleDay.lock">
+<code class="sig-name descname"><span class="pre">lock</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.schedule.day.ScheduleDay.lock" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.schedule.day.ScheduleDay.remove_value">
+<code class="sig-name descname"><span class="pre">remove_value</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value_index</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/schedule/day.html#ScheduleDay.remove_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.schedule.day.ScheduleDay.remove_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove a value from the schedule by its index.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>value_index</strong> – An integer for the index of the value to remove.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.schedule.day.ScheduleDay.remove_value_by_time">
+<code class="sig-name descname"><span class="pre">remove_value_by_time</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/schedule/day.html#ScheduleDay.remove_value_by_time"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.schedule.day.ScheduleDay.remove_value_by_time" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove a value from the schedule by its time in the times property.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>time</strong> – An ladybug Time for the time and the value to remove.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.schedule.day.ScheduleDay.replace_value">
+<code class="sig-name descname"><span class="pre">replace_value</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/schedule/day.html#ScheduleDay.replace_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.schedule.day.ScheduleDay.replace_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace an existing value in the schedule with a new one.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>value_index</strong> – An integer for the index of the value to replace.</p></li>
+<li><p><strong>new_value</strong> – A number for the new value to use at the given index.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.schedule.day.ScheduleDay.replace_value_by_time">
+<code class="sig-name descname"><span class="pre">replace_value_by_time</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/schedule/day.html#ScheduleDay.replace_value_by_time"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.schedule.day.ScheduleDay.replace_value_by_time" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace an existing value in the schedule using its time.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>time</strong> – An ladybug Time for the time and the value to replace.</p></li>
+<li><p><strong>new_value</strong> – A number for the new value to use at the given time.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.schedule.day.ScheduleDay.shift_by_step">
+<code class="sig-name descname"><span class="pre">shift_by_step</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">step_count</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/schedule/day.html#ScheduleDay.shift_by_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.schedule.day.ScheduleDay.shift_by_step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a version of this object where the values are shifted in time.</p>
+<p>This is useful when attempting to derive a set of diversified schedules
+from a single average schedule.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>step_count</strong> – An integer for the number of timesteps at which the schedule
+will be shifted. Positive values indicate a shift of values forward
+in time while negative values indicate a shift backwards in
+time. (Default: 1).</p></li>
+<li><p><strong>timestep</strong> – An integer for the number of timesteps per hour at which the
+shifting is occurring. This must be a value between 1 and 60, which
+is evenly divisible by 60. 1 indicates that each step is an hour
+while 60 indicates that each step is a minute. (Default: 1)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.schedule.day.ScheduleDay.to_dict">
+<code class="sig-name descname"><span class="pre">to_dict</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/schedule/day.html#ScheduleDay.to_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.schedule.day.ScheduleDay.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>ScheduleDay dictionary representation.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.schedule.day.ScheduleDay.to_idf">
+<code class="sig-name descname"><span class="pre">to_idf</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">schedule_type_limit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/schedule/day.html#ScheduleDay.to_idf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.schedule.day.ScheduleDay.to_idf" title="Permalink to this definition">¶</a></dt>
+<dd><p>IDF string representation of ScheduleDay object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>schedule_type_limits</strong> – Optional ScheduleTypeLimit object, which will
+be written into the IDF string in order to validate the values
+within the schedule during the EnergyPlus run.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.schedule.day.ScheduleDay.unlock">
+<code class="sig-name descname"><span class="pre">unlock</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.schedule.day.ScheduleDay.unlock" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.schedule.day.ScheduleDay.values_at_timestep">
+<code class="sig-name descname"><span class="pre">values_at_timestep</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timestep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/schedule/day.html#ScheduleDay.values_at_timestep"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.schedule.day.ScheduleDay.values_at_timestep" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a list of sequential schedule values over the day at a given timestep.</p>
+<p>Note that there are two possible ways that these values can be mapped to
+corresponding times (here referred to as the “Ladybug Tools Interpretation”
+and the “EnergyPlus Interpretation”). Both of these interpretations ultimately
+refer to the exact same schedule in the calculations of EnergyPlus but the
+times of day that each of the values are mapped to differ.</p>
+<p>Ladybug Tools Interpretation - The first value in the returned list here
+corresponds to the time 0:00 and the value for this time is applied over
+the rest of the following timestep. In this way, an office schedule that is set
+to be occupied from 9:00 until 17:00 will show 9:00 as occupied but 17:00 as
+unoccupied.</p>
+<p>EnergyPlus Interpretation - The first value in the returned list here
+corresponds to the timestep after 0:00. For example, if the timestep is 1,
+the time mapped to the first value is 1:00. If the timestep is 6, the first
+value corresponds to 0:10. In this interpretation, the value for this time is
+applied over all of the previous timestep. In this way, an office schedule that
+is set to be occupied from 9:00 until 17:00 will show 9:00 as unoccupied but
+17:00 as occupied.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>timestep</strong> – An integer for the number of steps per hour at which to return
+the resulting values.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="honeybee_energy.schedule.day.ScheduleDay.VALIDTIMESTEPS">
+<code class="sig-name descname"><span class="pre">VALIDTIMESTEPS</span></code><em class="property"> <span class="pre">=</span> <span class="pre">(1,</span> <span class="pre">2,</span> <span class="pre">3,</span> <span class="pre">4,</span> <span class="pre">5,</span> <span class="pre">6,</span> <span class="pre">10,</span> <span class="pre">12,</span> <span class="pre">15,</span> <span class="pre">20,</span> <span class="pre">30,</span> <span class="pre">60)</span></em><a class="headerlink" href="#honeybee_energy.schedule.day.ScheduleDay.VALIDTIMESTEPS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.schedule.day.ScheduleDay.display_name">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">display_name</span></code><a class="headerlink" href="#honeybee_energy.schedule.day.ScheduleDay.display_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set a string for the object name without any character restrictions.</p>
+<p>If not set, this will be equal to the identifier.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.schedule.day.ScheduleDay.identifier">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">identifier</span></code><a class="headerlink" href="#honeybee_energy.schedule.day.ScheduleDay.identifier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set a text string for a unique schedule day identifier.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.schedule.day.ScheduleDay.interpolate">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">interpolate</span></code><a class="headerlink" href="#honeybee_energy.schedule.day.ScheduleDay.interpolate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set a boolean noting whether values should be interpolated.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.schedule.day.ScheduleDay.is_constant">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">is_constant</span></code><a class="headerlink" href="#honeybee_energy.schedule.day.ScheduleDay.is_constant" title="Permalink to this definition">¶</a></dt>
+<dd><p>Boolean noting whether the schedule is representable with a single value.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.schedule.day.ScheduleDay.times">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">times</span></code><a class="headerlink" href="#honeybee_energy.schedule.day.ScheduleDay.times" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the Schedule’s times, which correspond to the numerical values.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.schedule.day.ScheduleDay.values">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">values</span></code><a class="headerlink" href="#honeybee_energy.schedule.day.ScheduleDay.values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the schedule’s numerical values, which correspond to the times.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2021, Ladybug Tools.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.4.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

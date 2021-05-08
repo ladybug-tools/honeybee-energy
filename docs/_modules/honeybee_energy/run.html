@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>honeybee_energy.run &#8212; honeybee energy  documentation</title>
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../../_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="../../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../../_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-inverse navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../index.html">
+          honeybee energy</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../cli/index.html">CLI Docs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../cli/index.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../cli/index.html#commands">Commands</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../cli/main.html">main</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../cli/main.html#honeybee-energy">honeybee-energy</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/main.html#honeybee-energy-config">config</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../cli/settings.html">settings</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../cli/settings.html#honeybee-energy-settings">honeybee-energy settings</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/settings.html#honeybee-energy-settings-comfort-sim-par">comfort-sim-par</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/settings.html#honeybee-energy-settings-custom-sim-par">custom-sim-par</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/settings.html#honeybee-energy-settings-default-sim-par">default-sim-par</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/settings.html#honeybee-energy-settings-load-balance-sim-par">load-balance-sim-par</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/settings.html#honeybee-energy-settings-orientation-sim-pars">orientation-sim-pars</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/settings.html#honeybee-energy-settings-run-period">run-period</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/settings.html#honeybee-energy-settings-sizing-sim-par">sizing-sim-par</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../cli/simulate.html">simulate</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../cli/simulate.html#honeybee-energy-simulate">honeybee-energy simulate</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/simulate.html#honeybee-energy-simulate-idf">idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/simulate.html#honeybee-energy-simulate-model">model</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/simulate.html#honeybee-energy-simulate-osm">osm</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../cli/baseline.html">baseline</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../cli/baseline.html#honeybee-energy-baseline">honeybee-energy baseline</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/baseline.html#honeybee-energy-baseline-constructions-2004">constructions-2004</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/baseline.html#honeybee-energy-baseline-geometry-2004">geometry-2004</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/baseline.html#honeybee-energy-baseline-hvac-2004">hvac-2004</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/baseline.html#honeybee-energy-baseline-lighting-2004">lighting-2004</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/baseline.html#honeybee-energy-baseline-remove-ecms">remove-ecms</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../cli/edit.html">edit</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../cli/edit.html#honeybee-energy-edit">honeybee-energy edit</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/edit.html#honeybee-energy-edit-modifiers-from-constructions">modifiers-from-constructions</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../cli/validate.html">validate</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../cli/validate.html#honeybee-energy-validate">honeybee-energy validate</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/validate.html#honeybee-energy-validate-construction-set">construction-set</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/validate.html#honeybee-energy-validate-model-properties">model-properties</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/validate.html#honeybee-energy-validate-program-type">program-type</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/validate.html#honeybee-energy-validate-schedule">schedule</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/validate.html#honeybee-energy-validate-schedule-type-limit">schedule-type-limit</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/validate.html#honeybee-energy-validate-sim-par">sim-par</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../cli/result.html">result</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../cli/result.html#honeybee-energy-result">honeybee-energy result</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/result.html#honeybee-energy-result-all-available-info">all-available-info</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/result.html#honeybee-energy-result-available-results">available-results</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/result.html#honeybee-energy-result-available-results-info">available-results-info</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/result.html#honeybee-energy-result-available-run-period-info">available-run-period-info</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/result.html#honeybee-energy-result-component-sizes">component-sizes</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/result.html#honeybee-energy-result-data-by-output">data-by-output</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/result.html#honeybee-energy-result-data-by-outputs">data-by-outputs</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/result.html#honeybee-energy-result-energy-use-intensity">energy-use-intensity</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/result.html#honeybee-energy-result-load-balance">load-balance</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/result.html#honeybee-energy-result-output-csv">output-csv</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/result.html#honeybee-energy-result-output-csv-queryable">output-csv-queryable</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/result.html#honeybee-energy-result-tabular-data">tabular-data</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/result.html#honeybee-energy-result-tabular-metadata">tabular-metadata</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/result.html#honeybee-energy-result-zone-sizes">zone-sizes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../cli/lib.html">lib</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../cli/lib.html#honeybee-energy-lib">honeybee-energy lib</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/lib.html#honeybee-energy-lib-construction-set-by-id">construction-set-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/lib.html#honeybee-energy-lib-construction-sets">construction-sets</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/lib.html#honeybee-energy-lib-construction-sets-by-id">construction-sets-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/lib.html#honeybee-energy-lib-constructions-by-id">constructions-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/lib.html#honeybee-energy-lib-materials-by-id">materials-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/lib.html#honeybee-energy-lib-opaque-construction-by-id">opaque-construction-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/lib.html#honeybee-energy-lib-opaque-constructions">opaque-constructions</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/lib.html#honeybee-energy-lib-opaque-material-by-id">opaque-material-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/lib.html#honeybee-energy-lib-opaque-materials">opaque-materials</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/lib.html#honeybee-energy-lib-program-type-by-id">program-type-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/lib.html#honeybee-energy-lib-program-types">program-types</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/lib.html#honeybee-energy-lib-program-types-by-id">program-types-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/lib.html#honeybee-energy-lib-schedule-by-id">schedule-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/lib.html#honeybee-energy-lib-schedule-type-limit-by-id">schedule-type-limit-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/lib.html#honeybee-energy-lib-schedule-type-limits">schedule-type-limits</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/lib.html#honeybee-energy-lib-schedule-type-limits-by-id">schedule-type-limits-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/lib.html#honeybee-energy-lib-schedules">schedules</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/lib.html#honeybee-energy-lib-schedules-by-id">schedules-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/lib.html#honeybee-energy-lib-shade-construction-by-id">shade-construction-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/lib.html#honeybee-energy-lib-shade-constructions">shade-constructions</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/lib.html#honeybee-energy-lib-window-construction-by-id">window-construction-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/lib.html#honeybee-energy-lib-window-constructions">window-constructions</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/lib.html#honeybee-energy-lib-window-material-by-id">window-material-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/lib.html#honeybee-energy-lib-window-materials">window-materials</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../cli/translate.html">translate</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../cli/translate.html#honeybee-energy-translate">honeybee-energy translate</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/translate.html#honeybee-energy-translate-constructions-from-idf">constructions-from-idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/translate.html#honeybee-energy-translate-constructions-to-idf">constructions-to-idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/translate.html#honeybee-energy-translate-model-from-gbxml">model-from-gbxml</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/translate.html#honeybee-energy-translate-model-from-idf">model-from-idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/translate.html#honeybee-energy-translate-model-from-osm">model-from-osm</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/translate.html#honeybee-energy-translate-model-occ-schedules">model-occ-schedules</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/translate.html#honeybee-energy-translate-model-to-gbxml">model-to-gbxml</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/translate.html#honeybee-energy-translate-model-to-idf">model-to-idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/translate.html#honeybee-energy-translate-model-to-osm">model-to-osm</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/translate.html#honeybee-energy-translate-schedules-from-idf">schedules-from-idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../cli/translate.html#honeybee-energy-translate-schedules-to-idf">schedules-to-idf</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">honeybee_energy</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../honeybee_energy.html">honeybee_energy package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../honeybee_energy.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../honeybee_energy.cli.html">honeybee_energy.cli package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../honeybee_energy.cli.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.cli.data.html">honeybee_energy.cli.data package</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="../../honeybee_energy.cli.data.html#module-honeybee_energy.cli.data">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../honeybee_energy.cli.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.cli.baseline.html">honeybee_energy.cli.baseline module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.cli.edit.html">honeybee_energy.cli.edit module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.cli.lib.html">honeybee_energy.cli.lib module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.cli.result.html">honeybee_energy.cli.result module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.cli.settings.html">honeybee_energy.cli.settings module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.cli.simulate.html">honeybee_energy.cli.simulate module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.cli.translate.html">honeybee_energy.cli.translate module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.cli.validate.html">honeybee_energy.cli.validate module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../honeybee_energy.cli.html#module-honeybee_energy.cli">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../honeybee_energy.construction.html">honeybee_energy.construction package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../honeybee_energy.construction.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.construction.air.html">honeybee_energy.construction.air module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.construction.dictutil.html">honeybee_energy.construction.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.construction.opaque.html">honeybee_energy.construction.opaque module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.construction.shade.html">honeybee_energy.construction.shade module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.construction.window.html">honeybee_energy.construction.window module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.construction.windowshade.html">honeybee_energy.construction.windowshade module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../honeybee_energy.construction.html#module-honeybee_energy.construction">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../honeybee_energy.hvac.html">honeybee_energy.hvac package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../honeybee_energy.hvac.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.hvac.allair.html">honeybee_energy.hvac.allair package</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="../../honeybee_energy.hvac.allair.html#submodules">Submodules</a><ul>
+<li class="toctree-l8"><a class="reference internal" href="../../honeybee_energy.hvac.allair.furnace.html">honeybee_energy.hvac.allair.furnace module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../honeybee_energy.hvac.allair.psz.html">honeybee_energy.hvac.allair.psz module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../honeybee_energy.hvac.allair.ptac.html">honeybee_energy.hvac.allair.ptac module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../honeybee_energy.hvac.allair.pvav.html">honeybee_energy.hvac.allair.pvav module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../honeybee_energy.hvac.allair.vav.html">honeybee_energy.hvac.allair.vav module</a></li>
+</ul>
+</li>
+<li class="toctree-l7"><a class="reference internal" href="../../honeybee_energy.hvac.allair.html#module-honeybee_energy.hvac.allair">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.hvac.doas.html">honeybee_energy.hvac.doas package</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="../../honeybee_energy.hvac.doas.html#submodules">Submodules</a><ul>
+<li class="toctree-l8"><a class="reference internal" href="../../honeybee_energy.hvac.doas.fcu.html">honeybee_energy.hvac.doas.fcu module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../honeybee_energy.hvac.doas.vrf.html">honeybee_energy.hvac.doas.vrf module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../honeybee_energy.hvac.doas.wshp.html">honeybee_energy.hvac.doas.wshp module</a></li>
+</ul>
+</li>
+<li class="toctree-l7"><a class="reference internal" href="../../honeybee_energy.hvac.doas.html#module-honeybee_energy.hvac.doas">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.hvac.heatcool.html">honeybee_energy.hvac.heatcool package</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="../../honeybee_energy.hvac.heatcool.html#submodules">Submodules</a><ul>
+<li class="toctree-l8"><a class="reference internal" href="../../honeybee_energy.hvac.heatcool.baseboard.html">honeybee_energy.hvac.heatcool.baseboard module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../honeybee_energy.hvac.heatcool.evapcool.html">honeybee_energy.hvac.heatcool.evapcool module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../honeybee_energy.hvac.heatcool.fcu.html">honeybee_energy.hvac.heatcool.fcu module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../honeybee_energy.hvac.heatcool.gasunit.html">honeybee_energy.hvac.heatcool.gasunit module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../honeybee_energy.hvac.heatcool.residential.html">honeybee_energy.hvac.heatcool.residential module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../honeybee_energy.hvac.heatcool.vrf.html">honeybee_energy.hvac.heatcool.vrf module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../honeybee_energy.hvac.heatcool.windowac.html">honeybee_energy.hvac.heatcool.windowac module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../honeybee_energy.hvac.heatcool.wshp.html">honeybee_energy.hvac.heatcool.wshp module</a></li>
+</ul>
+</li>
+<li class="toctree-l7"><a class="reference internal" href="../../honeybee_energy.hvac.heatcool.html#module-honeybee_energy.hvac.heatcool">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../honeybee_energy.hvac.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.hvac.idealair.html">honeybee_energy.hvac.idealair module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../honeybee_energy.hvac.html#module-honeybee_energy.hvac">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../honeybee_energy.lib.html">honeybee_energy.lib package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../honeybee_energy.lib.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.lib.constructions.html">honeybee_energy.lib.constructions module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.lib.constructionsets.html">honeybee_energy.lib.constructionsets module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.lib.materials.html">honeybee_energy.lib.materials module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.lib.programtypes.html">honeybee_energy.lib.programtypes module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.lib.schedules.html">honeybee_energy.lib.schedules module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.lib.scheduletypelimits.html">honeybee_energy.lib.scheduletypelimits module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../honeybee_energy.lib.html#module-honeybee_energy.lib">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../honeybee_energy.load.html">honeybee_energy.load package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../honeybee_energy.load.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.load.daylight.html">honeybee_energy.load.daylight module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.load.dictutil.html">honeybee_energy.load.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.load.equipment.html">honeybee_energy.load.equipment module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.load.hotwater.html">honeybee_energy.load.hotwater module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.load.infiltration.html">honeybee_energy.load.infiltration module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.load.lighting.html">honeybee_energy.load.lighting module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.load.people.html">honeybee_energy.load.people module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.load.setpoint.html">honeybee_energy.load.setpoint module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.load.ventilation.html">honeybee_energy.load.ventilation module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../honeybee_energy.load.html#module-honeybee_energy.load">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../honeybee_energy.material.html">honeybee_energy.material package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../honeybee_energy.material.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.material.dictutil.html">honeybee_energy.material.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.material.gas.html">honeybee_energy.material.gas module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.material.glazing.html">honeybee_energy.material.glazing module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.material.opaque.html">honeybee_energy.material.opaque module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.material.shade.html">honeybee_energy.material.shade module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../honeybee_energy.material.html#module-honeybee_energy.material">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../honeybee_energy.properties.html">honeybee_energy.properties package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../honeybee_energy.properties.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.properties.aperture.html">honeybee_energy.properties.aperture module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.properties.door.html">honeybee_energy.properties.door module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.properties.face.html">honeybee_energy.properties.face module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.properties.model.html">honeybee_energy.properties.model module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.properties.room.html">honeybee_energy.properties.room module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.properties.shade.html">honeybee_energy.properties.shade module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../honeybee_energy.properties.html#module-honeybee_energy.properties">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../honeybee_energy.result.html">honeybee_energy.result package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../honeybee_energy.result.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.result.colorobj.html">honeybee_energy.result.colorobj module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.result.err.html">honeybee_energy.result.err module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.result.loadbalance.html">honeybee_energy.result.loadbalance module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.result.match.html">honeybee_energy.result.match module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.result.osw.html">honeybee_energy.result.osw module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.result.rdd.html">honeybee_energy.result.rdd module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.result.zsz.html">honeybee_energy.result.zsz module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../honeybee_energy.result.html#module-honeybee_energy.result">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../honeybee_energy.schedule.html">honeybee_energy.schedule package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../honeybee_energy.schedule.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.schedule.day.html">honeybee_energy.schedule.day module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.schedule.dictutil.html">honeybee_energy.schedule.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.schedule.fixedinterval.html">honeybee_energy.schedule.fixedinterval module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.schedule.rule.html">honeybee_energy.schedule.rule module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.schedule.ruleset.html">honeybee_energy.schedule.ruleset module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.schedule.typelimit.html">honeybee_energy.schedule.typelimit module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../honeybee_energy.schedule.html#module-honeybee_energy.schedule">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../honeybee_energy.simulation.html">honeybee_energy.simulation package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../honeybee_energy.simulation.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.simulation.control.html">honeybee_energy.simulation.control module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.simulation.daylightsaving.html">honeybee_energy.simulation.daylightsaving module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.simulation.dictutil.html">honeybee_energy.simulation.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.simulation.output.html">honeybee_energy.simulation.output module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.simulation.parameter.html">honeybee_energy.simulation.parameter module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.simulation.runperiod.html">honeybee_energy.simulation.runperiod module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.simulation.shadowcalculation.html">honeybee_energy.simulation.shadowcalculation module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.simulation.sizing.html">honeybee_energy.simulation.sizing module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../honeybee_energy.simulation.html#module-honeybee_energy.simulation">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../honeybee_energy.ventcool.html">honeybee_energy.ventcool package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../honeybee_energy.ventcool.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.ventcool.afn.html">honeybee_energy.ventcool.afn module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.ventcool.control.html">honeybee_energy.ventcool.control module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.ventcool.crack.html">honeybee_energy.ventcool.crack module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.ventcool.opening.html">honeybee_energy.ventcool.opening module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../honeybee_energy.ventcool.simulation.html">honeybee_energy.ventcool.simulation module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../honeybee_energy.ventcool.html#module-honeybee_energy.ventcool">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../honeybee_energy.html#submodules">Submodules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../honeybee_energy.altnumber.html">honeybee_energy.altnumber module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../honeybee_energy.boundarycondition.html">honeybee_energy.boundarycondition module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../honeybee_energy.config.html">honeybee_energy.config module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../honeybee_energy.constructionset.html">honeybee_energy.constructionset module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../honeybee_energy.dictutil.html">honeybee_energy.dictutil module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../honeybee_energy.measure.html">honeybee_energy.measure module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../honeybee_energy.programtype.html">honeybee_energy.programtype module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../honeybee_energy.reader.html">honeybee_energy.reader module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../honeybee_energy.run.html">honeybee_energy.run module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../honeybee_energy.writer.html">honeybee_energy.writer module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../honeybee_energy.html#module-honeybee_energy">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../cli/index.html">CLI Docs</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">honeybee_energy</a></li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+              
+            
+            
+            
+            
+              <li class="hidden-sm"></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+      <div class="col-md-4">
+        <div id="sidebar" class="bs-sidenav" role="complementary"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../cli/index.html">CLI Docs</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">honeybee_energy</a></li>
+</ul>
+
+        </div>
+      </div>
+    <div class="body col-md-8 content" role="main">
+      
+  <h1>Source code for honeybee_energy.run</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding=utf-8</span>
+<span class="sd">&quot;&quot;&quot;Module for running IDF files through EnergyPlus.&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+
+<span class="kn">from</span> <span class="nn">.config</span> <span class="kn">import</span> <span class="n">folders</span>
+
+<span class="kn">from</span> <span class="nn">honeybee.model</span> <span class="kn">import</span> <span class="n">Model</span>
+<span class="kn">from</span> <span class="nn">honeybee.config</span> <span class="kn">import</span> <span class="n">folders</span> <span class="k">as</span> <span class="n">hb_folders</span>
+
+<span class="kn">from</span> <span class="nn">ladybug.futil</span> <span class="kn">import</span> <span class="n">write_to_file</span><span class="p">,</span> <span class="n">preparedir</span>
+
+
+<div class="viewcode-block" id="from_gbxml_osw"><a class="viewcode-back" href="../../honeybee_energy.run.html#honeybee_energy.run.from_gbxml_osw">[docs]</a><span class="k">def</span> <span class="nf">from_gbxml_osw</span><span class="p">(</span><span class="n">gbxml_path</span><span class="p">,</span> <span class="n">model_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">osw_directory</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create a .osw to translate gbXML to a HBJSON file.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        gbxml_path: File path to the gbXML to be translated to HBJSON.</span>
+<span class="sd">        model_path: File path to where the Model HBJSON will be written. If None, it</span>
+<span class="sd">            will be output right next to the input file and given the same name.</span>
+<span class="sd">        osw_directory: The directory into which the .osw should be written. If None,</span>
+<span class="sd">            it will be written into the a temp folder in the default simulation folder.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_import_model_osw</span><span class="p">(</span><span class="n">gbxml_path</span><span class="p">,</span> <span class="s1">&#39;gbxml&#39;</span><span class="p">,</span> <span class="n">model_path</span><span class="p">,</span> <span class="n">osw_directory</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="from_osm_osw"><a class="viewcode-back" href="../../honeybee_energy.run.html#honeybee_energy.run.from_osm_osw">[docs]</a><span class="k">def</span> <span class="nf">from_osm_osw</span><span class="p">(</span><span class="n">osm_path</span><span class="p">,</span> <span class="n">model_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">osw_directory</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create a .osw to translate OSM to a HBJSON file.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        osm_path: File path to the OSM to be translated to HBJSON.</span>
+<span class="sd">        model_path: File path to where the Model HBJSON will be written. If None, it</span>
+<span class="sd">            will be output right next to the input file and given the same name.</span>
+<span class="sd">        osw_directory: The directory into which the .osw should be written. If None,</span>
+<span class="sd">            it will be written into the a temp folder in the default simulation folder.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_import_model_osw</span><span class="p">(</span><span class="n">osm_path</span><span class="p">,</span> <span class="s1">&#39;openstudio&#39;</span><span class="p">,</span> <span class="n">model_path</span><span class="p">,</span> <span class="n">osw_directory</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="from_idf_osw"><a class="viewcode-back" href="../../honeybee_energy.run.html#honeybee_energy.run.from_idf_osw">[docs]</a><span class="k">def</span> <span class="nf">from_idf_osw</span><span class="p">(</span><span class="n">idf_path</span><span class="p">,</span> <span class="n">model_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">osw_directory</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create a .osw to translate IDF to a HBJSON file.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        osm_path: File path to the IDF to be translated to HBJSON.</span>
+<span class="sd">        model_path: File path to where the Model HBJSON will be written. If None, it</span>
+<span class="sd">            will be output right next to the input file and given the same name.</span>
+<span class="sd">        osw_directory: The directory into which the .osw should be written. If None,</span>
+<span class="sd">            it will be written into the a temp folder in the default simulation folder.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_import_model_osw</span><span class="p">(</span><span class="n">idf_path</span><span class="p">,</span> <span class="s1">&#39;idf&#39;</span><span class="p">,</span> <span class="n">model_path</span><span class="p">,</span> <span class="n">osw_directory</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="measure_compatible_model_json"><a class="viewcode-back" href="../../honeybee_energy.run.html#honeybee_energy.run.measure_compatible_model_json">[docs]</a><span class="k">def</span> <span class="nf">measure_compatible_model_json</span><span class="p">(</span><span class="n">model_json_path</span><span class="p">,</span> <span class="n">destination_directory</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Convert a Model JSON to one that is compatible with the honeybee_openstudio_gem.</span>
+
+<span class="sd">    This includes the re-serialization of the Model to Python, which will</span>
+<span class="sd">    automatically ensure that all Apertures and Doors point in the same direction</span>
+<span class="sd">    as their parent Face. If the Model tolerance is non-zero and Rooms are closed</span>
+<span class="sd">    solids, this will also ensure that all Room Faces point outwards from their</span>
+<span class="sd">    parent&#39;s volume. If the Model units are not Meters, the model will be scaled</span>
+<span class="sd">    to be in Meters. Lastly, apertures and doors with more than 4 vertices will</span>
+<span class="sd">    be triangulated to ensure EnergyPlus accepts them.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        model_json_path: File path to the Model JSON.</span>
+<span class="sd">        destination_directory: The directory into which the Model JSON that is</span>
+<span class="sd">            compatible with the honeybee_openstudio_gem should be written. If None,</span>
+<span class="sd">            this will be the same location as the input model_json_path. Default: None.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The full file path to the new Model JSON written out by this method.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># check that the file is there</span>
+    <span class="k">assert</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">model_json_path</span><span class="p">),</span> \
+        <span class="s1">&#39;No JSON file found at </span><span class="si">{}</span><span class="s1">.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">model_json_path</span><span class="p">)</span>
+
+    <span class="c1"># get the directory and the file path for the new Model JSON</span>
+    <span class="n">directory</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">model_json_path</span><span class="p">)</span>
+    <span class="n">dest_dir</span> <span class="o">=</span> <span class="n">directory</span> <span class="k">if</span> <span class="n">destination_directory</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">destination_directory</span>
+    <span class="n">dest_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dest_dir</span><span class="p">,</span> <span class="s1">&#39;in.hbjson&#39;</span><span class="p">)</span>
+
+    <span class="c1"># serialize the Model to Python</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">model_json_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">json_file</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">json_file</span><span class="p">)</span>
+    <span class="n">parsed_model</span> <span class="o">=</span> <span class="n">Model</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+    <span class="c1"># remove colinear vertices to avoid E+ tolerance issues and convert Model to Meters</span>
+    <span class="k">if</span> <span class="n">parsed_model</span><span class="o">.</span><span class="n">tolerance</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">room</span> <span class="ow">in</span> <span class="n">parsed_model</span><span class="o">.</span><span class="n">rooms</span><span class="p">:</span>
+            <span class="n">room</span><span class="o">.</span><span class="n">remove_colinear_vertices_envelope</span><span class="p">(</span><span class="n">parsed_model</span><span class="o">.</span><span class="n">tolerance</span><span class="p">)</span>
+    <span class="n">parsed_model</span><span class="o">.</span><span class="n">convert_to_units</span><span class="p">(</span><span class="s1">&#39;Meters&#39;</span><span class="p">)</span>
+
+    <span class="c1"># get the dictionary representation of the Model</span>
+    <span class="n">model_dict</span> <span class="o">=</span> <span class="n">parsed_model</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">triangulate_sub_faces</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># write the dictionary into a file</span>
+    <span class="n">preparedir</span><span class="p">(</span><span class="n">dest_dir</span><span class="p">,</span> <span class="n">remove_content</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># create the directory if it&#39;s not there</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">dest_file_path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">model_dict</span><span class="p">,</span> <span class="n">fp</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">dest_file_path</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="to_gbxml_osw"><a class="viewcode-back" href="../../honeybee_energy.run.html#honeybee_energy.run.to_gbxml_osw">[docs]</a><span class="k">def</span> <span class="nf">to_gbxml_osw</span><span class="p">(</span><span class="n">model_path</span><span class="p">,</span> <span class="n">output_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">osw_directory</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create a .osw to translate HBJSON to a gbXML file.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        model_path: File path to Honeybee Model (HBJSON).</span>
+<span class="sd">        output_path: File path to where the gbXML will be written. If None, it</span>
+<span class="sd">            will be output right next to the input file and given the same name.</span>
+<span class="sd">        osw_directory: The directory into which the .osw should be written. If None,</span>
+<span class="sd">            it will be written into the a temp folder in the default simulation folder.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># create the dictionary with the OSW steps</span>
+    <span class="n">osw_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;steps&#39;</span><span class="p">:</span> <span class="p">[]}</span>
+    <span class="n">model_measure_dict</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;arguments&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;model_json&#39;</span><span class="p">:</span> <span class="n">model_path</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;measure_dir_name&#39;</span><span class="p">:</span> <span class="s1">&#39;from_honeybee_model_to_gbxml&#39;</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="n">output_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">model_measure_dict</span><span class="p">[</span><span class="s1">&#39;arguments&#39;</span><span class="p">][</span><span class="s1">&#39;output_file_path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">output_path</span>
+    <span class="n">osw_dict</span><span class="p">[</span><span class="s1">&#39;steps&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model_measure_dict</span><span class="p">)</span>
+
+    <span class="c1"># add measure paths</span>
+    <span class="n">osw_dict</span><span class="p">[</span><span class="s1">&#39;measure_paths&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">folders</span><span class="o">.</span><span class="n">honeybee_openstudio_gem_path</span><span class="p">:</span>  <span class="c1"># include honeybee-openstudio measure path</span>
+        <span class="n">measure_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">folders</span><span class="o">.</span><span class="n">honeybee_openstudio_gem_path</span><span class="p">,</span> <span class="s1">&#39;measures&#39;</span><span class="p">)</span>
+        <span class="n">osw_dict</span><span class="p">[</span><span class="s1">&#39;measure_paths&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">measure_dir</span><span class="p">)</span>
+
+    <span class="c1"># write the dictionary to a workflow.osw</span>
+    <span class="k">if</span> <span class="n">osw_directory</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">osw_directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">hb_folders</span><span class="o">.</span><span class="n">default_simulation_folder</span><span class="p">,</span> <span class="s1">&#39;temp_translate&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">osw_directory</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">osw_directory</span><span class="p">)</span>
+    <span class="n">osw_json</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">osw_directory</span><span class="p">,</span> <span class="s1">&#39;translate_honeybee.osw&#39;</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">osw_json</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">osw_dict</span><span class="p">,</span> <span class="n">fp</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">osw_json</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="to_openstudio_osw"><a class="viewcode-back" href="../../honeybee_energy.run.html#honeybee_energy.run.to_openstudio_osw">[docs]</a><span class="k">def</span> <span class="nf">to_openstudio_osw</span><span class="p">(</span><span class="n">osw_directory</span><span class="p">,</span> <span class="n">model_json_path</span><span class="p">,</span> <span class="n">sim_par_json_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">additional_measures</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">base_osw</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">epw_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">schedule_directory</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create a .osw to translate honeybee JSONs to an .osm file.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        osw_directory: The directory into which the .osw should be written and the</span>
+<span class="sd">            .osm will eventually be written into.</span>
+<span class="sd">        model_json_path: File path to the Model JSON.</span>
+<span class="sd">        sim_par_json_path: Optional file path to the SimulationParameter JSON.</span>
+<span class="sd">            If None, the resulting OSM will not have everything it needs to be</span>
+<span class="sd">            simulate-able in EnergyPlus. (Default: None).</span>
+<span class="sd">        additional_measures: An optional array of honeybee-energy Measure objects</span>
+<span class="sd">            to be included in the output osw. These Measure objects must have</span>
+<span class="sd">            values for all required input arguments or an exception will be</span>
+<span class="sd">            raised while running this function. (Default: None).</span>
+<span class="sd">        base_osw: Optional file path to an existing OSW JSON be used as the base</span>
+<span class="sd">            for the output .osw. This is another way that outside measures</span>
+<span class="sd">            can be incorporated into the workflow. (Default: None).</span>
+<span class="sd">        epw_file: Optional file path to an EPW that should be associated with the</span>
+<span class="sd">            output energy model. If None, no EPW file will be written into the</span>
+<span class="sd">            OSW. (Default: None).</span>
+<span class="sd">        schedule_directory: An optional file directory to which all file-based</span>
+<span class="sd">            schedules should be written to. If None, all ScheduleFixedIntervals</span>
+<span class="sd">            will be translated to Schedule:Compact and written fully into the</span>
+<span class="sd">            IDF string instead of to Schedule:File. (Default: None).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The file path to the .osw written out by this method.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># create a dictionary representation of the .osw with steps to run</span>
+    <span class="c1"># the model measure and the simulation parameter measure</span>
+    <span class="k">if</span> <span class="n">base_osw</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">osw_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;steps&#39;</span><span class="p">:</span> <span class="p">[]}</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">base_osw</span><span class="p">),</span> <span class="s1">&#39;No base OSW file found at </span><span class="si">{}</span><span class="s1">.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">base_osw</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">base_osw</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">base_file</span><span class="p">:</span>
+            <span class="n">osw_dict</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">base_file</span><span class="p">)</span>
+
+    <span class="c1"># add a simulation parameter step if it is specified</span>
+    <span class="k">if</span> <span class="n">sim_par_json_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">sim_par_dict</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;arguments&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;simulation_parameter_json&#39;</span><span class="p">:</span> <span class="n">sim_par_json_path</span>
+            <span class="p">},</span>
+            <span class="s1">&#39;measure_dir_name&#39;</span><span class="p">:</span> <span class="s1">&#39;from_honeybee_simulation_parameter&#39;</span>
+        <span class="p">}</span>
+        <span class="n">osw_dict</span><span class="p">[</span><span class="s1">&#39;steps&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">sim_par_dict</span><span class="p">)</span>
+
+    <span class="c1"># addd the model json serialization into the steps</span>
+    <span class="n">model_measure_dict</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;arguments&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;model_json&#39;</span><span class="p">:</span> <span class="n">model_json_path</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;measure_dir_name&#39;</span><span class="p">:</span> <span class="s1">&#39;from_honeybee_model&#39;</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="n">schedule_directory</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">model_measure_dict</span><span class="p">[</span><span class="s1">&#39;arguments&#39;</span><span class="p">][</span><span class="s1">&#39;schedule_csv_dir&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">schedule_directory</span>
+    <span class="n">osw_dict</span><span class="p">[</span><span class="s1">&#39;steps&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">model_measure_dict</span><span class="p">)</span>
+
+    <span class="c1"># assign the measure_paths to the osw_dict</span>
+    <span class="k">if</span> <span class="s1">&#39;measure_paths&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">osw_dict</span><span class="p">:</span>
+        <span class="n">osw_dict</span><span class="p">[</span><span class="s1">&#39;measure_paths&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">folders</span><span class="o">.</span><span class="n">honeybee_openstudio_gem_path</span><span class="p">:</span>  <span class="c1"># include honeybee-openstudio measure path</span>
+        <span class="n">measure_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">folders</span><span class="o">.</span><span class="n">honeybee_openstudio_gem_path</span><span class="p">,</span> <span class="s1">&#39;measures&#39;</span><span class="p">)</span>
+        <span class="n">osw_dict</span><span class="p">[</span><span class="s1">&#39;measure_paths&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">measure_dir</span><span class="p">)</span>
+
+    <span class="c1"># assign the schedule_directory to the file_paths if it is specified</span>
+    <span class="k">if</span> <span class="n">schedule_directory</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">&#39;file_paths&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">osw_dict</span><span class="p">:</span>
+            <span class="n">osw_dict</span><span class="p">[</span><span class="s1">&#39;file_paths&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">schedule_directory</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">osw_dict</span><span class="p">[</span><span class="s1">&#39;file_paths&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">schedule_directory</span><span class="p">)</span>
+
+    <span class="c1"># add any additional measures to the osw_dict</span>
+    <span class="k">if</span> <span class="n">additional_measures</span><span class="p">:</span>
+        <span class="n">measure_paths</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>  <span class="c1"># set of all unique measure paths</span>
+        <span class="c1"># ensure measures are correctly ordered</span>
+        <span class="n">m_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;ModelMeasure&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;EnergyPlusMeasure&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;ReportingMeasure&#39;</span><span class="p">:</span> <span class="p">[]}</span>
+        <span class="k">for</span> <span class="n">measure</span> <span class="ow">in</span> <span class="n">additional_measures</span><span class="p">:</span>
+            <span class="n">m_dict</span><span class="p">[</span><span class="n">measure</span><span class="o">.</span><span class="n">type</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">measure</span><span class="p">)</span>
+        <span class="n">sorted_measures</span> <span class="o">=</span> <span class="n">m_dict</span><span class="p">[</span><span class="s1">&#39;ModelMeasure&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">m_dict</span><span class="p">[</span><span class="s1">&#39;EnergyPlusMeasure&#39;</span><span class="p">]</span> <span class="o">+</span> \
+            <span class="n">m_dict</span><span class="p">[</span><span class="s1">&#39;ReportingMeasure&#39;</span><span class="p">]</span>
+        <span class="c1"># add the measures and the measure paths to the OSW</span>
+        <span class="k">for</span> <span class="n">measure</span> <span class="ow">in</span> <span class="n">sorted_measures</span><span class="p">:</span>
+            <span class="n">measure</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>  <span class="c1"># ensure that all required arguments have values</span>
+            <span class="n">measure_paths</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">measure</span><span class="o">.</span><span class="n">folder</span><span class="p">))</span>
+            <span class="n">osw_dict</span><span class="p">[</span><span class="s1">&#39;steps&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">measure</span><span class="o">.</span><span class="n">to_osw_dict</span><span class="p">())</span>  <span class="c1"># add measure to workflow</span>
+        <span class="k">for</span> <span class="n">m_path</span> <span class="ow">in</span> <span class="n">measure_paths</span><span class="p">:</span>
+            <span class="n">osw_dict</span><span class="p">[</span><span class="s1">&#39;measure_paths&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">m_path</span><span class="p">)</span>
+        <span class="c1"># if there were reporting measures, add the ladybug adapter to get sim progress</span>
+        <span class="n">adapter</span> <span class="o">=</span> <span class="n">folders</span><span class="o">.</span><span class="n">honeybee_adapter_path</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">m_dict</span><span class="p">[</span><span class="s1">&#39;ReportingMeasure&#39;</span><span class="p">])</span> <span class="o">!=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">adapter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s1">&#39;run_options&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">osw_dict</span><span class="p">:</span>
+                <span class="n">osw_dict</span><span class="p">[</span><span class="s1">&#39;run_options&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">osw_dict</span><span class="p">[</span><span class="s1">&#39;run_options&#39;</span><span class="p">][</span><span class="s1">&#39;output_adapter&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;custom_file_name&#39;</span><span class="p">:</span> <span class="n">adapter</span><span class="p">,</span>
+                <span class="s1">&#39;class_name&#39;</span><span class="p">:</span> <span class="s1">&#39;HoneybeeAdapter&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;options&#39;</span><span class="p">:</span> <span class="p">{}</span>
+            <span class="p">}</span>
+
+    <span class="c1"># assign the epw_file to the osw if it is input</span>
+    <span class="k">if</span> <span class="n">epw_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">osw_dict</span><span class="p">[</span><span class="s1">&#39;weather_file&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">epw_file</span>
+
+    <span class="c1"># write the dictionary to a workflow.osw</span>
+    <span class="n">osw_json</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">osw_directory</span><span class="p">,</span> <span class="s1">&#39;workflow.osw&#39;</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">osw_json</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">osw_dict</span><span class="p">,</span> <span class="n">fp</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">osw_json</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="run_osw"><a class="viewcode-back" href="../../honeybee_energy.run.html#honeybee_energy.run.run_osw">[docs]</a><span class="k">def</span> <span class="nf">run_osw</span><span class="p">(</span><span class="n">osw_json</span><span class="p">,</span> <span class="n">measures_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Run a .osw file using the OpenStudio CLI on any operating system.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        osw_json: File path to a OSW file to be run using OpenStudio CLI.</span>
+<span class="sd">        measures_only: Boolean to note whether only the measures should be</span>
+<span class="sd">            applied in the running of the OSW (True) or the resulting model</span>
+<span class="sd">            should be run through EnergyPlus after the measures are applied</span>
+<span class="sd">            to it (False). (Default: True).</span>
+<span class="sd">        silent: Boolean to note whether the OSW should be run silently.</span>
+<span class="sd">            This only has an effect on Windows simulations since Unix-based</span>
+<span class="sd">            simulations always use shell and are always silent (Default: False).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The following files output from the CLI run</span>
+
+<span class="sd">        -   osm -- Path to a .osm file representing the output model.</span>
+<span class="sd">            Will be None if no file exists.</span>
+
+<span class="sd">        -   idf -- Path to a .idf file representing the model.</span>
+<span class="sd">            Will be None if no file exists.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># run the simulation</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;nt&#39;</span><span class="p">:</span>  <span class="c1"># we are on Windows</span>
+        <span class="n">directory</span> <span class="o">=</span> <span class="n">_run_osw_windows</span><span class="p">(</span><span class="n">osw_json</span><span class="p">,</span> <span class="n">measures_only</span><span class="p">,</span> <span class="n">silent</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>  <span class="c1"># we are on Mac, Linux, or some other unix-based system</span>
+        <span class="n">directory</span> <span class="o">=</span> <span class="n">_run_osw_unix</span><span class="p">(</span><span class="n">osw_json</span><span class="p">,</span> <span class="n">measures_only</span><span class="p">)</span>
+
+    <span class="c1"># output the simulation files</span>
+    <span class="k">return</span> <span class="n">_output_openstudio_files</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="prepare_idf_for_simulation"><a class="viewcode-back" href="../../honeybee_energy.run.html#honeybee_energy.run.prepare_idf_for_simulation">[docs]</a><span class="k">def</span> <span class="nf">prepare_idf_for_simulation</span><span class="p">(</span><span class="n">idf_file_path</span><span class="p">,</span> <span class="n">epw_file_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Prepare an IDF file to be run through EnergyPlus.</span>
+
+<span class="sd">    This includes checking that the EPW file and IDF file exist and renaming the</span>
+<span class="sd">    IDF to in.idf (if it is not already named so). A check is also performed to</span>
+<span class="sd">    be sure that a valid EnergyPlus installation was found.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        idf_file_path: The full path to an IDF file.</span>
+<span class="sd">        epw_file_path: The full path to an EPW file. Note that inputting None here</span>
+<span class="sd">            is only appropriate when the simulation is just for design days and has</span>
+<span class="sd">            no weather file run period. (Default: None).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        directory -- The folder in which the IDF exists and out of which the EnergyPlus</span>
+<span class="sd">        simulation will be run.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># check the energyplus directory</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">folders</span><span class="o">.</span><span class="n">energyplus_path</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">OSError</span><span class="p">(</span><span class="s1">&#39;No EnergyPlus installation was found on this machine.</span><span class="se">\n</span><span class="s1">&#39;</span>
+                      <span class="s1">&#39;Install EnergyPlus to run energy simulations.&#39;</span><span class="p">)</span>
+
+    <span class="c1"># check the input files</span>
+    <span class="k">assert</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">idf_file_path</span><span class="p">),</span> \
+        <span class="s1">&#39;No IDF file found at </span><span class="si">{}</span><span class="s1">.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">idf_file_path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">epw_file_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">epw_file_path</span><span class="p">),</span> \
+            <span class="s1">&#39;No EPW file found at </span><span class="si">{}</span><span class="s1">.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">epw_file_path</span><span class="p">)</span>
+
+    <span class="c1"># rename the idf file to in.idf if it isn&#39;t named that already</span>
+    <span class="n">directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">idf_file_path</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">idf_file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">idf_file_path</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">idf_file_name</span> <span class="o">!=</span> <span class="s1">&#39;in.idf&#39;</span><span class="p">:</span>
+        <span class="n">old_file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">idf_file_name</span><span class="p">)</span>
+        <span class="n">new_file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s1">&#39;in.idf&#39;</span><span class="p">)</span>
+        <span class="c1"># ensure that there isn&#39;t an in.idf file there already</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">new_file_name</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">new_file_name</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">old_file_name</span><span class="p">,</span> <span class="n">new_file_name</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">directory</span></div>
+
+
+<div class="viewcode-block" id="run_idf"><a class="viewcode-back" href="../../honeybee_energy.run.html#honeybee_energy.run.run_idf">[docs]</a><span class="k">def</span> <span class="nf">run_idf</span><span class="p">(</span><span class="n">idf_file_path</span><span class="p">,</span> <span class="n">epw_file_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">expand_objects</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Run an IDF file through energyplus on any operating system.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        idf_file_path: The full path to an IDF file.</span>
+<span class="sd">        epw_file_path: The full path to an EPW file. Note that inputting None here</span>
+<span class="sd">            is only appropriate when the simulation is just for design days and has</span>
+<span class="sd">            no weather file run period. (Default: None).</span>
+<span class="sd">        expand_objects: If True, the IDF run will include the expansion of any</span>
+<span class="sd">            HVAC Template objects in the file before beginning the simulation.</span>
+<span class="sd">            This is a necessary step whenever there are HVAC Template objects in</span>
+<span class="sd">            the IDF but it is unnecessary extra time when they are not</span>
+<span class="sd">            present. (Default: True).</span>
+<span class="sd">        silent: Boolean to note whether the simulation should be run silently.</span>
+<span class="sd">            This only has an effect on Windows simulations since Unix-based</span>
+<span class="sd">            simulations always use shell and are always silent (Default: False).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A series of file paths to the simulation output files</span>
+
+<span class="sd">        -   sql -- Path to a .sqlite file containing all simulation results.</span>
+<span class="sd">            Will be None if no file exists.</span>
+
+<span class="sd">        -   zsz -- Path to a .csv file containing detailed zone load information</span>
+<span class="sd">            recorded over the course of the design days. Will be None if no</span>
+<span class="sd">            file exists.</span>
+
+<span class="sd">        -   rdd -- Path to a .rdd file containing all possible outputs that can be</span>
+<span class="sd">            requested from the simulation. Will be None if no file exists.</span>
+
+<span class="sd">        -   html -- Path to a .html file containing all summary reports.</span>
+<span class="sd">            Will be None if no file exists.</span>
+
+<span class="sd">        -   err -- Path to a .err file containing all errors and warnings from the</span>
+<span class="sd">            simulation. Will be None if no file exists.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># run the simulation</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;nt&#39;</span><span class="p">:</span>  <span class="c1"># we are on Windows</span>
+        <span class="n">directory</span> <span class="o">=</span> <span class="n">_run_idf_windows</span><span class="p">(</span>
+            <span class="n">idf_file_path</span><span class="p">,</span> <span class="n">epw_file_path</span><span class="p">,</span> <span class="n">expand_objects</span><span class="p">,</span> <span class="n">silent</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>  <span class="c1"># we are on Mac, Linux, or some other unix-based system</span>
+        <span class="n">directory</span> <span class="o">=</span> <span class="n">_run_idf_unix</span><span class="p">(</span><span class="n">idf_file_path</span><span class="p">,</span> <span class="n">epw_file_path</span><span class="p">,</span> <span class="n">expand_objects</span><span class="p">)</span>
+
+    <span class="c1"># output the simulation files</span>
+    <span class="k">return</span> <span class="n">output_energyplus_files</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="output_energyplus_files"><a class="viewcode-back" href="../../honeybee_energy.run.html#honeybee_energy.run.output_energyplus_files">[docs]</a><span class="k">def</span> <span class="nf">output_energyplus_files</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Get the paths to the EnergyPlus simulation output files given the idf directory.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        directory: The path to where the IDF was run.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A tuple with four elements</span>
+
+<span class="sd">        -   sql -- Path to a .sqlite file containing all simulation results.</span>
+<span class="sd">            Will be None if no file exists.</span>
+
+<span class="sd">        -   zsz -- Path to a .csv file containing detailed zone load information</span>
+<span class="sd">            recorded over the course of the design days. Will be None if no</span>
+<span class="sd">            file exists.</span>
+
+<span class="sd">        -   rdd -- Path to a .rdd file containing all possible outputs that can be</span>
+<span class="sd">            requested from the simulation. Will be None if no file exists.</span>
+
+<span class="sd">        -   html -- Path to a .html file containing all summary reports.</span>
+<span class="sd">            Will be None if no file exists.</span>
+
+<span class="sd">        -   err -- Path to a .err file containing all errors and warnings from the</span>
+<span class="sd">            simulation. Will be None if no file exists.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># generate paths to the simulation files</span>
+    <span class="n">sql_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s1">&#39;eplusout.sql&#39;</span><span class="p">)</span>
+    <span class="n">zsz_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s1">&#39;epluszsz.csv&#39;</span><span class="p">)</span>
+    <span class="n">rdd_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s1">&#39;eplusout.rdd&#39;</span><span class="p">)</span>
+    <span class="n">html_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s1">&#39;eplustbl.htm&#39;</span><span class="p">)</span>
+    <span class="n">err_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s1">&#39;eplusout.err&#39;</span><span class="p">)</span>
+
+    <span class="c1"># check that the simulation files exist</span>
+    <span class="n">sql</span> <span class="o">=</span> <span class="n">sql_file</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">sql_file</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="n">zsz</span> <span class="o">=</span> <span class="n">zsz_file</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">zsz_file</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="n">rdd</span> <span class="o">=</span> <span class="n">rdd_file</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">rdd_file</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="n">html</span> <span class="o">=</span> <span class="n">html_file</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">html_file</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="n">err</span> <span class="o">=</span> <span class="n">err_file</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">err_file</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="k">return</span> <span class="n">sql</span><span class="p">,</span> <span class="n">zsz</span><span class="p">,</span> <span class="n">rdd</span><span class="p">,</span> <span class="n">html</span><span class="p">,</span> <span class="n">err</span></div>
+
+
+<span class="k">def</span> <span class="nf">_import_model_osw</span><span class="p">(</span><span class="n">model_path</span><span class="p">,</span> <span class="n">extension</span><span class="p">,</span> <span class="n">output_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">osw_directory</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base function used for OSW transating from various formats to HBJSON.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        model_path: File path to the file to be translated to HBJSON.</span>
+<span class="sd">        extension: Name of the file type to be translated (eg. gbxml).</span>
+<span class="sd">        output_path: File path to where the Model HBJSON will be written.</span>
+<span class="sd">        osw_directory: The directory into which the .osw should be written.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># create the dictionary with the OSW steps</span>
+    <span class="n">osw_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;steps&#39;</span><span class="p">:</span> <span class="p">[]}</span>
+    <span class="n">model_measure_dict</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;arguments&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_model&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">extension</span><span class="p">):</span> <span class="n">model_path</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;measure_dir_name&#39;</span><span class="p">:</span> <span class="s1">&#39;from_</span><span class="si">{}</span><span class="s1">_model&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">extension</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="n">output_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">model_measure_dict</span><span class="p">[</span><span class="s1">&#39;arguments&#39;</span><span class="p">][</span><span class="s1">&#39;output_file_path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">output_path</span>
+    <span class="n">osw_dict</span><span class="p">[</span><span class="s1">&#39;steps&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model_measure_dict</span><span class="p">)</span>
+
+    <span class="c1"># add measure paths</span>
+    <span class="n">osw_dict</span><span class="p">[</span><span class="s1">&#39;measure_paths&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">folders</span><span class="o">.</span><span class="n">honeybee_openstudio_gem_path</span><span class="p">:</span>  <span class="c1"># include honeybee-openstudio measure path</span>
+        <span class="n">measure_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">folders</span><span class="o">.</span><span class="n">honeybee_openstudio_gem_path</span><span class="p">,</span> <span class="s1">&#39;measures&#39;</span><span class="p">)</span>
+        <span class="n">osw_dict</span><span class="p">[</span><span class="s1">&#39;measure_paths&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">measure_dir</span><span class="p">)</span>
+
+    <span class="c1"># write the dictionary to a workflow.osw</span>
+    <span class="k">if</span> <span class="n">osw_directory</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">osw_directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">hb_folders</span><span class="o">.</span><span class="n">default_simulation_folder</span><span class="p">,</span> <span class="s1">&#39;temp_translate&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">osw_directory</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">osw_directory</span><span class="p">)</span>
+    <span class="n">osw_json</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">osw_directory</span><span class="p">,</span> <span class="s1">&#39;translate_</span><span class="si">{}</span><span class="s1">.osw&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">extension</span><span class="p">))</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">osw_json</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">osw_dict</span><span class="p">,</span> <span class="n">fp</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">osw_json</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_check_osw</span><span class="p">(</span><span class="n">osw_json</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Prepare an OSW file to be run through OpenStudio CLI.</span>
+
+<span class="sd">    This includes checking for a valid OpenStudio installation and ensuring the</span>
+<span class="sd">    OSW file exists.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        osw_json: The full path to an OSW file.</span>
+<span class="sd">        epw_file_path: The full path to an EPW file.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The folder in which the OSW exists and out of which the OpenStudio CLI</span>
+<span class="sd">        will operate.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># check the openstudio directory</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">folders</span><span class="o">.</span><span class="n">openstudio_path</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">OSError</span><span class="p">(</span><span class="s1">&#39;No OpenStudio installation was found on this machine.</span><span class="se">\n</span><span class="s1">&#39;</span>
+                      <span class="s1">&#39;Install OpenStudio to run energy simulations.&#39;</span><span class="p">)</span>
+
+    <span class="c1"># check the input files</span>
+    <span class="k">assert</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">osw_json</span><span class="p">),</span> <span class="s1">&#39;No OSW file found at </span><span class="si">{}</span><span class="s1">.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">osw_json</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">osw_json</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">_run_osw_windows</span><span class="p">(</span><span class="n">osw_json</span><span class="p">,</span> <span class="n">measures_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Run a .osw file using the OpenStudio CLI on a Windows-based operating system.</span>
+
+<span class="sd">    A batch file will be used to run the simulation.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        osw_json: File path to a OSW file to be run using OpenStudio CLI.</span>
+<span class="sd">        measures_only: Boolean to note whether only the measures should be applied</span>
+<span class="sd">            in the running of the OSW (True) or the resulting model should be run</span>
+<span class="sd">            through EnergyPlus after the measures are applied to it (False).</span>
+<span class="sd">            Default: True.</span>
+<span class="sd">        silent: Boolean to note whether the OSW should be run silently (without</span>
+<span class="sd">            the batch window). If so, the simulation will be run using subprocess</span>
+<span class="sd">            with shell set to True. (Default: False).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Path to the folder out of which the OSW was run.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># check the input file</span>
+    <span class="n">directory</span> <span class="o">=</span> <span class="n">_check_osw</span><span class="p">(</span><span class="n">osw_json</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">silent</span><span class="p">:</span>  <span class="c1"># write the batch file to call OpenStudio CLI</span>
+        <span class="n">working_drive</span> <span class="o">=</span> <span class="n">directory</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">measure_str</span> <span class="o">=</span> <span class="s1">&#39;-m &#39;</span> <span class="k">if</span> <span class="n">measures_only</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+        <span class="n">batch</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="se">\n</span><span class="s1">&quot;</span><span class="si">{}</span><span class="s1">&quot; -I &quot;</span><span class="si">{}</span><span class="s1">&quot; run </span><span class="si">{}</span><span class="s1">-w &quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">working_drive</span><span class="p">,</span> <span class="n">folders</span><span class="o">.</span><span class="n">openstudio_exe</span><span class="p">,</span> <span class="n">folders</span><span class="o">.</span><span class="n">honeybee_openstudio_gem_path</span><span class="p">,</span>
+            <span class="n">measure_str</span><span class="p">,</span> <span class="n">osw_json</span><span class="p">)</span>
+        <span class="n">batch_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s1">&#39;run_workflow.bat&#39;</span><span class="p">)</span>
+        <span class="n">write_to_file</span><span class="p">(</span><span class="n">batch_file</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s1">&#39;&quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">batch_file</span><span class="p">))</span>  <span class="c1"># run the batch file</span>
+    <span class="k">else</span><span class="p">:</span>  <span class="c1"># run it all using subprocess</span>
+        <span class="n">cmds</span> <span class="o">=</span> <span class="p">[</span><span class="n">folders</span><span class="o">.</span><span class="n">openstudio_exe</span><span class="p">,</span> <span class="s1">&#39;-I&#39;</span><span class="p">,</span> <span class="n">folders</span><span class="o">.</span><span class="n">honeybee_openstudio_gem_path</span><span class="p">,</span>
+                <span class="s1">&#39;run&#39;</span><span class="p">,</span> <span class="s1">&#39;-w&#39;</span><span class="p">,</span> <span class="n">osw_json</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">measures_only</span><span class="p">:</span>
+            <span class="n">cmds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;-m&#39;</span><span class="p">)</span>
+        <span class="n">process</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">cmds</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">process</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>  <span class="c1"># prevents the script from running before command is done</span>
+
+    <span class="k">return</span> <span class="n">directory</span>
+
+
+<span class="k">def</span> <span class="nf">_run_osw_unix</span><span class="p">(</span><span class="n">osw_json</span><span class="p">,</span> <span class="n">measures_only</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Run a .osw file using the OpenStudio CLI on a Unix-based operating system.</span>
+
+<span class="sd">    This includes both Mac OS and Linux since a shell will be used to run</span>
+<span class="sd">    the simulation.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        osw_json: File path to a OSW file to be run using OpenStudio CLI.</span>
+<span class="sd">        measures_only: Boolean to note whether only the measures should be applied</span>
+<span class="sd">            in the running of the OSW (True) or the resulting model should be run</span>
+<span class="sd">            through EnergyPlus after the measures are applied to it (False).</span>
+<span class="sd">            Default: True.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Path to the folder out of which the OSW was run.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># check the input file</span>
+    <span class="n">directory</span> <span class="o">=</span> <span class="n">_check_osw</span><span class="p">(</span><span class="n">osw_json</span><span class="p">)</span>
+
+    <span class="c1"># Write the shell script to call OpenStudio CLI</span>
+    <span class="n">measure_str</span> <span class="o">=</span> <span class="s1">&#39;-m &#39;</span> <span class="k">if</span> <span class="n">measures_only</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+    <span class="n">shell</span> <span class="o">=</span> <span class="s1">&#39;#!/usr/bin/env bash</span><span class="se">\n</span><span class="s1">&quot;</span><span class="si">{}</span><span class="s1">&quot; -I &quot;</span><span class="si">{}</span><span class="s1">&quot; run </span><span class="si">{}</span><span class="s1">-w &quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">folders</span><span class="o">.</span><span class="n">openstudio_exe</span><span class="p">,</span> <span class="n">folders</span><span class="o">.</span><span class="n">honeybee_openstudio_gem_path</span><span class="p">,</span>
+        <span class="n">measure_str</span><span class="p">,</span> <span class="n">osw_json</span><span class="p">)</span>
+    <span class="n">shell_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s1">&#39;run_workflow.sh&#39;</span><span class="p">)</span>
+    <span class="n">write_to_file</span><span class="p">(</span><span class="n">shell_file</span><span class="p">,</span> <span class="n">shell</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># make the shell script executable using subprocess.check_call</span>
+    <span class="c1"># this is more reliable than native Python chmod on Mac</span>
+    <span class="n">subprocess</span><span class="o">.</span><span class="n">check_call</span><span class="p">([</span><span class="s1">&#39;chmod&#39;</span><span class="p">,</span> <span class="s1">&#39;u+x&#39;</span><span class="p">,</span> <span class="n">shell_file</span><span class="p">])</span>
+
+    <span class="c1"># run the shell script</span>
+    <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">shell_file</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">directory</span>
+
+
+<span class="k">def</span> <span class="nf">_output_openstudio_files</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Get the paths to the OpenStudio simulation output files given the osw directory.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        directory: The path to where the OSW was run.</span>
+
+<span class="sd">    Returns:</span>
+
+<span class="sd">        -   osm -- Path to a .osm file containing all simulation results.</span>
+<span class="sd">            Will be None if no file exists.</span>
+
+<span class="sd">        -   idf -- Path to a .idf file containing properties of the model, including</span>
+<span class="sd">            the size of HVAC objects. Will be None if no file exists.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># generate and check paths to the OSM and IDF files</span>
+    <span class="n">osm_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s1">&#39;run&#39;</span><span class="p">,</span> <span class="s1">&#39;in.osm&#39;</span><span class="p">)</span>
+    <span class="n">osm</span> <span class="o">=</span> <span class="n">osm_file</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">osm_file</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="c1"># check the pre-process idf and replace the other in.idf with it</span>
+    <span class="n">idf_file_right</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s1">&#39;run&#39;</span><span class="p">,</span> <span class="s1">&#39;pre-preprocess.idf&#39;</span><span class="p">)</span>
+    <span class="n">idf_file_wrong</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s1">&#39;run&#39;</span><span class="p">,</span> <span class="s1">&#39;in.idf&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">idf_file_right</span><span class="p">)</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">idf_file_wrong</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">idf_file_wrong</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">idf_file_right</span><span class="p">,</span> <span class="n">idf_file_wrong</span><span class="p">)</span>
+        <span class="n">idf</span> <span class="o">=</span> <span class="n">idf_file_wrong</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">idf</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">return</span> <span class="n">osm</span><span class="p">,</span> <span class="n">idf</span>
+
+
+<span class="k">def</span> <span class="nf">_run_idf_windows</span><span class="p">(</span><span class="n">idf_file_path</span><span class="p">,</span> <span class="n">epw_file_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">expand_objects</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                     <span class="n">silent</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Run an IDF file through energyplus on a Windows-based operating system.</span>
+
+<span class="sd">    A batch file will be used to run the simulation.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        idf_file_path: The full path to an IDF file.</span>
+<span class="sd">        epw_file_path: The full path to an EPW file. Note that inputting None here</span>
+<span class="sd">            is only appropriate when the simulation is just for design days and has</span>
+<span class="sd">            no weather file run period. (Default: None).</span>
+<span class="sd">        expand_objects: If True, the IDF run will include the expansion of any</span>
+<span class="sd">            HVAC Template objects in the file before beginning the simulation.</span>
+<span class="sd">            This is a necessary step whenever there are HVAC Template objects in</span>
+<span class="sd">            the IDF but it is unnecessary extra time when they are not</span>
+<span class="sd">            present. (Default: True).</span>
+<span class="sd">        silent: Boolean to note whether the simulation should be run silently</span>
+<span class="sd">            (without the batch window). If so, the simulation will be run using</span>
+<span class="sd">            subprocess with shell set to True. (Default: False).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Path to the folder out of which the simulation was run.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># check and prepare the input files</span>
+    <span class="n">directory</span> <span class="o">=</span> <span class="n">prepare_idf_for_simulation</span><span class="p">(</span><span class="n">idf_file_path</span><span class="p">,</span> <span class="n">epw_file_path</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">silent</span><span class="p">:</span>  <span class="c1"># run the simulations using a batch file</span>
+        <span class="c1"># generate various arguments to pass to the energyplus command</span>
+        <span class="n">epw_str</span> <span class="o">=</span> <span class="s1">&#39;-w &quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">epw_file_path</span><span class="p">))</span> \
+            <span class="k">if</span> <span class="n">epw_file_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+        <span class="n">idd_str</span> <span class="o">=</span> <span class="s1">&#39;-i &quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">folders</span><span class="o">.</span><span class="n">energyplus_idd_path</span><span class="p">)</span>
+        <span class="n">expand_str</span> <span class="o">=</span> <span class="s1">&#39; -x&#39;</span> <span class="k">if</span> <span class="n">expand_objects</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+        <span class="n">working_drive</span> <span class="o">=</span> <span class="n">directory</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+        <span class="c1"># write the batch file</span>
+        <span class="n">batch</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="se">\n</span><span class="s1">cd &quot;</span><span class="si">{}</span><span class="s1">&quot;</span><span class="se">\n</span><span class="s1">&quot;</span><span class="si">{}</span><span class="s1">&quot; </span><span class="si">{}</span><span class="s1"> </span><span class="si">{}{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">working_drive</span><span class="p">,</span> <span class="n">directory</span><span class="p">,</span> <span class="n">folders</span><span class="o">.</span><span class="n">energyplus_exe</span><span class="p">,</span> <span class="n">epw_str</span><span class="p">,</span>
+            <span class="n">idd_str</span><span class="p">,</span> <span class="n">expand_str</span><span class="p">)</span>
+        <span class="n">batch_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s1">&#39;in.bat&#39;</span><span class="p">)</span>
+        <span class="n">write_to_file</span><span class="p">(</span><span class="n">batch_file</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s1">&#39;&quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">batch_file</span><span class="p">))</span>  <span class="c1"># run the batch file</span>
+    <span class="k">else</span><span class="p">:</span>  <span class="c1"># run the simulation using subprocess</span>
+        <span class="n">cmds</span> <span class="o">=</span> <span class="p">[</span><span class="n">folders</span><span class="o">.</span><span class="n">energyplus_exe</span><span class="p">,</span> <span class="s1">&#39;-i&#39;</span><span class="p">,</span> <span class="n">folders</span><span class="o">.</span><span class="n">energyplus_idd_path</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">epw_file_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cmds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;-w&#39;</span><span class="p">)</span>
+            <span class="n">cmds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">epw_file_path</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">expand_objects</span><span class="p">:</span>
+            <span class="n">cmds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;-x&#39;</span><span class="p">)</span>
+        <span class="n">process</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span>
+            <span class="n">cmds</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">directory</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">process</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>  <span class="c1"># prevents the script from running before command is done</span>
+
+    <span class="k">return</span> <span class="n">directory</span>
+
+
+<span class="k">def</span> <span class="nf">_run_idf_unix</span><span class="p">(</span><span class="n">idf_file_path</span><span class="p">,</span> <span class="n">epw_file_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">expand_objects</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Run an IDF file through energyplus on a Unix-based operating system.</span>
+
+<span class="sd">    This includes both Mac OS and Linux since a shell will be used to run</span>
+<span class="sd">    the simulation.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        idf_file_path: The full path to an IDF file.</span>
+<span class="sd">        epw_file_path: The full path to an EPW file. Note that inputting None here</span>
+<span class="sd">            is only appropriate when the simulation is just for design days and has</span>
+<span class="sd">            no weather file run period. (Default: None).</span>
+<span class="sd">        expand_objects: If True, the IDF run will include the expansion of any</span>
+<span class="sd">            HVAC Template objects in the file before beginning the simulation.</span>
+<span class="sd">            This is a necessary step whenever there are HVAC Template objects in</span>
+<span class="sd">            the IDF but it is unnecessary extra time when they are not present.</span>
+<span class="sd">            Default: True.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Path to the folder out of which the simulation was run.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># check and prepare the input files</span>
+    <span class="n">directory</span> <span class="o">=</span> <span class="n">prepare_idf_for_simulation</span><span class="p">(</span><span class="n">idf_file_path</span><span class="p">,</span> <span class="n">epw_file_path</span><span class="p">)</span>
+
+    <span class="c1"># generate various arguments to pass to the energyplus command</span>
+    <span class="n">epw_str</span> <span class="o">=</span> <span class="s1">&#39;-w &quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">epw_file_path</span><span class="p">))</span>\
+        <span class="k">if</span> <span class="n">epw_file_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+    <span class="n">idd_str</span> <span class="o">=</span> <span class="s1">&#39;-i &quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">folders</span><span class="o">.</span><span class="n">energyplus_idd_path</span><span class="p">)</span>
+    <span class="n">expand_str</span> <span class="o">=</span> <span class="s1">&#39; -x&#39;</span> <span class="k">if</span> <span class="n">expand_objects</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+
+    <span class="c1"># write a shell file</span>
+    <span class="n">shell</span> <span class="o">=</span> <span class="s1">&#39;#!/usr/bin/env bash</span><span class="se">\n\n</span><span class="s1">cd &quot;</span><span class="si">{}</span><span class="s1">&quot;</span><span class="se">\n</span><span class="s1">&quot;</span><span class="si">{}</span><span class="s1">&quot; </span><span class="si">{}</span><span class="s1"> </span><span class="si">{}{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">directory</span><span class="p">,</span> <span class="n">folders</span><span class="o">.</span><span class="n">energyplus_exe</span><span class="p">,</span> <span class="n">epw_str</span><span class="p">,</span> <span class="n">idd_str</span><span class="p">,</span> <span class="n">expand_str</span><span class="p">)</span>
+    <span class="n">shell_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s1">&#39;in.sh&#39;</span><span class="p">)</span>
+    <span class="n">write_to_file</span><span class="p">(</span><span class="n">shell_file</span><span class="p">,</span> <span class="n">shell</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># make the shell script executable using subprocess.check_call</span>
+    <span class="c1"># this is more reliable than native Python chmod on Mac</span>
+    <span class="n">subprocess</span><span class="o">.</span><span class="n">check_call</span><span class="p">([</span><span class="s1">&#39;chmod&#39;</span><span class="p">,</span> <span class="s1">&#39;u+x&#39;</span><span class="p">,</span> <span class="n">shell_file</span><span class="p">])</span>
+
+    <span class="c1"># run the shell script</span>
+    <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">shell_file</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">directory</span>
+</pre></div>
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2021, Ladybug Tools.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.4.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

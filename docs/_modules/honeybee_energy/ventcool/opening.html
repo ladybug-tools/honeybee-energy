@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>honeybee_energy.ventcool.opening &#8212; honeybee energy  documentation</title>
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../../../_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="../../../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../../../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../../../_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-inverse navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../../index.html">
+          honeybee energy</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli/index.html">CLI Docs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../cli/index.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../cli/index.html#commands">Commands</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../cli/main.html">main</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../cli/main.html#honeybee-energy">honeybee-energy</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/main.html#honeybee-energy-config">config</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../cli/settings.html">settings</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../cli/settings.html#honeybee-energy-settings">honeybee-energy settings</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/settings.html#honeybee-energy-settings-comfort-sim-par">comfort-sim-par</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/settings.html#honeybee-energy-settings-custom-sim-par">custom-sim-par</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/settings.html#honeybee-energy-settings-default-sim-par">default-sim-par</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/settings.html#honeybee-energy-settings-load-balance-sim-par">load-balance-sim-par</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/settings.html#honeybee-energy-settings-orientation-sim-pars">orientation-sim-pars</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/settings.html#honeybee-energy-settings-run-period">run-period</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/settings.html#honeybee-energy-settings-sizing-sim-par">sizing-sim-par</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../cli/simulate.html">simulate</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../cli/simulate.html#honeybee-energy-simulate">honeybee-energy simulate</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/simulate.html#honeybee-energy-simulate-idf">idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/simulate.html#honeybee-energy-simulate-model">model</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/simulate.html#honeybee-energy-simulate-osm">osm</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../cli/baseline.html">baseline</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../cli/baseline.html#honeybee-energy-baseline">honeybee-energy baseline</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/baseline.html#honeybee-energy-baseline-constructions-2004">constructions-2004</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/baseline.html#honeybee-energy-baseline-geometry-2004">geometry-2004</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/baseline.html#honeybee-energy-baseline-hvac-2004">hvac-2004</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/baseline.html#honeybee-energy-baseline-lighting-2004">lighting-2004</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/baseline.html#honeybee-energy-baseline-remove-ecms">remove-ecms</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../cli/edit.html">edit</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../cli/edit.html#honeybee-energy-edit">honeybee-energy edit</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/edit.html#honeybee-energy-edit-modifiers-from-constructions">modifiers-from-constructions</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../cli/validate.html">validate</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../cli/validate.html#honeybee-energy-validate">honeybee-energy validate</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/validate.html#honeybee-energy-validate-construction-set">construction-set</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/validate.html#honeybee-energy-validate-model-properties">model-properties</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/validate.html#honeybee-energy-validate-program-type">program-type</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/validate.html#honeybee-energy-validate-schedule">schedule</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/validate.html#honeybee-energy-validate-schedule-type-limit">schedule-type-limit</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/validate.html#honeybee-energy-validate-sim-par">sim-par</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../cli/result.html">result</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result">honeybee-energy result</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-all-available-info">all-available-info</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-available-results">available-results</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-available-results-info">available-results-info</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-available-run-period-info">available-run-period-info</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-component-sizes">component-sizes</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-data-by-output">data-by-output</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-data-by-outputs">data-by-outputs</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-energy-use-intensity">energy-use-intensity</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-load-balance">load-balance</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-output-csv">output-csv</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-output-csv-queryable">output-csv-queryable</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-tabular-data">tabular-data</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-tabular-metadata">tabular-metadata</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-zone-sizes">zone-sizes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../cli/lib.html">lib</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib">honeybee-energy lib</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-construction-set-by-id">construction-set-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-construction-sets">construction-sets</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-construction-sets-by-id">construction-sets-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-constructions-by-id">constructions-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-materials-by-id">materials-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-opaque-construction-by-id">opaque-construction-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-opaque-constructions">opaque-constructions</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-opaque-material-by-id">opaque-material-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-opaque-materials">opaque-materials</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-program-type-by-id">program-type-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-program-types">program-types</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-program-types-by-id">program-types-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-schedule-by-id">schedule-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-schedule-type-limit-by-id">schedule-type-limit-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-schedule-type-limits">schedule-type-limits</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-schedule-type-limits-by-id">schedule-type-limits-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-schedules">schedules</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-schedules-by-id">schedules-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-shade-construction-by-id">shade-construction-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-shade-constructions">shade-constructions</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-window-construction-by-id">window-construction-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-window-constructions">window-constructions</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-window-material-by-id">window-material-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-window-materials">window-materials</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../cli/translate.html">translate</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate">honeybee-energy translate</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate-constructions-from-idf">constructions-from-idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate-constructions-to-idf">constructions-to-idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate-model-from-gbxml">model-from-gbxml</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate-model-from-idf">model-from-idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate-model-from-osm">model-from-osm</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate-model-occ-schedules">model-occ-schedules</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate-model-to-gbxml">model-to-gbxml</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate-model-to-idf">model-to-idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate-model-to-osm">model-to-osm</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate-schedules-from-idf">schedules-from-idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate-schedules-to-idf">schedules-to-idf</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">honeybee_energy</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../honeybee_energy.html">honeybee_energy package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../honeybee_energy.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.cli.html">honeybee_energy.cli package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.cli.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.cli.data.html">honeybee_energy.cli.data package</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="../../../honeybee_energy.cli.data.html#module-honeybee_energy.cli.data">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.cli.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.cli.baseline.html">honeybee_energy.cli.baseline module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.cli.edit.html">honeybee_energy.cli.edit module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.cli.lib.html">honeybee_energy.cli.lib module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.cli.result.html">honeybee_energy.cli.result module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.cli.settings.html">honeybee_energy.cli.settings module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.cli.simulate.html">honeybee_energy.cli.simulate module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.cli.translate.html">honeybee_energy.cli.translate module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.cli.validate.html">honeybee_energy.cli.validate module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.cli.html#module-honeybee_energy.cli">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.construction.html">honeybee_energy.construction package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.construction.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.construction.air.html">honeybee_energy.construction.air module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.construction.dictutil.html">honeybee_energy.construction.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.construction.opaque.html">honeybee_energy.construction.opaque module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.construction.shade.html">honeybee_energy.construction.shade module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.construction.window.html">honeybee_energy.construction.window module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.construction.windowshade.html">honeybee_energy.construction.windowshade module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.construction.html#module-honeybee_energy.construction">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.hvac.html">honeybee_energy.hvac package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.hvac.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.hvac.allair.html">honeybee_energy.hvac.allair package</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="../../../honeybee_energy.hvac.allair.html#submodules">Submodules</a><ul>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.allair.furnace.html">honeybee_energy.hvac.allair.furnace module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.allair.psz.html">honeybee_energy.hvac.allair.psz module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.allair.ptac.html">honeybee_energy.hvac.allair.ptac module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.allair.pvav.html">honeybee_energy.hvac.allair.pvav module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.allair.vav.html">honeybee_energy.hvac.allair.vav module</a></li>
+</ul>
+</li>
+<li class="toctree-l7"><a class="reference internal" href="../../../honeybee_energy.hvac.allair.html#module-honeybee_energy.hvac.allair">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.hvac.doas.html">honeybee_energy.hvac.doas package</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="../../../honeybee_energy.hvac.doas.html#submodules">Submodules</a><ul>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.doas.fcu.html">honeybee_energy.hvac.doas.fcu module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.doas.vrf.html">honeybee_energy.hvac.doas.vrf module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.doas.wshp.html">honeybee_energy.hvac.doas.wshp module</a></li>
+</ul>
+</li>
+<li class="toctree-l7"><a class="reference internal" href="../../../honeybee_energy.hvac.doas.html#module-honeybee_energy.hvac.doas">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.hvac.heatcool.html">honeybee_energy.hvac.heatcool package</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="../../../honeybee_energy.hvac.heatcool.html#submodules">Submodules</a><ul>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.heatcool.baseboard.html">honeybee_energy.hvac.heatcool.baseboard module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.heatcool.evapcool.html">honeybee_energy.hvac.heatcool.evapcool module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.heatcool.fcu.html">honeybee_energy.hvac.heatcool.fcu module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.heatcool.gasunit.html">honeybee_energy.hvac.heatcool.gasunit module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.heatcool.residential.html">honeybee_energy.hvac.heatcool.residential module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.heatcool.vrf.html">honeybee_energy.hvac.heatcool.vrf module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.heatcool.windowac.html">honeybee_energy.hvac.heatcool.windowac module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.heatcool.wshp.html">honeybee_energy.hvac.heatcool.wshp module</a></li>
+</ul>
+</li>
+<li class="toctree-l7"><a class="reference internal" href="../../../honeybee_energy.hvac.heatcool.html#module-honeybee_energy.hvac.heatcool">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.hvac.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.hvac.idealair.html">honeybee_energy.hvac.idealair module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.hvac.html#module-honeybee_energy.hvac">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.lib.html">honeybee_energy.lib package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.lib.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.lib.constructions.html">honeybee_energy.lib.constructions module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.lib.constructionsets.html">honeybee_energy.lib.constructionsets module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.lib.materials.html">honeybee_energy.lib.materials module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.lib.programtypes.html">honeybee_energy.lib.programtypes module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.lib.schedules.html">honeybee_energy.lib.schedules module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.lib.scheduletypelimits.html">honeybee_energy.lib.scheduletypelimits module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.lib.html#module-honeybee_energy.lib">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.load.html">honeybee_energy.load package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.load.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.load.daylight.html">honeybee_energy.load.daylight module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.load.dictutil.html">honeybee_energy.load.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.load.equipment.html">honeybee_energy.load.equipment module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.load.hotwater.html">honeybee_energy.load.hotwater module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.load.infiltration.html">honeybee_energy.load.infiltration module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.load.lighting.html">honeybee_energy.load.lighting module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.load.people.html">honeybee_energy.load.people module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.load.setpoint.html">honeybee_energy.load.setpoint module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.load.ventilation.html">honeybee_energy.load.ventilation module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.load.html#module-honeybee_energy.load">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.material.html">honeybee_energy.material package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.material.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.material.dictutil.html">honeybee_energy.material.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.material.gas.html">honeybee_energy.material.gas module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.material.glazing.html">honeybee_energy.material.glazing module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.material.opaque.html">honeybee_energy.material.opaque module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.material.shade.html">honeybee_energy.material.shade module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.material.html#module-honeybee_energy.material">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.properties.html">honeybee_energy.properties package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.properties.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.properties.aperture.html">honeybee_energy.properties.aperture module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.properties.door.html">honeybee_energy.properties.door module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.properties.face.html">honeybee_energy.properties.face module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.properties.model.html">honeybee_energy.properties.model module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.properties.room.html">honeybee_energy.properties.room module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.properties.shade.html">honeybee_energy.properties.shade module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.properties.html#module-honeybee_energy.properties">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.result.html">honeybee_energy.result package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.result.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.result.colorobj.html">honeybee_energy.result.colorobj module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.result.err.html">honeybee_energy.result.err module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.result.loadbalance.html">honeybee_energy.result.loadbalance module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.result.match.html">honeybee_energy.result.match module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.result.osw.html">honeybee_energy.result.osw module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.result.rdd.html">honeybee_energy.result.rdd module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.result.zsz.html">honeybee_energy.result.zsz module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.result.html#module-honeybee_energy.result">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.schedule.html">honeybee_energy.schedule package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.schedule.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.schedule.day.html">honeybee_energy.schedule.day module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.schedule.dictutil.html">honeybee_energy.schedule.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.schedule.fixedinterval.html">honeybee_energy.schedule.fixedinterval module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.schedule.rule.html">honeybee_energy.schedule.rule module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.schedule.ruleset.html">honeybee_energy.schedule.ruleset module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.schedule.typelimit.html">honeybee_energy.schedule.typelimit module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.schedule.html#module-honeybee_energy.schedule">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.simulation.html">honeybee_energy.simulation package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.simulation.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.simulation.control.html">honeybee_energy.simulation.control module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.simulation.daylightsaving.html">honeybee_energy.simulation.daylightsaving module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.simulation.dictutil.html">honeybee_energy.simulation.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.simulation.output.html">honeybee_energy.simulation.output module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.simulation.parameter.html">honeybee_energy.simulation.parameter module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.simulation.runperiod.html">honeybee_energy.simulation.runperiod module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.simulation.shadowcalculation.html">honeybee_energy.simulation.shadowcalculation module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.simulation.sizing.html">honeybee_energy.simulation.sizing module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.simulation.html#module-honeybee_energy.simulation">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.ventcool.html">honeybee_energy.ventcool package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.ventcool.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.ventcool.afn.html">honeybee_energy.ventcool.afn module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.ventcool.control.html">honeybee_energy.ventcool.control module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.ventcool.crack.html">honeybee_energy.ventcool.crack module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.ventcool.opening.html">honeybee_energy.ventcool.opening module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.ventcool.simulation.html">honeybee_energy.ventcool.simulation module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.ventcool.html#module-honeybee_energy.ventcool">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../honeybee_energy.html#submodules">Submodules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.altnumber.html">honeybee_energy.altnumber module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.boundarycondition.html">honeybee_energy.boundarycondition module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.config.html">honeybee_energy.config module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.constructionset.html">honeybee_energy.constructionset module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.dictutil.html">honeybee_energy.dictutil module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.measure.html">honeybee_energy.measure module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.programtype.html">honeybee_energy.programtype module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.reader.html">honeybee_energy.reader module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.run.html">honeybee_energy.run module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.writer.html">honeybee_energy.writer module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../honeybee_energy.html#module-honeybee_energy">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli/index.html">CLI Docs</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">honeybee_energy</a></li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+              
+            
+            
+            
+            
+              <li class="hidden-sm"></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+      <div class="col-md-4">
+        <div id="sidebar" class="bs-sidenav" role="complementary"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli/index.html">CLI Docs</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">honeybee_energy</a></li>
+</ul>
+
+        </div>
+      </div>
+    <div class="body col-md-8 content" role="main">
+      
+  <h1>Source code for honeybee_energy.ventcool.opening</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding=utf-8</span>
+<span class="sd">&quot;&quot;&quot;Definition of window opening for ventilative cooling.&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
+
+<span class="kn">from</span> <span class="nn">.control</span> <span class="kn">import</span> <span class="n">VentilationControl</span>
+<span class="kn">from</span> <span class="nn">..writer</span> <span class="kn">import</span> <span class="n">generate_idf_string</span>
+
+<span class="kn">from</span> <span class="nn">honeybee.typing</span> <span class="kn">import</span> <span class="n">float_in_range</span><span class="p">,</span> <span class="n">float_positive</span>
+
+
+<div class="viewcode-block" id="VentilationOpening"><a class="viewcode-back" href="../../../honeybee_energy.ventcool.opening.html#honeybee_energy.ventcool.opening.VentilationOpening">[docs]</a><span class="k">class</span> <span class="nc">VentilationOpening</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Definition of window opening for ventilative cooling.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        fraction_area_operable: A number between 0.0 and 1.0 for the fraction of the</span>
+<span class="sd">            window area that is operable. (Default: 0.5, typical of sliding windows).</span>
+<span class="sd">        fraction_height_operable: A number between 0.0 and 1.0 for the fraction</span>
+<span class="sd">            of the distance from the bottom of the window to the top that is</span>
+<span class="sd">            operable. (Default: 1.0, typical of windows that slide horizontally).</span>
+<span class="sd">        discharge_coefficient: A number between 0.0 and 1.0 that will be multipled</span>
+<span class="sd">            by the area of the window in the stack (buoyancy-driven) part of the</span>
+<span class="sd">            equation to account for additional friction from window geometry,</span>
+<span class="sd">            insect screens, etc. (Default: 0.45, for unobstructed windows with</span>
+<span class="sd">            insect screens). This value should be lowered if windows are of an</span>
+<span class="sd">            awning or casement type and not allowed to fully open. Some common</span>
+<span class="sd">            values for this coefficient include the following.</span>
+
+<span class="sd">            * 0.0 - Completely discount stack ventilation from the calculation.</span>
+<span class="sd">            * 0.45 - For unobstructed windows with an insect screen.</span>
+<span class="sd">            * 0.65 - For unobstructed windows with NO insect screen.</span>
+
+<span class="sd">        wind_cross_vent: Boolean to indicate if there is an opening of roughly</span>
+<span class="sd">            equal area on the opposite side of the Room such that wind-driven</span>
+<span class="sd">            cross ventilation will be induced. If False, the assumption is that</span>
+<span class="sd">            the operable area is primarily on one side of the Room and there is</span>
+<span class="sd">            no wind-driven ventilation. (Default: False)</span>
+<span class="sd">        flow_coefficient_closed: A number in kg/s-m, at 1 Pa per meter of crack</span>
+<span class="sd">            length, used to calculate the mass flow rate when the opening is closed;</span>
+<span class="sd">            only used in an AirflowNetwork simulation. Some common values for this</span>
+<span class="sd">            coefficient (from the DesignBuilder Cracks template) include the following:</span>
+
+<span class="sd">            * 0.00001 - Tight, low-leakage closed external window</span>
+<span class="sd">            * 0.003 - Very poor, high-leakage closed external window</span>
+
+<span class="sd">            (Default: 0, indicates the VentilationOpening object will not participate</span>
+<span class="sd">            in the AirflowNetwork simulation).</span>
+<span class="sd">        flow_exponent_closed: An optional dimensionless number between 0.5 and</span>
+<span class="sd">            1 used to calculate the mass flow rate when the opening is closed; required</span>
+<span class="sd">            to run an AirflowNetwork simulation. This value represents the leak geometry</span>
+<span class="sd">            impact on airflow, with 0.5 generally corresponding to turbulent orifice flow</span>
+<span class="sd">            and 1 generally corresponding to laminar flow. (Default: 0.65,</span>
+<span class="sd">            representative of many cases of wall and window leakage, used when the</span>
+<span class="sd">            exponent cannot be measured).</span>
+<span class="sd">        two_way_threshold: A number in kg/m3 indicating the minimum density difference</span>
+<span class="sd">            above which two-way flow may occur due to stack effect, required to run an</span>
+<span class="sd">            AirflowNetwork simulation. This value is required because the air density</span>
+<span class="sd">            difference between two zones (which drives two-way air flow) will tend</span>
+<span class="sd">            towards division by zero errors as the air density difference approaches</span>
+<span class="sd">            zero. (Default: 0.0001, typical default value used for AirflowNetwork</span>
+<span class="sd">            openings).</span>
+
+<span class="sd">    Properties:</span>
+<span class="sd">        * fraction_area_operable</span>
+<span class="sd">        * fraction_height_operable</span>
+<span class="sd">        * discharge_coefficient</span>
+<span class="sd">        * wind_cross_vent</span>
+<span class="sd">        * flow_coefficient_closed</span>
+<span class="sd">        * flow_exponent_closed</span>
+<span class="sd">        * two_way_threshold</span>
+<span class="sd">        * parent</span>
+<span class="sd">        * has_parent</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;_fraction_area_operable&#39;</span><span class="p">,</span> <span class="s1">&#39;_fraction_height_operable&#39;</span><span class="p">,</span>
+                 <span class="s1">&#39;_discharge_coefficient&#39;</span><span class="p">,</span> <span class="s1">&#39;_wind_cross_vent&#39;</span><span class="p">,</span>
+                 <span class="s1">&#39;_flow_coefficient_closed&#39;</span><span class="p">,</span> <span class="s1">&#39;_flow_exponent_closed&#39;</span><span class="p">,</span>
+                 <span class="s1">&#39;_two_way_threshold&#39;</span><span class="p">,</span> <span class="s1">&#39;_parent&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fraction_area_operable</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">fraction_height_operable</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+                 <span class="n">discharge_coefficient</span><span class="o">=</span><span class="mf">0.45</span><span class="p">,</span> <span class="n">wind_cross_vent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">flow_coefficient_closed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">flow_exponent_closed</span><span class="o">=</span><span class="mf">0.65</span><span class="p">,</span>
+                 <span class="n">two_way_threshold</span><span class="o">=</span><span class="mf">0.0001</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize VentilationOpening.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fraction_area_operable</span> <span class="o">=</span> <span class="n">fraction_area_operable</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fraction_height_operable</span> <span class="o">=</span> <span class="n">fraction_height_operable</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">discharge_coefficient</span> <span class="o">=</span> <span class="n">discharge_coefficient</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wind_cross_vent</span> <span class="o">=</span> <span class="n">wind_cross_vent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flow_coefficient_closed</span> <span class="o">=</span> <span class="n">flow_coefficient_closed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flow_exponent_closed</span> <span class="o">=</span> <span class="n">flow_exponent_closed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">two_way_threshold</span> <span class="o">=</span> <span class="n">two_way_threshold</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># this will be set when assigned to an aperture</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">fraction_area_operable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get or set a number for the fraction of the window area that is operable.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fraction_area_operable</span>
+
+    <span class="nd">@fraction_area_operable</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">fraction_area_operable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fraction_area_operable</span> <span class="o">=</span> \
+            <span class="n">float_in_range</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s1">&#39;fraction area operable&#39;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">fraction_height_operable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get or set a number for the fraction of the window height that is operable.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fraction_height_operable</span>
+
+    <span class="nd">@fraction_height_operable</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">fraction_height_operable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fraction_height_operable</span> <span class="o">=</span> \
+            <span class="n">float_in_range</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s1">&#39;fraction height operable&#39;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">discharge_coefficient</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get or set a number for the discharge coefficient.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_discharge_coefficient</span>
+
+    <span class="nd">@discharge_coefficient</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">discharge_coefficient</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_discharge_coefficient</span> <span class="o">=</span> \
+            <span class="n">float_in_range</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s1">&#39;discharge coefficient&#39;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">wind_cross_vent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get or set a boolean for whether there is cross ventilation from the window.</span>
+
+<span class="sd">        Note that this property only has significance for simulations using SingleZone</span>
+<span class="sd">        ventilation_simulation_control and has no bearing on multizone simulations</span>
+<span class="sd">        with the Airflow Network.</span>
+
+<span class="sd">        This should be True if there is an opening of roughly equal area on the</span>
+<span class="sd">        opposite side of the Room such that wind-driven cross ventilation will</span>
+<span class="sd">        be induced. If False, the assumption is that the operable area is primarily</span>
+<span class="sd">        on one side of the Room and there is no wind-driven ventilation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wind_cross_vent</span>
+
+    <span class="nd">@wind_cross_vent</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">wind_cross_vent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_wind_cross_vent</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">flow_coefficient_closed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get or set a number for the mass flow coefficient when opening is closed [kg/s-m].</span>
+
+<span class="sd">        Note that anything assigned here has no bearing on the simulation unless</span>
+<span class="sd">        the Model that this object is a part of has its ventilation_simulation_control</span>
+<span class="sd">        set for MultiZone air flow, thereby triggering the use of the AirflowNetwork.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flow_coefficient_closed</span>
+
+    <span class="nd">@flow_coefficient_closed</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">flow_coefficient_closed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_flow_coefficient_closed</span> <span class="o">=</span> <span class="n">float_positive</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s1">&#39;flow_coefficient_closed&#39;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">flow_exponent_closed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get or set the exponent for deriving the mass flow rate when opening is closed.</span>
+
+<span class="sd">        Note that anything assigned here has no bearing on the simulation unless</span>
+<span class="sd">        the Model that this object is a part of has its ventilation_simulation_control</span>
+<span class="sd">        set for MultiZone air flow, thereby triggering the use of the AirflowNetwork.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flow_exponent_closed</span>
+
+    <span class="nd">@flow_exponent_closed</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">flow_exponent_closed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_flow_exponent_closed</span> <span class="o">=</span> \
+            <span class="n">float_in_range</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s1">&#39;flow_exponent_closed&#39;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">two_way_threshold</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get or set minimum density difference above which two-way flow occurs [kg/m3].</span>
+
+<span class="sd">        Note that anything assigned here has no bearing on the simulation unless</span>
+<span class="sd">        the Model that this object is a part of has its ventilation_simulation_control</span>
+<span class="sd">        set for MultiZone air flow, thereby triggering the use of the AirflowNetwork.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_two_way_threshold</span>
+
+    <span class="nd">@two_way_threshold</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">two_way_threshold</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_two_way_threshold</span> <span class="o">=</span> <span class="n">float_positive</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s1">&#39;two_way_threshold&#39;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">parent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the parent of this object if it exists.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">has_parent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get a boolean noting whether this VentilationOpening has a parent object.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="VentilationOpening.from_dict"><a class="viewcode-back" href="../../../honeybee_energy.ventcool.opening.html#honeybee_energy.ventcool.opening.VentilationOpening.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a VentilationOpening object from a dictionary.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data: A VentilationOpening dictionary in following the format below.</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            {</span>
+<span class="sd">            &quot;type&quot;: &quot;VentilationOpening&quot;,</span>
+<span class="sd">            &quot;fraction_area_operable&quot;: 0.5,  # Fractional number for area operable</span>
+<span class="sd">            &quot;fraction_height_operable&quot;: 0.5,  # Fractional number for height operable</span>
+<span class="sd">            &quot;discharge_coefficient&quot;: 0.45,  # Fractional number for discharge coefficient</span>
+<span class="sd">            &quot;wind_cross_vent&quot;: True  # Wind-driven cross ventilation</span>
+<span class="sd">            &quot;flow_coefficient_closed&quot;: 0.001 # Coefficient for mass flow rate</span>
+<span class="sd">            &quot;flow_exponent_closed&quot;: 0.667 # Exponent for mass flow rate</span>
+<span class="sd">            &quot;two_way_threshold&quot;: 1e-3 # Minimum density for two-way flow</span>
+<span class="sd">            }</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;VentilationOpening&#39;</span><span class="p">,</span> \
+            <span class="s1">&#39;Expected VentilationOpening dictionary. Got </span><span class="si">{}</span><span class="s1">.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">])</span>
+
+        <span class="n">area_op</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;fraction_area_operable&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;fraction_area_operable&#39;</span> <span class="ow">in</span> <span class="n">data</span> \
+            <span class="ow">and</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;fraction_area_operable&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mf">0.5</span>
+        <span class="n">height_op</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;fraction_height_operable&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;fraction_height_operable&#39;</span> <span class="ow">in</span> \
+            <span class="n">data</span> <span class="ow">and</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;fraction_height_operable&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mf">1.0</span>
+        <span class="n">discharge</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;discharge_coefficient&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;discharge_coefficient&#39;</span> <span class="ow">in</span> <span class="n">data</span> \
+            <span class="ow">and</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;discharge_coefficient&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mf">0.45</span>
+        <span class="n">cross_vent</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;wind_cross_vent&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;wind_cross_vent&#39;</span> <span class="ow">in</span> <span class="n">data</span> \
+            <span class="ow">and</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;wind_cross_vent&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">False</span>
+
+        <span class="c1"># Add AFN parameters</span>
+        <span class="n">air_flow_coeff</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;flow_coefficient_closed&#39;</span><span class="p">]</span> <span class="k">if</span> \
+            <span class="s1">&#39;flow_coefficient_closed&#39;</span> <span class="ow">in</span> <span class="n">data</span> <span class="ow">and</span> \
+            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;flow_coefficient_closed&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="n">air_flow_exp</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;flow_exponent_closed&#39;</span><span class="p">]</span> <span class="k">if</span> \
+            <span class="s1">&#39;flow_exponent_closed&#39;</span> <span class="ow">in</span> <span class="n">data</span> <span class="ow">and</span> \
+            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;flow_exponent_closed&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mf">0.65</span>
+        <span class="n">min_diff</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;two_way_threshold&#39;</span><span class="p">]</span> <span class="k">if</span> \
+            <span class="s1">&#39;two_way_threshold&#39;</span> <span class="ow">in</span> <span class="n">data</span> <span class="ow">and</span> \
+            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;two_way_threshold&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mf">0.0001</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">area_op</span><span class="p">,</span> <span class="n">height_op</span><span class="p">,</span> <span class="n">discharge</span><span class="p">,</span> <span class="n">cross_vent</span><span class="p">,</span> <span class="n">air_flow_coeff</span><span class="p">,</span>
+                   <span class="n">air_flow_exp</span><span class="p">,</span> <span class="n">min_diff</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="VentilationOpening.to_idf"><a class="viewcode-back" href="../../../honeybee_energy.ventcool.opening.html#honeybee_energy.ventcool.opening.VentilationOpening.to_idf">[docs]</a>    <span class="k">def</span> <span class="nf">to_idf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;IDF string representation of VentilationOpening object.</span>
+
+<span class="sd">        Note that this ventilation opening must be assigned to a honeybee Aperture</span>
+<span class="sd">        or Door for this method to run. This parent Aperture or Door must also have</span>
+<span class="sd">        a parent Room. It is also recommended that this Room have a VentilationControl</span>
+<span class="sd">        object under its energy properties. Otherwise, the default control sequence</span>
+<span class="sd">        will be used, which will likely result in the window never opening.</span>
+
+<span class="sd">        Also note that the parent&#39;s geometry should be in meters whenever calling</span>
+<span class="sd">        this method and that this method does not return full definitions of</span>
+<span class="sd">        ventilation control schedules. So these schedules must also be translated</span>
+<span class="sd">        into the final IDF file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># check that a parent is assigned</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> \
+            <span class="s1">&#39;VentilationOpening must be assigned to an Aperture or Door to use to_idf().&#39;</span>
+
+        <span class="c1"># get the VentilationControl object from the room</span>
+        <span class="n">cntrl</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">room</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">has_parent</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">has_parent</span><span class="p">:</span>
+                <span class="n">room</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span>
+                <span class="k">if</span> <span class="n">room</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">energy</span><span class="o">.</span><span class="n">window_vent_control</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">cntrl</span> <span class="o">=</span> <span class="n">room</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">energy</span><span class="o">.</span><span class="n">window_vent_control</span>
+        <span class="k">if</span> <span class="n">cntrl</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># use default ventilation control</span>
+            <span class="n">cntrl</span> <span class="o">=</span> <span class="n">VentilationControl</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="n">room</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> \
+            <span class="s1">&#39;VentilationOpening must have a parent Room to use to_idf().&#39;</span>
+
+        <span class="c1"># process the properties on this object into IDF format</span>
+        <span class="n">sch</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span> <span class="k">if</span> <span class="n">cntrl</span><span class="o">.</span><span class="n">schedule</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">cntrl</span><span class="o">.</span><span class="n">schedule</span><span class="o">.</span><span class="n">identifier</span>
+        <span class="n">wind</span> <span class="o">=</span> <span class="s1">&#39;autocalculate&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">wind_cross_vent</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="n">angle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">horizontal_orientation</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">normal</span><span class="o">.</span><span class="n">z</span> <span class="o">!=</span> <span class="mi">1</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="n">height</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">max</span><span class="o">.</span><span class="n">z</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">min</span><span class="o">.</span><span class="n">z</span><span class="p">)</span> <span class="o">*</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">fraction_height_operable</span>
+
+        <span class="c1"># create the final IDF string</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_Opening&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">identifier</span><span class="p">),</span> <span class="n">room</span><span class="o">.</span><span class="n">identifier</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">area</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">fraction_area_operable</span><span class="p">,</span> <span class="n">sch</span><span class="p">,</span> <span class="n">wind</span><span class="p">,</span> <span class="n">angle</span><span class="p">,</span>
+            <span class="n">height</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">discharge_coefficient</span><span class="p">,</span> <span class="n">cntrl</span><span class="o">.</span><span class="n">min_indoor_temperature</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+            <span class="n">cntrl</span><span class="o">.</span><span class="n">max_indoor_temperature</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">cntrl</span><span class="o">.</span><span class="n">delta_temperature</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+            <span class="n">cntrl</span><span class="o">.</span><span class="n">min_outdoor_temperature</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">cntrl</span><span class="o">.</span><span class="n">max_outdoor_temperature</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">40</span><span class="p">)</span>
+        <span class="n">comments</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;zone name&#39;</span><span class="p">,</span> <span class="s1">&#39;opening area&#39;</span><span class="p">,</span> <span class="s1">&#39;opening schedule&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;opening effectiveness </span><span class="si">{m2}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;horizontal orientation angle&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;height difference </span><span class="si">{m}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;discharge coefficient&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;min indoor temperature </span><span class="si">{C}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;min in temp schedule&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;max indoor temperature </span><span class="si">{C}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;max in temp schedule&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;delta temperature </span><span class="si">{C}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;delta temp schedule&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;min outdoor temperature </span><span class="si">{C}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;min out temp schedule&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;max outdoor temperature </span><span class="si">{C}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;max out temp schedule&#39;</span><span class="p">,</span> <span class="s1">&#39;max wind speed&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">generate_idf_string</span><span class="p">(</span>
+            <span class="s1">&#39;ZoneVentilation:WindandStackOpenArea&#39;</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">comments</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="VentilationOpening.to_dict"><a class="viewcode-back" href="../../../honeybee_energy.ventcool.opening.html#honeybee_energy.ventcool.opening.VentilationOpening.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Ventilation Opening dictionary representation.&quot;&quot;&quot;</span>
+        <span class="n">base</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;VentilationOpening&#39;</span><span class="p">}</span>
+        <span class="n">base</span><span class="p">[</span><span class="s1">&#39;fraction_area_operable&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fraction_area_operable</span>
+        <span class="n">base</span><span class="p">[</span><span class="s1">&#39;fraction_height_operable&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fraction_height_operable</span>
+        <span class="n">base</span><span class="p">[</span><span class="s1">&#39;discharge_coefficient&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">discharge_coefficient</span>
+        <span class="n">base</span><span class="p">[</span><span class="s1">&#39;wind_cross_vent&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wind_cross_vent</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flow_coefficient_closed</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">base</span><span class="p">[</span><span class="s1">&#39;flow_coefficient_closed&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flow_coefficient_closed</span>
+            <span class="n">base</span><span class="p">[</span><span class="s1">&#39;flow_exponent_closed&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flow_exponent_closed</span>
+            <span class="n">base</span><span class="p">[</span><span class="s1">&#39;two_way_threshold&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">two_way_threshold</span>
+
+        <span class="k">return</span> <span class="n">base</span></div>
+
+<div class="viewcode-block" id="VentilationOpening.duplicate"><a class="viewcode-back" href="../../../honeybee_energy.ventcool.opening.html#honeybee_energy.ventcool.opening.VentilationOpening.duplicate">[docs]</a>    <span class="k">def</span> <span class="nf">duplicate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get a copy of this object.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__copy__</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="nf">__copy__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">VentilationOpening</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fraction_area_operable</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fraction_height_operable</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">discharge_coefficient</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">wind_cross_vent</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">flow_coefficient_closed</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">flow_exponent_closed</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">two_way_threshold</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__key</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;A tuple based on the object properties, useful for hashing.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fraction_area_operable</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fraction_height_operable</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">discharge_coefficient</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">wind_cross_vent</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">flow_coefficient_closed</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">flow_exponent_closed</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">two_way_threshold</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__key</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">VentilationOpening</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">__key</span><span class="p">()</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">__key</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+
+<div class="viewcode-block" id="VentilationOpening.ToString"><a class="viewcode-back" href="../../../honeybee_energy.ventcool.opening.html#honeybee_energy.ventcool.opening.VentilationOpening.ToString">[docs]</a>    <span class="k">def</span> <span class="nf">ToString</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Overwrite .NET ToString.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;VentilationOpening: [fraction area: </span><span class="si">{}</span><span class="s1">] &#39;</span> \
+            <span class="s1">&#39;[fraction height: </span><span class="si">{}</span><span class="s1">] [discharge: </span><span class="si">{}</span><span class="s1">]&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">fraction_area_operable</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fraction_height_operable</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">discharge_coefficient</span><span class="p">)</span></div>
+</pre></div>
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2021, Ladybug Tools.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.4.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

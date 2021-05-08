@@ -1,0 +1,1219 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>result &#8212; honeybee energy  documentation</title>
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="lib" href="lib.html" />
+    <link rel="prev" title="validate" href="validate.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-inverse navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../index.html">
+          honeybee energy</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">CLI Docs</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="index.html#installation">Installation</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#commands">Commands</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="main.html">main</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="main.html#honeybee-energy">honeybee-energy</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="main.html#honeybee-energy-config">config</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="settings.html">settings</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="settings.html#honeybee-energy-settings">honeybee-energy settings</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="settings.html#honeybee-energy-settings-comfort-sim-par">comfort-sim-par</a></li>
+<li class="toctree-l5"><a class="reference internal" href="settings.html#honeybee-energy-settings-custom-sim-par">custom-sim-par</a></li>
+<li class="toctree-l5"><a class="reference internal" href="settings.html#honeybee-energy-settings-default-sim-par">default-sim-par</a></li>
+<li class="toctree-l5"><a class="reference internal" href="settings.html#honeybee-energy-settings-load-balance-sim-par">load-balance-sim-par</a></li>
+<li class="toctree-l5"><a class="reference internal" href="settings.html#honeybee-energy-settings-orientation-sim-pars">orientation-sim-pars</a></li>
+<li class="toctree-l5"><a class="reference internal" href="settings.html#honeybee-energy-settings-run-period">run-period</a></li>
+<li class="toctree-l5"><a class="reference internal" href="settings.html#honeybee-energy-settings-sizing-sim-par">sizing-sim-par</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="simulate.html">simulate</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="simulate.html#honeybee-energy-simulate">honeybee-energy simulate</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="simulate.html#honeybee-energy-simulate-idf">idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="simulate.html#honeybee-energy-simulate-model">model</a></li>
+<li class="toctree-l5"><a class="reference internal" href="simulate.html#honeybee-energy-simulate-osm">osm</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="baseline.html">baseline</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="baseline.html#honeybee-energy-baseline">honeybee-energy baseline</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="baseline.html#honeybee-energy-baseline-constructions-2004">constructions-2004</a></li>
+<li class="toctree-l5"><a class="reference internal" href="baseline.html#honeybee-energy-baseline-geometry-2004">geometry-2004</a></li>
+<li class="toctree-l5"><a class="reference internal" href="baseline.html#honeybee-energy-baseline-hvac-2004">hvac-2004</a></li>
+<li class="toctree-l5"><a class="reference internal" href="baseline.html#honeybee-energy-baseline-lighting-2004">lighting-2004</a></li>
+<li class="toctree-l5"><a class="reference internal" href="baseline.html#honeybee-energy-baseline-remove-ecms">remove-ecms</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="edit.html">edit</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="edit.html#honeybee-energy-edit">honeybee-energy edit</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="edit.html#honeybee-energy-edit-modifiers-from-constructions">modifiers-from-constructions</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="validate.html">validate</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="validate.html#honeybee-energy-validate">honeybee-energy validate</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="validate.html#honeybee-energy-validate-construction-set">construction-set</a></li>
+<li class="toctree-l5"><a class="reference internal" href="validate.html#honeybee-energy-validate-model-properties">model-properties</a></li>
+<li class="toctree-l5"><a class="reference internal" href="validate.html#honeybee-energy-validate-program-type">program-type</a></li>
+<li class="toctree-l5"><a class="reference internal" href="validate.html#honeybee-energy-validate-schedule">schedule</a></li>
+<li class="toctree-l5"><a class="reference internal" href="validate.html#honeybee-energy-validate-schedule-type-limit">schedule-type-limit</a></li>
+<li class="toctree-l5"><a class="reference internal" href="validate.html#honeybee-energy-validate-sim-par">sim-par</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">result</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#honeybee-energy-result">honeybee-energy result</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#honeybee-energy-result-all-available-info">all-available-info</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#honeybee-energy-result-available-results">available-results</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#honeybee-energy-result-available-results-info">available-results-info</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#honeybee-energy-result-available-run-period-info">available-run-period-info</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#honeybee-energy-result-component-sizes">component-sizes</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#honeybee-energy-result-data-by-output">data-by-output</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#honeybee-energy-result-data-by-outputs">data-by-outputs</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#honeybee-energy-result-energy-use-intensity">energy-use-intensity</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#honeybee-energy-result-load-balance">load-balance</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#honeybee-energy-result-output-csv">output-csv</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#honeybee-energy-result-output-csv-queryable">output-csv-queryable</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#honeybee-energy-result-tabular-data">tabular-data</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#honeybee-energy-result-tabular-metadata">tabular-metadata</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#honeybee-energy-result-zone-sizes">zone-sizes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="lib.html">lib</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="lib.html#honeybee-energy-lib">honeybee-energy lib</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="lib.html#honeybee-energy-lib-construction-set-by-id">construction-set-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="lib.html#honeybee-energy-lib-construction-sets">construction-sets</a></li>
+<li class="toctree-l5"><a class="reference internal" href="lib.html#honeybee-energy-lib-construction-sets-by-id">construction-sets-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="lib.html#honeybee-energy-lib-constructions-by-id">constructions-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="lib.html#honeybee-energy-lib-materials-by-id">materials-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="lib.html#honeybee-energy-lib-opaque-construction-by-id">opaque-construction-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="lib.html#honeybee-energy-lib-opaque-constructions">opaque-constructions</a></li>
+<li class="toctree-l5"><a class="reference internal" href="lib.html#honeybee-energy-lib-opaque-material-by-id">opaque-material-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="lib.html#honeybee-energy-lib-opaque-materials">opaque-materials</a></li>
+<li class="toctree-l5"><a class="reference internal" href="lib.html#honeybee-energy-lib-program-type-by-id">program-type-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="lib.html#honeybee-energy-lib-program-types">program-types</a></li>
+<li class="toctree-l5"><a class="reference internal" href="lib.html#honeybee-energy-lib-program-types-by-id">program-types-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="lib.html#honeybee-energy-lib-schedule-by-id">schedule-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="lib.html#honeybee-energy-lib-schedule-type-limit-by-id">schedule-type-limit-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="lib.html#honeybee-energy-lib-schedule-type-limits">schedule-type-limits</a></li>
+<li class="toctree-l5"><a class="reference internal" href="lib.html#honeybee-energy-lib-schedule-type-limits-by-id">schedule-type-limits-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="lib.html#honeybee-energy-lib-schedules">schedules</a></li>
+<li class="toctree-l5"><a class="reference internal" href="lib.html#honeybee-energy-lib-schedules-by-id">schedules-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="lib.html#honeybee-energy-lib-shade-construction-by-id">shade-construction-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="lib.html#honeybee-energy-lib-shade-constructions">shade-constructions</a></li>
+<li class="toctree-l5"><a class="reference internal" href="lib.html#honeybee-energy-lib-window-construction-by-id">window-construction-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="lib.html#honeybee-energy-lib-window-constructions">window-constructions</a></li>
+<li class="toctree-l5"><a class="reference internal" href="lib.html#honeybee-energy-lib-window-material-by-id">window-material-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="lib.html#honeybee-energy-lib-window-materials">window-materials</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="translate.html">translate</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="translate.html#honeybee-energy-translate">honeybee-energy translate</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="translate.html#honeybee-energy-translate-constructions-from-idf">constructions-from-idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="translate.html#honeybee-energy-translate-constructions-to-idf">constructions-to-idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="translate.html#honeybee-energy-translate-model-from-gbxml">model-from-gbxml</a></li>
+<li class="toctree-l5"><a class="reference internal" href="translate.html#honeybee-energy-translate-model-from-idf">model-from-idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="translate.html#honeybee-energy-translate-model-from-osm">model-from-osm</a></li>
+<li class="toctree-l5"><a class="reference internal" href="translate.html#honeybee-energy-translate-model-occ-schedules">model-occ-schedules</a></li>
+<li class="toctree-l5"><a class="reference internal" href="translate.html#honeybee-energy-translate-model-to-gbxml">model-to-gbxml</a></li>
+<li class="toctree-l5"><a class="reference internal" href="translate.html#honeybee-energy-translate-model-to-idf">model-to-idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="translate.html#honeybee-energy-translate-model-to-osm">model-to-osm</a></li>
+<li class="toctree-l5"><a class="reference internal" href="translate.html#honeybee-energy-translate-schedules-from-idf">schedules-from-idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="translate.html#honeybee-energy-translate-schedules-to-idf">schedules-to-idf</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">honeybee_energy</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../honeybee_energy.html">honeybee_energy package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../honeybee_energy.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../honeybee_energy.cli.html">honeybee_energy.cli package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../honeybee_energy.cli.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.cli.data.html">honeybee_energy.cli.data package</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="../honeybee_energy.cli.data.html#module-honeybee_energy.cli.data">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../honeybee_energy.cli.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.cli.baseline.html">honeybee_energy.cli.baseline module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.cli.edit.html">honeybee_energy.cli.edit module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.cli.lib.html">honeybee_energy.cli.lib module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.cli.result.html">honeybee_energy.cli.result module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.cli.settings.html">honeybee_energy.cli.settings module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.cli.simulate.html">honeybee_energy.cli.simulate module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.cli.translate.html">honeybee_energy.cli.translate module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.cli.validate.html">honeybee_energy.cli.validate module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../honeybee_energy.cli.html#module-honeybee_energy.cli">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../honeybee_energy.construction.html">honeybee_energy.construction package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../honeybee_energy.construction.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.construction.air.html">honeybee_energy.construction.air module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.construction.dictutil.html">honeybee_energy.construction.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.construction.opaque.html">honeybee_energy.construction.opaque module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.construction.shade.html">honeybee_energy.construction.shade module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.construction.window.html">honeybee_energy.construction.window module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.construction.windowshade.html">honeybee_energy.construction.windowshade module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../honeybee_energy.construction.html#module-honeybee_energy.construction">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../honeybee_energy.hvac.html">honeybee_energy.hvac package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../honeybee_energy.hvac.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.hvac.allair.html">honeybee_energy.hvac.allair package</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="../honeybee_energy.hvac.allair.html#submodules">Submodules</a><ul>
+<li class="toctree-l8"><a class="reference internal" href="../honeybee_energy.hvac.allair.furnace.html">honeybee_energy.hvac.allair.furnace module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../honeybee_energy.hvac.allair.psz.html">honeybee_energy.hvac.allair.psz module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../honeybee_energy.hvac.allair.ptac.html">honeybee_energy.hvac.allair.ptac module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../honeybee_energy.hvac.allair.pvav.html">honeybee_energy.hvac.allair.pvav module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../honeybee_energy.hvac.allair.vav.html">honeybee_energy.hvac.allair.vav module</a></li>
+</ul>
+</li>
+<li class="toctree-l7"><a class="reference internal" href="../honeybee_energy.hvac.allair.html#module-honeybee_energy.hvac.allair">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.hvac.doas.html">honeybee_energy.hvac.doas package</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="../honeybee_energy.hvac.doas.html#submodules">Submodules</a><ul>
+<li class="toctree-l8"><a class="reference internal" href="../honeybee_energy.hvac.doas.fcu.html">honeybee_energy.hvac.doas.fcu module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../honeybee_energy.hvac.doas.vrf.html">honeybee_energy.hvac.doas.vrf module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../honeybee_energy.hvac.doas.wshp.html">honeybee_energy.hvac.doas.wshp module</a></li>
+</ul>
+</li>
+<li class="toctree-l7"><a class="reference internal" href="../honeybee_energy.hvac.doas.html#module-honeybee_energy.hvac.doas">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.hvac.heatcool.html">honeybee_energy.hvac.heatcool package</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="../honeybee_energy.hvac.heatcool.html#submodules">Submodules</a><ul>
+<li class="toctree-l8"><a class="reference internal" href="../honeybee_energy.hvac.heatcool.baseboard.html">honeybee_energy.hvac.heatcool.baseboard module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../honeybee_energy.hvac.heatcool.evapcool.html">honeybee_energy.hvac.heatcool.evapcool module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../honeybee_energy.hvac.heatcool.fcu.html">honeybee_energy.hvac.heatcool.fcu module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../honeybee_energy.hvac.heatcool.gasunit.html">honeybee_energy.hvac.heatcool.gasunit module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../honeybee_energy.hvac.heatcool.residential.html">honeybee_energy.hvac.heatcool.residential module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../honeybee_energy.hvac.heatcool.vrf.html">honeybee_energy.hvac.heatcool.vrf module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../honeybee_energy.hvac.heatcool.windowac.html">honeybee_energy.hvac.heatcool.windowac module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../honeybee_energy.hvac.heatcool.wshp.html">honeybee_energy.hvac.heatcool.wshp module</a></li>
+</ul>
+</li>
+<li class="toctree-l7"><a class="reference internal" href="../honeybee_energy.hvac.heatcool.html#module-honeybee_energy.hvac.heatcool">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../honeybee_energy.hvac.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.hvac.idealair.html">honeybee_energy.hvac.idealair module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../honeybee_energy.hvac.html#module-honeybee_energy.hvac">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../honeybee_energy.lib.html">honeybee_energy.lib package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../honeybee_energy.lib.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.lib.constructions.html">honeybee_energy.lib.constructions module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.lib.constructionsets.html">honeybee_energy.lib.constructionsets module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.lib.materials.html">honeybee_energy.lib.materials module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.lib.programtypes.html">honeybee_energy.lib.programtypes module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.lib.schedules.html">honeybee_energy.lib.schedules module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.lib.scheduletypelimits.html">honeybee_energy.lib.scheduletypelimits module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../honeybee_energy.lib.html#module-honeybee_energy.lib">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../honeybee_energy.load.html">honeybee_energy.load package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../honeybee_energy.load.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.load.daylight.html">honeybee_energy.load.daylight module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.load.dictutil.html">honeybee_energy.load.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.load.equipment.html">honeybee_energy.load.equipment module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.load.hotwater.html">honeybee_energy.load.hotwater module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.load.infiltration.html">honeybee_energy.load.infiltration module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.load.lighting.html">honeybee_energy.load.lighting module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.load.people.html">honeybee_energy.load.people module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.load.setpoint.html">honeybee_energy.load.setpoint module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.load.ventilation.html">honeybee_energy.load.ventilation module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../honeybee_energy.load.html#module-honeybee_energy.load">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../honeybee_energy.material.html">honeybee_energy.material package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../honeybee_energy.material.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.material.dictutil.html">honeybee_energy.material.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.material.gas.html">honeybee_energy.material.gas module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.material.glazing.html">honeybee_energy.material.glazing module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.material.opaque.html">honeybee_energy.material.opaque module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.material.shade.html">honeybee_energy.material.shade module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../honeybee_energy.material.html#module-honeybee_energy.material">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../honeybee_energy.properties.html">honeybee_energy.properties package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../honeybee_energy.properties.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.properties.aperture.html">honeybee_energy.properties.aperture module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.properties.door.html">honeybee_energy.properties.door module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.properties.face.html">honeybee_energy.properties.face module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.properties.model.html">honeybee_energy.properties.model module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.properties.room.html">honeybee_energy.properties.room module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.properties.shade.html">honeybee_energy.properties.shade module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../honeybee_energy.properties.html#module-honeybee_energy.properties">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../honeybee_energy.result.html">honeybee_energy.result package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../honeybee_energy.result.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.result.colorobj.html">honeybee_energy.result.colorobj module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.result.err.html">honeybee_energy.result.err module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.result.loadbalance.html">honeybee_energy.result.loadbalance module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.result.match.html">honeybee_energy.result.match module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.result.osw.html">honeybee_energy.result.osw module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.result.rdd.html">honeybee_energy.result.rdd module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.result.zsz.html">honeybee_energy.result.zsz module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../honeybee_energy.result.html#module-honeybee_energy.result">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../honeybee_energy.schedule.html">honeybee_energy.schedule package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../honeybee_energy.schedule.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.schedule.day.html">honeybee_energy.schedule.day module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.schedule.dictutil.html">honeybee_energy.schedule.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.schedule.fixedinterval.html">honeybee_energy.schedule.fixedinterval module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.schedule.rule.html">honeybee_energy.schedule.rule module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.schedule.ruleset.html">honeybee_energy.schedule.ruleset module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.schedule.typelimit.html">honeybee_energy.schedule.typelimit module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../honeybee_energy.schedule.html#module-honeybee_energy.schedule">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../honeybee_energy.simulation.html">honeybee_energy.simulation package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../honeybee_energy.simulation.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.simulation.control.html">honeybee_energy.simulation.control module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.simulation.daylightsaving.html">honeybee_energy.simulation.daylightsaving module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.simulation.dictutil.html">honeybee_energy.simulation.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.simulation.output.html">honeybee_energy.simulation.output module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.simulation.parameter.html">honeybee_energy.simulation.parameter module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.simulation.runperiod.html">honeybee_energy.simulation.runperiod module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.simulation.shadowcalculation.html">honeybee_energy.simulation.shadowcalculation module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.simulation.sizing.html">honeybee_energy.simulation.sizing module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../honeybee_energy.simulation.html#module-honeybee_energy.simulation">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../honeybee_energy.ventcool.html">honeybee_energy.ventcool package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../honeybee_energy.ventcool.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.ventcool.afn.html">honeybee_energy.ventcool.afn module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.ventcool.control.html">honeybee_energy.ventcool.control module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.ventcool.crack.html">honeybee_energy.ventcool.crack module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.ventcool.opening.html">honeybee_energy.ventcool.opening module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../honeybee_energy.ventcool.simulation.html">honeybee_energy.ventcool.simulation module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../honeybee_energy.ventcool.html#module-honeybee_energy.ventcool">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../honeybee_energy.html#submodules">Submodules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../honeybee_energy.altnumber.html">honeybee_energy.altnumber module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../honeybee_energy.boundarycondition.html">honeybee_energy.boundarycondition module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../honeybee_energy.config.html">honeybee_energy.config module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../honeybee_energy.constructionset.html">honeybee_energy.constructionset module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../honeybee_energy.dictutil.html">honeybee_energy.dictutil module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../honeybee_energy.measure.html">honeybee_energy.measure module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../honeybee_energy.programtype.html">honeybee_energy.programtype module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../honeybee_energy.reader.html">honeybee_energy.reader module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../honeybee_energy.run.html">honeybee_energy.run module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../honeybee_energy.writer.html">honeybee_energy.writer module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../honeybee_energy.html#module-honeybee_energy">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">CLI Docs</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="index.html#installation">Installation</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#commands">Commands</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="main.html">main</a></li>
+<li class="toctree-l3"><a class="reference internal" href="settings.html">settings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="simulate.html">simulate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="baseline.html">baseline</a></li>
+<li class="toctree-l3"><a class="reference internal" href="edit.html">edit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="validate.html">validate</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">result</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#honeybee-energy-result">honeybee-energy result</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#honeybee-energy-result-all-available-info">all-available-info</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#honeybee-energy-result-available-results">available-results</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#honeybee-energy-result-available-results-info">available-results-info</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#honeybee-energy-result-available-run-period-info">available-run-period-info</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#honeybee-energy-result-component-sizes">component-sizes</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#honeybee-energy-result-data-by-output">data-by-output</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#honeybee-energy-result-data-by-outputs">data-by-outputs</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#honeybee-energy-result-energy-use-intensity">energy-use-intensity</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#honeybee-energy-result-load-balance">load-balance</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#honeybee-energy-result-output-csv">output-csv</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#honeybee-energy-result-output-csv-queryable">output-csv-queryable</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#honeybee-energy-result-tabular-data">tabular-data</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#honeybee-energy-result-tabular-metadata">tabular-metadata</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#honeybee-energy-result-zone-sizes">zone-sizes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="lib.html">lib</a></li>
+<li class="toctree-l3"><a class="reference internal" href="translate.html">translate</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">honeybee_energy</a></li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li>
+    <a href="validate.html" title="Previous Chapter: validate"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; validate</span>
+    </a>
+  </li>
+  <li>
+    <a href="lib.html" title="Next Chapter: lib"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">lib &raquo;</span>
+    </a>
+  </li>
+              
+            
+            
+            
+            
+              <li class="hidden-sm">
+<div id="sourcelink">
+  <a href="../_sources/cli/result.rst.txt"
+     rel="nofollow">Source</a>
+</div></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+      <div class="col-md-4">
+        <div id="sidebar" class="bs-sidenav" role="complementary"><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">CLI Docs</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="index.html#installation">Installation</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#commands">Commands</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="main.html">main</a></li>
+<li class="toctree-l3"><a class="reference internal" href="settings.html">settings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="simulate.html">simulate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="baseline.html">baseline</a></li>
+<li class="toctree-l3"><a class="reference internal" href="edit.html">edit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="validate.html">validate</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">result</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#honeybee-energy-result">honeybee-energy result</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#honeybee-energy-result-all-available-info">all-available-info</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#honeybee-energy-result-available-results">available-results</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#honeybee-energy-result-available-results-info">available-results-info</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#honeybee-energy-result-available-run-period-info">available-run-period-info</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#honeybee-energy-result-component-sizes">component-sizes</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#honeybee-energy-result-data-by-output">data-by-output</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#honeybee-energy-result-data-by-outputs">data-by-outputs</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#honeybee-energy-result-energy-use-intensity">energy-use-intensity</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#honeybee-energy-result-load-balance">load-balance</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#honeybee-energy-result-output-csv">output-csv</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#honeybee-energy-result-output-csv-queryable">output-csv-queryable</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#honeybee-energy-result-tabular-data">tabular-data</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#honeybee-energy-result-tabular-metadata">tabular-metadata</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#honeybee-energy-result-zone-sizes">zone-sizes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="lib.html">lib</a></li>
+<li class="toctree-l3"><a class="reference internal" href="translate.html">translate</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">honeybee_energy</a></li>
+</ul>
+
+        </div>
+      </div>
+    <div class="body col-md-8 content" role="main">
+      
+  <div class="section" id="result">
+<h1>result<a class="headerlink" href="#result" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="honeybee-energy-result">
+<h2>honeybee-energy result<a class="headerlink" href="#honeybee-energy-result" title="Permalink to this headline">¶</a></h2>
+<p>Commands for parsing EnergyPlus results.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>honeybee-energy result <span class="o">[</span>OPTIONS<span class="o">]</span> COMMAND <span class="o">[</span>ARGS<span class="o">]</span>...
+</pre></div>
+</div>
+<div class="section" id="honeybee-energy-result-all-available-info">
+<h3>all-available-info<a class="headerlink" href="#honeybee-energy-result-all-available-info" title="Permalink to this headline">¶</a></h3>
+<p>Get a dictionary with metadata of all outputs and run periods within an sql file.</p>
+<p>The dictionary will have two keys - ‘run_periods’, ‘outputs’.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">result_sql: Full path to an SQLite file that was generated by EnergyPlus.</div>
+</div>
+</div>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>honeybee-energy result all-available-info <span class="o">[</span>OPTIONS<span class="o">]</span> RESULT_SQL
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt id="cmdoption-honeybee-energy-result-all-available-info-f">
+<span id="cmdoption-honeybee-energy-result-all-available-info-output-file"></span><code class="sig-name descname"><span class="pre">-f</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--output-file</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;output_file&gt;</span></code><a class="headerlink" href="#cmdoption-honeybee-energy-result-all-available-info-f" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optional file to output the list of available outputs. By default, it will be printed to stdout</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default</dt>
+<dd class="field-odd"><ul class="simple">
+<li></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt id="cmdoption-honeybee-energy-result-all-available-info-arg-RESULT_SQL">
+<span id="cmdoption-honeybee-energy-result-all-available-info-arg-result-sql"></span><code class="sig-name descname"><span class="pre">RESULT_SQL</span></code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-honeybee-energy-result-all-available-info-arg-RESULT_SQL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Required argument</p>
+</dd></dl>
+
+</div>
+<div class="section" id="honeybee-energy-result-available-results">
+<h3>available-results<a class="headerlink" href="#honeybee-energy-result-available-results" title="Permalink to this headline">¶</a></h3>
+<p>Get an array of all timeseries outputs within an sql file.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">result_sql: Full path to an SQLite file that was generated by EnergyPlus.</div>
+</div>
+</div>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>honeybee-energy result available-results <span class="o">[</span>OPTIONS<span class="o">]</span> RESULT_SQL
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt id="cmdoption-honeybee-energy-result-available-results-f">
+<span id="cmdoption-honeybee-energy-result-available-results-output-file"></span><code class="sig-name descname"><span class="pre">-f</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--output-file</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;output_file&gt;</span></code><a class="headerlink" href="#cmdoption-honeybee-energy-result-available-results-f" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optional file to output the list of available outputs. By default, it will be printed to stdout</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default</dt>
+<dd class="field-odd"><ul class="simple">
+<li></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt id="cmdoption-honeybee-energy-result-available-results-arg-RESULT_SQL">
+<span id="cmdoption-honeybee-energy-result-available-results-arg-result-sql"></span><code class="sig-name descname"><span class="pre">RESULT_SQL</span></code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-honeybee-energy-result-available-results-arg-RESULT_SQL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Required argument</p>
+</dd></dl>
+
+</div>
+<div class="section" id="honeybee-energy-result-available-results-info">
+<h3>available-results-info<a class="headerlink" href="#honeybee-energy-result-available-results-info" title="Permalink to this headline">¶</a></h3>
+<p>Get all timeseries outputs within an sql file and metadata about them.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">result_sql: Full path to an SQLite file that was generated by EnergyPlus.</div>
+</div>
+</div>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>honeybee-energy result available-results-info <span class="o">[</span>OPTIONS<span class="o">]</span> RESULT_SQL
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt id="cmdoption-honeybee-energy-result-available-results-info-f">
+<span id="cmdoption-honeybee-energy-result-available-results-info-output-file"></span><code class="sig-name descname"><span class="pre">-f</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--output-file</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;output_file&gt;</span></code><a class="headerlink" href="#cmdoption-honeybee-energy-result-available-results-info-f" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optional file to output the list of available outputs. By default, it will be printed to stdout</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default</dt>
+<dd class="field-odd"><ul class="simple">
+<li></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt id="cmdoption-honeybee-energy-result-available-results-info-arg-RESULT_SQL">
+<span id="cmdoption-honeybee-energy-result-available-results-info-arg-result-sql"></span><code class="sig-name descname"><span class="pre">RESULT_SQL</span></code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-honeybee-energy-result-available-results-info-arg-RESULT_SQL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Required argument</p>
+</dd></dl>
+
+</div>
+<div class="section" id="honeybee-energy-result-available-run-period-info">
+<h3>available-run-period-info<a class="headerlink" href="#honeybee-energy-result-available-run-period-info" title="Permalink to this headline">¶</a></h3>
+<p>Get an array of run period info within an sql file.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">result_sql: Full path to an SQLite file that was generated by EnergyPlus.</div>
+</div>
+</div>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>honeybee-energy result available-run-period-info <span class="o">[</span>OPTIONS<span class="o">]</span> RESULT_SQL
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt id="cmdoption-honeybee-energy-result-available-run-period-info-f">
+<span id="cmdoption-honeybee-energy-result-available-run-period-info-output-file"></span><code class="sig-name descname"><span class="pre">-f</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--output-file</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;output_file&gt;</span></code><a class="headerlink" href="#cmdoption-honeybee-energy-result-available-run-period-info-f" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optional file to output the list of available outputs. By default, it will be printed to stdout</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default</dt>
+<dd class="field-odd"><ul class="simple">
+<li></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt id="cmdoption-honeybee-energy-result-available-run-period-info-arg-RESULT_SQL">
+<span id="cmdoption-honeybee-energy-result-available-run-period-info-arg-result-sql"></span><code class="sig-name descname"><span class="pre">RESULT_SQL</span></code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-honeybee-energy-result-available-run-period-info-arg-RESULT_SQL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Required argument</p>
+</dd></dl>
+
+</div>
+<div class="section" id="honeybee-energy-result-component-sizes">
+<h3>component-sizes<a class="headerlink" href="#honeybee-energy-result-component-sizes" title="Permalink to this headline">¶</a></h3>
+<p>Get a list of ComponentSize JSONs.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">result_sql: Full path to an SQLite file that was generated by EnergyPlus.</div>
+</div>
+</div>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>honeybee-energy result component-sizes <span class="o">[</span>OPTIONS<span class="o">]</span> RESULT_SQL
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt id="cmdoption-honeybee-energy-result-component-sizes-ct">
+<span id="cmdoption-honeybee-energy-result-component-sizes-component-type"></span><code class="sig-name descname"><span class="pre">-ct</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--component-type</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;component_type&gt;</span></code><a class="headerlink" href="#cmdoption-honeybee-energy-result-component-sizes-ct" title="Permalink to this definition">¶</a></dt>
+<dd><p>A name of a HVAC component type, which will be used to filter the output HVAC components. If “None”, all HVAC component sizes will be output.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt id="cmdoption-honeybee-energy-result-component-sizes-f">
+<span id="cmdoption-honeybee-energy-result-component-sizes-output-file"></span><code class="sig-name descname"><span class="pre">-f</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--output-file</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;output_file&gt;</span></code><a class="headerlink" href="#cmdoption-honeybee-energy-result-component-sizes-f" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optional file to output the JSON strings of the ComponentSize objects. By default, it will be printed to stdout</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default</dt>
+<dd class="field-odd"><ul class="simple">
+<li></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt id="cmdoption-honeybee-energy-result-component-sizes-arg-RESULT_SQL">
+<span id="cmdoption-honeybee-energy-result-component-sizes-arg-result-sql"></span><code class="sig-name descname"><span class="pre">RESULT_SQL</span></code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-honeybee-energy-result-component-sizes-arg-RESULT_SQL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Required argument</p>
+</dd></dl>
+
+</div>
+<div class="section" id="honeybee-energy-result-data-by-output">
+<h3>data-by-output<a class="headerlink" href="#honeybee-energy-result-data-by-output" title="Permalink to this headline">¶</a></h3>
+<p>Get an array of DataCollection JSONs for a specific EnergyPlus output.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">result_sql: Full path to an SQLite file that was generated by EnergyPlus.</div>
+<div class="line">output_name: The name of an EnergyPlus output to be retrieved from</div>
+<div class="line-block">
+<div class="line">the SQLite result file. This can also be an array of names if the</div>
+<div class="line">string is formatted as a JSON array with [] brackets. Note that only</div>
+<div class="line">a single array of data collection JSONs will be returned from this</div>
+<div class="line">method and, if data collections must be grouped, the data_by_outputs</div>
+<div class="line">method should be used.</div>
+</div>
+</div>
+</div>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>honeybee-energy result data-by-output <span class="o">[</span>OPTIONS<span class="o">]</span> RESULT_SQL OUTPUT_NAME
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt id="cmdoption-honeybee-energy-result-data-by-output-f">
+<span id="cmdoption-honeybee-energy-result-data-by-output-output-file"></span><code class="sig-name descname"><span class="pre">-f</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--output-file</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;output_file&gt;</span></code><a class="headerlink" href="#cmdoption-honeybee-energy-result-data-by-output-f" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optional file to output the JSON strings of the data collections. By default, it will be printed to stdout</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default</dt>
+<dd class="field-odd"><ul class="simple">
+<li></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt id="cmdoption-honeybee-energy-result-data-by-output-arg-RESULT_SQL">
+<span id="cmdoption-honeybee-energy-result-data-by-output-arg-result-sql"></span><code class="sig-name descname"><span class="pre">RESULT_SQL</span></code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-honeybee-energy-result-data-by-output-arg-RESULT_SQL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Required argument</p>
+</dd></dl>
+
+<dl class="std option">
+<dt id="cmdoption-honeybee-energy-result-data-by-output-arg-OUTPUT_NAME">
+<span id="cmdoption-honeybee-energy-result-data-by-output-arg-output-name"></span><code class="sig-name descname"><span class="pre">OUTPUT_NAME</span></code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-honeybee-energy-result-data-by-output-arg-OUTPUT_NAME" title="Permalink to this definition">¶</a></dt>
+<dd><p>Required argument</p>
+</dd></dl>
+
+</div>
+<div class="section" id="honeybee-energy-result-data-by-outputs">
+<h3>data-by-outputs<a class="headerlink" href="#honeybee-energy-result-data-by-outputs" title="Permalink to this headline">¶</a></h3>
+<p>Get an array of DataCollection JSONs for a several EnergyPlus outputs.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">result_sql: Full path to an SQLite file that was generated by EnergyPlus.</div>
+<div class="line">output_names: An array of EnergyPlus output names to be retrieved from</div>
+<div class="line-block">
+<div class="line">the SQLite result file. This can also be a nested array (an array of</div>
+<div class="line">output name arrays) if each string is formatted as a JSON array</div>
+<div class="line">with [] brackets.</div>
+</div>
+</div>
+</div>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>honeybee-energy result data-by-outputs <span class="o">[</span>OPTIONS<span class="o">]</span> RESULT_SQL <span class="o">[</span>OUTPUT_NAMES<span class="o">]</span>...
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt id="cmdoption-honeybee-energy-result-data-by-outputs-f">
+<span id="cmdoption-honeybee-energy-result-data-by-outputs-output-file"></span><code class="sig-name descname"><span class="pre">-f</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--output-file</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;output_file&gt;</span></code><a class="headerlink" href="#cmdoption-honeybee-energy-result-data-by-outputs-f" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optional file to output the JSON strings of the data collections. By default, it will be printed to stdout</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default</dt>
+<dd class="field-odd"><ul class="simple">
+<li></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt id="cmdoption-honeybee-energy-result-data-by-outputs-arg-RESULT_SQL">
+<span id="cmdoption-honeybee-energy-result-data-by-outputs-arg-result-sql"></span><code class="sig-name descname"><span class="pre">RESULT_SQL</span></code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-honeybee-energy-result-data-by-outputs-arg-RESULT_SQL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Required argument</p>
+</dd></dl>
+
+<dl class="std option">
+<dt id="cmdoption-honeybee-energy-result-data-by-outputs-arg-OUTPUT_NAMES">
+<span id="cmdoption-honeybee-energy-result-data-by-outputs-arg-output-names"></span><code class="sig-name descname"><span class="pre">OUTPUT_NAMES</span></code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-honeybee-energy-result-data-by-outputs-arg-OUTPUT_NAMES" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optional argument(s)</p>
+</dd></dl>
+
+</div>
+<div class="section" id="honeybee-energy-result-energy-use-intensity">
+<h3>energy-use-intensity<a class="headerlink" href="#honeybee-energy-result-energy-use-intensity" title="Permalink to this headline">¶</a></h3>
+<p>Get information about energy use intensity and an EUI breakdown by end use.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">result_paths: Path to one or more SQLite files that were generated by</div>
+<div class="line-block">
+<div class="line">EnergyPlus or folders containing such files. Folders can be from a</div>
+<div class="line">single EnergyPlus simulation or may contain multiple SQLite files.</div>
+<div class="line">EUI will be computed across all files provided.</div>
+</div>
+</div>
+</div>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>honeybee-energy result energy-use-intensity <span class="o">[</span>OPTIONS<span class="o">]</span> RESULT_PATHS...
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt id="cmdoption-honeybee-energy-result-energy-use-intensity-si">
+<span id="cmdoption-honeybee-energy-result-energy-use-intensity-ip"></span><code class="sig-name descname"><span class="pre">--si</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--ip</span></code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-honeybee-energy-result-energy-use-intensity-si" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flag to note whether the EUI should be in SI (kWh/m2) or IP (kBtu/ft2) units.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default</dt>
+<dd class="field-odd"><p>True</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt id="cmdoption-honeybee-energy-result-energy-use-intensity-f">
+<span id="cmdoption-honeybee-energy-result-energy-use-intensity-output-file"></span><code class="sig-name descname"><span class="pre">-f</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--output-file</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;output_file&gt;</span></code><a class="headerlink" href="#cmdoption-honeybee-energy-result-energy-use-intensity-f" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optional file to output the result of the EUI calculation. By default, it will be printed to stdout</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default</dt>
+<dd class="field-odd"><ul class="simple">
+<li></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt id="cmdoption-honeybee-energy-result-energy-use-intensity-arg-RESULT_PATHS">
+<span id="cmdoption-honeybee-energy-result-energy-use-intensity-arg-result-paths"></span><code class="sig-name descname"><span class="pre">RESULT_PATHS</span></code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-honeybee-energy-result-energy-use-intensity-arg-RESULT_PATHS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Required argument(s)</p>
+</dd></dl>
+
+</div>
+<div class="section" id="honeybee-energy-result-load-balance">
+<h3>load-balance<a class="headerlink" href="#honeybee-energy-result-load-balance" title="Permalink to this headline">¶</a></h3>
+<p>Get an array of DataCollection JSONs for a complete model’s load balance.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">model_json: Full path to a Model JSON file used for simulation.</div>
+<div class="line">result_sql: Full path to an SQLite file that was generated by EnergyPlus.</div>
+</div>
+</div>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>honeybee-energy result load-balance <span class="o">[</span>OPTIONS<span class="o">]</span> MODEL_JSON RESULT_SQL
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt id="cmdoption-honeybee-energy-result-load-balance-normalize">
+<span id="cmdoption-honeybee-energy-result-load-balance-nn"></span><span id="cmdoption-honeybee-energy-result-load-balance-no-normalize"></span><code class="sig-name descname"><span class="pre">--normalize</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">-nn</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--no-normalize</span></code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-honeybee-energy-result-load-balance-normalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flag to note whether the data should be normalized by floor area. This flag has no effect if the requested data is not normalizable</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default</dt>
+<dd class="field-odd"><p>True</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt id="cmdoption-honeybee-energy-result-load-balance-storage">
+<span id="cmdoption-honeybee-energy-result-load-balance-ns"></span><span id="cmdoption-honeybee-energy-result-load-balance-no-storage"></span><code class="sig-name descname"><span class="pre">--storage</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">-ns</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--no-storage</span></code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-honeybee-energy-result-load-balance-storage" title="Permalink to this definition">¶</a></dt>
+<dd><p>to note whether the storage term should be included in the list.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default</dt>
+<dd class="field-odd"><p>True</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt id="cmdoption-honeybee-energy-result-load-balance-f">
+<span id="cmdoption-honeybee-energy-result-load-balance-output-file"></span><code class="sig-name descname"><span class="pre">-f</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--output-file</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;output_file&gt;</span></code><a class="headerlink" href="#cmdoption-honeybee-energy-result-load-balance-f" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optional file to output the JSON strings of the data collections. By default, it will be printed to stdout</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default</dt>
+<dd class="field-odd"><ul class="simple">
+<li></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt id="cmdoption-honeybee-energy-result-load-balance-arg-MODEL_JSON">
+<span id="cmdoption-honeybee-energy-result-load-balance-arg-model-json"></span><code class="sig-name descname"><span class="pre">MODEL_JSON</span></code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-honeybee-energy-result-load-balance-arg-MODEL_JSON" title="Permalink to this definition">¶</a></dt>
+<dd><p>Required argument</p>
+</dd></dl>
+
+<dl class="std option">
+<dt id="cmdoption-honeybee-energy-result-load-balance-arg-RESULT_SQL">
+<span id="cmdoption-honeybee-energy-result-load-balance-arg-result-sql"></span><code class="sig-name descname"><span class="pre">RESULT_SQL</span></code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-honeybee-energy-result-load-balance-arg-RESULT_SQL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Required argument</p>
+</dd></dl>
+
+</div>
+<div class="section" id="honeybee-energy-result-output-csv">
+<h3>output-csv<a class="headerlink" href="#honeybee-energy-result-output-csv" title="Permalink to this headline">¶</a></h3>
+<p>Get CSV for specific EnergyPlus outputs.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">result_sql: Full path to an SQLite file that was generated by EnergyPlus.</div>
+<div class="line">output_names: The name of an EnergyPlus output to be retrieved from</div>
+<div class="line-block">
+<div class="line">the SQLite result file. This can also be several output names</div>
+<div class="line">for which all data collections should be retrieved.</div>
+</div>
+</div>
+</div>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>honeybee-energy result output-csv <span class="o">[</span>OPTIONS<span class="o">]</span> RESULT_SQL <span class="o">[</span>OUTPUT_NAMES<span class="o">]</span>...
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt id="cmdoption-honeybee-energy-result-output-csv-f">
+<span id="cmdoption-honeybee-energy-result-output-csv-output-file"></span><code class="sig-name descname"><span class="pre">-f</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--output-file</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;output_file&gt;</span></code><a class="headerlink" href="#cmdoption-honeybee-energy-result-output-csv-f" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optional file path to output the CSV data of the results. By default, it will be printed to stdout</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default</dt>
+<dd class="field-odd"><ul class="simple">
+<li></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt id="cmdoption-honeybee-energy-result-output-csv-arg-RESULT_SQL">
+<span id="cmdoption-honeybee-energy-result-output-csv-arg-result-sql"></span><code class="sig-name descname"><span class="pre">RESULT_SQL</span></code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-honeybee-energy-result-output-csv-arg-RESULT_SQL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Required argument</p>
+</dd></dl>
+
+<dl class="std option">
+<dt id="cmdoption-honeybee-energy-result-output-csv-arg-OUTPUT_NAMES">
+<span id="cmdoption-honeybee-energy-result-output-csv-arg-output-names"></span><code class="sig-name descname"><span class="pre">OUTPUT_NAMES</span></code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-honeybee-energy-result-output-csv-arg-OUTPUT_NAMES" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optional argument(s)</p>
+</dd></dl>
+
+</div>
+<div class="section" id="honeybee-energy-result-output-csv-queryable">
+<h3>output-csv-queryable<a class="headerlink" href="#honeybee-energy-result-output-csv-queryable" title="Permalink to this headline">¶</a></h3>
+<p>Get CSV of outputs resembling a SQLite table that is easily queryable.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">result_sql: Full path to an SQLite file that was generated by EnergyPlus.</div>
+<div class="line">model_json: Full path to a Model JSON that will be matched with the results.</div>
+<div class="line">run_period_name: The name of the run period from which the CSV data will</div>
+<div class="line-block">
+<div class="line">be selected (eg. “BOSTON LOGAN INTL ARPT ANN CLG .4% CONDNS DB=&gt;MWB”).</div>
+</div>
+<div class="line">output_names: The name of an EnergyPlus output to be retrieved from</div>
+<div class="line-block">
+<div class="line">the SQLite result file. This can also be several output names</div>
+<div class="line">for which all data collections should be retrieved.</div>
+</div>
+</div>
+</div>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>honeybee-energy result output-csv-queryable <span class="o">[</span>OPTIONS<span class="o">]</span> RESULT_SQL MODEL_JSON
+                                            RUN_PERIOD_NAME <span class="o">[</span>OUTPUT_NAMES<span class="o">]</span>...
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt id="cmdoption-honeybee-energy-result-output-csv-queryable-si">
+<span id="cmdoption-honeybee-energy-result-output-csv-queryable-ip"></span><code class="sig-name descname"><span class="pre">--si</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--ip</span></code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-honeybee-energy-result-output-csv-queryable-si" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flag to note whether the data in the resulting CSV should be in SI or IP units.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default</dt>
+<dd class="field-odd"><p>True</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt id="cmdoption-honeybee-energy-result-output-csv-queryable-normalize">
+<span id="cmdoption-honeybee-energy-result-output-csv-queryable-nn"></span><span id="cmdoption-honeybee-energy-result-output-csv-queryable-no-normalize"></span><code class="sig-name descname"><span class="pre">--normalize</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">-nn</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--no-normalize</span></code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-honeybee-energy-result-output-csv-queryable-normalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flag to note whether the data in the resulting CSV should be normalized by floor area (in the case of Zone/System data) or surface area (in the case of Surface data). This flag has no effect if the requested data is not normalizable</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default</dt>
+<dd class="field-odd"><p>True</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="std option">
+<dt id="cmdoption-honeybee-energy-result-output-csv-queryable-f">
+<span id="cmdoption-honeybee-energy-result-output-csv-queryable-folder"></span><code class="sig-name descname"><span class="pre">-f</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--folder</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;folder&gt;</span></code><a class="headerlink" href="#cmdoption-honeybee-energy-result-output-csv-queryable-f" title="Permalink to this definition">¶</a></dt>
+<dd><p>Folder on this computer, into which the CSV files will be written. If None, the files will be output in thesame location as the result_sql.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt id="cmdoption-honeybee-energy-result-output-csv-queryable-log">
+<span id="cmdoption-honeybee-energy-result-output-csv-queryable-log-file"></span><code class="sig-name descname"><span class="pre">-log</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--log-file</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;log_file&gt;</span></code><a class="headerlink" href="#cmdoption-honeybee-energy-result-output-csv-queryable-log" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optional file to output the names of the columns within the CSV. By default, it will be printed to stdout</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default</dt>
+<dd class="field-odd"><ul class="simple">
+<li></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt id="cmdoption-honeybee-energy-result-output-csv-queryable-arg-RESULT_SQL">
+<span id="cmdoption-honeybee-energy-result-output-csv-queryable-arg-result-sql"></span><code class="sig-name descname"><span class="pre">RESULT_SQL</span></code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-honeybee-energy-result-output-csv-queryable-arg-RESULT_SQL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Required argument</p>
+</dd></dl>
+
+<dl class="std option">
+<dt id="cmdoption-honeybee-energy-result-output-csv-queryable-arg-MODEL_JSON">
+<span id="cmdoption-honeybee-energy-result-output-csv-queryable-arg-model-json"></span><code class="sig-name descname"><span class="pre">MODEL_JSON</span></code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-honeybee-energy-result-output-csv-queryable-arg-MODEL_JSON" title="Permalink to this definition">¶</a></dt>
+<dd><p>Required argument</p>
+</dd></dl>
+
+<dl class="std option">
+<dt id="cmdoption-honeybee-energy-result-output-csv-queryable-arg-RUN_PERIOD_NAME">
+<span id="cmdoption-honeybee-energy-result-output-csv-queryable-arg-run-period-name"></span><code class="sig-name descname"><span class="pre">RUN_PERIOD_NAME</span></code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-honeybee-energy-result-output-csv-queryable-arg-RUN_PERIOD_NAME" title="Permalink to this definition">¶</a></dt>
+<dd><p>Required argument</p>
+</dd></dl>
+
+<dl class="std option">
+<dt id="cmdoption-honeybee-energy-result-output-csv-queryable-arg-OUTPUT_NAMES">
+<span id="cmdoption-honeybee-energy-result-output-csv-queryable-arg-output-names"></span><code class="sig-name descname"><span class="pre">OUTPUT_NAMES</span></code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-honeybee-energy-result-output-csv-queryable-arg-OUTPUT_NAMES" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optional argument(s)</p>
+</dd></dl>
+
+</div>
+<div class="section" id="honeybee-energy-result-tabular-data">
+<h3>tabular-data<a class="headerlink" href="#honeybee-energy-result-tabular-data" title="Permalink to this headline">¶</a></h3>
+<p>Get all the data within a table of a Summary Report using the table name.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">result_sql: Full path to an SQLite file that was generated by EnergyPlus.</div>
+<div class="line">table_name: Text string for the name of a table within a summary</div>
+<div class="line-block">
+<div class="line">report. (eg. ‘General’).</div>
+</div>
+</div>
+</div>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>honeybee-energy result tabular-data <span class="o">[</span>OPTIONS<span class="o">]</span> RESULT_SQL TABLE_NAME
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt id="cmdoption-honeybee-energy-result-tabular-data-f">
+<span id="cmdoption-honeybee-energy-result-tabular-data-output-file"></span><code class="sig-name descname"><span class="pre">-f</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--output-file</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;output_file&gt;</span></code><a class="headerlink" href="#cmdoption-honeybee-energy-result-tabular-data-f" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optional file to output the JSON matrix of tabular data. By default, it will be printed to stdout</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default</dt>
+<dd class="field-odd"><ul class="simple">
+<li></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt id="cmdoption-honeybee-energy-result-tabular-data-arg-RESULT_SQL">
+<span id="cmdoption-honeybee-energy-result-tabular-data-arg-result-sql"></span><code class="sig-name descname"><span class="pre">RESULT_SQL</span></code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-honeybee-energy-result-tabular-data-arg-RESULT_SQL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Required argument</p>
+</dd></dl>
+
+<dl class="std option">
+<dt id="cmdoption-honeybee-energy-result-tabular-data-arg-TABLE_NAME">
+<span id="cmdoption-honeybee-energy-result-tabular-data-arg-table-name"></span><code class="sig-name descname"><span class="pre">TABLE_NAME</span></code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-honeybee-energy-result-tabular-data-arg-TABLE_NAME" title="Permalink to this definition">¶</a></dt>
+<dd><p>Required argument</p>
+</dd></dl>
+
+</div>
+<div class="section" id="honeybee-energy-result-tabular-metadata">
+<h3>tabular-metadata<a class="headerlink" href="#honeybee-energy-result-tabular-metadata" title="Permalink to this headline">¶</a></h3>
+<p>Get a dictionary with the names of a table’s rows and columns.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">result_sql: Full path to an SQLite file that was generated by EnergyPlus.</div>
+<div class="line">table_name: Text string for the name of a table within a summary</div>
+<div class="line-block">
+<div class="line">report. (eg. ‘General’).</div>
+</div>
+</div>
+</div>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>honeybee-energy result tabular-metadata <span class="o">[</span>OPTIONS<span class="o">]</span> RESULT_SQL TABLE_NAME
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt id="cmdoption-honeybee-energy-result-tabular-metadata-f">
+<span id="cmdoption-honeybee-energy-result-tabular-metadata-output-file"></span><code class="sig-name descname"><span class="pre">-f</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--output-file</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;output_file&gt;</span></code><a class="headerlink" href="#cmdoption-honeybee-energy-result-tabular-metadata-f" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optional file to output the JSON matrix of tabular data. By default, it will be printed to stdout</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default</dt>
+<dd class="field-odd"><ul class="simple">
+<li></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt id="cmdoption-honeybee-energy-result-tabular-metadata-arg-RESULT_SQL">
+<span id="cmdoption-honeybee-energy-result-tabular-metadata-arg-result-sql"></span><code class="sig-name descname"><span class="pre">RESULT_SQL</span></code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-honeybee-energy-result-tabular-metadata-arg-RESULT_SQL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Required argument</p>
+</dd></dl>
+
+<dl class="std option">
+<dt id="cmdoption-honeybee-energy-result-tabular-metadata-arg-TABLE_NAME">
+<span id="cmdoption-honeybee-energy-result-tabular-metadata-arg-table-name"></span><code class="sig-name descname"><span class="pre">TABLE_NAME</span></code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-honeybee-energy-result-tabular-metadata-arg-TABLE_NAME" title="Permalink to this definition">¶</a></dt>
+<dd><p>Required argument</p>
+</dd></dl>
+
+</div>
+<div class="section" id="honeybee-energy-result-zone-sizes">
+<h3>zone-sizes<a class="headerlink" href="#honeybee-energy-result-zone-sizes" title="Permalink to this headline">¶</a></h3>
+<p>Get a dictionary with two arrays of ZoneSize JSONs under ‘cooling’ and ‘heating’.</p>
+<div class="line-block">
+<div class="line">Args:</div>
+<div class="line-block">
+<div class="line">result_sql: Full path to an SQLite file that was generated by EnergyPlus.</div>
+</div>
+</div>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>honeybee-energy result zone-sizes <span class="o">[</span>OPTIONS<span class="o">]</span> RESULT_SQL
+</pre></div>
+</div>
+<p class="rubric">Options</p>
+<dl class="std option">
+<dt id="cmdoption-honeybee-energy-result-zone-sizes-f">
+<span id="cmdoption-honeybee-energy-result-zone-sizes-output-file"></span><code class="sig-name descname"><span class="pre">-f</span></code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname"><span class="pre">,</span> </code><code class="sig-name descname"><span class="pre">--output-file</span></code><code class="sig-prename descclassname"> <span class="pre">&lt;output_file&gt;</span></code><a class="headerlink" href="#cmdoption-honeybee-energy-result-zone-sizes-f" title="Permalink to this definition">¶</a></dt>
+<dd><p>Optional file to output the JSON strings of the ZoneSize objects. By default, it will be printed to stdout</p>
+<dl class="field-list simple">
+<dt class="field-odd">Default</dt>
+<dd class="field-odd"><ul class="simple">
+<li></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Arguments</p>
+<dl class="std option">
+<dt id="cmdoption-honeybee-energy-result-zone-sizes-arg-RESULT_SQL">
+<span id="cmdoption-honeybee-energy-result-zone-sizes-arg-result-sql"></span><code class="sig-name descname"><span class="pre">RESULT_SQL</span></code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-honeybee-energy-result-zone-sizes-arg-RESULT_SQL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Required argument</p>
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2021, Ladybug Tools.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.4.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

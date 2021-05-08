@@ -1,0 +1,23 @@
+honeybee\_energy.properties package
+===================================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   honeybee_energy.properties.aperture
+   honeybee_energy.properties.door
+   honeybee_energy.properties.face
+   honeybee_energy.properties.model
+   honeybee_energy.properties.room
+   honeybee_energy.properties.shade
+
+Module contents
+---------------
+
+.. automodule:: honeybee_energy.properties
+   :members:
+   :undoc-members:
+   :show-inheritance:

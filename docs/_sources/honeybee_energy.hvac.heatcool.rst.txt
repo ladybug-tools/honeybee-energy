@@ -1,0 +1,25 @@
+honeybee\_energy.hvac.heatcool package
+======================================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   honeybee_energy.hvac.heatcool.baseboard
+   honeybee_energy.hvac.heatcool.evapcool
+   honeybee_energy.hvac.heatcool.fcu
+   honeybee_energy.hvac.heatcool.gasunit
+   honeybee_energy.hvac.heatcool.residential
+   honeybee_energy.hvac.heatcool.vrf
+   honeybee_energy.hvac.heatcool.windowac
+   honeybee_energy.hvac.heatcool.wshp
+
+Module contents
+---------------
+
+.. automodule:: honeybee_energy.hvac.heatcool
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,2042 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>honeybee_energy.material.gas module &#8212; honeybee energy  documentation</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="honeybee_energy.material.glazing module" href="honeybee_energy.material.glazing.html" />
+    <link rel="prev" title="honeybee_energy.material.dictutil module" href="honeybee_energy.material.dictutil.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-inverse navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="index.html">
+          honeybee energy</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="cli/index.html">CLI Docs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cli/index.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli/index.html#commands">Commands</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cli/main.html">main</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cli/main.html#honeybee-energy">honeybee-energy</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="cli/main.html#honeybee-energy-config">config</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cli/settings.html">settings</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cli/settings.html#honeybee-energy-settings">honeybee-energy settings</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="cli/settings.html#honeybee-energy-settings-comfort-sim-par">comfort-sim-par</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/settings.html#honeybee-energy-settings-custom-sim-par">custom-sim-par</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/settings.html#honeybee-energy-settings-default-sim-par">default-sim-par</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/settings.html#honeybee-energy-settings-load-balance-sim-par">load-balance-sim-par</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/settings.html#honeybee-energy-settings-orientation-sim-pars">orientation-sim-pars</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/settings.html#honeybee-energy-settings-run-period">run-period</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/settings.html#honeybee-energy-settings-sizing-sim-par">sizing-sim-par</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cli/simulate.html">simulate</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cli/simulate.html#honeybee-energy-simulate">honeybee-energy simulate</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="cli/simulate.html#honeybee-energy-simulate-idf">idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/simulate.html#honeybee-energy-simulate-model">model</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/simulate.html#honeybee-energy-simulate-osm">osm</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cli/baseline.html">baseline</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cli/baseline.html#honeybee-energy-baseline">honeybee-energy baseline</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="cli/baseline.html#honeybee-energy-baseline-constructions-2004">constructions-2004</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/baseline.html#honeybee-energy-baseline-geometry-2004">geometry-2004</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/baseline.html#honeybee-energy-baseline-hvac-2004">hvac-2004</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/baseline.html#honeybee-energy-baseline-lighting-2004">lighting-2004</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/baseline.html#honeybee-energy-baseline-remove-ecms">remove-ecms</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cli/edit.html">edit</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cli/edit.html#honeybee-energy-edit">honeybee-energy edit</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="cli/edit.html#honeybee-energy-edit-modifiers-from-constructions">modifiers-from-constructions</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cli/validate.html">validate</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cli/validate.html#honeybee-energy-validate">honeybee-energy validate</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="cli/validate.html#honeybee-energy-validate-construction-set">construction-set</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/validate.html#honeybee-energy-validate-model-properties">model-properties</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/validate.html#honeybee-energy-validate-program-type">program-type</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/validate.html#honeybee-energy-validate-schedule">schedule</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/validate.html#honeybee-energy-validate-schedule-type-limit">schedule-type-limit</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/validate.html#honeybee-energy-validate-sim-par">sim-par</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cli/result.html">result</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cli/result.html#honeybee-energy-result">honeybee-energy result</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="cli/result.html#honeybee-energy-result-all-available-info">all-available-info</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/result.html#honeybee-energy-result-available-results">available-results</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/result.html#honeybee-energy-result-available-results-info">available-results-info</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/result.html#honeybee-energy-result-available-run-period-info">available-run-period-info</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/result.html#honeybee-energy-result-component-sizes">component-sizes</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/result.html#honeybee-energy-result-data-by-output">data-by-output</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/result.html#honeybee-energy-result-data-by-outputs">data-by-outputs</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/result.html#honeybee-energy-result-energy-use-intensity">energy-use-intensity</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/result.html#honeybee-energy-result-load-balance">load-balance</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/result.html#honeybee-energy-result-output-csv">output-csv</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/result.html#honeybee-energy-result-output-csv-queryable">output-csv-queryable</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/result.html#honeybee-energy-result-tabular-data">tabular-data</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/result.html#honeybee-energy-result-tabular-metadata">tabular-metadata</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/result.html#honeybee-energy-result-zone-sizes">zone-sizes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cli/lib.html">lib</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib">honeybee-energy lib</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-construction-set-by-id">construction-set-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-construction-sets">construction-sets</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-construction-sets-by-id">construction-sets-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-constructions-by-id">constructions-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-materials-by-id">materials-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-opaque-construction-by-id">opaque-construction-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-opaque-constructions">opaque-constructions</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-opaque-material-by-id">opaque-material-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-opaque-materials">opaque-materials</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-program-type-by-id">program-type-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-program-types">program-types</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-program-types-by-id">program-types-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-schedule-by-id">schedule-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-schedule-type-limit-by-id">schedule-type-limit-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-schedule-type-limits">schedule-type-limits</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-schedule-type-limits-by-id">schedule-type-limits-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-schedules">schedules</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-schedules-by-id">schedules-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-shade-construction-by-id">shade-construction-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-shade-constructions">shade-constructions</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-window-construction-by-id">window-construction-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-window-constructions">window-constructions</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-window-material-by-id">window-material-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/lib.html#honeybee-energy-lib-window-materials">window-materials</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="cli/translate.html">translate</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cli/translate.html#honeybee-energy-translate">honeybee-energy translate</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="cli/translate.html#honeybee-energy-translate-constructions-from-idf">constructions-from-idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/translate.html#honeybee-energy-translate-constructions-to-idf">constructions-to-idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/translate.html#honeybee-energy-translate-model-from-gbxml">model-from-gbxml</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/translate.html#honeybee-energy-translate-model-from-idf">model-from-idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/translate.html#honeybee-energy-translate-model-from-osm">model-from-osm</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/translate.html#honeybee-energy-translate-model-occ-schedules">model-occ-schedules</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/translate.html#honeybee-energy-translate-model-to-gbxml">model-to-gbxml</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/translate.html#honeybee-energy-translate-model-to-idf">model-to-idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/translate.html#honeybee-energy-translate-model-to-osm">model-to-osm</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/translate.html#honeybee-energy-translate-schedules-from-idf">schedules-from-idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="cli/translate.html#honeybee-energy-translate-schedules-to-idf">schedules-to-idf</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">honeybee_energy</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="honeybee_energy.html">honeybee_energy package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="honeybee_energy.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.cli.html">honeybee_energy.cli package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.cli.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.cli.data.html">honeybee_energy.cli.data package</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="honeybee_energy.cli.data.html#module-honeybee_energy.cli.data">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.cli.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.cli.baseline.html">honeybee_energy.cli.baseline module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.cli.edit.html">honeybee_energy.cli.edit module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.cli.lib.html">honeybee_energy.cli.lib module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.cli.result.html">honeybee_energy.cli.result module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.cli.settings.html">honeybee_energy.cli.settings module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.cli.simulate.html">honeybee_energy.cli.simulate module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.cli.translate.html">honeybee_energy.cli.translate module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.cli.validate.html">honeybee_energy.cli.validate module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.cli.html#module-honeybee_energy.cli">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.construction.html">honeybee_energy.construction package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.construction.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.construction.air.html">honeybee_energy.construction.air module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.construction.dictutil.html">honeybee_energy.construction.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.construction.opaque.html">honeybee_energy.construction.opaque module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.construction.shade.html">honeybee_energy.construction.shade module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.construction.window.html">honeybee_energy.construction.window module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.construction.windowshade.html">honeybee_energy.construction.windowshade module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.construction.html#module-honeybee_energy.construction">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.hvac.html">honeybee_energy.hvac package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.hvac.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.hvac.allair.html">honeybee_energy.hvac.allair package</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="honeybee_energy.hvac.allair.html#submodules">Submodules</a><ul>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.allair.furnace.html">honeybee_energy.hvac.allair.furnace module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.allair.psz.html">honeybee_energy.hvac.allair.psz module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.allair.ptac.html">honeybee_energy.hvac.allair.ptac module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.allair.pvav.html">honeybee_energy.hvac.allair.pvav module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.allair.vav.html">honeybee_energy.hvac.allair.vav module</a></li>
+</ul>
+</li>
+<li class="toctree-l7"><a class="reference internal" href="honeybee_energy.hvac.allair.html#module-honeybee_energy.hvac.allair">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.hvac.doas.html">honeybee_energy.hvac.doas package</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="honeybee_energy.hvac.doas.html#submodules">Submodules</a><ul>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.doas.fcu.html">honeybee_energy.hvac.doas.fcu module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.doas.vrf.html">honeybee_energy.hvac.doas.vrf module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.doas.wshp.html">honeybee_energy.hvac.doas.wshp module</a></li>
+</ul>
+</li>
+<li class="toctree-l7"><a class="reference internal" href="honeybee_energy.hvac.doas.html#module-honeybee_energy.hvac.doas">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.hvac.heatcool.html">honeybee_energy.hvac.heatcool package</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="honeybee_energy.hvac.heatcool.html#submodules">Submodules</a><ul>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.heatcool.baseboard.html">honeybee_energy.hvac.heatcool.baseboard module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.heatcool.evapcool.html">honeybee_energy.hvac.heatcool.evapcool module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.heatcool.fcu.html">honeybee_energy.hvac.heatcool.fcu module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.heatcool.gasunit.html">honeybee_energy.hvac.heatcool.gasunit module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.heatcool.residential.html">honeybee_energy.hvac.heatcool.residential module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.heatcool.vrf.html">honeybee_energy.hvac.heatcool.vrf module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.heatcool.windowac.html">honeybee_energy.hvac.heatcool.windowac module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="honeybee_energy.hvac.heatcool.wshp.html">honeybee_energy.hvac.heatcool.wshp module</a></li>
+</ul>
+</li>
+<li class="toctree-l7"><a class="reference internal" href="honeybee_energy.hvac.heatcool.html#module-honeybee_energy.hvac.heatcool">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.hvac.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.hvac.idealair.html">honeybee_energy.hvac.idealair module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.hvac.html#module-honeybee_energy.hvac">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.lib.html">honeybee_energy.lib package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.lib.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.lib.constructions.html">honeybee_energy.lib.constructions module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.lib.constructionsets.html">honeybee_energy.lib.constructionsets module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.lib.materials.html">honeybee_energy.lib.materials module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.lib.programtypes.html">honeybee_energy.lib.programtypes module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.lib.schedules.html">honeybee_energy.lib.schedules module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.lib.scheduletypelimits.html">honeybee_energy.lib.scheduletypelimits module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.lib.html#module-honeybee_energy.lib">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.load.html">honeybee_energy.load package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.load.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.load.daylight.html">honeybee_energy.load.daylight module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.load.dictutil.html">honeybee_energy.load.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.load.equipment.html">honeybee_energy.load.equipment module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.load.hotwater.html">honeybee_energy.load.hotwater module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.load.infiltration.html">honeybee_energy.load.infiltration module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.load.lighting.html">honeybee_energy.load.lighting module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.load.people.html">honeybee_energy.load.people module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.load.setpoint.html">honeybee_energy.load.setpoint module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.load.ventilation.html">honeybee_energy.load.ventilation module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.load.html#module-honeybee_energy.load">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4 current"><a class="reference internal" href="honeybee_energy.material.html">honeybee_energy.material package</a><ul class="current">
+<li class="toctree-l5 current"><a class="reference internal" href="honeybee_energy.material.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.material.dictutil.html">honeybee_energy.material.dictutil module</a></li>
+<li class="toctree-l6 current"><a class="current reference internal" href="#">honeybee_energy.material.gas module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.material.glazing.html">honeybee_energy.material.glazing module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.material.opaque.html">honeybee_energy.material.opaque module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.material.shade.html">honeybee_energy.material.shade module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.material.html#module-honeybee_energy.material">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.properties.html">honeybee_energy.properties package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.properties.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.properties.aperture.html">honeybee_energy.properties.aperture module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.properties.door.html">honeybee_energy.properties.door module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.properties.face.html">honeybee_energy.properties.face module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.properties.model.html">honeybee_energy.properties.model module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.properties.room.html">honeybee_energy.properties.room module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.properties.shade.html">honeybee_energy.properties.shade module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.properties.html#module-honeybee_energy.properties">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.result.html">honeybee_energy.result package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.result.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.result.colorobj.html">honeybee_energy.result.colorobj module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.result.err.html">honeybee_energy.result.err module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.result.loadbalance.html">honeybee_energy.result.loadbalance module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.result.match.html">honeybee_energy.result.match module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.result.osw.html">honeybee_energy.result.osw module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.result.rdd.html">honeybee_energy.result.rdd module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.result.zsz.html">honeybee_energy.result.zsz module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.result.html#module-honeybee_energy.result">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.schedule.html">honeybee_energy.schedule package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.schedule.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.schedule.day.html">honeybee_energy.schedule.day module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.schedule.dictutil.html">honeybee_energy.schedule.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.schedule.fixedinterval.html">honeybee_energy.schedule.fixedinterval module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.schedule.rule.html">honeybee_energy.schedule.rule module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.schedule.ruleset.html">honeybee_energy.schedule.ruleset module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.schedule.typelimit.html">honeybee_energy.schedule.typelimit module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.schedule.html#module-honeybee_energy.schedule">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.simulation.html">honeybee_energy.simulation package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.simulation.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.simulation.control.html">honeybee_energy.simulation.control module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.simulation.daylightsaving.html">honeybee_energy.simulation.daylightsaving module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.simulation.dictutil.html">honeybee_energy.simulation.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.simulation.output.html">honeybee_energy.simulation.output module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.simulation.parameter.html">honeybee_energy.simulation.parameter module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.simulation.runperiod.html">honeybee_energy.simulation.runperiod module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.simulation.shadowcalculation.html">honeybee_energy.simulation.shadowcalculation module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.simulation.sizing.html">honeybee_energy.simulation.sizing module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.simulation.html#module-honeybee_energy.simulation">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.ventcool.html">honeybee_energy.ventcool package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.ventcool.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.ventcool.afn.html">honeybee_energy.ventcool.afn module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.ventcool.control.html">honeybee_energy.ventcool.control module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.ventcool.crack.html">honeybee_energy.ventcool.crack module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.ventcool.opening.html">honeybee_energy.ventcool.opening module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.ventcool.simulation.html">honeybee_energy.ventcool.simulation module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.ventcool.html#module-honeybee_energy.ventcool">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="honeybee_energy.html#submodules">Submodules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.altnumber.html">honeybee_energy.altnumber module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.boundarycondition.html">honeybee_energy.boundarycondition module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.config.html">honeybee_energy.config module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.constructionset.html">honeybee_energy.constructionset module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.dictutil.html">honeybee_energy.dictutil module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.measure.html">honeybee_energy.measure module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.programtype.html">honeybee_energy.programtype module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.reader.html">honeybee_energy.reader module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.run.html">honeybee_energy.run module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.writer.html">honeybee_energy.writer module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="honeybee_energy.html#module-honeybee_energy">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="cli/index.html">CLI Docs</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">honeybee_energy</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="honeybee_energy.html">honeybee_energy package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="honeybee_energy.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.cli.html">honeybee_energy.cli package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.construction.html">honeybee_energy.construction package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.hvac.html">honeybee_energy.hvac package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.lib.html">honeybee_energy.lib package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.load.html">honeybee_energy.load package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="honeybee_energy.material.html">honeybee_energy.material package</a><ul class="current">
+<li class="toctree-l5 current"><a class="reference internal" href="honeybee_energy.material.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.material.dictutil.html">honeybee_energy.material.dictutil module</a></li>
+<li class="toctree-l6 current"><a class="current reference internal" href="#">honeybee_energy.material.gas module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.material.glazing.html">honeybee_energy.material.glazing module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.material.opaque.html">honeybee_energy.material.opaque module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.material.shade.html">honeybee_energy.material.shade module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.material.html#module-honeybee_energy.material">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.properties.html">honeybee_energy.properties package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.result.html">honeybee_energy.result package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.schedule.html">honeybee_energy.schedule package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.simulation.html">honeybee_energy.simulation package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.ventcool.html">honeybee_energy.ventcool package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="honeybee_energy.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="honeybee_energy.html#module-honeybee_energy">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li>
+    <a href="honeybee_energy.material.dictutil.html" title="Previous Chapter: honeybee_energy.material.dictutil module"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; honeybee_ener...</span>
+    </a>
+  </li>
+  <li>
+    <a href="honeybee_energy.material.glazing.html" title="Next Chapter: honeybee_energy.material.glazing module"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">honeybee_ener... &raquo;</span>
+    </a>
+  </li>
+              
+            
+            
+            
+            
+              <li class="hidden-sm">
+<div id="sourcelink">
+  <a href="_sources/honeybee_energy.material.gas.rst.txt"
+     rel="nofollow">Source</a>
+</div></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+      <div class="col-md-4">
+        <div id="sidebar" class="bs-sidenav" role="complementary"><ul>
+<li class="toctree-l1"><a class="reference internal" href="cli/index.html">CLI Docs</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">honeybee_energy</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="honeybee_energy.html">honeybee_energy package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="honeybee_energy.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.cli.html">honeybee_energy.cli package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.construction.html">honeybee_energy.construction package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.hvac.html">honeybee_energy.hvac package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.lib.html">honeybee_energy.lib package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.load.html">honeybee_energy.load package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="honeybee_energy.material.html">honeybee_energy.material package</a><ul class="current">
+<li class="toctree-l5 current"><a class="reference internal" href="honeybee_energy.material.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.material.dictutil.html">honeybee_energy.material.dictutil module</a></li>
+<li class="toctree-l6 current"><a class="current reference internal" href="#">honeybee_energy.material.gas module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.material.glazing.html">honeybee_energy.material.glazing module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.material.opaque.html">honeybee_energy.material.opaque module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="honeybee_energy.material.shade.html">honeybee_energy.material.shade module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="honeybee_energy.material.html#module-honeybee_energy.material">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.properties.html">honeybee_energy.properties package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.result.html">honeybee_energy.result package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.schedule.html">honeybee_energy.schedule package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.simulation.html">honeybee_energy.simulation package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="honeybee_energy.ventcool.html">honeybee_energy.ventcool package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="honeybee_energy.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="honeybee_energy.html#module-honeybee_energy">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    <div class="body col-md-8 content" role="main">
+      
+  <div class="section" id="module-honeybee_energy.material.gas">
+<span id="honeybee-energy-material-gas-module"></span><h1>honeybee_energy.material.gas module<a class="headerlink" href="#module-honeybee_energy.material.gas" title="Permalink to this headline">¶</a></h1>
+<p>Gas materials representing gaps within window constructions.</p>
+<p>They can only exist within window constructions bounded by glazing materials
+(they cannot be in the interior or exterior layer).</p>
+<dl class="py class">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGas">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">honeybee_energy.material.gas.</span></code><code class="sig-name descname"><span class="pre">EnergyWindowMaterialGas</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">identifier</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0125</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gas_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Air'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/material/gas.html#EnergyWindowMaterialGas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGas" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">honeybee_energy.material.gas._EnergyWindowMaterialGasBase</span></code></p>
+<p>Gas gap layer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>identifier</strong> – Text string for a unique Material ID. Must be &lt; 100 characters
+and not contain any EnergyPlus special characters. This will be used to
+identify the object across a model and in the exported IDF.</p></li>
+<li><p><strong>thickness</strong> – Number for the thickness of the air gap layer [m].
+Default: 0.0125</p></li>
+<li><p><strong>gas_type</strong> – Text describing the type of gas in the gap.
+Must be one of the following: ‘Air’, ‘Argon’, ‘Krypton’, ‘Xenon’.
+Default: ‘Air’</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Properties:</dt><dd><ul class="simple">
+<li><p>identifier</p></li>
+<li><p>display_name</p></li>
+<li><p>thickness</p></li>
+<li><p>gas_type</p></li>
+<li><p>conductivity</p></li>
+<li><p>viscosity</p></li>
+<li><p>specific_heat</p></li>
+<li><p>density</p></li>
+<li><p>prandtl</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGas.ToString">
+<code class="sig-name descname"><span class="pre">ToString</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGas.ToString" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overwrite .NET ToString.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGas.conductivity_at_temperature">
+<code class="sig-name descname"><span class="pre">conductivity_at_temperature</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t_kelvin</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/material/gas.html#EnergyWindowMaterialGas.conductivity_at_temperature"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGas.conductivity_at_temperature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the conductivity of the gas [W/m-K] at a given Kelvin temperature.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGas.convective_conductance">
+<code class="sig-name descname"><span class="pre">convective_conductance</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_kelvin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">273.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">101325</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGas.convective_conductance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get convective conductance of the cavity in a vertical position.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>delta_t</strong> – The temperature difference across the gas cavity [C]. Default is
+15C, which is consistent with the NFRC standard for double glazed units.</p></li>
+<li><p><strong>height</strong> – An optional height for the cavity in meters. Default is 1.0,
+which is consistent with NFRC standards.</p></li>
+<li><p><strong>t_kelvin</strong> – The average temperature of the gas cavity in Kelvin.
+Default: 273.15 K (0C).</p></li>
+<li><p><strong>pressure</strong> – The average pressure of the gas cavity in Pa.
+Default is 101325 Pa for standard pressure at sea level.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGas.convective_conductance_at_angle">
+<code class="sig-name descname"><span class="pre">convective_conductance_at_angle</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">90</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_kelvin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">273.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">101325</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGas.convective_conductance_at_angle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get convective conductance of the cavity in an angle.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>delta_t</strong> – The temperature difference across the gas cavity [C]. Default is
+15C, which is consistent with the NFRC standard for double glazed units.</p></li>
+<li><p><strong>height</strong> – An optional height for the cavity in meters. Default is 1.0,
+which is consistent with NFRC standards.</p></li>
+<li><p><strong>angle</strong> – <p>An angle in degrees between 0 and 180.</p>
+<ul>
+<li><p>0 = A horizontal cavity with downward heat flow through the layer.</p></li>
+<li><p>90 = A vertical cavity</p></li>
+<li><p>180 = A horizontal cavity with upward heat flow through the layer.</p></li>
+</ul>
+</p></li>
+<li><p><strong>t_kelvin</strong> – The average temperature of the gas cavity in Kelvin.
+Default: 273.15 K (0C).</p></li>
+<li><p><strong>pressure</strong> – The average pressure of the gas cavity in Pa.
+Default is 101325 Pa for standard pressure at sea level.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGas.density_at_temperature">
+<code class="sig-name descname"><span class="pre">density_at_temperature</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t_kelvin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">101325</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGas.density_at_temperature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the density of the gas [kg/m3] at a given temperature and pressure.</p>
+<p>This method uses the ideal gas law to estimate the density.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t_kelvin</strong> – The average temperature of the gas cavity in Kelvin.</p></li>
+<li><p><strong>pressure</strong> – The average pressure of the gas cavity in Pa.
+Default is 101325 Pa for standard pressure at sea level.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGas.duplicate">
+<code class="sig-name descname"><span class="pre">duplicate</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGas.duplicate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a copy of this construction.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGas.from_dict">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">from_dict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/material/gas.html#EnergyWindowMaterialGas.from_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGas.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a EnergyWindowMaterialGas from a dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> – A python dictionary in the following format</p>
+</dd>
+</dl>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s1">&#39;EnergyWindowMaterialGas&#39;</span><span class="p">,</span>
+<span class="s2">&quot;identifier&quot;</span><span class="p">:</span> <span class="s1">&#39;Argon_Gap_0010&#39;</span><span class="p">,</span>
+<span class="s2">&quot;display_name&quot;</span><span class="p">:</span> <span class="s1">&#39;Argon Gap&#39;</span><span class="p">,</span>
+<span class="s2">&quot;thickness&quot;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span>
+<span class="s2">&quot;gas_type&quot;</span><span class="p">:</span> <span class="s1">&#39;Argon&#39;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGas.from_idf">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">from_idf</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idf_string</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/material/gas.html#EnergyWindowMaterialGas.from_idf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGas.from_idf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create EnergyWindowMaterialGas from an EnergyPlus text string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>idf_string</strong> – A text string fully describing an EnergyPlus material.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGas.grashof">
+<code class="sig-name descname"><span class="pre">grashof</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_kelvin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">273.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">101325</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGas.grashof" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get Grashof number given the temperature difference across the cavity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>delta_t</strong> – The temperature difference across the gas cavity [C]. Default is
+15C, which is consistent with the NFRC standard for double glazed units.</p></li>
+<li><p><strong>t_kelvin</strong> – The average temperature of the gas cavity in Kelvin.
+Default: 273.15 K (0C).</p></li>
+<li><p><strong>pressure</strong> – The average pressure of the gas cavity in Pa.
+Default is 101325 Pa for standard pressure at sea level.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGas.lock">
+<code class="sig-name descname"><span class="pre">lock</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGas.lock" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGas.nusselt">
+<code class="sig-name descname"><span class="pre">nusselt</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_kelvin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">273.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">101325</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGas.nusselt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get Nusselt number for a vertical cavity given the temp difference and height.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>delta_t</strong> – The temperature difference across the gas cavity [C]. Default is
+15C, which is consistent with the NFRC standard for double glazed units.</p></li>
+<li><p><strong>height</strong> – An optional height for the cavity in meters. Default is 1.0,
+which is consistent with NFRC standards.</p></li>
+<li><p><strong>t_kelvin</strong> – The average temperature of the gas cavity in Kelvin.
+Default: 273.15 K (0C).</p></li>
+<li><p><strong>pressure</strong> – The average pressure of the gas cavity in Pa.
+Default is 101325 Pa for standard pressure at sea level.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGas.nusselt_at_angle">
+<code class="sig-name descname"><span class="pre">nusselt_at_angle</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">90</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_kelvin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">273.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">101325</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGas.nusselt_at_angle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get Nusselt number for a cavity at a given angle, temp difference and height.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>delta_t</strong> – The temperature difference across the gas cavity [C]. Default is
+15C, which is consistent with the NFRC standard for double glazed units.</p></li>
+<li><p><strong>height</strong> – An optional height for the cavity in meters. Default is 1.0,
+which is consistent with NFRC standards.</p></li>
+<li><p><strong>angle</strong> – <p>An angle in degrees between 0 and 180.</p>
+<ul>
+<li><p>0 = A horizontal cavity with downward heat flow through the layer.</p></li>
+<li><p>90 = A vertical cavity</p></li>
+<li><p>180 = A horizontal cavity with upward heat flow through the layer.</p></li>
+</ul>
+</p></li>
+<li><p><strong>t_kelvin</strong> – The average temperature of the gas cavity in Kelvin.
+Default: 273.15 K (0C).</p></li>
+<li><p><strong>pressure</strong> – The average pressure of the gas cavity in Pa.
+Default is 101325 Pa for standard pressure at sea level.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGas.prandtl_at_temperature">
+<code class="sig-name descname"><span class="pre">prandtl_at_temperature</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t_kelvin</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGas.prandtl_at_temperature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the Prandtl number of the gas at a given Kelvin temperature.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGas.radiative_conductance">
+<code class="sig-name descname"><span class="pre">radiative_conductance</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">emissivity_1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.84</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emissivity_2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.84</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_kelvin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">273.15</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGas.radiative_conductance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the radiative conductance of the cavity given emissivities on both sides.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>emissivity_1</strong> – The emissivity of the surface on one side of the cavity.
+Default is 0.84, which is typical of clear, uncoated glass.</p></li>
+<li><p><strong>emissivity_2</strong> – The emissivity of the surface on the other side of the cavity.
+Default is 0.84, which is typical of clear, uncoated glass.</p></li>
+<li><p><strong>t_kelvin</strong> – The average temperature of the gas cavity in Kelvin.
+Default: 273.15 K (0C).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGas.rayleigh">
+<code class="sig-name descname"><span class="pre">rayleigh</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_kelvin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">273.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">101325</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGas.rayleigh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get Rayleigh number given the temperature difference across the cavity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>delta_t</strong> – The temperature difference across the gas cavity [C]. Default is
+15C, which is consistent with the NFRC standard for double glazed units.</p></li>
+<li><p><strong>t_kelvin</strong> – The average temperature of the gas cavity in Kelvin.
+Default: 273.15 K (0C).</p></li>
+<li><p><strong>pressure</strong> – The average pressure of the gas cavity in Pa.
+Default is 101325 Pa for standard pressure at sea level.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGas.specific_heat_at_temperature">
+<code class="sig-name descname"><span class="pre">specific_heat_at_temperature</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t_kelvin</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/material/gas.html#EnergyWindowMaterialGas.specific_heat_at_temperature"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGas.specific_heat_at_temperature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the specific heat of the gas [J/kg-K] at a given Kelvin temperature.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGas.to_dict">
+<code class="sig-name descname"><span class="pre">to_dict</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/material/gas.html#EnergyWindowMaterialGas.to_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGas.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Energy Material Gas dictionary representation.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGas.to_idf">
+<code class="sig-name descname"><span class="pre">to_idf</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/material/gas.html#EnergyWindowMaterialGas.to_idf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGas.to_idf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get an EnergyPlus string representation of the material.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGas.u_value">
+<code class="sig-name descname"><span class="pre">u_value</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emissivity_1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.84</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emissivity_2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.84</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_kelvin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">273.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">101325</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGas.u_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the U-value of a vertical gas cavity given temp difference and emissivity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>delta_t</strong> – The temperature difference across the gas cavity [C]. This
+influences how strong the convection is within the gas gap. Default is
+15C, which is consistent with the NFRC standard for double glazed units.</p></li>
+<li><p><strong>emissivity_1</strong> – The emissivity of the surface on one side of the cavity.
+Default is 0.84, which is typical of clear, uncoated glass.</p></li>
+<li><p><strong>emissivity_2</strong> – The emissivity of the surface on the other side of the cavity.
+Default is 0.84, which is typical of clear, uncoated glass.</p></li>
+<li><p><strong>height</strong> – An optional height for the cavity in meters. Default is 1.0,
+which is consistent with NFRC standards.</p></li>
+<li><p><strong>t_kelvin</strong> – The average temperature of the gas cavity in Kelvin.
+Default: 273.15 K (0C).</p></li>
+<li><p><strong>pressure</strong> – The average pressure of the gas cavity in Pa.
+Default is 101325 Pa for standard pressure at sea level.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGas.u_value_at_angle">
+<code class="sig-name descname"><span class="pre">u_value_at_angle</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emissivity_1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.84</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emissivity_2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.84</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">90</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_kelvin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">273.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">101325</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGas.u_value_at_angle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the U-value of a vertical gas cavity given temp difference and emissivity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>delta_t</strong> – The temperature difference across the gas cavity [C]. This
+influences how strong the convection is within the gas gap. Default is
+15C, which is consistent with the NFRC standard for double glazed units.</p></li>
+<li><p><strong>emissivity_1</strong> – The emissivity of the surface on one side of the cavity.
+Default is 0.84, which is typical of clear, uncoated glass.</p></li>
+<li><p><strong>emissivity_2</strong> – The emissivity of the surface on the other side of the cavity.
+Default is 0.84, which is typical of clear, uncoated glass.</p></li>
+<li><p><strong>height</strong> – An optional height for the cavity in meters. Default is 1.0,
+which is consistent with NFRC standards.</p></li>
+<li><p><strong>angle</strong> – An angle in degrees between 0 and 180.
+0 = A horizontal cavity with downward heat flow through the layer.
+90 = A vertical cavity
+180 = A horizontal cavity with upward heat flow through the layer.</p></li>
+<li><p><strong>t_kelvin</strong> – The average temperature of the gas cavity in Kelvin.
+Default: 273.15 K (0C).</p></li>
+<li><p><strong>pressure</strong> – The average pressure of the gas cavity in Pa.
+Default is 101325 Pa for standard pressure at sea level.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGas.unlock">
+<code class="sig-name descname"><span class="pre">unlock</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGas.unlock" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGas.viscosity_at_temperature">
+<code class="sig-name descname"><span class="pre">viscosity_at_temperature</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t_kelvin</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/material/gas.html#EnergyWindowMaterialGas.viscosity_at_temperature"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGas.viscosity_at_temperature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the viscosity of the gas [kg/m-s] at a given Kelvin temperature.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGas.CONDUCTIVITYCURVES">
+<code class="sig-name descname"><span class="pre">CONDUCTIVITYCURVES</span></code><em class="property"> <span class="pre">=</span> <span class="pre">{'Air':</span> <span class="pre">(0.002873,</span> <span class="pre">7.76e-05,</span> <span class="pre">0.0),</span> <span class="pre">'Argon':</span> <span class="pre">(0.002285,</span> <span class="pre">5.149e-05,</span> <span class="pre">0.0),</span> <span class="pre">'Krypton':</span> <span class="pre">(0.0009443,</span> <span class="pre">2.826e-05,</span> <span class="pre">0.0),</span> <span class="pre">'Xenon':</span> <span class="pre">(0.0004538,</span> <span class="pre">1.723e-05,</span> <span class="pre">0.0)}</span></em><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGas.CONDUCTIVITYCURVES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGas.GASES">
+<code class="sig-name descname"><span class="pre">GASES</span></code><em class="property"> <span class="pre">=</span> <span class="pre">('Air',</span> <span class="pre">'Argon',</span> <span class="pre">'Krypton',</span> <span class="pre">'Xenon')</span></em><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGas.GASES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGas.MOLECULARWEIGHTS">
+<code class="sig-name descname"><span class="pre">MOLECULARWEIGHTS</span></code><em class="property"> <span class="pre">=</span> <span class="pre">{'Air':</span> <span class="pre">28.97,</span> <span class="pre">'Argon':</span> <span class="pre">39.948,</span> <span class="pre">'Krypton':</span> <span class="pre">83.8,</span> <span class="pre">'Xenon':</span> <span class="pre">131.3}</span></em><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGas.MOLECULARWEIGHTS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGas.SPECIFICHEATCURVES">
+<code class="sig-name descname"><span class="pre">SPECIFICHEATCURVES</span></code><em class="property"> <span class="pre">=</span> <span class="pre">{'Air':</span> <span class="pre">(1002.73699951,</span> <span class="pre">0.012324,</span> <span class="pre">0.0),</span> <span class="pre">'Argon':</span> <span class="pre">(521.92852783,</span> <span class="pre">0.0,</span> <span class="pre">0.0),</span> <span class="pre">'Krypton':</span> <span class="pre">(248.09069824,</span> <span class="pre">0.0,</span> <span class="pre">0.0),</span> <span class="pre">'Xenon':</span> <span class="pre">(158.33970642,</span> <span class="pre">0.0,</span> <span class="pre">0.0)}</span></em><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGas.SPECIFICHEATCURVES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGas.VISCOSITYCURVES">
+<code class="sig-name descname"><span class="pre">VISCOSITYCURVES</span></code><em class="property"> <span class="pre">=</span> <span class="pre">{'Air':</span> <span class="pre">(3.72e-06,</span> <span class="pre">5e-08,</span> <span class="pre">0.0),</span> <span class="pre">'Argon':</span> <span class="pre">(3.38e-06,</span> <span class="pre">6e-08,</span> <span class="pre">0.0),</span> <span class="pre">'Krypton':</span> <span class="pre">(2.21e-06,</span> <span class="pre">8e-08,</span> <span class="pre">0.0),</span> <span class="pre">'Xenon':</span> <span class="pre">(1.07e-06,</span> <span class="pre">7e-08,</span> <span class="pre">0.0)}</span></em><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGas.VISCOSITYCURVES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGas.conductivity">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">conductivity</span></code><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGas.conductivity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Conductivity of the gas in the absence of convection at 0C [W/m-K].</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGas.density">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">density</span></code><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGas.density" title="Permalink to this definition">¶</a></dt>
+<dd><p>Density of the gas at 0C and sea-level pressure [J/kg-K].</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGas.display_name">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">display_name</span></code><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGas.display_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set a string for the object name without any character restrictions.</p>
+<p>If not set, this will be equal to the identifier.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGas.gas_type">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">gas_type</span></code><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGas.gas_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the text describing the gas in the gas gap layer.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGas.identifier">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">identifier</span></code><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGas.identifier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the text string for material identifier.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGas.is_gas_material">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">is_gas_material</span></code><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGas.is_gas_material" title="Permalink to this definition">¶</a></dt>
+<dd><p>Boolean to note whether the material is a gas gap layer.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGas.is_glazing_material">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">is_glazing_material</span></code><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGas.is_glazing_material" title="Permalink to this definition">¶</a></dt>
+<dd><p>Boolean to note whether the material is a glazing layer.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGas.is_shade_material">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">is_shade_material</span></code><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGas.is_shade_material" title="Permalink to this definition">¶</a></dt>
+<dd><p>Boolean to note whether the material is a shade layer.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGas.is_window_material">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">is_window_material</span></code><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGas.is_window_material" title="Permalink to this definition">¶</a></dt>
+<dd><p>Boolean to note whether the material can be used for window surfaces.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGas.molecular_weight">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">molecular_weight</span></code><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGas.molecular_weight" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the gas molecular weight.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGas.prandtl">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">prandtl</span></code><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGas.prandtl" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prandtl number of the gas at 0C.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGas.specific_heat">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">specific_heat</span></code><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGas.specific_heat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specific heat of the gas at 0C [J/kg-K].</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGas.thickness">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">thickness</span></code><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGas.thickness" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the thickess of the gas layer [m].</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGas.viscosity">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">viscosity</span></code><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGas.viscosity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Viscosity of the gas at 0C [kg/m-s].</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasCustom">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">honeybee_energy.material.gas.</span></code><code class="sig-name descname"><span class="pre">EnergyWindowMaterialGasCustom</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">identifier</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thickness</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conductivity_coeff_a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">viscosity_coeff_a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">specific_heat_coeff_a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conductivity_coeff_b</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">viscosity_coeff_b</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">specific_heat_coeff_b</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conductivity_coeff_c</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">viscosity_coeff_c</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">specific_heat_coeff_c</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">specific_heat_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">molecular_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/material/gas.html#EnergyWindowMaterialGasCustom"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">honeybee_energy.material.gas._EnergyWindowMaterialGasBase</span></code></p>
+<p>Custom gas gap layer.</p>
+<p>This object allows you to specify specific values for conductivity,
+viscosity and specific heat through the following formula:</p>
+<p>property = A + (B * T) + (C * T ** 2)</p>
+<p>where:</p>
+<ul class="simple">
+<li><p>A, B, and C = regression coefficients for the gas</p></li>
+<li><p>T = temperature [K]</p></li>
+</ul>
+<p>Note that setting properties B and C to 0 will mean the property will be
+equal to the A coefficient.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>identifier</strong> – Text string for a unique Material ID. Must be &lt; 100 characters
+and not contain any EnergyPlus special characters. This will be used to
+identify the object across a model and in the exported IDF.</p></li>
+<li><p><strong>thickness</strong> – Number for the thickness of the air gap layer [m].
+Default: 0.0125</p></li>
+<li><p><strong>conductivity_coeff_a</strong> – First conductivity coefficient.
+Or conductivity in [W/m-K] if b and c coefficients are 0.</p></li>
+<li><p><strong>viscosity_coeff_a</strong> – First viscosity coefficient.
+Or viscosity in [kg/m-s] if b and c coefficients are 0.</p></li>
+<li><p><strong>specific_heat_coeff_a</strong> – First specific heat coefficient.
+Or specific heat in [J/kg-K] if b and c coefficients are 0.</p></li>
+<li><p><strong>conductivity_coeff_b</strong> – Second conductivity coefficient. Default = 0.</p></li>
+<li><p><strong>viscosity_coeff_b</strong> – Second viscosity coefficient. Default = 0.</p></li>
+<li><p><strong>specific_heat_coeff_b</strong> – Second specific heat coefficient. Default = 0.</p></li>
+<li><p><strong>conductivity_coeff_c</strong> – Third conductivity coefficient. Default = 0.</p></li>
+<li><p><strong>viscosity_coeff_c</strong> – Third viscosity coefficient. Default = 0.</p></li>
+<li><p><strong>specific_heat_coeff_c</strong> – Third specific heat coefficient. Default = 0.</p></li>
+<li><p><strong>specific_heat_ratio</strong> – A number for the the ratio of the specific heat at
+contant pressure, to the specific heat at constant volume.
+Default is 1.0 for Air.</p></li>
+<li><p><strong>molecular_weight</strong> – Number between 20 and 200 for the mass of 1 mol of
+the substance in grams. Default is 20.0.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Properties:</dt><dd><ul class="simple">
+<li><p>identifier</p></li>
+<li><p>display_name</p></li>
+<li><p>thickness</p></li>
+<li><p>conductivity_coeff_a</p></li>
+<li><p>viscosity_coeff_a</p></li>
+<li><p>specific_heat_coeff_a</p></li>
+<li><p>conductivity_coeff_b</p></li>
+<li><p>viscosity_coeff_b</p></li>
+<li><p>specific_heat_coeff_b</p></li>
+<li><p>conductivity_coeff_c</p></li>
+<li><p>viscosity_coeff_c</p></li>
+<li><p>specific_heat_coeff_c</p></li>
+<li><p>specific_heat_ratio</p></li>
+<li><p>molecular_weight</p></li>
+<li><p>conductivity</p></li>
+<li><p>viscosity</p></li>
+<li><p>specific_heat</p></li>
+<li><p>density</p></li>
+<li><p>prandtl</p></li>
+</ul>
+</dd>
+</dl>
+<p>Usage:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">co2_gap</span> <span class="o">=</span> <span class="n">EnergyWindowMaterialGasCustom</span><span class="p">(</span><span class="s1">&#39;CO2&#39;</span><span class="p">,</span> <span class="mf">0.0125</span><span class="p">,</span> <span class="mf">0.0146</span><span class="p">,</span> <span class="mf">0.000014</span><span class="p">,</span> <span class="mf">827.73</span><span class="p">)</span>
+<span class="n">co2_gap</span><span class="o">.</span><span class="n">specific_heat_ratio</span> <span class="o">=</span> <span class="mf">1.4</span>
+<span class="n">co2_gap</span><span class="o">.</span><span class="n">molecular_weight</span> <span class="o">=</span> <span class="mi">44</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">co2_gap</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.ToString">
+<code class="sig-name descname"><span class="pre">ToString</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.ToString" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overwrite .NET ToString.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.conductivity_at_temperature">
+<code class="sig-name descname"><span class="pre">conductivity_at_temperature</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t_kelvin</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/material/gas.html#EnergyWindowMaterialGasCustom.conductivity_at_temperature"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.conductivity_at_temperature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the conductivity of the gas [W/m-K] at a given Kelvin temperature.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.convective_conductance">
+<code class="sig-name descname"><span class="pre">convective_conductance</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_kelvin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">273.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">101325</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.convective_conductance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get convective conductance of the cavity in a vertical position.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>delta_t</strong> – The temperature difference across the gas cavity [C]. Default is
+15C, which is consistent with the NFRC standard for double glazed units.</p></li>
+<li><p><strong>height</strong> – An optional height for the cavity in meters. Default is 1.0,
+which is consistent with NFRC standards.</p></li>
+<li><p><strong>t_kelvin</strong> – The average temperature of the gas cavity in Kelvin.
+Default: 273.15 K (0C).</p></li>
+<li><p><strong>pressure</strong> – The average pressure of the gas cavity in Pa.
+Default is 101325 Pa for standard pressure at sea level.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.convective_conductance_at_angle">
+<code class="sig-name descname"><span class="pre">convective_conductance_at_angle</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">90</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_kelvin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">273.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">101325</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.convective_conductance_at_angle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get convective conductance of the cavity in an angle.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>delta_t</strong> – The temperature difference across the gas cavity [C]. Default is
+15C, which is consistent with the NFRC standard for double glazed units.</p></li>
+<li><p><strong>height</strong> – An optional height for the cavity in meters. Default is 1.0,
+which is consistent with NFRC standards.</p></li>
+<li><p><strong>angle</strong> – <p>An angle in degrees between 0 and 180.</p>
+<ul>
+<li><p>0 = A horizontal cavity with downward heat flow through the layer.</p></li>
+<li><p>90 = A vertical cavity</p></li>
+<li><p>180 = A horizontal cavity with upward heat flow through the layer.</p></li>
+</ul>
+</p></li>
+<li><p><strong>t_kelvin</strong> – The average temperature of the gas cavity in Kelvin.
+Default: 273.15 K (0C).</p></li>
+<li><p><strong>pressure</strong> – The average pressure of the gas cavity in Pa.
+Default is 101325 Pa for standard pressure at sea level.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.density_at_temperature">
+<code class="sig-name descname"><span class="pre">density_at_temperature</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t_kelvin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">101325</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.density_at_temperature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the density of the gas [kg/m3] at a given temperature and pressure.</p>
+<p>This method uses the ideal gas law to estimate the density.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t_kelvin</strong> – The average temperature of the gas cavity in Kelvin.</p></li>
+<li><p><strong>pressure</strong> – The average pressure of the gas cavity in Pa.
+Default is 101325 Pa for standard pressure at sea level.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.duplicate">
+<code class="sig-name descname"><span class="pre">duplicate</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.duplicate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a copy of this construction.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.from_dict">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">from_dict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/material/gas.html#EnergyWindowMaterialGasCustom.from_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a EnergyWindowMaterialGasCustom from a dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> – A python dictionary in the following format</p>
+</dd>
+</dl>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s1">&#39;EnergyWindowMaterialGasCustom&#39;</span><span class="p">,</span>
+<span class="s2">&quot;identifier&quot;</span><span class="p">:</span> <span class="s1">&#39;CO2_0010_00146_0000014_82773_140_44&#39;</span><span class="p">,</span>
+<span class="s2">&quot;display_name&quot;</span><span class="p">:</span> <span class="s1">&#39;CO2&#39;</span>
+<span class="s2">&quot;thickness&quot;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span>
+<span class="s2">&quot;conductivity_coeff_a&quot;</span><span class="p">:</span> <span class="mf">0.0146</span><span class="p">,</span>
+<span class="s2">&quot;viscosity_coeff_a&quot;</span><span class="p">:</span> <span class="mf">0.000014</span><span class="p">,</span>
+<span class="s2">&quot;specific_heat_coeff_a&quot;</span><span class="p">:</span> <span class="mf">827.73</span><span class="p">,</span>
+<span class="s2">&quot;specific_heat_ratio&quot;</span><span class="p">:</span> <span class="mf">1.4</span>
+<span class="s2">&quot;molecular_weight&quot;</span><span class="p">:</span> <span class="mi">44</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.from_idf">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">from_idf</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idf_string</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/material/gas.html#EnergyWindowMaterialGasCustom.from_idf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.from_idf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create EnergyWindowMaterialGasCustom from an EnergyPlus text string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>idf_string</strong> – A text string fully describing an EnergyPlus material.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.grashof">
+<code class="sig-name descname"><span class="pre">grashof</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_kelvin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">273.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">101325</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.grashof" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get Grashof number given the temperature difference across the cavity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>delta_t</strong> – The temperature difference across the gas cavity [C]. Default is
+15C, which is consistent with the NFRC standard for double glazed units.</p></li>
+<li><p><strong>t_kelvin</strong> – The average temperature of the gas cavity in Kelvin.
+Default: 273.15 K (0C).</p></li>
+<li><p><strong>pressure</strong> – The average pressure of the gas cavity in Pa.
+Default is 101325 Pa for standard pressure at sea level.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.lock">
+<code class="sig-name descname"><span class="pre">lock</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.lock" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.nusselt">
+<code class="sig-name descname"><span class="pre">nusselt</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_kelvin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">273.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">101325</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.nusselt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get Nusselt number for a vertical cavity given the temp difference and height.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>delta_t</strong> – The temperature difference across the gas cavity [C]. Default is
+15C, which is consistent with the NFRC standard for double glazed units.</p></li>
+<li><p><strong>height</strong> – An optional height for the cavity in meters. Default is 1.0,
+which is consistent with NFRC standards.</p></li>
+<li><p><strong>t_kelvin</strong> – The average temperature of the gas cavity in Kelvin.
+Default: 273.15 K (0C).</p></li>
+<li><p><strong>pressure</strong> – The average pressure of the gas cavity in Pa.
+Default is 101325 Pa for standard pressure at sea level.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.nusselt_at_angle">
+<code class="sig-name descname"><span class="pre">nusselt_at_angle</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">90</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_kelvin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">273.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">101325</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.nusselt_at_angle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get Nusselt number for a cavity at a given angle, temp difference and height.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>delta_t</strong> – The temperature difference across the gas cavity [C]. Default is
+15C, which is consistent with the NFRC standard for double glazed units.</p></li>
+<li><p><strong>height</strong> – An optional height for the cavity in meters. Default is 1.0,
+which is consistent with NFRC standards.</p></li>
+<li><p><strong>angle</strong> – <p>An angle in degrees between 0 and 180.</p>
+<ul>
+<li><p>0 = A horizontal cavity with downward heat flow through the layer.</p></li>
+<li><p>90 = A vertical cavity</p></li>
+<li><p>180 = A horizontal cavity with upward heat flow through the layer.</p></li>
+</ul>
+</p></li>
+<li><p><strong>t_kelvin</strong> – The average temperature of the gas cavity in Kelvin.
+Default: 273.15 K (0C).</p></li>
+<li><p><strong>pressure</strong> – The average pressure of the gas cavity in Pa.
+Default is 101325 Pa for standard pressure at sea level.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.prandtl_at_temperature">
+<code class="sig-name descname"><span class="pre">prandtl_at_temperature</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t_kelvin</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.prandtl_at_temperature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the Prandtl number of the gas at a given Kelvin temperature.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.radiative_conductance">
+<code class="sig-name descname"><span class="pre">radiative_conductance</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">emissivity_1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.84</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emissivity_2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.84</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_kelvin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">273.15</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.radiative_conductance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the radiative conductance of the cavity given emissivities on both sides.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>emissivity_1</strong> – The emissivity of the surface on one side of the cavity.
+Default is 0.84, which is typical of clear, uncoated glass.</p></li>
+<li><p><strong>emissivity_2</strong> – The emissivity of the surface on the other side of the cavity.
+Default is 0.84, which is typical of clear, uncoated glass.</p></li>
+<li><p><strong>t_kelvin</strong> – The average temperature of the gas cavity in Kelvin.
+Default: 273.15 K (0C).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.rayleigh">
+<code class="sig-name descname"><span class="pre">rayleigh</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_kelvin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">273.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">101325</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.rayleigh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get Rayleigh number given the temperature difference across the cavity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>delta_t</strong> – The temperature difference across the gas cavity [C]. Default is
+15C, which is consistent with the NFRC standard for double glazed units.</p></li>
+<li><p><strong>t_kelvin</strong> – The average temperature of the gas cavity in Kelvin.
+Default: 273.15 K (0C).</p></li>
+<li><p><strong>pressure</strong> – The average pressure of the gas cavity in Pa.
+Default is 101325 Pa for standard pressure at sea level.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.specific_heat_at_temperature">
+<code class="sig-name descname"><span class="pre">specific_heat_at_temperature</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t_kelvin</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/material/gas.html#EnergyWindowMaterialGasCustom.specific_heat_at_temperature"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.specific_heat_at_temperature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the specific heat of the gas [J/kg-K] at a given Kelvin temperature.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.to_dict">
+<code class="sig-name descname"><span class="pre">to_dict</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/material/gas.html#EnergyWindowMaterialGasCustom.to_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Energy Material Gas Custom dictionary representation.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.to_idf">
+<code class="sig-name descname"><span class="pre">to_idf</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/material/gas.html#EnergyWindowMaterialGasCustom.to_idf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.to_idf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get an EnergyPlus string representation of the material.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.u_value">
+<code class="sig-name descname"><span class="pre">u_value</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emissivity_1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.84</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emissivity_2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.84</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_kelvin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">273.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">101325</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.u_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the U-value of a vertical gas cavity given temp difference and emissivity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>delta_t</strong> – The temperature difference across the gas cavity [C]. This
+influences how strong the convection is within the gas gap. Default is
+15C, which is consistent with the NFRC standard for double glazed units.</p></li>
+<li><p><strong>emissivity_1</strong> – The emissivity of the surface on one side of the cavity.
+Default is 0.84, which is typical of clear, uncoated glass.</p></li>
+<li><p><strong>emissivity_2</strong> – The emissivity of the surface on the other side of the cavity.
+Default is 0.84, which is typical of clear, uncoated glass.</p></li>
+<li><p><strong>height</strong> – An optional height for the cavity in meters. Default is 1.0,
+which is consistent with NFRC standards.</p></li>
+<li><p><strong>t_kelvin</strong> – The average temperature of the gas cavity in Kelvin.
+Default: 273.15 K (0C).</p></li>
+<li><p><strong>pressure</strong> – The average pressure of the gas cavity in Pa.
+Default is 101325 Pa for standard pressure at sea level.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.u_value_at_angle">
+<code class="sig-name descname"><span class="pre">u_value_at_angle</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emissivity_1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.84</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emissivity_2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.84</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">90</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_kelvin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">273.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">101325</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.u_value_at_angle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the U-value of a vertical gas cavity given temp difference and emissivity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>delta_t</strong> – The temperature difference across the gas cavity [C]. This
+influences how strong the convection is within the gas gap. Default is
+15C, which is consistent with the NFRC standard for double glazed units.</p></li>
+<li><p><strong>emissivity_1</strong> – The emissivity of the surface on one side of the cavity.
+Default is 0.84, which is typical of clear, uncoated glass.</p></li>
+<li><p><strong>emissivity_2</strong> – The emissivity of the surface on the other side of the cavity.
+Default is 0.84, which is typical of clear, uncoated glass.</p></li>
+<li><p><strong>height</strong> – An optional height for the cavity in meters. Default is 1.0,
+which is consistent with NFRC standards.</p></li>
+<li><p><strong>angle</strong> – An angle in degrees between 0 and 180.
+0 = A horizontal cavity with downward heat flow through the layer.
+90 = A vertical cavity
+180 = A horizontal cavity with upward heat flow through the layer.</p></li>
+<li><p><strong>t_kelvin</strong> – The average temperature of the gas cavity in Kelvin.
+Default: 273.15 K (0C).</p></li>
+<li><p><strong>pressure</strong> – The average pressure of the gas cavity in Pa.
+Default is 101325 Pa for standard pressure at sea level.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.unlock">
+<code class="sig-name descname"><span class="pre">unlock</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.unlock" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.viscosity_at_temperature">
+<code class="sig-name descname"><span class="pre">viscosity_at_temperature</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t_kelvin</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/material/gas.html#EnergyWindowMaterialGasCustom.viscosity_at_temperature"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.viscosity_at_temperature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the viscosity of the gas [kg/m-s] at a given Kelvin temperature.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.CONDUCTIVITYCURVES">
+<code class="sig-name descname"><span class="pre">CONDUCTIVITYCURVES</span></code><em class="property"> <span class="pre">=</span> <span class="pre">{'Air':</span> <span class="pre">(0.002873,</span> <span class="pre">7.76e-05,</span> <span class="pre">0.0),</span> <span class="pre">'Argon':</span> <span class="pre">(0.002285,</span> <span class="pre">5.149e-05,</span> <span class="pre">0.0),</span> <span class="pre">'Krypton':</span> <span class="pre">(0.0009443,</span> <span class="pre">2.826e-05,</span> <span class="pre">0.0),</span> <span class="pre">'Xenon':</span> <span class="pre">(0.0004538,</span> <span class="pre">1.723e-05,</span> <span class="pre">0.0)}</span></em><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.CONDUCTIVITYCURVES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.GASES">
+<code class="sig-name descname"><span class="pre">GASES</span></code><em class="property"> <span class="pre">=</span> <span class="pre">('Air',</span> <span class="pre">'Argon',</span> <span class="pre">'Krypton',</span> <span class="pre">'Xenon')</span></em><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.GASES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.MOLECULARWEIGHTS">
+<code class="sig-name descname"><span class="pre">MOLECULARWEIGHTS</span></code><em class="property"> <span class="pre">=</span> <span class="pre">{'Air':</span> <span class="pre">28.97,</span> <span class="pre">'Argon':</span> <span class="pre">39.948,</span> <span class="pre">'Krypton':</span> <span class="pre">83.8,</span> <span class="pre">'Xenon':</span> <span class="pre">131.3}</span></em><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.MOLECULARWEIGHTS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.SPECIFICHEATCURVES">
+<code class="sig-name descname"><span class="pre">SPECIFICHEATCURVES</span></code><em class="property"> <span class="pre">=</span> <span class="pre">{'Air':</span> <span class="pre">(1002.73699951,</span> <span class="pre">0.012324,</span> <span class="pre">0.0),</span> <span class="pre">'Argon':</span> <span class="pre">(521.92852783,</span> <span class="pre">0.0,</span> <span class="pre">0.0),</span> <span class="pre">'Krypton':</span> <span class="pre">(248.09069824,</span> <span class="pre">0.0,</span> <span class="pre">0.0),</span> <span class="pre">'Xenon':</span> <span class="pre">(158.33970642,</span> <span class="pre">0.0,</span> <span class="pre">0.0)}</span></em><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.SPECIFICHEATCURVES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.VISCOSITYCURVES">
+<code class="sig-name descname"><span class="pre">VISCOSITYCURVES</span></code><em class="property"> <span class="pre">=</span> <span class="pre">{'Air':</span> <span class="pre">(3.72e-06,</span> <span class="pre">5e-08,</span> <span class="pre">0.0),</span> <span class="pre">'Argon':</span> <span class="pre">(3.38e-06,</span> <span class="pre">6e-08,</span> <span class="pre">0.0),</span> <span class="pre">'Krypton':</span> <span class="pre">(2.21e-06,</span> <span class="pre">8e-08,</span> <span class="pre">0.0),</span> <span class="pre">'Xenon':</span> <span class="pre">(1.07e-06,</span> <span class="pre">7e-08,</span> <span class="pre">0.0)}</span></em><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.VISCOSITYCURVES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.conductivity">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">conductivity</span></code><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.conductivity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Conductivity of the gas in the absence of convection at 0C [W/m-K].</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.conductivity_coeff_a">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">conductivity_coeff_a</span></code><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.conductivity_coeff_a" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the first conductivity coefficient.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.conductivity_coeff_b">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">conductivity_coeff_b</span></code><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.conductivity_coeff_b" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the second conductivity coefficient.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.conductivity_coeff_c">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">conductivity_coeff_c</span></code><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.conductivity_coeff_c" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the third conductivity coefficient.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.density">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">density</span></code><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.density" title="Permalink to this definition">¶</a></dt>
+<dd><p>Density of the gas at 0C and sea-level pressure [J/kg-K].</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.display_name">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">display_name</span></code><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.display_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set a string for the object name without any character restrictions.</p>
+<p>If not set, this will be equal to the identifier.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.identifier">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">identifier</span></code><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.identifier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the text string for material identifier.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.is_gas_material">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">is_gas_material</span></code><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.is_gas_material" title="Permalink to this definition">¶</a></dt>
+<dd><p>Boolean to note whether the material is a gas gap layer.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.is_glazing_material">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">is_glazing_material</span></code><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.is_glazing_material" title="Permalink to this definition">¶</a></dt>
+<dd><p>Boolean to note whether the material is a glazing layer.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.is_shade_material">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">is_shade_material</span></code><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.is_shade_material" title="Permalink to this definition">¶</a></dt>
+<dd><p>Boolean to note whether the material is a shade layer.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.is_window_material">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">is_window_material</span></code><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.is_window_material" title="Permalink to this definition">¶</a></dt>
+<dd><p>Boolean to note whether the material can be used for window surfaces.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.molecular_weight">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">molecular_weight</span></code><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.molecular_weight" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the molecular weight.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.prandtl">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">prandtl</span></code><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.prandtl" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prandtl number of the gas at 0C.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.specific_heat">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">specific_heat</span></code><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.specific_heat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specific heat of the gas at 0C [J/kg-K].</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.specific_heat_coeff_a">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">specific_heat_coeff_a</span></code><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.specific_heat_coeff_a" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the first specific heat coefficient.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.specific_heat_coeff_b">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">specific_heat_coeff_b</span></code><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.specific_heat_coeff_b" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the second specific heat coefficient.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.specific_heat_coeff_c">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">specific_heat_coeff_c</span></code><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.specific_heat_coeff_c" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the third specific heat coefficient.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.specific_heat_ratio">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">specific_heat_ratio</span></code><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.specific_heat_ratio" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the specific heat ratio.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.thickness">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">thickness</span></code><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.thickness" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the thickess of the gas layer [m].</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.viscosity">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">viscosity</span></code><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.viscosity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Viscosity of the gas at 0C [kg/m-s].</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.viscosity_coeff_a">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">viscosity_coeff_a</span></code><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.viscosity_coeff_a" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the first viscosity coefficient.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.viscosity_coeff_b">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">viscosity_coeff_b</span></code><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.viscosity_coeff_b" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the second viscosity coefficient.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.viscosity_coeff_c">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">viscosity_coeff_c</span></code><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasCustom.viscosity_coeff_c" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the third viscosity coefficient.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasMixture">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">honeybee_energy.material.gas.</span></code><code class="sig-name descname"><span class="pre">EnergyWindowMaterialGasMixture</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">identifier</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thickness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0125</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gas_types</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('Argon',</span> <span class="pre">'Air')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gas_fractions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0.9,</span> <span class="pre">0.1)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/material/gas.html#EnergyWindowMaterialGasMixture"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasMixture" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">honeybee_energy.material.gas._EnergyWindowMaterialGasBase</span></code></p>
+<p>Gas gap layer with a mixture of gasses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>identifier</strong> – Text string for a unique Material ID. Must be &lt; 100 characters
+and not contain any EnergyPlus special characters. This will be used to
+identify the object across a model and in the exported IDF.</p></li>
+<li><p><strong>thickness</strong> – Number for the thickness of the air gap layer [m].
+Default: 0.0125</p></li>
+<li><p><strong>gas_types</strong> – A list of text describing the types of gas in the gap.
+Text must be one of the following: ‘Air’, ‘Argon’, ‘Krypton’, ‘Xenon’.
+Default: (‘Argon’, ‘Air’)</p></li>
+<li><p><strong>gas_fractions</strong> – A list of fractional numbers describing the volumetric
+fractions of gas types in the mixture.  This list must align with
+the gas_types input list and must sum to 1. Default: (0.9, 0.1).</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Properties:</dt><dd><ul class="simple">
+<li><p>identifier</p></li>
+<li><p>display_name</p></li>
+<li><p>thickness</p></li>
+<li><p>gas_types</p></li>
+<li><p>gas_fractions</p></li>
+<li><p>gas_count</p></li>
+<li><p>conductivity</p></li>
+<li><p>viscosity</p></li>
+<li><p>specific_heat</p></li>
+<li><p>density</p></li>
+<li><p>prandtl</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.ToString">
+<code class="sig-name descname"><span class="pre">ToString</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.ToString" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overwrite .NET ToString.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.conductivity_at_temperature">
+<code class="sig-name descname"><span class="pre">conductivity_at_temperature</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t_kelvin</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/material/gas.html#EnergyWindowMaterialGasMixture.conductivity_at_temperature"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.conductivity_at_temperature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the conductivity of the gas [W/m-K] at a given Kelvin temperature.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.convective_conductance">
+<code class="sig-name descname"><span class="pre">convective_conductance</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_kelvin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">273.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">101325</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.convective_conductance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get convective conductance of the cavity in a vertical position.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>delta_t</strong> – The temperature difference across the gas cavity [C]. Default is
+15C, which is consistent with the NFRC standard for double glazed units.</p></li>
+<li><p><strong>height</strong> – An optional height for the cavity in meters. Default is 1.0,
+which is consistent with NFRC standards.</p></li>
+<li><p><strong>t_kelvin</strong> – The average temperature of the gas cavity in Kelvin.
+Default: 273.15 K (0C).</p></li>
+<li><p><strong>pressure</strong> – The average pressure of the gas cavity in Pa.
+Default is 101325 Pa for standard pressure at sea level.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.convective_conductance_at_angle">
+<code class="sig-name descname"><span class="pre">convective_conductance_at_angle</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">90</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_kelvin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">273.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">101325</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.convective_conductance_at_angle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get convective conductance of the cavity in an angle.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>delta_t</strong> – The temperature difference across the gas cavity [C]. Default is
+15C, which is consistent with the NFRC standard for double glazed units.</p></li>
+<li><p><strong>height</strong> – An optional height for the cavity in meters. Default is 1.0,
+which is consistent with NFRC standards.</p></li>
+<li><p><strong>angle</strong> – <p>An angle in degrees between 0 and 180.</p>
+<ul>
+<li><p>0 = A horizontal cavity with downward heat flow through the layer.</p></li>
+<li><p>90 = A vertical cavity</p></li>
+<li><p>180 = A horizontal cavity with upward heat flow through the layer.</p></li>
+</ul>
+</p></li>
+<li><p><strong>t_kelvin</strong> – The average temperature of the gas cavity in Kelvin.
+Default: 273.15 K (0C).</p></li>
+<li><p><strong>pressure</strong> – The average pressure of the gas cavity in Pa.
+Default is 101325 Pa for standard pressure at sea level.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.density_at_temperature">
+<code class="sig-name descname"><span class="pre">density_at_temperature</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t_kelvin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">101325</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.density_at_temperature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the density of the gas [kg/m3] at a given temperature and pressure.</p>
+<p>This method uses the ideal gas law to estimate the density.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t_kelvin</strong> – The average temperature of the gas cavity in Kelvin.</p></li>
+<li><p><strong>pressure</strong> – The average pressure of the gas cavity in Pa.
+Default is 101325 Pa for standard pressure at sea level.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.duplicate">
+<code class="sig-name descname"><span class="pre">duplicate</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.duplicate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a copy of this construction.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.from_dict">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">from_dict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/material/gas.html#EnergyWindowMaterialGasMixture.from_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a EnergyWindowMaterialGasMixture from a dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> – A python dictionary in the following format</p>
+</dd>
+</dl>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;EnergyWindowMaterialGasMixture&#39;</span><span class="p">,</span>
+<span class="s1">&#39;identifier&#39;</span><span class="p">:</span> <span class="s1">&#39;Argon_Mixture_001_095_005&#39;</span><span class="p">,</span>
+<span class="s1">&#39;display_name&#39;</span><span class="p">:</span> <span class="s1">&#39;Argon Mixture&#39;</span><span class="p">,</span>
+<span class="s1">&#39;thickness&#39;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span>
+<span class="s1">&#39;gas_types&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;Argon&#39;</span><span class="p">,</span> <span class="s1">&#39;Air&#39;</span><span class="p">],</span>
+<span class="s1">&#39;gas_fractions&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.95</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.from_idf">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">from_idf</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idf_string</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/material/gas.html#EnergyWindowMaterialGasMixture.from_idf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.from_idf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create EnergyWindowMaterialGas from an EnergyPlus text string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>idf_string</strong> – A text string fully describing an EnergyPlus material.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.grashof">
+<code class="sig-name descname"><span class="pre">grashof</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_kelvin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">273.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">101325</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.grashof" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get Grashof number given the temperature difference across the cavity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>delta_t</strong> – The temperature difference across the gas cavity [C]. Default is
+15C, which is consistent with the NFRC standard for double glazed units.</p></li>
+<li><p><strong>t_kelvin</strong> – The average temperature of the gas cavity in Kelvin.
+Default: 273.15 K (0C).</p></li>
+<li><p><strong>pressure</strong> – The average pressure of the gas cavity in Pa.
+Default is 101325 Pa for standard pressure at sea level.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.lock">
+<code class="sig-name descname"><span class="pre">lock</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.lock" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.nusselt">
+<code class="sig-name descname"><span class="pre">nusselt</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_kelvin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">273.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">101325</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.nusselt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get Nusselt number for a vertical cavity given the temp difference and height.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>delta_t</strong> – The temperature difference across the gas cavity [C]. Default is
+15C, which is consistent with the NFRC standard for double glazed units.</p></li>
+<li><p><strong>height</strong> – An optional height for the cavity in meters. Default is 1.0,
+which is consistent with NFRC standards.</p></li>
+<li><p><strong>t_kelvin</strong> – The average temperature of the gas cavity in Kelvin.
+Default: 273.15 K (0C).</p></li>
+<li><p><strong>pressure</strong> – The average pressure of the gas cavity in Pa.
+Default is 101325 Pa for standard pressure at sea level.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.nusselt_at_angle">
+<code class="sig-name descname"><span class="pre">nusselt_at_angle</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">90</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_kelvin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">273.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">101325</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.nusselt_at_angle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get Nusselt number for a cavity at a given angle, temp difference and height.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>delta_t</strong> – The temperature difference across the gas cavity [C]. Default is
+15C, which is consistent with the NFRC standard for double glazed units.</p></li>
+<li><p><strong>height</strong> – An optional height for the cavity in meters. Default is 1.0,
+which is consistent with NFRC standards.</p></li>
+<li><p><strong>angle</strong> – <p>An angle in degrees between 0 and 180.</p>
+<ul>
+<li><p>0 = A horizontal cavity with downward heat flow through the layer.</p></li>
+<li><p>90 = A vertical cavity</p></li>
+<li><p>180 = A horizontal cavity with upward heat flow through the layer.</p></li>
+</ul>
+</p></li>
+<li><p><strong>t_kelvin</strong> – The average temperature of the gas cavity in Kelvin.
+Default: 273.15 K (0C).</p></li>
+<li><p><strong>pressure</strong> – The average pressure of the gas cavity in Pa.
+Default is 101325 Pa for standard pressure at sea level.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.prandtl_at_temperature">
+<code class="sig-name descname"><span class="pre">prandtl_at_temperature</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t_kelvin</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.prandtl_at_temperature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the Prandtl number of the gas at a given Kelvin temperature.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.radiative_conductance">
+<code class="sig-name descname"><span class="pre">radiative_conductance</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">emissivity_1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.84</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emissivity_2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.84</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_kelvin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">273.15</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.radiative_conductance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the radiative conductance of the cavity given emissivities on both sides.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>emissivity_1</strong> – The emissivity of the surface on one side of the cavity.
+Default is 0.84, which is typical of clear, uncoated glass.</p></li>
+<li><p><strong>emissivity_2</strong> – The emissivity of the surface on the other side of the cavity.
+Default is 0.84, which is typical of clear, uncoated glass.</p></li>
+<li><p><strong>t_kelvin</strong> – The average temperature of the gas cavity in Kelvin.
+Default: 273.15 K (0C).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.rayleigh">
+<code class="sig-name descname"><span class="pre">rayleigh</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_kelvin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">273.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">101325</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.rayleigh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get Rayleigh number given the temperature difference across the cavity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>delta_t</strong> – The temperature difference across the gas cavity [C]. Default is
+15C, which is consistent with the NFRC standard for double glazed units.</p></li>
+<li><p><strong>t_kelvin</strong> – The average temperature of the gas cavity in Kelvin.
+Default: 273.15 K (0C).</p></li>
+<li><p><strong>pressure</strong> – The average pressure of the gas cavity in Pa.
+Default is 101325 Pa for standard pressure at sea level.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.specific_heat_at_temperature">
+<code class="sig-name descname"><span class="pre">specific_heat_at_temperature</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t_kelvin</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/material/gas.html#EnergyWindowMaterialGasMixture.specific_heat_at_temperature"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.specific_heat_at_temperature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the specific heat of the gas [J/kg-K] at a given Kelvin temperature.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.to_dict">
+<code class="sig-name descname"><span class="pre">to_dict</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/material/gas.html#EnergyWindowMaterialGasMixture.to_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.to_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Energy Material Gas Mixture dictionary representation.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.to_idf">
+<code class="sig-name descname"><span class="pre">to_idf</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/material/gas.html#EnergyWindowMaterialGasMixture.to_idf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.to_idf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get an EnergyPlus string representation of the material.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.u_value">
+<code class="sig-name descname"><span class="pre">u_value</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emissivity_1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.84</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emissivity_2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.84</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_kelvin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">273.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">101325</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.u_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the U-value of a vertical gas cavity given temp difference and emissivity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>delta_t</strong> – The temperature difference across the gas cavity [C]. This
+influences how strong the convection is within the gas gap. Default is
+15C, which is consistent with the NFRC standard for double glazed units.</p></li>
+<li><p><strong>emissivity_1</strong> – The emissivity of the surface on one side of the cavity.
+Default is 0.84, which is typical of clear, uncoated glass.</p></li>
+<li><p><strong>emissivity_2</strong> – The emissivity of the surface on the other side of the cavity.
+Default is 0.84, which is typical of clear, uncoated glass.</p></li>
+<li><p><strong>height</strong> – An optional height for the cavity in meters. Default is 1.0,
+which is consistent with NFRC standards.</p></li>
+<li><p><strong>t_kelvin</strong> – The average temperature of the gas cavity in Kelvin.
+Default: 273.15 K (0C).</p></li>
+<li><p><strong>pressure</strong> – The average pressure of the gas cavity in Pa.
+Default is 101325 Pa for standard pressure at sea level.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.u_value_at_angle">
+<code class="sig-name descname"><span class="pre">u_value_at_angle</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta_t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emissivity_1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.84</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emissivity_2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.84</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">90</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_kelvin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">273.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">101325</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.u_value_at_angle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the U-value of a vertical gas cavity given temp difference and emissivity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>delta_t</strong> – The temperature difference across the gas cavity [C]. This
+influences how strong the convection is within the gas gap. Default is
+15C, which is consistent with the NFRC standard for double glazed units.</p></li>
+<li><p><strong>emissivity_1</strong> – The emissivity of the surface on one side of the cavity.
+Default is 0.84, which is typical of clear, uncoated glass.</p></li>
+<li><p><strong>emissivity_2</strong> – The emissivity of the surface on the other side of the cavity.
+Default is 0.84, which is typical of clear, uncoated glass.</p></li>
+<li><p><strong>height</strong> – An optional height for the cavity in meters. Default is 1.0,
+which is consistent with NFRC standards.</p></li>
+<li><p><strong>angle</strong> – An angle in degrees between 0 and 180.
+0 = A horizontal cavity with downward heat flow through the layer.
+90 = A vertical cavity
+180 = A horizontal cavity with upward heat flow through the layer.</p></li>
+<li><p><strong>t_kelvin</strong> – The average temperature of the gas cavity in Kelvin.
+Default: 273.15 K (0C).</p></li>
+<li><p><strong>pressure</strong> – The average pressure of the gas cavity in Pa.
+Default is 101325 Pa for standard pressure at sea level.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.unlock">
+<code class="sig-name descname"><span class="pre">unlock</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.unlock" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.viscosity_at_temperature">
+<code class="sig-name descname"><span class="pre">viscosity_at_temperature</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t_kelvin</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/honeybee_energy/material/gas.html#EnergyWindowMaterialGasMixture.viscosity_at_temperature"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.viscosity_at_temperature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the viscosity of the gas [kg/m-s] at a given Kelvin temperature.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.CONDUCTIVITYCURVES">
+<code class="sig-name descname"><span class="pre">CONDUCTIVITYCURVES</span></code><em class="property"> <span class="pre">=</span> <span class="pre">{'Air':</span> <span class="pre">(0.002873,</span> <span class="pre">7.76e-05,</span> <span class="pre">0.0),</span> <span class="pre">'Argon':</span> <span class="pre">(0.002285,</span> <span class="pre">5.149e-05,</span> <span class="pre">0.0),</span> <span class="pre">'Krypton':</span> <span class="pre">(0.0009443,</span> <span class="pre">2.826e-05,</span> <span class="pre">0.0),</span> <span class="pre">'Xenon':</span> <span class="pre">(0.0004538,</span> <span class="pre">1.723e-05,</span> <span class="pre">0.0)}</span></em><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.CONDUCTIVITYCURVES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.GASES">
+<code class="sig-name descname"><span class="pre">GASES</span></code><em class="property"> <span class="pre">=</span> <span class="pre">('Air',</span> <span class="pre">'Argon',</span> <span class="pre">'Krypton',</span> <span class="pre">'Xenon')</span></em><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.GASES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.MOLECULARWEIGHTS">
+<code class="sig-name descname"><span class="pre">MOLECULARWEIGHTS</span></code><em class="property"> <span class="pre">=</span> <span class="pre">{'Air':</span> <span class="pre">28.97,</span> <span class="pre">'Argon':</span> <span class="pre">39.948,</span> <span class="pre">'Krypton':</span> <span class="pre">83.8,</span> <span class="pre">'Xenon':</span> <span class="pre">131.3}</span></em><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.MOLECULARWEIGHTS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.SPECIFICHEATCURVES">
+<code class="sig-name descname"><span class="pre">SPECIFICHEATCURVES</span></code><em class="property"> <span class="pre">=</span> <span class="pre">{'Air':</span> <span class="pre">(1002.73699951,</span> <span class="pre">0.012324,</span> <span class="pre">0.0),</span> <span class="pre">'Argon':</span> <span class="pre">(521.92852783,</span> <span class="pre">0.0,</span> <span class="pre">0.0),</span> <span class="pre">'Krypton':</span> <span class="pre">(248.09069824,</span> <span class="pre">0.0,</span> <span class="pre">0.0),</span> <span class="pre">'Xenon':</span> <span class="pre">(158.33970642,</span> <span class="pre">0.0,</span> <span class="pre">0.0)}</span></em><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.SPECIFICHEATCURVES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.VISCOSITYCURVES">
+<code class="sig-name descname"><span class="pre">VISCOSITYCURVES</span></code><em class="property"> <span class="pre">=</span> <span class="pre">{'Air':</span> <span class="pre">(3.72e-06,</span> <span class="pre">5e-08,</span> <span class="pre">0.0),</span> <span class="pre">'Argon':</span> <span class="pre">(3.38e-06,</span> <span class="pre">6e-08,</span> <span class="pre">0.0),</span> <span class="pre">'Krypton':</span> <span class="pre">(2.21e-06,</span> <span class="pre">8e-08,</span> <span class="pre">0.0),</span> <span class="pre">'Xenon':</span> <span class="pre">(1.07e-06,</span> <span class="pre">7e-08,</span> <span class="pre">0.0)}</span></em><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.VISCOSITYCURVES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.conductivity">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">conductivity</span></code><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.conductivity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Conductivity of the gas in the absence of convection at 0C [W/m-K].</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.density">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">density</span></code><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.density" title="Permalink to this definition">¶</a></dt>
+<dd><p>Density of the gas at 0C and sea-level pressure [J/kg-K].</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.display_name">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">display_name</span></code><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.display_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set a string for the object name without any character restrictions.</p>
+<p>If not set, this will be equal to the identifier.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.gas_count">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">gas_count</span></code><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.gas_count" title="Permalink to this definition">¶</a></dt>
+<dd><p>An integer indicating the number of gasses in the mixture.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.gas_fractions">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">gas_fractions</span></code><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.gas_fractions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set a tuple of numbers the fractions of gases in the gas gap layer.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.gas_types">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">gas_types</span></code><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.gas_types" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set a tuple of text describing the gases in the gas gap layer.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.identifier">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">identifier</span></code><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.identifier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the text string for material identifier.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.is_gas_material">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">is_gas_material</span></code><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.is_gas_material" title="Permalink to this definition">¶</a></dt>
+<dd><p>Boolean to note whether the material is a gas gap layer.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.is_glazing_material">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">is_glazing_material</span></code><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.is_glazing_material" title="Permalink to this definition">¶</a></dt>
+<dd><p>Boolean to note whether the material is a glazing layer.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.is_shade_material">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">is_shade_material</span></code><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.is_shade_material" title="Permalink to this definition">¶</a></dt>
+<dd><p>Boolean to note whether the material is a shade layer.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.is_window_material">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">is_window_material</span></code><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.is_window_material" title="Permalink to this definition">¶</a></dt>
+<dd><p>Boolean to note whether the material can be used for window surfaces.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.molecular_weight">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">molecular_weight</span></code><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.molecular_weight" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the gas molecular weight.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.prandtl">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">prandtl</span></code><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.prandtl" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prandtl number of the gas at 0C.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.specific_heat">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">specific_heat</span></code><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.specific_heat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specific heat of the gas at 0C [J/kg-K].</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.thickness">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">thickness</span></code><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.thickness" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get or set the thickess of the gas layer [m].</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.viscosity">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">viscosity</span></code><a class="headerlink" href="#honeybee_energy.material.gas.EnergyWindowMaterialGasMixture.viscosity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Viscosity of the gas at 0C [kg/m-s].</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2021, Ladybug Tools.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.4.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

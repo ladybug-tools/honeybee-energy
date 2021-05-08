@@ -1,0 +1,22 @@
+honeybee\_energy.material package
+=================================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   honeybee_energy.material.dictutil
+   honeybee_energy.material.gas
+   honeybee_energy.material.glazing
+   honeybee_energy.material.opaque
+   honeybee_energy.material.shade
+
+Module contents
+---------------
+
+.. automodule:: honeybee_energy.material
+   :members:
+   :undoc-members:
+   :show-inheritance:

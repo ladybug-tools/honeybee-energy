@@ -1,0 +1,33 @@
+honeybee\_energy.cli package
+============================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   honeybee_energy.cli.data
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   honeybee_energy.cli.baseline
+   honeybee_energy.cli.edit
+   honeybee_energy.cli.lib
+   honeybee_energy.cli.result
+   honeybee_energy.cli.settings
+   honeybee_energy.cli.simulate
+   honeybee_energy.cli.translate
+   honeybee_energy.cli.validate
+
+Module contents
+---------------
+
+.. automodule:: honeybee_energy.cli
+   :members:
+   :undoc-members:
+   :show-inheritance:

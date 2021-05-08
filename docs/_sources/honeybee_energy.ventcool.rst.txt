@@ -1,0 +1,22 @@
+honeybee\_energy.ventcool package
+=================================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   honeybee_energy.ventcool.afn
+   honeybee_energy.ventcool.control
+   honeybee_energy.ventcool.crack
+   honeybee_energy.ventcool.opening
+   honeybee_energy.ventcool.simulation
+
+Module contents
+---------------
+
+.. automodule:: honeybee_energy.ventcool
+   :members:
+   :undoc-members:
+   :show-inheritance:

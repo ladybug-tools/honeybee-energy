@@ -1,0 +1,10 @@
+honeybee\_energy.cli.data package
+=================================
+
+Module contents
+---------------
+
+.. automodule:: honeybee_energy.cli.data
+   :members:
+   :undoc-members:
+   :show-inheritance:

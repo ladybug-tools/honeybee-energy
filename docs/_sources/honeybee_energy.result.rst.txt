@@ -1,0 +1,24 @@
+honeybee\_energy.result package
+===============================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   honeybee_energy.result.colorobj
+   honeybee_energy.result.err
+   honeybee_energy.result.loadbalance
+   honeybee_energy.result.match
+   honeybee_energy.result.osw
+   honeybee_energy.result.rdd
+   honeybee_energy.result.zsz
+
+Module contents
+---------------
+
+.. automodule:: honeybee_energy.result
+   :members:
+   :undoc-members:
+   :show-inheritance:

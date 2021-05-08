@@ -1,0 +1,45 @@
+honeybee\_energy package
+========================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   honeybee_energy.cli
+   honeybee_energy.construction
+   honeybee_energy.hvac
+   honeybee_energy.lib
+   honeybee_energy.load
+   honeybee_energy.material
+   honeybee_energy.properties
+   honeybee_energy.result
+   honeybee_energy.schedule
+   honeybee_energy.simulation
+   honeybee_energy.ventcool
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   honeybee_energy.altnumber
+   honeybee_energy.boundarycondition
+   honeybee_energy.config
+   honeybee_energy.constructionset
+   honeybee_energy.dictutil
+   honeybee_energy.measure
+   honeybee_energy.programtype
+   honeybee_energy.reader
+   honeybee_energy.run
+   honeybee_energy.writer
+
+Module contents
+---------------
+
+.. automodule:: honeybee_energy
+   :members:
+   :undoc-members:
+   :show-inheritance:

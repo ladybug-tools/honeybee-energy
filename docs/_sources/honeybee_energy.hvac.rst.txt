@@ -1,0 +1,28 @@
+honeybee\_energy.hvac package
+=============================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   honeybee_energy.hvac.allair
+   honeybee_energy.hvac.doas
+   honeybee_energy.hvac.heatcool
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   honeybee_energy.hvac.idealair
+
+Module contents
+---------------
+
+.. automodule:: honeybee_energy.hvac
+   :members:
+   :undoc-members:
+   :show-inheritance:

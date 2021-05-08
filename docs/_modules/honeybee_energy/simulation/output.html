@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>honeybee_energy.simulation.output &#8212; honeybee energy  documentation</title>
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../../../_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="../../../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../../../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../../../_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-inverse navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../../index.html">
+          honeybee energy</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli/index.html">CLI Docs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../cli/index.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../cli/index.html#commands">Commands</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../cli/main.html">main</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../cli/main.html#honeybee-energy">honeybee-energy</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/main.html#honeybee-energy-config">config</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../cli/settings.html">settings</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../cli/settings.html#honeybee-energy-settings">honeybee-energy settings</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/settings.html#honeybee-energy-settings-comfort-sim-par">comfort-sim-par</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/settings.html#honeybee-energy-settings-custom-sim-par">custom-sim-par</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/settings.html#honeybee-energy-settings-default-sim-par">default-sim-par</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/settings.html#honeybee-energy-settings-load-balance-sim-par">load-balance-sim-par</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/settings.html#honeybee-energy-settings-orientation-sim-pars">orientation-sim-pars</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/settings.html#honeybee-energy-settings-run-period">run-period</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/settings.html#honeybee-energy-settings-sizing-sim-par">sizing-sim-par</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../cli/simulate.html">simulate</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../cli/simulate.html#honeybee-energy-simulate">honeybee-energy simulate</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/simulate.html#honeybee-energy-simulate-idf">idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/simulate.html#honeybee-energy-simulate-model">model</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/simulate.html#honeybee-energy-simulate-osm">osm</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../cli/baseline.html">baseline</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../cli/baseline.html#honeybee-energy-baseline">honeybee-energy baseline</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/baseline.html#honeybee-energy-baseline-constructions-2004">constructions-2004</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/baseline.html#honeybee-energy-baseline-geometry-2004">geometry-2004</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/baseline.html#honeybee-energy-baseline-hvac-2004">hvac-2004</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/baseline.html#honeybee-energy-baseline-lighting-2004">lighting-2004</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/baseline.html#honeybee-energy-baseline-remove-ecms">remove-ecms</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../cli/edit.html">edit</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../cli/edit.html#honeybee-energy-edit">honeybee-energy edit</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/edit.html#honeybee-energy-edit-modifiers-from-constructions">modifiers-from-constructions</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../cli/validate.html">validate</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../cli/validate.html#honeybee-energy-validate">honeybee-energy validate</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/validate.html#honeybee-energy-validate-construction-set">construction-set</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/validate.html#honeybee-energy-validate-model-properties">model-properties</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/validate.html#honeybee-energy-validate-program-type">program-type</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/validate.html#honeybee-energy-validate-schedule">schedule</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/validate.html#honeybee-energy-validate-schedule-type-limit">schedule-type-limit</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/validate.html#honeybee-energy-validate-sim-par">sim-par</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../cli/result.html">result</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result">honeybee-energy result</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-all-available-info">all-available-info</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-available-results">available-results</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-available-results-info">available-results-info</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-available-run-period-info">available-run-period-info</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-component-sizes">component-sizes</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-data-by-output">data-by-output</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-data-by-outputs">data-by-outputs</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-energy-use-intensity">energy-use-intensity</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-load-balance">load-balance</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-output-csv">output-csv</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-output-csv-queryable">output-csv-queryable</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-tabular-data">tabular-data</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-tabular-metadata">tabular-metadata</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-zone-sizes">zone-sizes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../cli/lib.html">lib</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib">honeybee-energy lib</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-construction-set-by-id">construction-set-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-construction-sets">construction-sets</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-construction-sets-by-id">construction-sets-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-constructions-by-id">constructions-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-materials-by-id">materials-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-opaque-construction-by-id">opaque-construction-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-opaque-constructions">opaque-constructions</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-opaque-material-by-id">opaque-material-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-opaque-materials">opaque-materials</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-program-type-by-id">program-type-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-program-types">program-types</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-program-types-by-id">program-types-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-schedule-by-id">schedule-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-schedule-type-limit-by-id">schedule-type-limit-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-schedule-type-limits">schedule-type-limits</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-schedule-type-limits-by-id">schedule-type-limits-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-schedules">schedules</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-schedules-by-id">schedules-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-shade-construction-by-id">shade-construction-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-shade-constructions">shade-constructions</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-window-construction-by-id">window-construction-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-window-constructions">window-constructions</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-window-material-by-id">window-material-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-window-materials">window-materials</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../cli/translate.html">translate</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate">honeybee-energy translate</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate-constructions-from-idf">constructions-from-idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate-constructions-to-idf">constructions-to-idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate-model-from-gbxml">model-from-gbxml</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate-model-from-idf">model-from-idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate-model-from-osm">model-from-osm</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate-model-occ-schedules">model-occ-schedules</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate-model-to-gbxml">model-to-gbxml</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate-model-to-idf">model-to-idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate-model-to-osm">model-to-osm</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate-schedules-from-idf">schedules-from-idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate-schedules-to-idf">schedules-to-idf</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">honeybee_energy</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../honeybee_energy.html">honeybee_energy package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../honeybee_energy.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.cli.html">honeybee_energy.cli package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.cli.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.cli.data.html">honeybee_energy.cli.data package</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="../../../honeybee_energy.cli.data.html#module-honeybee_energy.cli.data">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.cli.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.cli.baseline.html">honeybee_energy.cli.baseline module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.cli.edit.html">honeybee_energy.cli.edit module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.cli.lib.html">honeybee_energy.cli.lib module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.cli.result.html">honeybee_energy.cli.result module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.cli.settings.html">honeybee_energy.cli.settings module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.cli.simulate.html">honeybee_energy.cli.simulate module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.cli.translate.html">honeybee_energy.cli.translate module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.cli.validate.html">honeybee_energy.cli.validate module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.cli.html#module-honeybee_energy.cli">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.construction.html">honeybee_energy.construction package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.construction.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.construction.air.html">honeybee_energy.construction.air module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.construction.dictutil.html">honeybee_energy.construction.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.construction.opaque.html">honeybee_energy.construction.opaque module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.construction.shade.html">honeybee_energy.construction.shade module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.construction.window.html">honeybee_energy.construction.window module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.construction.windowshade.html">honeybee_energy.construction.windowshade module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.construction.html#module-honeybee_energy.construction">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.hvac.html">honeybee_energy.hvac package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.hvac.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.hvac.allair.html">honeybee_energy.hvac.allair package</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="../../../honeybee_energy.hvac.allair.html#submodules">Submodules</a><ul>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.allair.furnace.html">honeybee_energy.hvac.allair.furnace module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.allair.psz.html">honeybee_energy.hvac.allair.psz module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.allair.ptac.html">honeybee_energy.hvac.allair.ptac module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.allair.pvav.html">honeybee_energy.hvac.allair.pvav module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.allair.vav.html">honeybee_energy.hvac.allair.vav module</a></li>
+</ul>
+</li>
+<li class="toctree-l7"><a class="reference internal" href="../../../honeybee_energy.hvac.allair.html#module-honeybee_energy.hvac.allair">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.hvac.doas.html">honeybee_energy.hvac.doas package</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="../../../honeybee_energy.hvac.doas.html#submodules">Submodules</a><ul>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.doas.fcu.html">honeybee_energy.hvac.doas.fcu module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.doas.vrf.html">honeybee_energy.hvac.doas.vrf module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.doas.wshp.html">honeybee_energy.hvac.doas.wshp module</a></li>
+</ul>
+</li>
+<li class="toctree-l7"><a class="reference internal" href="../../../honeybee_energy.hvac.doas.html#module-honeybee_energy.hvac.doas">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.hvac.heatcool.html">honeybee_energy.hvac.heatcool package</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="../../../honeybee_energy.hvac.heatcool.html#submodules">Submodules</a><ul>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.heatcool.baseboard.html">honeybee_energy.hvac.heatcool.baseboard module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.heatcool.evapcool.html">honeybee_energy.hvac.heatcool.evapcool module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.heatcool.fcu.html">honeybee_energy.hvac.heatcool.fcu module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.heatcool.gasunit.html">honeybee_energy.hvac.heatcool.gasunit module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.heatcool.residential.html">honeybee_energy.hvac.heatcool.residential module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.heatcool.vrf.html">honeybee_energy.hvac.heatcool.vrf module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.heatcool.windowac.html">honeybee_energy.hvac.heatcool.windowac module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.heatcool.wshp.html">honeybee_energy.hvac.heatcool.wshp module</a></li>
+</ul>
+</li>
+<li class="toctree-l7"><a class="reference internal" href="../../../honeybee_energy.hvac.heatcool.html#module-honeybee_energy.hvac.heatcool">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.hvac.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.hvac.idealair.html">honeybee_energy.hvac.idealair module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.hvac.html#module-honeybee_energy.hvac">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.lib.html">honeybee_energy.lib package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.lib.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.lib.constructions.html">honeybee_energy.lib.constructions module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.lib.constructionsets.html">honeybee_energy.lib.constructionsets module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.lib.materials.html">honeybee_energy.lib.materials module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.lib.programtypes.html">honeybee_energy.lib.programtypes module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.lib.schedules.html">honeybee_energy.lib.schedules module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.lib.scheduletypelimits.html">honeybee_energy.lib.scheduletypelimits module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.lib.html#module-honeybee_energy.lib">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.load.html">honeybee_energy.load package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.load.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.load.daylight.html">honeybee_energy.load.daylight module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.load.dictutil.html">honeybee_energy.load.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.load.equipment.html">honeybee_energy.load.equipment module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.load.hotwater.html">honeybee_energy.load.hotwater module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.load.infiltration.html">honeybee_energy.load.infiltration module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.load.lighting.html">honeybee_energy.load.lighting module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.load.people.html">honeybee_energy.load.people module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.load.setpoint.html">honeybee_energy.load.setpoint module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.load.ventilation.html">honeybee_energy.load.ventilation module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.load.html#module-honeybee_energy.load">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.material.html">honeybee_energy.material package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.material.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.material.dictutil.html">honeybee_energy.material.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.material.gas.html">honeybee_energy.material.gas module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.material.glazing.html">honeybee_energy.material.glazing module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.material.opaque.html">honeybee_energy.material.opaque module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.material.shade.html">honeybee_energy.material.shade module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.material.html#module-honeybee_energy.material">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.properties.html">honeybee_energy.properties package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.properties.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.properties.aperture.html">honeybee_energy.properties.aperture module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.properties.door.html">honeybee_energy.properties.door module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.properties.face.html">honeybee_energy.properties.face module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.properties.model.html">honeybee_energy.properties.model module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.properties.room.html">honeybee_energy.properties.room module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.properties.shade.html">honeybee_energy.properties.shade module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.properties.html#module-honeybee_energy.properties">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.result.html">honeybee_energy.result package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.result.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.result.colorobj.html">honeybee_energy.result.colorobj module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.result.err.html">honeybee_energy.result.err module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.result.loadbalance.html">honeybee_energy.result.loadbalance module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.result.match.html">honeybee_energy.result.match module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.result.osw.html">honeybee_energy.result.osw module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.result.rdd.html">honeybee_energy.result.rdd module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.result.zsz.html">honeybee_energy.result.zsz module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.result.html#module-honeybee_energy.result">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.schedule.html">honeybee_energy.schedule package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.schedule.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.schedule.day.html">honeybee_energy.schedule.day module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.schedule.dictutil.html">honeybee_energy.schedule.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.schedule.fixedinterval.html">honeybee_energy.schedule.fixedinterval module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.schedule.rule.html">honeybee_energy.schedule.rule module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.schedule.ruleset.html">honeybee_energy.schedule.ruleset module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.schedule.typelimit.html">honeybee_energy.schedule.typelimit module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.schedule.html#module-honeybee_energy.schedule">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.simulation.html">honeybee_energy.simulation package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.simulation.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.simulation.control.html">honeybee_energy.simulation.control module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.simulation.daylightsaving.html">honeybee_energy.simulation.daylightsaving module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.simulation.dictutil.html">honeybee_energy.simulation.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.simulation.output.html">honeybee_energy.simulation.output module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.simulation.parameter.html">honeybee_energy.simulation.parameter module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.simulation.runperiod.html">honeybee_energy.simulation.runperiod module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.simulation.shadowcalculation.html">honeybee_energy.simulation.shadowcalculation module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.simulation.sizing.html">honeybee_energy.simulation.sizing module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.simulation.html#module-honeybee_energy.simulation">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.ventcool.html">honeybee_energy.ventcool package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.ventcool.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.ventcool.afn.html">honeybee_energy.ventcool.afn module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.ventcool.control.html">honeybee_energy.ventcool.control module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.ventcool.crack.html">honeybee_energy.ventcool.crack module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.ventcool.opening.html">honeybee_energy.ventcool.opening module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.ventcool.simulation.html">honeybee_energy.ventcool.simulation module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.ventcool.html#module-honeybee_energy.ventcool">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../honeybee_energy.html#submodules">Submodules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.altnumber.html">honeybee_energy.altnumber module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.boundarycondition.html">honeybee_energy.boundarycondition module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.config.html">honeybee_energy.config module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.constructionset.html">honeybee_energy.constructionset module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.dictutil.html">honeybee_energy.dictutil module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.measure.html">honeybee_energy.measure module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.programtype.html">honeybee_energy.programtype module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.reader.html">honeybee_energy.reader module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.run.html">honeybee_energy.run module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.writer.html">honeybee_energy.writer module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../honeybee_energy.html#module-honeybee_energy">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli/index.html">CLI Docs</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">honeybee_energy</a></li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+              
+            
+            
+            
+            
+              <li class="hidden-sm"></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+      <div class="col-md-4">
+        <div id="sidebar" class="bs-sidenav" role="complementary"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli/index.html">CLI Docs</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">honeybee_energy</a></li>
+</ul>
+
+        </div>
+      </div>
+    <div class="body col-md-8 content" role="main">
+      
+  <h1>Source code for honeybee_energy.simulation.output</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding=utf-8</span>
+<span class="sd">&quot;&quot;&quot;Object to hold EnergyPlus simulation outputs.&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
+
+<span class="kn">from</span> <span class="nn">..reader</span> <span class="kn">import</span> <span class="n">parse_idf_string</span>
+<span class="kn">from</span> <span class="nn">..writer</span> <span class="kn">import</span> <span class="n">generate_idf_string</span>
+
+
+<div class="viewcode-block" id="SimulationOutput"><a class="viewcode-back" href="../../../honeybee_energy.simulation.output.html#honeybee_energy.simulation.output.SimulationOutput">[docs]</a><span class="k">class</span> <span class="nc">SimulationOutput</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Object to hold EnergyPlus simulation outputs.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        outputs: A list of EnergyPlus output names as strings, which are requested</span>
+<span class="sd">            from the simulation. If None, no outputs will be requested.</span>
+<span class="sd">            Note that this object does not check whether the outputs exist</span>
+<span class="sd">            within the EnergyPlus IDD or are request-able from a given Model.</span>
+<span class="sd">            (eg. [&#39;Zone Ideal Loads Supply Air Total Cooling Energy&#39;]).</span>
+<span class="sd">            Default: None.</span>
+<span class="sd">        reporting_frequency: Text for the frequency at which the outputs</span>
+<span class="sd">            are reported. Default: &#39;Hourly&#39;.</span>
+<span class="sd">            Choose from the following:</span>
+
+<span class="sd">            * Annual</span>
+<span class="sd">            * Monthly</span>
+<span class="sd">            * Daily</span>
+<span class="sd">            * Hourly</span>
+<span class="sd">            * Timestep</span>
+
+<span class="sd">        include_sqlite: Boolean to note whether a SQLite report should be</span>
+<span class="sd">            generated from the simulation, which contains all of the outputs and</span>
+<span class="sd">            summary_reports. Default: True.</span>
+<span class="sd">        include_html: Boolean to note whether an HTML report should be generated</span>
+<span class="sd">            from the simulation, which contains all of the summary_reports.</span>
+<span class="sd">            Default: True.</span>
+<span class="sd">        summary_reports: An array of EnergyPlus summary report names as strings.</span>
+<span class="sd">            An empty list or None will result in no summary reports.</span>
+<span class="sd">            Default: (&#39;AllSummary&#39;,). See the Input Output Reference SummaryReports</span>
+<span class="sd">            section for a full list of all reports that can be requested.</span>
+<span class="sd">            (https://bigladdersoftware.com/epx/docs/9-1/input-output-reference/\</span>
+<span class="sd">output-table-summaryreports.html#outputtablesummaryreports).</span>
+
+<span class="sd">    Properties:</span>
+<span class="sd">        * outputs</span>
+<span class="sd">        * reporting_frequency</span>
+<span class="sd">        * include_sqlite</span>
+<span class="sd">        * include_html</span>
+<span class="sd">        * summary_reports</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;_outputs&#39;</span><span class="p">,</span> <span class="s1">&#39;_reporting_frequency&#39;</span><span class="p">,</span> <span class="s1">&#39;_include_sqlite&#39;</span><span class="p">,</span>
+                 <span class="s1">&#39;_include_html&#39;</span><span class="p">,</span> <span class="s1">&#39;_summary_reports&#39;</span><span class="p">)</span>
+    <span class="n">REPORTING_FREQUENCIES</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;Annual&#39;</span><span class="p">,</span> <span class="s1">&#39;Monthly&#39;</span><span class="p">,</span> <span class="s1">&#39;Daily&#39;</span><span class="p">,</span> <span class="s1">&#39;Hourly&#39;</span><span class="p">,</span> <span class="s1">&#39;Timestep&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outputs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reporting_frequency</span><span class="o">=</span><span class="s1">&#39;Hourly&#39;</span><span class="p">,</span> <span class="n">include_sqlite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">include_html</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">summary_reports</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;AllSummary&#39;</span><span class="p">,)):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize SimulationOutput.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span> <span class="o">=</span> <span class="n">outputs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reporting_frequency</span> <span class="o">=</span> <span class="n">reporting_frequency</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">include_sqlite</span> <span class="o">=</span> <span class="n">include_sqlite</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">include_html</span> <span class="o">=</span> <span class="n">include_html</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">summary_reports</span> <span class="o">=</span> <span class="n">summary_reports</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get or set a tuple of EnergyPlus output names as strings.</span>
+
+<span class="sd">        These outputs will be requested from the simulation and, if None,</span>
+<span class="sd">        no outputs will be requested.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_outputs</span><span class="p">))</span>
+
+    <span class="nd">@outputs</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">)),</span> <span class="s1">&#39;Expected list or tuple for &#39;</span> \
+                <span class="s1">&#39;SimulationOutput outputs. Got </span><span class="si">{}</span><span class="s1">.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+            <span class="n">vals</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">output</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
+                <span class="n">vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">output</span><span class="p">))</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_outputs</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">reporting_frequency</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get or set text for the frequency at which the outputs are reported.</span>
+
+<span class="sd">        Choose from the following:</span>
+
+<span class="sd">        * Annual</span>
+<span class="sd">        * Monthly</span>
+<span class="sd">        * Daily</span>
+<span class="sd">        * Hourly</span>
+<span class="sd">        * Timestep</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reporting_frequency</span>
+
+    <span class="nd">@reporting_frequency</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">reporting_frequency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">title</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">REPORTING_FREQUENCIES</span><span class="p">,</span> <span class="s1">&#39;reporting_frequency </span><span class="si">{}</span><span class="s1"> &#39;</span> \
+            <span class="s1">&#39;is not recognized.</span><span class="se">\n</span><span class="s1">Choose from the following:</span><span class="se">\n</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">REPORTING_FREQUENCIES</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reporting_frequency</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">include_sqlite</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get or set a boolean for whether a SQLite report should be generated.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_include_sqlite</span>
+
+    <span class="nd">@include_sqlite</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">include_sqlite</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_include_sqlite</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">include_html</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get or set a boolean for whether an HTML report should be generated.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_include_html</span>
+
+    <span class="nd">@include_html</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">include_html</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_include_html</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">summary_reports</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get or set a tuple of EnergyPlus summary report names as strings.</span>
+
+<span class="sd">        These reports will be requested from the simulation and, if None,</span>
+<span class="sd">        no summary reports will be written.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_summary_reports</span><span class="p">))</span>
+
+    <span class="nd">@summary_reports</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">summary_reports</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">)),</span> <span class="s1">&#39;Expected list, tuple, or &#39;</span> \
+                <span class="s1">&#39;set for SimulationOutput summary_reports. Got </span><span class="si">{}</span><span class="s1">.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+            <span class="n">vals</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">output</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
+                <span class="n">vals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">output</span><span class="p">))</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="nb">set</span><span class="p">((</span><span class="s1">&#39;AllSummary&#39;</span><span class="p">,))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_summary_reports</span> <span class="o">=</span> <span class="n">value</span>
+
+<div class="viewcode-block" id="SimulationOutput.add_summary_report"><a class="viewcode-back" href="../../../honeybee_energy.simulation.output.html#honeybee_energy.simulation.output.SimulationOutput.add_summary_report">[docs]</a>    <span class="k">def</span> <span class="nf">add_summary_report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add another summary report to the list of requested reports.</span>
+
+<span class="sd">        See the Input Output Reference SummaryReports</span>
+<span class="sd">        section for a full list of all reports that can be requested.</span>
+<span class="sd">        (https://bigladdersoftware.com/epx/docs/9-1/input-output-reference/\</span>
+<span class="sd">output-table-summaryreports.html#outputtablesummaryreports)</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            report_name: The name of an EnergyPlus simulation report to be requested</span>
+<span class="sd">                from the model. Note that this method does not check whether the</span>
+<span class="sd">                output exists within the EnergyPlus IDD.</span>
+<span class="sd">                (eg. &#39;AnnualBuildingUtilityPerformanceSummary&#39;).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">report_name</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> \
+            <span class="s1">&#39;SummaryReport </span><span class="si">{}</span><span class="s1"> is not valid&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">report_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_summary_reports</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">report_name</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SimulationOutput.add_output"><a class="viewcode-back" href="../../../honeybee_energy.simulation.output.html#honeybee_energy.simulation.output.SimulationOutput.add_output">[docs]</a>    <span class="k">def</span> <span class="nf">add_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add another output to the list of requested outputs.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            output_name: The name of an EnergyPlus output that is requested</span>
+<span class="sd">                from the simulation. Note that this method does not check whether</span>
+<span class="sd">                the output exists within the EnergyPlus IDD or are request-able</span>
+<span class="sd">                from a given Model.</span>
+<span class="sd">                (eg. &#39;Zone Ideal Loads Supply Air Total Cooling Energy&#39;).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_outputs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">output_name</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="SimulationOutput.add_zone_energy_use"><a class="viewcode-back" href="../../../honeybee_energy.simulation.output.html#honeybee_energy.simulation.output.SimulationOutput.add_zone_energy_use">[docs]</a>    <span class="k">def</span> <span class="nf">add_zone_energy_use</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">load_type</span><span class="o">=</span><span class="s1">&#39;All&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add outputs for zone energy use when ideal air loads are assigned.</span>
+
+<span class="sd">        This includes, ideal air heating + cooling, lighting, electric + gas</span>
+<span class="sd">        equipment, and fan electric energy.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            load_type: A text value to set the type of load outputs requested.</span>
+<span class="sd">                Default: &#39;All&#39;. Choose from the following:</span>
+
+<span class="sd">                * All - all energy use including heat lost from the zone</span>
+<span class="sd">                * Total - total load added/removed from the zone (sensible + latent)</span>
+<span class="sd">                * Sensible - sensible load added/removed to the zone</span>
+<span class="sd">                * Latent - latent load added/removed to the zone</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">load_type</span> <span class="o">=</span> <span class="n">load_type</span><span class="o">.</span><span class="n">title</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">load_type</span> <span class="o">==</span> <span class="s1">&#39;All&#39;</span><span class="p">:</span>
+            <span class="n">outputs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Zone Ideal Loads Supply Air Total Cooling Energy&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;Zone Ideal Loads Supply Air Total Heating Energy&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;Zone Lights Electricity Energy&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;Zone Electric Equipment Electricity Energy&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;Zone Gas Equipment NaturalGas Energy&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;Zone Ventilation Fan Electricity Energy&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;Water Use Equipment Heating Energy&#39;</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">load_type</span> <span class="o">==</span> <span class="s1">&#39;Total&#39;</span><span class="p">:</span>
+            <span class="n">outputs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Zone Ideal Loads Supply Air Total Cooling Energy&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;Zone Ideal Loads Supply Air Total Heating Energy&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;Zone Lights Total Heating Energy&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;Zone Electric Equipment Total Heating Energy&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;Zone Gas Equipment Total Heating Energy&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;Water Use Equipment Zone Sensible Heat Gain Energy&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;Water Use Equipment Zone Latent Gain Energy&#39;</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">load_type</span> <span class="o">==</span> <span class="s1">&#39;Sensible&#39;</span><span class="p">:</span>
+            <span class="n">outputs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Zone Ideal Loads Supply Air Sensible Cooling Energy&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;Zone Ideal Loads Supply Air Sensible Heating Energy&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;Zone Lights Total Heating Energy&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;Zone Electric Equipment Radiant Heating Energy&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;Zone Electric Equipment Convective Heating Energy&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;Zone Gas Equipment Radiant Heating Energy&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;Zone Gas Equipment Convective Heating Energy&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;Water Use Equipment Zone Sensible Heat Gain Energy&#39;</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">load_type</span> <span class="o">==</span> <span class="s1">&#39;Latent&#39;</span><span class="p">:</span>
+            <span class="n">outputs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Zone Ideal Loads Supply Air Latent Cooling Energy&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;Zone Ideal Loads Supply Air Latent Heating Energy&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;Zone Electric Equipment Latent Gain Energy&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;Zone Gas Equipment Latent Gain Energy&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;Water Use Equipment Zone Latent Gain Energy&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;load_type </span><span class="si">{}</span><span class="s1"> is not valid&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">load_type</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">outp</span> <span class="ow">in</span> <span class="n">outputs</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_outputs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">outp</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SimulationOutput.add_hvac_energy_use"><a class="viewcode-back" href="../../../honeybee_energy.simulation.output.html#honeybee_energy.simulation.output.SimulationOutput.add_hvac_energy_use">[docs]</a>    <span class="k">def</span> <span class="nf">add_hvac_energy_use</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add outputs for HVAC energy use when detailed systems are assigned.</span>
+
+<span class="sd">        This includes a range of outputs for different pieces of equipment,</span>
+<span class="sd">        which is meant to catch all energy-consuming parts of a system.</span>
+<span class="sd">        (eg. chillers, boilers, coils, humidifiers, fans, pumps).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Cooling Coil Electricity Energy&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;Chiller Electricity Energy&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;Boiler NaturalGas Energy&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;Heating Coil Total Heating Energy&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;Heating Coil NaturalGas Energy&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;Heating Coil Electricity Energy&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;Humidifier Electricity Energy&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;Fan Electricity Energy&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;Cooling Tower Fan Electricity Energy&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;Pump Electricity Energy&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;Zone VRF Air Terminal Cooling Electricity Energy&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;Zone VRF Air Terminal Heating Electricity Energy&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;VRF Heat Pump Cooling Electricity Energy&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;VRF Heat Pump Heating Electricity Energy&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;VRF Heat Pump Defrost Electricity Energy&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;VRF Heat Pump Crankcase Heater Electricity Energy&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;Chiller Heater System Cooling Electricity Energy&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;Chiller Heater System Heating Electricity Energy&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;District Cooling Chilled Water Energy&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;District Heating Hot Water Energy&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;Baseboard Electricity Energy&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;Evaporative Cooler Electricity Energy&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;Hot_Water_Loop_Central_Air_Source_Heat_Pump Electricity Consumption&#39;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">outp</span> <span class="ow">in</span> <span class="n">outputs</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_outputs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">outp</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SimulationOutput.add_gains_and_losses"><a class="viewcode-back" href="../../../honeybee_energy.simulation.output.html#honeybee_energy.simulation.output.SimulationOutput.add_gains_and_losses">[docs]</a>    <span class="k">def</span> <span class="nf">add_gains_and_losses</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">load_type</span><span class="o">=</span><span class="s1">&#39;Total&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add outputs for zone gains and losses.</span>
+
+<span class="sd">        This includes such as people gains, solar gains, infiltration losses/gains,</span>
+<span class="sd">        and ventilation losses/gains.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            load_type: A text value to set the type of load outputs requested.</span>
+<span class="sd">                Default: &#39;Total&#39;. Choose from the following:</span>
+
+<span class="sd">                * Total - the total load added to the zone (both sensible and latent)</span>
+<span class="sd">                * Sensible - the sensible load added to the zone</span>
+<span class="sd">                * Latent - the latent load added to the zone</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">load_type</span> <span class="o">=</span> <span class="n">load_type</span><span class="o">.</span><span class="n">title</span><span class="p">()</span>
+        <span class="n">always_sensible</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Zone Windows Total Transmitted Solar Radiation Energy&#39;</span><span class="p">,</span>
+                           <span class="s1">&#39;AFN Zone Infiltration Sensible Heat Gain Energy&#39;</span><span class="p">,</span>
+                           <span class="s1">&#39;AFN Zone Infiltration Sensible Heat Loss Energy&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">load_type</span> <span class="o">==</span> <span class="s1">&#39;Total&#39;</span><span class="p">:</span>
+            <span class="n">outputs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Zone People Total Heating Energy&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;Zone Ventilation Total Heat Loss Energy&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;Zone Ventilation Total Heat Gain Energy&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;Zone Ideal Loads Zone Total Heating Energy&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;Zone Ideal Loads Zone Total Cooling Energy&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;Zone Infiltration Total Heat Loss Energy&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;Zone Infiltration Total Heat Gain Energy&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">always_sensible</span>
+        <span class="k">elif</span> <span class="n">load_type</span> <span class="o">==</span> <span class="s1">&#39;Sensible&#39;</span><span class="p">:</span>
+            <span class="n">outputs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Zone People Sensible Heating Energy&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;Zone Ventilation Sensible Heat Loss Energy&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;Zone Ventilation Sensible Heat Gain Energy&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;Zone Ideal Loads Zone Sensible Heating Energy&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;Zone Ideal Loads Zone Sensible Cooling Energy&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;Zone Infiltration Sensible Heat Loss Energy&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;Zone Infiltration Sensible Heat Gain Energy&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">always_sensible</span>
+        <span class="k">elif</span> <span class="n">load_type</span> <span class="o">==</span> <span class="s1">&#39;Latent&#39;</span><span class="p">:</span>
+            <span class="n">outputs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Zone People Latent Gain Energy&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;Zone Ventilation Latent Heat Loss Energy&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;Zone Ventilation Latent Heat Gain Energy&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;Zone Ideal Loads Zone Latent Heating Energy&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;Zone Ideal Loads Zone Latent Cooling Energy&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;Zone Infiltration Latent Heat Loss Energy&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;Zone Infiltration Latent Heat Gain Energy&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;AFN Zone Infiltration Latent Heat Loss Energy&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;AFN Zone Infiltration Latent Heat Gain Energy&#39;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;load_type </span><span class="si">{}</span><span class="s1"> is not valid&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">load_type</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">outp</span> <span class="ow">in</span> <span class="n">outputs</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_outputs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">outp</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SimulationOutput.add_comfort_metrics"><a class="viewcode-back" href="../../../honeybee_energy.simulation.output.html#honeybee_energy.simulation.output.SimulationOutput.add_comfort_metrics">[docs]</a>    <span class="k">def</span> <span class="nf">add_comfort_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add outputs for zone thermal comfort analysis.</span>
+
+<span class="sd">        This includes air temperature, mean radiant temperature, relative</span>
+<span class="sd">        humidity.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Zone Operative Temperature&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;Zone Mean Air Temperature&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;Zone Mean Radiant Temperature&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;Zone Air Relative Humidity&#39;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">outp</span> <span class="ow">in</span> <span class="n">outputs</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_outputs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">outp</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SimulationOutput.add_stratification_variables"><a class="viewcode-back" href="../../../honeybee_energy.simulation.output.html#honeybee_energy.simulation.output.SimulationOutput.add_stratification_variables">[docs]</a>    <span class="k">def</span> <span class="nf">add_stratification_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add outputs for estimating stratification across a zone.</span>
+
+<span class="sd">        This includes all air flow into the zone as well as all heat gain</span>
+<span class="sd">        to the air.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Zone Ventilation Standard Density Volume Flow Rate&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;Zone Infiltration Standard Density Volume Flow Rate&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;Zone Mechanical Ventilation Standard Density Volume Flow Rate&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;Zone Air Heat Balance Internal Convective Heat Gain Rate&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;Zone Air Heat Balance Surface Convection Rate&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;Zone Air Heat Balance System Air Transfer Rate&#39;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">outp</span> <span class="ow">in</span> <span class="n">outputs</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_outputs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">outp</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SimulationOutput.add_surface_temperature"><a class="viewcode-back" href="../../../honeybee_energy.simulation.output.html#honeybee_energy.simulation.output.SimulationOutput.add_surface_temperature">[docs]</a>    <span class="k">def</span> <span class="nf">add_surface_temperature</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add outputs for indoor and outdoor surface temperature.&quot;&quot;&quot;</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Surface Outside Face Temperature&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;Surface Inside Face Temperature&#39;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">outp</span> <span class="ow">in</span> <span class="n">outputs</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_outputs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">outp</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SimulationOutput.add_surface_energy_flow"><a class="viewcode-back" href="../../../honeybee_energy.simulation.output.html#honeybee_energy.simulation.output.SimulationOutput.add_surface_energy_flow">[docs]</a>    <span class="k">def</span> <span class="nf">add_surface_energy_flow</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add outputs for energy flow across all surfaces.&quot;&quot;&quot;</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Surface Average Face Conduction Heat Transfer Energy&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;Surface Window Heat Loss Energy&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;Surface Window Heat Gain Energy&#39;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">outp</span> <span class="ow">in</span> <span class="n">outputs</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_outputs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">outp</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SimulationOutput.add_glazing_solar"><a class="viewcode-back" href="../../../honeybee_energy.simulation.output.html#honeybee_energy.simulation.output.SimulationOutput.add_glazing_solar">[docs]</a>    <span class="k">def</span> <span class="nf">add_glazing_solar</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add outputs for the transmitted solar gain through individual window surfaces.</span>
+
+<span class="sd">        This includes transmitted beam, diffuse, and total solar gain.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Surface Window Transmitted Beam Solar Radiation Energy&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;Surface Window Transmitted Diffuse Solar Radiation Energy&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;Surface Window Transmitted Solar Radiation Energy&#39;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">outp</span> <span class="ow">in</span> <span class="n">outputs</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_outputs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">outp</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SimulationOutput.add_energy_balance_variables"><a class="viewcode-back" href="../../../honeybee_energy.simulation.output.html#honeybee_energy.simulation.output.SimulationOutput.add_energy_balance_variables">[docs]</a>    <span class="k">def</span> <span class="nf">add_energy_balance_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">load_type</span><span class="o">=</span><span class="s1">&#39;Total&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add all outputs needed to generate complete energy balance graphics.</span>
+
+<span class="sd">        This includes zone energy use, zone gains and losses, and surface energy flow.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            load_type: A text value to set the type of load outputs requested.</span>
+<span class="sd">                Default: &#39;Total&#39;. Choose from the following:</span>
+
+<span class="sd">                * Total - the total load added to the zone (both sensible and latent)</span>
+<span class="sd">                * Sensible - the sensible load added to the zone</span>
+<span class="sd">                * Latent - the latent load added to the zone</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_zone_energy_use</span><span class="p">(</span><span class="n">load_type</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_gains_and_losses</span><span class="p">(</span><span class="n">load_type</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_surface_energy_flow</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="SimulationOutput.add_comfort_map_variables"><a class="viewcode-back" href="../../../honeybee_energy.simulation.output.html#honeybee_energy.simulation.output.SimulationOutput.add_comfort_map_variables">[docs]</a>    <span class="k">def</span> <span class="nf">add_comfort_map_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_stratification</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add all outputs needed to generate detailed thermal comfort maps.</span>
+
+<span class="sd">        This includes zone air temperatures, surface temperatures, and</span>
+<span class="sd">        stratification variables.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            include_stratification: Boolean to note whether stratification variables</span>
+<span class="sd">                should be included.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Zone Mean Air Temperature&#39;</span><span class="p">,</span> <span class="s1">&#39;Zone Air Relative Humidity&#39;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">outp</span> <span class="ow">in</span> <span class="n">outputs</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_outputs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">outp</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_surface_temperature</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">include_stratification</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_stratification_variables</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="SimulationOutput.from_idf"><a class="viewcode-back" href="../../../honeybee_energy.simulation.output.html#honeybee_energy.simulation.output.SimulationOutput.from_idf">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_idf</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">table_style</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_variables</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">summary_reports</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">include_sqlite</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a RunPeriod object from an EnergyPlus IDF text string.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            table_style: An IDF OutputControl:Table:Style string.</span>
+<span class="sd">            output_variables: A list of IDF Output:Variable strings for the requested</span>
+<span class="sd">                outputs. If None, no outputs will be been requested.</span>
+<span class="sd">            summary_reports: An IDF Output:Table:SummaryReports string listing</span>
+<span class="sd">                the summary reports that are requested. If None, no summary</span>
+<span class="sd">                reports will be requested.</span>
+<span class="sd">            include_sqlite: Boolean to note whether a SQLite report should be</span>
+<span class="sd">                generated from the simulation, which contains all of the outputs and</span>
+<span class="sd">                summary_reports. Default: True.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># extract the table_style</span>
+        <span class="n">include_html</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="n">table_style</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">style_strs</span> <span class="o">=</span> <span class="n">parse_idf_string</span><span class="p">(</span><span class="n">table_style</span><span class="p">,</span> <span class="s1">&#39;OutputControl:Table:Style,&#39;</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">include_html</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="s1">&#39;HTML&#39;</span> <span class="ow">in</span> <span class="n">style_strs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="k">else</span> <span class="kc">False</span>
+            <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+                <span class="k">pass</span>  <span class="c1"># shorter Table:Style without separator</span>
+
+        <span class="c1"># extract the output_variables</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">frequency</span> <span class="o">=</span> <span class="s1">&#39;Hourly&#39;</span>
+        <span class="k">if</span> <span class="n">output_variables</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">outputs</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">out_str</span> <span class="ow">in</span> <span class="n">output_variables</span><span class="p">:</span>
+                <span class="n">ep_out_str</span> <span class="o">=</span> <span class="n">parse_idf_string</span><span class="p">(</span><span class="n">out_str</span><span class="p">,</span> <span class="s1">&#39;Output:Variable,&#39;</span><span class="p">)</span>
+                <span class="n">outputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ep_out_str</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">frequency</span> <span class="o">=</span> <span class="n">ep_out_str</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">if</span> <span class="n">ep_out_str</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span> <span class="k">else</span> <span class="s1">&#39;Hourly&#39;</span>
+                <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+                    <span class="k">pass</span>  <span class="c1"># shorter output variable with default hourly frequency</span>
+
+        <span class="c1"># extract the summary_reports</span>
+        <span class="n">reports</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">summary_reports</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">reports</span> <span class="o">=</span> <span class="n">parse_idf_string</span><span class="p">(</span><span class="n">summary_reports</span><span class="p">,</span> <span class="s1">&#39;Output:Table:SummaryReports,&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">frequency</span><span class="p">,</span> <span class="n">include_sqlite</span><span class="p">,</span> <span class="n">include_html</span><span class="p">,</span> <span class="n">reports</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SimulationOutput.from_dict"><a class="viewcode-back" href="../../../honeybee_energy.simulation.output.html#honeybee_energy.simulation.output.SimulationOutput.from_dict">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a SimulationOutput object from a dictionary.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data: A SimulationOutput dictionary in following the format below.</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            {</span>
+<span class="sd">            &quot;type&quot;: &quot;SimulationOutput&quot;,</span>
+<span class="sd">            &quot;outputs&quot;: [&#39;Zone Ideal Loads Supply Air Total Cooling Energy&#39;],</span>
+<span class="sd">            &quot;reporting_frequency&quot;: &#39;Annual&#39;,</span>
+<span class="sd">            &quot;include_sqlite&quot;: True,</span>
+<span class="sd">            &quot;include_html&quot;: True,</span>
+<span class="sd">            &quot;summary_reports&quot;: [&#39;AllSummary&#39;, &#39;AnnualBuildingUtilityPerformanceSummary&#39;]</span>
+<span class="sd">            }</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;SimulationOutput&#39;</span><span class="p">,</span> \
+            <span class="s1">&#39;Expected SimulationOutput dictionary. Got </span><span class="si">{}</span><span class="s1">.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">])</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;outputs&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;outputs&#39;</span> <span class="ow">in</span> <span class="n">data</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">frequency</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;reporting_frequency&#39;</span><span class="p">]</span> <span class="k">if</span> \
+            <span class="s1">&#39;reporting_frequency&#39;</span> <span class="ow">in</span> <span class="n">data</span> <span class="k">else</span> <span class="s1">&#39;Hourly&#39;</span>
+        <span class="n">sqlite</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;include_sqlite&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;include_sqlite&#39;</span> <span class="ow">in</span> <span class="n">data</span> <span class="k">else</span> <span class="kc">True</span>
+        <span class="n">html</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;include_html&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;include_html&#39;</span> <span class="ow">in</span> <span class="n">data</span> <span class="k">else</span> <span class="kc">True</span>
+        <span class="n">reports</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;summary_reports&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;summary_reports&#39;</span> <span class="ow">in</span> <span class="n">data</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">frequency</span><span class="p">,</span> <span class="n">sqlite</span><span class="p">,</span> <span class="n">html</span><span class="p">,</span> <span class="n">reports</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SimulationOutput.to_idf"><a class="viewcode-back" href="../../../honeybee_energy.simulation.output.html#honeybee_energy.simulation.output.SimulationOutput.to_idf">[docs]</a>    <span class="k">def</span> <span class="nf">to_idf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get EnergyPlus string representations of the SimulationOutput.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A tuple with six elements</span>
+
+<span class="sd">            -   table_style: An IDF OutputControl:Table:Style string for the simulation.</span>
+
+<span class="sd">            -   output_variables: A list of IDF Output:Variable strings for the requested</span>
+<span class="sd">                outputs. Will be None if no outputs have been requested.</span>
+
+<span class="sd">            -   summary_reports: An IDF Output:Table:SummaryReports string</span>
+<span class="sd">                listing the summary reports that are requested. Will be None</span>
+<span class="sd">                if no summary reports have not been requested.</span>
+
+<span class="sd">            -   sqlite: An IDF Output:SQLite string to request the SQLite file from</span>
+<span class="sd">                the simulation. Will be None if include_sqlite is False.</span>
+
+<span class="sd">            -   variable_dictionary: An IDF Output:VariableDictionary string, which</span>
+<span class="sd">                will ensure that a .rdd file is generated from the simulation.</span>
+
+<span class="sd">            -   surfaces_list: An IDF Output:Surfaces:List string to ensure surface</span>
+<span class="sd">                information is written into the ultimate .eio file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">style</span> <span class="o">=</span> <span class="s1">&#39;CommaAndHTML&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">include_html</span> <span class="k">else</span> <span class="s1">&#39;Comma&#39;</span>
+        <span class="n">table_style</span> <span class="o">=</span> <span class="n">generate_idf_string</span><span class="p">(</span>
+            <span class="s1">&#39;OutputControl:Table:Style&#39;</span><span class="p">,</span>
+            <span class="p">(</span><span class="n">style</span><span class="p">,</span> <span class="s1">&#39;None&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;column separator&#39;</span><span class="p">,</span> <span class="s1">&#39;unit conversion&#39;</span><span class="p">))</span>
+        <span class="n">output_variables</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_output_to_idf</span><span class="p">(</span><span class="n">out_p</span><span class="p">)</span> <span class="k">for</span> <span class="n">out_p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="p">]</span> <span class="k">if</span> \
+            <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_outputs</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">r_comments</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;report </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_summary_reports</span><span class="p">))]</span>
+        <span class="n">summary_reports</span> <span class="o">=</span> <span class="n">generate_idf_string</span><span class="p">(</span>
+            <span class="s1">&#39;Output:Table:SummaryReports&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">summary_reports</span><span class="p">,</span> <span class="n">r_comments</span><span class="p">)</span> <span class="k">if</span> \
+            <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_summary_reports</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">sqlite</span> <span class="o">=</span> <span class="n">generate_idf_string</span><span class="p">(</span>
+            <span class="s1">&#39;Output:SQLite&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;SimpleAndTabular&#39;</span><span class="p">,),</span> <span class="p">(</span><span class="s1">&#39;option type&#39;</span><span class="p">,))</span> <span class="k">if</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">include_sqlite</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">variable_dictionary</span> <span class="o">=</span> <span class="n">generate_idf_string</span><span class="p">(</span>
+            <span class="s1">&#39;Output:VariableDictionary&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;IDF&#39;</span><span class="p">,</span> <span class="s1">&#39;Unsorted&#39;</span><span class="p">),</span>
+            <span class="p">(</span><span class="s1">&#39;key field&#39;</span><span class="p">,</span> <span class="s1">&#39;sort option&#39;</span><span class="p">))</span>
+        <span class="n">surfaces_list</span> <span class="o">=</span> <span class="n">generate_idf_string</span><span class="p">(</span>
+            <span class="s1">&#39;Output:Surfaces:List&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;Details&#39;</span><span class="p">,),</span> <span class="p">(</span><span class="s1">&#39;report type&#39;</span><span class="p">,))</span>
+        <span class="k">return</span> <span class="n">table_style</span><span class="p">,</span> <span class="n">output_variables</span><span class="p">,</span> <span class="n">summary_reports</span><span class="p">,</span> <span class="n">sqlite</span><span class="p">,</span> \
+            <span class="n">variable_dictionary</span><span class="p">,</span> <span class="n">surfaces_list</span></div>
+
+<div class="viewcode-block" id="SimulationOutput.to_dict"><a class="viewcode-back" href="../../../honeybee_energy.simulation.output.html#honeybee_energy.simulation.output.SimulationOutput.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;DaylightSavingTime dictionary representation.&quot;&quot;&quot;</span>
+        <span class="n">base</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;SimulationOutput&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;reporting_frequency&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">reporting_frequency</span><span class="p">,</span>
+                <span class="s1">&#39;include_sqlite&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">include_sqlite</span><span class="p">,</span>
+                <span class="s1">&#39;include_html&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">include_html</span><span class="p">}</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_outputs</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">base</span><span class="p">[</span><span class="s1">&#39;outputs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_summary_reports</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">base</span><span class="p">[</span><span class="s1">&#39;summary_reports&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">summary_reports</span>
+        <span class="k">return</span> <span class="n">base</span></div>
+
+<div class="viewcode-block" id="SimulationOutput.duplicate"><a class="viewcode-back" href="../../../honeybee_energy.simulation.output.html#honeybee_energy.simulation.output.SimulationOutput.duplicate">[docs]</a>    <span class="k">def</span> <span class="nf">duplicate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get a copy of this object.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__copy__</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="nf">_output_to_idf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Convert an output name to an IDF Output:Variable string.&quot;&quot;&quot;</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">,</span> <span class="n">output_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">reporting_frequency</span><span class="p">)</span>
+        <span class="n">comments</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;key value&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;frequency&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">generate_idf_string</span><span class="p">(</span><span class="s1">&#39;Output:Variable&#39;</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">comments</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SimulationOutput.ToString"><a class="viewcode-back" href="../../../honeybee_energy.simulation.output.html#honeybee_energy.simulation.output.SimulationOutput.ToString">[docs]</a>    <span class="k">def</span> <span class="nf">ToString</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Overwrite .NET ToString.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="nf">__copy__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">SimulationOutput</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_outputs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">reporting_frequency</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">include_sqlite</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">include_html</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_summary_reports</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__key</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;A tuple based on the object properties, useful for hashing.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">summary_reports</span> <span class="o">+</span> \
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reporting_frequency</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">include_sqlite</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">include_html</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__key</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">SimulationOutput</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">__key</span><span class="p">()</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">__key</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;SimulationOutput:</span><span class="se">\n</span><span class="s1"> </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1"> &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="p">))</span></div>
+</pre></div>
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2021, Ladybug Tools.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.4.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

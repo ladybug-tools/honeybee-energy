@@ -1,0 +1,22 @@
+honeybee\_energy.hvac.allair package
+====================================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   honeybee_energy.hvac.allair.furnace
+   honeybee_energy.hvac.allair.psz
+   honeybee_energy.hvac.allair.ptac
+   honeybee_energy.hvac.allair.pvav
+   honeybee_energy.hvac.allair.vav
+
+Module contents
+---------------
+
+.. automodule:: honeybee_energy.hvac.allair
+   :members:
+   :undoc-members:
+   :show-inheritance:

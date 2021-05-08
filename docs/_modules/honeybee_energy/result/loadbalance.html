@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>honeybee_energy.result.loadbalance &#8212; honeybee energy  documentation</title>
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../../../_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="../../../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../../../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../../../_static/bootstrap-sphinx.js "></script>
+
+  </head><body>
+
+  <div id="navbar" class="navbar navbar-inverse navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../../index.html">
+          honeybee energy</a>
+        <span class="navbar-text navbar-version pull-left"><b></b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli/index.html">CLI Docs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../cli/index.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../cli/index.html#commands">Commands</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../cli/main.html">main</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../cli/main.html#honeybee-energy">honeybee-energy</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/main.html#honeybee-energy-config">config</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../cli/settings.html">settings</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../cli/settings.html#honeybee-energy-settings">honeybee-energy settings</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/settings.html#honeybee-energy-settings-comfort-sim-par">comfort-sim-par</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/settings.html#honeybee-energy-settings-custom-sim-par">custom-sim-par</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/settings.html#honeybee-energy-settings-default-sim-par">default-sim-par</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/settings.html#honeybee-energy-settings-load-balance-sim-par">load-balance-sim-par</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/settings.html#honeybee-energy-settings-orientation-sim-pars">orientation-sim-pars</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/settings.html#honeybee-energy-settings-run-period">run-period</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/settings.html#honeybee-energy-settings-sizing-sim-par">sizing-sim-par</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../cli/simulate.html">simulate</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../cli/simulate.html#honeybee-energy-simulate">honeybee-energy simulate</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/simulate.html#honeybee-energy-simulate-idf">idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/simulate.html#honeybee-energy-simulate-model">model</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/simulate.html#honeybee-energy-simulate-osm">osm</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../cli/baseline.html">baseline</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../cli/baseline.html#honeybee-energy-baseline">honeybee-energy baseline</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/baseline.html#honeybee-energy-baseline-constructions-2004">constructions-2004</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/baseline.html#honeybee-energy-baseline-geometry-2004">geometry-2004</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/baseline.html#honeybee-energy-baseline-hvac-2004">hvac-2004</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/baseline.html#honeybee-energy-baseline-lighting-2004">lighting-2004</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/baseline.html#honeybee-energy-baseline-remove-ecms">remove-ecms</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../cli/edit.html">edit</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../cli/edit.html#honeybee-energy-edit">honeybee-energy edit</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/edit.html#honeybee-energy-edit-modifiers-from-constructions">modifiers-from-constructions</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../cli/validate.html">validate</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../cli/validate.html#honeybee-energy-validate">honeybee-energy validate</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/validate.html#honeybee-energy-validate-construction-set">construction-set</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/validate.html#honeybee-energy-validate-model-properties">model-properties</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/validate.html#honeybee-energy-validate-program-type">program-type</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/validate.html#honeybee-energy-validate-schedule">schedule</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/validate.html#honeybee-energy-validate-schedule-type-limit">schedule-type-limit</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/validate.html#honeybee-energy-validate-sim-par">sim-par</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../cli/result.html">result</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result">honeybee-energy result</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-all-available-info">all-available-info</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-available-results">available-results</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-available-results-info">available-results-info</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-available-run-period-info">available-run-period-info</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-component-sizes">component-sizes</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-data-by-output">data-by-output</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-data-by-outputs">data-by-outputs</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-energy-use-intensity">energy-use-intensity</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-load-balance">load-balance</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-output-csv">output-csv</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-output-csv-queryable">output-csv-queryable</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-tabular-data">tabular-data</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-tabular-metadata">tabular-metadata</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/result.html#honeybee-energy-result-zone-sizes">zone-sizes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../cli/lib.html">lib</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib">honeybee-energy lib</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-construction-set-by-id">construction-set-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-construction-sets">construction-sets</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-construction-sets-by-id">construction-sets-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-constructions-by-id">constructions-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-materials-by-id">materials-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-opaque-construction-by-id">opaque-construction-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-opaque-constructions">opaque-constructions</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-opaque-material-by-id">opaque-material-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-opaque-materials">opaque-materials</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-program-type-by-id">program-type-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-program-types">program-types</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-program-types-by-id">program-types-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-schedule-by-id">schedule-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-schedule-type-limit-by-id">schedule-type-limit-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-schedule-type-limits">schedule-type-limits</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-schedule-type-limits-by-id">schedule-type-limits-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-schedules">schedules</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-schedules-by-id">schedules-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-shade-construction-by-id">shade-construction-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-shade-constructions">shade-constructions</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-window-construction-by-id">window-construction-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-window-constructions">window-constructions</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-window-material-by-id">window-material-by-id</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/lib.html#honeybee-energy-lib-window-materials">window-materials</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../cli/translate.html">translate</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate">honeybee-energy translate</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate-constructions-from-idf">constructions-from-idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate-constructions-to-idf">constructions-to-idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate-model-from-gbxml">model-from-gbxml</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate-model-from-idf">model-from-idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate-model-from-osm">model-from-osm</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate-model-occ-schedules">model-occ-schedules</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate-model-to-gbxml">model-to-gbxml</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate-model-to-idf">model-to-idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate-model-to-osm">model-to-osm</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate-schedules-from-idf">schedules-from-idf</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../cli/translate.html#honeybee-energy-translate-schedules-to-idf">schedules-to-idf</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">honeybee_energy</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../honeybee_energy.html">honeybee_energy package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../honeybee_energy.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.cli.html">honeybee_energy.cli package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.cli.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.cli.data.html">honeybee_energy.cli.data package</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="../../../honeybee_energy.cli.data.html#module-honeybee_energy.cli.data">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.cli.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.cli.baseline.html">honeybee_energy.cli.baseline module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.cli.edit.html">honeybee_energy.cli.edit module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.cli.lib.html">honeybee_energy.cli.lib module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.cli.result.html">honeybee_energy.cli.result module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.cli.settings.html">honeybee_energy.cli.settings module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.cli.simulate.html">honeybee_energy.cli.simulate module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.cli.translate.html">honeybee_energy.cli.translate module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.cli.validate.html">honeybee_energy.cli.validate module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.cli.html#module-honeybee_energy.cli">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.construction.html">honeybee_energy.construction package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.construction.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.construction.air.html">honeybee_energy.construction.air module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.construction.dictutil.html">honeybee_energy.construction.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.construction.opaque.html">honeybee_energy.construction.opaque module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.construction.shade.html">honeybee_energy.construction.shade module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.construction.window.html">honeybee_energy.construction.window module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.construction.windowshade.html">honeybee_energy.construction.windowshade module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.construction.html#module-honeybee_energy.construction">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.hvac.html">honeybee_energy.hvac package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.hvac.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.hvac.allair.html">honeybee_energy.hvac.allair package</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="../../../honeybee_energy.hvac.allair.html#submodules">Submodules</a><ul>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.allair.furnace.html">honeybee_energy.hvac.allair.furnace module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.allair.psz.html">honeybee_energy.hvac.allair.psz module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.allair.ptac.html">honeybee_energy.hvac.allair.ptac module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.allair.pvav.html">honeybee_energy.hvac.allair.pvav module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.allair.vav.html">honeybee_energy.hvac.allair.vav module</a></li>
+</ul>
+</li>
+<li class="toctree-l7"><a class="reference internal" href="../../../honeybee_energy.hvac.allair.html#module-honeybee_energy.hvac.allair">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.hvac.doas.html">honeybee_energy.hvac.doas package</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="../../../honeybee_energy.hvac.doas.html#submodules">Submodules</a><ul>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.doas.fcu.html">honeybee_energy.hvac.doas.fcu module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.doas.vrf.html">honeybee_energy.hvac.doas.vrf module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.doas.wshp.html">honeybee_energy.hvac.doas.wshp module</a></li>
+</ul>
+</li>
+<li class="toctree-l7"><a class="reference internal" href="../../../honeybee_energy.hvac.doas.html#module-honeybee_energy.hvac.doas">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.hvac.heatcool.html">honeybee_energy.hvac.heatcool package</a><ul>
+<li class="toctree-l7"><a class="reference internal" href="../../../honeybee_energy.hvac.heatcool.html#submodules">Submodules</a><ul>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.heatcool.baseboard.html">honeybee_energy.hvac.heatcool.baseboard module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.heatcool.evapcool.html">honeybee_energy.hvac.heatcool.evapcool module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.heatcool.fcu.html">honeybee_energy.hvac.heatcool.fcu module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.heatcool.gasunit.html">honeybee_energy.hvac.heatcool.gasunit module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.heatcool.residential.html">honeybee_energy.hvac.heatcool.residential module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.heatcool.vrf.html">honeybee_energy.hvac.heatcool.vrf module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.heatcool.windowac.html">honeybee_energy.hvac.heatcool.windowac module</a></li>
+<li class="toctree-l8"><a class="reference internal" href="../../../honeybee_energy.hvac.heatcool.wshp.html">honeybee_energy.hvac.heatcool.wshp module</a></li>
+</ul>
+</li>
+<li class="toctree-l7"><a class="reference internal" href="../../../honeybee_energy.hvac.heatcool.html#module-honeybee_energy.hvac.heatcool">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.hvac.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.hvac.idealair.html">honeybee_energy.hvac.idealair module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.hvac.html#module-honeybee_energy.hvac">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.lib.html">honeybee_energy.lib package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.lib.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.lib.constructions.html">honeybee_energy.lib.constructions module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.lib.constructionsets.html">honeybee_energy.lib.constructionsets module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.lib.materials.html">honeybee_energy.lib.materials module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.lib.programtypes.html">honeybee_energy.lib.programtypes module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.lib.schedules.html">honeybee_energy.lib.schedules module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.lib.scheduletypelimits.html">honeybee_energy.lib.scheduletypelimits module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.lib.html#module-honeybee_energy.lib">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.load.html">honeybee_energy.load package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.load.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.load.daylight.html">honeybee_energy.load.daylight module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.load.dictutil.html">honeybee_energy.load.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.load.equipment.html">honeybee_energy.load.equipment module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.load.hotwater.html">honeybee_energy.load.hotwater module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.load.infiltration.html">honeybee_energy.load.infiltration module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.load.lighting.html">honeybee_energy.load.lighting module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.load.people.html">honeybee_energy.load.people module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.load.setpoint.html">honeybee_energy.load.setpoint module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.load.ventilation.html">honeybee_energy.load.ventilation module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.load.html#module-honeybee_energy.load">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.material.html">honeybee_energy.material package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.material.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.material.dictutil.html">honeybee_energy.material.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.material.gas.html">honeybee_energy.material.gas module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.material.glazing.html">honeybee_energy.material.glazing module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.material.opaque.html">honeybee_energy.material.opaque module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.material.shade.html">honeybee_energy.material.shade module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.material.html#module-honeybee_energy.material">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.properties.html">honeybee_energy.properties package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.properties.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.properties.aperture.html">honeybee_energy.properties.aperture module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.properties.door.html">honeybee_energy.properties.door module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.properties.face.html">honeybee_energy.properties.face module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.properties.model.html">honeybee_energy.properties.model module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.properties.room.html">honeybee_energy.properties.room module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.properties.shade.html">honeybee_energy.properties.shade module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.properties.html#module-honeybee_energy.properties">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.result.html">honeybee_energy.result package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.result.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.result.colorobj.html">honeybee_energy.result.colorobj module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.result.err.html">honeybee_energy.result.err module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.result.loadbalance.html">honeybee_energy.result.loadbalance module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.result.match.html">honeybee_energy.result.match module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.result.osw.html">honeybee_energy.result.osw module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.result.rdd.html">honeybee_energy.result.rdd module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.result.zsz.html">honeybee_energy.result.zsz module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.result.html#module-honeybee_energy.result">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.schedule.html">honeybee_energy.schedule package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.schedule.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.schedule.day.html">honeybee_energy.schedule.day module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.schedule.dictutil.html">honeybee_energy.schedule.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.schedule.fixedinterval.html">honeybee_energy.schedule.fixedinterval module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.schedule.rule.html">honeybee_energy.schedule.rule module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.schedule.ruleset.html">honeybee_energy.schedule.ruleset module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.schedule.typelimit.html">honeybee_energy.schedule.typelimit module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.schedule.html#module-honeybee_energy.schedule">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.simulation.html">honeybee_energy.simulation package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.simulation.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.simulation.control.html">honeybee_energy.simulation.control module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.simulation.daylightsaving.html">honeybee_energy.simulation.daylightsaving module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.simulation.dictutil.html">honeybee_energy.simulation.dictutil module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.simulation.output.html">honeybee_energy.simulation.output module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.simulation.parameter.html">honeybee_energy.simulation.parameter module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.simulation.runperiod.html">honeybee_energy.simulation.runperiod module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.simulation.shadowcalculation.html">honeybee_energy.simulation.shadowcalculation module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.simulation.sizing.html">honeybee_energy.simulation.sizing module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.simulation.html#module-honeybee_energy.simulation">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.ventcool.html">honeybee_energy.ventcool package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.ventcool.html#submodules">Submodules</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.ventcool.afn.html">honeybee_energy.ventcool.afn module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.ventcool.control.html">honeybee_energy.ventcool.control module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.ventcool.crack.html">honeybee_energy.ventcool.crack module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.ventcool.opening.html">honeybee_energy.ventcool.opening module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="../../../honeybee_energy.ventcool.simulation.html">honeybee_energy.ventcool.simulation module</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="../../../honeybee_energy.ventcool.html#module-honeybee_energy.ventcool">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../honeybee_energy.html#submodules">Submodules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.altnumber.html">honeybee_energy.altnumber module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.boundarycondition.html">honeybee_energy.boundarycondition module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.config.html">honeybee_energy.config module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.constructionset.html">honeybee_energy.constructionset module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.dictutil.html">honeybee_energy.dictutil module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.measure.html">honeybee_energy.measure module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.programtype.html">honeybee_energy.programtype module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.reader.html">honeybee_energy.reader module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.run.html">honeybee_energy.run module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../honeybee_energy.writer.html">honeybee_energy.writer module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../honeybee_energy.html#module-honeybee_energy">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli/index.html">CLI Docs</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">honeybee_energy</a></li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+              
+            
+            
+            
+            
+              <li class="hidden-sm"></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+      <div class="col-md-4">
+        <div id="sidebar" class="bs-sidenav" role="complementary"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli/index.html">CLI Docs</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">honeybee_energy</a></li>
+</ul>
+
+        </div>
+      </div>
+    <div class="body col-md-8 content" role="main">
+      
+  <h1>Source code for honeybee_energy.result.loadbalance</h1><div class="highlight"><pre>
+<span></span><span class="c1"># coding=utf-8</span>
+<span class="sd">&quot;&quot;&quot;Module for constructing thermal load balances from energy result data collections.&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
+
+<span class="kn">from</span> <span class="nn">.match</span> <span class="kn">import</span> <span class="n">match_rooms_to_data</span><span class="p">,</span> <span class="n">match_faces_to_data</span>
+
+<span class="kn">from</span> <span class="nn">honeybee.model</span> <span class="kn">import</span> <span class="n">Model</span> <span class="k">as</span> <span class="n">hb_model</span>
+<span class="kn">from</span> <span class="nn">honeybee.aperture</span> <span class="kn">import</span> <span class="n">Aperture</span>
+<span class="kn">from</span> <span class="nn">honeybee.door</span> <span class="kn">import</span> <span class="n">Door</span>
+<span class="kn">from</span> <span class="nn">honeybee.facetype</span> <span class="kn">import</span> <span class="n">Wall</span><span class="p">,</span> <span class="n">RoofCeiling</span><span class="p">,</span> <span class="n">Floor</span>
+<span class="kn">from</span> <span class="nn">honeybee.boundarycondition</span> <span class="kn">import</span> <span class="n">Surface</span><span class="p">,</span> <span class="n">Adiabatic</span>
+
+<span class="kn">from</span> <span class="nn">ladybug.sql</span> <span class="kn">import</span> <span class="n">SQLiteResult</span>
+<span class="kn">from</span> <span class="nn">ladybug.datacollection</span> <span class="kn">import</span> <span class="n">HourlyContinuousCollection</span>
+<span class="kn">from</span> <span class="nn">ladybug.header</span> <span class="kn">import</span> <span class="n">Header</span>
+<span class="kn">from</span> <span class="nn">ladybug.datatype.energyintensity</span> <span class="kn">import</span> <span class="n">EnergyIntensity</span>
+
+
+<div class="viewcode-block" id="LoadBalance"><a class="viewcode-back" href="../../../honeybee_energy.result.loadbalance.html#honeybee_energy.result.loadbalance.LoadBalance">[docs]</a><span class="k">class</span> <span class="nc">LoadBalance</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Object for constructing thermal load balances from energy results.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        rooms: An array of honeybee Rooms, which will be matched to the input</span>
+<span class="sd">            data collections and used to determine which heat flow values are</span>
+<span class="sd">            through outdoor surfaces. The length of these Rooms does not have</span>
+<span class="sd">            to match the data collections and this object will only construct a</span>
+<span class="sd">            load balance for rooms that are found to be matching.</span>
+<span class="sd">        cooling_data: Array of data collections for &#39;Zone Ideal Loads Supply Air Total</span>
+<span class="sd">            Cooling Energy&#39; that correspond to the input rooms.</span>
+<span class="sd">        heating_data: Array of data collections for &#39;Zone Ideal Loads Supply Air Total</span>
+<span class="sd">            Heating Energy&#39; that correspond to the input rooms.</span>
+<span class="sd">        lighting_data: Array of data collections for &#39;Zone Lights Total Heating</span>
+<span class="sd">            Energy&#39; that correspond to the input rooms.</span>
+<span class="sd">        electric_equip_data: Array of data collections for &#39;Zone Electric Equipment</span>
+<span class="sd">            Total Heating Energy&#39; that correspond to the input rooms.</span>
+<span class="sd">        gas_equip_data: Array of data collections for &#39;Zone Gas Equipment Total</span>
+<span class="sd">            Heating Energy&#39; that correspond to the input rooms.</span>
+<span class="sd">        service_hot_water_data: Array of data collections for &#39;Water Use Equipment</span>
+<span class="sd">            Zone Heat Gain Energy&#39; that correspond to the input rooms.</span>
+<span class="sd">        people_data: Array of data collections for &#39;Zone People Total Heating</span>
+<span class="sd">            Energy&#39; that correspond to the input rooms.</span>
+<span class="sd">        solar_data: Array of data collections for &#39;Zone Windows Total Transmitted</span>
+<span class="sd">            Solar Radiation Energy&#39; that correspond to the input rooms.</span>
+<span class="sd">        infiltration_data: The infiltration heat loss (negative) or heat gain (positive),</span>
+<span class="sd">            which can be obtained by subtracting &#39;Zone Infiltration Total Heat</span>
+<span class="sd">            Loss Energy&#39; data collections from &#39;Zone Infiltration Total Heat</span>
+<span class="sd">            Gain Energy&#39; data collections.</span>
+<span class="sd">        mech_ventilation_data: The ventilation heat loss (negative) or heat gain</span>
+<span class="sd">            (positive) as a result of meeting minimum outdoor air requirements</span>
+<span class="sd">            with the mechanical system. This can be obtained by first subtracting</span>
+<span class="sd">            &#39;Zone Ideal Loads Zone Total Energy&#39; from &#39;Zone Ideal Loads Supply</span>
+<span class="sd">            Air Total Energy&#39; for both heating and cooling loads. Then the</span>
+<span class="sd">            resulting heating load (ventilation loss) should be subtracted</span>
+<span class="sd">            from the cooling load (ventilation gain).</span>
+<span class="sd">        nat_ventilation_data: The natural ventilation heat loss (negative) or</span>
+<span class="sd">            heat gain (positive) which can be obtained by subtracting &#39;Zone</span>
+<span class="sd">            Ventilation Total Heat Loss Energy&#39; data collections from &#39;Zone</span>
+<span class="sd">            Ventilation Total Heat Gain Energy&#39; data collections.</span>
+<span class="sd">        surface_flow_data: The surface heat loss (negative) or heat gain (positive),</span>
+<span class="sd">            which can be obtained for opaque surfaces with a &#39;Surface Average Face</span>
+<span class="sd">            Conduction Heat Transfer Energy&#39; data collection. For fenestration</span>
+<span class="sd">            surfaces, it can be obtained by by subtracting &#39;Surface Window Heat</span>
+<span class="sd">            Loss Energy&#39; data collections from &#39;Surface Window Heat Gain Energy&#39;</span>
+<span class="sd">            data collections.</span>
+<span class="sd">        units: Text for the units system in which the room geometry exists.</span>
+<span class="sd">            Choose from the following:</span>
+
+<span class="sd">            * Meters</span>
+<span class="sd">            * Millimeters</span>
+<span class="sd">            * Feet</span>
+<span class="sd">            * Inches</span>
+<span class="sd">            * Centimeters</span>
+
+<span class="sd">        use_all_solar: Boolean to note whether all of the solar_data should be used in</span>
+<span class="sd">            the resulting load balance, regardless of whether it has been matched to</span>
+<span class="sd">            the rooms. This is useful for the case that air boundaries exist in a model</span>
+<span class="sd">            and solar data is reported for grouped zones. (Default: False).</span>
+
+<span class="sd">    Properties:</span>
+<span class="sd">        * rooms</span>
+<span class="sd">        * cooling</span>
+<span class="sd">        * heating</span>
+<span class="sd">        * lighting</span>
+<span class="sd">        * electric_equip</span>
+<span class="sd">        * gas_equip</span>
+<span class="sd">        * service_hot_water</span>
+<span class="sd">        * people</span>
+<span class="sd">        * solar</span>
+<span class="sd">        * infiltration</span>
+<span class="sd">        * mech_ventilation</span>
+<span class="sd">        * nat_ventilation</span>
+<span class="sd">        * conduction</span>
+<span class="sd">        * window_conduction</span>
+<span class="sd">        * opaque_conduction</span>
+<span class="sd">        * wall_conduction</span>
+<span class="sd">        * roof_conduction</span>
+<span class="sd">        * floor_conduction</span>
+<span class="sd">        * storage</span>
+<span class="sd">        * units</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> \
+        <span class="p">(</span><span class="s1">&#39;_rooms&#39;</span><span class="p">,</span> <span class="s1">&#39;_units&#39;</span><span class="p">,</span> <span class="s1">&#39;_cooling&#39;</span><span class="p">,</span> <span class="s1">&#39;_heating&#39;</span><span class="p">,</span> <span class="s1">&#39;_lighting&#39;</span><span class="p">,</span> <span class="s1">&#39;_electric_equip&#39;</span><span class="p">,</span>
+         <span class="s1">&#39;_gas_equip&#39;</span><span class="p">,</span> <span class="s1">&#39;_service_hot_water&#39;</span><span class="p">,</span> <span class="s1">&#39;_people&#39;</span><span class="p">,</span> <span class="s1">&#39;_solar&#39;</span><span class="p">,</span>
+         <span class="s1">&#39;_infiltration&#39;</span><span class="p">,</span> <span class="s1">&#39;_mech_ventilation&#39;</span><span class="p">,</span> <span class="s1">&#39;_nat_ventilation&#39;</span><span class="p">,</span>
+         <span class="s1">&#39;_conduction&#39;</span><span class="p">,</span> <span class="s1">&#39;_window_conduction&#39;</span><span class="p">,</span> <span class="s1">&#39;_opaque_conduction&#39;</span><span class="p">,</span>
+         <span class="s1">&#39;_wall_conduction&#39;</span><span class="p">,</span> <span class="s1">&#39;_roof_conduction&#39;</span><span class="p">,</span> <span class="s1">&#39;_floor_conduction&#39;</span><span class="p">,</span> <span class="s1">&#39;_storage&#39;</span><span class="p">)</span>
+
+    <span class="n">UNITS</span> <span class="o">=</span> <span class="n">hb_model</span><span class="o">.</span><span class="n">UNITS</span>
+
+    <span class="c1"># List of all EnergyPlus output strings relevant for thermal load balances</span>
+    <span class="n">COOLING</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s1">&#39;Zone Ideal Loads Supply Air Total Cooling Energy&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;Zone Ideal Loads Zone Sensible Cooling Energy&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;Zone Ideal Loads Zone Latent Cooling Energy&#39;</span><span class="p">)</span>
+    <span class="n">HEATING</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s1">&#39;Zone Ideal Loads Supply Air Total Heating Energy&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;Zone Ideal Loads Zone Sensible Heating Energy&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;Zone Ideal Loads Zone Latent Heating Energy&#39;</span><span class="p">)</span>
+    <span class="n">LIGHTING</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s1">&#39;Zone Lights Electricity Energy&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;Zone Lights Total Heating Energy&#39;</span><span class="p">)</span>
+    <span class="n">ELECTRIC_EQUIP</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s1">&#39;Zone Electric Equipment Electricity Energy&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;Zone Electric Equipment Total Heating Energy&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;Zone Electric Equipment Radiant Heating Energy&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;Zone Electric Equipment Convective Heating Energy&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;Zone Electric Equipment Latent Gain Energy&#39;</span><span class="p">)</span>
+    <span class="n">GAS_EQUIP</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s1">&#39;Zone Gas Equipment NaturalGas Energy&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;Zone Gas Equipment Total Heating Energy&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;Zone Gas Equipment Radiant Heating Energy&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;Zone Gas Equipment Convective Heating Energy&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;Zone Gas Equipment Latent Gain Energy&#39;</span><span class="p">)</span>
+    <span class="n">HOT_WATER</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s1">&#39;Water Use Equipment Zone Sensible Heat Gain Energy&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;Water Use Equipment Zone Latent Gain Energy&#39;</span><span class="p">)</span>
+    <span class="n">PEOPLE_GAIN</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s1">&#39;Zone People Total Heating Energy&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;Zone People Sensible Heating Energy&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;Zone People Latent Gain Energy&#39;</span><span class="p">)</span>
+    <span class="n">SOLAR_GAIN</span> <span class="o">=</span> <span class="s1">&#39;Zone Windows Total Transmitted Solar Radiation Energy&#39;</span>
+    <span class="n">INFIL_GAIN</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s1">&#39;Zone Infiltration Total Heat Gain Energy&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;Zone Infiltration Sensible Heat Gain Energy&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;Zone Infiltration Latent Heat Gain Energy&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;AFN Zone Infiltration Sensible Heat Gain Energy&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;AFN Zone Infiltration Latent Heat Gain Energy&#39;</span><span class="p">)</span>
+    <span class="n">INFIL_LOSS</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s1">&#39;Zone Infiltration Total Heat Loss Energy&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;Zone Infiltration Sensible Heat Loss Energy&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;Zone Infiltration Latent Heat Loss Energy&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;AFN Zone Infiltration Sensible Heat Loss Energy&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;AFN Zone Infiltration Latent Heat Loss Energy&#39;</span><span class="p">)</span>
+    <span class="n">VENT_LOSS</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s1">&#39;Zone Ideal Loads Zone Total Heating Energy&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;Zone Ideal Loads Zone Sensible Heating Energy&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;Zone Ideal Loads Zone Latent Heating Energy&#39;</span><span class="p">)</span>
+    <span class="n">VENT_GAIN</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s1">&#39;Zone Ideal Loads Zone Total Cooling Energy&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;Zone Ideal Loads Zone Sensible Cooling Energy&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;Zone Ideal Loads Zone Latent Cooling Energy&#39;</span><span class="p">)</span>
+    <span class="n">NAT_VENT_GAIN</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s1">&#39;Zone Ventilation Total Heat Gain Energy&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;Zone Ventilation Sensible Heat Gain Energy&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;Zone Ventilation Latent Heat Gain Energy&#39;</span><span class="p">)</span>
+    <span class="n">NAT_VENT_LOSS</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s1">&#39;Zone Ventilation Total Heat Loss Energy&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;Zone Ventilation Sensible Heat Loss Energy&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;Zone Ventilation Latent Heat Loss Energy&#39;</span><span class="p">)</span>
+    <span class="n">OPAQUE_ENERGY_FLOW</span> <span class="o">=</span> <span class="s1">&#39;Surface Average Face Conduction Heat Transfer Energy&#39;</span>
+    <span class="n">WINDOW_LOSS</span> <span class="o">=</span> <span class="s1">&#39;Surface Window Heat Loss Energy&#39;</span>
+    <span class="n">WINDOW_GAIN</span> <span class="o">=</span> <span class="s1">&#39;Surface Window Heat Gain Energy&#39;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rooms</span><span class="p">,</span> <span class="n">cooling_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">heating_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lighting_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">electric_equip_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gas_equip_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">service_hot_water_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">people_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">solar_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">infiltration_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mech_ventilation_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">nat_ventilation_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">surface_flow_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;Meters&#39;</span><span class="p">,</span>
+                 <span class="n">use_all_solar</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize LoadBalance.&quot;&quot;&quot;</span>
+        <span class="c1"># Set defaults for values that are computed upon request</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_conduction</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_window_conduction</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_opaque_conduction</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_storage</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="n">units</span>
+
+        <span class="c1"># match all of the room-level inputs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cooling</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_match_room_input</span><span class="p">(</span>
+            <span class="n">cooling_data</span><span class="p">,</span> <span class="n">rooms</span><span class="p">,</span> <span class="s1">&#39;Cooling&#39;</span><span class="p">,</span> <span class="n">negate</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_heating</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_match_room_input</span><span class="p">(</span>
+            <span class="n">heating_data</span><span class="p">,</span> <span class="n">rooms</span><span class="p">,</span> <span class="s1">&#39;Heating&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lighting</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_match_room_input</span><span class="p">(</span>
+            <span class="n">lighting_data</span><span class="p">,</span> <span class="n">rooms</span><span class="p">,</span> <span class="s1">&#39;Lighting&#39;</span><span class="p">,</span> <span class="s1">&#39;Lights&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_electric_equip</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_match_room_input</span><span class="p">(</span>
+            <span class="n">electric_equip_data</span><span class="p">,</span> <span class="n">rooms</span><span class="p">,</span> <span class="s1">&#39;Electric Equipment&#39;</span><span class="p">,</span> <span class="n">mult_per_room</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_gas_equip</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_match_room_input</span><span class="p">(</span>
+            <span class="n">gas_equip_data</span><span class="p">,</span> <span class="n">rooms</span><span class="p">,</span> <span class="s1">&#39;Gas Equipment&#39;</span><span class="p">,</span> <span class="n">mult_per_room</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_service_hot_water</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_match_room_input</span><span class="p">(</span>
+            <span class="n">service_hot_water_data</span><span class="p">,</span> <span class="n">rooms</span><span class="p">,</span> <span class="s1">&#39;Service Hot Water&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;Water Use Equipment Zone&#39;</span><span class="p">,</span> <span class="n">mult_per_room</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_people</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_match_room_input</span><span class="p">(</span>
+            <span class="n">people_data</span><span class="p">,</span> <span class="n">rooms</span><span class="p">,</span> <span class="s1">&#39;People&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_solar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_match_room_input</span><span class="p">(</span>
+            <span class="n">solar_data</span><span class="p">,</span> <span class="n">rooms</span><span class="p">,</span> <span class="s1">&#39;Solar&#39;</span><span class="p">,</span> <span class="n">use_all</span><span class="o">=</span><span class="n">use_all_solar</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_infiltration</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_match_room_input</span><span class="p">(</span>
+            <span class="n">infiltration_data</span><span class="p">,</span> <span class="n">rooms</span><span class="p">,</span> <span class="s1">&#39;Infiltration&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mech_ventilation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_match_room_input</span><span class="p">(</span>
+            <span class="n">mech_ventilation_data</span><span class="p">,</span> <span class="n">rooms</span><span class="p">,</span> <span class="s1">&#39;Mechanical Ventilation&#39;</span><span class="p">,</span> <span class="s1">&#39;Ventilation&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_nat_ventilation</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_match_room_input</span><span class="p">(</span>
+            <span class="n">nat_ventilation_data</span><span class="p">,</span> <span class="n">rooms</span><span class="p">,</span> <span class="s1">&#39;Natural Ventilation&#39;</span><span class="p">,</span> <span class="s1">&#39;Ventilation&#39;</span><span class="p">)</span>
+
+        <span class="c1"># match the surface-level inputs</span>
+        <span class="n">_window_flow</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wall_conduction</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_roof_conduction</span><span class="p">,</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">_floor_conduction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_match_face_input</span><span class="p">(</span><span class="n">surface_flow_data</span><span class="p">,</span> <span class="n">rooms</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">_window_flow</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solar</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># compute just the conduction loss/gain from the windows</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_window_conduction</span> <span class="o">=</span> <span class="n">_window_flow</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solar</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_window_conduction</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Window Conduction&#39;</span>
+
+<div class="viewcode-block" id="LoadBalance.from_sql_file"><a class="viewcode-back" href="../../../honeybee_energy.result.loadbalance.html#honeybee_energy.result.loadbalance.LoadBalance.from_sql_file">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_sql_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">sql_path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a LoadBalance object from an EnergyPlus SQLite result file.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        model: A honeybee Model, which will have its rooms matched to the input</span>
+<span class="sd">            data collections and used to determine which heat flow values are</span>
+<span class="sd">            through outdoor surfaces.</span>
+<span class="sd">        sql_path: Full path to an SQLite file that was generated by EnergyPlus.</span>
+<span class="sd">            this file should have the relevant load balance outputs in the</span>
+<span class="sd">            ReportData table.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+        <span class="c1"># create the SQL result parsing object</span>
+        <span class="n">sql_obj</span> <span class="o">=</span> <span class="n">SQLiteResult</span><span class="p">(</span><span class="n">sql_path</span><span class="p">)</span>
+
+        <span class="c1"># get all of the results relevant for gains and losses</span>
+        <span class="n">cooling</span> <span class="o">=</span> <span class="n">sql_obj</span><span class="o">.</span><span class="n">data_collections_by_output_name</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">COOLING</span><span class="p">)</span>
+        <span class="n">heating</span> <span class="o">=</span> <span class="n">sql_obj</span><span class="o">.</span><span class="n">data_collections_by_output_name</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">HEATING</span><span class="p">)</span>
+        <span class="n">lighting</span> <span class="o">=</span> <span class="n">sql_obj</span><span class="o">.</span><span class="n">data_collections_by_output_name</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">LIGHTING</span><span class="p">)</span>
+        <span class="n">people_gain</span> <span class="o">=</span> <span class="n">sql_obj</span><span class="o">.</span><span class="n">data_collections_by_output_name</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">PEOPLE_GAIN</span><span class="p">)</span>
+        <span class="n">solar_gain</span> <span class="o">=</span> <span class="n">sql_obj</span><span class="o">.</span><span class="n">data_collections_by_output_name</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">SOLAR_GAIN</span><span class="p">)</span>
+        <span class="n">infil_gain</span> <span class="o">=</span> <span class="n">sql_obj</span><span class="o">.</span><span class="n">data_collections_by_output_name</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">INFIL_GAIN</span><span class="p">)</span>
+        <span class="n">infil_loss</span> <span class="o">=</span> <span class="n">sql_obj</span><span class="o">.</span><span class="n">data_collections_by_output_name</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">INFIL_LOSS</span><span class="p">)</span>
+        <span class="n">vent_loss</span> <span class="o">=</span> <span class="n">sql_obj</span><span class="o">.</span><span class="n">data_collections_by_output_name</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">VENT_LOSS</span><span class="p">)</span>
+        <span class="n">vent_gain</span> <span class="o">=</span> <span class="n">sql_obj</span><span class="o">.</span><span class="n">data_collections_by_output_name</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">VENT_GAIN</span><span class="p">)</span>
+        <span class="n">nat_vent_gain</span> <span class="o">=</span> <span class="n">sql_obj</span><span class="o">.</span><span class="n">data_collections_by_output_name</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">NAT_VENT_GAIN</span><span class="p">)</span>
+        <span class="n">nat_vent_loss</span> <span class="o">=</span> <span class="n">sql_obj</span><span class="o">.</span><span class="n">data_collections_by_output_name</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">NAT_VENT_LOSS</span><span class="p">)</span>
+
+        <span class="c1"># handle the case that both total elect/gas energy and zone gain are requested</span>
+        <span class="n">electric_equip</span> <span class="o">=</span> <span class="n">sql_obj</span><span class="o">.</span><span class="n">data_collections_by_output_name</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">ELECTRIC_EQUIP</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">electric_equip</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">electric_equip</span> <span class="o">=</span> <span class="n">sql_obj</span><span class="o">.</span><span class="n">data_collections_by_output_name</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">ELECTRIC_EQUIP</span><span class="p">)</span>
+        <span class="n">gas_equip</span> <span class="o">=</span> <span class="n">sql_obj</span><span class="o">.</span><span class="n">data_collections_by_output_name</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">GAS_EQUIP</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">gas_equip</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">gas_equip</span> <span class="o">=</span> <span class="n">sql_obj</span><span class="o">.</span><span class="n">data_collections_by_output_name</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">GAS_EQUIP</span><span class="p">)</span>
+        <span class="n">how_water</span> <span class="o">=</span> <span class="n">sql_obj</span><span class="o">.</span><span class="n">data_collections_by_output_name</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">HOT_WATER</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">how_water</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">how_water</span> <span class="o">=</span> <span class="n">sql_obj</span><span class="o">.</span><span class="n">data_collections_by_output_name</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">HOT_WATER</span><span class="p">)</span>
+
+        <span class="c1"># subtract losses from gains</span>
+        <span class="n">infiltration</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">mech_vent</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">nat_vent</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">infil_gain</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">infil_loss</span><span class="p">):</span>
+            <span class="n">infiltration</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">subtract_loss_from_gain</span><span class="p">(</span><span class="n">infil_gain</span><span class="p">,</span> <span class="n">infil_loss</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vent_gain</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">vent_loss</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">cooling</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">heating</span><span class="p">):</span>
+            <span class="n">mech_vent</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">mech_vent_loss_gain</span><span class="p">(</span><span class="n">vent_gain</span><span class="p">,</span> <span class="n">vent_loss</span><span class="p">,</span> <span class="n">cooling</span><span class="p">,</span> <span class="n">heating</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">nat_vent_gain</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">nat_vent_loss</span><span class="p">):</span>
+            <span class="n">nat_vent</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">subtract_loss_from_gain</span><span class="p">(</span><span class="n">nat_vent_gain</span><span class="p">,</span> <span class="n">nat_vent_loss</span><span class="p">)</span>
+
+        <span class="c1"># get the surface energy flow</span>
+        <span class="n">opaque_flow</span> <span class="o">=</span> <span class="n">sql_obj</span><span class="o">.</span><span class="n">data_collections_by_output_name</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">OPAQUE_ENERGY_FLOW</span><span class="p">)</span>
+        <span class="n">window_loss</span> <span class="o">=</span> <span class="n">sql_obj</span><span class="o">.</span><span class="n">data_collections_by_output_name</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">WINDOW_LOSS</span><span class="p">)</span>
+        <span class="n">window_gain</span> <span class="o">=</span> <span class="n">sql_obj</span><span class="o">.</span><span class="n">data_collections_by_output_name</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">WINDOW_GAIN</span><span class="p">)</span>
+        <span class="n">window_flow</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">window_gain</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">window_loss</span><span class="p">):</span>
+            <span class="n">window_flow</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">subtract_loss_from_gain</span><span class="p">(</span><span class="n">window_gain</span><span class="p">,</span> <span class="n">window_loss</span><span class="p">)</span>
+        <span class="n">face_energy_flow</span> <span class="o">=</span> <span class="n">opaque_flow</span> <span class="o">+</span> <span class="n">window_flow</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">rooms</span><span class="p">,</span> <span class="n">cooling</span><span class="p">,</span> <span class="n">heating</span><span class="p">,</span> <span class="n">lighting</span><span class="p">,</span> <span class="n">electric_equip</span><span class="p">,</span> <span class="n">gas_equip</span><span class="p">,</span>
+                   <span class="n">how_water</span><span class="p">,</span> <span class="n">people_gain</span><span class="p">,</span> <span class="n">solar_gain</span><span class="p">,</span> <span class="n">infiltration</span><span class="p">,</span> <span class="n">mech_vent</span><span class="p">,</span> <span class="n">nat_vent</span><span class="p">,</span>
+                   <span class="n">face_energy_flow</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">units</span><span class="p">,</span> <span class="n">use_all_solar</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">rooms</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the Rooms that have been successfully matched to the input data.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rooms</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">cooling</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get a data collection for the cooling of the load balance.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cooling</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">heating</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get a data collection for the heating of the load balance.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_heating</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">lighting</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get a data collection for the lighting gain of the load balance.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lighting</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">electric_equip</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get a data collection for the electric equipment gain of the load balance.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_electric_equip</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">gas_equip</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get a data collection for the gas equipment gain of the load balance.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gas_equip</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">service_hot_water</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get a data collection for the service hot water gain of the load balance.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service_hot_water</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">people</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get a data collection for the people gain of the load balance.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_people</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">solar</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get a data collection for the solar gain of the load balance.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solar</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">infiltration</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get a data collection for the infiltration gain/loss of the load balance.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_infiltration</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">mech_ventilation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get a data collection for the mechanical ventilation of the load balance.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mech_ventilation</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">nat_ventilation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get a data collection for the natural ventilation of the load balance.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nat_ventilation</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">conduction</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get a data collection for all conduction loss/gain of the load balance.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conduction</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">window_conduction</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">opaque_conduction</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_conduction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">window_conduction</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">opaque_conduction</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_conduction</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Conduction&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conduction</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">window_conduction</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get a data collection for window conduction loss/gain of the load balance.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_window_conduction</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">opaque_conduction</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get a data collection for opaque conduction loss/gain of the load balance.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_opaque_conduction</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">wall_conduction</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">roof_conduction</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> \
+                    <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">floor_conduction</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_opaque_conduction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wall_conduction</span> <span class="o">+</span> \
+                    <span class="bp">self</span><span class="o">.</span><span class="n">roof_conduction</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">floor_conduction</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_opaque_conduction</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Opaque Conduction&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_opaque_conduction</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">wall_conduction</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get a data collection for wall conduction loss/gain of the load balance.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wall_conduction</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">roof_conduction</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get a data collection for roof conduction loss/gain of the load balance.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_roof_conduction</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">floor_conduction</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get a data collection for floor conduction loss/gain of the load balance.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_floor_conduction</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">storage</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get a data collection for the remainder of the load balance.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_storage</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">other_terms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_balance_terms</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">other_terms</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">_storage</span> <span class="o">=</span> <span class="n">other_terms</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">coll</span> <span class="ow">in</span> <span class="n">other_terms</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+                    <span class="n">_storage</span> <span class="o">=</span> <span class="n">_storage</span> <span class="o">+</span> <span class="n">coll</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_storage</span> <span class="o">=</span> <span class="o">-</span><span class="n">_storage</span><span class="o">.</span><span class="n">duplicate</span><span class="p">()</span>  <span class="c1"># duplicate to avoid editing header</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_storage</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Storage&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_storage</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">units</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get or set text for the units system in which the room geometry exists.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_units</span>
+
+    <span class="nd">@units</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">units</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">UNITS</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> is not supported as a units system. &#39;</span> \
+            <span class="s1">&#39;Choose from the following: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_units</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">floor_area</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get a number for the total floor area of the successfully-matched rooms.</span>
+
+<span class="sd">        This floor area accounts for Room multipliers and will always be in either</span>
+<span class="sd">        square meters or square feet depending on whether this object&#39;s units are</span>
+<span class="sd">        either SI or IP.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">base_area</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">room</span><span class="o">.</span><span class="n">floor_area</span> <span class="o">*</span> <span class="n">room</span><span class="o">.</span><span class="n">multiplier</span> <span class="k">for</span> <span class="n">room</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rooms</span><span class="p">])</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;Meters&#39;</span><span class="p">,</span> <span class="s1">&#39;Feet&#39;</span><span class="p">):</span>  <span class="c1"># no need to do unit conversions</span>
+            <span class="k">return</span> <span class="n">base_area</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span> <span class="o">==</span> <span class="s1">&#39;Millimeters&#39;</span><span class="p">:</span>  <span class="c1"># convert to meters</span>
+            <span class="k">return</span> <span class="n">base_area</span> <span class="o">/</span> <span class="mf">1000000.0</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span> <span class="o">==</span> <span class="s1">&#39;Inches&#39;</span><span class="p">:</span>  <span class="c1"># convert to feet</span>
+            <span class="k">return</span> <span class="n">base_area</span> <span class="o">/</span> <span class="mf">144.0</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># assume it&#39;s cm; convert to meters</span>
+            <span class="k">return</span> <span class="n">base_area</span> <span class="o">/</span> <span class="mf">10000.0</span>
+
+<div class="viewcode-block" id="LoadBalance.load_balance_terms"><a class="viewcode-back" href="../../../honeybee_energy.result.loadbalance.html#honeybee_energy.result.loadbalance.LoadBalance.load_balance_terms">[docs]</a>    <span class="k">def</span> <span class="nf">load_balance_terms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">floor_normalized</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">include_storage</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get a list of data collections with one for each term in the load balance.</span>
+
+<span class="sd">        Terms of the load balance that are None will be excluded from this list.</span>
+<span class="sd">        Conduction terms will only appear as opaque and window conduction terms.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            floor_normalized: Boolean to note whether all of the output data</span>
+<span class="sd">                collections should have values that are normaized by the Room</span>
+<span class="sd">                floor area.</span>
+<span class="sd">            include_storage: Boolean to note whether the storage term should</span>
+<span class="sd">                be included in the list.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">all_terms</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">heating</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">solar</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">service_hot_water</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">gas_equip</span><span class="p">,</span>
+                     <span class="bp">self</span><span class="o">.</span><span class="n">electric_equip</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lighting</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">people</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">infiltration</span><span class="p">,</span>
+                     <span class="bp">self</span><span class="o">.</span><span class="n">mech_ventilation</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nat_ventilation</span><span class="p">,</span>
+                     <span class="bp">self</span><span class="o">.</span><span class="n">opaque_conduction</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">window_conduction</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cooling</span><span class="p">]</span>
+        <span class="n">bal_terms</span> <span class="o">=</span> <span class="p">[</span><span class="n">term</span> <span class="k">for</span> <span class="n">term</span> <span class="ow">in</span> <span class="n">all_terms</span> <span class="k">if</span> <span class="n">term</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">term</span> <span class="o">!=</span> <span class="p">[]]</span>
+
+        <span class="k">if</span> <span class="n">include_storage</span><span class="p">:</span>
+            <span class="n">bal_terms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">storage</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">floor_normalized</span><span class="p">:</span>
+            <span class="n">flr_area</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">floor_area</span>
+            <span class="k">if</span> <span class="n">flr_area</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># rare case but we don&#39;t want a ZeroDivision error</span>
+                <span class="k">return</span> <span class="n">bal_terms</span>
+            <span class="n">is_ip</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">units</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;Feet&#39;</span><span class="p">,</span> <span class="s1">&#39;Inches&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="kc">False</span>
+            <span class="n">bal_terms</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_normalize_collection</span><span class="p">(</span><span class="n">term</span><span class="p">,</span> <span class="n">flr_area</span><span class="p">,</span> <span class="n">is_ip</span><span class="p">)</span>
+                         <span class="k">for</span> <span class="n">term</span> <span class="ow">in</span> <span class="n">bal_terms</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">bal_terms</span></div>
+
+<div class="viewcode-block" id="LoadBalance.subtract_loss_from_gain"><a class="viewcode-back" href="../../../honeybee_energy.result.loadbalance.html#honeybee_energy.result.loadbalance.LoadBalance.subtract_loss_from_gain">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">subtract_loss_from_gain</span><span class="p">(</span><span class="n">load_gain</span><span class="p">,</span> <span class="n">load_loss</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Subtract an array of load loss data collections from load gain collections.</span>
+
+<span class="sd">        This is what is needed for certain LoadBalance inputs like infiltration</span>
+<span class="sd">        and natural ventilation.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            load_gain: A list of data collections with load gains.</span>
+<span class="sd">            load_loss: A list of data collections with load losses.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">total_loads</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">gain</span><span class="p">,</span> <span class="n">loss</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">load_gain</span><span class="p">,</span> <span class="n">load_loss</span><span class="p">):</span>
+            <span class="n">total_load</span> <span class="o">=</span> <span class="n">gain</span> <span class="o">-</span> <span class="n">loss</span>
+            <span class="n">total_load</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">total_load</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;Gain &#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+            <span class="n">total_loads</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">total_load</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">total_loads</span></div>
+
+<div class="viewcode-block" id="LoadBalance.mech_vent_loss_gain"><a class="viewcode-back" href="../../../honeybee_energy.result.loadbalance.html#honeybee_energy.result.loadbalance.LoadBalance.mech_vent_loss_gain">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">mech_vent_loss_gain</span><span class="p">(</span><span class="n">zone_cooling</span><span class="p">,</span> <span class="n">zone_heating</span><span class="p">,</span> <span class="n">cooling</span><span class="p">,</span> <span class="n">heating</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Compute mechanical ventilation loss/gain from lists of data collections.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            zone_cooling: A list of data collections for zone-level cooling.</span>
+<span class="sd">            zone_heating: A list of data collections for zone-level heating.</span>
+<span class="sd">            cooling: A list of data collections for supply air cooling.</span>
+<span class="sd">            heating: A list of data collections for supply air heating.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mech_vent_loss</span> <span class="o">=</span> <span class="n">LoadBalance</span><span class="o">.</span><span class="n">subtract_loss_from_gain</span><span class="p">(</span><span class="n">heating</span><span class="p">,</span> <span class="n">zone_heating</span><span class="p">)</span>
+        <span class="n">mech_vent_gain</span> <span class="o">=</span> <span class="n">LoadBalance</span><span class="o">.</span><span class="n">subtract_loss_from_gain</span><span class="p">(</span><span class="n">cooling</span><span class="p">,</span> <span class="n">zone_cooling</span><span class="p">)</span>
+        <span class="n">total_load</span> <span class="o">=</span> <span class="n">LoadBalance</span><span class="o">.</span><span class="n">subtract_loss_from_gain</span><span class="p">(</span><span class="n">mech_vent_gain</span><span class="p">,</span> <span class="n">mech_vent_loss</span><span class="p">)</span>
+        <span class="n">mech_vent_load</span> <span class="o">=</span> <span class="p">[</span><span class="n">data</span><span class="o">.</span><span class="n">duplicate</span><span class="p">()</span> <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">total_load</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">load</span> <span class="ow">in</span> <span class="n">mech_vent_load</span><span class="p">:</span>
+            <span class="n">load</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="s1">&#39;Zone Ideal Loads Ventilation Heat Energy&#39;</span>
+        <span class="k">return</span> <span class="n">mech_vent_load</span></div>
+
+    <span class="k">def</span> <span class="nf">_match_room_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_collections</span><span class="p">,</span> <span class="n">rooms</span><span class="p">,</span> <span class="n">data_type</span><span class="p">,</span>
+                          <span class="n">type_check_text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">negate</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">use_all</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                          <span class="n">mult_per_room</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Match a an array of input data collections to input rooms.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data_collections: An array of input data collections.</span>
+<span class="sd">            rooms: An array of input honeybee Rooms.</span>
+<span class="sd">            data_type: Text for the name of the data type for the totalled collection.</span>
+<span class="sd">            type_check_text: Optional text, which will be used to check if the input</span>
+<span class="sd">                data_collections are of the right type.</span>
+<span class="sd">            negate: Boolean to note whether the values should be negated.</span>
+<span class="sd">            use_all: Boolean to note whether all data_collections should be used instead</span>
+<span class="sd">                of those matched to the rooms.</span>
+<span class="sd">            mult_per_room: Boolean to note whether there are multiple data collections</span>
+<span class="sd">                for each room, which should be summed together.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># don&#39;t match anything if there are no collections</span>
+        <span class="k">if</span> <span class="n">data_collections</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_collections</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="c1"># match the data collections to the rooms</span>
+        <span class="k">if</span> <span class="n">use_all</span><span class="p">:</span>  <span class="c1"># firs try to see if all objects can be matched</span>
+            <span class="n">matched_objs</span> <span class="o">=</span> <span class="n">match_rooms_to_data</span><span class="p">(</span><span class="n">data_collections</span><span class="p">,</span> <span class="n">rooms</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">matched_objs</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">rooms</span><span class="p">):</span>  <span class="c1"># take them all</span>
+                <span class="n">matched_objs</span> <span class="o">=</span> <span class="p">[(</span><span class="kc">None</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">rm</span><span class="o">.</span><span class="n">multiplier</span><span class="p">)</span>
+                                <span class="k">for</span> <span class="n">data</span><span class="p">,</span> <span class="n">rm</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">data_collections</span><span class="p">,</span> <span class="n">rooms</span><span class="p">)]</span>
+        <span class="k">elif</span> <span class="n">mult_per_room</span><span class="p">:</span>  <span class="c1"># group the collections by their type</span>
+            <span class="n">coll_dict</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">coll</span> <span class="ow">in</span> <span class="n">data_collections</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">coll_dict</span><span class="p">[</span><span class="n">coll</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coll</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="n">coll_dict</span><span class="p">[</span><span class="n">coll</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span><span class="n">coll</span><span class="p">]</span>
+            <span class="n">all_match</span> <span class="o">=</span> <span class="p">[</span><span class="n">match_rooms_to_data</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">rooms</span><span class="p">)</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">coll_dict</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>
+            <span class="n">matched_objs</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">tup</span><span class="p">)</span> <span class="k">for</span> <span class="n">tup</span> <span class="ow">in</span> <span class="n">all_match</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+            <span class="k">for</span> <span class="n">other_tups</span> <span class="ow">in</span> <span class="n">all_match</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">tup</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">other_tups</span><span class="p">):</span>
+                    <span class="n">matched_objs</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="n">tup</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">matched_objs</span> <span class="o">=</span> <span class="n">match_rooms_to_data</span><span class="p">(</span><span class="n">data_collections</span><span class="p">,</span> <span class="n">rooms</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">matched_objs</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">,</span> \
+            <span class="s1">&#39;None of the data collections could be matched to the input rooms.&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rooms</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">obj</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">matched_objs</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">use_all</span> <span class="k">else</span> <span class="n">rooms</span>
+        <span class="n">base_data</span> <span class="o">=</span> <span class="n">matched_objs</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+        
+        <span class="c1"># check that the data if of the correct type.</span>
+        <span class="k">if</span> <span class="s1">&#39;type&#39;</span> <span class="ow">in</span> <span class="n">base_data</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">metadata</span><span class="p">:</span>
+            <span class="n">check_text</span> <span class="o">=</span> <span class="n">type_check_text</span> <span class="k">if</span> <span class="n">type_check_text</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">data_type</span>
+            <span class="k">assert</span> <span class="n">check_text</span> <span class="ow">in</span> <span class="n">base_data</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">],</span> \
+                <span class="s1">&#39;Input data collections for </span><span class="si">{}</span><span class="s1"> do not seem to be of the correct type:&#39;</span> \
+                <span class="s1">&#39;</span><span class="se">\n</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data_type</span><span class="p">,</span> <span class="n">base_data</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">])</span>
+
+        <span class="c1"># compute the total values of the load</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">base_data</span><span class="p">))]</span>
+        <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">matched_objs</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">obj</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">):</span>
+                <span class="n">values</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="n">val</span> <span class="o">*</span> <span class="n">obj</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">negate</span><span class="p">:</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="n">val</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
+
+        <span class="c1"># create the new totalled data collection</span>
+        <span class="n">new_header</span> <span class="o">=</span> <span class="n">base_data</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">duplicate</span><span class="p">()</span>
+        <span class="k">if</span> <span class="s1">&#39;Zone&#39;</span> <span class="ow">in</span> <span class="n">new_header</span><span class="o">.</span><span class="n">metadata</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">new_header</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;Zone&#39;</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="s1">&#39;System&#39;</span> <span class="ow">in</span> <span class="n">new_header</span><span class="o">.</span><span class="n">metadata</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">new_header</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;System&#39;</span><span class="p">]</span>
+        <span class="n">new_header</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_type</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">base_data</span><span class="p">,</span> <span class="n">HourlyContinuousCollection</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">HourlyContinuousCollection</span><span class="p">(</span><span class="n">new_header</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># it&#39;s one of the data collections that needs datetimes</span>
+            <span class="k">return</span> <span class="n">base_data</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">new_header</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">base_data</span><span class="o">.</span><span class="n">datetimes</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_match_face_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">surface_flow_data</span><span class="p">,</span> <span class="n">rooms</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Match a an array of input data collections to input rooms.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            surface_flow_data: An array of input data collections for surface</span>
+<span class="sd">                energy flow.</span>
+<span class="sd">            rooms: An array of input honeybee Rooms.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># match the data collections to the rooms</span>
+        <span class="k">if</span> <span class="n">surface_flow_data</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">surface_flow_data</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+        <span class="n">base_data</span> <span class="o">=</span> <span class="n">surface_flow_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">base_data</span><span class="p">))]</span>
+
+        <span class="c1"># compute the total values of the load</span>
+        <span class="n">window_vals</span><span class="p">,</span> <span class="n">wall_vals</span><span class="p">,</span> <span class="n">roof_vals</span><span class="p">,</span> <span class="n">floor_vals</span> <span class="o">=</span> <span class="p">(</span><span class="n">values</span><span class="p">[:]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">room</span> <span class="ow">in</span> <span class="n">rooms</span><span class="p">:</span>
+            <span class="n">mult</span> <span class="o">=</span> <span class="n">room</span><span class="o">.</span><span class="n">multiplier</span>
+            <span class="n">match_objs</span> <span class="o">=</span> <span class="n">match_faces_to_data</span><span class="p">(</span><span class="n">surface_flow_data</span><span class="p">,</span> <span class="n">room</span><span class="o">.</span><span class="n">faces</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">match_objs</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">boundary_condition</span><span class="p">,</span> <span class="p">(</span><span class="n">Surface</span><span class="p">,</span> <span class="n">Adiabatic</span><span class="p">)):</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">(</span><span class="n">Aperture</span><span class="p">,</span> <span class="n">Door</span><span class="p">)):</span>
+                        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">obj</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">):</span>
+                            <span class="n">window_vals</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="n">val</span> <span class="o">*</span> <span class="n">mult</span>
+                    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">Wall</span><span class="p">):</span>
+                        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">obj</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">):</span>
+                            <span class="n">wall_vals</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="n">val</span> <span class="o">*</span> <span class="n">mult</span>
+                    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">RoofCeiling</span><span class="p">):</span>
+                        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">obj</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">):</span>
+                            <span class="n">roof_vals</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="n">val</span> <span class="o">*</span> <span class="n">mult</span>
+                    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">Floor</span><span class="p">):</span>
+                        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">obj</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">):</span>
+                            <span class="n">floor_vals</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="n">val</span> <span class="o">*</span> <span class="n">mult</span>
+
+        <span class="c1"># create the new totalled data collection</span>
+        <span class="n">new_header</span> <span class="o">=</span> <span class="n">base_data</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">duplicate</span><span class="p">()</span>
+        <span class="k">if</span> <span class="s1">&#39;Surface&#39;</span> <span class="ow">in</span> <span class="n">new_header</span><span class="o">.</span><span class="n">metadata</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">new_header</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;Surface&#39;</span><span class="p">]</span>
+        <span class="n">window_head</span><span class="p">,</span> <span class="n">wall_head</span><span class="p">,</span> <span class="n">roof_head</span><span class="p">,</span> <span class="n">floor_head</span> <span class="o">=</span> \
+            <span class="p">(</span><span class="n">new_header</span><span class="o">.</span><span class="n">duplicate</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
+        <span class="n">window_head</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Window Energy Flow&#39;</span>
+        <span class="n">wall_head</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Wall Conduction&#39;</span>
+        <span class="n">roof_head</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Roof Conduction&#39;</span>
+        <span class="n">floor_head</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Floor Conduction&#39;</span>
+        <span class="n">all_headers</span> <span class="o">=</span> <span class="p">[</span><span class="n">window_head</span><span class="p">,</span> <span class="n">wall_head</span><span class="p">,</span> <span class="n">roof_head</span><span class="p">,</span> <span class="n">floor_head</span><span class="p">]</span>
+        <span class="n">all_values</span> <span class="o">=</span> <span class="p">[</span><span class="n">window_vals</span><span class="p">,</span> <span class="n">wall_vals</span><span class="p">,</span> <span class="n">roof_vals</span><span class="p">,</span> <span class="n">floor_vals</span><span class="p">]</span>
+        <span class="n">all_data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">head</span><span class="p">,</span> <span class="n">vals</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">all_headers</span><span class="p">,</span> <span class="n">all_values</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">base_data</span><span class="p">,</span> <span class="n">HourlyContinuousCollection</span><span class="p">):</span>
+                <span class="n">all_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">HourlyContinuousCollection</span><span class="p">(</span><span class="n">head</span><span class="p">,</span> <span class="n">vals</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>  <span class="c1"># it&#39;s one of the data collections that needs datetimes</span>
+                <span class="n">all_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">base_data</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">head</span><span class="p">,</span> <span class="n">vals</span><span class="p">,</span> <span class="n">base_data</span><span class="o">.</span><span class="n">datetimes</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">all_data</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_normalize_collection</span><span class="p">(</span><span class="n">collection</span><span class="p">,</span> <span class="n">area</span><span class="p">,</span> <span class="n">is_ip</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Normalize a given data collection by floor area.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            collection: A data collection to be normalized.</span>
+<span class="sd">            area: The floor area the the collection is normalize by.</span>
+<span class="sd">            is_ip: Boolean to note whether the area is in square meters or square feet.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">new_vals</span> <span class="o">=</span> <span class="p">[</span><span class="n">val</span> <span class="o">/</span> <span class="n">area</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">collection</span><span class="o">.</span><span class="n">values</span><span class="p">]</span>
+        <span class="n">head</span> <span class="o">=</span> <span class="n">collection</span><span class="o">.</span><span class="n">header</span>
+        <span class="n">new_unit</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/m2&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">head</span><span class="o">.</span><span class="n">unit</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">is_ip</span> <span class="k">else</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/ft2&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">head</span><span class="o">.</span><span class="n">unit</span><span class="p">)</span>
+        <span class="n">new_header</span> <span class="o">=</span> <span class="n">Header</span><span class="p">(</span>
+            <span class="n">EnergyIntensity</span><span class="p">(),</span> <span class="n">new_unit</span><span class="p">,</span> <span class="n">head</span><span class="o">.</span><span class="n">analysis_period</span><span class="p">,</span> <span class="n">head</span><span class="o">.</span><span class="n">metadata</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">collection</span><span class="p">,</span> <span class="n">HourlyContinuousCollection</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">HourlyContinuousCollection</span><span class="p">(</span><span class="n">new_header</span><span class="p">,</span> <span class="n">new_vals</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># it&#39;s one of the data collections that needs datetimes</span>
+            <span class="k">return</span> <span class="n">collection</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">new_header</span><span class="p">,</span> <span class="n">new_vals</span><span class="p">,</span> <span class="n">collection</span><span class="o">.</span><span class="n">datetimes</span><span class="p">)</span>
+
+<div class="viewcode-block" id="LoadBalance.ToString"><a class="viewcode-back" href="../../../honeybee_energy.result.loadbalance.html#honeybee_energy.result.loadbalance.LoadBalance.ToString">[docs]</a>    <span class="k">def</span> <span class="nf">ToString</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Overwrite .NET ToString.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Load Balance representation.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s1">&#39;Load Balance: [</span><span class="si">{}</span><span class="s1"> Rooms]&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rooms</span><span class="p">))</span></div>
+</pre></div>
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2021, Ladybug Tools.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.5.4.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>
