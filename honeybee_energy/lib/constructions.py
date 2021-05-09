@@ -53,7 +53,8 @@ def opaque_construction_by_identifier(construction_identifier):
             constr_dict = _opaque_constr_standards_dict[construction_identifier]
             if constr_dict['type'] == 'OpaqueConstructionAbridged':
                 mats = {}
-                for mat in constr_dict['layers']:
+                mat_key = 'layers' if 'layers' in constr_dict else 'materials'
+                for mat in constr_dict[mat_key]:
                     mats[mat] = _m.opaque_material_by_identifier(mat)
                 return OpaqueConstruction.from_dict_abridged(constr_dict, mats)
             else:  # AirBoundaryConstruction
@@ -82,12 +83,15 @@ def window_construction_by_identifier(construction_identifier):
             constr_dict = _window_constr_standards_dict[construction_identifier]
             if constr_dict['type'] == 'WindowConstructionAbridged':
                 mats = {}
-                for mat in constr_dict['layers']:
+                mat_key = 'layers' if 'layers' in constr_dict else 'materials'
+                for mat in constr_dict[mat_key]:
                     mats[mat] = _m.window_material_by_identifier(mat)
                 return WindowConstruction.from_dict_abridged(constr_dict, mats)
             else:  # WindowConstructionShade
                 mats = {}
-                for mat in constr_dict['window_construction']['layers']:
+                mat_key = 'layers' if 'layers' in constr_dict['window_construction'] \
+                    else 'materials'
+                for mat in constr_dict['window_construction'][mat_key]:
                     mats[mat] = _m.window_material_by_identifier(mat)
                 shd_mat = constr_dict['shade_material']
                 mats[shd_mat] = _m.window_material_by_identifier(shd_mat)
@@ -96,7 +100,8 @@ def window_construction_by_identifier(construction_identifier):
                     schs = {sch_id: _s.schedule_by_identifier(sch_id)}
                 except KeyError:  # no schedule key provided
                     schs = {}
-                return WindowConstructionShade.from_dict_abridged(constr_dict, mats, schs)
+                return WindowConstructionShade.from_dict_abridged(
+                    constr_dict, mats, schs)
         except KeyError:  # construction is nowhere to be found; raise an error
             raise ValueError(
                 '"{}" was not found in the window energy construction library.'.format(
