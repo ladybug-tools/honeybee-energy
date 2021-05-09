@@ -257,8 +257,7 @@ class EnergyWindowMaterialShade(_EnergyWindowMaterialShadeBase):
         conductivity: Number for the thermal conductivity of the shade [W/m-K].
             Default: 0.05, typical of cotton shades.
         distance_to_glass: A number between 0.001 and 1.0 for the distance
-            between the shade and neighboring glass layers [m].
-            Default: 0.05 (50 mm).
+            between the shade and neighboring glass layers [m]. Default: 0.05 (50 mm).
         opening_multiplier: Factor between 0 and 1 that is multiplied by the
             area at the top, bottom and sides of the shade for air flow
             calculations. Default: 0.5.
