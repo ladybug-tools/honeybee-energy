@@ -167,9 +167,8 @@ class AirBoundaryConstruction(object):
         mixing objects into the IDF for each Face that has the construction
         assigned to it.
         """
-        values = [self.identifier, 'GroupedZones', 'GroupedZones', 'None']
-        comments = ('construction name', 'solar and daylight method',
-                    'radiant exchange method', 'air exchange method')
+        values = [self.identifier, 'None']
+        comments = ('construction name', 'air exchange method')
         return generate_idf_string('Construction:AirBoundary', values, comments)
 
     def to_air_mixing_idf(self, face, room_identifier):
