@@ -15,7 +15,7 @@ export OPENSTUDIO_FILENAME='openstudio'
 
 curl -SL -o ${OPENSTUDIO_TAR_FILENAME} ${OPENSTUDIO_DOWNLOAD_URL}
 tar zxvf ${OPENSTUDIO_TAR_FILENAME}
-mv OpenStudio-*-Linux/ ${OPENSTUDIO_FILENAME}
+mv OpenStudio-*-Ubuntu-*/ ${OPENSTUDIO_FILENAME}
 
 # Get the gem
 
