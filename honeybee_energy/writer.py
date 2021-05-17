@@ -436,8 +436,10 @@ def model_to_idf(model, schedule_directory=None):
     sched_strs = []
     type_limits = []
     used_day_sched_ids = []
-    sched_dir = None
+    always_on_included = False
     for sched in model.properties.energy.schedules:
+        if sched.identifier == 'Always On':
+            always_on_included = True
         try:  # ScheduleRuleset
             year_schedule, week_schedules = sched.to_idf()
             if week_schedules is None:  # ScheduleConstant
@@ -451,14 +453,16 @@ def model_to_idf(model, schedule_directory=None):
                         used_day_sched_ids.append(day.identifier)
                 sched_strs.extend([year_schedule] + week_schedules + day_scheds)
         except TypeError:  # ScheduleFixedInterval
-            if sched_dir is None:
-                if schedule_directory is None:
-                    sched_strs.append(sched.to_idf_compact())
-                else:
-                    sched_strs.append(sched.to_idf(schedule_directory))
+            if schedule_directory is None:
+                sched_strs.append(sched.to_idf_compact())
+            else:
+                sched_strs.append(sched.to_idf(schedule_directory))
         t_lim = sched.schedule_type_limit
         if t_lim is not None and not _instance_in_array(t_lim, type_limits):
             type_limits.append(t_lim)
+    if not always_on_included:
+        always_schedule, _ = model.properties.energy._always_on_schedule().to_idf()
+        sched_strs.append(always_schedule)
     model_str.append('!-   ========= SCHEDULE TYPE LIMITS =========\n')
     model_str.extend([type_limit.to_idf() for type_limit in set(type_limits)])
     model_str.append('!-   ============== SCHEDULES ==============\n')

@@ -26,6 +26,7 @@ from ..hvac import HVAC_TYPES_DICT
 from ..ventcool.simulation import VentilationSimulationControl
 
 from ..lib.constructionsets import generic_construction_set
+from ..lib.schedules import always_on
 
 
 class ModelEnergyProperties(object):
@@ -799,6 +800,11 @@ class ModelEnergyProperties(object):
         self._assign_obj_modifier(obj, unique_mods)
         for shade in obj.shades:
             self._assign_obj_modifier(shade, unique_mods)
+
+    @staticmethod
+    def _always_on_schedule():
+        """Get the Always On schedule."""
+        return always_on
 
     @staticmethod
     def _assign_obj_modifier(obj, unique_mods):

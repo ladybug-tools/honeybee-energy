@@ -458,7 +458,7 @@ class Folders(object):
         process = subprocess.Popen(cmds, stdout=subprocess.PIPE, shell=use_shell)
         stdout = process.communicate()
         base_str = str(stdout[0]).replace("b'", '').replace(r"\r\n'", '')
-        self._energyplus_version_str = base_str.split(' ')[-1]
+        self._energyplus_version_str = base_str.split(',')[1].split(' ')[-1]
         ver_nums = self._energyplus_version_str.split('-')[0].split('.')
         try:
             self._energyplus_version = tuple(int(i) for i in ver_nums)
