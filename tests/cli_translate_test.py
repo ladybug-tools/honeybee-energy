@@ -36,7 +36,7 @@ def test_model_to_gbxml():
 
     output_hb_model = './tests/gbxml/ShoeBox.gbxml'
     result = runner.invoke(
-        model_to_gbxml, [input_hb_model, '--output-file', output_hb_model])
+        model_to_gbxml, [input_hb_model, '--output-file', output_hb_model, '--full-geometry'])
     assert result.exit_code == 0
     assert os.path.isfile(output_hb_model)
     os.remove(output_hb_model)
