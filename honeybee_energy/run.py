@@ -5,10 +5,12 @@ from __future__ import division
 import os
 import json
 import subprocess
+import xml.etree.ElementTree as ET
 
 from .config import folders
 
 from honeybee.model import Model
+from honeybee.boundarycondition import Surface
 from honeybee.config import folders as hb_folders
 
 from ladybug.futil import write_to_file, preparedir
@@ -692,3 +694,108 @@ def _run_idf_unix(idf_file_path, epw_file_path=None, expand_objects=True):
     subprocess.call(shell_file)
 
     return directory
+
+
+def add_gbxml_space_boundaries(base_gbxml, honeybee_model, new_gbxml=None):
+    """Add the SpaceBoundary and ShellGeometry to a base_gbxml of a Honeybee model.
+
+    Note that these space boundary geometry definitions are optional within gbXML and
+    are essentially a duplication of the required non-manifold geometry within a
+    valid gbXML. The OpenStudio Forward Translator does not include such duplicated
+    geometries (hence, the reason for this method). However, these closed-volume
+    boundary geometries are used by certain interfaces and gbXML viewers.
+
+    Args:
+        base_gbxml: A file path to a gbXML file that has been exported from the
+            OpenStudio Forward Translator.
+        honeybee_model: The honeybee Model object that was used to create the
+            exported base_gbxml.
+        new_gbxml: Optional path to where the new gbXML will be written. If None,
+            the original base_gbxml will be overwritten with a version that has
+            the SpaceBoundary included within it.
+    """
+    # get a dictionary of rooms in the model
+    room_dict = {room.identifier: room for room in honeybee_model.rooms}
+
+    # register all of the namespaces within the OpenStudio-exported XML
+    ET.register_namespace('', 'http://www.gbxml.org/schema')
+    ET.register_namespace('xhtml', 'http://www.w3.org/1999/xhtml')
+    ET.register_namespace('xsi', 'http://www.w3.org/2001/XMLSchema-instance')
+    ET.register_namespace('xsd', 'http://www.w3.org/2001/XMLSchema')
+
+    # parse the XML and get the building definition
+    tree = ET.parse(base_gbxml)
+    root = tree.getroot()
+    gbxml_header = r'{http://www.gbxml.org/schema}'
+    building = root[0][1]
+
+    # loop through the surfaces in the gbXML so that we know the name of the interior ones
+    surface_set = set()
+    for room_element in root[0].findall(gbxml_header + 'Surface'):
+        surface_set.add(room_element.get('id'))
+
+    # loop through the rooms in the XML and add them as space boundaries to the room
+    for room_element in building.findall(gbxml_header + 'Space'):
+        room_id = room_element.get('zoneIdRef')
+        if room_id:
+            room_id = room_element.get('id')
+            shell_element = ET.Element('ShellGeometry')
+            shell_element.set('id', '{}Shell'.format(room_id))
+            shell_geo_element = ET.SubElement(shell_element, 'ClosedShell')
+            hb_room = room_dict[room_id]
+            for face in hb_room:
+                face_xml, face_geo_xml = _face_to_gbxml_geo(face, surface_set)
+                if face_xml is not None:
+                    room_element.append(face_xml)
+                    shell_geo_element.append(face_geo_xml)
+            room_element.append(shell_element)
+
+    # write out the new XML
+    new_xml = base_gbxml if new_gbxml is None else new_gbxml
+    tree.write(new_xml, xml_declaration=True)
+    return new_xml
+
+
+def _face_to_gbxml_geo(face, face_set):
+    """Get an Element Tree of a gbXML SpaceBoundary for a Face.
+
+    Note that the resulting string is only meant to go under the "Space" tag and
+    it is not a Surface tag with all of the construction and boundary condition
+    properties assigned to it.
+
+    Args:
+        face: A honeybee Face for which an gbXML representation will be returned.
+        face_set: A set of surface identifiers in the model, used to evaluate whether
+            the geometry must be associated with its boundary condition surface.
+    
+    Returns:
+        A tuple with two elements.
+
+        -   face_element: The element tree for the SpaceBoundary definition of the Face.
+
+        -   loop_element: The element tree for the PolyLoop definition of the Face,
+            which is useful in defining the shell.
+    """
+    # create the face element and associate it with a surface in the model
+    face_element = ET.Element('SpaceBoundary')
+    face_element.set('isSecondLevelBoundary', 'false')
+    obj_id = None
+    if face.identifier in face_set:
+        obj_id = face.identifier
+    elif isinstance(face.boundary_condition, Surface):
+        bc_obj = face.boundary_condition.boundary_condition_object
+        if bc_obj in face_set:
+            obj_id = bc_obj
+    if obj_id is None:
+        return None, None
+    face_element.set('surfaceIdRef', obj_id)
+
+    # write the geometry of the face
+    geo_element = ET.SubElement(face_element, 'PlanarGeometry')
+    loop_element = ET.SubElement(geo_element, 'PolyLoop')
+    for pt in face.vertices:
+        pt_element = ET.SubElement(loop_element, 'CartesianPoint')
+        for coord in pt:
+            coord_element = ET.SubElement(pt_element, 'Coordinate')
+            coord_element.text = str(coord)
+    return face_element, loop_element

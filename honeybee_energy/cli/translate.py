@@ -21,7 +21,8 @@ from honeybee_energy.construction.window import WindowConstruction
 from honeybee_energy.schedule.dictutil import dict_to_schedule
 from honeybee_energy.schedule.ruleset import ScheduleRuleset
 from honeybee_energy.run import measure_compatible_model_json, to_openstudio_osw, \
-    to_gbxml_osw, run_osw, from_gbxml_osw, from_osm_osw, from_idf_osw
+    to_gbxml_osw, run_osw, from_gbxml_osw, from_osm_osw, from_idf_osw, \
+    add_gbxml_space_boundaries
 from honeybee_energy.writer import energyplus_idf_version
 from honeybee_energy.config import folders
 
@@ -172,10 +173,14 @@ def model_to_idf(model_json, sim_par_json, additional_str, output_file):
               'translated to .osm. The check is not needed if the model-json was '
               'expored directly from the honeybee-energy Python library.',
               default=True, show_default=True)
+@click.option('--minimal/--full-geometry', ' /-fg', help='Flag to note whether space '
+              'boundaries and shell geometry should be included in the exported '
+              'gbXML vs. just the minimal required non-manifold geometry.',
+              default=True, show_default=True)
 @click.option('--output-file', '-f', help='Optional gbXML file to output the string '
               'of the translation. By default it printed out to stdout', default='-',
               type=click.Path(file_okay=True, dir_okay=False, resolve_path=True))
-def model_to_gbxml(model_json, osw_folder, check_model, output_file):
+def model_to_gbxml(model_json, osw_folder, check_model, minimal, output_file):
     """Translate a Honeybee Model (HBJSON) to a gbXML file.
 
     \b
@@ -199,7 +204,18 @@ def model_to_gbxml(model_json, osw_folder, check_model, output_file):
         # Write the osw file and translate the model to gbXML
         out_f = out_path if output_file.endswith('-') else output_file
         osw = to_gbxml_osw(model_json, out_f, osw_folder)
-        _run_translation_osw(osw, out_path)
+        if minimal:
+            _run_translation_osw(osw, out_path)
+        else:
+            _, idf = run_osw(osw, silent=True)
+            if idf is not None and os.path.isfile(idf):
+                hb_model = Model.from_hbjson(model_json)
+                add_gbxml_space_boundaries(out_f, hb_model)
+                if out_path is not None:  # load the JSON string to stdout
+                    with open(out_path) as json_file:
+                        print(json_file.read())
+            else:
+                raise Exception('Running OpenStudio CLI failed.')
     except Exception as e:
         _logger.exception('Model translation failed.\n{}'.format(e))
         sys.exit(1)
@@ -567,7 +583,7 @@ def model_occ_schedules(model_json, threshold, period, output_file):
 def _run_translation_osw(osw, out_path):
     """Generic function used by all import methods that run OpenStudio CLI."""
     # run the measure to translate the model JSON to an openstudio measure
-    osm, idf = run_osw(osw, silent=True)
+    _, idf = run_osw(osw, silent=True)
     if idf is not None and os.path.isfile(idf):
         if out_path is not None:  # load the JSON string to stdout
             with open(out_path) as json_file:
