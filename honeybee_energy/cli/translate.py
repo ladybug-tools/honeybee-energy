@@ -194,7 +194,7 @@ def model_to_gbxml(model_json, osw_folder, check_model, minimal, output_file):
                 hb_folders.default_simulation_folder, 'temp_translate')
         if output_file.endswith('-'):
             f_name = os.path.basename(model_json).lower()
-            f_name = f_name.replace('.hbjson', '.gbxml').replace('.json', '.gbxml')
+            f_name = f_name.replace('.hbjson', '.xml').replace('.json', '.xml')
             out_path = os.path.join(out_directory, f_name)
 
         # run the Model re-serialization and check if specified

@@ -9,7 +9,7 @@ export TAG="${2:?$error_help}"
 # Get OpenStudio
 
 export OPENSTUDIO_VERSION='3.2.0'
-export OPENSTUDIO_DOWNLOAD_URL='https://github.com/NREL/OpenStudio/releases/download/v3.2.0/OpenStudio-3.2.0+e11f0a08b2-Ubuntu-20.04.tar.gz'
+export OPENSTUDIO_DOWNLOAD_URL='https://github.com/NREL/OpenStudio/releases/download/v3.2.0/OpenStudio-3.2.0+e11f0a08b2-Ubuntu-18.04.tar.gz'
 export OPENSTUDIO_TAR_FILENAME='openstudio.tar.gz'
 export OPENSTUDIO_FILENAME='openstudio'
 
@@ -19,7 +19,7 @@ mv OpenStudio-*-Ubuntu-*/ ${OPENSTUDIO_FILENAME}
 
 # Get the gem
 
-export HONEYBEE_OPENSTUDIO_GEM_VERSION='2.17.3'
+export HONEYBEE_OPENSTUDIO_GEM_VERSION='2.17.5'
 export HONEYBEE_OPENSTUDIO_GEM_URL="https://github.com/ladybug-tools/honeybee-openstudio-gem/archive/v${HONEYBEE_OPENSTUDIO_GEM_VERSION}.tar.gz"
 export HONEYBEE_OPENSTUDIO_GEM_TAR='honeybee-openstudio-gem.tar.gz'
 export HONEYBEE_GEM_FILENAME='honeybee-gem'
