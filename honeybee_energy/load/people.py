@@ -33,7 +33,7 @@ class People(_LoadBase):
             activity of the occupants over the course of the year. The type of
             this schedule should be ActivityLevel and the values of the schedule equal
             to the number of Watts given off by an individual person in the room.
-            If None, it will a default constant schedule with 120 Watts per person
+            If None, a default constant schedule with 120 Watts per person
             will be used, which is typical of awake, adult humans who are seated.
         radiant_fraction: A number between 0 and 1 for the fraction of the
             sensible heat given off by people that is radiant (as opposed to
@@ -256,7 +256,8 @@ class People(_LoadBase):
             'Expected People dictionary. Got {}.'.format(data['type'])
         occ_sched = cls._get_schedule_from_dict(data['occupancy_schedule'])
         act_sched = cls._get_schedule_from_dict(data['activity_schedule']) if \
-            'activity_schedule' in data and data['activity_schedule'] is not None else None
+            'activity_schedule' in data and data['activity_schedule'] is not None \
+            else None
         rad_fract, lat_fract = cls._optional_dict_keys(data)
         new_obj = cls(data['identifier'], data['people_per_area'], occ_sched, act_sched,
                       rad_fract, lat_fract)
@@ -424,7 +425,7 @@ class People(_LoadBase):
             occ_sched = schedule_dict[occ_sch_id]
         except KeyError as e:
             raise ValueError('Failed to find {} in the schedule_dict.'.format(e))
-        if act_sch_id.lower() == 'seated adult activity':
+        if act_sch_id == '' or act_sch_id.lower() == 'seated adult activity':
             activity_sched = None
         else:
             try:
