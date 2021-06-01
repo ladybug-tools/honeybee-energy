@@ -9,6 +9,7 @@ from honeybee.aperture import Aperture
 from honeybee.door import Door
 from honeybee.facetype import Wall, RoofCeiling, Floor
 from honeybee.boundarycondition import Surface, Adiabatic
+from honeybee.typing import float_positive
 
 from ladybug.sql import SQLiteResult
 from ladybug.datacollection import HourlyContinuousCollection
@@ -78,6 +79,7 @@ class LoadBalance(object):
 
     Properties:
         * rooms
+        * floor_area
         * cooling
         * heating
         * lighting
@@ -99,8 +101,8 @@ class LoadBalance(object):
         * units
     """
     __slots__ = \
-        ('_rooms', '_units', '_cooling', '_heating', '_lighting', '_electric_equip',
-         '_gas_equip', '_service_hot_water', '_people', '_solar',
+        ('_rooms', '_floor_area', '_units', '_cooling', '_heating', '_lighting',
+         '_electric_equip', '_gas_equip', '_service_hot_water', '_people', '_solar',
          '_infiltration', '_mech_ventilation', '_nat_ventilation',
          '_conduction', '_window_conduction', '_opaque_conduction',
          '_wall_conduction', '_roof_conduction', '_floor_conduction', '_storage')
@@ -184,6 +186,7 @@ class LoadBalance(object):
         self._opaque_conduction = None
         self._storage = None
         self.units = units
+        self._floor_area = None
 
         # match all of the room-level inputs
         self._cooling = self._match_room_input(
@@ -277,9 +280,12 @@ class LoadBalance(object):
             window_flow = cls.subtract_loss_from_gain(window_gain, window_loss)
         face_energy_flow = opaque_flow + window_flow
 
-        return cls(model.rooms, cooling, heating, lighting, electric_equip, gas_equip,
-                   how_water, people_gain, solar_gain, infiltration, mech_vent, nat_vent,
-                   face_energy_flow, model.units, use_all_solar=True)
+        bal_obj = cls(
+            model.rooms, cooling, heating, lighting, electric_equip, gas_equip,
+            how_water, people_gain, solar_gain, infiltration, mech_vent, nat_vent,
+            face_energy_flow, model.units, use_all_solar=True)
+        bal_obj.floor_area = bal_obj._area_as_meters_feet(model.floor_area)
+        return bal_obj
 
     @property
     def rooms(self):
@@ -407,21 +413,23 @@ class LoadBalance(object):
 
     @property
     def floor_area(self):
-        """Get a number for the total floor area of the successfully-matched rooms.
+        """Get or set a number for the total floor area in square meters or square feet.
+
+        By default, this is the floor area of only the successfully-matched rooms.
 
         This floor area accounts for Room multipliers and will always be in either
         square meters or square feet depending on whether this object's units are
         either SI or IP.
         """
-        base_area = sum([room.floor_area * room.multiplier for room in self._rooms])
-        if self.units in ('Meters', 'Feet'):  # no need to do unit conversions
-            return base_area
-        elif self.units == 'Millimeters':  # convert to meters
-            return base_area / 1000000.0
-        elif self.units == 'Inches':  # convert to feet
-            return base_area / 144.0
-        else:  # assume it's cm; convert to meters
-            return base_area / 10000.0
+        if self._floor_area is not None:
+            return self._floor_area
+        else:
+            base_area = sum([room.floor_area * room.multiplier for room in self._rooms])
+            return self._area_as_meters_feet(base_area)
+
+    @floor_area.setter
+    def floor_area(self, value):
+        self._floor_area = float_positive(value)
 
     def load_balance_terms(self, floor_normalized=False, include_storage=False):
         """Get a list of data collections with one for each term in the load balance.
@@ -537,7 +545,7 @@ class LoadBalance(object):
             'None of the data collections could be matched to the input rooms.'
         self._rooms = tuple(obj[0] for obj in matched_objs) if not use_all else rooms
         base_data = matched_objs[0][1]
-        
+
         # check that the data if of the correct type.
         if 'type' in base_data.header.metadata:
             check_text = type_check_text if type_check_text is not None else data_type
@@ -618,6 +626,17 @@ class LoadBalance(object):
             else:  # it's one of the data collections that needs datetimes
                 all_data.append(base_data.__class__(head, vals, base_data.datetimes))
         return all_data
+
+    def _area_as_meters_feet(self, base_area):
+        """Convert a base area to meters or feet depending on the the assigned units."""
+        if self.units in ('Meters', 'Feet'):  # no need to do unit conversions
+            return base_area
+        elif self.units == 'Millimeters':  # convert to meters
+            return base_area / 1000000.0
+        elif self.units == 'Inches':  # convert to feet
+            return base_area / 144.0
+        else:  # assume it's cm; convert to meters
+            return base_area / 10000.0
 
     @staticmethod
     def _normalize_collection(collection, area, is_ip):
