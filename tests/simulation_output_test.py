@@ -94,15 +94,15 @@ def test_simulation_output_add_gains_and_losses():
     """Test the SimulationOutput add_gains_and_losses methods."""
     sim_output = SimulationOutput()
     sim_output.add_gains_and_losses('total')
-    assert len(sim_output.outputs) == 10
+    assert len(sim_output.outputs) == 12
 
     sim_output = SimulationOutput()
     sim_output.add_gains_and_losses('sensible')
-    assert len(sim_output.outputs) == 10
+    assert len(sim_output.outputs) == 12
 
     sim_output = SimulationOutput()
     sim_output.add_gains_and_losses('latent')
-    assert len(sim_output.outputs) == 9
+    assert len(sim_output.outputs) == 11
 
     with pytest.raises(ValueError):
         sim_output.add_gains_and_losses('convective')
@@ -147,7 +147,7 @@ def test_simulation_output_add_energy_balance_variables():
     """Test the SimulationOutput add_energy_balance_variables methods."""
     sim_output = SimulationOutput()
     sim_output.add_energy_balance_variables()
-    assert len(sim_output.outputs) == 20
+    assert len(sim_output.outputs) == 22
 
 
 def test_simulation_output_add_comfort_map_variables():
