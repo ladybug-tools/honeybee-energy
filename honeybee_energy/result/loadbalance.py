@@ -164,11 +164,15 @@ class LoadBalance(object):
     NAT_VENT_GAIN = (
         'Zone Ventilation Total Heat Gain Energy',
         'Zone Ventilation Sensible Heat Gain Energy',
-        'Zone Ventilation Latent Heat Gain Energy')
+        'Zone Ventilation Latent Heat Gain Energy',
+        'AFN Zone Ventilation Sensible Heat Gain Energy',
+        'AFN Zone Ventilation Latent Heat Gain Energy')
     NAT_VENT_LOSS = (
         'Zone Ventilation Total Heat Loss Energy',
         'Zone Ventilation Sensible Heat Loss Energy',
-        'Zone Ventilation Latent Heat Loss Energy')
+        'Zone Ventilation Latent Heat Loss Energy',
+        'AFN Zone Ventilation Sensible Heat Loss Energy',
+        'AFN Zone Ventilation Latent Heat Loss Energy')
     OPAQUE_ENERGY_FLOW = 'Surface Average Face Conduction Heat Transfer Energy'
     WINDOW_LOSS = 'Surface Window Heat Loss Energy'
     WINDOW_GAIN = 'Surface Window Heat Gain Energy'
