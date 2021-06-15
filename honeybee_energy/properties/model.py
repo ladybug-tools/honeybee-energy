@@ -96,10 +96,18 @@ class ModelEnergyProperties(object):
 
     @property
     def room_constructions(self):
-        """A list of all unique constructions assigned to Room ConstructionSets."""
+        """A list of all unique constructions assigned to Room ConstructionSets.
+
+        This also includes the constructions assigned to Room InternalMasses.
+        """
         room_constrs = []
         for cnstr_set in self.construction_sets:
             room_constrs.extend(cnstr_set.modified_constructions_unique)
+        for room in self.host.rooms:
+            for int_mass in room.properties.energy._internal_masses:
+                constr = int_mass.construction
+                if not self._instance_in_array(constr, room_constrs):
+                    room_constrs.append(constr)
         return list(set(room_constrs))
 
     @property
@@ -500,7 +508,8 @@ class ModelEnergyProperties(object):
         for room, r_dict in zip(self.host.rooms, room_e_dicts):
             if r_dict is not None:
                 room.properties.energy.apply_properties_from_dict(
-                    r_dict, construction_sets, program_types, hvacs, schedules)
+                    r_dict, construction_sets, program_types, hvacs,
+                    schedules, constructions)
         for face, f_dict in zip(self.host.faces, face_e_dicts):
             if f_dict is not None:
                 face.properties.energy.apply_properties_from_dict(f_dict, constructions)
@@ -682,7 +691,14 @@ class ModelEnergyProperties(object):
         room_constrs = []
         for cnstr_set in construction_sets:
             room_constrs.extend(cnstr_set.modified_constructions_unique)
-        all_constrs = room_constrs + self.face_constructions + self.shade_constructions
+        mass_constrs = []
+        for room in self.host.rooms:
+            for int_mass in room.properties.energy._internal_masses:
+                constr = int_mass.construction
+                if not self._instance_in_array(constr, mass_constrs):
+                    mass_constrs.append(constr)
+        all_constrs = room_constrs + mass_constrs + \
+            self.face_constructions + self.shade_constructions
         constructions = list(set(all_constrs))
         base['energy']['constructions'] = []
         for cnst in constructions:
