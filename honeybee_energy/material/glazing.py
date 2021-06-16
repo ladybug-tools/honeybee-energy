@@ -15,6 +15,7 @@ from ..writer import generate_idf_string
 
 from honeybee._lockable import lockable
 from honeybee.typing import float_in_range, float_positive
+from honeybee.altnumber import autocalculate
 
 
 @lockable
@@ -366,13 +367,15 @@ class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
         r_sol = data['solar_reflectance'] if 'solar_reflectance' in data and \
             data['solar_reflectance'] is not None else 0.075
         r_sol_b = data['solar_reflectance_back'] if 'solar_reflectance_back' \
-            in data else None
+            in data and data['solar_reflectance_back'] != autocalculate.to_dict() \
+            else None
         t_vis = data['visible_transmittance'] if 'visible_transmittance' in data and \
             data['visible_transmittance'] is not None else 0.9
         r_vis = data['visible_reflectance'] if 'visible_reflectance' in data and \
             data['visible_reflectance'] is not None else 0.075
         r_vis_b = data['visible_reflectance_back'] if 'visible_reflectance_back' \
-            in data else None
+            in data and data['visible_reflectance_back'] != autocalculate.to_dict() \
+            else None
         t_inf = data['infrared_transmittance'] if 'infrared_transmittance' in data and \
             data['infrared_transmittance'] is not None else 0.0
         emis = data['emissivity'] if 'emissivity' in data and \
