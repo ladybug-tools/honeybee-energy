@@ -36,7 +36,11 @@ def validate():
 @validate.command('model-properties')
 @click.argument('model-json', type=click.Path(
     exists=True, file_okay=True, dir_okay=False, resolve_path=True))
-def validate_model_properties(model_json):
+@click.option(
+    '--output-file', '-f', help='Optional file to output the full report '
+    'of any errors detected. By default it will be printed out to stdout',
+    type=click.File('w'), default='-')
+def validate_model_properties(model_json, output_file):
     """Validate the energy properties of a Model JSON against the Honeybee schema.
 
     This includes basic re-serialization, which accounts for missing objects,
@@ -52,23 +56,17 @@ def validate_model_properties(model_json):
         schema_model.Model.parse_file(model_json)
         click.echo('Pydantic validation passed.')
         # re-serialize the Model to make sure no errors are found in re-serialization
-        with open(model_json) as json_file:
-            data = json.load(json_file)
-        parsed_model = Model.from_dict(data)
+        parsed_model = Model.from_hbjson(model_json)
         click.echo('Python re-serialization passed.')
         # perform several other checks for key honeybee model schema rules
-        energy_prop = parsed_model.properties.energy
-        energy_prop.check_duplicate_material_identifiers()
-        energy_prop.check_duplicate_construction_identifiers()
-        energy_prop.check_duplicate_construction_set_identifiers()
-        energy_prop.check_duplicate_schedule_type_limit_identifiers()
-        energy_prop.check_duplicate_schedule_identifiers()
-        energy_prop.check_duplicate_program_type_identifiers()
-        energy_prop.check_duplicate_hvac_identifiers()
-        click.echo('Unique identifier checks passed.')
-        # if we made it to this point, report that the model is valid
-        click.echo(
-            'Congratulations! The energy properties of your Model JSON are valid!')
+        report = parsed_model.properties.energy.check_all(raise_exception=False)
+        # check the report and write the summary of errors
+        if report == '':
+            output_file.write(
+                'Congratulations! The energy properties of your Model JSON are valid!')
+        else:
+            error_msg = '\nYour Model is invalid for the following reasons:'
+            output_file.write('\n'.join([error_msg, report]))
     except Exception as e:
         _logger.exception('Model validation failed.\n{}'.format(e))
         sys.exit(1)

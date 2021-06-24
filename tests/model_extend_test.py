@@ -135,11 +135,11 @@ def test_check_duplicate_construction_set_identifiers():
 
     model = Model('MultiZoneSingleFamilyHouse', [first_floor, second_floor, attic])
 
-    assert model.properties.energy.check_duplicate_construction_set_identifiers(False)
+    assert model.properties.energy.check_duplicate_construction_set_identifiers(False) == ''
     constr_set.unlock()
     constr_set.identifier = 'Lower Floor Construction Set'
     constr_set.lock()
-    assert not model.properties.energy.check_duplicate_construction_set_identifiers(False)
+    assert model.properties.energy.check_duplicate_construction_set_identifiers(False) != ''
     with pytest.raises(ValueError):
         model.properties.energy.check_duplicate_construction_set_identifiers(True)
 
@@ -165,11 +165,11 @@ def test_check_duplicate_construction_identifiers():
 
     model = Model('TinyHouse', [room])
 
-    assert model.properties.energy.check_duplicate_construction_identifiers(False)
+    assert model.properties.energy.check_duplicate_construction_identifiers(False) == ''
     triple_pane.unlock()
     triple_pane.identifier = 'Custom Construction'
     triple_pane.lock()
-    assert not model.properties.energy.check_duplicate_construction_identifiers(False)
+    assert model.properties.energy.check_duplicate_construction_identifiers(False) != ''
     with pytest.raises(ValueError):
         model.properties.energy.check_duplicate_construction_identifiers(True)
 
@@ -195,11 +195,11 @@ def test_check_duplicate_material_identifiers():
 
     model = Model('TinyHouse', [room])
 
-    assert model.properties.energy.check_duplicate_material_identifiers(False)
+    assert model.properties.energy.check_duplicate_material_identifiers(False) == ''
     thin_stone.unlock()
     thin_stone.identifier = 'Stone'
     thin_stone.lock()
-    assert not model.properties.energy.check_duplicate_material_identifiers(False)
+    assert model.properties.energy.check_duplicate_material_identifiers(False) != ''
     with pytest.raises(ValueError):
         model.properties.energy.check_duplicate_material_identifiers(True)
 
@@ -223,11 +223,11 @@ def test_check_duplicate_schedule_identifiers():
     room.properties.energy.people = People('Office Occ', 0.05, half_occ)
     model = Model('TinyHouse', [room])
 
-    assert model.properties.energy.check_duplicate_schedule_identifiers(False)
+    assert model.properties.energy.check_duplicate_schedule_identifiers(False) == ''
     half_occ.unlock()
     half_occ.identifier = 'Fritted Glass'
     half_occ.lock()
-    assert not model.properties.energy.check_duplicate_schedule_identifiers(False)
+    assert model.properties.energy.check_duplicate_schedule_identifiers(False) != ''
     with pytest.raises(ValueError):
         model.properties.energy.check_duplicate_schedule_identifiers(True)
 
@@ -251,12 +251,12 @@ def test_check_duplicate_schedule_type_limit_identifiers():
     room.properties.energy.people = People('Office Occ', 0.05, full_occ)
     model = Model('TinyHouse', [room])
 
-    assert model.properties.energy.check_duplicate_schedule_type_limit_identifiers(False)
+    assert model.properties.energy.check_duplicate_schedule_type_limit_identifiers(False) == ''
     full_occ.unlock()
     new_sch_type = ScheduleTypeLimit('Fractional', 0, 1, 'Discrete')
     full_occ.schedule_type_limit = new_sch_type
     full_occ.lock()
-    assert not model.properties.energy.check_duplicate_schedule_type_limit_identifiers(False)
+    assert model.properties.energy.check_duplicate_schedule_type_limit_identifiers(False) != ''
     with pytest.raises(ValueError):
         model.properties.energy.check_duplicate_schedule_type_limit_identifiers(True)
 

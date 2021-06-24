@@ -453,6 +453,34 @@ class ModelEnergyProperties(object):
         for face in new_faces:
             self._host.add_face(face)
 
+    def check_all(self, raise_exception=True):
+        """Check all of the aspects of the Model energy properties.
+
+        Args:
+            raise_exception: Boolean to note whether a ValueError should be raised
+                if any errors are found. If False, this method will simply
+                return a text string with all errors that were found.
+
+        Returns:
+            A text string with all errors that were found. This string will be empty
+            of no errors were found.
+        """
+        msgs = []
+        # perform checks for key honeybee model schema rules
+        msgs.append(self.check_duplicate_material_identifiers(False))
+        msgs.append(self.check_duplicate_construction_identifiers(False))
+        msgs.append(self.check_duplicate_construction_set_identifiers(False))
+        msgs.append(self.check_duplicate_schedule_type_limit_identifiers(False))
+        msgs.append(self.check_duplicate_schedule_identifiers(False))
+        msgs.append(self.check_duplicate_program_type_identifiers(False))
+        msgs.append(self.check_duplicate_hvac_identifiers(False))
+        # output a final report of errors or raise an exception
+        full_msgs = [msg for msg in msgs if msg != '']
+        full_msg = '\n'.join(full_msgs)
+        if raise_exception and len(full_msgs) != 0:
+            raise ValueError(full_msg)
+        return full_msg
+
     def check_duplicate_material_identifiers(self, raise_exception=True):
         """Check that there are no duplicate Material identifiers in the model."""
         return check_duplicate_identifiers(
