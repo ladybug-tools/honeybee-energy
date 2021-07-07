@@ -113,6 +113,11 @@ class _EnergyWindowMaterialShadeBase(_EnergyMaterialWindowBase):
         self._right_opening_multiplier = float_in_range(
             multiplier, 0.0, 1.0, 'shade material opening multiplier')
 
+    @property
+    def r_value(self):
+        """R-value of the material layer [m2-K/W] (excluding air film resistance)."""
+        return 0
+
     def set_all_opening_multipliers(self, multiplier):
         """Set all opening multipliers to the same value at once."""
         self.top_opening_multiplier = multiplier
@@ -372,21 +377,6 @@ class EnergyWindowMaterialShade(_EnergyWindowMaterialShadeBase):
             'and reflectance ({}) is greater than 1.'.format(
                 v_ref + self._visible_transmittance)
         self._visible_reflectance = v_ref
-
-    @property
-    def visible_reflectance_back(self):
-        """Get or set the back visible reflectance of the glass at normal incidence."""
-        return self._visible_reflectance_back if self._visible_reflectance_back \
-            is not None else self._visible_reflectance
-
-    @visible_reflectance_back.setter
-    def visible_reflectance_back(self, v_ref):
-        if v_ref is not None:
-            v_ref = float_in_range(v_ref, 0.0, 1.0, 'shade material visible reflectance')
-            assert v_ref + self._visible_transmittance <= 1, 'Sum of window ' \
-                'transmittance and reflectance ({}) is greater than 1.'.format(
-                    v_ref + self._visible_transmittance)
-        self._visible_reflectance_back = v_ref
 
     @property
     def conductivity(self):
