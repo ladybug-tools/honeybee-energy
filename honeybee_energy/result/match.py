@@ -7,7 +7,7 @@ from honeybee.aperture import Aperture
 from honeybee.face import Face
 
 
-def match_rooms_to_data(data_collections, rooms):
+def match_rooms_to_data(data_collections, rooms, invert_multiplier=False):
     """Match honeybee Rooms to the Zone-level data collections from SQLiteResult.
 
     This method ensures that Room multipliers are correctly output for a given
@@ -21,6 +21,9 @@ def match_rooms_to_data(data_collections, rooms):
             will be used to match the data in the collections to the input rooms.
         rooms: An array of honeybee Rooms, which will be matched to the data_collections.
             The length of these Rooms does not have to match the data_collections.
+        invert_multiplier: Boolean to note whether the output room multiplier should be
+            included when the data type values already account for the multiplier
+            (False) or when they do not (True).
 
     Returns:
         An array of tuples that contain matched rooms and data collections. All
@@ -52,6 +55,8 @@ def match_rooms_to_data(data_collections, rooms):
                 zone_ids.append(hvac_id.split('_IDEALAIR')[0])
             else:
                 zone_ids.append(hvac_id)
+    if invert_multiplier:
+        use_mult = not use_mult
 
     # loop through the rooms and match the data to them
     for room in rooms:

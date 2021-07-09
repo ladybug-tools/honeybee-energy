@@ -527,7 +527,7 @@ class LoadBalance(object):
 
         # match the data collections to the rooms
         if use_all:  # firs try to see if all objects can be matched
-            matched_objs = match_rooms_to_data(data_collections, rooms)
+            matched_objs = match_rooms_to_data(data_collections, rooms, True)
             if len(matched_objs) != len(rooms):  # take them all
                 matched_objs = [(None, data, rm.multiplier)
                                 for data, rm in zip(data_collections, rooms)]
@@ -538,13 +538,14 @@ class LoadBalance(object):
                     coll_dict[coll.header.metadata['type']].append(coll)
                 except KeyError:
                     coll_dict[coll.header.metadata['type']] = [coll]
-            all_match = [match_rooms_to_data(val, rooms) for val in coll_dict.values()]
+            all_match = [match_rooms_to_data(val, rooms, True)
+                         for val in coll_dict.values()]
             matched_objs = [list(tup) for tup in all_match[0]]
             for other_tups in all_match[1:]:
                 for i, tup in enumerate(other_tups):
                     matched_objs[i][1] += tup[1]
         else:
-            matched_objs = match_rooms_to_data(data_collections, rooms)
+            matched_objs = match_rooms_to_data(data_collections, rooms, True)
         assert len(matched_objs) != 0, \
             'None of the data collections could be matched to the input rooms.'
         self._rooms = tuple(obj[0] for obj in matched_objs) if not use_all else rooms
