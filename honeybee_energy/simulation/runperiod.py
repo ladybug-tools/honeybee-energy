@@ -15,12 +15,8 @@ class RunPeriod(object):
     """EnergyPlus Simulation Run Period.
 
     Args:
-        start_date: A ladybug Date object for the start of the run period.
-            Must be before the end date and have a leap_year property matching the
-            end_date. Default: 1 Jan
-        end_date: A ladybug Date object for the end of the run period.
-            Must be after the start date and have a leap_year property matching the
-            start_date. Default: 31 Dec
+        start_date: A ladybug Date for the start of the run period. (Default: 1 Jan)
+        end_date: A ladybug Date for the end of the run period. (Default: 31 Dec)
         start_day_of_week: Text for the day of the week on which the simulation
             starts. Default: 'Sunday'. Choose from the following:
 
@@ -78,7 +74,6 @@ class RunPeriod(object):
             self._start_date = value
         else:
             self._start_date = Date(1, 1)
-        self._check_start_before_end()
 
     @property
     def end_date(self):
@@ -92,7 +87,6 @@ class RunPeriod(object):
             self._end_date = value
         else:
             self._end_date = Date(12, 31)
-        self._check_start_before_end()
 
     @property
     def start_day_of_week(self):
@@ -371,13 +365,6 @@ class RunPeriod(object):
     def duplicate(self):
         """Get a copy of this object."""
         return self.__copy__()
-
-    def _check_start_before_end(self):
-        """Check that the start_date is before the end_date."""
-        assert self.start_date.leap_year is self.end_date.leap_year, \
-            'RunPeriod start_date.leap_year must match the end_date.leap_year'
-        assert self._start_date <= self._end_date, 'RunPeriod start_date must come ' \
-            'before end_date. {} comes after {}.'.format(self.start_date, self.end_date)
 
     @staticmethod
     def _check_date(date, date_name='date'):
