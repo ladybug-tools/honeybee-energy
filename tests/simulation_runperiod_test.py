@@ -92,10 +92,6 @@ def test_run_period_setability():
     assert run_period.holidays == (Date(1, 1), Date(3, 17))
     run_period.daylight_saving_time = DaylightSavingTime()
     assert run_period.daylight_saving_time == DaylightSavingTime()
-    with pytest.raises(AssertionError):
-        run_period.start_date = Date(11, 10)
-    with pytest.raises(AssertionError):
-        run_period.start_date = Date(3, 10, True)
     run_period.is_leap_year = True
     assert run_period.is_leap_year
 
