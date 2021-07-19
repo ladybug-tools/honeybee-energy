@@ -28,6 +28,8 @@ class _AllAirBase(_TemplateSystem):
             * ASHRAE_2007
             * ASHRAE_2010
             * ASHRAE_2013
+            * ASHRAE_2016
+            * ASHRAE_2019
 
         equipment_type: Text for the specific type of the system and equipment.
             For example, 'VAV chiller with gas boiler reheat'.
@@ -69,7 +71,7 @@ class _AllAirBase(_TemplateSystem):
                         'FixedEnthalpy', 'ElectronicEnthalpy')
     _has_air_loop = True
 
-    def __init__(self, identifier, vintage='ASHRAE_2013', equipment_type=None,
+    def __init__(self, identifier, vintage='ASHRAE_2019', equipment_type=None,
                  economizer_type='NoEconomizer',
                  sensible_heat_recovery=0, latent_heat_recovery=0,
                  demand_controlled_ventilation=False):
@@ -166,7 +168,7 @@ class _AllAirBase(_TemplateSystem):
             "type": "",  # text for the class name of the HVAC
             "identifier": "Classroom1_System",  # identifier for the HVAC
             "display_name": "Standard System",  # name for the HVAC
-            "vintage": "ASHRAE_2013",  # text for the vintage of the template
+            "vintage": "ASHRAE_2019",  # text for the vintage of the template
             "equipment_type": "",  # text for the HVAC equipment type
             "economizer_type": 'DifferentialDryBulb',  # Economizer type
             "sensible_heat_recovery": 0.75,  # Sensible heat recovery effectiveness

@@ -18,7 +18,7 @@ def test_fcu_with_doas_init():
     str(hvac_sys)  # test the string representation
 
     assert hvac_sys.identifier == 'Test System'
-    assert hvac_sys.vintage == 'ASHRAE_2013'
+    assert hvac_sys.vintage == 'ASHRAE_2019'
     assert hvac_sys.equipment_type == 'DOAS_FCU_Chiller_Boiler'
     assert hvac_sys.sensible_heat_recovery == 0
     assert hvac_sys.latent_heat_recovery == 0
@@ -87,7 +87,7 @@ def test_vrf_with_doas_init():
     str(hvac_sys)  # test the string representation
 
     assert hvac_sys.identifier == 'Test System'
-    assert hvac_sys.vintage == 'ASHRAE_2013'
+    assert hvac_sys.vintage == 'ASHRAE_2019'
     assert hvac_sys.equipment_type == 'DOAS_VRF'
     assert hvac_sys.sensible_heat_recovery == 0
     assert hvac_sys.latent_heat_recovery == 0
@@ -136,7 +136,7 @@ def test_wshp_with_doas_init():
     str(hvac_sys)  # test the string representation
 
     assert hvac_sys.identifier == 'Test System'
-    assert hvac_sys.vintage == 'ASHRAE_2013'
+    assert hvac_sys.vintage == 'ASHRAE_2019'
     assert hvac_sys.equipment_type == 'DOAS_WSHP_FluidCooler_Boiler'
     assert hvac_sys.sensible_heat_recovery == 0
     assert hvac_sys.latent_heat_recovery == 0

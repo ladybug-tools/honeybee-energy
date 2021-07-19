@@ -25,6 +25,8 @@ class PTAC(_AllAirBase):
             * ASHRAE_2007
             * ASHRAE_2010
             * ASHRAE_2013
+            * ASHRAE_2016
+            * ASHRAE_2019
 
         equipment_type: Text for the specific type of the system and equipment. (Default:
             the first option below) Choose from.
@@ -70,7 +72,7 @@ technical-resources/standards-and-guidelines/read-only-versions-of-ashrae-standa
     )
     _has_air_loop = False
 
-    def __init__(self, identifier, vintage='ASHRAE_2013', equipment_type=None):
+    def __init__(self, identifier, vintage='ASHRAE_2019', equipment_type=None):
         """Initialize HVACSystem."""
         # initialize base HVAC system properties
         _AllAirBase.__init__(self, identifier, vintage, equipment_type)
@@ -88,7 +90,7 @@ technical-resources/standards-and-guidelines/read-only-versions-of-ashrae-standa
             "type": "",  # text for the class name of the HVAC
             "identifier": "Classroom1_System",  # identifier for the HVAC
             "display_name": "Standard System",  # name for the HVAC
-            "vintage": "ASHRAE_2013",  # text for the vintage of the template
+            "vintage": "ASHRAE_2019",  # text for the vintage of the template
             "equipment_type": ""  # text for the HVAC equipment type
             }
         """
@@ -116,7 +118,7 @@ technical-resources/standards-and-guidelines/read-only-versions-of-ashrae-standa
             "type": "",  # text for the class name of the HVAC
             "identifier": "Classroom1_System",  # identifier for the HVAC
             "display_name": "Standard System",  # name for the HVAC
-            "vintage": "ASHRAE_2013",  # text for the vintage of the template
+            "vintage": "ASHRAE_2019",  # text for the vintage of the template
             "equipment_type": ""  # text for the HVAC equipment type
             }
         """

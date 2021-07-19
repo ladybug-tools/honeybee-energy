@@ -26,6 +26,8 @@ class _HeatCoolBase(_TemplateSystem):
             * ASHRAE_2007
             * ASHRAE_2010
             * ASHRAE_2013
+            * ASHRAE_2016
+            * ASHRAE_2019
 
         equipment_type: Text for the specific type of the system and equipment.
             For example, 'Baseboard gas boiler'.
