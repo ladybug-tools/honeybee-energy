@@ -28,6 +28,8 @@ class _DOASBase(_TemplateSystem):
             * ASHRAE_2007
             * ASHRAE_2010
             * ASHRAE_2013
+            * ASHRAE_2016
+            * ASHRAE_2019
 
         equipment_type: Text for the specific type of the system and equipment.
             For example, 'DOAS with fan coil chiller with boiler'.
@@ -60,7 +62,7 @@ class _DOASBase(_TemplateSystem):
     __slots__ = ('_sensible_heat_recovery', '_latent_heat_recovery',
                  '_demand_controlled_ventilation', '_doas_availability_schedule')
 
-    def __init__(self, identifier, vintage='ASHRAE_2013', equipment_type=None,
+    def __init__(self, identifier, vintage='ASHRAE_2019', equipment_type=None,
                  sensible_heat_recovery=0, latent_heat_recovery=0,
                  demand_controlled_ventilation=False, doas_availability_schedule=None):
         """Initialize HVACSystem."""
@@ -142,7 +144,7 @@ class _DOASBase(_TemplateSystem):
             "type": "",  # text for the class name of the HVAC
             "identifier": "Classroom1_System",  # identifier for the HVAC
             "display_name": "Standard System",  # name for the HVAC
-            "vintage": "ASHRAE_2013",  # text for the vintage of the template
+            "vintage": "ASHRAE_2019",  # text for the vintage of the template
             "equipment_type": "",  # text for the HVAC equipment type
             "sensible_heat_recovery": 0.75,  # Sensible heat recovery effectiveness
             "latent_heat_recovery": 0.7,  # Latent heat recovery effectiveness
@@ -182,7 +184,7 @@ class _DOASBase(_TemplateSystem):
             "type": "",  # text for the class name of the HVAC
             "identifier": "Classroom1_System",  # identifier for the HVAC
             "display_name": "Standard System",  # name for the HVAC
-            "vintage": "ASHRAE_2013",  # text for the vintage of the template
+            "vintage": "ASHRAE_2019",  # text for the vintage of the template
             "equipment_type": "",  # text for the HVAC equipment type
             "sensible_heat_recovery": 0.75,  # Sensible heat recovery effectiveness
             "latent_heat_recovery": 0.7,  # Latent heat recovery effectiveness

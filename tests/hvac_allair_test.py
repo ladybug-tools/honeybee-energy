@@ -20,7 +20,7 @@ def test_vav_init():
     str(hvac_sys)  # test the string representation
 
     assert hvac_sys.identifier == 'Test System'
-    assert hvac_sys.vintage == 'ASHRAE_2013'
+    assert hvac_sys.vintage == 'ASHRAE_2019'
     assert hvac_sys.equipment_type == 'VAV_Chiller_Boiler'
     assert hvac_sys.economizer_type == 'NoEconomizer'
     assert hvac_sys.sensible_heat_recovery == 0
@@ -93,7 +93,7 @@ def test_pvav_init():
     str(hvac_sys)  # test the string representation
 
     assert hvac_sys.identifier == 'Test System'
-    assert hvac_sys.vintage == 'ASHRAE_2013'
+    assert hvac_sys.vintage == 'ASHRAE_2019'
     assert hvac_sys.equipment_type == 'PVAV_Boiler'
     assert hvac_sys.economizer_type == 'NoEconomizer'
     assert hvac_sys.sensible_heat_recovery == 0
@@ -166,7 +166,7 @@ def test_psz_init():
     str(hvac_sys)  # test the string representation
 
     assert hvac_sys.identifier == 'Test System'
-    assert hvac_sys.vintage == 'ASHRAE_2013'
+    assert hvac_sys.vintage == 'ASHRAE_2019'
     assert hvac_sys.equipment_type == 'PSZAC_ElectricBaseboard'
     assert hvac_sys.economizer_type == 'NoEconomizer'
     assert hvac_sys.sensible_heat_recovery == 0
@@ -239,7 +239,7 @@ def test_ptac_init():
     str(hvac_sys)  # test the string representation
 
     assert hvac_sys.identifier == 'Test System'
-    assert hvac_sys.vintage == 'ASHRAE_2013'
+    assert hvac_sys.vintage == 'ASHRAE_2019'
     assert hvac_sys.equipment_type == 'PTAC_ElectricBaseboard'
     assert hvac_sys.economizer_type == 'NoEconomizer'
     assert hvac_sys.sensible_heat_recovery == 0
@@ -290,7 +290,7 @@ def test_furnace_init():
     str(hvac_sys)  # test the string representation
 
     assert hvac_sys.identifier == 'Test System'
-    assert hvac_sys.vintage == 'ASHRAE_2013'
+    assert hvac_sys.vintage == 'ASHRAE_2019'
     assert hvac_sys.equipment_type == 'Furnace'
     assert hvac_sys.economizer_type == 'NoEconomizer'
     assert hvac_sys.sensible_heat_recovery == 0

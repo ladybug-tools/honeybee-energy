@@ -22,7 +22,7 @@ def test_fcu_init():
     str(hvac_sys)  # test the string representation
 
     assert hvac_sys.identifier == 'Test System'
-    assert hvac_sys.vintage == 'ASHRAE_2013'
+    assert hvac_sys.vintage == 'ASHRAE_2019'
     assert hvac_sys.equipment_type == 'FCU_Chiller_Boiler'
 
     hvac_sys.vintage = 'ASHRAE_2010'
@@ -82,7 +82,7 @@ def test_vrf_init():
     str(hvac_sys)  # test the string representation
 
     assert hvac_sys.identifier == 'Test System'
-    assert hvac_sys.vintage == 'ASHRAE_2013'
+    assert hvac_sys.vintage == 'ASHRAE_2019'
     assert hvac_sys.equipment_type == 'VRF'
 
     hvac_sys.vintage = 'ASHRAE_2010'
@@ -122,7 +122,7 @@ def test_wshp_init():
     str(hvac_sys)  # test the string representation
 
     assert hvac_sys.identifier == 'Test System'
-    assert hvac_sys.vintage == 'ASHRAE_2013'
+    assert hvac_sys.vintage == 'ASHRAE_2019'
     assert hvac_sys.equipment_type == 'WSHP_FluidCooler_Boiler'
 
     hvac_sys.vintage = 'ASHRAE_2010'
@@ -163,7 +163,7 @@ def test_baseboard_init():
     str(hvac_sys)  # test the string representation
 
     assert hvac_sys.identifier == 'Test System'
-    assert hvac_sys.vintage == 'ASHRAE_2013'
+    assert hvac_sys.vintage == 'ASHRAE_2019'
     assert hvac_sys.equipment_type == 'ElectricBaseboard'
 
     hvac_sys.vintage = 'ASHRAE_2010'
@@ -224,7 +224,7 @@ def test_evap_cool_init():
     str(hvac_sys)  # test the string representation
 
     assert hvac_sys.identifier == 'Test System'
-    assert hvac_sys.vintage == 'ASHRAE_2013'
+    assert hvac_sys.vintage == 'ASHRAE_2019'
     assert hvac_sys.equipment_type == 'EvapCoolers_ElectricBaseboard'
 
     hvac_sys.vintage = 'ASHRAE_2010'
@@ -286,7 +286,7 @@ def test_gasunit_init():
     str(hvac_sys)  # test the string representation
 
     assert hvac_sys.identifier == 'Test System'
-    assert hvac_sys.vintage == 'ASHRAE_2013'
+    assert hvac_sys.vintage == 'ASHRAE_2019'
     assert hvac_sys.equipment_type == 'GasHeaters'
 
     hvac_sys.vintage = 'ASHRAE_2010'
@@ -324,7 +324,7 @@ def test_residential_init():
     str(hvac_sys)  # test the string representation
 
     assert hvac_sys.identifier == 'Test System'
-    assert hvac_sys.vintage == 'ASHRAE_2013'
+    assert hvac_sys.vintage == 'ASHRAE_2019'
     assert hvac_sys.equipment_type == 'ResidentialAC_ElectricBaseboard'
 
     hvac_sys.vintage = 'ASHRAE_2010'
@@ -385,7 +385,7 @@ def test_window_ac_init():
     str(hvac_sys)  # test the string representation
 
     assert hvac_sys.identifier == 'Test System'
-    assert hvac_sys.vintage == 'ASHRAE_2013'
+    assert hvac_sys.vintage == 'ASHRAE_2019'
     assert hvac_sys.equipment_type == 'WindowAC_ElectricBaseboard'
 
     hvac_sys.vintage = 'ASHRAE_2010'
