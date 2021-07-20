@@ -396,7 +396,10 @@ def _apply_design_days(ddy_file, filter_des_days, sim_par):
         filter_des_days: Boolean for whether design days should be filtered.
         sim_par: A SimulationPArameter object.
     """
-    if filter_des_days:
-        sim_par.sizing_parameter.add_from_ddy_996_004(ddy_file)
-    else:
-        sim_par.sizing_parameter.add_from_ddy(ddy_file)
+    try:
+        if filter_des_days:
+            sim_par.sizing_parameter.add_from_ddy_996_004(ddy_file)
+        else:
+            sim_par.sizing_parameter.add_from_ddy(ddy_file)
+    except AssertionError:  # no design days in the DDY file
+        pass
