@@ -100,7 +100,7 @@ jobs:
         VERSION: ${{ github.event.client_payload.version }}
       run: |
         export CLEAN_VERSION=$(echo $VERSION | sed 's/v//g')
-         sed -i --regexp-extended 's/(export HONEYBEE_OPENSTUDIO_GEM_VERSION=").*"/HONEYBEE_OPENSTUDIO_GEM_VERSION="'"$CLEAN_VERSION"'"/' build_image.sh
+         sed -i --regexp-extended 's/(export HONEYBEE_OPENSTUDIO_GEM_VERSION=").*"/export HONEYBEE_OPENSTUDIO_GEM_VERSION="'"$CLEAN_VERSION"'"/' build_image.sh
          sed -i --regexp-extended 's/(HONEYBEE_OPENSTUDIO_GEM_VERSION: ").*"/HONEYBEE_OPENSTUDIO_GEM_VERSION: "'"$CLEAN_VERSION"'"/' .github/workflows/ci.yaml
     - name: "Commit and Push Changes"
       id: push
