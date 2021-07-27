@@ -584,7 +584,7 @@ class WindowConstructionShade(object):
         control_name = '{}_ShdControl'.format(aperture_identifier)
         control_type = 'OnIfScheduleAllows' if self.schedule is not None and \
             self.control_type == 'AlwaysOn' else self.control_type
-        sch = self.schedule if self.schedule is not None else ''
+        sch = self.schedule.identifier if self.schedule is not None else ''
         sch_bool = 'Yes' if self.schedule is not None else 'No'
         setpt = self.setpoint if self.setpoint is not None else ''
         values = (control_name, room_identifier, 1, self._ep_shading_type,
