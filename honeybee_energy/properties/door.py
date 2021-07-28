@@ -4,6 +4,7 @@ from ..construction.dictutil import dict_to_construction
 from ..construction.opaque import OpaqueConstruction
 from ..construction.window import WindowConstruction
 from ..construction.windowshade import WindowConstructionShade
+from ..construction.dynamic import WindowConstructionDynamic
 from ..ventcool.opening import VentilationOpening
 from ..lib.constructionsets import generic_construction_set
 
@@ -15,9 +16,10 @@ class DoorEnergyProperties(object):
         host_door: A honeybee_core Door object that hosts these properties.
         construction: An optional Honeybee OpaqueConstruction or WindowConstruction
             object for the door. Note that the host Door must have the is_glass
-            property set to True to assign a WindowConstruction or
-            WindowConstructionShade. If None, it will be set by the parent
-            Room ConstructionSet or the the Honeybee default generic ConstructionSet.
+            property set to True to assign a WindowConstruction,
+            WindowConstructionShade or WindowConstructionDynamic. If None, it
+            will be set by the parent Room ConstructionSet or the the Honeybee
+            default generic ConstructionSet.
         vent_opening: An optional VentilationOpening to specify the operable
             portion of the Door. (Default: None).
 
@@ -73,8 +75,10 @@ class DoorEnergyProperties(object):
                 assert isinstance(value, OpaqueConstruction), 'Expected ' \
                     'OpaqueConstruction for door. Got {}'.format(type(value))
             else:
-                assert isinstance(value, (WindowConstruction, WindowConstructionShade)), \
-                    'Expected WindowConstruction or WindowConstructionShade for ' \
+                vw = (WindowConstruction, WindowConstructionShade,
+                      WindowConstructionDynamic)
+                assert isinstance(value, vw), 'Expected WindowConstruction, ' \
+                    'WindowConstructionShade or WindowConstructionDynamic for ' \
                     'glass door. Got {}'.format(type(value))
             value.lock()  # lock editing in case construction has multiple references
         self._construction = value

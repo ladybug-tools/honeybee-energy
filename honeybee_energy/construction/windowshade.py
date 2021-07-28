@@ -304,7 +304,7 @@ class WindowConstructionShade(object):
 
     @property
     def layers(self):
-        """A list of material identifiers in the construction (outside to inside).
+        """Get a list of material identifiers in the construction (outside to inside).
 
         This will include the shade material layer in its correct position.
         """
@@ -312,7 +312,7 @@ class WindowConstructionShade(object):
 
     @property
     def unique_materials(self):
-        """A set of only unique material objects in the construction.
+        """Get a list of only unique material objects in the construction.
 
         This will include the shade material layer. It will include both types of glass
         layers if the consruction is a switchable glazing.
@@ -358,7 +358,7 @@ class WindowConstructionShade(object):
 
     @property
     def is_symmetric(self):
-        """Get a boolean to note whether the construction layers are symmetric.
+        """Get a boolean for whether the construction layers are symmetric.
 
         Symmetric means that the materials in reversed order are equal to those
         in the current order (eg. 'Glass', 'Air Gap', 'Glass'). This is particularly
@@ -502,8 +502,7 @@ class WindowConstructionShade(object):
             materials: A dictionary with identifiers of materials as keys and
                 Python material objects as values.
             schedules: A dictionary with schedule identifiers as keys and
-                honeybee schedule objects as values. These will be used to
-                assign the schedule to the AirBoundaryConstruction object.
+                honeybee schedule objects as values.
 
         .. code-block:: python
 
@@ -615,7 +614,7 @@ class WindowConstructionShade(object):
             abridged: Boolean to note whether the full dictionary describing the
                 object should be returned (False) or just an abridged version (True),
                 which only specifies the identifiers of material layers and
-                schedules. Default: False.
+                schedules. (Default: False).
         """
         base = {'type': 'WindowConstructionShade'} if not \
             abridged else {'type': 'WindowConstructionShadeAbridged'}

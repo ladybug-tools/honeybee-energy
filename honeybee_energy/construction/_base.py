@@ -146,13 +146,12 @@ class _ConstructionBase(object):
             if self._materials[i] != self._materials[-(i + 1)]:
                 return False
         return True
-    
+
     @property
     def has_shade(self):
-        """Get a boolean noting whether dynamic materials are in the construction.
-
-        This should be False for all construction types except WindowConstructionShade.
+        """Get a boolean noting whether dynamic shade materials are in the construction.
         """
+        # This is False for all construction types except WindowConstructionShade.
         return False
 
     def duplicate(self):

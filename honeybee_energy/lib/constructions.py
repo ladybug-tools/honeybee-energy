@@ -2,6 +2,7 @@
 from honeybee_energy.construction.opaque import OpaqueConstruction
 from honeybee_energy.construction.window import WindowConstruction
 from honeybee_energy.construction.windowshade import WindowConstructionShade
+from honeybee_energy.construction.dynamic import WindowConstructionDynamic
 from honeybee_energy.construction.shade import ShadeConstruction
 from honeybee_energy.construction.air import AirBoundaryConstruction
 from ._loadconstructions import _opaque_constructions, _window_constructions, \
@@ -87,7 +88,7 @@ def window_construction_by_identifier(construction_identifier):
                 for mat in constr_dict[mat_key]:
                     mats[mat] = _m.window_material_by_identifier(mat)
                 return WindowConstruction.from_dict_abridged(constr_dict, mats)
-            else:  # WindowConstructionShade
+            elif constr_dict['type'] == 'WindowConstructionShadeAbridged':
                 mats = {}
                 mat_key = 'layers' if 'layers' in constr_dict['window_construction'] \
                     else 'materials'
@@ -101,6 +102,15 @@ def window_construction_by_identifier(construction_identifier):
                 except KeyError:  # no schedule key provided
                     schs = {}
                 return WindowConstructionShade.from_dict_abridged(
+                    constr_dict, mats, schs)
+            elif constr_dict['type'] == 'WindowConstructionDynamicAbridged':
+                mats = {}
+                for con in constr_dict['constructions']:
+                    for mat in constr_dict['materials']:
+                        mats[mat] = _m.window_material_by_identifier(mat)
+                sch_id = constr_dict['schedule']
+                schs = {sch_id: _s.schedule_by_identifier(sch_id)}
+                return WindowConstructionDynamic.from_dict_abridged(
                     constr_dict, mats, schs)
         except KeyError:  # construction is nowhere to be found; raise an error
             raise ValueError(
