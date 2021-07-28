@@ -3,6 +3,7 @@ from honeybee_energy.config import folders
 from honeybee_energy.construction.opaque import OpaqueConstruction
 from honeybee_energy.construction.window import WindowConstruction
 from honeybee_energy.construction.windowshade import WindowConstructionShade
+from honeybee_energy.construction.dynamic import WindowConstructionDynamic
 from honeybee_energy.construction.air import AirBoundaryConstruction
 from honeybee_energy.construction.dictutil import dict_abridged_to_construction, \
     dict_to_construction
@@ -24,6 +25,10 @@ _opaque_constructions = {}
 _window_constructions = {}
 _shade_constructions = {}
 
+# groups useful for construction classification
+_opa_types = (OpaqueConstruction, AirBoundaryConstruction)
+_win_types = (WindowConstruction, WindowConstructionShade, WindowConstructionDynamic)
+
 
 # first load the honeybee defaults
 with open(folders.defaults_file) as json_file:
@@ -31,9 +36,9 @@ with open(folders.defaults_file) as json_file:
 for con_dict in default_data:
     constr = dict_abridged_to_construction(con_dict, _all_materials, _schedules, False)
     constr.lock()
-    if isinstance(constr, (OpaqueConstruction, AirBoundaryConstruction)):
+    if isinstance(constr, _opa_types):
         _opaque_constructions[con_dict['identifier']] = constr
-    elif isinstance(constr, (WindowConstruction, WindowConstructionShade)):
+    elif isinstance(constr, _win_types):
         _window_constructions[con_dict['identifier']] = constr
     else:  # it's a shade construction
         _shade_constructions[con_dict['identifier']] = constr
@@ -66,9 +71,9 @@ def load_construction_object(con_dict):
             constr = dict_to_construction(con_dict, False)
         if constr is not None:
             lock_and_check_construction(constr)
-            if isinstance(constr, (OpaqueConstruction, AirBoundaryConstruction)):
+            if isinstance(constr, _opa_types):
                 _opaque_constructions[con_dict['identifier']] = constr
-            elif isinstance(constr, (WindowConstruction, WindowConstructionShade)):
+            elif isinstance(constr, _win_types):
                 _window_constructions[con_dict['identifier']] = constr
             else:  # it's a shade construction
                 _shade_constructions[con_dict['identifier']] = constr

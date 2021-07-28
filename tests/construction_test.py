@@ -8,6 +8,7 @@ from honeybee_energy.material.shade import EnergyWindowMaterialShade, \
 from honeybee_energy.construction.opaque import OpaqueConstruction
 from honeybee_energy.construction.window import WindowConstruction
 from honeybee_energy.construction.windowshade import WindowConstructionShade
+from honeybee_energy.construction.dynamic import WindowConstructionDynamic
 from honeybee_energy.construction.shade import ShadeConstruction
 from honeybee_energy.construction.air import AirBoundaryConstruction
 from honeybee_energy.schedule.ruleset import ScheduleRuleset
@@ -665,6 +666,147 @@ def test_window_shade_dict_methods():
 
     constr_dict = double_low_e_ec.to_dict()
     new_constr = WindowConstructionShade.from_dict(constr_dict)
+    assert double_low_e_ec == new_constr
+    assert constr_dict == new_constr.to_dict()
+
+
+def test_window_construction_dynamic_init():
+    """Test the initialization of WindowConstructionDynamic objects."""
+    lowe_glass = EnergyWindowMaterialGlazing(
+        'Low-e Glass', 0.00318, 0.4517, 0.359, 0.714, 0.207,
+        0, 0.84, 0.046578, 1.0)
+    clear_glass = EnergyWindowMaterialGlazing(
+        'Clear Glass', 0.005715, 0.770675, 0.07, 0.8836, 0.0804,
+        0, 0.84, 0.84, 1.0)
+    gap = EnergyWindowMaterialGas('air gap', thickness=0.03)
+    tint_glass = EnergyWindowMaterialGlazing(
+        'Tinted Low-e Glass', 0.00318, 0.09, 0.359, 0.16, 0.207,
+        0, 0.84, 0.046578, 1.0)
+    window_constr_off = WindowConstruction(
+        'Double Low-E Clear', [lowe_glass, gap, clear_glass])
+    window_constr_on = WindowConstruction(
+        'Double Low-E Tint', [lowe_glass, gap, tint_glass])
+    sched = ScheduleRuleset.from_daily_values(
+        'NighSched', [1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                      0, 0, 0, 0, 0, 1, 1, 1])
+    double_low_e_ec = WindowConstructionDynamic(
+        'Double Low-E EC', [window_constr_on, window_constr_off], sched)
+    
+    assert double_low_e_ec.identifier == 'Double Low-E EC'
+    assert len(double_low_e_ec.constructions) == len(double_low_e_ec) == 2
+    assert double_low_e_ec[0] == window_constr_on
+    assert double_low_e_ec.schedule == sched
+    assert len(double_low_e_ec.materials) == 6
+    assert len(double_low_e_ec.layers) == 6
+    assert len(double_low_e_ec.unique_materials) == 4
+    assert not double_low_e_ec.is_symmetric
+    assert not double_low_e_ec.has_shade
+    assert double_low_e_ec.thickness == double_low_e_ec[0].thickness
+    assert double_low_e_ec.glazing_count == 2
+    assert double_low_e_ec.gap_count == 1
+
+
+def test_window_dynamic_lockability():
+    """Test the lockability of the WindowConstructionDynamic construction."""
+    lowe_glass = EnergyWindowMaterialGlazing(
+        'Low-e Glass', 0.00318, 0.4517, 0.359, 0.714, 0.207,
+        0, 0.84, 0.046578, 1.0)
+    clear_glass = EnergyWindowMaterialGlazing(
+        'Clear Glass', 0.005715, 0.770675, 0.07, 0.8836, 0.0804,
+        0, 0.84, 0.84, 1.0)
+    gap = EnergyWindowMaterialGas('air gap', thickness=0.03)
+    tint_glass = EnergyWindowMaterialGlazing(
+        'Tinted Low-e Glass', 0.00318, 0.09, 0.359, 0.16, 0.207,
+        0, 0.84, 0.046578, 1.0)
+    window_constr_off = WindowConstruction(
+        'Double Low-E Clear', [lowe_glass, gap, clear_glass])
+    window_constr_on = WindowConstruction(
+        'Double Low-E Tint', [lowe_glass, gap, tint_glass])
+    sched = ScheduleRuleset.from_daily_values(
+        'NightSched', [1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                      0, 0, 0, 0, 0, 1, 1, 1])
+    double_low_e_ec = WindowConstructionDynamic(
+        'Double Low-E EC', [window_constr_on, window_constr_off], sched)
+
+    with pytest.raises(TypeError):
+        double_low_e_ec.constructions[1] = window_constr_on
+    with pytest.raises(AttributeError):
+        double_low_e_ec.schedule.identifier = 'ScheduleName'
+
+    day_sched = ScheduleRuleset.from_daily_values(
+        'DaySched', [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                      1, 1, 1, 1, 1, 0, 0, 0])
+    double_low_e_ec.schedule = day_sched
+    double_low_e_ec.lock()
+    with pytest.raises(AttributeError):
+        double_low_e_ec.schedule = sched
+    double_low_e_ec.unlock()
+    double_low_e_ec.schedule = sched
+
+
+def test_window_dynamic_equality():
+    """Test the equality of the WindowConstructionDynamic construction."""
+    lowe_glass = EnergyWindowMaterialGlazing(
+        'Low-e Glass', 0.00318, 0.4517, 0.359, 0.714, 0.207,
+        0, 0.84, 0.046578, 1.0)
+    clear_glass = EnergyWindowMaterialGlazing(
+        'Clear Glass', 0.005715, 0.770675, 0.07, 0.8836, 0.0804,
+        0, 0.84, 0.84, 1.0)
+    gap = EnergyWindowMaterialGas('air gap', thickness=0.03)
+    tint_glass = EnergyWindowMaterialGlazing(
+        'Tinted Low-e Glass', 0.00318, 0.09, 0.359, 0.16, 0.207,
+        0, 0.84, 0.046578, 1.0)
+    window_constr_off = WindowConstruction(
+        'Double Low-E Clear', [lowe_glass, gap, clear_glass])
+    window_constr_on = WindowConstruction(
+        'Double Low-E Tint', [lowe_glass, gap, tint_glass])
+    sched = ScheduleRuleset.from_daily_values(
+        'NightSched', [1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                      0, 0, 0, 0, 0, 1, 1, 1])
+    day_sched = ScheduleRuleset.from_daily_values(
+        'DaySched', [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                      1, 1, 1, 1, 1, 0, 0, 0])
+    double_low_e_ec = WindowConstructionDynamic(
+        'Double Low-E EC', [window_constr_on, window_constr_off], sched)
+
+    double_low_e_ec_2 = double_low_e_ec.duplicate()
+    double_low_e_ec_3 = WindowConstructionDynamic(
+        'Double Low-E EC', [window_constr_on, window_constr_off], day_sched)
+
+    collection = [double_low_e_ec, double_low_e_ec, double_low_e_ec_2, double_low_e_ec_3]
+    assert len(set(collection)) == 2
+    assert double_low_e_ec == double_low_e_ec_2
+    assert double_low_e_ec != double_low_e_ec_3
+    assert double_low_e_ec_2 != double_low_e_ec_3
+
+    double_low_e_ec_2.identifier = 'Cool Window'
+    assert double_low_e_ec != double_low_e_ec_2
+
+
+def test_window_dynamic_dict_methods():
+    """Test the to/from dict methods."""
+    lowe_glass = EnergyWindowMaterialGlazing(
+        'Low-e Glass', 0.00318, 0.4517, 0.359, 0.714, 0.207,
+        0, 0.84, 0.046578, 1.0)
+    clear_glass = EnergyWindowMaterialGlazing(
+        'Clear Glass', 0.005715, 0.770675, 0.07, 0.8836, 0.0804,
+        0, 0.84, 0.84, 1.0)
+    gap = EnergyWindowMaterialGas('air gap', thickness=0.03)
+    tint_glass = EnergyWindowMaterialGlazing(
+        'Tinted Low-e Glass', 0.00318, 0.09, 0.359, 0.16, 0.207,
+        0, 0.84, 0.046578, 1.0)
+    window_constr_off = WindowConstruction(
+        'Double Low-E Clear', [lowe_glass, gap, clear_glass])
+    window_constr_on = WindowConstruction(
+        'Double Low-E Tint', [lowe_glass, gap, tint_glass])
+    sched = ScheduleRuleset.from_daily_values(
+        'NightSched', [1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                      0, 0, 0, 0, 0, 1, 1, 1])
+    double_low_e_ec = WindowConstructionDynamic(
+        'Double Low-E EC', [window_constr_on, window_constr_off], sched)
+
+    constr_dict = double_low_e_ec.to_dict()
+    new_constr = WindowConstructionDynamic.from_dict(constr_dict)
     assert double_low_e_ec == new_constr
     assert constr_dict == new_constr.to_dict()
 

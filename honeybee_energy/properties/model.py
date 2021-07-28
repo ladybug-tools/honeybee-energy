@@ -16,6 +16,7 @@ from ..construction.dictutil import CONSTRUCTION_TYPES, dict_to_construction, \
     dict_abridged_to_construction
 from ..construction.opaque import OpaqueConstruction
 from ..construction.windowshade import WindowConstructionShade
+from ..construction.dynamic import WindowConstructionDynamic
 from ..construction.air import AirBoundaryConstruction
 from ..constructionset import ConstructionSet
 from ..schedule.typelimit import ScheduleTypeLimit
@@ -190,6 +191,8 @@ class ModelEnergyProperties(object):
             elif isinstance(constr, WindowConstructionShade):
                 if constr.schedule is not None:
                     self._check_and_add_schedule(constr.schedule, schedules)
+            elif isinstance(constr, WindowConstructionDynamic):
+                self._check_and_add_schedule(constr.schedule, schedules)
         return list(set(schedules))
 
     @property
@@ -752,6 +755,8 @@ class ModelEnergyProperties(object):
             elif isinstance(constr, WindowConstructionShade):
                 if constr.schedule is not None:
                     self._check_and_add_schedule(constr.schedule, schedules)
+            elif isinstance(constr, WindowConstructionDynamic):
+                self._check_and_add_schedule(constr.schedule, schedules)
         return schedules
 
     def _add_sched_type_objs_to_dict(self, base, schs):

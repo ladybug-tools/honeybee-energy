@@ -3,6 +3,7 @@
 from ..construction.dictutil import dict_to_construction
 from ..construction.window import WindowConstruction
 from ..construction.windowshade import WindowConstructionShade
+from ..construction.dynamic import WindowConstructionDynamic
 from ..ventcool.opening import VentilationOpening
 from ..lib.constructionsets import generic_construction_set
 
@@ -12,9 +13,10 @@ class ApertureEnergyProperties(object):
 
     Args:
         host: A honeybee_core Aperture object that hosts these properties.
-        construction: An optional Honeybee WindowConstruction or WindowConstructionShade
-            object for the aperture. If None, it will be set by the parent Room
-            ConstructionSet or the the Honeybee default generic ConstructionSet.
+        construction: An optional Honeybee WindowConstruction, WindowConstructionShade
+            or WindowConstructionDynamic object for the aperture. If None, it will
+            be set by the parent Room ConstructionSet or the the Honeybee default
+            generic ConstructionSet.
         vent_opening: An optional VentilationOpening to specify the operable
             portion of the Aperture. (Default: None).
 
@@ -66,8 +68,9 @@ class ApertureEnergyProperties(object):
     @construction.setter
     def construction(self, value):
         if value is not None:
-            assert isinstance(value, (WindowConstruction, WindowConstructionShade)), \
-                'Expected WindowConstruction or WindowConstructionShade for aperture.' \
+            vw = (WindowConstruction, WindowConstructionShade, WindowConstructionDynamic)
+            assert isinstance(value, vw), 'Expected WindowConstruction, ' \
+                'WindowConstructionShade or WindowConstructionDynamic for aperture.' \
                 ' Got {}'.format(type(value))
             value.lock()  # lock editing in case construction has multiple references
         self._construction = value
@@ -127,7 +130,7 @@ class ApertureEnergyProperties(object):
 
             {
             "type": 'ApertureEnergyProperties',
-            "construction": {},  # WindowConstruction or WindowConstructionShade dict
+            "construction": {},  # Window Construction dictionary
             "vent_opening": {}  # VentilationOpening dict
             }
         """

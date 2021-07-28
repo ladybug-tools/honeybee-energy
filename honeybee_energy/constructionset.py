@@ -6,6 +6,7 @@ from .construction.dictutil import dict_to_construction
 from .construction.opaque import OpaqueConstruction
 from .construction.window import WindowConstruction
 from .construction.windowshade import WindowConstructionShade
+from .construction.dynamic import WindowConstructionDynamic
 from .construction.shade import ShadeConstruction
 from .construction.air import AirBoundaryConstruction
 import honeybee_energy.lib.constructions as _lib
@@ -1258,8 +1259,9 @@ class ApertureConstructionSet(object):
 
     def _check_window_construction(self, value):
         """Check that a construction is valid before assigning it."""
-        assert isinstance(value, (WindowConstruction, WindowConstructionShade)), \
-            'Expected WindowConstruction. Got {}'.format(type(value))
+        val_w = (WindowConstruction, WindowConstructionShade, WindowConstructionDynamic)
+        assert isinstance(value, val_w), \
+            'Expected Window Construction. Got {}'.format(type(value))
         value.lock()   # lock editing in case construction has multiple references
 
     def ToString(self):
@@ -1524,8 +1526,9 @@ class DoorConstructionSet(object):
 
     def _check_window_construction(self, value):
         """Check that a construction is valid before assigning it."""
-        assert isinstance(value, (WindowConstruction, WindowConstructionShade)), \
-            'Expected WindowConstruction. Got {}'.format(type(value))
+        val_w = (WindowConstruction, WindowConstructionShade, WindowConstructionDynamic)
+        assert isinstance(value, val_w), \
+            'Expected Window Construction. Got {}'.format(type(value))
         value.lock()   # lock editing in case construction has multiple references
 
     def ToString(self):
