@@ -83,6 +83,10 @@ jobs:
           PYPI_USERNAME: ${{ secrets.PYPI_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      - name: sleep for 10 minutes for PyPI update
+        if: contains(steps.new_release.outputs.tag, '.')
+        run: sleep 600s
+        shell: bash
       - name: Update lbt-honeybee
         if: contains(steps.new_release.outputs.tag, '.')
         env:
@@ -93,10 +97,6 @@ jobs:
           -H "Accept: application/vnd.github.everest-preview+json" \
           -d '{"event_type": "honeybee_energy_release", "client_payload": {"version": "${{ steps.new_release.outputs.tag }}"}}' \
           -u ladybugbot:$DEPS_TOKEN
-      - name: sleep for 14 minutes for PyPI update
-        if: contains(steps.new_release.outputs.tag, '.')
-        run: sleep 840s
-        shell: bash
       - name: Update dragonfly-energy
         if: contains(steps.new_release.outputs.tag, '.')
         env:
