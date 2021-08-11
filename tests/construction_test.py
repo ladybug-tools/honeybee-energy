@@ -213,6 +213,9 @@ def test_window_construction_init():
         pytest.approx(1.69802, rel=1e-2)
     assert double_low_e.r_factor == double_low_e_dup.r_factor == \
         pytest.approx(0.588919, rel=1e-2)
+    assert double_low_e.solar_transmittance < double_low_e.shgc
+    assert double_clear.solar_transmittance < double_clear.shgc
+    assert triple_clear.solar_transmittance < triple_clear.shgc
     assert double_low_e.inside_emissivity == \
         double_low_e_dup.inside_emissivity == 0.84
     assert double_low_e.outside_emissivity == \

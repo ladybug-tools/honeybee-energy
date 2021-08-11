@@ -187,6 +187,17 @@ class WindowConstructionDynamic(object):
         return self._constructions[0].u_factor
 
     @property
+    def solar_transmittance(self):
+        """The solar transmittance of the first window construction at normal incidence.
+        """
+        return self._constructions[0].solar_transmittance
+
+    @property
+    def shgc(self):
+        """The solar heat gain coefficient (SHGC) of the first window construction."""
+        return self._constructions[0].shgc
+
+    @property
     def is_symmetric(self):
         """Get a boolean for whether all of the construction layers are symmetric.
 

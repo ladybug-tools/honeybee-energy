@@ -563,6 +563,27 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
         """R-value of the material layer [m2-K/W] (excluding air film resistance)."""
         return (1 / self.u_factor) - self._film_resistance
 
+    @property
+    def solar_transmittance(self):
+        """Get the solar transmittance of the glazing system at normal incidence.
+
+        The method used to compute solar transmittance is taken from the
+        EnergyPlus reference.
+        """
+        if self.u_factor > 3.5:
+            term_1 = (0.939998 * (self.shgc ** 2)) + (0.20332 * self.shgc) \
+                if self.shgc < 0.7206 else (1.30415 * self.shgc) - 0.30515
+        if self.u_factor < 4.5:
+            term_2 = (0.085775 * (self.shgc ** 2)) + (0.963954 * self.shgc) - 0.084958 \
+                if self.shgc > 0.15 else (0.4104 * self.shgc)
+        if self.u_factor > 4.5:
+            return term_1
+        elif self.u_factor < 3.5:
+            return term_2
+        else:
+            weight = self.u_factor - 3.5
+            return (term_1 * weight) + (term_2 * (1 - weight))
+
     @classmethod
     def from_idf(cls, idf_string):
         """Create EnergyWindowMaterialSimpleGlazSys from an EnergyPlus text string.

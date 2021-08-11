@@ -357,6 +357,22 @@ class WindowConstructionShade(object):
         return self._window_construction.u_factor
 
     @property
+    def solar_transmittance(self):
+        """The solar transmittance of the bare window construction at normal incidence.
+
+        Note that this excludes all effects of the shade layer.
+        """
+        return self._window_construction.solar_transmittance
+
+    @property
+    def shgc(self):
+        """The solar heat gain coefficient (SHGC) of the bare window construction.
+
+        Note that this excludes all effects of the shade layer.
+        """
+        return self._window_construction.shgc
+
+    @property
     def is_symmetric(self):
         """Get a boolean for whether the construction layers are symmetric.
 
