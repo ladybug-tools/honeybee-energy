@@ -6,7 +6,7 @@ import pytest
 
 
 def test_glazing_init():
-    """Test the initalization of EnergyMaterial objects and basic properties."""
+    """Test the initialization of EnergyMaterial objects and basic properties."""
     lowe = EnergyWindowMaterialGlazing(
         'Low-e Glass', 0.00318, 0.4517, 0.359, 0.714, 0.207,
         0, 0.84, 0.046578, 1.0)
@@ -140,6 +140,7 @@ def test_simple_sys_init():
     assert lowe_sys.r_factor == lowe_sys_dup.r_factor == pytest.approx(1 / 1.8, rel=1e-3)
     assert lowe_sys.r_value == lowe_sys_dup.r_value == pytest.approx(0.387077, rel=1e-3)
     assert lowe_sys.u_value == lowe_sys_dup.u_value == pytest.approx(2.58346333, rel=1e-3)
+    assert lowe_sys.solar_transmittance < lowe_sys_dup.shgc
 
 
 def test_simple_sys_defaults():

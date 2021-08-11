@@ -14,6 +14,7 @@ from ..reader import parse_idf_string
 
 from honeybee._lockable import lockable
 from honeybee.typing import clean_rad_string
+from ladybug.rootfinding import secant
 
 import re
 import os
@@ -147,9 +148,6 @@ class WindowConstruction(_ConstructionBase):
     @property
     def solar_transmittance(self):
         """The solar transmittance of the window at normal incidence."""
-        if isinstance(self.materials[0], EnergyWindowMaterialSimpleGlazSys):
-            # E+ interprets ~80% of solar heat gain from direct solar transmission
-            return self.materials[0].shgc * 0.8
         trans = 1
         for mat in self.materials:
             if isinstance(mat, _EnergyWindowMaterialGlazingBase):
@@ -166,6 +164,38 @@ class WindowConstruction(_ConstructionBase):
             if isinstance(mat, _EnergyWindowMaterialGlazingBase):
                 trans *= mat.visible_transmittance
         return trans
+
+    @property
+    def shgc(self):
+        """The estimate solar heat gain coefficient (SHGC) of the construction."""
+        if isinstance(self.materials[0], EnergyWindowMaterialSimpleGlazSys):
+            return self.materials[0].shgc
+        u_fac, t_sol = self.u_factor, self.solar_transmittance
+
+        def fn(x):
+            return self._t_sol_from_u_shgc(u_fac, x) - t_sol
+        return secant(0, 1, fn, 0.01)
+
+    @staticmethod
+    def _t_sol_from_u_shgc(u_factor, shgc):
+        """Get the solar transmittance from U-factor and SHGC.
+
+        The method used to compute solar transmittance is taken from the
+        EnergyPlus reference.
+        """
+        if u_factor > 3.5:
+            term_1 = (0.939998 * (shgc ** 2)) + (0.20332 * shgc) \
+                if shgc < 0.7206 else (1.30415 * shgc) - 0.30515
+        if u_factor < 4.5:
+            term_2 = (0.085775 * (shgc ** 2)) + (0.963954 * shgc) - 0.084958 \
+                if shgc > 0.15 else (0.4104 * shgc)
+        if u_factor > 4.5:
+            return term_1
+        elif u_factor < 3.5:
+            return term_2
+        else:
+            weight = u_factor - 3.5
+            return (term_1 * weight) + (term_2 * (1 - weight))
 
     @property
     def thickness(self):
