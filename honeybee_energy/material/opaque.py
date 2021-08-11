@@ -92,6 +92,7 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
     @thickness.setter
     def thickness(self, thick):
         self._thickness = float_positive(thick, 'material thickness')
+        self._compare_thickness_conductivity()
 
     @property
     def conductivity(self):
@@ -101,6 +102,7 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
     @conductivity.setter
     def conductivity(self, cond):
         self._conductivity = float_positive(cond, 'material conductivity')
+        self._compare_thickness_conductivity()
 
     @property
     def density(self):
@@ -381,7 +383,8 @@ class EnergyMaterialNoMass(_EnergyMaterialOpaqueBase):
 
     @property
     def r_value(self):
-        """Get or set the r_value of the material layer [m2-K/W] (excluding air films)."""
+        """Get or set the r_value of the material layer [m2-K/W] (excluding air films).
+        """
         return self._r_value
 
     @r_value.setter
@@ -513,8 +516,10 @@ class EnergyMaterialNoMass(_EnergyMaterialOpaqueBase):
 
     def to_idf(self):
         """Get an EnergyPlus string representation of the material."""
-        values = (self.identifier, self.roughness, self.r_value, self.thermal_absorptance,
-                  self.solar_absorptance, self.visible_absorptance)
+        values = (
+            self.identifier, self.roughness, self.r_value, self.thermal_absorptance,
+            self.solar_absorptance, self.visible_absorptance
+        )
         comments = ('name', 'roughness', 'r-value {m2-K/W}', 'thermal absorptance',
                     'solar absorptance', 'visible absorptance')
         return generate_idf_string('Material:NoMass', values, comments)
