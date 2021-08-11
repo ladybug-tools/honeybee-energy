@@ -57,6 +57,19 @@ class _EnergyMaterialBase(object):
         """Get a copy of this construction."""
         return self.__copy__()
 
+    def _compare_thickness_conductivity(self):
+        """Compare the thickness and conductivity to avoid CTF errors from EnergyPlus."""
+        try:
+            assert self._conductivity / self._thickness <= 200000, \
+                'Material layer "{}" does not have sufficient thermal resistance.\n'\
+                'Either increase the thickness or remove it from the construction.'
+        except ZeroDivisionError:
+            raise ValueError(
+                'Material layer "{}" cannot have zero thickness.'.format(self.identifier)
+            )
+        except AttributeError:
+            pass  # conductivity or thickness has not yet been set
+
     def __copy__(self):
         new_obj = self.__class__(self.identifier)
         new_obj._display_name = self._display_name

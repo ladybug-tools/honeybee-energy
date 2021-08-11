@@ -32,6 +32,11 @@ def test_material_init():
     assert concrete.r_value == 0.5
     assert concrete.conductivity == pytest.approx(0.4, rel=1e-2)
 
+    with pytest.raises(ValueError):
+        concrete.thickness = 0
+    with pytest.raises(AssertionError):
+        concrete.thickness = 0.000000001
+
 
 def test_material_equivalency():
     """Test the equality of a material to another EnergyMaterial."""

@@ -7,7 +7,7 @@ except ImportError:
 
 from ladybug_geometry.geometry2d.pointvector import Vector2D
 from honeybee.face import Face
-from honeybee.boundarycondition import Outdoors
+from honeybee.boundarycondition import Outdoors, Surface
 from honeybee.extensionutil import model_extension_dicts
 from honeybee.checkdup import check_duplicate_identifiers
 
@@ -477,6 +477,7 @@ class ModelEnergyProperties(object):
         msgs.append(self.check_duplicate_schedule_identifiers(False))
         msgs.append(self.check_duplicate_program_type_identifiers(False))
         msgs.append(self.check_duplicate_hvac_identifiers(False))
+        msgs.append(self.check_interior_constructions_reversed(False))
         # output a final report of errors or raise an exception
         full_msgs = [msg for msg in msgs if msg != '']
         full_msg = '\n'.join(full_msgs)
@@ -517,6 +518,32 @@ class ModelEnergyProperties(object):
     def check_duplicate_hvac_identifiers(self, raise_exception=True):
         """Check that there are no duplicate HVAC identifiers in the model."""
         return check_duplicate_identifiers(self.hvacs, raise_exception, 'HVAC')
+
+    def check_interior_constructions_reversed(self, raise_exception=True):
+        """Check that all interior constructions are in reversed order for paired faces.
+        """
+        # first gather all interior faces in the model and their adjacent object
+        adj_constr, adj_ids = [], []
+        for face in self.host.faces:
+            if isinstance(face.boundary_condition, Surface):
+                adj_constr.append(face.properties.energy.construction)
+                adj_ids.append(face.boundary_condition.boundary_condition_object)
+        # next, get the adjacent objects and check their construction
+        adj_faces = self.host.faces_by_identifier(adj_ids)
+        full_msgs = []
+        for adj_c, adj_f in zip(adj_constr, adj_faces):
+            rev_mat = tuple(reversed(adj_f.properties.energy.construction.materials))
+            if not adj_c.materials == rev_mat:
+                full_msgs.append(
+                    'Face "{}" with construction "{}" does not have material layers '
+                    'matching in reversed order with its adjacent pair.'.format(
+                        adj_f.full_id, adj_f.properties.energy.construction.identifier
+                    )
+                )
+        full_msg = '\n'.join(full_msgs)
+        if raise_exception and len(full_msgs) != 0:
+            raise ValueError(full_msg)
+        return full_msg
 
     def apply_properties_from_dict(self, data):
         """Apply the energy properties of a dictionary to the host Model of this object.
