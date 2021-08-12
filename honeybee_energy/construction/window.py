@@ -148,10 +148,27 @@ class WindowConstruction(_ConstructionBase):
     @property
     def solar_transmittance(self):
         """The solar transmittance of the window at normal incidence."""
-        trans = 1
-        for mat in self.materials:
+        if isinstance(self.materials[0], EnergyWindowMaterialSimpleGlazSys):
+            return self.materials[0].solar_transmittance
+        trans, gap_refs = 1, []
+        for i, mat in enumerate(self.materials):
             if isinstance(mat, _EnergyWindowMaterialGlazingBase):
-                trans *= mat.solar_transmittance
+                # compute the fraction of inter-reflected solar off previous panes
+                if i != 0:
+                    ref = 0
+                    prev_pane = self.materials[i - 2]
+                    ref_i = mat.solar_reflectance * prev_pane.solar_reflectance_back
+                    for r in range(3):  # simulate 3 bounces back and forth
+                        ref += ref_i
+                        ref_i = ref_i * ref_i
+                    for prev_ref in gap_refs:
+                        b_ref_i = mat.solar_reflectance * prev_ref
+                        for r in range(3):  # simulate 3 bounces back and forth
+                            ref += b_ref_i
+                            b_ref_i = b_ref_i * b_ref_i
+                    gap_refs.append(prev_pane.solar_reflectance_back)
+                    trans += ref * trans  # add the back-reflected portion
+                trans *= mat.solar_transmittance  # pass everything through the glass
         return trans
 
     @property
@@ -159,15 +176,38 @@ class WindowConstruction(_ConstructionBase):
         """The visible transmittance of the window at normal incidence."""
         if isinstance(self.materials[0], EnergyWindowMaterialSimpleGlazSys):
             return self.materials[0].vt
-        trans = 1
-        for mat in self.materials:
+        trans, gap_refs = 1, []
+        for i, mat in enumerate(self.materials):
             if isinstance(mat, _EnergyWindowMaterialGlazingBase):
-                trans *= mat.visible_transmittance
+                # compute the fraction of inter-reflected visible off previous panes
+                if i != 0:
+                    ref = 0
+                    prev_pane = self.materials[i - 2]
+                    ref_i = mat.visible_reflectance * prev_pane.visible_reflectance_back
+                    for r in range(3):  # simulate 3 bounces back and forth
+                        ref += ref_i
+                        ref_i = ref_i * ref_i
+                    for prev_ref in gap_refs:
+                        b_ref_i = mat.visible_reflectance * prev_ref
+                        for r in range(3):  # simulate 3 bounces back and forth
+                            ref += b_ref_i
+                            b_ref_i = b_ref_i * b_ref_i
+                    gap_refs.append(prev_pane.visible_reflectance_back)
+                    trans += ref * trans  # add the back-reflected portion
+                trans *= mat.visible_transmittance  # pass everything through the glass
         return trans
 
     @property
     def shgc(self):
-        """The estimate solar heat gain coefficient (SHGC) of the construction."""
+        """The estimated solar heat gain coefficient (SHGC) of the construction.
+
+        This value is produced by finding the solution to the relationship between
+        U-value, Solar Transmittance, and SHGC as defined for the simple glazing
+        system material in EnergyPlus. More information can be found here:
+
+        https://bigladdersoftware.com/epx/docs/9-5/engineering-reference/\
+window-calculation-module.html#step-4.-determine-layer-solar-transmittance
+        """
         if isinstance(self.materials[0], EnergyWindowMaterialSimpleGlazSys):
             return self.materials[0].shgc
         u_fac, t_sol = self.u_factor, self.solar_transmittance
@@ -175,27 +215,6 @@ class WindowConstruction(_ConstructionBase):
         def fn(x):
             return self._t_sol_from_u_shgc(u_fac, x) - t_sol
         return secant(0, 1, fn, 0.01)
-
-    @staticmethod
-    def _t_sol_from_u_shgc(u_factor, shgc):
-        """Get the solar transmittance from U-factor and SHGC.
-
-        The method used to compute solar transmittance is taken from the
-        EnergyPlus reference.
-        """
-        if u_factor > 3.5:
-            term_1 = (0.939998 * (shgc ** 2)) + (0.20332 * shgc) \
-                if shgc < 0.7206 else (1.30415 * shgc) - 0.30515
-        if u_factor < 4.5:
-            term_2 = (0.085775 * (shgc ** 2)) + (0.963954 * shgc) - 0.084958 \
-                if shgc > 0.15 else (0.4104 * shgc)
-        if u_factor > 4.5:
-            return term_1
-        elif u_factor < 3.5:
-            return term_2
-        else:
-            weight = u_factor - 3.5
-            return (term_1 * weight) + (term_2 * (1 - weight))
 
     @property
     def thickness(self):
@@ -576,6 +595,27 @@ class WindowConstruction(_ConstructionBase):
         avg_temp = ((temperatures[-1] + temperatures[-2]) / 2) + 273.15
         r_vals.append(1 / self.in_h(avg_temp, delta_t, height, angle, pressure))
         return r_vals
+
+    @staticmethod
+    def _t_sol_from_u_shgc(u_factor, shgc):
+        """Get the solar transmittance from U-factor and SHGC.
+
+        The method used to compute solar transmittance is taken from the
+        EnergyPlus reference.
+        """
+        if u_factor > 3.5:
+            term_1 = (0.939998 * (shgc ** 2)) + (0.20332 * shgc) \
+                if shgc < 0.7206 else (1.30415 * shgc) - 0.30515
+        if u_factor < 4.5:
+            term_2 = (0.085775 * (shgc ** 2)) + (0.963954 * shgc) - 0.084958 \
+                if shgc > 0.15 else (0.4104 * shgc)
+        if u_factor > 4.5:
+            return term_1
+        elif u_factor < 3.5:
+            return term_2
+        else:
+            weight = u_factor - 3.5
+            return (term_1 * weight) + (term_2 * (1 - weight))
 
     @staticmethod
     def _old_schema_materials(data):

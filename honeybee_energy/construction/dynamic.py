@@ -193,6 +193,12 @@ class WindowConstructionDynamic(object):
         return self._constructions[0].solar_transmittance
 
     @property
+    def visible_transmittance(self):
+        """Visible transmittance of the first window construction at normal incidence.
+        """
+        return self._constructions[0].visible_transmittance
+
+    @property
     def shgc(self):
         """The solar heat gain coefficient (SHGC) of the first window construction."""
         return self._constructions[0].shgc
