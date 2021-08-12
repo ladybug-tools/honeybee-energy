@@ -8,6 +8,7 @@ represent an entire window assembly (including glazing, gaps, and frame), and
 therefore must be the only material in its parent construction.
 """
 from __future__ import division
+import math
 
 from ._base import _EnergyMaterialWindowBase
 from ..reader import parse_idf_string
@@ -505,9 +506,10 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
         * r_factor
         * u_value
         * r_value
+        * solar_transmittance
+        * thickness
     """
     __slots__ = ('_u_factor', '_shgc', '_vt')
-    _film_resistance = (1 / 23) + (1 / 8)  # interior + exterior films resistance
 
     def __init__(self, identifier, u_factor, shgc, vt=0.6):
         """Initialize energy window material simple glazing system."""
@@ -555,13 +557,23 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
 
     @property
     def u_value(self):
-        """U-value of the material layer [W/m2-K] (excluding air film resistance)."""
+        """U-value of the material layer [W/m2-K] (excluding air film resistance).
+
+        This is the U-value of galzing system material layer as understood by EnergyPlus.
+        """
         return 1 / self.r_value
 
     @property
     def r_value(self):
-        """R-value of the material layer [m2-K/W] (excluding air film resistance)."""
-        return (1 / self.u_factor) - self._film_resistance
+        """R-value of the material layer [m2-K/W] (excluding air film resistance).
+
+        This is the R-value of galzing system material layer as understood by EnergyPlus.
+        """
+        out_r = 1 / ((0.025342 * self._u_factor) + 29.163853)
+        in_r = 1 / ((0.359073 * math.log(self._u_factor)) + 6.949915) \
+            if self._u_factor < 5.85 else \
+            1 / ((1.788041 * self._u_factor) + 2.886625)
+        return (1 / self.u_factor) - out_r - in_r
 
     @property
     def solar_transmittance(self):
@@ -583,6 +595,12 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
         else:
             weight = self.u_factor - 3.5
             return (term_1 * weight) + (term_2 * (1 - weight))
+
+    @property
+    def thickness(self):
+        """Get the thickess of the glazing system as interpreted by EnergyPlus [m]."""
+        u_val = self.u_value
+        return 0.002 if u_val > 7 else (0.05914 - (0.00714 * u_val))
 
     @classmethod
     def from_idf(cls, idf_string):

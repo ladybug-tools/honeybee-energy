@@ -138,8 +138,8 @@ def test_simple_sys_init():
     assert lowe_sys.vt == lowe_sys_dup.vt == 0.55
 
     assert lowe_sys.r_factor == lowe_sys_dup.r_factor == pytest.approx(1 / 1.8, rel=1e-3)
-    assert lowe_sys.r_value == lowe_sys_dup.r_value == pytest.approx(0.387077, rel=1e-3)
-    assert lowe_sys.u_value == lowe_sys_dup.u_value == pytest.approx(2.58346333, rel=1e-3)
+    assert lowe_sys.r_value == lowe_sys_dup.r_value == pytest.approx(0.38167, rel=1e-3)
+    assert lowe_sys.u_value == lowe_sys_dup.u_value == pytest.approx(1 / 0.38167, rel=1e-3)
     assert lowe_sys.solar_transmittance < lowe_sys_dup.shgc
 
 

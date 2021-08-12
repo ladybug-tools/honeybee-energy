@@ -365,6 +365,14 @@ class WindowConstructionShade(object):
         return self._window_construction.solar_transmittance
 
     @property
+    def visible_transmittance(self):
+        """The visible transmittance of the bare window construction at normal incidence.
+
+        Note that this excludes all effects of the shade layer.
+        """
+        return self._window_construction.visible_transmittance
+
+    @property
     def shgc(self):
         """The solar heat gain coefficient (SHGC) of the bare window construction.
 
