@@ -582,7 +582,7 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
         The method used to compute solar transmittance is taken from the
         EnergyPlus reference.
         """
-        if self.u_factor > 3.5:
+        if self.u_factor > 3.4:
             term_1 = (0.939998 * (self.shgc ** 2)) + (0.20332 * self.shgc) \
                 if self.shgc < 0.7206 else (1.30415 * self.shgc) - 0.30515
         if self.u_factor < 4.5:
@@ -590,10 +590,10 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
                 if self.shgc > 0.15 else (0.4104 * self.shgc)
         if self.u_factor > 4.5:
             return term_1
-        elif self.u_factor < 3.5:
+        elif self.u_factor < 3.4:
             return term_2
         else:
-            weight = self.u_factor - 3.5
+            weight = (self.u_factor - 3.4) / 1.1
             return (term_1 * weight) + (term_2 * (1 - weight))
 
     @property

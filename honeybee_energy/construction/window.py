@@ -603,7 +603,7 @@ window-calculation-module.html#step-4.-determine-layer-solar-transmittance
         The method used to compute solar transmittance is taken from the
         EnergyPlus reference.
         """
-        if u_factor > 3.5:
+        if u_factor > 3.4:
             term_1 = (0.939998 * (shgc ** 2)) + (0.20332 * shgc) \
                 if shgc < 0.7206 else (1.30415 * shgc) - 0.30515
         if u_factor < 4.5:
@@ -611,10 +611,10 @@ window-calculation-module.html#step-4.-determine-layer-solar-transmittance
                 if shgc > 0.15 else (0.4104 * shgc)
         if u_factor > 4.5:
             return term_1
-        elif u_factor < 3.5:
+        elif u_factor < 3.4:
             return term_2
         else:
-            weight = u_factor - 3.5
+            weight = (u_factor - 3.4) / 1.1
             return (term_1 * weight) + (term_2 * (1 - weight))
 
     @staticmethod
