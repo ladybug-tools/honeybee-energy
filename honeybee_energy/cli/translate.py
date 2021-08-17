@@ -561,7 +561,7 @@ def model_occ_schedules(model_json, threshold, period, output_file):
         for sch in scheds:
             values = []
             for val in sch.values(timestep, start, end):
-                is_occ = 0 if val < threshold else 1
+                is_occ = 0 if val <= threshold else 1
                 values.append(is_occ)
             header = Header(Fraction(), 'fraction', a_period)
             schedules[sch.identifier] = HourlyContinuousCollection(header, values)
