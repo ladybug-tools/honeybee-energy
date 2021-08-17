@@ -529,7 +529,11 @@ class ModelEnergyProperties(object):
                 adj_constr.append(face.properties.energy.construction)
                 adj_ids.append(face.boundary_condition.boundary_condition_object)
         # next, get the adjacent objects and check their construction
-        adj_faces = self.host.faces_by_identifier(adj_ids)
+        try:
+            adj_faces = self.host.faces_by_identifier(adj_ids)
+        except ValueError as e:  # the model has missing adjacencies
+            return 'Matching adjacent constructions could not be verified because ' \
+                'of missing adjacencies in the model.  \n{}'.format(e)
         full_msgs = []
         for adj_c, adj_f in zip(adj_constr, adj_faces):
             rev_mat = tuple(reversed(adj_f.properties.energy.construction.materials))
