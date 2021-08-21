@@ -25,7 +25,7 @@ _default_mats = set(list(_opaque_materials.keys()) + list(_window_materials.keys
 
 
 # then load material JSONs from the default and user-supplied files
-def load_material_object(mat_dict):
+def load_material_object(mat_dict, opaque_mats, window_mats):
     """Load a material object from a dictionary and add it to the library dict."""
     try:
         mat_obj = dict_to_material(mat_dict, False)
@@ -34,24 +34,36 @@ def load_material_object(mat_dict):
             assert mat_dict['identifier'] not in _default_mats, 'Cannot overwrite ' \
                 'default material "{}".'.format(mat_dict['identifier'])
             if mat_obj.is_window_material:
-                _window_materials[mat_dict['identifier']] = mat_obj
+                window_mats[mat_dict['identifier']] = mat_obj
             else:
-                _opaque_materials[mat_dict['identifier']] = mat_obj
+                opaque_mats[mat_dict['identifier']] = mat_obj
     except (TypeError, KeyError):
         pass  # not a Honeybee Material JSON; possibly a comment
 
 
-for f in os.listdir(folders.construction_lib):
-    f_path = os.path.join(folders.construction_lib, f)
-    if os.path.isfile(f_path) and f_path.endswith('.json'):
-        with open(f_path) as json_file:
-            data = json.load(json_file)
-        if 'type' in data:  # single object
-            load_material_object(data)
-        else:  # a collection of several objects
-            for mat_id in data:
-                load_material_object(data[mat_id])
+def load_materials_from_folder(construction_lib_folder):
+    """Load all of the material layer objects from a construction standards folder.
+    
+    Args:
+        construction_lib_folder: Path to a constructions sub-folder within a
+            honeybee standards folder.
+    """
+    opaque_mats, window_mats = {}, {}
+    for f in os.listdir(construction_lib_folder):
+        f_path = os.path.join(construction_lib_folder, f)
+        if os.path.isfile(f_path) and f_path.endswith('.json'):
+            with open(f_path) as json_file:
+                data = json.load(json_file)
+            if 'type' in data:  # single object
+                load_material_object(data, opaque_mats, window_mats)
+            else:  # a collection of several objects
+                for mat_id in data:
+                    load_material_object(data[mat_id], opaque_mats, window_mats)
+    return opaque_mats, window_mats
 
+opaque_m, window_m = load_materials_from_folder(folders.construction_lib)
+_opaque_materials.update(opaque_m)
+_window_materials.update(window_m)
 
 # then load honeybee extension data into a dictionary but don't make the objects yet
 _opaque_mat_standards_dict = {}

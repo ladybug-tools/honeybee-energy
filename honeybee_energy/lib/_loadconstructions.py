@@ -62,52 +62,91 @@ def lock_and_check_construction(constr):
         'default construction "{}".'.format(constr.identifier)
 
 
-def load_construction_object(con_dict):
+def load_construction_object(
+        con_dict, load_mats, load_sch, opaque_cons, window_cons, shade_cons,
+        misc_mats, misc_sch):
     """Load a construction object from a dictionary and add it to the library dict."""
     try:
-        constr = dict_abridged_to_construction(
-            con_dict, _all_materials, _schedules, False)
+        constr = dict_abridged_to_construction(con_dict, load_mats, load_sch, False)
         if constr is None:
             constr = dict_to_construction(con_dict, False)
+            try:
+                misc_mats.extend(constr.materials)
+            except AttributeError:  # construction without materials
+                pass
+            if isinstance(constr, (WindowConstructionShade, WindowConstructionDynamic)):
+                misc_sch.extend(constr.schedule)
+            elif isinstance(constr, AirBoundaryConstruction):
+                misc_sch.extend(constr.air_mixing_schedule)
         if constr is not None:
             lock_and_check_construction(constr)
             if isinstance(constr, _opa_types):
-                _opaque_constructions[con_dict['identifier']] = constr
+                opaque_cons[con_dict['identifier']] = constr
             elif isinstance(constr, _win_types):
-                _window_constructions[con_dict['identifier']] = constr
+                window_cons[con_dict['identifier']] = constr
             else:  # it's a shade construction
-                _shade_constructions[con_dict['identifier']] = constr
+                shade_cons[con_dict['identifier']] = constr
     except (TypeError, KeyError):
         pass  # not a Honeybee Construction JSON; possibly a comment
 
 
-for f in os.listdir(folders.construction_lib):
-    f_path = os.path.join(folders.construction_lib, f)
-    if os.path.isfile(f_path):
-        if f_path.endswith('.idf'):
-            constructions, materials = OpaqueConstruction.extract_all_from_idf_file(f_path)
-            for mat in materials:
-                lock_and_check_material(mat)
-                _opaque_materials[mat.identifier] = mat
-            for cnstr in constructions:
-                lock_and_check_construction(cnstr)
-                _opaque_constructions[cnstr.identifier] = cnstr
-            constructions, materials = WindowConstruction.extract_all_from_idf_file(f_path)
-            for mat in materials:
-                lock_and_check_material(mat)
-                _window_materials[mat.identifier] = mat
-            for cnstr in constructions:
-                lock_and_check_construction(cnstr)
-                _window_constructions[cnstr.identifier] = cnstr
-        if f_path.endswith('.json'):
-            with open(f_path) as json_file:
-                data = json.load(json_file)
-            if 'type' in data:  # single object
-                load_construction_object(data)
-            else:  # a collection of several objects
-                for constr_identifier in data:
-                    load_construction_object(data[constr_identifier])
+def load_constructions_from_folder(
+        construction_lib_folder, loaded_materials, loaded_schedules):
+    """Load all of the construction objects from a construction standards folder.
+    
+    Args:
+        construction_lib_folder: Path to a constructions sub-folder within a
+            honeybee standards folder.
+        loaded_materials: A dictionary of materials that have already been loaded
+            from the library.
+        loaded_schedules: A dictionary of materials that have already been loaded
+            from the library.
+    """
+    opaque_mats, window_mats = {}, {}
+    opaque_cons, window_cons, shade_cons = {}, {}, {}
+    misc_mats, misc_sch = [], []
+    for f in os.listdir(folders.construction_lib):
+        f_path = os.path.join(folders.construction_lib, f)
+        if os.path.isfile(f_path):
+            if f_path.endswith('.idf'):
+                constructions, materials = \
+                    OpaqueConstruction.extract_all_from_idf_file(f_path)
+                for mat in materials:
+                    lock_and_check_material(mat)
+                    opaque_mats[mat.identifier] = mat
+                for cnstr in constructions:
+                    lock_and_check_construction(cnstr)
+                    opaque_cons[cnstr.identifier] = cnstr
+                constructions, materials = \
+                    WindowConstruction.extract_all_from_idf_file(f_path)
+                for mat in materials:
+                    lock_and_check_material(mat)
+                    window_mats[mat.identifier] = mat
+                for cnstr in constructions:
+                    lock_and_check_construction(cnstr)
+                    window_cons[cnstr.identifier] = cnstr
+            if f_path.endswith('.json'):
+                with open(f_path) as json_file:
+                    data = json.load(json_file)
+                if 'type' in data:  # single object
+                    load_construction_object(
+                        data, loaded_materials, loaded_schedules,
+                        opaque_cons, window_cons, shade_cons, misc_mats, misc_sch)
+                else:  # a collection of several objects
+                    for constr_identifier in data:
+                        load_construction_object(
+                            data[constr_identifier], loaded_materials, loaded_schedules,
+                            opaque_cons, window_cons, shade_cons, misc_mats, misc_sch)
+    return opaque_cons, window_cons, shade_cons, opaque_mats, window_mats, \
+        misc_mats, misc_sch
 
+opaque_c, window_c, shade_c, opaque_m, window_m, misc_m, misc_s = \
+    load_constructions_from_folder(folders.construction_lib, _all_materials, _schedules)
+_opaque_materials.update(opaque_m)
+_window_materials.update(window_m)
+_opaque_constructions.update(opaque_c)
+_window_constructions.update(window_c)
+_shade_constructions.update(shade_c)
 
 # then load honeybee extension data into a dictionary but don't make the objects yet
 _opaque_constr_standards_dict = {}
