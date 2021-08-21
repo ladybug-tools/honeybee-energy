@@ -279,7 +279,7 @@ class ScheduleFixedInterval(object):
             vals_at_step = []
             ind = 0
             step_ratio = self.timestep / timestep
-            for i in xrange(int(len(self._values) / step_ratio)):
+            for _ in xrange(int(len(self._values) / step_ratio)):
                 vals_at_step.append(self._values[int(ind)])
                 ind += step_ratio
         else:
@@ -295,7 +295,7 @@ class ScheduleFixedInterval(object):
             else:
                 n_step = int(timestep / self.timestep)
                 for val in self._values:
-                    for stp in xrange(n_step):
+                    for _ in xrange(n_step):
                         vals_at_step.append(val)
 
         # build up the full list of values accounting for start and end dates

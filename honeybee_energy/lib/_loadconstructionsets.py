@@ -29,31 +29,49 @@ _default_sets = set(list(_construction_sets.keys()))
 
 
 # then load construction sets from the user-supplied files
-def load_construction_set_object(cset_dict):
+def load_construction_set_object(cset_dict, load_cons, con_sets, misc_cons):
     """Load a construction set object from a dictionary and add it to the lib dict."""
     try:
         if cset_dict['type'] == 'ConstructionSetAbridged':
-            cset = ConstructionSet.from_dict_abridged(cset_dict, _all_constructions)
+            cset = ConstructionSet.from_dict_abridged(cset_dict, load_cons)
         else:
             cset = ConstructionSet.from_dict(cset_dict)
+            misc_cons.extend(cset.modified_constructions)
         cset.lock()
         assert cset_dict['identifier'] not in _default_sets, 'Cannot overwrite ' \
             'default construction set "{}".'.format(cset_dict['identifier'])
-        _construction_sets[cset_dict['identifier']] = cset
+        con_sets[cset_dict['identifier']] = cset
     except (TypeError, KeyError, ValueError):
         pass  # not a Honeybee ConstructionSet JSON; possibly a comment
 
 
-for f in os.listdir(folders.constructionset_lib):
-    f_path = os.path.join(folders.constructionset_lib, f)
-    if os.path.isfile(f_path) and f_path.endswith('.json'):
-        with open(f_path, 'r') as json_file:
-            c_dict = json.load(json_file)
-        if 'type' in c_dict:  # single object
-            load_construction_set_object(c_dict)
-        else:  # a collection of several objects
-            for c_id in c_dict:
-                load_construction_set_object(c_dict[c_id])
+def load_constructionsets_from_folder(constructionset_lib_folder, loaded_constructions):
+    """Load all of the ConstructionSet objects from a constructionset standards folder.
+    
+    Args:
+        constructionset_lib_folder: Path to a constructionsets sub-folder within a
+            honeybee standards folder.
+        loaded_constructions: A dictionary of constructions that have already
+            been loaded from the library.
+    """
+    con_sets, misc_cons = {}, []
+    for f in os.listdir(constructionset_lib_folder):
+        f_path = os.path.join(constructionset_lib_folder, f)
+        if os.path.isfile(f_path) and f_path.endswith('.json'):
+            with open(f_path, 'r') as json_file:
+                c_dict = json.load(json_file)
+            if 'type' in c_dict:  # single object
+                load_construction_set_object(
+                    c_dict, loaded_constructions, con_sets, misc_cons)
+            else:  # a collection of several objects
+                for c_id in c_dict:
+                    load_construction_set_object(
+                        c_dict[c_id], loaded_constructions, con_sets, misc_cons)
+    return con_sets, misc_cons
+
+loaded_sets, misc_c = \
+    load_constructionsets_from_folder(folders.constructionset_lib, _all_constructions)
+_construction_sets.update(loaded_sets)
 
 
 # then load honeybee extension data into a dictionary but don't make the objects yet

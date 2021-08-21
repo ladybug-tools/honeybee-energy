@@ -1,9 +1,11 @@
 """honeybee energy standards library commands."""
 import click
 import sys
+import os
 import logging
 import json
 
+from honeybee_energy.config import folders
 from honeybee_energy.lib.materials import opaque_material_by_identifier, \
     window_material_by_identifier, OPAQUE_MATERIALS, WINDOW_MATERIALS
 from honeybee_energy.lib.constructions import opaque_construction_by_identifier, \
@@ -15,6 +17,14 @@ from honeybee_energy.lib.scheduletypelimits import schedule_type_limit_by_identi
     SCHEDULE_TYPE_LIMITS
 from honeybee_energy.lib.schedules import schedule_by_identifier, SCHEDULES
 from honeybee_energy.lib.programtypes import program_type_by_identifier, PROGRAM_TYPES
+
+from honeybee_energy.lib._loadtypelimits import load_type_limits_from_folder, \
+    _schedule_type_limits
+from honeybee_energy.lib._loadschedules import load_schedules_from_folder
+from honeybee_energy.lib._loadprogramtypes import load_programtypes_from_folder
+from honeybee_energy.lib._loadmaterials import load_materials_from_folder
+from honeybee_energy.lib._loadconstructions import load_constructions_from_folder
+from honeybee_energy.lib._loadconstructionsets import load_constructionsets_from_folder
 
 _logger = logging.getLogger(__name__)
 
@@ -558,6 +568,101 @@ def program_types_by_id(program_type_ids, complete, output_file):
         output_file.write(json.dumps([prg.to_dict(abridged=abridged) for prg in prgs]))
     except Exception as e:
         _logger.exception('Retrieval from program type library failed.\n{}'.format(e))
+        sys.exit(1)
+    else:
+        sys.exit(0)
+
+
+@lib.command('to-model-properties')
+@click.option(
+    '--standards-folder', '-s', default=None, help='A directory containing subfolders '
+    'of resource objects (constructions, constructionsets, schedules, programtypes) '
+    'to be loaded as ModelEnergyProperties. Note that this standards folder MUST '
+    'contain these subfolders. Each sub-folder can contain JSON files ob objects '
+    'following honeybee schema or IDF files (if appropriate). If None, the honeybee '
+    'default standards folder will be used.',type=click.Path(
+        exists=True, file_okay=False, dir_okay=True, resolve_path=True)
+)
+@click.option(
+    '--output-file', '-f', help='Optional JSON file to output the JSON string of '
+    'the translation. By default this will be printed out to stdout',
+    type=click.File('w'), default='-', show_default=True
+)
+def to_model_properties(standards_folder, output_file):
+    """Translate a lib folder of standards to a JSON of honeybee ModelEnergyProperties.
+
+    This is useful in workflows where one must import everything within a user's
+    standards folder and requires all objects to be in a consistent format.
+    All objects in the resulting ModelEnergyProperties will be abridged and
+    duplicated objects in the folder will be removed such that there
+    is only one of each object.
+    """
+    try:
+        # set the folder to the default standards_folder if unspecified
+        folder = standards_folder if standards_folder is not None else \
+            folders.standards_data_folder
+
+        # load schedules from the standards folder
+        sch_folder = os.path.join(folder, 'schedules')
+        type_lim = load_type_limits_from_folder(sch_folder)
+        tl_with_default = type_lim.copy()
+        tl_with_default.update(_schedule_type_limits)
+        scheds = load_schedules_from_folder(sch_folder, tl_with_default)
+
+        # load program types from the standards folder
+        prog_folder = os.path.join(folder, 'programtypes')
+        all_progs, misc_p_scheds = load_programtypes_from_folder(prog_folder, scheds)
+
+        # load constructions from the standards folder
+        con_folder = os.path.join(folder, 'constructions')
+        opaque_m, window_m = load_materials_from_folder(con_folder)
+        all_m = opaque_m.copy()
+        all_m.update(window_m)
+        opaque_c, window_c, shade_c, opaque_mc, window_mc, misc_m, misc_c_scheds = \
+            load_constructions_from_folder(con_folder, all_m, scheds)
+        all_m.update(opaque_mc)
+        all_m.update(window_mc)
+        all_c = opaque_c.copy()
+        all_c.update(window_c)
+        all_c.update(shade_c)
+
+        # load construction sets from the standards folder
+        con_set_folder = os.path.join(folder, 'constructionsets')
+        all_con_sets, misc_c = load_constructionsets_from_folder(con_set_folder, all_c)
+
+        # get sets of unique objects
+        all_scheds = set(list(scheds.values()) + misc_p_scheds + misc_c_scheds)
+        sched_tl = [sch.schedule_type_limit for sch in all_scheds
+                    if sch.schedule_type_limit is not None]
+        all_typ_lim = set(list(type_lim.values()) + sched_tl)
+        all_cons = set(list(all_c.values()) + misc_c)
+        misc_c_mats = []
+        for m_con in misc_c:
+            try:
+                misc_c_mats.extend(m_con.materials)
+            except AttributeError:  # not a construction with materials
+                pass
+        all_mats = set(list(all_m.values()) + misc_m + misc_c_mats)
+
+        # add all object dictionaries into one object
+        base = {'type': 'ModelEnergyProperties'}
+        base['schedule_type_limits'] = [tl.to_dict() for tl in all_typ_lim]
+        base['schedules'] = [sch.to_dict(abridged=True) for sch in all_scheds]
+        base['programtypes'] = [pro.to_dict(abridged=True) for pro in all_progs.values()]
+        base['materials'] = [m.to_dict() for m in all_mats]
+        base['constructions'] = []
+        for con in all_cons:
+            try:
+                base['constructions'].append(con.to_dict(abridged=True))
+            except TypeError:  # no abridged option
+                base['constructions'].append(con.to_dict())
+        base['construction_sets'] = \
+            [cs.to_dict(abridged=True) for cs in all_con_sets.values()]
+
+        # write out the JSON file
+        output_file.write(json.dumps(base))
+    except Exception as e:
+        _logger.exception('Loading standards to properties failed.\n{}'.format(e))
         sys.exit(1)
     else:
         sys.exit(0)

@@ -32,34 +32,48 @@ def lock_and_check_schedule(sch):
         'default schedule "{}".'.format(sch.identifier)
 
 
-def load_schedule_object(sch_dict):
-    """Load a schedule object from a dictionary and add it to the _schedules dict."""
+def load_schedule_object(sch_dict, loaded_type_limits, scheds):
+    """Load a schedule object from a dictionary and add it to the scheds dict."""
     try:
-        sch_obj = dict_abridged_to_schedule(sch_dict, _schedule_type_limits, False)
+        sch_obj = dict_abridged_to_schedule(sch_dict, loaded_type_limits, False)
         if sch_obj is None:
             sch_obj = dict_to_schedule(sch_dict, False)
         if sch_obj is not None:
             lock_and_check_schedule(sch_obj)
-            _schedules[sch_dict['identifier']] = sch_obj
+            scheds[sch_dict['identifier']] = sch_obj
     except (TypeError, KeyError):
         pass  # not a Honeybee Schedule JSON; possibly a comment
 
 
-for f in os.listdir(folders.schedule_lib):
-    f_path = os.path.join(folders.schedule_lib, f)
-    if os.path.isfile(f_path):
-        if f_path.endswith('.idf'):
-            schedule_rulesets = ScheduleRuleset.extract_all_from_idf_file(f_path)
-            for sch in schedule_rulesets:
-                lock_and_check_schedule(sch)
-                _schedules[sch.identifier] = sch
-        elif f_path.endswith('.json'):  # parse as a honeybee JSON
-            with open(f_path) as json_file:
-                data = json.load(json_file)
-            if 'type' in data:  # single object
-                load_schedule_object(data)
-            for sch_id in data:  # a collection of several objects
-                load_schedule_object(data[sch_id])
+def load_schedules_from_folder(schedule_lib_folder, loaded_type_limits):
+    """Load all of the schedule objects from a schedule standards folder.
+    
+    Args:
+        schedule_lib_folder: Path to a schedules sub-folder within a honeybee
+            standards folder.
+        loaded_type_limits: A dictionary of type limits that have already been
+            loaded from the library.
+    """
+    scheds = {}
+    for f in os.listdir(schedule_lib_folder):
+        f_path = os.path.join(schedule_lib_folder, f)
+        if os.path.isfile(f_path):
+            if f_path.endswith('.idf'):
+                schedule_rulesets = ScheduleRuleset.extract_all_from_idf_file(f_path)
+                for sch in schedule_rulesets:
+                    lock_and_check_schedule(sch)
+                    scheds[sch.identifier] = sch
+            elif f_path.endswith('.json'):  # parse as a honeybee JSON
+                with open(f_path) as json_file:
+                    data = json.load(json_file)
+                if 'type' in data:  # single object
+                    load_schedule_object(data, loaded_type_limits, scheds)
+                for sch_id in data:  # a collection of several objects
+                    load_schedule_object(data[sch_id], loaded_type_limits, scheds)
+    return scheds
+
+u_scheds = load_schedules_from_folder(folders.schedule_lib, _schedule_type_limits)
+_schedules.update(u_scheds)
 
 
 # then load honeybee extension data into a dictionary but don't make the objects yet

@@ -23,31 +23,48 @@ _default_programs = set(list(_program_types.keys()))
 
 
 # then load program types from the user-supplied files
-def load_program_object(pro_dict):
+def load_program_object(pro_dict, loaded_schedules, p_types, misc_scheds):
     """Load a program object from a dictionary and add it to the _program_types dict."""
     try:
         if pro_dict['type'] == 'ProgramTypeAbridged':
-            program = ProgramType.from_dict_abridged(pro_dict, _schedules)
+            program = ProgramType.from_dict_abridged(pro_dict, loaded_schedules)
         else:
             program = ProgramType.from_dict(pro_dict)
+            misc_scheds.extend(program.schedules)
         program.lock()
         assert pro_dict['identifier'] not in _default_programs, 'Cannot overwrite ' \
             'default program type "{}".'.format(pro_dict['identifier'])
-        _program_types[pro_dict['identifier']] = program
+        p_types[pro_dict['identifier']] = program
     except (TypeError, KeyError, ValueError):
         pass  # not a Honeybee ProgramType JSON; possibly a comment
 
 
-for f in os.listdir(folders.programtype_lib):
-    f_path = os.path.join(folders.programtype_lib, f)
-    if os.path.isfile(f_path) and f_path.endswith('.json'):
-        with open(f_path, 'r') as json_file:
-            p_dict = json.load(json_file)
-        if 'type' in p_dict:  # single object
-            load_program_object(p_dict)
-        else:  # a collection of several objects
-            for p_id in p_dict:
-                load_program_object(p_dict[p_id])
+def load_programtypes_from_folder(programtypes_lib_folder, loaded_schedules):
+    """Load all of the ProgramTypes objects from a programtypes standards folder.
+    
+    Args:
+        programtypes_lib_folder: Path to a programtypes sub-folder within a
+            honeybee standards folder.
+        loaded_schedules: A dictionary of schedules that have already been
+            loaded from the library.
+    """
+    p_types, misc_scheds = {}, []
+    for f in os.listdir(programtypes_lib_folder):
+        f_path = os.path.join(programtypes_lib_folder, f)
+        if os.path.isfile(f_path) and f_path.endswith('.json'):
+            with open(f_path, 'r') as json_file:
+                p_dict = json.load(json_file)
+            if 'type' in p_dict:  # single object
+                load_program_object(p_dict, loaded_schedules, p_types, misc_scheds)
+            else:  # a collection of several objects
+                for p_id in p_dict:
+                    load_program_object(
+                        p_dict[p_id], loaded_schedules, p_types, misc_scheds)
+    return p_types, misc_scheds
+
+loaded_p_types, misc_s = \
+    load_programtypes_from_folder(folders.programtype_lib, _schedules)
+_program_types.update(loaded_p_types)
 
 
 # then load honeybee extension data into a dictionary but don't make the objects yet
