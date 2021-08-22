@@ -33,11 +33,12 @@ class _ConstructionBase(object):
         * r_factor
         * is_symmetric
         * has_shade
+        * user_data
     """
     # generic air material used to compute indoor film coefficients.
     _air = EnergyWindowMaterialGas('generic air', gas_type='Air')
 
-    __slots__ = ('_identifier', '_display_name', '_materials', '_locked')
+    __slots__ = ('_identifier', '_display_name', '_materials', '_locked', '_user_data')
 
     def __init__(self, identifier, materials):
         """Initialize energy construction."""
@@ -45,6 +46,7 @@ class _ConstructionBase(object):
         self.identifier = identifier
         self._display_name = None
         self.materials = materials
+        self._user_data = None
 
     @property
     def identifier(self):
@@ -153,6 +155,16 @@ class _ConstructionBase(object):
         """
         # This is False for all construction types except WindowConstructionShade.
         return False
+
+    @property
+    def user_data(self):
+        """Get or set an optional dictionary for additional meta data for this object.
+
+        This will be None until it has been set. All keys and values of this
+        dictionary should be of a standard Python type to ensure correct
+        serialization of the object to/from JSON (eg. str, float, int, list, dict)
+        """
+        return self._user_data
 
     def duplicate(self):
         """Get a copy of this construction."""
