@@ -19,13 +19,14 @@ class _EnergyMaterialBase(object):
         * identifier
         * display_name
     """
-    __slots__ = ('_identifier', '_display_name', '_locked')
+    __slots__ = ('_identifier', '_display_name', '_locked', '_user_data')
 
     def __init__(self, identifier):
         """Initialize energy material base."""
         self._locked = False
         self.identifier = identifier
         self._display_name = None
+        self._user_data = None
 
     @property
     def identifier(self):
@@ -52,6 +53,16 @@ class _EnergyMaterialBase(object):
             self._display_name = str(value)
         except UnicodeEncodeError:  # Python 2 machine lacking the character set
             self._display_name = value  # keep it as unicode
+
+    @property
+    def user_data(self):
+        """Get or set an optional dictionary for additional meta data for this object.
+
+        This will be None until it has been set. All keys and values of this
+        dictionary should be of a standard Python type to ensure correct
+        serialization of the object to/from JSON (eg. str, float, int, list, dict)
+        """
+        return self._user_data
 
     def duplicate(self):
         """Get a copy of this construction."""
