@@ -45,6 +45,7 @@ class WindowConstructionDynamic(object):
         * thickness
         * glazing_count
         * gap_count
+        * user_data
     """
 
     __slots__ = ('_identifier', '_display_name', '_constructions', '_schedule',
@@ -292,6 +293,8 @@ class WindowConstructionDynamic(object):
         new_obj = cls(data['identifier'], constrs, schedule)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
+        if 'user_data' in data and data['user_data'] is not None:
+            new_obj.user_data = data['user_data']
         return new_obj
 
     @classmethod
@@ -326,6 +329,8 @@ class WindowConstructionDynamic(object):
         new_obj = cls(data['identifier'], constrs, schedule)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
+        if 'user_data' in data and data['user_data'] is not None:
+            new_obj.user_data = data['user_data']
         return new_obj
 
     def to_idf(self):
