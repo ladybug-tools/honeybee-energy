@@ -92,6 +92,7 @@ class _EnergyMaterialBase(object):
     def __copy__(self):
         new_obj = self.__class__(self.identifier)
         new_obj._display_name = self._display_name
+        new_obj._user_data = None if self.user_data is None else self.user_data.copy()
         return new_obj
 
     def ToString(self):
