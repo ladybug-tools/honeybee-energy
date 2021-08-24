@@ -287,7 +287,7 @@ class _ConstructionBase(object):
         new_con = self.__class__(
             self.identifier, [mat.duplicate() for mat in self.materials])
         new_con._display_name = self._display_name
-        new_con._user_data = None if self.user_data is None else self.user_data.copy()
+        new_con._user_data = None if self._user_data is None else self._user_data.copy()
         return new_con
 
     def __len__(self):
