@@ -202,7 +202,7 @@ class OpaqueConstruction(_ConstructionBase):
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
-            opaqueConstruction.user_data = data['user_data']
+            new_obj.user_data = data['user_data']
         return new_obj
 
     @classmethod
