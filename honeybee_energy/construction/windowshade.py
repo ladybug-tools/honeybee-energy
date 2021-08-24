@@ -89,6 +89,7 @@ class WindowConstructionShade(object):
         * thickness
         * glazing_count
         * gap_count
+        * user_data
     """
 
     __slots__ = ('_identifier', '_display_name', '_window_construction',
@@ -109,7 +110,7 @@ class WindowConstructionShade(object):
         self.identifier = identifier
         self._display_name = None
         self._between_gap = None  # will be used if 'Between' option is used
-
+        self.user_data = None
         # check that the window construction, shade, and shade location are compatible
         assert isinstance(window_construction, WindowConstruction), \
             'Expected WindowConstruction for WindowConstructionShade. ' \
@@ -474,6 +475,23 @@ class WindowConstructionShade(object):
             return 'BetweenGlassShade' if self.shade_location == 'Between' \
                 else '{}Shade'.format(self.shade_location)
 
+    @property
+    def user_data(self):
+        """Get or set an optional dictionary for additional meta data for this object.
+
+        This will be None until it has been set. All keys and values of this
+        dictionary should be of a standard Python type to ensure correct
+        serialization of the object to/from JSON (eg. str, float, int, list, dict)
+        """
+        return self.user_data
+
+    @user_data.setter
+    def user_data(self, value):
+        if value is not None:
+            assert isinstance(value, dict), 'Expected dictionary for honeybee_energy' \
+                'object user_data. Got {}.'.format(type(value))
+        self.user_data = value
+
     @classmethod
     def from_dict(cls, data):
         """Create a WindowConstructionShade from a dictionary.
@@ -515,6 +533,8 @@ class WindowConstructionShade(object):
                       control_type, setpoint, schedule)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
+        if 'user_data' in data and data['user_data'] is not None:
+            new_obj.user_data = data['user_data']
         return new_obj
 
     @classmethod
@@ -560,6 +580,8 @@ class WindowConstructionShade(object):
                       control_type, setpoint, schedule)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
+        if 'user_data' in data and data['user_data'] is not None:
+            new_obj.user_data = data['user_data']
         return new_obj
 
     def to_idf(self):
@@ -655,6 +677,8 @@ class WindowConstructionShade(object):
                 else self.schedule.to_dict()
         if self._display_name is not None:
             base['display_name'] = self.display_name
+        if self.user_data is not None:
+            base['user_data'] = self.user_data
         return base
 
     def lock(self):
@@ -689,6 +713,7 @@ class WindowConstructionShade(object):
             self.schedule)
         new_con._between_gap = self._between_gap
         new_con._display_name = self._display_name
+        new_con.user_data = None if self.user_data is None else self.user_data.copy()
         return new_con
 
     def __key(self):
