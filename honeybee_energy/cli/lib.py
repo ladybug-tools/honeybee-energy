@@ -578,7 +578,7 @@ def program_types_by_id(program_type_ids, complete, output_file):
     '--standards-folder', '-s', default=None, help='A directory containing subfolders '
     'of resource objects (constructions, constructionsets, schedules, programtypes) '
     'to be loaded as ModelEnergyProperties. Note that this standards folder MUST '
-    'contain these subfolders. Each sub-folder can contain JSON files ob objects '
+    'contain these subfolders. Each sub-folder can contain JSON files of objects '
     'following honeybee schema or IDF files (if appropriate). If None, the honeybee '
     'default standards folder will be used.',type=click.Path(
         exists=True, file_okay=False, dir_okay=True, resolve_path=True)
