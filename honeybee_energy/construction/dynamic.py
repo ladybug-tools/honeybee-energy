@@ -58,6 +58,7 @@ class WindowConstructionDynamic(object):
         self._display_name = None
         self.constructions = constructions
         self.schedule = schedule
+        self.user_data = None
 
     @property
     def identifier(self):
@@ -368,6 +369,8 @@ class WindowConstructionDynamic(object):
             else self.schedule.to_dict()
         if self._display_name is not None:
             base['display_name'] = self.display_name
+        if self.user_data is not None:
+            base['user_data'] = self.user_data
         return base
 
     def lock(self):

@@ -281,7 +281,7 @@ class OpaqueConstruction(_ConstructionBase):
             [m.to_dict() for m in self.materials]
         if self._display_name is not None:
             base['display_name'] = self.display_name
-        if self.user_data is not None:
+        if self._user_data is not None:
             base['user_data'] = self.user_data
         return base
 
