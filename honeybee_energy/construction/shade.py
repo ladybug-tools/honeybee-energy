@@ -34,6 +34,7 @@ class ShadeConstruction(object):
         * visible_reflectance
         * is_specular
         * is_default
+        * user_data
     """
 
     __slots__ = ('_identifier', '_display_name', '_solar_reflectance',
@@ -48,6 +49,7 @@ class ShadeConstruction(object):
         self.solar_reflectance = solar_reflectance
         self.visible_reflectance = visible_reflectance
         self.is_specular = is_specular
+        self.user_data = None
 
     @property
     def identifier(self):
@@ -113,6 +115,23 @@ class ShadeConstruction(object):
         """Boolean to note whether all properties follow the EnergyPlus default."""
         return self._solar_reflectance == 0.2 and \
             self._visible_reflectance == 0.2 and not self._is_specular
+    
+    @property
+    def user_data(self):
+        """Get or set an optional dictionary for additional meta data for this object.
+
+        This will be None until it has been set. All keys and values of this
+        dictionary should be of a standard Python type to ensure correct
+        serialization of the object to/from JSON (eg. str, float, int, list, dict)
+        """
+        return self.user_data
+
+    @user_data.setter
+    def user_data(self, value):
+        if value is not None:
+            assert isinstance(value, dict), 'Expected dictionary for honeybee_energy' \
+                'object user_data. Got {}.'.format(type(value))
+        self.user_data = value
 
     def glazing_construction(self):
         """Get a WindowConstruction that EnergyPlus uses for specular reflection.
@@ -153,6 +172,8 @@ class ShadeConstruction(object):
         new_obj = cls(data['identifier'], s_ref, v_ref, spec)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
+        if 'user_data' in data and data['user_data'] is not None:
+            new_obj.user_data = data['user_data']
         return new_obj
 
     def to_idf(self, host_shade_identifier):
@@ -195,6 +216,8 @@ class ShadeConstruction(object):
         base['is_specular'] = self.is_specular
         if self._display_name is not None:
             base['display_name'] = self.display_name
+        if self.user_data is not None:
+            base['user_data'] = self.user_data
         return base
 
     def duplicate(self):
@@ -220,6 +243,7 @@ class ShadeConstruction(object):
             self.identifier, self._solar_reflectance, self._visible_reflectance,
             self._is_specular)
         new_con._display_name = self._display_name
+        new_con.user_data = None if self.user_data is None else self.user_data.copy()
         return new_con
 
     def __key(self):
