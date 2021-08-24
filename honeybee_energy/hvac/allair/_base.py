@@ -63,6 +63,7 @@ class _AllAirBase(_TemplateSystem):
         * latent_heat_recovery
         * demand_controlled_ventilation
         * schedules
+        * user_data
     """
     __slots__ = ('_economizer_type', '_sensible_heat_recovery', '_latent_heat_recovery',
                  '_demand_controlled_ventilation')
@@ -154,6 +155,10 @@ class _AllAirBase(_TemplateSystem):
         self._demand_controlled_ventilation = bool(value)
         if self._demand_controlled_ventilation:
             self._air_loop_check('demand_controlled_ventilation')
+
+    @property
+    def user_data(self):
+        return self._user_data
 
     @classmethod
     def from_dict(cls, data):

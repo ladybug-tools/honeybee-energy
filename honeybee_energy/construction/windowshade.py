@@ -95,7 +95,7 @@ class WindowConstructionShade(object):
     __slots__ = ('_identifier', '_display_name', '_window_construction',
                  '_shade_material', '_shade_location', '_control_type',
                  '_setpoint', '_schedule', '_between_gap', '_locked')
-    SHADE_LOCATIONS = ('Interior', 'Between', 'Exterior')
+    SHADE_LOCATIONS = ('Interior', 'Between', 'Exterior', 'user_data')
     CONTROL_TYPES = (
         'AlwaysOn', 'OnIfHighSolarOnWindow', 'OnIfHighHorizontalSolar',
         'OnIfHighOutdoorAirTemperature', 'OnIfHighZoneAirTemperature',
