@@ -166,6 +166,13 @@ class _ConstructionBase(object):
         """
         return self._user_data
 
+    @user_data.setter
+    def user_data(self, value):
+        if value is not None:
+            assert isinstance(value, dict), 'Expected dictionary for honeybee_energy' \
+                'object user_data. Got {}.'.format(type(value))
+        self._user_data = value
+
     def duplicate(self):
         """Get a copy of this construction."""
         return self.__copy__()
