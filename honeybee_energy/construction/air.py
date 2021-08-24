@@ -37,7 +37,7 @@ class AirBoundaryConstruction(object):
     """
 
     __slots__ = ('_identifier', '_display_name', '_air_mixing_per_area',
-                 '_air_mixing_schedule', '_locked')
+                 '_air_mixing_schedule', '_locked', '_user_data')
 
     def __init__(self, identifier, air_mixing_per_area=0.1,
                  air_mixing_schedule=always_on):
@@ -47,7 +47,7 @@ class AirBoundaryConstruction(object):
         self._display_name = None
         self.air_mixing_per_area = air_mixing_per_area
         self.air_mixing_schedule = air_mixing_schedule
-        self.user_data = None
+        self._user_data = None
 
     @property
     def identifier(self):
@@ -119,7 +119,7 @@ class AirBoundaryConstruction(object):
         if value is not None:
             assert isinstance(value, dict), 'Expected dictionary for honeybee_energy' \
                 'object user_data. Got {}.'.format(type(value))
-        self.user_data = value
+        self._user_data = value
 
     @classmethod
     def from_dict(cls, data):
@@ -221,8 +221,8 @@ class AirBoundaryConstruction(object):
             else self.air_mixing_schedule.to_dict()
         if self._display_name is not None:
             base['display_name'] = self.display_name
-        if self.user_data is not None:
-            base['user_data'] = self.user_data
+        if self._user_data is not None:
+            base['user_data'] = self._user_data
         return base
 
     def to_radiance_solar(self):

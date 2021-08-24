@@ -183,6 +183,7 @@ class _TemplateSystem(_HVACSystem):
     def __copy__(self):
         new_obj = self.__class__(self.identifier, self.vintage, self.equipment_type)
         new_obj._display_name = self._display_name
+        new_obj._user_data = None if self._user_data is None else self._user_data.copy()
         return new_obj
 
     def __key(self):

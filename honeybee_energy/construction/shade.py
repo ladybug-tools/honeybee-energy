@@ -38,7 +38,7 @@ class ShadeConstruction(object):
     """
 
     __slots__ = ('_identifier', '_display_name', '_solar_reflectance',
-                 '_visible_reflectance', '_is_specular', '_locked')
+                 '_visible_reflectance', '_is_specular', '_locked', '_user_data')
 
     def __init__(self, identifier, solar_reflectance=0.2, visible_reflectance=0.2,
                  is_specular=False):
@@ -49,7 +49,7 @@ class ShadeConstruction(object):
         self.solar_reflectance = solar_reflectance
         self.visible_reflectance = visible_reflectance
         self.is_specular = is_specular
-        self.user_data = None
+        self._user_data = None
 
     @property
     def identifier(self):
@@ -124,14 +124,14 @@ class ShadeConstruction(object):
         dictionary should be of a standard Python type to ensure correct
         serialization of the object to/from JSON (eg. str, float, int, list, dict)
         """
-        return self.user_data
+        return self._user_data
 
     @user_data.setter
     def user_data(self, value):
         if value is not None:
             assert isinstance(value, dict), 'Expected dictionary for honeybee_energy' \
                 'object user_data. Got {}.'.format(type(value))
-        self.user_data = value
+        self._user_data = value
 
     def glazing_construction(self):
         """Get a WindowConstruction that EnergyPlus uses for specular reflection.
@@ -243,7 +243,7 @@ class ShadeConstruction(object):
             self.identifier, self._solar_reflectance, self._visible_reflectance,
             self._is_specular)
         new_con._display_name = self._display_name
-        new_con.user_data = None if self.user_data is None else self.user_data.copy()
+        new_con.user_data = None if self._user_data is None else self._user_data.copy()
         return new_con
 
     def __key(self):
