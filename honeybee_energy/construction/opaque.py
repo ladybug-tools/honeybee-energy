@@ -234,6 +234,8 @@ class OpaqueConstruction(_ConstructionBase):
         new_obj = cls(data['identifier'], mat_layers)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
+        if 'user_data' in data and data['user_data'] is not None:
+            new_obj.user_data = data['user_data']
         return new_obj
 
     def to_idf(self):
