@@ -75,9 +75,9 @@ def load_construction_object(
             except AttributeError:  # construction without materials
                 pass
             if isinstance(constr, (WindowConstructionShade, WindowConstructionDynamic)):
-                misc_sch.extend(constr.schedule)
+                misc_sch.append(constr.schedule)
             elif isinstance(constr, AirBoundaryConstruction):
-                misc_sch.extend(constr.air_mixing_schedule)
+                misc_sch.append(constr.air_mixing_schedule)
         if constr is not None:
             lock_and_check_construction(constr)
             if isinstance(constr, _opa_types):
