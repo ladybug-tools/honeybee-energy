@@ -263,6 +263,23 @@ class WindowConstructionDynamic(object):
         """The number of gas gaps contained within the first construction."""
         return self._constructions[0].gap_count
 
+    @property
+    def user_data(self):
+        """Get or set an optional dictionary for additional meta data for this object.
+
+        This will be None until it has been set. All keys and values of this
+        dictionary should be of a standard Python type to ensure correct
+        serialization of the object to/from JSON (eg. str, float, int, list, dict)
+        """
+        return self.user_data
+
+    @user_data.setter
+    def user_data(self, value):
+        if value is not None:
+            assert isinstance(value, dict), 'Expected dictionary for honeybee_energy' \
+                'object user_data. Got {}.'.format(type(value))
+        self.user_data = value
+
     @classmethod
     def from_dict(cls, data):
         """Create a WindowConstructionDynamic from a dictionary.
@@ -393,6 +410,7 @@ class WindowConstructionDynamic(object):
         new_con = WindowConstructionDynamic(
             self.identifier, self.constructions, self.schedule)
         new_con._display_name = self._display_name
+        new_con.user_data = None if self.user_data is None else self.user_data.copy()
         return new_con
 
     def __len__(self):
