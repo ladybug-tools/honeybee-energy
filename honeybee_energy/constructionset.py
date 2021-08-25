@@ -59,6 +59,7 @@ class ConstructionSet(object):
         * modified_constructions_unique
         * materials_unique
         * modified_materials_unique
+        * user_data
     """
     __slots__ = ('_identifier', '_display_name', '_wall_set', '_floor_set',
                  '_roof_ceiling_set', '_aperture_set', '_door_set',
