@@ -190,6 +190,8 @@ class _AllAirBase(_TemplateSystem):
                       econ, sensible, latent, dcv)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
+        if 'user_data' in data and data['user_data'] is not None:
+            new_obj.user_data = data['user_data']
         return new_obj
 
     @classmethod
@@ -242,6 +244,8 @@ class _AllAirBase(_TemplateSystem):
         if self.latent_heat_recovery != 0:
             base['latent_heat_recovery'] = self.latent_heat_recovery
         base['demand_controlled_ventilation'] = self.demand_controlled_ventilation
+        if self._user_data is not None:
+            base['user_data'] = self.user_data
         return base
 
     def _air_loop_check(self, prop_name):
@@ -270,6 +274,7 @@ class _AllAirBase(_TemplateSystem):
             self._sensible_heat_recovery, self._latent_heat_recovery,
             self._demand_controlled_ventilation)
         new_obj._display_name = self._display_name
+        new_obj._user_data = None if self._user_data is None else self._user_data.copy()
         return new_obj
 
     def __key(self):
