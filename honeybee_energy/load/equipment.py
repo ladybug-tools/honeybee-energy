@@ -44,6 +44,7 @@ class _EquipmentBase(_LoadBase):
         * latent_fraction
         * lost_fraction
         * convected_fraction
+        * user_data
     """
     __slots__ = ('_watts_per_area', '_schedule', '_radiant_fraction',
                  '_latent_fraction', '_lost_fraction')
@@ -283,6 +284,7 @@ class _EquipmentBase(_LoadBase):
             self.identifier, self.watts_per_area, self.schedule,
             self.radiant_fraction, self.latent_fraction, self.lost_fraction)
         new_obj._display_name = self._display_name
+        new_obj._user_data = None if self._user_data is None else self._user_data.copy()
         return new_obj
 
     def __repr__(self):
@@ -323,6 +325,7 @@ class ElectricEquipment(_EquipmentBase):
         * latent_fraction
         * lost_fraction
         * convected_fraction
+        * user_data
     """
     __slots__ = ()
 
@@ -393,6 +396,8 @@ class ElectricEquipment(_EquipmentBase):
                       sched, rad_f, lat_f, lost_f)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
+        if 'user_data' in data and data['user_data'] is not None:
+            new_obj.user_data = data['user_data']
         return new_obj
 
     @classmethod
@@ -425,6 +430,8 @@ class ElectricEquipment(_EquipmentBase):
                       sched, rad_f, lat_f, lost_f)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
+        if 'user_data' in data and data['user_data'] is not None:
+            new_obj.user_data = data['user_data']
         return new_obj
 
     def to_idf(self, zone_identifier):
@@ -496,6 +503,7 @@ class ElectricEquipment(_EquipmentBase):
             self.identifier, self.watts_per_area, self.schedule,
             self.radiant_fraction, self.latent_fraction, self.lost_fraction)
         new_obj._display_name = self._display_name
+        new_obj._user_data = None if self._user_data is None else self._user_data.copy()
         return new_obj
 
 
@@ -531,6 +539,7 @@ class GasEquipment(_EquipmentBase):
         * latent_fraction
         * lost_fraction
         * convected_fraction
+        * user_data
     """
     __slots__ = ()
 
@@ -601,6 +610,8 @@ class GasEquipment(_EquipmentBase):
                       sched, rad_f, lat_f, lost_f)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
+        if 'user_data' in data and data['user_data'] is not None:
+            new_obj.user_data = data['user_data']
         return new_obj
 
     @classmethod
@@ -633,6 +644,8 @@ class GasEquipment(_EquipmentBase):
                       sched, rad_f, lat_f, lost_f)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
+        if 'user_data' in data and data['user_data'] is not None:
+            new_obj.user_data = data['user_data']
         return new_obj
 
     def to_idf(self, zone_identifier):
@@ -703,4 +716,5 @@ class GasEquipment(_EquipmentBase):
             self.identifier, self.watts_per_area, self.schedule,
             self.radiant_fraction, self.latent_fraction, self.lost_fraction)
         new_obj._display_name = self._display_name
+        new_obj._user_data = None if self._user_data is None else self._user_data.copy()
         return new_obj
