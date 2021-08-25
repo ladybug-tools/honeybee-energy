@@ -62,7 +62,7 @@ class ConstructionSet(object):
     """
     __slots__ = ('_identifier', '_display_name', '_wall_set', '_floor_set',
                  '_roof_ceiling_set', '_aperture_set', '_door_set',
-                 '_shade_construction', '_air_boundary_construction', '_locked')
+                 '_shade_construction', '_air_boundary_construction', '_locked', '_user_data')
 
     def __init__(self, identifier, wall_set=None, floor_set=None, roof_ceiling_set=None,
                  aperture_set=None, door_set=None, shade_construction=None,
@@ -78,6 +78,7 @@ class ConstructionSet(object):
         self.door_set = door_set
         self.shade_construction = shade_construction
         self.air_boundary_construction = air_boundary_construction
+        self._user_data = None
 
     @property
     def identifier(self):
@@ -261,6 +262,23 @@ class ConstructionSet(object):
                 pass  # ShadeConstruction or AirBoundaryConstruction
         return list(set(materials))
 
+    @property
+    def user_data(self):
+        """Get or set an optional dictionary for additional meta data for this object.
+
+        This will be None until it has been set. All keys and values of this
+        dictionary should be of a standard Python type to ensure correct
+        serialization of the object to/from JSON (eg. str, float, int, list, dict)
+        """
+        return self._user_data
+
+    @user_data.setter
+    def user_data(self, value):
+        if value is not None:
+            assert isinstance(value, dict), 'Expected dictionary for honeybee_energy' \
+                'object user_data. Got {}.'.format(type(value))
+        self._user_data = value    
+
     def get_face_construction(self, face_type, boundary_condition):
         """Get a construction object that will be assigned to a given type of face.
 
@@ -389,6 +407,8 @@ class ConstructionSet(object):
                       aperture_set, door_set, shade_con, air_con)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
+        if 'user_data' in data and data['user_data'] is not None:
+            new_obj.user_data = data['user_data']
         return new_obj
 
     @classmethod
@@ -424,6 +444,8 @@ class ConstructionSet(object):
                       aperture_set, door_set, shade_con, air_con)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
+        if 'user_data' in data and data['user_data'] is not None:
+            new_obj.user_data = data['user_data']
         return new_obj
 
     def to_dict(self, abridged=False, none_for_defaults=True):
@@ -472,6 +494,8 @@ class ConstructionSet(object):
 
         if self._display_name is not None:
             base['display_name'] = self.display_name
+        if self._user_data is not None:
+            base['user_data'] = self.user_data
         return base
 
     def to_radiance_solar_interior(self):
@@ -694,6 +718,7 @@ class ConstructionSet(object):
                                   self._shade_construction,
                                   self._air_boundary_construction)
         new_obj._display_name = self._display_name
+        new_obj.user_data = None if self._user_data is None else self._user_data.copy()
         return new_obj
 
     def __key(self):
@@ -739,6 +764,7 @@ class _FaceSetBase(object):
         self.exterior_construction = exterior_construction
         self.interior_construction = interior_construction
         self.ground_construction = ground_construction
+        
 
     @property
     def exterior_construction(self):
