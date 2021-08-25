@@ -53,9 +53,10 @@ class People(_LoadBase):
         * activity_schedule
         * radiant_fraction
         * latent_fraction
+        * user_data
     """
     __slots__ = ('_people_per_area', '_occupancy_schedule', '_activity_schedule',
-                 '_radiant_fraction', '_latent_fraction')
+                 '_radiant_fraction', '_latent_fraction', '_user_data')
 
     def __init__(self, identifier, people_per_area, occupancy_schedule,
                  activity_schedule=None,
@@ -67,6 +68,7 @@ class People(_LoadBase):
         self.activity_schedule = activity_schedule
         self.radiant_fraction = radiant_fraction
         self.latent_fraction = latent_fraction
+        self._user_data = None
 
     @property
     def people_per_area(self):
@@ -263,6 +265,8 @@ class People(_LoadBase):
                       rad_fract, lat_fract)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
+        if 'user_data' in data and data['user_data'] is not None:
+            new_obj.user_data = data['user_data']
         return new_obj
 
     @classmethod
@@ -300,6 +304,8 @@ class People(_LoadBase):
                       activity_sched, rad_fract, lat_fract)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
+        if 'user_data' in data and data['user_data'] is not None:
+            new_obj.user_data = data['user_data']
         return new_obj
 
     def to_idf(self, zone_identifier):
@@ -350,6 +356,8 @@ class People(_LoadBase):
             base['activity_schedule'] = self.activity_schedule.identifier
         if self._display_name is not None:
             base['display_name'] = self.display_name
+        if self._user_data is not None:
+            base['user_data'] = self.user_data
         return base
 
     @staticmethod
@@ -454,6 +462,7 @@ class People(_LoadBase):
             self.identifier, self.people_per_area, self.occupancy_schedule,
             self.activity_schedule, self.radiant_fraction, self.latent_fraction)
         new_obj._display_name = self._display_name
+        new_obj._user_data = None if self._user_data is None else self._user_data.copy()
         return new_obj
 
     def __repr__(self):
