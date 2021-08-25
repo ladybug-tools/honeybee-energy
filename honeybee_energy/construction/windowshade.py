@@ -94,8 +94,8 @@ class WindowConstructionShade(object):
 
     __slots__ = ('_identifier', '_display_name', '_window_construction',
                  '_shade_material', '_shade_location', '_control_type',
-                 '_setpoint', '_schedule', '_between_gap', '_locked')
-    SHADE_LOCATIONS = ('Interior', 'Between', 'Exterior', 'user_data')
+                 '_setpoint', '_schedule', '_between_gap', '_locked', '_user_data')
+    SHADE_LOCATIONS = ('Interior', 'Between', 'Exterior')
     CONTROL_TYPES = (
         'AlwaysOn', 'OnIfHighSolarOnWindow', 'OnIfHighHorizontalSolar',
         'OnIfHighOutdoorAirTemperature', 'OnIfHighZoneAirTemperature',
@@ -110,7 +110,7 @@ class WindowConstructionShade(object):
         self.identifier = identifier
         self._display_name = None
         self._between_gap = None  # will be used if 'Between' option is used
-        self.user_data = None
+        self._user_data = None
         # check that the window construction, shade, and shade location are compatible
         assert isinstance(window_construction, WindowConstruction), \
             'Expected WindowConstruction for WindowConstructionShade. ' \
@@ -483,14 +483,14 @@ class WindowConstructionShade(object):
         dictionary should be of a standard Python type to ensure correct
         serialization of the object to/from JSON (eg. str, float, int, list, dict)
         """
-        return self.user_data
+        return self._user_data
 
     @user_data.setter
     def user_data(self, value):
         if value is not None:
             assert isinstance(value, dict), 'Expected dictionary for honeybee_energy' \
                 'object user_data. Got {}.'.format(type(value))
-        self.user_data = value
+        self._user_data = value
 
     @classmethod
     def from_dict(cls, data):
@@ -677,8 +677,8 @@ class WindowConstructionShade(object):
                 else self.schedule.to_dict()
         if self._display_name is not None:
             base['display_name'] = self.display_name
-        if self.user_data is not None:
-            base['user_data'] = self.user_data
+        if self._user_data is not None:
+            base['user_data'] = self._user_data
         return base
 
     def lock(self):
@@ -713,7 +713,7 @@ class WindowConstructionShade(object):
             self.schedule)
         new_con._between_gap = self._between_gap
         new_con._display_name = self._display_name
-        new_con.user_data = None if self.user_data is None else self.user_data.copy()
+        new_con.user_data = None if self._user_data is None else self._user_data.copy()
         return new_con
 
     def __key(self):

@@ -112,7 +112,7 @@ class AirBoundaryConstruction(object):
         dictionary should be of a standard Python type to ensure correct
         serialization of the object to/from JSON (eg. str, float, int, list, dict)
         """
-        return self.user_data
+        return self._user_data
 
     @user_data.setter
     def user_data(self, value):
@@ -251,7 +251,7 @@ class AirBoundaryConstruction(object):
         new_con = AirBoundaryConstruction(
             self.identifier, self._air_mixing_per_area, self._air_mixing_schedule)
         new_con._display_name = self._display_name
-        new_con.user_data = None if self.user_data is None else self.user_data.copy()
+        new_con.user_data = None if self._user_data is None else self._user_data.copy()
         return new_con
 
     def __key(self):

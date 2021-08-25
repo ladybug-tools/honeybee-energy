@@ -49,7 +49,7 @@ class WindowConstructionDynamic(object):
     """
 
     __slots__ = ('_identifier', '_display_name', '_constructions', '_schedule',
-                 '_locked')
+                 '_locked', '_user_data')
 
     def __init__(self, identifier, constructions, schedule):
         """Initialize dynamic window construction."""
@@ -58,7 +58,7 @@ class WindowConstructionDynamic(object):
         self._display_name = None
         self.constructions = constructions
         self.schedule = schedule
-        self.user_data = None
+        self._user_data = None
 
     @property
     def identifier(self):
@@ -271,14 +271,14 @@ class WindowConstructionDynamic(object):
         dictionary should be of a standard Python type to ensure correct
         serialization of the object to/from JSON (eg. str, float, int, list, dict)
         """
-        return self.user_data
+        return self._user_data
 
     @user_data.setter
     def user_data(self, value):
         if value is not None:
             assert isinstance(value, dict), 'Expected dictionary for honeybee_energy' \
                 'object user_data. Got {}.'.format(type(value))
-        self.user_data = value
+        self._user_data = value
 
     @classmethod
     def from_dict(cls, data):
@@ -386,8 +386,8 @@ class WindowConstructionDynamic(object):
             else self.schedule.to_dict()
         if self._display_name is not None:
             base['display_name'] = self.display_name
-        if self.user_data is not None:
-            base['user_data'] = self.user_data
+        if self._user_data is not None:
+            base['user_data'] = self._user_data
         return base
 
     def lock(self):
@@ -410,7 +410,7 @@ class WindowConstructionDynamic(object):
         new_con = WindowConstructionDynamic(
             self.identifier, self.constructions, self.schedule)
         new_con._display_name = self._display_name
-        new_con.user_data = None if self.user_data is None else self.user_data.copy()
+        new_con.user_data = None if self._user_data is None else self._user_data.copy()
         return new_con
 
     def __len__(self):
