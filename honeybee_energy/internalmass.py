@@ -37,8 +37,9 @@ class InternalMass(object):
         * display_name
         * construction
         * area
+        * user_data
     """
-    __slots__ = ('_identifier', '_display_name', '_construction', '_area', '_locked')
+    __slots__ = ('_identifier', '_display_name', '_construction', '_area', '_locked', '_user_data')
 
     def __init__(self, identifier, construction, area):
         self._locked = False  # unlocked by default
@@ -46,6 +47,7 @@ class InternalMass(object):
         self._display_name = None
         self.construction = construction
         self.area = area
+        self._user_data = None
 
     @property
     def identifier(self):
@@ -95,6 +97,23 @@ class InternalMass(object):
     @area.setter
     def area(self, value):
         self._area = float_positive(value, 'internal mass area')
+
+    @property
+    def user_data(self):
+        """Get or set an optional dictionary for additional meta data for this object.
+
+        This will be None until it has been set. All keys and values of this
+        dictionary should be of a standard Python type to ensure correct
+        serialization of the object to/from JSON (eg. str, float, int, list, dict)
+        """
+        return self._user_data
+
+    @user_data.setter
+    def user_data(self, value):
+        if value is not None:
+            assert isinstance(value, dict), 'Expected dictionary for honeybee_energy' \
+                'object user_data. Got {}.'.format(type(value))
+        self._user_data = value
 
     @classmethod
     def from_geometry(cls, identifier, construction, geometry, units='Meters'):
@@ -165,6 +184,8 @@ class InternalMass(object):
         new_obj = cls(data['identifier'], constr, data['area'])
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
+        if 'user_data' in data and data['user_data'] is not None:
+            new_obj.user_data = data['user_data']
         return new_obj
 
     @classmethod
@@ -193,6 +214,8 @@ class InternalMass(object):
             data['identifier'], construction_dict[data['construction']], data['area'])
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
+        if 'user_data' in data and data['user_data'] is not None:
+            new_obj.user_data = data['user_data']
         return new_obj
 
     def to_idf(self, zone_identifier):
@@ -228,6 +251,8 @@ class InternalMass(object):
         base['area'] = self.area
         if self._display_name is not None:
             base['display_name'] = self.display_name
+        if self._user_data is not None:
+            base['user_data'] = self.user_data
         return base
 
     def duplicate(self):
@@ -237,6 +262,7 @@ class InternalMass(object):
     def __copy__(self):
         new_obj = InternalMass(self.identifier, self.construction, self.area)
         new_obj._display_name = self._display_name
+        new_obj._user_data = None if self._user_data is None else self._user_data.copy()
         return new_obj
 
     def __key(self):
