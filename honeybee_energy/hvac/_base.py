@@ -24,7 +24,7 @@ class _HVACSystem(object):
         * schedules
         * user_data
     """
-    __slots__ = ('_identifier', '_display_name', '_locked')
+    __slots__ = ('_identifier', '_display_name', '_locked', '_user_data')
 
     def __init__(self, identifier):
         """Initialize HVACSystem."""
@@ -115,7 +115,7 @@ class _HVACSystem(object):
     def __copy__(self):
         new_obj = _HVACSystem(self.identifier)
         new_obj._display_name = self._display_name
-        new_obj._user_data = None if self._user_data is None else self._user_data.copy()
+        new_obj.user_data = None if self._user_data is None else self._user_data.copy()
         return new_obj
 
     def __repr__(self):
