@@ -193,6 +193,9 @@ def test_loads_absolute():
     room.properties.energy.abolute_infiltration_ach(1, 0.001)
     assert room.properties.energy.infiltration.flow_per_exterior_area == \
         pytest.approx(300. / (220. * 3600.), abs=1e-3)
+    room.properties.energy.abolute_ventilation(0.5)
+    assert room.properties.energy.ventilation.flow_per_zone == \
+        pytest.approx(0.5, abs=1e-3)
 
 
 def test_make_plenum():
