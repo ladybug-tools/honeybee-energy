@@ -186,7 +186,8 @@ def test_opaque_dict_methods():
     constr_dict = wall_constr.to_dict()
     new_constr = OpaqueConstruction.from_dict(constr_dict)
     assert constr_dict == new_constr.to_dict()
-    assert isinstance()
+    assert wall_constr.user_data == new_constr.user_data
+    
 
 
 def test_window_construction_init():
