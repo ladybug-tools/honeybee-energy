@@ -178,11 +178,15 @@ def test_opaque_dict_methods():
     insulation = EnergyMaterial('Insulation', 0.05, 0.049, 265, 836)
     wall_gap = EnergyMaterial('Wall Air Gap', 0.1, 0.67, 1.2925, 1006.1)
     gypsum = EnergyMaterial('Gypsum', 0.0127, 0.16, 784.9, 830)
+    userdatadict = {"dictKey":"KeyName",
+                    "KeyWord":"KeyValue"}
     wall_constr = OpaqueConstruction(
         'Wall Construction', [concrete, insulation, wall_gap, gypsum])
+    wall_constr.user_data = userdatadict
     constr_dict = wall_constr.to_dict()
     new_constr = OpaqueConstruction.from_dict(constr_dict)
     assert constr_dict == new_constr.to_dict()
+    assert isinstance()
 
 
 def test_window_construction_init():
