@@ -178,8 +178,6 @@ def test_opaque_dict_methods():
     insulation = EnergyMaterial('Insulation', 0.05, 0.049, 265, 836)
     wall_gap = EnergyMaterial('Wall Air Gap', 0.1, 0.67, 1.2925, 1006.1)
     gypsum = EnergyMaterial('Gypsum', 0.0127, 0.16, 784.9, 830)
-    userdatadict = {"dictKey":"KeyName",
-                    "KeyWord":"KeyValue"}
     wall_constr = OpaqueConstruction(
         'Wall Construction', [concrete, insulation, wall_gap, gypsum])
     wall_constr = apply_ud(wall_constr)
@@ -673,11 +671,12 @@ def test_window_shade_dict_methods():
     double_low_e_ec = WindowConstructionShade(
         'Double Low-E Inside EC', double_clear, shade_mat, 'Exterior',
         'OnIfHighSolarOnWindow', 200, sched)
-
+    double_low_e_ec = apply_ud(double_low_e_ec)
     constr_dict = double_low_e_ec.to_dict()
     new_constr = WindowConstructionShade.from_dict(constr_dict)
     assert double_low_e_ec == new_constr
     assert constr_dict == new_constr.to_dict()
+    assert double_low_e_ec.user_data == new_constr.user_data
 
 
 def test_window_construction_dynamic_init():
@@ -814,11 +813,12 @@ def test_window_dynamic_dict_methods():
                       0, 0, 0, 0, 0, 1, 1, 1])
     double_low_e_ec = WindowConstructionDynamic(
         'Double Low-E EC', [window_constr_on, window_constr_off], sched)
-
+    double_low_e_ec = apply_ud(double_low_e_ec)
     constr_dict = double_low_e_ec.to_dict()
     new_constr = WindowConstructionDynamic.from_dict(constr_dict)
     assert double_low_e_ec == new_constr
     assert constr_dict == new_constr.to_dict()
+    assert double_low_e_ec.user_data == new_constr.user_data
 
 
 def test_shade_construction_init():
@@ -881,9 +881,11 @@ def test_shade_equivalency():
 def test_shade_dict_methods():
     """Test the to/from dict methods."""
     shade_constr = ShadeConstruction('Outdoor Light Shelf', 0.4, 0.6)
+    shade_constr = apply_ud(shade_constr)
     constr_dict = shade_constr.to_dict()
     new_constr = ShadeConstruction.from_dict(constr_dict)
     assert constr_dict == new_constr.to_dict()
+    assert shade_constr.user_data == new_constr.user_data
 
 
 def test_air_construction_init():
@@ -941,8 +943,9 @@ def test_air_dict_methods():
         'Night Flush', [1, 1, 1, 1, 1, 1, 1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5,
                         0.5, 0.5, 0.5, 0.5, 0.5, 1, 1, 1])
     night_flush_constr = AirBoundaryConstruction('Night Flush Boundary', 0.4, night_flush)
-    
+    night_flush_constr = apply_ud(night_flush_constr)
     constr_dict = night_flush_constr.to_dict()
     new_constr = AirBoundaryConstruction.from_dict(constr_dict)
     assert night_flush_constr == new_constr
     assert constr_dict == new_constr.to_dict()
+    assert night_flush_constr.user_data == new_constr.user_data
