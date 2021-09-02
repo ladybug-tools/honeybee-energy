@@ -14,7 +14,7 @@ from honeybee_energy.construction.air import AirBoundaryConstruction
 from honeybee_energy.schedule.ruleset import ScheduleRuleset
 
 import pytest
-
+from .conftest import apply_ud
 
 def test_opaque_construction_init():
     """Test the initialization of OpaqueConstruction objects and basic properties."""
@@ -375,9 +375,12 @@ def test_window_dict_methods():
     gap = EnergyWindowMaterialGas('air gap', thickness=0.0127)
     triple_clear = WindowConstruction(
         'Triple Clear Window', [clear_glass, gap, clear_glass, gap, clear_glass])
+    triple_clear = apply_ud(triple_clear)
+    
     constr_dict = triple_clear.to_dict()
     new_constr = WindowConstruction.from_dict(constr_dict)
     assert constr_dict == new_constr.to_dict()
+    assert triple_clear.user_data == new_constr.user_data
 
 
 def test_window_construction_shade_init():
