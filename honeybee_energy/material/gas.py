@@ -332,6 +332,7 @@ class EnergyWindowMaterialGas(_EnergyWindowMaterialGasBase):
         * specific_heat
         * density
         * prandtl
+        * user_data
     """
     __slots__ = ('_gas_type',)
 
@@ -423,6 +424,8 @@ class EnergyWindowMaterialGas(_EnergyWindowMaterialGasBase):
         }
         if self._display_name is not None:
             base['display_name'] = self.display_name
+        if self._user_data is not None:
+            base['user_data'] = self.user_data
         return base
 
     def _coeff_property(self, dictionary, t_kelvin):
@@ -451,6 +454,7 @@ class EnergyWindowMaterialGas(_EnergyWindowMaterialGasBase):
     def __copy__(self):
         new_obj = EnergyWindowMaterialGas(self.identifier, self.thickness, self.gas_type)
         new_obj._display_name = self._display_name
+        new_obj._user_data = None if self._user_data is None else self._user_data.copy()
         return new_obj
 
 

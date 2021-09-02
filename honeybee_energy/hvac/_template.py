@@ -177,7 +177,7 @@ class _TemplateSystem(_HVACSystem):
         base['vintage'] = self.vintage
         base['equipment_type'] = self.equipment_type
         if self._user_data is not None:
-            base['user_data'] = self._user_data
+            base['user_data'] = self.user_data
         return base
 
     def __copy__(self):
