@@ -172,8 +172,8 @@ class ShadeConstruction(object):
         new_obj = cls(data['identifier'], s_ref, v_ref, spec)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
-        if '_user_data' in data and data['_user_data'] is not None:
-            new_obj._user_data = data['_user_data']
+        if 'user_data' in data and data['user_data'] is not None:
+            new_obj._user_data = data['user_data']
         return new_obj
 
     def to_idf(self, host_shade_identifier):
