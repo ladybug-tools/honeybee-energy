@@ -182,7 +182,7 @@ def test_opaque_dict_methods():
                     "KeyWord":"KeyValue"}
     wall_constr = OpaqueConstruction(
         'Wall Construction', [concrete, insulation, wall_gap, gypsum])
-    wall_constr.user_data = userdatadict
+    wall_constr = apply_ud(wall_constr)
     constr_dict = wall_constr.to_dict()
     new_constr = OpaqueConstruction.from_dict(constr_dict)
     assert constr_dict == new_constr.to_dict()
@@ -376,7 +376,6 @@ def test_window_dict_methods():
     triple_clear = WindowConstruction(
         'Triple Clear Window', [clear_glass, gap, clear_glass, gap, clear_glass])
     triple_clear = apply_ud(triple_clear)
-    
     constr_dict = triple_clear.to_dict()
     new_constr = WindowConstruction.from_dict(constr_dict)
     assert constr_dict == new_constr.to_dict()
