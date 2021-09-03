@@ -9,11 +9,12 @@ import honeybee_energy.lib.scheduletypelimits as schedule_types
 from ladybug.dt import Time, Date
 
 import pytest
-
+from .conftest import apply_ud, userdatadict
 
 def test_ventilation_init():
     """Test the initialization of Ventilation and basic properties."""
     ventilation = Ventilation('Office Ventilation', 0.0025, 0.0006)
+    ventilation = apply_ud(ventilation)
     str(ventilation)  # test the string representation
 
     assert ventilation.identifier == 'Office Ventilation'
@@ -22,6 +23,7 @@ def test_ventilation_init():
     assert ventilation.flow_per_zone == 0
     assert ventilation.air_changes_per_hour == 0
     assert ventilation.schedule is None
+    assert ventilation.user_data == userdatadict
 
 
 def test_ventilation_init_schedule():
@@ -118,17 +120,20 @@ def test_ventilation_dict_methods():
     schedule = ScheduleRuleset('Office Ventilation Schedule', simple_office,
                                None, schedule_types.fractional)
     ventilation = Ventilation('Office Ventilation', 0.0025, 0.0006)
+    ventilation = apply_ud(ventilation)
 
     vent_dict = ventilation.to_dict()
     new_ventilation = Ventilation.from_dict(vent_dict)
     assert new_ventilation == ventilation
     assert vent_dict == new_ventilation.to_dict()
+    assert new_ventilation.user_data == userdatadict
 
     ventilation.schedule = schedule
     vent_dict = ventilation.to_dict()
     new_ventilation = Ventilation.from_dict(vent_dict)
     assert new_ventilation == ventilation
     assert vent_dict == new_ventilation.to_dict()
+    assert new_ventilation.user_data == userdatadict
 
 
 def test_ventilation_average():
