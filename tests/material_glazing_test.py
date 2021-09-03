@@ -3,6 +3,7 @@ from honeybee_energy.material.glazing import EnergyWindowMaterialGlazing, \
     EnergyWindowMaterialSimpleGlazSys
 
 import pytest
+from .conftest import apply_ud, userdatadict
 
 
 def test_glazing_init():
@@ -10,6 +11,7 @@ def test_glazing_init():
     lowe = EnergyWindowMaterialGlazing(
         'Low-e Glass', 0.00318, 0.4517, 0.359, 0.714, 0.207,
         0, 0.84, 0.046578, 1.0)
+    lowe = apply_ud(lowe)
     str(lowe)  # test the string representation of the material
     lowe_dup = lowe.duplicate()
 
@@ -30,7 +32,7 @@ def test_glazing_init():
     assert lowe.resistivity == lowe_dup.resistivity == pytest.approx(1.0, rel=1e-2)
     assert lowe.u_value == lowe_dup.u_value == pytest.approx(314.465, rel=1e-2)
     assert lowe.r_value == lowe_dup.r_value == pytest.approx(0.00318, rel=1e-2)
-
+    assert lowe.user_data == userdatadict
     lowe.resistivity = 0.5
     assert lowe.conductivity != lowe_dup.conductivity
     assert lowe.conductivity == pytest.approx(2, rel=1e-2)
@@ -120,9 +122,11 @@ def test_glazing_dict_methods():
     lowe = EnergyWindowMaterialGlazing(
         'Low-e Glass', 0.00318, 0.4517, 0.359, 0.714, 0.207,
         0, 0.84, 0.046578, 1.0)
+    lowe = apply_ud(lowe)
     material_dict = lowe.to_dict()
     new_material = EnergyWindowMaterialGlazing.from_dict(material_dict)
     assert material_dict == new_material.to_dict()
+    assert lowe.user_data == new_material.user_data
 
 
 def test_simple_sys_init():
@@ -181,6 +185,8 @@ def test_simple_sys_init_from_idf():
 def test_simple_sys_dict_methods():
     """Test the to/from dict methods."""
     clear = EnergyWindowMaterialSimpleGlazSys('Clear Window', 5.5, 0.8)
+    clear = apply_ud(clear)
     material_dict = clear.to_dict()
     new_material = EnergyWindowMaterialSimpleGlazSys.from_dict(material_dict)
     assert material_dict == new_material.to_dict()
+    assert clear.user_data == new_material.user_data

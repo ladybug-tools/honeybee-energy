@@ -82,13 +82,14 @@ class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
         * resistivity
         * u_value
         * r_value
+        * user_data
     """
     __slots__ = ('_thickness', '_solar_transmittance', '_solar_reflectance',
                  '_solar_reflectance_back', '_visible_transmittance',
                  '_visible_reflectance', '_visible_reflectance_back',
                  '_infrared_transmittance', '_emissivity', '_emissivity_back',
                  '_conductivity', '_dirt_correction', '_dirt_correction',
-                 '_solar_diffusing')
+                 '_solar_diffusing', '_user_data')
 
     def __init__(self, identifier, thickness=0.003, solar_transmittance=0.85,
                  solar_reflectance=0.075, visible_transmittance=0.9,
@@ -102,7 +103,7 @@ class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
         self._solar_reflectance_back = None
         self._visible_reflectance = 0
         self._visible_reflectance_back = None
-
+        self._user_data = None
         self.thickness = thickness
         self.solar_transmittance = solar_transmittance
         self.solar_reflectance = solar_reflectance
@@ -312,6 +313,23 @@ class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
         self._conductivity = self.thickness / \
             float_positive(r_val, 'glazing material r-value')
 
+    @property
+    def user_data(self):
+        """Get or set an optional dictionary for additional meta data for this object.
+
+        This will be None until it has been set. All keys and values of this
+        dictionary should be of a standard Python type to ensure correct
+        serialization of the object to/from JSON (eg. str, float, int, list, dict)
+        """
+        return self._user_data
+    
+    @user_data.setter
+    def user_data(self, value):
+        if value is not None:
+            assert isinstance(value, dict), 'Expected dictionary for honeybee_energy' \
+                'object user_data. Got {}.'.format(type(value))
+        self._user_data = value
+
     @classmethod
     def from_idf(cls, idf_string):
         """Create EnergyWindowMaterialGlazing from an EnergyPlus text string.
@@ -400,6 +418,8 @@ class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
         new_mat.solar_diffusing = sol_diff
         if 'display_name' in data and data['display_name'] is not None:
             new_mat.display_name = data['display_name']
+        if 'user_data' in data and data['user_data'] is not None:
+            new_mat.user_data = data['user_data']
         return new_mat
 
     def to_idf(self):
@@ -442,6 +462,8 @@ class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
         }
         if self._display_name is not None:
             base['display_name'] = self.display_name
+        if self._user_data is not None:
+            base['user_data'] = self.user_data
         return base
 
     def __key(self):
@@ -477,6 +499,7 @@ class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
         new_material._dirt_correction = self._dirt_correction
         new_material._solar_diffusing = self._solar_diffusing
         new_material._display_name = self._display_name
+        new_material._user_data = None if self._user_data is None else self._user_data.copy()
         return new_material
 
 
@@ -508,8 +531,9 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
         * r_value
         * solar_transmittance
         * thickness
+        * user_data
     """
-    __slots__ = ('_u_factor', '_shgc', '_vt')
+    __slots__ = ('_u_factor', '_shgc', '_vt', '_user_data')
 
     def __init__(self, identifier, u_factor, shgc, vt=0.6):
         """Initialize energy window material simple glazing system."""
@@ -517,6 +541,7 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
         self.u_factor = u_factor
         self.shgc = shgc
         self.vt = vt
+        self._user_data = None
 
     @property
     def u_factor(self):
@@ -602,6 +627,23 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
         u_val = self.u_value
         return 0.002 if u_val > 7 else (0.05914 - (0.00714 * u_val))
 
+    @property
+    def user_data(self):
+        """Get or set an optional dictionary for additional meta data for this object.
+
+        This will be None until it has been set. All keys and values of this
+        dictionary should be of a standard Python type to ensure correct
+        serialization of the object to/from JSON (eg. str, float, int, list, dict)
+        """
+        return self._user_data
+    
+    @user_data.setter
+    def user_data(self, value):
+        if value is not None:
+            assert isinstance(value, dict), 'Expected dictionary for honeybee_energy' \
+                'object user_data. Got {}.'.format(type(value))
+        self._user_data = value
+
     @classmethod
     def from_idf(cls, idf_string):
         """Create EnergyWindowMaterialSimpleGlazSys from an EnergyPlus text string.
@@ -640,6 +682,8 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
         new_obj = cls(data['identifier'], data['u_factor'], data['shgc'], vt)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
+        if 'user_data' in data and data['user_data'] is not None:
+            new_obj.user_data = data['user_data']
         return new_obj
 
     def to_idf(self):
@@ -660,6 +704,8 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
         }
         if self._display_name is not None:
             base['display_name'] = self.display_name
+        if self._user_data is not None:
+            base['user_data'] = self.user_data
         return base
 
     def __key(self):
@@ -683,4 +729,5 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
         new_material = EnergyWindowMaterialSimpleGlazSys(
             self.identifier, self.u_factor, self.shgc, self.vt)
         new_material._display_name = self._display_name
+        new_material._user_data = None if self._user_data is None else self._user_data.copy()
         return new_material
