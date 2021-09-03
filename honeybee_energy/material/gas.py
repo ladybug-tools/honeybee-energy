@@ -340,6 +340,7 @@ class EnergyWindowMaterialGas(_EnergyWindowMaterialGasBase):
         """Initialize gas energy material."""
         _EnergyWindowMaterialGasBase.__init__(self, identifier, thickness)
         self.gas_type = gas_type
+        self._user_data = None
 
     @property
     def gas_type(self):
