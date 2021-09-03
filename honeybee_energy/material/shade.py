@@ -37,6 +37,7 @@ class _EnergyWindowMaterialShadeBase(_EnergyMaterialWindowBase):
         self.emissivity = emissivity
         self.distance_to_glass = distance_to_glass
         self.set_all_opening_multipliers(opening_multiplier)
+        
 
     @property
     def is_shade_material(self):
@@ -289,10 +290,11 @@ class EnergyWindowMaterialShade(_EnergyWindowMaterialShadeBase):
         * resistivity
         * u_value
         * r_value
+        * user_data
     """
     __slots__ = ('_thickness', '_solar_transmittance', '_solar_reflectance',
                  '_visible_transmittance', '_visible_reflectance',
-                 '_conductivity', '_airflow_permeability')
+                 '_conductivity', '_airflow_permeability', '_user_data')
 
     def __init__(self, identifier, thickness=0.005, solar_transmittance=0.4,
                  solar_reflectance=0.5,
@@ -308,6 +310,7 @@ class EnergyWindowMaterialShade(_EnergyWindowMaterialShadeBase):
         # default for checking transmittance + reflectance < 1
         self._solar_reflectance = 0
         self._visible_reflectance = 0
+        self._user_data = None
 
         self.thickness = thickness
         self.solar_transmittance = solar_transmittance
@@ -425,6 +428,23 @@ class EnergyWindowMaterialShade(_EnergyWindowMaterialShadeBase):
         self._conductivity = self.thickness / \
             float_positive(r_val, 'shade material r-value')
 
+    @property
+    def user_data(self):
+        """Get or set an optional dictionary for additional meta data for this object.
+
+        This will be None until it has been set. All keys and values of this
+        dictionary should be of a standard Python type to ensure correct
+        serialization of the object to/from JSON (eg. str, float, int, list, dict)
+        """
+        return self._user_data
+    
+    @user_data.setter
+    def user_data(self, value):
+        if value is not None:
+            assert isinstance(value, dict), 'Expected dictionary for honeybee_energy' \
+                'object user_data. Got {}.'.format(type(value))
+        self._user_data = value
+
     @classmethod
     def from_idf(cls, idf_string):
         """Create EnergyWindowMaterialShade from an EnergyPlus text string.
@@ -507,6 +527,8 @@ class EnergyWindowMaterialShade(_EnergyWindowMaterialShadeBase):
         new_mat.right_opening_multiplier = right
         if 'display_name' in data and data['display_name'] is not None:
             new_mat.display_name = data['display_name']
+        if 'user_data' in data and data['user_data'] is not None:
+            new_mat.user_data = data['user_data']
         return new_mat
 
     def to_idf(self):
@@ -547,6 +569,8 @@ class EnergyWindowMaterialShade(_EnergyWindowMaterialShadeBase):
         }
         if self._display_name is not None:
             base['display_name'] = self.display_name
+        if self._user_data is not None:
+            base['user_data'] = self.user_data
         return base
 
     def __key(self):
@@ -584,6 +608,7 @@ class EnergyWindowMaterialShade(_EnergyWindowMaterialShadeBase):
         new_material._left_opening_multiplier = self._left_opening_multiplier
         new_material._right_opening_multiplier = self._right_opening_multiplier
         new_material._display_name = self._display_name
+        new_material._user_data = None if self._user_data is None else self._user_data.copy()
         return new_material
 
 
@@ -663,6 +688,7 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
         * slat_resistivity
         * u_value
         * r_value
+        * user_data
     """
     ORIENTATIONS = ('Horizontal', 'Vertical')
     __slots__ = ('_slat_orientation', '_slat_width', '_slat_separation',
@@ -673,7 +699,7 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
                  '_beam_visible_transmittance', '_beam_visible_reflectance',
                  '_beam_visible_reflectance_back', '_diffuse_visible_transmittance',
                  '_diffuse_visible_reflectance', '_diffuse_visible_reflectance_back',
-                 '_emissivity_back')
+                 '_emissivity_back', '_user_data')
 
     def __init__(self, identifier, slat_orientation='Horizontal', slat_width=0.025,
                  slat_separation=0.01875, slat_thickness=0.001, slat_angle=45,
@@ -695,6 +721,7 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
         self._beam_visible_reflectance_back = None
         self._diffuse_visible_reflectance = 0
         self._diffuse_visible_reflectance_back = None
+        self._user_data = None
 
         self.slat_orientation = slat_orientation
         self.slat_width = slat_width
@@ -1001,6 +1028,23 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
         self._slat_conductivity = self.slat_thickness / \
             float_positive(r_val, 'shade material r-value')
 
+    @property
+    def user_data(self):
+        """Get or set an optional dictionary for additional meta data for this object.
+
+        This will be None until it has been set. All keys and values of this
+        dictionary should be of a standard Python type to ensure correct
+        serialization of the object to/from JSON (eg. str, float, int, list, dict)
+        """
+        return self._user_data
+    
+    @user_data.setter
+    def user_data(self, value):
+        if value is not None:
+            assert isinstance(value, dict), 'Expected dictionary for honeybee_energy' \
+                'object user_data. Got {}.'.format(type(value))
+        self._user_data = value
+
     def set_all_solar_transmittance(self, transmittance):
         """Set all solar transmittance to the same value at once."""
         self.beam_solar_transmittance = transmittance
@@ -1154,6 +1198,8 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
         new_mat.right_opening_multiplier = right
         if 'display_name' in data and data['display_name'] is not None:
             new_mat.display_name = data['display_name']
+        if 'user_data' in data and data['user_data'] is not None:
+            new_mat.user_data = data['user_data']
         return new_mat
 
     def to_idf(self):
@@ -1220,6 +1266,8 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
         }
         if self._display_name is not None:
             base['display_name'] = self.display_name
+        if self._user_data is not None:
+            base['user_data'] = self.user_data
         return base
 
     def __key(self):
@@ -1271,4 +1319,5 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
         new_m._left_opening_multiplier = self._left_opening_multiplier
         new_m._right_opening_multiplier = self._right_opening_multiplier
         new_m._display_name = self._display_name
+        new_m._user_data = None if self._user_data is None else self._user_data.copy()
         return new_m
