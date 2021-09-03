@@ -12,7 +12,7 @@ from ladybug_geometry.geometry3d.pointvector import Point3D
 from ladybug_geometry.geometry3d.face import Face3D
 
 import pytest
-
+from .conftest import apply_ud, userdatadict
 
 def test_energy_properties():
     """Test the existence of the Aperture energy properties."""

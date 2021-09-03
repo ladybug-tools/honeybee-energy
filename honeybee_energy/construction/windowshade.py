@@ -483,7 +483,8 @@ class WindowConstructionShade(object):
         dictionary should be of a standard Python type to ensure correct
         serialization of the object to/from JSON (eg. str, float, int, list, dict)
         """
-        return self._user_data
+        if self._user_data is not None:
+            return self._user_data
 
     @user_data.setter
     def user_data(self, value):
@@ -678,7 +679,7 @@ class WindowConstructionShade(object):
         if self._display_name is not None:
             base['display_name'] = self.display_name
         if self._user_data is not None:
-            base['user_data'] = self._user_data
+            base['user_data'] = self.user_data
         return base
 
     def lock(self):
@@ -713,7 +714,7 @@ class WindowConstructionShade(object):
             self.schedule)
         new_con._between_gap = self._between_gap
         new_con._display_name = self._display_name
-        new_con.user_data = None if self._user_data is None else self._user_data.copy()
+        new_con._user_data = None if self._user_data is None else self._user_data.copy()
         return new_con
 
     def __key(self):

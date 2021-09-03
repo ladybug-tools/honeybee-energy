@@ -271,7 +271,8 @@ class WindowConstructionDynamic(object):
         dictionary should be of a standard Python type to ensure correct
         serialization of the object to/from JSON (eg. str, float, int, list, dict)
         """
-        return self._user_data
+        if self._user_data is not None:
+            return self._user_data
 
     @user_data.setter
     def user_data(self, value):
@@ -387,7 +388,7 @@ class WindowConstructionDynamic(object):
         if self._display_name is not None:
             base['display_name'] = self.display_name
         if self._user_data is not None:
-            base['user_data'] = self._user_data
+            base['user_data'] = self.user_data
         return base
 
     def lock(self):

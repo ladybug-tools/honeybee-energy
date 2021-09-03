@@ -88,11 +88,14 @@ def test_opaque_equivalency():
     gypsum = EnergyMaterial('Gypsum', 0.0127, 0.16, 784.9, 830)
     wall_constr_1 = OpaqueConstruction(
         'Wall Construction', [concrete, insulation, wall_gap, gypsum])
+    wall_constr_1 = apply_ud(wall_constr_1)
     wall_constr_2 = wall_constr_1.duplicate()
     wall_constr_3 = OpaqueConstruction(
         'Wall Construction', [concrete, wall_gap, gypsum, insulation])
+    wall_constr_3 = apply_ud(wall_constr_3)
     wall_constr_4 = OpaqueConstruction(
         'Other Wall Construction', [concrete, insulation, wall_gap, gypsum])
+    wall_constr_4 = apply_ud(wall_constr_4)
 
     collection = [wall_constr_1, wall_constr_1, wall_constr_2, wall_constr_3]
     assert len(set(collection)) == 2
@@ -201,10 +204,13 @@ def test_window_construction_init():
     gap = EnergyWindowMaterialGas('air gap', thickness=0.0127)
     double_low_e = WindowConstruction(
         'Double Low-E Window', [lowe_glass, gap, clear_glass])
+    double_low_e = apply_ud(double_low_e)
     double_clear = WindowConstruction(
         'Double Clear Window', [clear_glass, gap, clear_glass])
+    doble_clear = apply_ud(double_clear)
     triple_clear = WindowConstruction(
         'Triple Clear Window', [clear_glass, gap, clear_glass, gap, clear_glass])
+    triple_clear = apply_ud(triple_clear)
     double_low_e_dup = double_low_e.duplicate()
     str(double_low_e)  # test the string representation of the construction
 
@@ -679,7 +685,6 @@ def test_window_shade_dict_methods():
     new_constr = WindowConstructionShade.from_dict(constr_dict)
     assert double_low_e_ec == new_constr
     assert constr_dict == new_constr.to_dict()
-    assert double_low_e_ec.user_data == new_constr.user_data
 
 
 def test_window_construction_dynamic_init():

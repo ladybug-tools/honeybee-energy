@@ -34,7 +34,7 @@ class ShadeConstruction(object):
         * visible_reflectance
         * is_specular
         * is_default
-        * _user_data
+        * user_data
     """
 
     __slots__ = ('_identifier', '_display_name', '_solar_reflectance',
