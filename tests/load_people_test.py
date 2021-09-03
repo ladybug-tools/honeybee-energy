@@ -11,7 +11,7 @@ from honeybee.altnumber import autocalculate
 from ladybug.dt import Time, Date
 
 import pytest
-
+from .conftest import apply_ud, userdatadict
 
 def test_people_init():
     """Test the initialization of People and basic properties."""
@@ -20,6 +20,7 @@ def test_people_init():
     occ_schedule = ScheduleRuleset('Office Occupancy', simple_office,
                                    None, schedule_types.fractional)
     people = People('Open Office Zone People', 0.05, occ_schedule)
+    people = apply_ud(people)
     str(people)  # test the string representation
 
     assert people.identifier == 'Open Office Zone People'
@@ -33,6 +34,7 @@ def test_people_init():
     assert people.activity_schedule.values() == [120] * 8760
     assert people.radiant_fraction == 0.3
     assert people.latent_fraction == autocalculate
+    assert people.user_data == userdatadict
 
 
 def test_people_setability():
@@ -145,6 +147,7 @@ def test_people_dict_methods():
     occ_schedule = ScheduleRuleset('Office Occupancy', weekday_office,
                                    [weekend_rule], schedule_types.fractional)
     people = People('Open Office Zone People', 0.05, occ_schedule)
+    people = apply_ud(people)
 
     ppl_dict = people.to_dict()
     new_people = People.from_dict(ppl_dict)
