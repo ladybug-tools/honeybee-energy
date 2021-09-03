@@ -8,7 +8,7 @@ import honeybee_energy.lib.scheduletypelimits as schedule_types
 from ladybug.dt import Time
 
 import pytest
-
+from .conftest import apply_ud, userdatadict
 
 def test_setpoint_init():
     """Test the initialization of Setpoint and basic properties."""
@@ -17,6 +17,7 @@ def test_setpoint_init():
     cool_setpt = ScheduleRuleset.from_constant_value(
         'Office Cooling', 24, schedule_types.temperature)
     setpoint = Setpoint('Office Setpoint', heat_setpt, cool_setpt)
+    setpoint = apply_ud(setpoint)
     str(setpoint)  # test the string representation
 
     assert setpoint.identifier == 'Office Setpoint'
@@ -32,6 +33,7 @@ def test_setpoint_init():
     assert setpoint.dehumidifying_schedule is None
     assert setpoint.dehumidifying_setpoint is None
     assert setpoint.dehumidifying_setback is None
+    assert setpoint.user_data == userdatadict
 
 
 def test_setpoint_init_with_setback():
@@ -210,12 +212,12 @@ def test_setpoint_dict_methods():
         'Office Dehumid', 60, schedule_types.humidity)
     setpoint = Setpoint('Office Setpoint', heat_setpt, cool_setpt,
                         humid_setpt, dehumid_setpt)
-
+    setpoint = apply_ud(setpoint)
     setp_dict = setpoint.to_dict()
     new_setpoint = Setpoint.from_dict(setp_dict)
     assert new_setpoint == setpoint
     assert setp_dict == new_setpoint.to_dict()
-
+    assert new_setpoint.user_data == userdatadict
 
 def test_setpoint_average():
     """Test the Setpoint.average method."""
