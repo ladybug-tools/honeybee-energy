@@ -9,7 +9,7 @@ import honeybee_energy.lib.scheduletypelimits as schedule_types
 from ladybug.dt import Time, Date
 
 import pytest
-
+from .conftest import apply_ud, userdatadict
 
 def test_lighting_init(): 
     """Test the initialization of Lighting and basic properties."""
@@ -18,6 +18,7 @@ def test_lighting_init():
     schedule = ScheduleRuleset('Office Lighting', simple_office,
                                None, schedule_types.fractional)
     lighting = Lighting('Open Office Zone Lighting', 10, schedule)
+    lighting = apply_ud(lighting)
     str(lighting)  # test the string representation
 
     assert lighting.identifier == 'Open Office Zone Lighting'
@@ -29,6 +30,7 @@ def test_lighting_init():
     assert lighting.radiant_fraction == 0.32
     assert lighting.visible_fraction == 0.25
     assert lighting.baseline_watts_per_area == 11.84029
+    assert lighting.user_data == userdatadict
 
 
 def test_lighting_setability():
@@ -137,12 +139,13 @@ def test_lighting_dict_methods():
     schedule = ScheduleRuleset('Office Lighting', weekday_office,
                                [weekend_rule], schedule_types.fractional)
     lighting = Lighting('Open Office Zone Lighting', 10, schedule)
+    lighting = apply_ud(lighting)
 
     light_dict = lighting.to_dict()
     new_lighting = Lighting.from_dict(light_dict)
     assert new_lighting == lighting
     assert light_dict == new_lighting.to_dict()
-
+    assert lighting.user_data == new_lighting.user_data
 
 def test_lighting_average():
     """Test the Lighting.average method."""
