@@ -8,6 +8,7 @@ from .conftest import apply_ud
 def test_gas_init():
     """Test the initalization of gas material objects and basic properties."""
     air = EnergyWindowMaterialGas('Air Gap', 0.0125, 'Air')
+    air = apply_ud(air)
     str(air)  # test the string representation of the material
     air_dup = air.duplicate()
 
@@ -151,6 +152,7 @@ def test_gas_mixture_dict_methods():
     """Test the to/from dict methods."""
     air_xenon = EnergyWindowMaterialGasMixture(
         'Air Xenon Gap', 0.0125, ('Air', 'Xenon'), (0.1, 0.9))
+    air_xenon = apply_ud(air_xenon)
     material_dict = air_xenon.to_dict()
     new_material = EnergyWindowMaterialGasMixture.from_dict(material_dict)
     assert material_dict == new_material.to_dict()
@@ -200,6 +202,8 @@ def test_gas_custom_dict_methods():
     co2_gap = EnergyWindowMaterialGasCustom('CO2', 0.0125, 0.0146, 0.000014, 827.73)
     co2_gap.specific_heat_ratio = 1.4
     co2_gap.molecular_weight = 44
+    co2_gap = apply_ud(co2_gap)
     material_dict = co2_gap.to_dict()
     new_material = EnergyWindowMaterialGasCustom.from_dict(material_dict)
     assert material_dict == new_material.to_dict()
+    assert co2_gap.user_data == new_material.user_data
