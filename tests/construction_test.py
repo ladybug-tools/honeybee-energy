@@ -14,7 +14,7 @@ from honeybee_energy.construction.air import AirBoundaryConstruction
 from honeybee_energy.schedule.ruleset import ScheduleRuleset
 
 import pytest
-from .conftest import apply_ud
+from .conftest import apply_ud, userdatadict
 
 def test_opaque_construction_init():
     """Test the initialization of OpaqueConstruction objects and basic properties."""
@@ -26,6 +26,7 @@ def test_opaque_construction_init():
                             0.93, 0.6, 0.65)
     wall_constr = OpaqueConstruction(
         'Generic Wall Construction', [concrete, insulation, wall_gap, gypsum])
+    wall_constr = apply_ud(wall_constr)
     str(wall_constr)  # test the string representation of the construction
     constr_dup = wall_constr.duplicate()
 
@@ -54,6 +55,7 @@ def test_opaque_construction_init():
         constr_dup.outside_solar_reflectance == 0.25
     assert wall_constr.outside_visible_reflectance == \
         constr_dup.outside_visible_reflectance == pytest.approx(0.2, rel=1e-2)
+    assert wall_constr.user_data == userdatadict
 
 
 def test_opaque_lockability():
@@ -263,6 +265,7 @@ def test_window_equivalency():
     gap = EnergyWindowMaterialGas('air gap', thickness=0.0127)
     double_clear = WindowConstruction(
         'Clear Window', [clear_glass, gap, clear_glass])
+    double_clear = apply_ud(double_clear)
     double_clear_2 = double_clear.duplicate()
     triple_clear = WindowConstruction(
         'Clear Window', [clear_glass, gap, clear_glass, gap, clear_glass])

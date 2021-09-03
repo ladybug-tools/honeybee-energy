@@ -2,12 +2,13 @@
 from honeybee_energy.material.opaque import EnergyMaterial, EnergyMaterialNoMass
 
 import pytest
-from .conftest import apply_ud
+from .conftest import apply_ud, userdatadict
 
 def test_material_init():
     """Test the initialization of EnergyMaterial objects and basic properties."""
     concrete = EnergyMaterial('Concrete', 0.2, 0.5, 800, 1200,
                               'MediumSmooth', 0.95, 0.75, 0.8)
+    concrete = apply_ud(concrete)
     str(concrete)  # test the string representation of the material
     concrete_dup = concrete.duplicate()
 
@@ -31,11 +32,13 @@ def test_material_init():
     assert concrete.conductivity != concrete_dup.conductivity
     assert concrete.r_value == 0.5
     assert concrete.conductivity == pytest.approx(0.4, rel=1e-2)
+    assert concrete.user_data == userdatadict
 
     with pytest.raises(ValueError):
         concrete.thickness = 0
     with pytest.raises(AssertionError):
         concrete.thickness = 0.000000001
+    
 
 
 def test_material_equivalency():

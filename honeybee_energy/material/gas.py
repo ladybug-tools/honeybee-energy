@@ -365,7 +365,8 @@ class EnergyWindowMaterialGas(_EnergyWindowMaterialGasBase):
         dictionary should be of a standard Python type to ensure correct
         serialization of the object to/from JSON (eg. str, float, int, list, dict)
         """
-        return self._user_data
+        if self._user_data is not None:
+            return self._user_data
     
     @user_data.setter
     def user_data(self, value):
@@ -902,7 +903,8 @@ class EnergyWindowMaterialGasCustom(_EnergyWindowMaterialGasBase):
         dictionary should be of a standard Python type to ensure correct
         serialization of the object to/from JSON (eg. str, float, int, list, dict)
         """
-        return self._user_data
+        if self._user_data is not None:
+            return self._user_data
     
     @user_data.setter
     def user_data(self, value):

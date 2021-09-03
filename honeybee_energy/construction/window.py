@@ -246,6 +246,23 @@ window-calculation-module.html#step-4.-determine-layer-solar-transmittance
                 count += 1
         return count
 
+    @property
+    def user_data(self):
+        """Get or set an optional dictionary for additional meta data for this object.
+
+        This will be None until it has been set. All keys and values of this
+        dictionary should be of a standard Python type to ensure correct
+        serialization of the object to/from JSON (eg. str, float, int, list, dict)
+        """
+        return self._user_data
+    
+    @user_data.setter
+    def user_data(self, value):
+        if value is not None:
+            assert isinstance(value, dict), 'Expected dictionary for honeybee_energy' \
+                'object user_data. Got {}.'.format(type(value))
+        self._user_data = value    
+
     def temperature_profile(self, outside_temperature=-18, inside_temperature=21,
                             wind_speed=6.7, height=1.0, angle=90.0, pressure=101325):
         """Get a list of temperatures at each material boundary across the construction.
@@ -392,7 +409,7 @@ window-calculation-module.html#step-4.-determine-layer-solar-transmittance
         new_obj = cls(data['identifier'], mat_layers)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
-        if 'user' in data and data['user_data'] is not None:
+        if 'user_data' in data and data['user_data'] is not None:
             new_obj.user_data = data['user_data']
         return new_obj
 
@@ -480,7 +497,7 @@ window-calculation-module.html#step-4.-determine-layer-solar-transmittance
         if self._display_name is not None:
             base['display_name'] = self.display_name
         if self._user_data is not None:
-            base['user_data'] = self._user_data
+            base['user_data'] = self.user_data
         return base
 
     @staticmethod

@@ -211,7 +211,8 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
         dictionary should be of a standard Python type to ensure correct
         serialization of the object to/from JSON (eg. str, float, int, list, dict)
         """
-        return self._user_data
+        if self._user_data is not None:
+            return self._user_data
     
     @user_data.setter
     def user_data(self, value):
@@ -326,7 +327,7 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
         }
         if self._display_name is not None:
             base['display_name'] = self.display_name
-        if self.user_data is not None:
+        if self._user_data is not None:
             base['user_data'] = self.user_data
         return base
 
@@ -608,4 +609,5 @@ class EnergyMaterialNoMass(_EnergyMaterialOpaqueBase):
             self.identifier, self.r_value, self.roughness, self.thermal_absorptance,
             self.solar_absorptance, self._visible_absorptance)
         new_material._display_name = self._display_name
+        new_material._user_data = None if self._user_data is None else self._user_data.copy()
         return new_material
