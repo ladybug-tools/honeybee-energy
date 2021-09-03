@@ -11,7 +11,7 @@ from ladybug.dt import Time, Date
 
 import pytest
 import sys
-
+from .conftest import apply_ud, userdatadict
 
 def test_service_hot_water_init(): 
     """Test the initialization of ServiceHotWater and basic properties."""
@@ -20,6 +20,7 @@ def test_service_hot_water_init():
     schedule = ScheduleRuleset('Office Water Use', simple_office,
                                None, schedule_types.fractional)
     shw = ServiceHotWater('Office Hot Water', 0.1, schedule)
+    shw = apply_ud(shw)
     str(shw)  # test the string representation
 
     assert shw.identifier == 'Office Hot Water'
@@ -31,6 +32,7 @@ def test_service_hot_water_init():
     assert shw.sensible_fraction == 0.2
     assert shw.latent_fraction == 0.05
     assert shw.lost_fraction == 0.75
+    assert shw.user_data == userdatadict
 
 
 def test_init_from_watts_per_area(): 
@@ -163,7 +165,7 @@ def test_service_hot_water_dict_methods():
     schedule = ScheduleRuleset('Office Water Use', weekday_office,
                                [weekend_rule], schedule_types.fractional)
     shw = ServiceHotWater('Open Office Zone Hot Water', 0.1, schedule)
-
+    shw = apply_ud(shw)
     shw_dict = shw.to_dict()
     new_shw = ServiceHotWater.from_dict(shw_dict)
     assert new_shw == shw
