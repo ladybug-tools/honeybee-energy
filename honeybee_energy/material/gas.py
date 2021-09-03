@@ -34,7 +34,7 @@ class _EnergyWindowMaterialGasBase(_EnergyMaterialWindowBase):
                           'Xenon': (158.33970642, 0.0, 0.0)}
     MOLECULARWEIGHTS = {'Air': 28.97, 'Argon': 39.948,
                         'Krypton': 83.8, 'Xenon': 131.3}
-    __slots__ = ('_thickness',)
+    __slots__ = ('_thickness')
 
     def __init__(self, identifier, thickness=0.0125):
         """Initialize gas base material."""
@@ -84,7 +84,7 @@ class _EnergyWindowMaterialGasBase(_EnergyMaterialWindowBase):
     def prandtl(self):
         """Prandtl number of the gas at 0C."""
         return self.prandtl_at_temperature(273.15)
-
+    
     def density_at_temperature(self, t_kelvin, pressure=101325):
         """Get the density of the gas [kg/m3] at a given temperature and pressure.
 

@@ -2,7 +2,7 @@
 from honeybee_energy.material.opaque import EnergyMaterial, EnergyMaterialNoMass
 
 import pytest
-
+from .conftest import apply_ud
 
 def test_material_init():
     """Test the initialization of EnergyMaterial objects and basic properties."""
@@ -138,9 +138,11 @@ def test_material_to_from_idf():
 def test_material_dict_methods():
     """Test the to/from dict methods."""
     material = EnergyMaterial('Concrete', 0.2, 0.5, 800, 1200)
+    material = apply_ud(material)
     material_dict = material.to_dict()
     new_material = EnergyMaterial.from_dict(material_dict)
     assert material_dict == new_material.to_dict()
+    assert material.user_data == new_material.user_data
 
 
 def test_material_nomass_init():
