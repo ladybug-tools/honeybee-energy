@@ -192,6 +192,8 @@ class _EquipmentBase(_LoadBase):
             abridged else self.schedule.identifier
         if self._display_name is not None:
             base['display_name'] = self.display_name
+        if self._user_data is not None:
+            base['user_data'] = self.user_data
         return base
 
     @staticmethod
