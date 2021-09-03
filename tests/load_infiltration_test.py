@@ -9,6 +9,7 @@ import honeybee_energy.lib.scheduletypelimits as schedule_types
 from ladybug.dt import Time, Date
 
 import pytest
+from .conftest import apply_ud, userdatadict
 
 
 def test_infiltration_init():
@@ -18,6 +19,7 @@ def test_infiltration_init():
     schedule = ScheduleRuleset('Lobby Infiltration Schedule', simple_lobby,
                                None, schedule_types.fractional)
     infiltration = Infiltration('Lobby Infiltration', 0.0003, schedule)
+    infiltration = apply_ud(infiltration)
     str(infiltration)  # test the string representation
 
     assert infiltration.identifier == 'Lobby Infiltration'
@@ -28,6 +30,7 @@ def test_infiltration_init():
     assert infiltration.constant_coefficient == 1
     assert infiltration.temperature_coefficient == 0
     assert infiltration.velocity_coefficient == 0
+    assert infiltration.user_data == userdatadict
 
 
 def test_infiltration_setability():
@@ -119,11 +122,12 @@ def test_infiltration_dict_methods():
     schedule = ScheduleRuleset('Lobby Infiltration Schedule', simple_lobby,
                                None, schedule_types.fractional)
     infiltration = Infiltration('Lobby Infiltration', 0.0003, schedule)
-
+    infiltration = apply_ud(infiltration)
     inf_dict = infiltration.to_dict()
     new_infiltration = Infiltration.from_dict(inf_dict)
     assert new_infiltration == infiltration
     assert inf_dict == new_infiltration.to_dict()
+    assert new_infiltration.user_data == infiltration.user_data
 
 
 def test_infiltration_average():
