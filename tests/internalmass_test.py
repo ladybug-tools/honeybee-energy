@@ -8,6 +8,7 @@ from honeybee_energy.construction.opaque import OpaqueConstruction
 from honeybee_energy.material.opaque import EnergyMaterial
 
 import pytest
+from .conftest import apply_ud, userdatadict
 
 
 def test_internal_mass_init():
@@ -16,6 +17,7 @@ def test_internal_mass_init():
                                   'MediumRough', 0.95, 0.75, 0.8)
     earth_constr = OpaqueConstruction('Rammed Earth Construction', [rammed_earth])
     chimney_mass = InternalMass('Rammed Earth Chimney', earth_constr, 10)
+    chimney_mass = apply_ud(chimney_mass)
     str(chimney_mass)  # test the string representation
 
     assert chimney_mass.identifier == chimney_mass.display_name == 'Rammed Earth Chimney'
@@ -73,8 +75,11 @@ def test_internal_mass_dict_methods():
     """Test the to/from dict methods."""
     rammed_earth = EnergyMaterial('40cm Rammed Earth', 0.4, 2.31, 2322, 832,
                                   'MediumRough', 0.95, 0.75, 0.8)
+    rammed_earth = apply_ud(rammed_earth)
     earth_constr = OpaqueConstruction('Rammed Earth Construction', [rammed_earth])
+    earth_constr = apply_ud(earth_constr)
     chimney_mass = InternalMass('Rammed Earth Chimney', earth_constr, 10)
+    chimney_mass = apply_ud(chimney_mass)
 
     mass_dict = chimney_mass.to_dict()
     new_chimney_mass = InternalMass.from_dict(mass_dict)
