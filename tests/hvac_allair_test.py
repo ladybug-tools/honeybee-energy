@@ -12,11 +12,12 @@ from honeybee.altnumber import autosize
 from ladybug_geometry.geometry3d.pointvector import Point3D
 
 import pytest
-
+from .conftest import apply_ud, userdatadict
 
 def test_vav_init():
     """Test the initialization of VAV and basic properties."""
     hvac_sys = VAV('Test System')
+    hvac_sys = apply_ud(hvac_sys)
     str(hvac_sys)  # test the string representation
 
     assert hvac_sys.identifier == 'Test System'
@@ -36,6 +37,7 @@ def test_vav_init():
     assert hvac_sys.economizer_type == 'DifferentialDryBulb'
     assert hvac_sys.sensible_heat_recovery == 0.8
     assert hvac_sys.latent_heat_recovery == 0.65
+    assert hvac_sys.user_data == userdatadict
 
 
 def test_vav_equality():
@@ -58,6 +60,7 @@ def test_vav_multi_room():
     first_floor = Room.from_box('First_Floor', 10, 10, 3, origin=Point3D(0, 0, 0))
     second_floor = Room.from_box('Second_Floor', 10, 10, 3, origin=Point3D(0, 0, 3))
     hvac_sys = VAV('Test System')
+    hvac_sys = apply_ud(hvac_sys)
 
     first_floor.properties.energy.hvac = hvac_sys
     second_floor.properties.energy.hvac = hvac_sys
@@ -80,16 +83,19 @@ def test_vav_dict_methods():
     hvac_sys.economizer_type = 'DifferentialDryBulb'
     hvac_sys.sensible_heat_recovery = 0.8
     hvac_sys.latent_heat_recovery = 0.65
+    hvac_sys = apply_ud(hvac_sys)
 
     hvac_dict = hvac_sys.to_dict()
     new_hvac_sys = VAV.from_dict(hvac_dict)
     assert new_hvac_sys == hvac_sys
+    assert new_hvac_sys.user_data == hvac_sys.user_data
     assert hvac_dict == new_hvac_sys.to_dict()
 
 
 def test_pvav_init():
     """Test the initialization of PVAV and basic properties."""
     hvac_sys = PVAV('Test System')
+    hvac_sys = apply_ud(hvac_sys)
     str(hvac_sys)  # test the string representation
 
     assert hvac_sys.identifier == 'Test System'
@@ -114,6 +120,7 @@ def test_pvav_init():
 def test_pvav_equality():
     """Test the equality of PVAV objects."""
     hvac_sys = PVAV('Test System')
+    hvac_sys = apply_ud(hvac_sys)
     hvac_sys_dup = hvac_sys.duplicate()
     hvac_sys_alt = PVAV(
         'Test System', sensible_heat_recovery=0.75, latent_heat_recovery=0.6)
@@ -131,6 +138,7 @@ def test_pvav_multi_room():
     first_floor = Room.from_box('First_Floor', 10, 10, 3, origin=Point3D(0, 0, 0))
     second_floor = Room.from_box('Second_Floor', 10, 10, 3, origin=Point3D(0, 0, 3))
     hvac_sys = PVAV('Test System')
+    hvac_sys = apply_ud(hvac_sys)
 
     first_floor.properties.energy.hvac = hvac_sys
     second_floor.properties.energy.hvac = hvac_sys
@@ -143,6 +151,7 @@ def test_pvav_multi_room():
     model_dict = model.to_dict()
     assert len(model_dict['properties']['energy']['hvacs']) == 1
     assert model_dict['rooms'][0]['properties']['energy']['hvac'] == hvac_sys.identifier
+    
 
 
 def test_pvav_dict_methods():
@@ -153,6 +162,7 @@ def test_pvav_dict_methods():
     hvac_sys.economizer_type = 'DifferentialDryBulb'
     hvac_sys.sensible_heat_recovery = 0.8
     hvac_sys.latent_heat_recovery = 0.65
+    hvac_sys.user_data = userdatadict
 
     hvac_dict = hvac_sys.to_dict()
     new_hvac_sys = PVAV.from_dict(hvac_dict)
@@ -163,6 +173,7 @@ def test_pvav_dict_methods():
 def test_psz_init():
     """Test the initialization of PSZ and basic properties."""
     hvac_sys = PSZ('Test System')
+    hvac_sys.user_data = userdatadict
     str(hvac_sys)  # test the string representation
 
     assert hvac_sys.identifier == 'Test System'
@@ -182,6 +193,7 @@ def test_psz_init():
     assert hvac_sys.economizer_type == 'DifferentialDryBulb'
     assert hvac_sys.sensible_heat_recovery == 0.8
     assert hvac_sys.latent_heat_recovery == 0.65
+    assert hvac_sys.user_data == userdatadict
 
 
 def test_psz_equality():
@@ -226,6 +238,7 @@ def test_psz_dict_methods():
     hvac_sys.economizer_type = 'DifferentialDryBulb'
     hvac_sys.sensible_heat_recovery = 0.8
     hvac_sys.latent_heat_recovery = 0.65
+    hvac_sys.user_data = userdatadict
 
     hvac_dict = hvac_sys.to_dict()
     new_hvac_sys = PSZ.from_dict(hvac_dict)
@@ -236,6 +249,7 @@ def test_psz_dict_methods():
 def test_ptac_init():
     """Test the initialization of PTAC and basic properties."""
     hvac_sys = PTAC('Test System')
+    hvac_sys.user_data = userdatadict
     str(hvac_sys)  # test the string representation
 
     assert hvac_sys.identifier == 'Test System'
@@ -255,11 +269,13 @@ def test_ptac_init():
         hvac_sys.latent_heat_recovery = 0.65
     assert hvac_sys.vintage == 'ASHRAE_2010'
     assert hvac_sys.equipment_type == 'PTAC_DHW'
+    assert hvac_sys.user_data == userdatadict
 
 
 def test_ptac_equality():
     """Test the equality of PTAC objects."""
     hvac_sys = PTAC('Test System')
+    hvac_sys.user_data = userdatadict
     hvac_sys_dup = hvac_sys.duplicate()
     hvac_sys_alt = PTAC(
         'Test System', equipment_type='PTAC_DHW')
@@ -277,16 +293,19 @@ def test_ptac_dict_methods():
     hvac_sys = PTAC('High Efficiency HVAC System')
     hvac_sys.vintage = 'ASHRAE_2010'
     hvac_sys.equipment_type = 'PTAC_DHW'
+    hvac_sys.user_data = userdatadict
 
     hvac_dict = hvac_sys.to_dict()
     new_hvac_sys = PTAC.from_dict(hvac_dict)
     assert new_hvac_sys == hvac_sys
     assert hvac_dict == new_hvac_sys.to_dict()
-
+    assert  hvac_sys.user_data == userdatadict
+    
 
 def test_furnace_init():
     """Test the initialization of ForcedAirFurnace and basic properties."""
     hvac_sys = ForcedAirFurnace('Test System')
+    hvac_sys.user_data = userdatadict
     str(hvac_sys)  # test the string representation
 
     assert hvac_sys.identifier == 'Test System'
@@ -306,11 +325,13 @@ def test_furnace_init():
     assert hvac_sys.economizer_type == 'DifferentialDryBulb'
     assert hvac_sys.sensible_heat_recovery == 0.8
     assert hvac_sys.latent_heat_recovery == 0.65
+    assert hvac_sys.user_data == userdatadict
 
 
 def test_furnace_equality():
     """Test the equality of ForcedAirFurnace objects."""
     hvac_sys = ForcedAirFurnace('Test System')
+    hvac_sys.user_data = userdatadict
     hvac_sys_dup = hvac_sys.duplicate()
     hvac_sys_alt = ForcedAirFurnace(
         'Test System', sensible_heat_recovery=0.75, latent_heat_recovery=0.6)
@@ -321,7 +342,7 @@ def test_furnace_equality():
     hvac_sys_dup.sensible_heat_recovery = 0.6
     assert hvac_sys != hvac_sys_dup
     assert hvac_sys != hvac_sys_alt
-
+    
 
 def test_furnace_dict_methods():
     """Test the to/from dict methods."""
@@ -329,8 +350,10 @@ def test_furnace_dict_methods():
     hvac_sys.vintage = 'ASHRAE_2010'
     hvac_sys.economizer_type = 'DifferentialDryBulb'
     hvac_sys.sensible_heat_recovery = 0.8
+    hvac_sys.user_data = userdatadict
 
     hvac_dict = hvac_sys.to_dict()
     new_hvac_sys = ForcedAirFurnace.from_dict(hvac_dict)
     assert new_hvac_sys == hvac_sys
     assert hvac_dict == new_hvac_sys.to_dict()
+    assert new_hvac_sys.user_data == userdatadict

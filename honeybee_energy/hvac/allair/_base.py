@@ -69,7 +69,7 @@ class _AllAirBase(_TemplateSystem):
                  '_demand_controlled_ventilation', '_user_data')
     ECONOMIZER_TYPES = ('NoEconomizer', 'DifferentialDryBulb', 'DifferentialEnthalpy',
                         'DifferentialDryBulbAndEnthalpy', 'FixedDryBulb',
-                        'FixedEnthalpy', 'ElectronicEnthalpy')
+                        'FixedEnthalpy', 'ElectronicEnthalpy', '_user_data')
     _has_air_loop = True
 
     def __init__(self, identifier, vintage='ASHRAE_2019', equipment_type=None,
@@ -157,9 +157,6 @@ class _AllAirBase(_TemplateSystem):
         if self._demand_controlled_ventilation:
             self._air_loop_check('demand_controlled_ventilation')
 
-    @property
-    def user_data(self):
-        return self._user_data
 
     @classmethod
     def from_dict(cls, data):
