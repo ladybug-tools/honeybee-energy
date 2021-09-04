@@ -10,11 +10,12 @@ from honeybee.altnumber import autosize
 from ladybug_geometry.geometry3d.pointvector import Point3D
 
 import pytest
-
+from .conftest import apply_ud, userdatadict
 
 def test_fcu_with_doas_init():
     """Test the initialization of FCUwithDOAS and basic properties."""
     hvac_sys = FCUwithDOAS('Test System')
+    hvac_sys.user_data = userdatadict
     str(hvac_sys)  # test the string representation
 
     assert hvac_sys.identifier == 'Test System'
@@ -31,8 +32,8 @@ def test_fcu_with_doas_init():
     assert hvac_sys.equipment_type == 'DOAS_FCU_DCW_DHW'
     assert hvac_sys.sensible_heat_recovery == 0.8
     assert hvac_sys.latent_heat_recovery == 0.65
-
-
+    assert hvac_sys.user_data == userdatadict
+    
 def test_fcu_with_doas_equality():
     """Test the equality of FCUwithDOAS objects."""
     hvac_sys = FCUwithDOAS('Test System')
@@ -53,6 +54,7 @@ def test_fcu_with_doas_multi_room():
     first_floor = Room.from_box('First_Floor', 10, 10, 3, origin=Point3D(0, 0, 0))
     second_floor = Room.from_box('Second_Floor', 10, 10, 3, origin=Point3D(0, 0, 3))
     hvac_sys = FCUwithDOAS('Test System')
+    hvac_sys.user_data = userdatadict
 
     first_floor.properties.energy.hvac = hvac_sys
     second_floor.properties.energy.hvac = hvac_sys
