@@ -18,10 +18,12 @@ def test_energy_properties():
     """Test the existence of the Aperture energy properties."""
     aperture = Aperture.from_vertices(
         'wall_aperture', [[0, 0, 1], [10, 0, 1], [10, 0, 2], [0, 0, 2]])
+    aperture = apply_ud(aperture)
     assert hasattr(aperture.properties, 'energy')
     assert isinstance(aperture.properties.energy, ApertureEnergyProperties)
     assert isinstance(aperture.properties.energy.construction, WindowConstruction)
     assert not aperture.properties.energy.is_construction_set_on_object
+    assert aperture.user_data == userdatadict
 
 
 def test_default_constructions():
@@ -61,6 +63,7 @@ def test_set_construction():
     gap = EnergyWindowMaterialGas('air gap', thickness=0.0127)
     triple_pane = WindowConstruction(
         'Triple Pane', [clear_glass, gap, clear_glass, gap, clear_glass])
+    triple_pane = apply_ud(triple_pane)
 
     aperture = Aperture.from_vertices('wall_window', vertices_wall)
     aperture.properties.energy.construction = triple_pane
@@ -109,12 +112,14 @@ def test_to_dict():
     """Test the Aperture to_dict method with energy properties."""
     aperture = Aperture.from_vertices(
         'wall_window', [[0, 0, 0], [10, 0, 0], [10, 0, 10], [0, 0, 10]])
+    aperture = apply_ud(aperture)
     clear_glass = EnergyWindowMaterialGlazing(
         'Clear Glass', 0.005715, 0.770675, 0.07, 0.8836, 0.0804,
         0, 0.84, 0.84, 1.0)
     gap = EnergyWindowMaterialGas('air gap', thickness=0.0127)
     triple_pane = WindowConstruction(
         'Triple Pane', [clear_glass, gap, clear_glass, gap, clear_glass])
+    triple_pane = apply_ud(triple_pane)
 
     ad = aperture.to_dict()
     assert 'properties' in ad
@@ -132,12 +137,14 @@ def test_from_dict():
     """Test the Aperture from_dict method with energy properties."""
     aperture = Aperture.from_vertices(
         'wall_window', [[0, 0, 0], [10, 0, 0], [10, 0, 10], [0, 0, 10]])
+    aperture = apply_ud(aperture)
     clear_glass = EnergyWindowMaterialGlazing(
         'Clear Glass', 0.005715, 0.770675, 0.07, 0.8836, 0.0804,
         0, 0.84, 0.84, 1.0)
     gap = EnergyWindowMaterialGas('air gap', thickness=0.0127)
     triple_pane = WindowConstruction(
         'Triple Pane', [clear_glass, gap, clear_glass, gap, clear_glass])
+    triple_pane = apply_ud(triple_pane)
     aperture.properties.energy.construction = triple_pane
 
     ad = aperture.to_dict()
