@@ -13,11 +13,13 @@ from ladybug.dt import Time
 from ladybug_geometry.geometry3d.pointvector import Point3D
 
 import pytest
+from .conftest import apply_ud, userdatadict
 
 
 def test_ideal_air_system_init():
     """Test the initialization of IdealAirSystem and basic properties."""
     ideal_air = IdealAirSystem('Test System')
+    ideal_air.user_data = userdatadict
     str(ideal_air)  # test the string representation
 
     assert ideal_air.identifier == 'Test System'
@@ -36,6 +38,7 @@ def test_ideal_air_system_init():
 def test_ideal_air_system_setability():
     """Test the setting of properties of IdealAirSystem."""
     ideal_air = IdealAirSystem('Test System')
+    ideal_air.user_data = userdatadict
 
     ideal_air.identifier = 'Test System2'
     assert ideal_air.identifier == 'Test System2'
@@ -65,6 +68,7 @@ def test_ideal_air_system_setability():
 def test_ideal_air_system_equality():
     """Test the equality of IdealAirSystem objects."""
     ideal_air = IdealAirSystem('Test System')
+    ideal_air.user_data = userdatadict
     ideal_air_dup = ideal_air.duplicate()
     ideal_air_alt = IdealAirSystem(
         'Test System', sensible_heat_recovery=0.75, latent_heat_recovery=0.6)
@@ -80,6 +84,7 @@ def test_ideal_air_system_equality():
 def test_ideal_air_init_from_idf():
     """Test the initialization of IdealAirSystem from_idf."""
     ideal_air = IdealAirSystem('Test_System')
+    ideal_air.user_data = userdatadict
     zone_id = 'ShoeBox'
     room = Room.from_box(zone_id, 5, 10, 3, 90, Point3D(0, 0, 3))
     room.properties.energy.add_default_ideal_air()
@@ -117,6 +122,7 @@ def test_ideal_air_to_dict():
     schedule = ScheduleRuleset('HVAC Control', sch_day, None, schedule_types.on_off)
     ideal_air.heating_availability = schedule
     ideal_air.cooling_availability = schedule
+    ideal_air.user_data = userdatadict
 
     ideal_air_dict = ideal_air.to_dict(abridged=True)
 
@@ -147,6 +153,7 @@ def test_ideal_air_dict_methods():
     schedule = ScheduleRuleset('HVAC Control', sch_day, None, schedule_types.on_off)
     ideal_air.heating_availability = schedule
     ideal_air.cooling_availability = schedule
+    ideal_air.user_data = userdatadict
 
     hvac_dict = ideal_air.to_dict()
     new_ideal_air = IdealAirSystem.from_dict(hvac_dict)
