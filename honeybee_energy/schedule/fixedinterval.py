@@ -78,6 +78,7 @@ class ScheduleFixedInterval(object):
         * end_date_time
         * is_leap_year
         * data_collection
+        * user_data
     """
     __slots__ = ('_identifier', '_display_name', '_values', '_schedule_type_limit',
                  '_start_date', '_placeholder_value', '_timestep', '_interpolate',

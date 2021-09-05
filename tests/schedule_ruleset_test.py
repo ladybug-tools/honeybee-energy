@@ -10,7 +10,7 @@ from ladybug.datatype import fraction
 from ladybug.analysisperiod import AnalysisPeriod
 
 import pytest
-
+from .conftest import userdatadict
 
 def test_schedule_ruleset_init():
     """Test the ScheduleRuleset initialization and basic properties."""
@@ -27,6 +27,7 @@ def test_schedule_ruleset_init():
     schedule = ScheduleRuleset('Office Occupancy', weekday_office,
                                [sat_rule, sun_rule], schedule_types.fractional,
                                sunday_office, summer_office, winter_office)
+    schedule.user_data = userdatadict
     str(schedule)  # test the string representation
 
     assert schedule.identifier == 'Office Occupancy'
@@ -35,6 +36,7 @@ def test_schedule_ruleset_init():
     assert schedule.summer_designday_schedule == summer_office
     assert schedule.winter_designday_schedule == winter_office
     assert schedule.schedule_type_limit == schedule_types.fractional
+    assert schedule.user_data == userdatadict
     assert len(schedule.schedule_rules) == 2
     assert len(schedule.day_schedules) == 5
 
@@ -57,6 +59,7 @@ def test_schedule_ruleset_equality():
     weekend_rule.apply_weekend = True
     schedule = ScheduleRuleset('Office Occupancy', weekday_office,
                                [weekend_rule], schedule_types.fractional)
+    schedule.user_data = userdatadict
     schedule_dup = schedule.duplicate()
     residential_schedule = ScheduleRuleset.from_daily_values(
         'Residence Occupancy', [1, 1, 1, 1, 1, 1, 1, 0.5, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -80,6 +83,7 @@ def test_schedule_ruleset_lockability():
     weekend_rule.apply_weekend = True
     schedule = ScheduleRuleset('Office Occupancy', weekday_office,
                                [weekend_rule], schedule_types.fractional)
+    schedule.user_data = userdatadict
 
     schedule.schedule_rules[0].apply_monday = True
     schedule.lock()
@@ -311,6 +315,7 @@ def test_schedule_ruleset_to_from_idf():
     schedule = ScheduleRuleset('Office Occupancy', sunday_office,
                                [week_rule, sat_rule], schedule_types.fractional,
                                summer_office, winter_office)
+    schedule.user_data = userdatadict
 
     year_sched, week_scheds = schedule.to_idf()
     assert len(week_scheds) == 1
@@ -376,6 +381,7 @@ def test_schedule_ruleset_dict_methods():
     schedule = ScheduleRuleset('Office Occupancy', weekday_office,
                                [sat_rule, sun_rule], schedule_types.fractional,
                                summer_office, winter_office)
+    schedule.user_data = userdatadict
 
     sch_dict = schedule.to_dict()
     new_schedule = ScheduleRuleset.from_dict(sch_dict)
