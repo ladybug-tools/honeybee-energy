@@ -46,6 +46,7 @@ class _ConstructionBase(object):
         self.identifier = identifier
         self._display_name = None
         self.materials = materials
+        self._user_data = None
 
     @property
     def identifier(self):

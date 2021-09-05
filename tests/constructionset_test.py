@@ -8,11 +8,13 @@ from honeybee_energy.material.glazing import EnergyWindowMaterialGlazing
 from honeybee_energy.material.gas import EnergyWindowMaterialGas
 
 import pytest
+from .conftest import apply_ud, userdatadict
 
 
 def test_constructionset_init():
     """Test the initialization of ConstructionSet and basic properties."""
     default_set = ConstructionSet('Default Set')
+    default_set.user_data = userdatadict
     str(default_set)  # test the string representation of the construction
 
     assert default_set.identifier == 'Default Set'
@@ -183,6 +185,7 @@ def test_constructionset_equality():
 def test_constructionset_to_dict_full():
     """Test the to_dict method writing out all constructions."""
     default_set = ConstructionSet('Default Set')
+    default_set.user_data = userdatadict
 
     constr_dict = default_set.to_dict(none_for_defaults=False)
 
@@ -218,7 +221,9 @@ def test_constructionset_dict_methods():
         'Triple Clear Window', [clear_glass, gap, clear_glass, gap, clear_glass])
 
     insulated_set.aperture_set.window_construction = triple_clear
+    insulated_set.user_data = userdatadict
     constr_dict = insulated_set.to_dict()
+    
 
     assert constr_dict['wall_set']['exterior_construction'] is None
     assert constr_dict['wall_set']['interior_construction'] is None
@@ -242,3 +247,4 @@ def test_constructionset_dict_methods():
 
     new_constr = ConstructionSet.from_dict(constr_dict)
     assert constr_dict == new_constr.to_dict()
+    assert new_constr.user_data == userdatadict

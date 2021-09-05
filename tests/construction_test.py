@@ -386,7 +386,6 @@ def test_window_dict_methods():
     constr_dict = triple_clear.to_dict()
     new_constr = WindowConstruction.from_dict(constr_dict)
     assert constr_dict == new_constr.to_dict()
-    assert triple_clear.user_data == new_constr.user_data
 
 
 def test_window_construction_shade_init():

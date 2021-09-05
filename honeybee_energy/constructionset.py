@@ -271,7 +271,8 @@ class ConstructionSet(object):
         dictionary should be of a standard Python type to ensure correct
         serialization of the object to/from JSON (eg. str, float, int, list, dict)
         """
-        return self._user_data
+        if self._user_data is not None:
+            return self._user_data
 
     @user_data.setter
     def user_data(self, value):
@@ -756,7 +757,7 @@ class _FaceSetBase(object):
     """
 
     __slots__ = ('_exterior_construction', '_interior_construction',
-                 '_ground_construction', '_locked')
+                 '_ground_construction', '_locked', '_user_data')
 
     def __init__(self, exterior_construction=None, interior_construction=None,
                  ground_construction=None):
@@ -765,6 +766,7 @@ class _FaceSetBase(object):
         self.exterior_construction = exterior_construction
         self.interior_construction = interior_construction
         self.ground_construction = ground_construction
+        self._user_data = None
         
 
     @property
@@ -819,6 +821,24 @@ class _FaceSetBase(object):
         return self._exterior_construction is not None or \
             self._interior_construction is not None or \
             self._ground_construction is not None
+
+    @property
+    def user_data(self):
+        """Get or set an optional dictionary for additional meta data for this object.
+
+        This will be None until it has been set. All keys and values of this
+        dictionary should be of a standard Python type to ensure correct
+        serialization of the object to/from JSON (eg. str, float, int, list, dict)
+        """
+        if self._user_data is not None:
+            return self._user_data
+
+    @user_data.setter
+    def user_data(self, value):
+        if value is not None:
+            assert isinstance(value, dict), 'Expected dictionary for honeybee_energy' \
+                'object user_data. Got {}.'.format(type(value))
+        self._user_data = value    
 
     @classmethod
     def from_dict(cls, data):
@@ -878,6 +898,8 @@ class _FaceSetBase(object):
                 if abridged else self.exterior_construction.to_dict()
             base['ground_construction'] = self.ground_construction.identifier \
                 if abridged else self.exterior_construction.to_dict()
+        if self._user_data is not None:
+            base['user_data'] = self.user_data
         return base
 
     def duplicate(self):
@@ -901,8 +923,10 @@ class _FaceSetBase(object):
         return iter(self.constructions)
 
     def __copy__(self):
-        return self.__class__(self._exterior_construction, self._interior_construction,
+        new_obj =  self.__class__(self._exterior_construction, self._interior_construction,
                               self._ground_construction)
+        new_obj.user_data = None if self._user_data is None else self._user_data.copy()
+        return(new_obj)
 
     def __repr__(self):
         return 'Base Face Set'
@@ -919,6 +943,7 @@ class WallConstructionSet(_FaceSetBase):
         * constructions
         * modified_constructions
         * is_modified
+        * user_data
     """
     __slots__ = ()
 
@@ -1112,9 +1137,10 @@ class ApertureConstructionSet(object):
         * constructions
         * modified_constructions
         * is_modified
+        * user_data
     """
     __slots__ = ('_window_construction', '_interior_construction',
-                 '_skylight_construction', '_operable_construction', '_locked')
+                 '_skylight_construction', '_operable_construction', '_locked', '_user_data')
 
     def __init__(self, window_construction=None, interior_construction=None,
                  skylight_construction=None, operable_construction=None):
@@ -1124,6 +1150,7 @@ class ApertureConstructionSet(object):
         self.interior_construction = interior_construction
         self.skylight_construction = skylight_construction
         self.operable_construction = operable_construction
+        self._user_data = None
 
     @property
     def window_construction(self):
@@ -1207,6 +1234,24 @@ class ApertureConstructionSet(object):
             self._skylight_construction is not None or \
             self._operable_construction is not None
 
+    @property
+    def user_data(self):
+        """Get or set an optional dictionary for additional meta data for this object.
+
+        This will be None until it has been set. All keys and values of this
+        dictionary should be of a standard Python type to ensure correct
+        serialization of the object to/from JSON (eg. str, float, int, list, dict)
+        """
+        if self._user_data is not None:
+            return self._user_data
+
+    @user_data.setter
+    def user_data(self, value):
+        if value is not None:
+            assert isinstance(value, dict), 'Expected dictionary for honeybee_energy' \
+                'object user_data. Got {}.'.format(type(value))
+        self._user_data = value    
+
     @classmethod
     def from_dict(cls, data):
         """Create a ApertureConstructionSet from a dictionary.
@@ -1278,6 +1323,8 @@ class ApertureConstructionSet(object):
                 abridged else self.skylight_construction.to_dict()
             base['operable_construction'] = self.operable_construction.identifier if \
                 abridged else self.operable_construction.to_dict()
+        if self._user_data is not None:
+            base['user_data'] = self.user_data
         return base
 
     def duplicate(self):
@@ -1302,9 +1349,11 @@ class ApertureConstructionSet(object):
         return iter(self.constructions)
 
     def __copy__(self):
-        return self.__class__(
-            self._window_construction, self._interior_construction,
-            self._skylight_construction, self._operable_construction)
+        new_obj =  self.__class__(
+                        self._window_construction, self._interior_construction,
+                        self._skylight_construction, self._operable_construction)
+        new_obj._user_data = None if self._user_data is None else self._user_data.copy()
+        return(new_obj)
 
     def __repr__(self):
         return 'Aperture Construction Set: [Window: {}] [Interior: {}]' \
@@ -1341,14 +1390,15 @@ class DoorConstructionSet(object):
         * constructions
         * modified_constructions
         * is_modified
+        * user_data
     """
     __slots__ = ('_exterior_construction', '_interior_construction',
                  '_exterior_glass_construction', '_interior_glass_construction',
-                 '_overhead_construction', '_locked')
+                 '_overhead_construction', '_locked', '_user_data')
 
     def __init__(self, exterior_construction=None, interior_construction=None,
                  exterior_glass_construction=None, interior_glass_construction=None,
-                 overhead_construction=None):
+                 overhead_construction=None, _user_data=None):
         """Initialize door set."""
         self._locked = False  # unlocked by default
         self.exterior_construction = exterior_construction
@@ -1356,6 +1406,7 @@ class DoorConstructionSet(object):
         self.exterior_glass_construction = exterior_glass_construction
         self.interior_glass_construction = interior_glass_construction
         self.overhead_construction = overhead_construction
+        self._user_data = None
 
     @property
     def exterior_construction(self):
@@ -1456,6 +1507,24 @@ class DoorConstructionSet(object):
             self._exterior_glass_construction is not None or \
             self._interior_glass_construction is not None or \
             self._overhead_construction is None
+        
+    @property
+    def user_data(self):
+        """Get or set an optional dictionary for additional meta data for this object.
+
+        This will be None until it has been set. All keys and values of this
+        dictionary should be of a standard Python type to ensure correct
+        serialization of the object to/from JSON (eg. str, float, int, list, dict)
+        """
+        if self._user_data is not None:
+            return self._user_data
+
+    @user_data.setter
+    def user_data(self, value):
+        if value is not None:
+            assert isinstance(value, dict), 'Expected dictionary for honeybee_energy' \
+                'object user_data. Got {}.'.format(type(value))
+        self._user_data = value        
 
     @classmethod
     def from_dict(cls, data):
@@ -1484,7 +1553,10 @@ class DoorConstructionSet(object):
         ohc = OpaqueConstruction.from_dict(data['overhead_construction']) \
             if 'overhead_construction' in data and data['overhead_construction'] \
             is not None else None
-        return cls(extc, intc, egc, igc, ohc)
+        udata = OpaqueConstruction.from_dict(data['user_data']) if 'user_data' in data and data['user_data'] is\
+            not None else None
+    
+        return cls(extc, intc, egc, igc, ohc, udata)
 
     def to_dict(self, abridged=False, none_for_defaults=True):
         """Get the DoorConstructionSet as a dictionary.
@@ -1539,6 +1611,8 @@ class DoorConstructionSet(object):
                 abridged else self.interior_glass_construction.to_dict()
             base['overhead_construction'] = self.overhead_construction.identifier if \
                 abridged else self.overhead_construction.to_dict()
+        if self._user_data is not None:
+            base['user_data'] = self.user_data
         return base
 
     def duplicate(self):
@@ -1569,10 +1643,13 @@ class DoorConstructionSet(object):
         return iter(self.constructions)
 
     def __copy__(self):
-        return self.__class__(
+        new_obj = self.__class__(
             self._exterior_construction, self._interior_construction,
             self._exterior_glass_construction, self._interior_glass_construction,
             self._overhead_construction)
+        new_obj._user_data = None if self._user_data is None else self._user_data.copy()
+        return(new_obj)
+        
 
     def __repr__(self):
         return 'Door Construction Set: [Exterior: {}] [Interior: {}]' \
