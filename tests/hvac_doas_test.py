@@ -40,6 +40,7 @@ def test_fcu_with_doas_equality():
     hvac_sys_dup = hvac_sys.duplicate()
     hvac_sys_alt = FCUwithDOAS(
         'Test System', sensible_heat_recovery=0.75, latent_heat_recovery=0.6)
+    hvac_sys = apply_ud(hvac_sys)
 
     assert hvac_sys is hvac_sys
     assert hvac_sys is not hvac_sys_dup
@@ -76,6 +77,7 @@ def test_fcu_with_doas_dict_methods():
     hvac_sys.equipment_type = 'DOAS_FCU_DCW_DHW'
     hvac_sys.sensible_heat_recovery = 0.8
     hvac_sys.latent_heat_recovery = 0.65
+    hvac_sys.user_data = userdatadict
 
     hvac_dict = hvac_sys.to_dict()
     new_hvac_sys = FCUwithDOAS.from_dict(hvac_dict)
@@ -86,6 +88,7 @@ def test_fcu_with_doas_dict_methods():
 def test_vrf_with_doas_init():
     """Test the initialization of VRFwithDOAS and basic properties."""
     hvac_sys = VRFwithDOAS('Test System')
+    hvac_sys.user_data = userdatadict
     str(hvac_sys)  # test the string representation
 
     assert hvac_sys.identifier == 'Test System'
@@ -93,6 +96,7 @@ def test_vrf_with_doas_init():
     assert hvac_sys.equipment_type == 'DOAS_VRF'
     assert hvac_sys.sensible_heat_recovery == 0
     assert hvac_sys.latent_heat_recovery == 0
+    assert hvac_sys.user_data == userdatadict
 
     hvac_sys.vintage = 'ASHRAE_2010'
     with pytest.raises(ValueError):
@@ -125,6 +129,7 @@ def test_vrf_with_doas_dict_methods():
     hvac_sys.vintage = 'ASHRAE_2010'
     hvac_sys.sensible_heat_recovery = 0.8
     hvac_sys.latent_heat_recovery = 0.65
+    hvac_sys.user_data = userdatadict
 
     hvac_dict = hvac_sys.to_dict()
     new_hvac_sys = VRFwithDOAS.from_dict(hvac_dict)
@@ -135,6 +140,7 @@ def test_vrf_with_doas_dict_methods():
 def test_wshp_with_doas_init():
     """Test the initialization of WSHPwithDOAS and basic properties."""
     hvac_sys = WSHPwithDOAS('Test System')
+    hvac_sys.user_data = userdatadict
     str(hvac_sys)  # test the string representation
 
     assert hvac_sys.identifier == 'Test System'
@@ -156,6 +162,7 @@ def test_wshp_with_doas_init():
 def test_wshp_with_doas_equality():
     """Test the equality of WSHPwithDOAS objects."""
     hvac_sys = WSHPwithDOAS('Test System')
+    hvac_sys.user_data = userdatadict
     hvac_sys_dup = hvac_sys.duplicate()
     hvac_sys_alt = WSHPwithDOAS(
         'Test System', sensible_heat_recovery=0.75, latent_heat_recovery=0.6)
@@ -171,6 +178,7 @@ def test_wshp_with_doas_equality():
 def test_wshp_with_doas_dict_methods():
     """Test the to/from dict methods."""
     hvac_sys = WSHPwithDOAS('High Efficiency HVAC System')
+    hvac_sys.user_data = userdatadict
     hvac_sys.vintage = 'ASHRAE_2010'
     hvac_sys.equipment_type = 'DOAS_WSHP_GSHP'
     hvac_sys.sensible_heat_recovery = 0.8
