@@ -14,6 +14,7 @@ from ladybug.futil import csv_to_matrix
 import random
 import os
 import pytest
+from .conftest import userdatadict
 
 
 def test_schedule_fixedinterval_init():
@@ -21,6 +22,7 @@ def test_schedule_fixedinterval_init():
     trans_sched = ScheduleFixedInterval(
         'Custom Transmittance', [x / 8760 for x in range(8760)],
         schedule_types.fractional)
+    trans_sched.user_data = userdatadict
     str(trans_sched)  # test the string representation
 
     assert trans_sched.identifier == 'Custom Transmittance'
@@ -100,6 +102,7 @@ def test_schedule_fixedinterval_lockability():
     schedule = ScheduleFixedInterval(
         'Custom Transmittance', [x / 8760 for x in range(8760)],
         schedule_types.fractional)
+    schedule.user_data = userdatadict
 
     schedule.interpolate = True
     schedule.lock()
@@ -228,6 +231,7 @@ def test_schedule_fixedinterval_dict_methods():
     trans_sched = ScheduleFixedInterval(
         'Custom Transmittance', [x / 8760 for x in range(8760)],
         schedule_types.fractional)
+    trans_sched.user_data = userdatadict
 
     sch_dict = trans_sched.to_dict()
     new_schedule = ScheduleFixedInterval.from_dict(sch_dict)
