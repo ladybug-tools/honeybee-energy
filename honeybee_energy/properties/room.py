@@ -476,6 +476,26 @@ class RoomEnergyProperties(object):
         room_vol = self.host.volume * conversion ** 3
         self.abolute_infiltration((air_changes_per_hour * room_vol) / 3600., conversion)
 
+    def abolute_ventilation(self, flow_rate):
+        """Set the abolute flow rate of outdoor air ventilation for the Room in m3/s.
+
+        This overwrites all values of the RoomEnergyProperties's ventilation flow
+        but preserves the schedule. If the Room has no ventilation definition, a
+        new one with an Always On schedule will be created.
+
+        Args:
+            flow_rate: A number for the abolute of flow of outdoor air ventilation
+                for the room in cubic meters per second (m3/s). Note that inputting
+                a value here will overwrite all specification of outdoor air
+                ventilation currently on the room (per_floor, per_person, ach).
+        """
+        ventilation = self._dup_load('ventilation', Ventilation)
+        ventilation.flow_per_person = 0
+        ventilation.flow_per_area = 0
+        ventilation.air_changes_per_hour = 0
+        ventilation.flow_per_zone = flow_rate
+        self.ventilation = ventilation
+
     def add_internal_mass(self, internal_mass):
         """Add an InternalMass to this Room.
 
@@ -1303,7 +1323,10 @@ class RoomEnergyProperties(object):
             dup_load.identifier = load_id
             return dup_load
         except AttributeError:  # currently no load object; create a new one
-            return load_class(load_id, 0, always_on)
+            if load_class != Ventilation:
+                return load_class(load_id, 0, always_on)
+            else:  # it's a ventilation object
+                return load_class(load_id)
 
     def _absolute_by_floor(self, load_obj, property_name, value, conversion):
         """Set a floor-normalized load object to have an abolute value for a property."""
