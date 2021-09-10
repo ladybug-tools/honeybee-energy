@@ -8,6 +8,7 @@ except ImportError:
 from ladybug_geometry.geometry2d.pointvector import Vector2D
 from honeybee.face import Face
 from honeybee.boundarycondition import Outdoors, Surface
+from honeybee.facetype import AirBoundary
 from honeybee.extensionutil import model_extension_dicts
 from honeybee.checkdup import check_duplicate_identifiers
 
@@ -525,7 +526,8 @@ class ModelEnergyProperties(object):
         # first gather all interior faces in the model and their adjacent object
         adj_constr, adj_ids = [], []
         for face in self.host.faces:
-            if isinstance(face.boundary_condition, Surface):
+            if isinstance(face.boundary_condition, Surface) \
+                    and not isinstance(face.type, AirBoundary):
                 adj_constr.append(face.properties.energy.construction)
                 adj_ids.append(face.boundary_condition.boundary_condition_object)
         # next, get the adjacent objects and check their construction
