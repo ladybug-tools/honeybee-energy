@@ -196,7 +196,7 @@ def to_openstudio_osw(osw_directory, model_json_path, sim_par_json_path=None,
         }
         osw_dict['steps'].insert(0, sim_par_dict)
 
-    # addd the model json serialization into the steps
+    # add the model json serialization into the steps
     model_measure_dict = {
         'arguments': {
             'model_json': model_json_path
