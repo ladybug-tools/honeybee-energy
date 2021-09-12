@@ -476,6 +476,23 @@ window-calculation-module.html#step-4.-determine-layer-solar-transmittance
             base['display_name'] = self.display_name
         return base
 
+    def to_simple_construction(self):
+        """Get a version of this construction that uses a SimpleGlazSys material.
+
+        This is useful when translating to gbXML and other formats that do not
+        support layered window constructions.
+        """
+        if isinstance(self.materials[0], EnergyWindowMaterialSimpleGlazSys):
+            return self
+        simple_mat = EnergyWindowMaterialSimpleGlazSys(
+            '{}_SimpleGlazSys'.format(self.identifier),
+            self.u_factor, self.shgc, self.visible_transmittance
+        )
+        new_con = WindowConstruction(self.identifier, [simple_mat])
+        if self._display_name is not None:
+            new_con._display_name = self._display_name
+        return new_con
+
     @staticmethod
     def extract_all_from_idf_file(idf_file):
         """Get all WindowConstruction objects in an EnergyPlus IDF file.

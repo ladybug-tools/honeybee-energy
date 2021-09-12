@@ -55,7 +55,8 @@ def from_idf_osw(idf_path, model_path=None, osw_directory=None):
     return _import_model_osw(idf_path, 'idf', model_path, osw_directory)
 
 
-def measure_compatible_model_json(model_json_path, destination_directory=None):
+def measure_compatible_model_json(
+        model_json_path, destination_directory=None, simplify_window_cons=False):
     """Convert a Model JSON to one that is compatible with the honeybee_openstudio_gem.
 
     This includes the re-serialization of the Model to Python, which will
@@ -70,7 +71,11 @@ def measure_compatible_model_json(model_json_path, destination_directory=None):
         model_json_path: File path to the Model JSON.
         destination_directory: The directory into which the Model JSON that is
             compatible with the honeybee_openstudio_gem should be written. If None,
-            this will be the same location as the input model_json_path. Default: None.
+            this will be the same location as the input model_json_path. (Default: None).
+        simplify_window_cons: Boolean to note whether window constructions should
+            be simplified during the translation. This is useful when the ultimate
+            destination of the OSM is a format that does not supported layered
+            window constructions (like gbXML). (Default: False).
 
     Returns:
         The full file path to the new Model JSON written out by this method.
@@ -95,8 +100,11 @@ def measure_compatible_model_json(model_json_path, destination_directory=None):
             room.remove_colinear_vertices_envelope(parsed_model.tolerance)
     parsed_model.convert_to_units('Meters')
 
-    # get the dictionary representation of the Model
+    # get the dictionary representation of the Model and add auto-calculated properties
     model_dict = parsed_model.to_dict(triangulate_sub_faces=True)
+    parsed_model.properties.energy.add_autocal_properties_to_dict(model_dict)
+    if simplify_window_cons:
+        parsed_model.properties.energy.simplify_window_constructions_in_dict(model_dict)
 
     # write the dictionary into a file
     preparedir(dest_dir, remove_content=False)  # create the directory if it's not there
