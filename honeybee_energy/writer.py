@@ -319,11 +319,11 @@ def room_to_idf(room):
     zone_str = ['!-   ________ZONE:{}________\n'.format(room.display_name)]
 
     # write the zone defintiion
-    zone_values = (room.identifier,)
-    zone_comments = ('name',)
-    if room.multiplier != 1:
-        zone_values = zone_values + ('', '', '', '', '', room.multiplier)
-        zone_comments = zone_comments + ('north', 'x', 'y', 'z', 'type', 'multiplier')
+    ceil_height = room.geometry.max.z - room.geometry.min.z
+    zone_values = (room.identifier, '', '', '', '', '', room.multiplier,
+                   ceil_height, room.volume, room.floor_area)
+    zone_comments = ('name', 'north', 'x', 'y', 'z', 'type', 'multiplier',
+                     'ceiling height', 'volume', 'floor area')
     zone_str.append(generate_idf_string('Zone', zone_values, zone_comments))
 
     # write the load definitions

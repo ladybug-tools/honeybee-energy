@@ -5,6 +5,7 @@ try:
 except ImportError:
     pass   # python 3
 
+from os import stat
 from ladybug_geometry.geometry2d.pointvector import Vector2D
 from honeybee.face import Face
 from honeybee.boundarycondition import Outdoors, Surface
@@ -16,6 +17,7 @@ from ..material.dictutil import dict_to_material
 from ..construction.dictutil import CONSTRUCTION_TYPES, dict_to_construction, \
     dict_abridged_to_construction
 from ..construction.opaque import OpaqueConstruction
+from ..construction.window import WindowConstruction
 from ..construction.windowshade import WindowConstructionShade
 from ..construction.dynamic import WindowConstructionDynamic
 from ..construction.air import AirBoundaryConstruction
@@ -613,6 +615,50 @@ class ModelEnergyProperties(object):
             self.ventilation_simulation_control.to_dict()
 
         return base
+
+    def add_autocal_properties_to_dict(self, data):
+        """Add auto-calculated energy properties to a Model dictionary.
+
+        This includes Room volumes and ceiling heights. These properties are used
+        in translation from Honeybee to OpenStudio to ensure that the properties
+        in Honeybee are aligned with those in OSM, IDF, and gbXML.
+
+        Note that the host model must be in Meters in order for the
+        added properties to be in the correct units system.
+
+        Args:
+            data: A dictionary representation of an entire honeybee-core Model.
+        """
+        # check that the host model is in meters and add geometry properties
+        assert self.host.units == 'Meters', 'Host model units must be Meters to use ' \
+            'add_autocal_properties_to_dict. Not {}.'.format(self.host.units)
+        for room, room_dict in zip(self.host.rooms, data['rooms']):
+            room_dict['ceiling_height'] = room.geometry.max.z - room.geometry.min.z
+            room_dict['volume'] = room.volume
+
+    def simplify_window_constructions_in_dict(self, data):
+        """Convert all window constructions in a model dictionary to SimpleGlazSys.
+
+        This is useful when translating to gbXML and other formats that do not
+        support layered window constructions.
+
+        Args:
+            data: A dictionary representation of an entire honeybee-core Model.
+        """
+        # add the window construction u-factors
+        mat_dicts = data['properties']['energy']['materials']
+        con_dicts = data['properties']['energy']['constructions']
+        w_cons = (WindowConstruction, WindowConstructionShade, WindowConstructionDynamic)
+        for i, con in enumerate(self.constructions):
+            if isinstance(con, WindowConstruction):
+                new_con = con.to_simple_construction()
+            elif isinstance(con, WindowConstructionShade):
+                new_con = con.window_construction.to_simple_construction()
+            elif isinstance(con, WindowConstructionDynamic):
+                new_con = con.window_construction.to_simple_construction()
+            if isinstance(con, w_cons):
+                con_dicts[i] = new_con.to_dict(abridged=True)
+                mat_dicts.append(new_con.materials[0].to_dict())
 
     def duplicate(self, new_host=None):
         """Get a copy of this object.

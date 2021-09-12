@@ -199,7 +199,8 @@ def model_to_gbxml(model_json, osw_folder, check_model, minimal, output_file):
 
         # run the Model re-serialization and check if specified
         if check_model:
-            model_json = measure_compatible_model_json(model_json, out_directory)
+            model_json = measure_compatible_model_json(
+                model_json, out_directory, simplify_window_cons=True)
 
         # Write the osw file and translate the model to gbXML
         out_f = out_path if output_file.endswith('-') else output_file
