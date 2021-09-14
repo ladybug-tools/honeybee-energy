@@ -172,11 +172,13 @@ def test_material_nomass_init():
 def test_material_nomass_defaults():
     """Test the EnergyMaterialNoMass default properties."""
     insul_r2 = EnergyMaterialNoMass('Insulation [R-2]', 2)
+    insul_r2.user_data = userdatadict
 
     assert insul_r2.identifier == 'Insulation [R-2]'
     assert insul_r2.roughness == 'MediumRough'
     assert insul_r2.thermal_absorptance == 0.9
     assert insul_r2.solar_absorptance == insul_r2.visible_absorptance == 0.7
+    assert insul_r2.user_data == userdatadict
 
 
 def test_material_nomass_invalid():
@@ -218,6 +220,8 @@ def test_material_nomass_init_from_idf():
 def test_material_nomass_dict_methods():
     """Test the to/from dict methods."""
     material = EnergyMaterialNoMass('Insulation R-2', 2)
+    material.user_data = userdatadict
     material_dict = material.to_dict()
     new_material = EnergyMaterialNoMass.from_dict(material_dict)
     assert material_dict == new_material.to_dict()
+    assert new_material.user_data == userdatadict
