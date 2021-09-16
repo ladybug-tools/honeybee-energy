@@ -66,7 +66,7 @@ class _AllAirBase(_TemplateSystem):
         * user_data
     """
     __slots__ = ('_economizer_type', '_sensible_heat_recovery', '_latent_heat_recovery',
-                 '_demand_controlled_ventilation', '_user_data')
+                 '_demand_controlled_ventilation')
     ECONOMIZER_TYPES = ('NoEconomizer', 'DifferentialDryBulb', 'DifferentialEnthalpy',
                         'DifferentialDryBulbAndEnthalpy', 'FixedDryBulb',
                         'FixedEnthalpy', 'ElectronicEnthalpy')
