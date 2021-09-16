@@ -1398,7 +1398,7 @@ class DoorConstructionSet(object):
 
     def __init__(self, exterior_construction=None, interior_construction=None,
                  exterior_glass_construction=None, interior_glass_construction=None,
-                 overhead_construction=None, _user_data=None):
+                 overhead_construction=None):
         """Initialize door set."""
         self._locked = False  # unlocked by default
         self.exterior_construction = exterior_construction
