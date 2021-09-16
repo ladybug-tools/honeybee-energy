@@ -69,7 +69,7 @@ class _AllAirBase(_TemplateSystem):
                  '_demand_controlled_ventilation', '_user_data')
     ECONOMIZER_TYPES = ('NoEconomizer', 'DifferentialDryBulb', 'DifferentialEnthalpy',
                         'DifferentialDryBulbAndEnthalpy', 'FixedDryBulb',
-                        'FixedEnthalpy', 'ElectronicEnthalpy', '_user_data')
+                        'FixedEnthalpy', 'ElectronicEnthalpy')
     _has_air_loop = True
 
     def __init__(self, identifier, vintage='ASHRAE_2019', equipment_type=None,
