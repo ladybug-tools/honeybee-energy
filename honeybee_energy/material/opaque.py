@@ -355,7 +355,6 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
             self.specific_heat, self.roughness, self.thermal_absorptance,
             self.solar_absorptance, self._visible_absorptance)
         new_material._display_name = self._display_name
-        new_material._user_data = None if self._user_data is None else self._user_data.copy()
         return new_material
 
 
@@ -632,5 +631,4 @@ class EnergyMaterialNoMass(_EnergyMaterialOpaqueBase):
             self.identifier, self.r_value, self.roughness, self.thermal_absorptance,
             self.solar_absorptance, self._visible_absorptance)
         new_material._display_name = self._display_name
-        new_material._user_data = None if self._user_data is None else self._user_data.copy()
         return new_material

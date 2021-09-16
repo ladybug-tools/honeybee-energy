@@ -334,13 +334,12 @@ class EnergyWindowMaterialGas(_EnergyWindowMaterialGasBase):
         * prandtl
         * user_data
     """
-    __slots__ = ('_gas_type','_user_data')
+    __slots__ = ('_gas_type')
 
     def __init__(self, identifier, thickness=0.0125, gas_type='Air'):
         """Initialize gas energy material."""
         _EnergyWindowMaterialGasBase.__init__(self, identifier, thickness)
         self.gas_type = gas_type
-        self._user_data = None
 
     @property
     def gas_type(self):
@@ -357,24 +356,6 @@ class EnergyWindowMaterialGas(_EnergyWindowMaterialGasBase):
     def molecular_weight(self):
         """Get the gas molecular weight."""
         return self.MOLECULARWEIGHTS[self._gas_type]
-
-    @property
-    def user_data(self):
-        """Get or set an optional dictionary for additional meta data for this object.
-
-        This will be None until it has been set. All keys and values of this
-        dictionary should be of a standard Python type to ensure correct
-        serialization of the object to/from JSON (eg. str, float, int, list, dict)
-        """
-        if self._user_data is not None:
-            return self._user_data
-    
-    @user_data.setter
-    def user_data(self, value):
-        if value is not None:
-            assert isinstance(value, dict), 'Expected dictionary for honeybee_energy' \
-                'object user_data. Got {}.'.format(type(value))
-        self._user_data = value
 
     def conductivity_at_temperature(self, t_kelvin):
         """Get the conductivity of the gas [W/m-K] at a given Kelvin temperature."""
@@ -475,7 +456,6 @@ class EnergyWindowMaterialGas(_EnergyWindowMaterialGasBase):
     def __copy__(self):
         new_obj = EnergyWindowMaterialGas(self.identifier, self.thickness, self.gas_type)
         new_obj._display_name = self._display_name
-        new_obj._user_data = None if self._user_data is None else self._user_data.copy()
         return new_obj
 
 
@@ -562,23 +542,6 @@ class EnergyWindowMaterialGasMixture(_EnergyWindowMaterialGasBase):
     def gas_count(self):
         """An integer indicating the number of gasses in the mixture."""
         return self._gas_count
-
-    @property
-    def user_data(self):
-        """Get or set an optional dictionary for additional meta data for this object.
-
-        This will be None until it has been set. All keys and values of this
-        dictionary should be of a standard Python type to ensure correct
-        serialization of the object to/from JSON (eg. str, float, int, list, dict)
-        """
-        return self._user_data
-    
-    @user_data.setter
-    def user_data(self, value):
-        if value is not None:
-            assert isinstance(value, dict), 'Expected dictionary for honeybee_energy' \
-                'object user_data. Got {}.'.format(type(value))
-        self._user_data = value
 
     def conductivity_at_temperature(self, t_kelvin):
         """Get the conductivity of the gas [W/m-K] at a given Kelvin temperature."""
@@ -694,7 +657,6 @@ class EnergyWindowMaterialGasMixture(_EnergyWindowMaterialGasBase):
         new_obj = EnergyWindowMaterialGasMixture(
             self.identifier, self.thickness, self.gas_types, self.gas_fractions)
         new_obj._display_name = self._display_name
-        new_obj._user_data = None if self._user_data is None else self._user_data.copy()
         return new_obj
 
 
@@ -772,7 +734,7 @@ class EnergyWindowMaterialGasCustom(_EnergyWindowMaterialGasBase):
     __slots__ = ('_conductivity_coeff_a', '_viscosity_coeff_a', '_specific_heat_coeff_a',
                  '_conductivity_coeff_b', '_viscosity_coeff_b', '_specific_heat_coeff_b',
                  '_conductivity_coeff_c', '_viscosity_coeff_c', '_specific_heat_coeff_c',
-                 '_specific_heat_ratio', '_molecular_weight', '_user_data')
+                 '_specific_heat_ratio', '_molecular_weight')
 
     def __init__(self, identifier, thickness,
                  conductivity_coeff_a, viscosity_coeff_a, specific_heat_coeff_a,
@@ -895,24 +857,6 @@ class EnergyWindowMaterialGasCustom(_EnergyWindowMaterialGasBase):
     def molecular_weight(self, number):
         self._molecular_weight = float_in_range(
             number, 20.0, 200.0, 'gas material molecular weight')
-    
-    @property
-    def user_data(self):
-        """Get or set an optional dictionary for additional meta data for this object.
-
-        This will be None until it has been set. All keys and values of this
-        dictionary should be of a standard Python type to ensure correct
-        serialization of the object to/from JSON (eg. str, float, int, list, dict)
-        """
-        if self._user_data is not None:
-            return self._user_data
-    
-    @user_data.setter
-    def user_data(self, value):
-        if value is not None:
-            assert isinstance(value, dict), 'Expected dictionary for honeybee_energy' \
-                'object user_data. Got {}.'.format(type(value))
-        self._user_data = value
 
     def conductivity_at_temperature(self, t_kelvin):
         """Get the conductivity of the gas [W/m-K] at a given Kelvin temperature."""
@@ -1051,5 +995,4 @@ class EnergyWindowMaterialGasCustom(_EnergyWindowMaterialGasBase):
             self.viscosity_coeff_c, self.specific_heat_coeff_c,
             self.specific_heat_ratio, self.molecular_weight)
         new_obj._display_name = self._display_name
-        new_obj._user_data = None if self._user_data is None else self._user_data.copy()
         return new_obj

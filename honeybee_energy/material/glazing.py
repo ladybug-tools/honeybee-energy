@@ -89,7 +89,7 @@ class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
                  '_visible_reflectance', '_visible_reflectance_back',
                  '_infrared_transmittance', '_emissivity', '_emissivity_back',
                  '_conductivity', '_dirt_correction', '_dirt_correction',
-                 '_solar_diffusing', '_user_data')
+                 '_solar_diffusing')
 
     def __init__(self, identifier, thickness=0.003, solar_transmittance=0.85,
                  solar_reflectance=0.075, visible_transmittance=0.9,
@@ -313,23 +313,6 @@ class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
         self._conductivity = self.thickness / \
             float_positive(r_val, 'glazing material r-value')
 
-    @property
-    def user_data(self):
-        """Get or set an optional dictionary for additional meta data for this object.
-
-        This will be None until it has been set. All keys and values of this
-        dictionary should be of a standard Python type to ensure correct
-        serialization of the object to/from JSON (eg. str, float, int, list, dict)
-        """
-        return self._user_data
-    
-    @user_data.setter
-    def user_data(self, value):
-        if value is not None:
-            assert isinstance(value, dict), 'Expected dictionary for honeybee_energy' \
-                'object user_data. Got {}.'.format(type(value))
-        self._user_data = value
-
     @classmethod
     def from_idf(cls, idf_string):
         """Create EnergyWindowMaterialGlazing from an EnergyPlus text string.
@@ -499,7 +482,6 @@ class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
         new_material._dirt_correction = self._dirt_correction
         new_material._solar_diffusing = self._solar_diffusing
         new_material._display_name = self._display_name
-        new_material._user_data = None if self._user_data is None else self._user_data.copy()
         return new_material
 
 
@@ -627,23 +609,6 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
         u_val = self.u_value
         return 0.002 if u_val > 7 else (0.05914 - (0.00714 * u_val))
 
-    @property
-    def user_data(self):
-        """Get or set an optional dictionary for additional meta data for this object.
-
-        This will be None until it has been set. All keys and values of this
-        dictionary should be of a standard Python type to ensure correct
-        serialization of the object to/from JSON (eg. str, float, int, list, dict)
-        """
-        return self._user_data
-    
-    @user_data.setter
-    def user_data(self, value):
-        if value is not None:
-            assert isinstance(value, dict), 'Expected dictionary for honeybee_energy' \
-                'object user_data. Got {}.'.format(type(value))
-        self._user_data = value
-
     @classmethod
     def from_idf(cls, idf_string):
         """Create EnergyWindowMaterialSimpleGlazSys from an EnergyPlus text string.
@@ -729,5 +694,4 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
         new_material = EnergyWindowMaterialSimpleGlazSys(
             self.identifier, self.u_factor, self.shgc, self.vt)
         new_material._display_name = self._display_name
-        new_material._user_data = None if self._user_data is None else self._user_data.copy()
         return new_material

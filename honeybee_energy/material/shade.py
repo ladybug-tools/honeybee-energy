@@ -294,7 +294,7 @@ class EnergyWindowMaterialShade(_EnergyWindowMaterialShadeBase):
     """
     __slots__ = ('_thickness', '_solar_transmittance', '_solar_reflectance',
                  '_visible_transmittance', '_visible_reflectance',
-                 '_conductivity', '_airflow_permeability', '_user_data')
+                 '_conductivity', '_airflow_permeability')
 
     def __init__(self, identifier, thickness=0.005, solar_transmittance=0.4,
                  solar_reflectance=0.5,
@@ -310,7 +310,6 @@ class EnergyWindowMaterialShade(_EnergyWindowMaterialShadeBase):
         # default for checking transmittance + reflectance < 1
         self._solar_reflectance = 0
         self._visible_reflectance = 0
-        self._user_data = None
 
         self.thickness = thickness
         self.solar_transmittance = solar_transmittance
@@ -699,7 +698,7 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
                  '_beam_visible_transmittance', '_beam_visible_reflectance',
                  '_beam_visible_reflectance_back', '_diffuse_visible_transmittance',
                  '_diffuse_visible_reflectance', '_diffuse_visible_reflectance_back',
-                 '_emissivity_back', '_user_data')
+                 '_emissivity_back')
 
     def __init__(self, identifier, slat_orientation='Horizontal', slat_width=0.025,
                  slat_separation=0.01875, slat_thickness=0.001, slat_angle=45,
@@ -1028,23 +1027,6 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
         self._slat_conductivity = self.slat_thickness / \
             float_positive(r_val, 'shade material r-value')
 
-    @property
-    def user_data(self):
-        """Get or set an optional dictionary for additional meta data for this object.
-
-        This will be None until it has been set. All keys and values of this
-        dictionary should be of a standard Python type to ensure correct
-        serialization of the object to/from JSON (eg. str, float, int, list, dict)
-        """
-        return self._user_data
-    
-    @user_data.setter
-    def user_data(self, value):
-        if value is not None:
-            assert isinstance(value, dict), 'Expected dictionary for honeybee_energy' \
-                'object user_data. Got {}.'.format(type(value))
-        self._user_data = value
-
     def set_all_solar_transmittance(self, transmittance):
         """Set all solar transmittance to the same value at once."""
         self.beam_solar_transmittance = transmittance
@@ -1319,5 +1301,4 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
         new_m._left_opening_multiplier = self._left_opening_multiplier
         new_m._right_opening_multiplier = self._right_opening_multiplier
         new_m._display_name = self._display_name
-        new_m._user_data = None if self._user_data is None else self._user_data.copy()
         return new_m
