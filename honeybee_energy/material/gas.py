@@ -34,7 +34,7 @@ class _EnergyWindowMaterialGasBase(_EnergyMaterialWindowBase):
                           'Xenon': (158.33970642, 0.0, 0.0)}
     MOLECULARWEIGHTS = {'Air': 28.97, 'Argon': 39.948,
                         'Krypton': 83.8, 'Xenon': 131.3}
-    __slots__ = ('_thickness')
+    __slots__ = ('_thickness',)
 
     def __init__(self, identifier, thickness=0.0125):
         """Initialize gas base material."""
