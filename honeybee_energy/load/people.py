@@ -56,7 +56,7 @@ class People(_LoadBase):
         * user_data
     """
     __slots__ = ('_people_per_area', '_occupancy_schedule', '_activity_schedule',
-                 '_radiant_fraction', '_latent_fraction', '_user_data')
+                 '_radiant_fraction', '_latent_fraction')
 
     def __init__(self, identifier, people_per_area, occupancy_schedule,
                  activity_schedule=None,
@@ -68,7 +68,6 @@ class People(_LoadBase):
         self.activity_schedule = activity_schedule
         self.radiant_fraction = radiant_fraction
         self.latent_fraction = latent_fraction
-        self._user_data = None
 
     @property
     def people_per_area(self):

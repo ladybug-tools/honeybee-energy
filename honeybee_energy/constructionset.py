@@ -1553,10 +1553,8 @@ class DoorConstructionSet(object):
         ohc = OpaqueConstruction.from_dict(data['overhead_construction']) \
             if 'overhead_construction' in data and data['overhead_construction'] \
             is not None else None
-        udata = OpaqueConstruction.from_dict(data['user_data']) if 'user_data' in data and data['user_data'] is\
-            not None else None
     
-        return cls(extc, intc, egc, igc, ohc, udata)
+        return cls(extc, intc, egc, igc, ohc)
 
     def to_dict(self, abridged=False, none_for_defaults=True):
         """Get the DoorConstructionSet as a dictionary.

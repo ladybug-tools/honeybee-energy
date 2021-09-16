@@ -49,7 +49,7 @@ class Lighting(_LoadBase):
         * user_data
     """
     __slots__ = ('_watts_per_area', '_schedule', '_return_air_fraction',
-                 '_radiant_fraction', '_visible_fraction', '_baseline_watts_per_area', '_user_data')
+                 '_radiant_fraction', '_visible_fraction', '_baseline_watts_per_area')
 
     def __init__(self, identifier, watts_per_area, schedule, return_air_fraction=0.0,
                  radiant_fraction=0.32, visible_fraction=0.25):
@@ -64,7 +64,6 @@ class Lighting(_LoadBase):
         self.radiant_fraction = radiant_fraction
         self.visible_fraction = visible_fraction
         self.baseline_watts_per_area = None  # can be set by the user later
-        self._user_data = None
 
     @property
     def watts_per_area(self):
