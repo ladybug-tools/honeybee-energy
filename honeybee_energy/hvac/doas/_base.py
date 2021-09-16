@@ -61,7 +61,7 @@ class _DOASBase(_TemplateSystem):
         * user_data
     """
     __slots__ = ('_sensible_heat_recovery', '_latent_heat_recovery',
-                 '_demand_controlled_ventilation', '_doas_availability_schedule', '_user_data')
+                 '_demand_controlled_ventilation', '_doas_availability_schedule')
 
     def __init__(self, identifier, vintage='ASHRAE_2019', equipment_type=None,
                  sensible_heat_recovery=0, latent_heat_recovery=0,

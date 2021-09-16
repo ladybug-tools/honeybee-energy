@@ -77,7 +77,7 @@ class IdealAirSystem(_HVACSystem):
                  '_sensible_heat_recovery', '_latent_heat_recovery',
                  '_heating_air_temperature', '_cooling_air_temperature',
                  '_heating_limit', '_cooling_limit', '_heating_availability',
-                 '_cooling_availability', '_user_data',)
+                 '_cooling_availability')
     ECONOMIZER_TYPES = ('NoEconomizer', 'DifferentialDryBulb', 'DifferentialEnthalpy')
 
     def __init__(self, identifier, economizer_type='DifferentialDryBulb',
