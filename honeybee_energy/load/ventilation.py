@@ -61,9 +61,10 @@ class Ventilation(_LoadBase):
         * flow_per_zone
         * air_changes_per_hour
         * schedule
+        * user_data
     """
     __slots__ = ('_flow_per_person', '_flow_per_area', '_flow_per_zone',
-                 '_air_changes_per_hour', '_schedule', '_user_data')
+                 '_air_changes_per_hour', '_schedule')
 
     def __init__(self, identifier, flow_per_person=0, flow_per_area=0, flow_per_zone=0,
                  air_changes_per_hour=0, schedule=None):
@@ -74,7 +75,6 @@ class Ventilation(_LoadBase):
         self.flow_per_zone = flow_per_zone
         self.air_changes_per_hour = air_changes_per_hour
         self.schedule = schedule
-        self._user_data = None
 
     @property
     def flow_per_person(self):

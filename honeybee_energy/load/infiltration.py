@@ -60,7 +60,7 @@ class Infiltration(_LoadBase):
         * user_data
     """
     __slots__ = ('_flow_per_exterior_area', '_schedule', '_constant_coefficient',
-                 '_temperature_coefficient', '_velocity_coefficient', '_user_data')
+                 '_temperature_coefficient', '_velocity_coefficient')
 
     def __init__(self, identifier, flow_per_exterior_area, schedule,
                  constant_coefficient=1,
@@ -72,7 +72,6 @@ class Infiltration(_LoadBase):
         self.constant_coefficient = constant_coefficient
         self.temperature_coefficient = temperature_coefficient
         self.velocity_coefficient = velocity_coefficient
-        self._user_data = None
 
     @property
     def flow_per_exterior_area(self):

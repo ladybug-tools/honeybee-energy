@@ -49,9 +49,10 @@ class Setpoint(_LoadBase):
         * cooling_setback
         * humidifying_setback
         * dehumidifying_setback
+        * user_data
     """
     __slots__ = ('_heating_schedule', '_cooling_schedule', '_humidifying_schedule',
-                 '_dehumidifying_schedule', '_user_data')
+                 '_dehumidifying_schedule')
     _humidifying_schedule_no_limit = ScheduleRuleset.from_constant_value(
         'HumidNoLimit', 0, _type_lib.humidity)
     _dehumidifying_schedule_no_limit = ScheduleRuleset.from_constant_value(
@@ -68,7 +69,6 @@ class Setpoint(_LoadBase):
         self.cooling_schedule = cooling_schedule
         self.humidifying_schedule = humidifying_schedule
         self.dehumidifying_schedule = dehumidifying_schedule
-        self._user_data = None
 
     @property
     def heating_schedule(self):
