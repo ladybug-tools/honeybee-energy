@@ -85,7 +85,6 @@ class _AllAirBase(_TemplateSystem):
         self.sensible_heat_recovery = sensible_heat_recovery
         self.latent_heat_recovery = latent_heat_recovery
         self.demand_controlled_ventilation = demand_controlled_ventilation
-        self._user_data = None
 
     @property
     def economizer_type(self):
