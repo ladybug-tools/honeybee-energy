@@ -82,6 +82,10 @@ class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
         * resistivity
         * u_value
         * r_value
+        * solar_absorptance
+        * visible_absorptance
+        * solar_transmissivity
+        * visible_transmissivity
     """
     __slots__ = ('_thickness', '_solar_transmittance', '_solar_reflectance',
                  '_solar_reflectance_back', '_visible_transmittance',
@@ -312,6 +316,26 @@ class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
         self._conductivity = self.thickness / \
             float_positive(r_val, 'glazing material r-value')
 
+    @property
+    def solar_absorptance(self):
+        """Get the solar absorptance of the glass at normal incidence."""
+        return 1 - self.solar_transmittance - self.solar_reflectance
+
+    @property
+    def visible_absorptance(self):
+        """Get the visible absorptance of the glass at normal incidence."""
+        return 1 - self.visible_transmittance - self.visible_reflectance
+
+    @property
+    def solar_transmissivity(self):
+        """Get the solar transmissivity of the glass at normal incidence."""
+        return self._transmissivity_from_transmittance(self._solar_transmittance)
+
+    @property
+    def visible_transmissivity(self):
+        """Get the visible transmissivity of the glass at normal incidence."""
+        return self._transmissivity_from_transmittance(self._visible_transmittance)
+
     @classmethod
     def from_idf(cls, idf_string):
         """Create EnergyWindowMaterialGlazing from an EnergyPlus text string.
@@ -444,6 +468,15 @@ class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
             base['display_name'] = self.display_name
         return base
 
+    @staticmethod
+    def _transmissivity_from_transmittance(transmittance):
+        """Get transmissivity from a transmittance value"""
+        try:
+            return (math.sqrt(0.8402528435 + 0.0072522239 * (transmittance ** 2)) -
+                    0.9166530661) / 0.0036261119 / transmittance
+        except ZeroDivisionError:
+            return 0
+
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""
         return (self.identifier, self.thickness, self.solar_transmittance,
@@ -567,7 +600,7 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
     def r_value(self):
         """R-value of the material layer [m2-K/W] (excluding air film resistance).
 
-        This is the R-value of galzing system material layer as understood by EnergyPlus.
+        This is the R-value of galzing system as understood by EnergyPlus.
         """
         out_r = 1 / ((0.025342 * self._u_factor) + 29.163853)
         in_r = 1 / ((0.359073 * math.log(self._u_factor)) + 6.949915) \
@@ -579,8 +612,7 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
     def solar_transmittance(self):
         """Get the solar transmittance of the glazing system at normal incidence.
 
-        The method used to compute solar transmittance is taken from the
-        EnergyPlus reference.
+        This is the solar transmittance as understood by EnergyPlus.
         """
         if self.u_factor > 3.4:
             term_1 = (0.939998 * (self.shgc ** 2)) + (0.20332 * self.shgc) \
@@ -597,6 +629,61 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
             return (term_1 * weight) + (term_2 * (1 - weight))
 
     @property
+    def solar_reflectance(self):
+        """Get the solar reflectance of the glazing system at normal incidence.
+
+        This is the solar reflectance as understood by EnergyPlus.
+        """
+        # get values needed to compute the reflectance
+        t_sol, r_val = self.solar_transmittance, self.r_value
+        # determine the resistance of inside and outside air films
+        s_t = self.shgc - t_sol
+        if self.u_factor > 3.4:
+            term_1_is = 1 / ((29.436546 * (s_t ** 3)) - (21.943415 * (s_t ** 2)) +
+                             (9.945872 * s_t) + 7.426151)
+            term_1_os = 1 / ((2.225824 * s_t) + 20.57708)
+        if self.u_factor < 4.5:
+            term_2_is = 1 / ((199.8208128 * (s_t ** 3)) - (90.639733 * (s_t ** 2)) +
+                             (19.737055 * s_t) + 6.766575)
+            term_2_os = 1 / ((5.763355 * s_t) + 20.541528)
+        if self.u_factor > 4.5:
+            r_is, r_os = term_1_is, term_1_os
+        elif self.u_factor < 3.4:
+            r_is, r_os = term_2_is, term_2_os
+        else:
+            weight = (self.u_factor - 3.4) / 1.1
+            r_is = (term_1_is * weight) + (term_2_is * (1 - weight))
+            r_os = (term_1_os * weight) + (term_2_os * (1 - weight))
+        # compute the inward flowing fraction of solar heat and the reflectance
+        f_in = (r_os + (0.5 * r_val)) / (r_os + r_val + r_is)
+        return 1 - t_sol - ((self.shgc - t_sol) / f_in)
+
+    @property
+    def solar_absorptance(self):
+        """Get the solar absorptance of the glazing system at normal incidence.
+
+        This is the solar absorptance as understood by EnergyPlus.
+        """
+        return 1 - self.solar_transmittance - self.solar_reflectance
+
+    @property
+    def visible_reflectance(self):
+        """Get the visible reflectance of the glazing system at normal incidence.
+
+        This is the visible reflectance as understood by EnergyPlus.
+        """
+        return (-0.0622 * (self.vt ** 3)) + (0.4277 * self.vt ** 2) - \
+            (0.4169 * self.vt) + 0.2399
+
+    @property
+    def visible_absorptance(self):
+        """Get the visible absorptance of the glazing system at normal incidence.
+
+        This is the visible absorptance as understood by EnergyPlus.
+        """
+        return 1 - self.vt - self.visible_reflectance
+
+    @property
     def thickness(self):
         """Get the thickess of the glazing system as interpreted by EnergyPlus [m]."""
         u_val = self.u_value
@@ -610,10 +697,11 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
             idf_string: A text string fully describing an EnergyPlus material.
         """
         ep_strs = parse_idf_string(idf_string, 'WindowMaterial:SimpleGlazingSystem,')
-        idf_defaults = {3: 0.6}
-        for i, ep_str in enumerate(ep_strs):  # fill in any default values
-            if ep_str == '' and i in idf_defaults:
-                ep_strs[i] = idf_defaults[i]
+        if len(ep_strs) == 4 and ep_strs[3] == '':
+            ep_strs.pop(3)
+            glz_mat = cls(*ep_strs)
+            glz_mat.vt = glz_mat.solar_transmittance
+            return glz_mat
         return cls(*ep_strs)
 
     @classmethod

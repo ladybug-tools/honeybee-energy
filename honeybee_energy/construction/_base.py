@@ -248,13 +248,28 @@ class _ConstructionBase(object):
             mat.unlock()
 
     def _temperature_profile_from_r_values(
-            self, r_values, outside_temperature=-18, inside_temperature=21):
+            self, r_values, outside_temperature=-18, inside_temperature=21,
+            heat_generation=None):
         """Get a list of temperatures at each material boundary between R-values."""
         r_factor = sum(r_values)
         delta_t = inside_temperature - outside_temperature
         temperatures = [outside_temperature]
         for i, r_val in enumerate(r_values):
             temperatures.append(temperatures[i] + (delta_t * (r_val / r_factor)))
+        # account for heat_generation in material layers if specified
+        if heat_generation is not None:
+            for i, heat_g in enumerate(heat_generation):
+                if heat_g == 0:
+                    continue
+                r_prev, r_follow = r_values[:i], r_values[i + 1:]
+                q_prev = heat_g * (1 - (sum(r_prev) / r_factor))
+                q_follow = heat_g * (1 - (sum(r_follow) / r_factor))
+                # add the heat transferred to the interior
+                for j in range(len(r_follow)):
+                    temperatures[i + 1 + j] += q_follow * sum(r_follow[j:])
+                # add the heat transferred to the exterior
+                for k in range(len(r_prev), 0, -1):
+                    temperatures[k] += q_prev * sum(r_prev[:k])
         return temperatures
 
     @staticmethod

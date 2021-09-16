@@ -14,7 +14,6 @@ from ..reader import parse_idf_string
 
 from honeybee._lockable import lockable
 from honeybee.typing import clean_rad_string
-from ladybug.rootfinding import secant
 
 import re
 import os
@@ -47,10 +46,16 @@ class WindowConstruction(_ConstructionBase):
         * inside_emissivity
         * outside_emissivity
         * solar_transmittance
+        * solar_reflectance
+        * solar_absorptance
         * visible_transmittance
+        * visible_reflectance
+        * visible_absorptance
+        * shgc
         * thickness
         * glazing_count
         * gap_count
+        * glazing_materials
     """
     __slots__ = ()
 
@@ -148,73 +153,57 @@ class WindowConstruction(_ConstructionBase):
     @property
     def solar_transmittance(self):
         """The solar transmittance of the window at normal incidence."""
-        if isinstance(self.materials[0], EnergyWindowMaterialSimpleGlazSys):
-            return self.materials[0].solar_transmittance
-        trans, gap_refs = 1, []
-        for i, mat in enumerate(self.materials):
-            if isinstance(mat, _EnergyWindowMaterialGlazingBase):
-                # compute the fraction of inter-reflected solar off previous panes
-                if i != 0:
-                    ref = 0
-                    prev_pane = self.materials[i - 2]
-                    ref_i = mat.solar_reflectance * prev_pane.solar_reflectance_back
-                    for r in range(3):  # simulate 3 bounces back and forth
-                        ref += ref_i
-                        ref_i = ref_i * ref_i
-                    for prev_ref in gap_refs:
-                        b_ref_i = mat.solar_reflectance * prev_ref
-                        for r in range(3):  # simulate 3 bounces back and forth
-                            ref += b_ref_i
-                            b_ref_i = b_ref_i * b_ref_i
-                    gap_refs.append(prev_pane.solar_reflectance_back)
-                    trans += ref * trans  # add the back-reflected portion
-                trans *= mat.solar_transmittance  # pass everything through the glass
-        return trans
+        return self.solar_optical_properties()[0]
+
+    @property
+    def solar_reflectance(self):
+        """The solar reflectance of the window at normal incidence (to the exterior).
+        """
+        return self.solar_optical_properties()[1]
+
+    @property
+    def solar_absorptance(self):
+        """Get the combined solar absorptance of all window panes at normal incidence.
+        """
+        return sum(self.solar_optical_properties()[2])
 
     @property
     def visible_transmittance(self):
         """The visible transmittance of the window at normal incidence."""
-        if isinstance(self.materials[0], EnergyWindowMaterialSimpleGlazSys):
-            return self.materials[0].vt
-        trans, gap_refs = 1, []
-        for i, mat in enumerate(self.materials):
-            if isinstance(mat, _EnergyWindowMaterialGlazingBase):
-                # compute the fraction of inter-reflected visible off previous panes
-                if i != 0:
-                    ref = 0
-                    prev_pane = self.materials[i - 2]
-                    ref_i = mat.visible_reflectance * prev_pane.visible_reflectance_back
-                    for r in range(3):  # simulate 3 bounces back and forth
-                        ref += ref_i
-                        ref_i = ref_i * ref_i
-                    for prev_ref in gap_refs:
-                        b_ref_i = mat.visible_reflectance * prev_ref
-                        for r in range(3):  # simulate 3 bounces back and forth
-                            ref += b_ref_i
-                            b_ref_i = b_ref_i * b_ref_i
-                    gap_refs.append(prev_pane.visible_reflectance_back)
-                    trans += ref * trans  # add the back-reflected portion
-                trans *= mat.visible_transmittance  # pass everything through the glass
-        return trans
+        return self.visible_optical_properties()[0]
+
+    @property
+    def visible_reflectance(self):
+        """The visible reflectance of the window at normal incidence (to the exterior).
+        """
+        return self.visible_optical_properties()[1]
+
+    @property
+    def visible_absorptance(self):
+        """Get the combined visible absorptance of all window panes at normal incidence.
+        """
+        return sum(self.visible_optical_properties()[2])
 
     @property
     def shgc(self):
-        """The estimated solar heat gain coefficient (SHGC) of the construction.
+        """Get the solar heat gain coefficient (SHGC) of the construction.
 
-        This value is produced by finding the solution to the relationship between
-        U-value, Solar Transmittance, and SHGC as defined for the simple glazing
-        system material in EnergyPlus. More information can be found here:
-
-        https://bigladdersoftware.com/epx/docs/9-5/engineering-reference/\
-window-calculation-module.html#step-4.-determine-layer-solar-transmittance
+        If this construction is not a simple glazing system, this value is computed
+        by summing the transmitted and conducted portions of solar irradiance under
+        the NFRC summer conditions of 32C outdoor temperature, 24C indoor temperature,
+        and 783 W/m2 of incident solar flux.
         """
         if isinstance(self.materials[0], EnergyWindowMaterialSimpleGlazSys):
             return self.materials[0].shgc
-        u_fac, t_sol = self.u_factor, self.solar_transmittance
-
-        def fn(x):
-            return self._t_sol_from_u_shgc(u_fac, x) - t_sol
-        return secant(0, 1, fn, 0.01)
+        t_out, t_in, sol_irr = 32, 24, 783  # NFRC 2010 summer conditions
+        _, r_values = self.temperature_profile(t_out, t_in, solar_irradiance=sol_irr)
+        heat_gen, transmitted = self._heat_gen_from_solar(sol_irr)
+        conducted = 0
+        r_factor = sum(r_values)
+        for i, heat_g in enumerate(heat_gen):
+            if heat_g != 0:
+                conducted += heat_g * (1 - (sum(r_values[i + 1:]) / r_factor))
+        return (transmitted + conducted) / sol_irr
 
     @property
     def thickness(self):
@@ -227,8 +216,6 @@ window-calculation-module.html#step-4.-determine-layer-solar-transmittance
     @property
     def glazing_count(self):
         """The number of glazing materials contained within the window construction.
-
-        Note that Simple Glazing System materials do not count.
         """
         count = 0
         for mat in self.materials:
@@ -245,24 +232,136 @@ window-calculation-module.html#step-4.-determine-layer-solar-transmittance
                 count += 1
         return count
 
+    @property
+    def glazing_materials(self):
+        """The only the glazing materials contained within the window construction.
+        """
+        return [mat for mat in self.materials
+                if isinstance(mat, _EnergyWindowMaterialGlazingBase)]
+
+    def solar_optical_properties(self):
+        """Get solar transmittance + reflectance, and absorptances for each glass pane.
+
+        Returns:
+            A tuple of three values.
+
+            -   transmittance: A transmittance value through all glass panes.
+
+            -   reflectance: A reflectance value from the front of all glass panes.
+
+            -   absorptances: A list of absorptance values through each pane
+                of glass. The values in this list correspond to the glass panes
+                in the construction.
+        """
+        # first check whether the construction is a simple glazing system
+        if isinstance(self.materials[0], EnergyWindowMaterialSimpleGlazSys):
+            transmittance = self.materials[0].solar_transmittance
+            reflectance = self.materials[0].solar_reflectance
+            absorptances = [1 - transmittance - reflectance]
+            return transmittance, reflectance, absorptances
+
+        # if it's multi-layered, then compute the optical properties across each gap
+        glz_mats = self.glazing_materials
+        forward_ref, backward_ref, backward_abs = \
+            self._solar_optical_properties_by_gap(glz_mats)
+        # set initial properties based on the first pane
+        trans = glz_mats[0].solar_transmittance  # will decrease with each pane
+        reflect = glz_mats[0].solar_reflectance  # will increase with each pane
+        absorb = [1 - trans - reflect]  # will increase and get new value with each pane
+        # loop through the panes of glass and update the initial properties
+        for i in range(len(glz_mats) - 1):
+            # get the two panes across the gap and their optical properties
+            mat = glz_mats[i + 1]
+            fw_ref, back_ref, back_abs = forward_ref[i], backward_ref[i], backward_abs[i]
+            # get the incident solar on the pane, including back reflection
+            incident = (trans + trans * fw_ref)
+            absorb[i] += back_abs * trans
+            back_out = back_ref * trans
+            for p in range(i, 0, -1):
+                prev_mat, p_prev_mat = glz_mats[p], glz_mats[p - 1]
+                prev_incident = back_out * p_prev_mat.solar_reflectance_back
+                incident += prev_incident * prev_mat.solar_transmittance
+                absorb[p] += prev_incident * prev_mat.solar_absorptance
+                absorb[p - 1] += back_out * p_prev_mat.solar_absorptance
+                back_out = back_out * p_prev_mat.solar_transmittance
+            reflect += back_out
+            # pass the incident solar through the glass pane
+            absorb.append(incident * mat.solar_absorptance)
+            trans = incident * mat.solar_transmittance
+        return trans, reflect, absorb
+
+    def visible_optical_properties(self):
+        """Get visible transmittance + reflectance, and absorptances for each glass pane.
+
+        Returns:
+            A tuple of three values.
+
+            -   transmittance: A transmittance value through all glass panes.
+
+            -   reflectance: A reflectance value from the front of all glass panes.
+
+            -   absorptances: A list of absorptance values through each pane
+                of glass. The values in this list correspond to the glass panes
+                in the construction.
+        """
+        # first check whether the construction is a simple glazing system
+        if isinstance(self.materials[0], EnergyWindowMaterialSimpleGlazSys):
+            transmittance = self.materials[0].vt
+            reflectance = self.materials[0].visible_reflectance
+            absorptances = [1 - transmittance - reflectance]
+            return transmittance, reflectance, absorptances
+
+        # if it's multi-layered, then compute the optical properties across each gap
+        glz_mats = self.glazing_materials
+        forward_ref, backward_ref, backward_abs = \
+            self._visible_optical_properties_by_gap(glz_mats)
+        # set initial properties based on the first pane
+        trans = glz_mats[0].visible_transmittance  # will decrease with each pane
+        reflect = glz_mats[0].visible_reflectance  # will increase with each pane
+        absorb = [1 - trans - reflect]  # will increase and get new value with each pane
+        # loop through the panes of glass and update the initial properties
+        for i in range(len(glz_mats) - 1):
+            # get the two panes across the gap and their optical properties
+            mat = glz_mats[i + 1]
+            fw_ref, back_ref, back_abs = forward_ref[i], backward_ref[i], backward_abs[i]
+            # get the incident visible on the pane, including back reflection
+            incident = (trans + trans * fw_ref)
+            absorb[i] += back_abs * trans
+            back_out = back_ref * trans
+            for p in range(i, 0, -1):
+                prev_mat, p_prev_mat = glz_mats[p], glz_mats[p - 1]
+                prev_incident = back_out * p_prev_mat.visible_reflectance_back
+                incident += prev_incident * prev_mat.visible_transmittance
+                absorb[p] += prev_incident * prev_mat.visible_absorptance
+                absorb[p - 1] += back_out * p_prev_mat.visible_absorptance
+                back_out = back_out * p_prev_mat.visible_transmittance
+            reflect += back_out
+            # pass the incident visible through the glass pane
+            absorb.append(incident * mat.visible_absorptance)
+            trans = incident * mat.visible_transmittance
+        return trans, reflect, absorb
+
     def temperature_profile(self, outside_temperature=-18, inside_temperature=21,
-                            wind_speed=6.7, height=1.0, angle=90.0, pressure=101325):
+                            wind_speed=6.7, height=1.0, angle=90.0, pressure=101325,
+                            solar_irradiance=0):
         """Get a list of temperatures at each material boundary across the construction.
 
         Args:
-            outside_temperature: The temperature on the outside of the construction [C].
-                Default is -18, which is consistent with NFRC 100-2010.
-            inside_temperature: The temperature on the inside of the construction [C].
-                Default is 21, which is consistent with NFRC 100-2010.
+            outside_temperature: The temperature on the outside of the
+                construction [C]. (Default: -18, consistent with NFRC 100-2010).
+            inside_temperature: The temperature on the inside of the
+                construction [C]. (Default: 21, consistent with NFRC 100-2010).
             wind_speed: The average outdoor wind speed [m/s]. This affects outdoor
-                convective heat transfer coefficient. Default is 6.7 m/s.
-            height: An optional height for the surface in meters. Default is 1.0 m.
+                convective heat transfer coefficient. (Default: 6.7 m/s).
+            height: An optional height for the surface in meters. (Default: 1.0 m).
             angle: An angle in degrees between 0 and 180.
                 0 = A horizontal surface with the outside boundary on the bottom.
                 90 = A vertical surface
                 180 = A horizontal surface with the outside boundary on the top.
-            pressure: The average pressure of in Pa.
-                Default is 101325 Pa for standard pressure at sea level.
+            pressure: The average pressure of in Pa. (Default: 101325 Pa for
+                standard pressure at sea level).
+            solar_irradiance: An optional value for solar irradiance that is incident
+                on the front (exterior) of the construction [W/m2]. (Default: 0 W/m2).
 
         Returns:
             A tuple with two elements
@@ -284,6 +383,11 @@ window-calculation-module.html#step-4.-determine-layer-solar-transmittance
             angle = abs(180 - angle)
         gap_count = self.gap_count
 
+        # compute delta temperature from solar irradiance if applicable
+        heat_gen = None
+        if solar_irradiance != 0:
+            heat_gen, _ = self._heat_gen_from_solar(solar_irradiance)
+
         # single pane or simple glazing system
         if gap_count == 0:
             in_r_init = 1 / self.in_h_simple()
@@ -294,7 +398,7 @@ window-calculation-module.html#step-4.-determine-layer-solar-transmittance
             r_values[-1] = 1 / self.in_h(inside_temperature - (in_delta_t / 2) + 273.15,
                                          in_delta_t, height, angle, pressure)
             temperatures = self._temperature_profile_from_r_values(
-                r_values, outside_temperature, inside_temperature)
+                r_values, outside_temperature, inside_temperature, heat_gen)
             return temperatures, r_values
 
         # multi-layered window construction
@@ -308,12 +412,12 @@ window-calculation-module.html#step-4.-determine-layer-solar-transmittance
         while abs(r_next - r_last) > 0.001:  # 0.001 is the r-value tolerance
             r_last = sum(r_values)
             temperatures = self._temperature_profile_from_r_values(
-                r_values, outside_temperature, inside_temperature)
+                r_values, outside_temperature, inside_temperature, heat_gen)
             r_values = self._layered_r_value(
                 temperatures, r_values, emissivities, height, angle, pressure)
             r_next = sum(r_values)
         temperatures = self._temperature_profile_from_r_values(
-            r_values, outside_temperature, inside_temperature)
+            r_values, outside_temperature, inside_temperature, heat_gen)
         return temperatures, r_values
 
     @classmethod
@@ -412,21 +516,14 @@ window-calculation-module.html#step-4.-determine-layer-solar-transmittance
             raise ImportError('honeybee_radiance library must be installed to use '
                               'to_radiance_solar() method. {}'.format(e))
         diffusing = False
-        trans = 1
         for mat in self.materials:
-            if isinstance(mat, EnergyWindowMaterialSimpleGlazSys):
-                trans *= mat.shgc * 0.8
-            elif isinstance(mat, EnergyWindowMaterialGlazing):
-                trans *= mat.solar_transmittance
-                diffusing = True if mat.solar_diffusing is True else False
+            if isinstance(mat, EnergyWindowMaterialGlazing) and mat.solar_diffusing:
+                diffusing = True
         if not diffusing:
             return Glass.from_single_transmittance(
-                clean_rad_string(self.identifier), trans)
+                clean_rad_string(self.identifier), self.solar_transmittance)
         else:
-            try:
-                ref = self.materials[-1].solar_reflectance_back
-            except AttributeError:
-                ref = self.materials[-1].solar_reflectance
+            trans, ref, _ = self.solar_optical_properties()
             return Trans.from_single_reflectance(
                 clean_rad_string(self.identifier), rgb_reflectance=ref,
                 transmitted_diff=trans, transmitted_spec=0)
@@ -440,21 +537,14 @@ window-calculation-module.html#step-4.-determine-layer-solar-transmittance
             raise ImportError('honeybee_radiance library must be installed to use '
                               'to_radiance_visible() method. {}'.format(e))
         diffusing = False
-        trans = 1
         for mat in self.materials:
-            if isinstance(mat, EnergyWindowMaterialSimpleGlazSys):
-                trans *= mat.vt
-            elif isinstance(mat, EnergyWindowMaterialGlazing):
-                trans *= mat.visible_transmittance
-                diffusing = True if mat.solar_diffusing is True else False
+            if isinstance(mat, EnergyWindowMaterialGlazing) and mat.solar_diffusing:
+                diffusing = True
         if not diffusing:
             return Glass.from_single_transmittance(
-                clean_rad_string(self.identifier), trans)
+                clean_rad_string(self.identifier), self.visible_transmittance)
         else:
-            try:
-                ref = self.materials[-1].solar_reflectance_back
-            except AttributeError:
-                ref = self.materials[-1].solar_reflectance
+            trans, ref, _ = self.visible_optical_properties()
             return Trans.from_single_reflectance(
                 clean_rad_string(self.identifier), rgb_reflectance=ref,
                 transmitted_diff=trans, transmitted_spec=0)
@@ -562,6 +652,31 @@ window-calculation-module.html#step-4.-determine-layer-solar-transmittance
                 materials_dict[mat_obj.identifier.upper()] = mat_obj
         return materials_dict
 
+    def _heat_gen_from_solar(self, solar_irradiance):
+        """Get heat genrated in each material layer given incident irradiance.
+
+        Args:
+            solar_irradiance: The solar irradiance incident on the exterior
+                of the window construction in W/m2.
+
+        Returns:
+            A tuple with two values
+
+            -   heat_gen: A list of heat absorbed in each material and air film layer.
+
+            -   transmitted: The solar irradiance directly transmitted through
+                the constrution.
+        """
+        # get the amount of solar absorbed by each glass pane
+        transmittance, _, absorb = self.solar_optical_properties()
+        transmitted = solar_irradiance * transmittance
+        # turn the absorbed solar into delta temperatures
+        heat_gen = [0]
+        for m_abs in absorb:
+            heat_gen.append(solar_irradiance * m_abs)  # heat absorbed in glass
+            heat_gen.append(0)  # heat not absorbed by the following gap
+        return heat_gen, transmitted
+
     def _solve_r_values(self, r_vals, emissivities):
         """Iteratively solve for R-values."""
         r_last = 0
@@ -614,25 +729,56 @@ window-calculation-module.html#step-4.-determine-layer-solar-transmittance
         return r_vals
 
     @staticmethod
-    def _t_sol_from_u_shgc(u_factor, shgc):
-        """Get the solar transmittance from U-factor and SHGC.
-
-        The method used to compute solar transmittance is taken from the
-        EnergyPlus reference.
+    def _solar_optical_properties_by_gap(glazing_materials):
+        """Get forward_reflectance, back_reflectance, and back_absorptance across gaps.
         """
-        if u_factor > 3.4:
-            term_1 = (0.939998 * (shgc ** 2)) + (0.20332 * shgc) \
-                if shgc < 0.7206 else (1.30415 * shgc) - 0.30515
-        if u_factor < 4.5:
-            term_2 = (0.085775 * (shgc ** 2)) + (0.963954 * shgc) - 0.084958 \
-                if shgc > 0.15 else (0.4104 * shgc)
-        if u_factor > 4.5:
-            return term_1
-        elif u_factor < 3.4:
-            return term_2
-        else:
-            weight = (u_factor - 3.4) / 1.1
-            return (term_1 * weight) + (term_2 * (1 - weight))
+        forward_reflectance = []
+        backward_reflectance = []
+        backward_absorptance = []
+        for i, mat in enumerate(glazing_materials[1:]):
+            # compute the fraction of inter-reflected solar off previous panes
+            prev_pane = glazing_materials[i]
+            back_ref = mat.solar_reflectance * prev_pane.solar_transmittance
+            back_abs = mat.solar_reflectance * prev_pane.solar_absorptance
+            fwrd_ref = mat.solar_reflectance * prev_pane.solar_reflectance_back
+            b_ref_i, b_abs_i, f_ref_i = back_ref, fwrd_ref, back_abs
+            for r in range(3):  # simulate 3 bounces back and forth
+                f_ref_i = f_ref_i ** 2
+                b_ref_i = f_ref_i * prev_pane.solar_transmittance
+                b_abs_i = f_ref_i * prev_pane.solar_absorptance
+                fwrd_ref += f_ref_i
+                back_ref += b_ref_i
+                back_abs += b_abs_i
+            forward_reflectance.append(fwrd_ref)
+            backward_reflectance.append(back_ref)
+            backward_absorptance.append(back_abs)
+        return forward_reflectance, backward_reflectance, backward_absorptance
+
+    @staticmethod
+    def _visible_optical_properties_by_gap(glazing_materials):
+        """Get forward_reflectance, back_reflectance, and back_absorptance across gaps.
+        """
+        forward_reflectance = []
+        backward_reflectance = []
+        backward_absorptance = []
+        for i, mat in enumerate(glazing_materials[1:]):
+            # compute the fraction of inter-reflected visible off previous panes
+            prev_pane = glazing_materials[i]
+            back_ref = mat.visible_reflectance * prev_pane.visible_transmittance
+            back_abs = mat.visible_reflectance * prev_pane.visible_absorptance
+            fwrd_ref = mat.visible_reflectance * prev_pane.visible_reflectance_back
+            b_ref_i, b_abs_i, f_ref_i = back_ref, fwrd_ref, back_abs
+            for r in range(3):  # simulate 3 bounces back and forth
+                f_ref_i = f_ref_i ** 2
+                b_ref_i = f_ref_i * prev_pane.visible_transmittance
+                b_abs_i = f_ref_i * prev_pane.visible_absorptance
+                fwrd_ref += f_ref_i
+                back_ref += b_ref_i
+                back_abs += b_abs_i
+            forward_reflectance.append(fwrd_ref)
+            backward_reflectance.append(back_ref)
+            backward_absorptance.append(back_abs)
+        return forward_reflectance, backward_reflectance, backward_absorptance
 
     @staticmethod
     def _old_schema_materials(data):

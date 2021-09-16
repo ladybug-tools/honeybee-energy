@@ -5,7 +5,6 @@ try:
 except ImportError:
     pass   # python 3
 
-from os import stat
 from ladybug_geometry.geometry2d.pointvector import Vector2D
 from honeybee.face import Face
 from honeybee.boundarycondition import Outdoors, Surface
@@ -82,6 +81,9 @@ class ModelEnergyProperties(object):
         for constr in self.constructions:
             try:
                 materials.extend(constr.materials)
+                if isinstance(constr, WindowConstructionShade) \
+                        and constr.is_switchable_glazing:
+                    materials.append(constr.switched_glass_material)
             except AttributeError:
                 pass  # ShadeConstruction
         return list(set(materials))
@@ -822,6 +824,9 @@ class ModelEnergyProperties(object):
         for cnstr in constructions:
             try:
                 materials.extend(cnstr.materials)
+                if isinstance(cnstr, WindowConstructionShade) \
+                        and cnstr.is_switchable_glazing:
+                    materials.append(cnstr.switched_glass_material)
             except AttributeError:
                 pass  # ShadeConstruction
         base['energy']['materials'] = [mat.to_dict() for mat in set(materials)]
