@@ -57,7 +57,6 @@ def test_opaque_construction_init(userdatadict):
         constr_dup.outside_visible_reflectance == pytest.approx(0.2, rel=1e-2)
     
 
-
 def test_opaque_lockability(userdatadict):
     """Test the lockability of the construction."""
     concrete = EnergyMaterial('Concrete', 0.15, 2.31, 2322, 832, 'MediumRough',

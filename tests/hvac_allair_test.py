@@ -40,9 +40,10 @@ def test_vav_init(userdatadict):
     assert hvac_sys.user_data == userdatadict
 
 
-def test_vav_equality():
+def test_vav_equality(userdatadict):
     """Test the equality of VAV objects."""
     hvac_sys = VAV('Test System')
+    hvac_sys.user_data = userdatadict
     hvac_sys_dup = hvac_sys.duplicate()
     hvac_sys_alt = VAV(
         'Test System', sensible_heat_recovery=0.75, latent_heat_recovery=0.6)

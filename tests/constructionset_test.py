@@ -163,7 +163,7 @@ def test_setting_window_construction():
     assert len(default_set.modified_materials_unique) == 2
 
 
-def test_constructionset_equality():
+def test_constructionset_equality(userdatadict):
     """Test the equality of ConstructionSets to one another."""
     default_set = ConstructionSet('Default Set')
     concrete = EnergyMaterial('Concrete', 0.15, 2.31, 2322, 832, 'MediumRough',
@@ -171,6 +171,7 @@ def test_constructionset_equality():
     wall_constr = OpaqueConstruction(
         'Concrete Construction', [concrete])
     default_set.wall_set.exterior_construction = wall_constr
+    default_set.user_data = userdatadict
     new_default_set = default_set.duplicate()
 
     cnstr_set_list = [default_set, default_set, new_default_set]
