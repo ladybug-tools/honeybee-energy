@@ -12,18 +12,15 @@ from ladybug_geometry.geometry3d.pointvector import Point3D
 from ladybug_geometry.geometry3d.face import Face3D
 
 import pytest
-from .fixtures.userdata_fixtures import userdatadict
 
-def test_energy_properties(userdatadict):
+def test_energy_properties():
     """Test the existence of the Aperture energy properties."""
     aperture = Aperture.from_vertices(
         'wall_aperture', [[0, 0, 1], [10, 0, 1], [10, 0, 2], [0, 0, 2]])
-    aperture.user_data = userdatadict
     assert hasattr(aperture.properties, 'energy')
     assert isinstance(aperture.properties.energy, ApertureEnergyProperties)
     assert isinstance(aperture.properties.energy.construction, WindowConstruction)
     assert not aperture.properties.energy.is_construction_set_on_object
-    assert aperture.user_data == userdatadict
 
 
 def test_default_constructions():
@@ -54,7 +51,7 @@ def test_default_constructions():
     assert fa.properties.energy.construction.identifier == 'Generic Double Pane'
 
 
-def test_set_construction(userdatadict):
+def test_set_construction():
     """Test the setting of a construction on an Aperture."""
     vertices_wall = [[0, 0, 0], [0, 10, 0], [0, 10, 3], [0, 0, 3]]
     clear_glass = EnergyWindowMaterialGlazing(
@@ -66,17 +63,15 @@ def test_set_construction(userdatadict):
 
     aperture = Aperture.from_vertices('wall_window', vertices_wall)
     aperture.properties.energy.construction = triple_pane
-    aperture.user_data = userdatadict
 
     assert aperture.properties.energy.construction == triple_pane
     assert aperture.properties.energy.is_construction_set_on_object
-    assert aperture.user_data == userdatadict
 
     with pytest.raises(AttributeError):
         aperture.properties.energy.construction[0].thickness = 0.1
 
 
-def test_duplicate(userdatadict):
+def test_duplicate():
     """Test what happens to energy properties when duplicating an Aperture."""
     verts = [Point3D(0, 0, 0), Point3D(10, 0, 0), Point3D(10, 0, 10), Point3D(0, 0, 10)]
     clear_glass = EnergyWindowMaterialGlazing(
@@ -87,7 +82,6 @@ def test_duplicate(userdatadict):
         'Triple Pane', [clear_glass, gap, clear_glass, gap, clear_glass])
 
     aperture_original = Aperture('wall_window', Face3D(verts))
-    aperture_original.user_data = userdatadict
     aperture_dup_1 = aperture_original.duplicate()
 
     assert aperture_original.properties.energy.host is aperture_original
@@ -110,18 +104,16 @@ def test_duplicate(userdatadict):
         aperture_dup_2.properties.energy.construction
 
 
-def test_to_dict(userdatadict):
+def test_to_dict():
     """Test the Aperture to_dict method with energy properties."""
     aperture = Aperture.from_vertices(
         'wall_window', [[0, 0, 0], [10, 0, 0], [10, 0, 10], [0, 0, 10]])
-    aperture.user_data = userdatadict
     clear_glass = EnergyWindowMaterialGlazing(
         'Clear Glass', 0.005715, 0.770675, 0.07, 0.8836, 0.0804,
         0, 0.84, 0.84, 1.0)
     gap = EnergyWindowMaterialGas('air gap', thickness=0.0127)
     triple_pane = WindowConstruction(
         'Triple Pane', [clear_glass, gap, clear_glass, gap, clear_glass])
-    triple_pane.user_data = userdatadict
 
     ad = aperture.to_dict()
     assert 'properties' in ad
@@ -135,18 +127,16 @@ def test_to_dict(userdatadict):
     assert ad['properties']['energy']['construction'] is not None
 
 
-def test_from_dict(userdatadict):
+def test_from_dict():
     """Test the Aperture from_dict method with energy properties."""
     aperture = Aperture.from_vertices(
         'wall_window', [[0, 0, 0], [10, 0, 0], [10, 0, 10], [0, 0, 10]])
-    aperture.user_data = userdatadict
     clear_glass = EnergyWindowMaterialGlazing(
         'Clear Glass', 0.005715, 0.770675, 0.07, 0.8836, 0.0804,
         0, 0.84, 0.84, 1.0)
     gap = EnergyWindowMaterialGas('air gap', thickness=0.0127)
     triple_pane = WindowConstruction(
         'Triple Pane', [clear_glass, gap, clear_glass, gap, clear_glass])
-    triple_pane.user_data = userdatadict
     aperture.properties.energy.construction = triple_pane
 
     ad = aperture.to_dict()

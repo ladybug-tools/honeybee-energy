@@ -11,18 +11,15 @@ from ladybug_geometry.geometry3d.pointvector import Point3D
 from ladybug_geometry.geometry3d.face import Face3D
 
 import pytest
-from .fixtures.userdata_fixtures import userdatadict
 
-def test_energy_properties(userdatadict):
+def test_energy_properties():
     """Test the existence of the Door energy properties."""
     door = Door.from_vertices(
         'wall_door', [[0, 0, 0], [1, 0, 0], [1, 0, 3], [0, 0, 3]])
-    door.user_data = userdatadict
     assert hasattr(door.properties, 'energy')
     assert isinstance(door.properties.energy, DoorEnergyProperties)
     assert isinstance(door.properties.energy.construction, OpaqueConstruction)
     assert not door.properties.energy.is_construction_set_on_object
-    assert door.user_data == userdatadict
 
 
 def test_default_constructions():
@@ -53,7 +50,7 @@ def test_default_constructions():
     assert fa.properties.energy.construction.identifier == 'Generic Exterior Door'
 
 
-def test_set_construction(userdatadict):
+def test_set_construction():
     """Test the setting of a construction on a Door."""
     vertices_wall = [[0, 0, 0], [0, 10, 0], [0, 10, 3], [0, 0, 3]]
     concrete5 = EnergyMaterial('5cm Concrete', 0.05, 2.31, 2322, 832,
@@ -62,17 +59,15 @@ def test_set_construction(userdatadict):
 
     door = Door.from_vertices('wall_door', vertices_wall)
     door.properties.energy.construction = mass_constr
-    door.user_data = userdatadict
 
     assert door.properties.energy.construction == mass_constr
     assert door.properties.energy.is_construction_set_on_object
-    assert door.user_data == userdatadict
 
     with pytest.raises(AttributeError):
         door.properties.energy.construction[0].thickness = 0.1
 
 
-def test_duplicate(userdatadict):
+def test_duplicate():
     """Test what happens to energy properties when duplicating a Door."""
     verts = [Point3D(0, 0, 0), Point3D(1, 0, 0), Point3D(1, 0, 3), Point3D(0, 0, 3)]
     concrete5 = EnergyMaterial('5cm Concrete', 0.05, 2.31, 2322, 832,
@@ -80,7 +75,6 @@ def test_duplicate(userdatadict):
     mass_constr = OpaqueConstruction('Concrete Door', [concrete5])
 
     door_original = Door('wall_door', Face3D(verts))
-    door_original.user_data = userdatadict
     door_dup_1 = door_original.duplicate()
 
     assert door_original.properties.energy.host is door_original
@@ -103,11 +97,10 @@ def test_duplicate(userdatadict):
         door_dup_2.properties.energy.construction
 
 
-def test_to_dict(userdatadict):
+def test_to_dict():
     """Test the Door to_dict method with energy properties."""
     door = Door.from_vertices(
         'front_door', [[0, 0, 0], [10, 0, 0], [10, 0, 10], [0, 0, 10]])
-    door.user_data = userdatadict
     concrete5 = EnergyMaterial('5cm Concrete', 0.05, 2.31, 2322, 832,
                                'MediumRough', 0.95, 0.75, 0.8)
     mass_constr = OpaqueConstruction('Concrete Door', [concrete5])
@@ -124,11 +117,10 @@ def test_to_dict(userdatadict):
     assert drd['properties']['energy']['construction'] is not None
 
 
-def test_from_dict(userdatadict):
+def test_from_dict():
     """Test the Door from_dict method with energy properties."""
     door = Door.from_vertices(
         'front_door', [[0, 0, 0], [10, 0, 0], [10, 0, 10], [0, 0, 10]])
-    door.user_data = userdatadict
     concrete5 = EnergyMaterial('5cm Concrete', 0.05, 2.31, 2322, 832,
                                'MediumRough', 0.95, 0.75, 0.8)
     mass_constr = OpaqueConstruction('Concrete Door', [concrete5])
