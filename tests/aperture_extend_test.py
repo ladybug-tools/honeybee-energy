@@ -63,10 +63,10 @@ def test_set_construction(userdatadict):
     gap = EnergyWindowMaterialGas('air gap', thickness=0.0127)
     triple_pane = WindowConstruction(
         'Triple Pane', [clear_glass, gap, clear_glass, gap, clear_glass])
-    triple_pane.user_data = userdatadict
 
     aperture = Aperture.from_vertices('wall_window', vertices_wall)
     aperture.properties.energy.construction = triple_pane
+    aperture.user_data = userdatadict
 
     assert aperture.properties.energy.construction == triple_pane
     assert aperture.properties.energy.is_construction_set_on_object

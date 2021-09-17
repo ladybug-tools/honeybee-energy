@@ -10,9 +10,9 @@ from ladybug.datatype import fraction
 from ladybug.analysisperiod import AnalysisPeriod
 
 import pytest
-from .conftest import userdatadict
+from .fixtures.userdata_fixtures import userdatadict
 
-def test_schedule_ruleset_init():
+def test_schedule_ruleset_init(userdatadict):
     """Test the ScheduleRuleset initialization and basic properties."""
     weekday_office = ScheduleDay('Weekday Office Occupancy', [0, 1, 0],
                                  [Time(0, 0), Time(9, 0), Time(17, 0)])
@@ -49,7 +49,7 @@ def test_schedule_ruleset_init():
         schedule = ScheduleRuleset('Office Occupancy', weekday_office)
 
 
-def test_schedule_ruleset_equality():
+def test_schedule_ruleset_equality(userdatadict):
     """Test the equality of ScheduleRuleset objects."""
     weekday_office = ScheduleDay('Weekday Office Occupancy', [0, 1, 0],
                                  [Time(0, 0), Time(9, 0), Time(17, 0)])
@@ -73,7 +73,7 @@ def test_schedule_ruleset_equality():
     assert schedule != residential_schedule
 
 
-def test_schedule_ruleset_lockability():
+def test_schedule_ruleset_lockability(userdatadict):
     """Test the lockability of ScheduleRuleset objects."""
     weekday_office = ScheduleDay('Weekday Office Occupancy', [0, 1, 0],
                                  [Time(0, 0), Time(9, 0), Time(17, 0)])
@@ -299,7 +299,7 @@ def test_schedule_ruleset_from_idf_file_cross_referenced():
     assert len(cooling_avail.schedule_rules) == 2
 
 
-def test_schedule_ruleset_to_from_idf():
+def test_schedule_ruleset_to_from_idf(userdatadict):
     """Test the ScheduleRuleset to_idf and from_idf methods."""
     weekday_office = ScheduleDay('Weekday Office Occupancy', [0, 1, 0],
                                  [Time(0, 0), Time(9, 0), Time(17, 0)])
@@ -366,7 +366,7 @@ def test_schedule_ruleset_to_idf_date_range():
     assert len(week_scheds) == 2
 
 
-def test_schedule_ruleset_dict_methods():
+def test_schedule_ruleset_dict_methods(userdatadict):
     """Test the ScheduleRuleset to/from dict methods."""
     weekday_office = ScheduleDay('Weekday Office Occupancy', [0, 1, 0],
                                  [Time(0, 0), Time(9, 0), Time(17, 0)])
