@@ -57,7 +57,7 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
     """
     __slots__ = ('_roughness', '_thickness', '_conductivity',
                  '_density', '_specific_heat', '_thermal_absorptance',
-                 '_solar_absorptance', '_visible_absorptance', '_user_data')
+                 '_solar_absorptance', '_visible_absorptance')
 
     def __init__(self, identifier, thickness, conductivity, density, specific_heat,
                  roughness='MediumRough', thermal_absorptance=0.9,
@@ -73,7 +73,6 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
         self.solar_absorptance = solar_absorptance
         self.visible_absorptance = visible_absorptance
         self._locked = False
-        self._user_data = None
 
     @property
     def roughness(self):
@@ -202,24 +201,6 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
     def area_heat_capacity(self):
         """The heat capacity per unit area of the material [kg/K-m2]."""
         return self.mass_area_density * self.specific_heat
-
-    @property
-    def user_data(self):
-        """Get or set an optional dictionary for additional meta data for this object.
-
-        This will be None until it has been set. All keys and values of this
-        dictionary should be of a standard Python type to ensure correct
-        serialization of the object to/from JSON (eg. str, float, int, list, dict)
-        """
-        if self._user_data is not None:
-            return self._user_data
-    
-    @user_data.setter
-    def user_data(self, value):
-        if value is not None:
-            assert isinstance(value, dict), 'Expected dictionary for honeybee_energy' \
-                'object user_data. Got {}.'.format(type(value))
-        self._user_data = value
 
     @classmethod
     def from_idf(cls, idf_string):
@@ -393,7 +374,7 @@ class EnergyMaterialNoMass(_EnergyMaterialOpaqueBase):
         * area_heat_capacity
     """
     __slots__ = ('_r_value', '_roughness', '_thermal_absorptance',
-                 '_solar_absorptance', '_visible_absorptance', '_user_data')
+                 '_solar_absorptance', '_visible_absorptance')
 
     def __init__(self, identifier, r_value, roughness='MediumRough',
                  thermal_absorptance=0.9, solar_absorptance=0.7,
@@ -405,7 +386,6 @@ class EnergyMaterialNoMass(_EnergyMaterialOpaqueBase):
         self.thermal_absorptance = thermal_absorptance
         self.solar_absorptance = solar_absorptance
         self.visible_absorptance = visible_absorptance
-        self._user_data = None
 
     @property
     def r_value(self):

@@ -427,23 +427,6 @@ class EnergyWindowMaterialShade(_EnergyWindowMaterialShadeBase):
         self._conductivity = self.thickness / \
             float_positive(r_val, 'shade material r-value')
 
-    @property
-    def user_data(self):
-        """Get or set an optional dictionary for additional meta data for this object.
-
-        This will be None until it has been set. All keys and values of this
-        dictionary should be of a standard Python type to ensure correct
-        serialization of the object to/from JSON (eg. str, float, int, list, dict)
-        """
-        return self._user_data
-    
-    @user_data.setter
-    def user_data(self, value):
-        if value is not None:
-            assert isinstance(value, dict), 'Expected dictionary for honeybee_energy' \
-                'object user_data. Got {}.'.format(type(value))
-        self._user_data = value
-
     @classmethod
     def from_idf(cls, idf_string):
         """Create EnergyWindowMaterialShade from an EnergyPlus text string.
@@ -607,7 +590,6 @@ class EnergyWindowMaterialShade(_EnergyWindowMaterialShadeBase):
         new_material._left_opening_multiplier = self._left_opening_multiplier
         new_material._right_opening_multiplier = self._right_opening_multiplier
         new_material._display_name = self._display_name
-        new_material._user_data = None if self._user_data is None else self._user_data.copy()
         return new_material
 
 
@@ -720,7 +702,6 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
         self._beam_visible_reflectance_back = None
         self._diffuse_visible_reflectance = 0
         self._diffuse_visible_reflectance_back = None
-        self._user_data = None
 
         self.slat_orientation = slat_orientation
         self.slat_width = slat_width
