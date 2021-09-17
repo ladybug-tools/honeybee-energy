@@ -415,6 +415,24 @@ class WindowConstructionShade(object):
         return isinstance(self.shade_material, EnergyWindowMaterialGlazing)
 
     @property
+    def switched_glass_material(self):
+        """Get material replaced by shade glass when construction is switchable glazing.
+
+        This can be used to comapre the properties of the glass layer replaced by
+        the shade glass. Will be None if the construction is not a switchable glazing.
+        """
+        if not self.is_switchable_glazing:
+            return None
+        base_mats = self._window_construction.materials
+        if self._shade_location == 'Interior':
+            return self.base_mats[-1]
+        elif self._shade_location == 'Exterior' or \
+                self._window_construction.gap_count == 0:
+            return base_mats[0]
+        else:  # middle glass pane
+            return base_mats[-3]
+
+    @property
     def inside_emissivity(self):
         """"The emissivity of the inside face of the construction.
 
