@@ -61,6 +61,7 @@ class Ventilation(_LoadBase):
         * flow_per_zone
         * air_changes_per_hour
         * schedule
+        * user_data
     """
     __slots__ = ('_flow_per_person', '_flow_per_area', '_flow_per_zone',
                  '_air_changes_per_hour', '_schedule')
@@ -237,6 +238,8 @@ class Ventilation(_LoadBase):
         new_obj = cls(data['identifier'], person, area, zone, ach, sched)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
+        if 'user_data' in data and data['user_data'] is not None:
+            new_obj.user_data = data['user_data']
         return new_obj
 
     @classmethod
@@ -275,6 +278,8 @@ class Ventilation(_LoadBase):
         new_obj = cls(data['identifier'], person, area, zone, ach, sched)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
+        if 'user_data' in data and data['user_data'] is not None:
+            new_obj.user_data = data['user_data']
         return new_obj
 
     def to_idf(self, zone_identifier):
@@ -321,6 +326,8 @@ class Ventilation(_LoadBase):
                 abridged else self.schedule.identifier
         if self._display_name is not None:
             base['display_name'] = self.display_name
+        if self._user_data is not None:
+            base['user_data'] = self.user_data
         return base
 
     @staticmethod
@@ -401,6 +408,7 @@ class Ventilation(_LoadBase):
             self.identifier, self.flow_per_person, self.flow_per_area,
             self.flow_per_zone, self.air_changes_per_hour, self.schedule)
         new_obj._display_name = self._display_name
+        new_obj._user_data = None if self._user_data is None else self._user_data.copy()
         return new_obj
 
     def __repr__(self):

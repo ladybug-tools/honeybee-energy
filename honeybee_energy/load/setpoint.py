@@ -49,6 +49,7 @@ class Setpoint(_LoadBase):
         * cooling_setback
         * humidifying_setback
         * dehumidifying_setback
+        * user_data
     """
     __slots__ = ('_heating_schedule', '_cooling_schedule', '_humidifying_schedule',
                  '_dehumidifying_schedule')
@@ -390,6 +391,8 @@ class Setpoint(_LoadBase):
                       humid_sched, dehumid_sched)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
+        if 'user_data' in data and data['user_data'] is not None:
+            new_obj.user_data = data['user_data']
         return new_obj
 
     @classmethod
@@ -439,6 +442,8 @@ class Setpoint(_LoadBase):
                       humid_sched, dehumid_sched)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
+        if 'user_data' in data and data['user_data'] is not None:
+            new_obj.user_data = data['user_data']
         return new_obj
 
     def to_idf(self, zone_identifier):
@@ -508,6 +513,8 @@ class Setpoint(_LoadBase):
                 base['dehumidifying_schedule'] = self.dehumidifying_schedule.identifier
         if self._display_name is not None:
             base['display_name'] = self.display_name
+        if self._user_data is not None:
+            base['user_data'] = self.user_data
         return base
 
     @staticmethod
@@ -628,6 +635,7 @@ class Setpoint(_LoadBase):
             self.identifier, self.heating_schedule, self.cooling_schedule,
             self.humidifying_schedule, self.dehumidifying_schedule)
         new_obj._display_name = self._display_name
+        new_obj._user_data = None if self._user_data is None else self._user_data.copy()
         return new_obj
 
     def __repr__(self):

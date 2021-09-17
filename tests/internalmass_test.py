@@ -8,14 +8,16 @@ from honeybee_energy.construction.opaque import OpaqueConstruction
 from honeybee_energy.material.opaque import EnergyMaterial
 
 import pytest
+from .fixtures.userdata_fixtures import userdatadict
 
 
-def test_internal_mass_init():
+def test_internal_mass_init(userdatadict):
     """Test the initialization of InternalMass and basic properties."""
     rammed_earth = EnergyMaterial('40cm Rammed Earth', 0.4, 2.31, 2322, 832,
                                   'MediumRough', 0.95, 0.75, 0.8)
     earth_constr = OpaqueConstruction('Rammed Earth Construction', [rammed_earth])
     chimney_mass = InternalMass('Rammed Earth Chimney', earth_constr, 10)
+    chimney_mass.user_data = userdatadict
     str(chimney_mass)  # test the string representation
 
     assert chimney_mass.identifier == chimney_mass.display_name == 'Rammed Earth Chimney'
@@ -31,9 +33,10 @@ def test_internal_mass_init():
 
     assert chimney_mass.construction == stone_constr
     assert chimney_mass.area == 8
+    assert chimney_mass.user_data == userdatadict
 
 
-def test_internal_mass_equality():
+def test_internal_mass_equality(userdatadict):
     """Test the equality of InternalMass objects."""
     rammed_earth = EnergyMaterial('40cm Rammed Earth', 0.4, 2.31, 2322, 832,
                                   'MediumRough', 0.95, 0.75, 0.8)
@@ -43,6 +46,7 @@ def test_internal_mass_equality():
     stone_constr = OpaqueConstruction('Stone Veneer', [stone])
 
     chimney_mass = InternalMass('Rammed Earth Chimney', earth_constr, 10)
+    chimney_mass.user_data = userdatadict
     chimney_mass_dup = chimney_mass.duplicate()
     chimney_mass_alt = InternalMass('Rammed Earth Chimney', stone_constr, 10)
 
@@ -54,12 +58,13 @@ def test_internal_mass_equality():
     assert chimney_mass != chimney_mass_alt
 
 
-def test_internal_mass_lockability():
+def test_internal_mass_lockability(userdatadict):
     """Test the lockability of InternalMass objects."""
     rammed_earth = EnergyMaterial('40cm Rammed Earth', 0.4, 2.31, 2322, 832,
                                   'MediumRough', 0.95, 0.75, 0.8)
     earth_constr = OpaqueConstruction('Rammed Earth Construction', [rammed_earth])
     chimney_mass = InternalMass('Rammed Earth Chimney', earth_constr, 10)
+    chimney_mass.user_data = userdatadict
 
     chimney_mass.area = 5
     chimney_mass.lock()
@@ -69,12 +74,15 @@ def test_internal_mass_lockability():
     chimney_mass.area = 8
 
 
-def test_internal_mass_dict_methods():
+def test_internal_mass_dict_methods(userdatadict):
     """Test the to/from dict methods."""
     rammed_earth = EnergyMaterial('40cm Rammed Earth', 0.4, 2.31, 2322, 832,
                                   'MediumRough', 0.95, 0.75, 0.8)
+    rammed_earth.user_data = userdatadict
     earth_constr = OpaqueConstruction('Rammed Earth Construction', [rammed_earth])
+    earth_constr.user_data = userdatadict
     chimney_mass = InternalMass('Rammed Earth Chimney', earth_constr, 10)
+    chimney_mass.user_data = userdatadict
 
     mass_dict = chimney_mass.to_dict()
     new_chimney_mass = InternalMass.from_dict(mass_dict)
@@ -82,12 +90,13 @@ def test_internal_mass_dict_methods():
     assert mass_dict == new_chimney_mass.to_dict()
 
 
-def test_internal_mass_idf_methods():
+def test_internal_mass_idf_methods(userdatadict):
     """Test the to/from IDF methods."""
     rammed_earth = EnergyMaterial('40cm Rammed Earth', 0.4, 2.31, 2322, 832,
                                   'MediumRough', 0.95, 0.75, 0.8)
     earth_constr = OpaqueConstruction('Rammed Earth Construction', [rammed_earth])
     chimney_mass = InternalMass('Rammed Earth Chimney', earth_constr, 10)
+    chimney_mass.user_data = userdatadict
 
     mass_idf = chimney_mass.to_idf('Test Room')
     new_chimney_mass = InternalMass.from_idf(
@@ -97,7 +106,7 @@ def test_internal_mass_idf_methods():
 
 
 
-def test_assign_to_room():
+def test_assign_to_room(userdatadict):
     """Test the assignment of internal masses to rooms."""
     concrete20 = EnergyMaterial('20cm Concrete', 0.2, 2.31, 2322, 832,
                                 'MediumRough', 0.95, 0.75, 0.8)
@@ -112,7 +121,9 @@ def test_assign_to_room():
     table_geo = Face3D(table_verts)
     table_mass = InternalMass.from_geometry(
         'Concrete Table', thick_constr, [table_geo], 'Meters')
+    table_mass.user_data = userdatadict
     chair_mass = InternalMass('Concrete Chair', thin_constr, 1)
+    chair_mass.user_data = userdatadict
 
     assert len(room.properties.energy.internal_masses) == 0
     room.properties.energy.internal_masses = [table_mass]

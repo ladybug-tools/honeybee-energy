@@ -53,6 +53,7 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
         * r_value
         * mass_area_density
         * area_heat_capacity
+        * user_data
     """
     __slots__ = ('_roughness', '_thickness', '_conductivity',
                  '_density', '_specific_heat', '_thermal_absorptance',
@@ -254,6 +255,9 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
                       data['density'], data['specific_heat'], rough, t_abs, s_abs, v_abs)
         if 'display_name' in data and data['display_name'] is not None:
             new_mat.display_name = data['display_name']
+        if 'user_data' in data and data['user_data'] is not None:
+            new_mat.user_data = data['user_data']
+
         return new_mat
 
     def to_idf(self):
@@ -304,6 +308,8 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
         }
         if self._display_name is not None:
             base['display_name'] = self.display_name
+        if self._user_data is not None:
+            base['user_data'] = self.user_data
         return base
 
     def __key(self):
@@ -512,6 +518,8 @@ class EnergyMaterialNoMass(_EnergyMaterialOpaqueBase):
         new_mat = cls(data['identifier'], data['r_value'], rough, t_abs, s_abs, v_abs)
         if 'display_name' in data and data['display_name'] is not None:
             new_mat.display_name = data['display_name']
+        if 'user_data' in data and data['user_data'] is not None:
+            new_mat.user_data = data['user_data']
         return new_mat
 
     def to_idf(self):
@@ -559,6 +567,8 @@ class EnergyMaterialNoMass(_EnergyMaterialOpaqueBase):
         }
         if self._display_name is not None:
             base['display_name'] = self.display_name
+        if self._user_data is not None:
+            base['user_data'] = self.user_data
         return base
 
     def __key(self):

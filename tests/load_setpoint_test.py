@@ -8,15 +8,16 @@ import honeybee_energy.lib.scheduletypelimits as schedule_types
 from ladybug.dt import Time
 
 import pytest
+from .fixtures.userdata_fixtures import userdatadict
 
-
-def test_setpoint_init():
+def test_setpoint_init(userdatadict):
     """Test the initialization of Setpoint and basic properties."""
     heat_setpt = ScheduleRuleset.from_constant_value(
         'Office Heating', 21, schedule_types.temperature)
     cool_setpt = ScheduleRuleset.from_constant_value(
         'Office Cooling', 24, schedule_types.temperature)
     setpoint = Setpoint('Office Setpoint', heat_setpt, cool_setpt)
+    setpoint.user_data = userdatadict
     str(setpoint)  # test the string representation
 
     assert setpoint.identifier == 'Office Setpoint'
@@ -32,9 +33,10 @@ def test_setpoint_init():
     assert setpoint.dehumidifying_schedule is None
     assert setpoint.dehumidifying_setpoint is None
     assert setpoint.dehumidifying_setback is None
+    assert setpoint.user_data == userdatadict
 
 
-def test_setpoint_init_with_setback():
+def test_setpoint_init_with_setback(userdatadict):
     """Test the initialization of Setpoint with a setback schedule."""
     simple_heat = ScheduleDay('Simple Weekday HtgSetp', [18, 21, 18],
                               [Time(0, 0), Time(9, 0), Time(17, 0)])
@@ -45,6 +47,7 @@ def test_setpoint_init_with_setback():
     cool_setpt = ScheduleRuleset('Office Cooling', simple_cool,
                                  None, schedule_types.temperature)
     setpoint = Setpoint('Office Setpoint', heat_setpt, cool_setpt)
+    setpoint.user_data = userdatadict
 
     assert setpoint.identifier == 'Office Setpoint'
     assert setpoint.heating_schedule == heat_setpt
@@ -53,9 +56,10 @@ def test_setpoint_init_with_setback():
     assert setpoint.cooling_schedule == cool_setpt
     assert setpoint.cooling_setpoint == 24
     assert setpoint.cooling_setback == 28
+    assert setpoint.user_data == userdatadict
 
 
-def test_setpoint_init_humidity():
+def test_setpoint_init_humidity(userdatadict):
     """Test the initialization of Setpoint with humidity setpoints."""
     heat_setpt = ScheduleRuleset.from_constant_value(
         'Office Heating', 21, schedule_types.temperature)
@@ -64,6 +68,7 @@ def test_setpoint_init_humidity():
     setpoint = Setpoint('Office Setpoint', heat_setpt, cool_setpt)
     setpoint.humidifying_setpoint = 30
     setpoint.dehumidifying_setpoint = 60
+    setpoint.user_data = userdatadict
     str(setpoint)  # test the string representation
 
     assert setpoint.identifier == 'Office Setpoint'
@@ -79,15 +84,16 @@ def test_setpoint_init_humidity():
     assert setpoint.dehumidifying_schedule.is_constant
     assert setpoint.dehumidifying_setpoint == 60
     assert setpoint.dehumidifying_setback == 60
+    assert setpoint.user_data == userdatadict
 
-
-def test_setpoint_setability():
+def test_setpoint_setability(userdatadict):
     """Test the setting of properties of Setpoint."""
     heat_setpt = ScheduleRuleset.from_constant_value(
         'Office Heating', 21, schedule_types.temperature)
     cool_setpt = ScheduleRuleset.from_constant_value(
         'Office Cooling', 24, schedule_types.temperature)
     setpoint = Setpoint('Office Setpoint', heat_setpt, cool_setpt)
+    setpoint.user_data = userdatadict
 
     setpoint.identifier = 'Office Zone Setpoint'
     assert setpoint.identifier == 'Office Zone Setpoint'
@@ -103,9 +109,10 @@ def test_setpoint_setability():
     setpoint.dehumidifying_setpoint = 60
     assert setpoint.dehumidifying_setpoint == 60
     assert setpoint.dehumidifying_setback == 60
+    assert setpoint.user_data == userdatadict
 
 
-def test_setpoint_equality():
+def test_setpoint_equality(userdatadict):
     """Test the equality of Setpoint objects."""
     simple_heat = ScheduleDay('Simple Weekday HtgSetp', [18, 21, 18],
                               [Time(0, 0), Time(9, 0), Time(17, 0)])
@@ -121,6 +128,7 @@ def test_setpoint_equality():
         'Office Cooling', 24, schedule_types.temperature)
 
     setpoint = Setpoint('Office Setpoint', heat_setpt, cool_setpt)
+    setpoint.user_data = userdatadict
     setpoint_dup = setpoint.duplicate()
     setpoint_alt = Setpoint('Office Setpoint', heat_setpt_2, cool_setpt_2)
 
@@ -132,13 +140,14 @@ def test_setpoint_equality():
     assert setpoint != setpoint_alt
 
 
-def test_setpoint_lockability():
+def test_setpoint_lockability(userdatadict):
     """Test the lockability of Setpoint objects."""
     heat_setpt = ScheduleRuleset.from_constant_value(
         'Office Heating', 21, schedule_types.temperature)
     cool_setpt = ScheduleRuleset.from_constant_value(
         'Office Cooling', 24, schedule_types.temperature)
     setpoint = Setpoint('Office Setpoint', heat_setpt, cool_setpt)
+    setpoint.user_data = userdatadict
 
     setpoint.heating_setpoint = 20
     setpoint.lock()
@@ -166,7 +175,7 @@ def test_setpoint_init_from_idf():
     assert setpoint == rebuilt_setpoint
 
 
-def test_setpoint_init_from_idf_humidity():
+def test_setpoint_init_from_idf_humidity(userdatadict):
     """Test the initialization of Setpoint from_idf with humidity setpoints."""
     simple_heat = ScheduleDay('Simple Weekday HtgSetp', [18, 21, 18],
                               [Time(0, 0), Time(9, 0), Time(17, 0)])
@@ -182,6 +191,7 @@ def test_setpoint_init_from_idf_humidity():
         'Office Dehumid', 60, schedule_types.humidity)
     setpoint = Setpoint('Office Setpoint', heat_setpt, cool_setpt,
                         humid_setpt, dehumid_setpt)
+    setpoint.user_data = userdatadict
     sched_dict = {heat_setpt.identifier: heat_setpt, cool_setpt.identifier: cool_setpt,
                   humid_setpt.identifier: humid_setpt,
                   dehumid_setpt.identifier: dehumid_setpt}
@@ -194,7 +204,7 @@ def test_setpoint_init_from_idf_humidity():
     assert setpoint == rebuilt_setpoint
 
 
-def test_setpoint_dict_methods():
+def test_setpoint_dict_methods(userdatadict):
     """Test the to/from dict methods."""
     simple_heat = ScheduleDay('Simple Weekday HtgSetp', [18, 21, 18],
                               [Time(0, 0), Time(9, 0), Time(17, 0)])
@@ -210,12 +220,12 @@ def test_setpoint_dict_methods():
         'Office Dehumid', 60, schedule_types.humidity)
     setpoint = Setpoint('Office Setpoint', heat_setpt, cool_setpt,
                         humid_setpt, dehumid_setpt)
-
+    setpoint.user_data = userdatadict
     setp_dict = setpoint.to_dict()
     new_setpoint = Setpoint.from_dict(setp_dict)
     assert new_setpoint == setpoint
     assert setp_dict == new_setpoint.to_dict()
-
+    assert new_setpoint.user_data == userdatadict
 
 def test_setpoint_average():
     """Test the Setpoint.average method."""

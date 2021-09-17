@@ -37,6 +37,7 @@ class _EnergyWindowMaterialShadeBase(_EnergyMaterialWindowBase):
         self.emissivity = emissivity
         self.distance_to_glass = distance_to_glass
         self.set_all_opening_multipliers(opening_multiplier)
+        
 
     @property
     def is_shade_material(self):
@@ -289,6 +290,7 @@ class EnergyWindowMaterialShade(_EnergyWindowMaterialShadeBase):
         * resistivity
         * u_value
         * r_value
+        * user_data
     """
     __slots__ = ('_thickness', '_solar_transmittance', '_solar_reflectance',
                  '_visible_transmittance', '_visible_reflectance',
@@ -507,6 +509,8 @@ class EnergyWindowMaterialShade(_EnergyWindowMaterialShadeBase):
         new_mat.right_opening_multiplier = right
         if 'display_name' in data and data['display_name'] is not None:
             new_mat.display_name = data['display_name']
+        if 'user_data' in data and data['user_data'] is not None:
+            new_mat.user_data = data['user_data']
         return new_mat
 
     def to_idf(self):
@@ -547,6 +551,8 @@ class EnergyWindowMaterialShade(_EnergyWindowMaterialShadeBase):
         }
         if self._display_name is not None:
             base['display_name'] = self.display_name
+        if self._user_data is not None:
+            base['user_data'] = self.user_data
         return base
 
     def __key(self):
@@ -663,6 +669,7 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
         * slat_resistivity
         * u_value
         * r_value
+        * user_data
     """
     ORIENTATIONS = ('Horizontal', 'Vertical')
     __slots__ = ('_slat_orientation', '_slat_width', '_slat_separation',
@@ -1154,6 +1161,8 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
         new_mat.right_opening_multiplier = right
         if 'display_name' in data and data['display_name'] is not None:
             new_mat.display_name = data['display_name']
+        if 'user_data' in data and data['user_data'] is not None:
+            new_mat.user_data = data['user_data']
         return new_mat
 
     def to_idf(self):
@@ -1220,6 +1229,8 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
         }
         if self._display_name is not None:
             base['display_name'] = self.display_name
+        if self._user_data is not None:
+            base['user_data'] = self.user_data
         return base
 
     def __key(self):

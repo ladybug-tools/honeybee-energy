@@ -84,7 +84,7 @@ class _EnergyWindowMaterialGasBase(_EnergyMaterialWindowBase):
     def prandtl(self):
         """Prandtl number of the gas at 0C."""
         return self.prandtl_at_temperature(273.15)
-
+    
     def density_at_temperature(self, t_kelvin, pressure=101325):
         """Get the density of the gas [kg/m3] at a given temperature and pressure.
 
@@ -332,8 +332,9 @@ class EnergyWindowMaterialGas(_EnergyWindowMaterialGasBase):
         * specific_heat
         * density
         * prandtl
+        * user_data
     """
-    __slots__ = ('_gas_type',)
+    __slots__ = ('_gas_type')
 
     def __init__(self, identifier, thickness=0.0125, gas_type='Air'):
         """Initialize gas energy material."""
@@ -405,6 +406,8 @@ class EnergyWindowMaterialGas(_EnergyWindowMaterialGasBase):
         new_obj = cls(data['identifier'], thickness, gas_type)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
+        if 'user_data' in data and data['user_data'] is not None:
+            new_obj.user_data = data['user_data']
         return new_obj
 
     def to_idf(self):
@@ -423,6 +426,8 @@ class EnergyWindowMaterialGas(_EnergyWindowMaterialGasBase):
         }
         if self._display_name is not None:
             base['display_name'] = self.display_name
+        if self._user_data is not None:
+            base['user_data'] = self.user_data
         return base
 
     def _coeff_property(self, dictionary, t_kelvin):
@@ -592,6 +597,8 @@ class EnergyWindowMaterialGasMixture(_EnergyWindowMaterialGasBase):
                       data['gas_fractions'])
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
+        if 'user_data' in data and data['user_data'] is not None:
+            new_obj.user_data = data['user_data']
         return new_obj
 
     def to_idf(self):
@@ -616,6 +623,8 @@ class EnergyWindowMaterialGasMixture(_EnergyWindowMaterialGasBase):
         }
         if self._display_name is not None:
             base['display_name'] = self.display_name
+        if self._user_data is not None:
+            base['user_data'] = self.user_data
         return base
 
     def _weighted_avg_coeff_property(self, dictionary, t_kelvin):
@@ -744,6 +753,7 @@ class EnergyWindowMaterialGasCustom(_EnergyWindowMaterialGasBase):
         self.specific_heat_coeff_c = specific_heat_coeff_c
         self.specific_heat_ratio = specific_heat_ratio
         self.molecular_weight = molecular_weight
+        self._user_data = None
 
     @property
     def conductivity_coeff_a(self):
@@ -910,6 +920,8 @@ class EnergyWindowMaterialGasCustom(_EnergyWindowMaterialGasBase):
                       con_b, vis_b, sph_b, con_c, vis_c, sph_c, sphr, mw)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
+        if 'user_data' in data and data['user_data'] is not None:
+            new_obj.user_data = data['user_data']
         return new_obj
 
     def to_idf(self):
@@ -947,6 +959,8 @@ class EnergyWindowMaterialGasCustom(_EnergyWindowMaterialGasBase):
         }
         if self._display_name is not None:
             base['display_name'] = self.display_name
+        if self._user_data is not None:
+            base['user_data'] = self.user_data
         return base
 
     def __key(self):

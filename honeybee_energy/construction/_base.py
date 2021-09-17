@@ -33,11 +33,12 @@ class _ConstructionBase(object):
         * r_factor
         * is_symmetric
         * has_shade
+        * user_data
     """
     # generic air material used to compute indoor film coefficients.
     _air = EnergyWindowMaterialGas('generic air', gas_type='Air')
 
-    __slots__ = ('_identifier', '_display_name', '_materials', '_locked')
+    __slots__ = ('_identifier', '_display_name', '_materials', '_locked', '_user_data')
 
     def __init__(self, identifier, materials):
         """Initialize energy construction."""
@@ -45,6 +46,7 @@ class _ConstructionBase(object):
         self.identifier = identifier
         self._display_name = None
         self.materials = materials
+        self._user_data = None
 
     @property
     def identifier(self):
@@ -153,6 +155,24 @@ class _ConstructionBase(object):
         """
         # This is False for all construction types except WindowConstructionShade.
         return False
+
+    @property
+    def user_data(self):
+        """Get or set an optional dictionary for additional meta data for this object.
+
+        This will be None until it has been set. All keys and values of this
+        dictionary should be of a standard Python type to ensure correct
+        serialization of the object to/from JSON (eg. str, float, int, list, dict)
+        """
+        if self._user_data is not None:
+            return self._user_data
+    
+    @user_data.setter
+    def user_data(self, value):
+        if value is not None:
+            assert isinstance(value, dict), 'Expected dictionary for honeybee_energy' \
+                'object user_data. Got {}.'.format(type(value))
+        self._user_data = value
 
     def duplicate(self):
         """Get a copy of this construction."""
@@ -268,6 +288,7 @@ class _ConstructionBase(object):
         new_con = self.__class__(
             self.identifier, [mat.duplicate() for mat in self.materials])
         new_con._display_name = self._display_name
+        new_con._user_data = None if self._user_data is None else self._user_data.copy()
         return new_con
 
     def __len__(self):

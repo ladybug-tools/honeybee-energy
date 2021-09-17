@@ -12,7 +12,6 @@ from ladybug_geometry.geometry3d.face import Face3D
 
 import pytest
 
-
 def test_energy_properties():
     """Test the existence of the Door energy properties."""
     door = Door.from_vertices(

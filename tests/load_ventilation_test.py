@@ -9,11 +9,12 @@ import honeybee_energy.lib.scheduletypelimits as schedule_types
 from ladybug.dt import Time, Date
 
 import pytest
+from .fixtures.userdata_fixtures import userdatadict
 
-
-def test_ventilation_init():
+def test_ventilation_init(userdatadict):
     """Test the initialization of Ventilation and basic properties."""
     ventilation = Ventilation('Office Ventilation', 0.0025, 0.0006)
+    ventilation.user_data = userdatadict 
     str(ventilation)  # test the string representation
 
     assert ventilation.identifier == 'Office Ventilation'
@@ -22,15 +23,17 @@ def test_ventilation_init():
     assert ventilation.flow_per_zone == 0
     assert ventilation.air_changes_per_hour == 0
     assert ventilation.schedule is None
+    assert ventilation.user_data == userdatadict
 
 
-def test_ventilation_init_schedule():
+def test_ventilation_init_schedule(userdatadict):
     """Test the initialization of Ventilation with a schedule."""
     simple_office = ScheduleDay('Simple Weekday', [0, 1, 0],
                                 [Time(0, 0), Time(9, 0), Time(17, 0)])
     schedule = ScheduleRuleset('Office Ventilation Schedule', simple_office,
                                None, schedule_types.fractional)
     ventilation = Ventilation('Office Ventilation', 0.0025, 0.0006, 0, 0, schedule)
+    ventilation.user_data = userdatadict
     str(ventilation)  # test the string representation
 
     assert ventilation.identifier == 'Office Ventilation'
@@ -41,15 +44,17 @@ def test_ventilation_init_schedule():
     assert ventilation.schedule.identifier == 'Office Ventilation Schedule'
     assert ventilation.schedule.schedule_type_limit == schedule_types.fractional
     assert ventilation.schedule == schedule
+    assert ventilation.user_data == userdatadict
 
 
-def test_ventilation_setability():
+def test_ventilation_setability(userdatadict):
     """Test the setting of properties of Ventilation."""
     simple_office = ScheduleDay('Simple Weekday', [0, 1, 0],
                                 [Time(0, 0), Time(9, 0), Time(17, 0)])
     schedule = ScheduleRuleset('Office Ventilation Schedule', simple_office,
                                None, schedule_types.fractional)
     ventilation = Ventilation('Office Ventilation', 0.0025, 0.0006)
+    ventilation.user_data = userdatadict
 
     ventilation.identifier = 'Office Zone Ventilation'
     assert ventilation.identifier == 'Office Zone Ventilation'
@@ -65,13 +70,14 @@ def test_ventilation_setability():
     assert ventilation.schedule == schedule
 
 
-def test_ventilation_equality():
+def test_ventilation_equality(userdatadict):
     """Test the equality of Ventilation objects."""
     simple_office = ScheduleDay('Simple Weekday', [0, 1, 0],
                                 [Time(0, 0), Time(9, 0), Time(17, 0)])
     schedule = ScheduleRuleset('Office Ventilation Schedule', simple_office,
                                None, schedule_types.fractional)
     ventilation = Ventilation('Office Ventilation', 0.0025, 0.0006)
+    ventilation.user_data = userdatadict
     ventilation_dup = ventilation.duplicate()
     ventilation_alt = Ventilation('Office Ventilation', 0.0025, 0.0006)
     ventilation_alt.schedule = schedule
@@ -84,9 +90,10 @@ def test_ventilation_equality():
     assert ventilation != ventilation_alt
 
 
-def test_ventilation_lockability():
+def test_ventilation_lockability(userdatadict):
     """Test the lockability of Ventilation objects."""
     ventilation = Ventilation('Office Ventilation', 0.0025, 0.0006)
+    ventilation.user_data = userdatadict
 
     ventilation.flow_per_person = 0.01
     ventilation.lock()
@@ -111,24 +118,27 @@ def test_ventilation_init_from_idf():
     assert ventilation == rebuilt_ventilation
 
 
-def test_ventilation_dict_methods():
+def test_ventilation_dict_methods(userdatadict):
     """Test the to/from dict methods."""
     simple_office = ScheduleDay('Simple Weekday', [0, 1, 0],
                                 [Time(0, 0), Time(9, 0), Time(17, 0)])
     schedule = ScheduleRuleset('Office Ventilation Schedule', simple_office,
                                None, schedule_types.fractional)
     ventilation = Ventilation('Office Ventilation', 0.0025, 0.0006)
+    ventilation.user_data = userdatadict 
 
     vent_dict = ventilation.to_dict()
     new_ventilation = Ventilation.from_dict(vent_dict)
     assert new_ventilation == ventilation
     assert vent_dict == new_ventilation.to_dict()
+    assert new_ventilation.user_data == userdatadict
 
     ventilation.schedule = schedule
     vent_dict = ventilation.to_dict()
     new_ventilation = Ventilation.from_dict(vent_dict)
     assert new_ventilation == ventilation
     assert vent_dict == new_ventilation.to_dict()
+    assert new_ventilation.user_data == userdatadict
 
 
 def test_ventilation_average():

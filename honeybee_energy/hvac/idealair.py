@@ -367,6 +367,8 @@ class IdealAirSystem(_HVACSystem):
                       cool_temp, heat_limit, cool_limit, heat_avail, cool_avail)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
+        if 'user_data' in data and data['user_data'] is not None:
+            new_obj.user_data = data['user_data']
         return new_obj
 
     @classmethod
@@ -422,6 +424,8 @@ class IdealAirSystem(_HVACSystem):
                       cool_temp, heat_limit, cool_limit, heat_avail, cool_avail)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
+        if 'user_data' in data and data['user_data'] is not None:
+            new_obj.user_data = data['user_data']
         return new_obj
 
     def to_idf(self, room):
@@ -550,6 +554,8 @@ class IdealAirSystem(_HVACSystem):
                 abridged else self.cooling_availability.to_dict()
         if self._display_name is not None:
             base['display_name'] = self.display_name
+        if self._user_data is not None:
+            base['user_data'] = self.user_data
         return base
 
     def _air_temperature_check(self):
@@ -599,6 +605,7 @@ class IdealAirSystem(_HVACSystem):
             self._heating_limit, self._cooling_limit, self._heating_availability,
             self._cooling_availability)
         new_obj._display_name = self._display_name
+        new_obj._user_data = None if self._user_data is None else self._user_data.copy()
         return new_obj
 
     def __key(self):

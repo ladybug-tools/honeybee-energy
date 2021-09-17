@@ -47,6 +47,7 @@ class ServiceHotWater(_LoadBase):
         * latent_fraction
         * lost_fraction
         * standard_watts_per_area
+        * user_data
     """
     __slots__ = ('_flow_per_area', '_schedule', '_target_temperature',
                  '_sensible_fraction', '_latent_fraction')
@@ -303,6 +304,8 @@ class ServiceHotWater(_LoadBase):
         target, sens_fract, lat_fract = cls._optional_dict_keys(data)
         new_obj = cls(data['identifier'], data['flow_per_area'], sched,
                       target, sens_fract, lat_fract)
+        if 'user_data' in data and data['user_data'] is not None:
+            new_obj.user_data = data['user_data']
         return cls._apply_optional_dict_props(new_obj, data)
 
     @classmethod
@@ -338,6 +341,8 @@ class ServiceHotWater(_LoadBase):
         target, sens_fract, lat_fract = cls._optional_dict_keys(data)
         new_obj = cls(data['identifier'], data['flow_per_area'], sched,
                       target, sens_fract, lat_fract)
+        if 'user_data' in data and data['user_data'] is not None:
+            new_obj.user_data = data['user_data']
         return cls._apply_optional_dict_props(new_obj, data)
 
     def to_idf(self, room):
@@ -409,6 +414,8 @@ class ServiceHotWater(_LoadBase):
             abridged else self.schedule.identifier
         if self._display_name is not None:
             base['display_name'] = self.display_name
+        if self._user_data is not None:
+            base['user_data'] = self.user_data
         return base
 
     @staticmethod
@@ -504,6 +511,7 @@ class ServiceHotWater(_LoadBase):
             self.identifier, self.flow_per_area, self.schedule,
             self.target_temperature, self.sensible_fraction, self.latent_fraction)
         new_obj._display_name = self._display_name
+        new_obj._user_data = None if self._user_data is None else self._user_data.copy()
         return new_obj
 
     def __repr__(self):

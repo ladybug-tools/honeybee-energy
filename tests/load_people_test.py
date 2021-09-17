@@ -11,15 +11,16 @@ from honeybee.altnumber import autocalculate
 from ladybug.dt import Time, Date
 
 import pytest
+from .fixtures.userdata_fixtures import userdatadict
 
-
-def test_people_init():
+def test_people_init(userdatadict):
     """Test the initialization of People and basic properties."""
     simple_office = ScheduleDay('Simple Weekday Occupancy', [0, 1, 0],
                                 [Time(0, 0), Time(9, 0), Time(17, 0)])
     occ_schedule = ScheduleRuleset('Office Occupancy', simple_office,
                                    None, schedule_types.fractional)
     people = People('Open Office Zone People', 0.05, occ_schedule)
+    people.user_data = userdatadict
     str(people)  # test the string representation
 
     assert people.identifier == 'Open Office Zone People'
@@ -33,9 +34,10 @@ def test_people_init():
     assert people.activity_schedule.values() == [120] * 8760
     assert people.radiant_fraction == 0.3
     assert people.latent_fraction == autocalculate
+    assert people.user_data == userdatadict
 
 
-def test_people_setability():
+def test_people_setability(userdatadict):
     """Test the setting of properties of People."""
     simple_office = ScheduleDay('Simple Weekday Occupancy', [0, 1, 0],
                                 [Time(0, 0), Time(9, 0), Time(17, 0)])
@@ -46,6 +48,7 @@ def test_people_setability():
     sleeping_act = ScheduleRuleset.from_constant_value(
         'Sleeping Activity', 95, schedule_types.activity_level)
     people = People('Open Office Zone People', 0.05, occ_schedule)
+    people.user_data = userdatadict
 
     people.identifier = 'Office Zone People'
     assert people.identifier == 'Office Zone People'
@@ -66,7 +69,7 @@ def test_people_setability():
     assert people.latent_fraction == 0.2
 
 
-def test_people_equality():
+def test_people_equality(userdatadict):
     """Test the equality of People objects."""
     weekday_office = ScheduleDay('Weekday Office Occupancy', [0, 1, 0],
                                  [Time(0, 0), Time(9, 0), Time(17, 0)])
@@ -77,6 +80,7 @@ def test_people_equality():
     occ_schedule = ScheduleRuleset('Office Occupancy', weekday_office,
                                    [weekend_rule], schedule_types.fractional)
     people = People('Open Office Zone People', 0.05, occ_schedule)
+    people.user_data = userdatadict
     people_dup = people.duplicate()
     people_alt = People('Open Office Zone People', 0.05,
                         ScheduleRuleset.from_constant_value(
@@ -90,7 +94,7 @@ def test_people_equality():
     assert people != people_alt
 
 
-def test_people_lockability():
+def test_people_lockability(userdatadict):
     """Test the lockability of People objects."""
     weekday_office = ScheduleDay('Weekday Office Occupancy', [0, 1, 0],
                                  [Time(0, 0), Time(9, 0), Time(17, 0)])
@@ -101,6 +105,7 @@ def test_people_lockability():
     occ_schedule = ScheduleRuleset('Office Occupancy', weekday_office,
                                    [weekend_rule], schedule_types.fractional)
     people = People('Open Office Zone People', 0.05, occ_schedule)
+    people.user_data = userdatadict
 
     people.people_per_area = 0.1
     people.lock()
@@ -134,7 +139,7 @@ def test_people_init_from_idf():
     assert zone_id == rebuilt_zone_id
 
 
-def test_people_dict_methods():
+def test_people_dict_methods(userdatadict):
     """Test the to/from dict methods."""
     weekday_office = ScheduleDay('Weekday Office Occupancy', [0, 1, 0],
                                  [Time(0, 0), Time(9, 0), Time(17, 0)])
@@ -145,6 +150,7 @@ def test_people_dict_methods():
     occ_schedule = ScheduleRuleset('Office Occupancy', weekday_office,
                                    [weekend_rule], schedule_types.fractional)
     people = People('Open Office Zone People', 0.05, occ_schedule)
+    people.user_data = userdatadict
 
     ppl_dict = people.to_dict()
     new_people = People.from_dict(ppl_dict)

@@ -19,14 +19,15 @@ class _EnergyMaterialBase(object):
         * identifier
         * display_name
     """
-    __slots__ = ('_identifier', '_display_name', '_locked')
+    __slots__ = ('_identifier', '_display_name', '_locked', '_user_data')
 
     def __init__(self, identifier):
         """Initialize energy material base."""
         self._locked = False
         self.identifier = identifier
         self._display_name = None
-
+        self._user_data = None
+        
     @property
     def identifier(self):
         """Get or set the text string for material identifier."""
@@ -52,6 +53,25 @@ class _EnergyMaterialBase(object):
             self._display_name = str(value)
         except UnicodeEncodeError:  # Python 2 machine lacking the character set
             self._display_name = value  # keep it as unicode
+            
+    @property
+    def user_data(self):
+        """Get or set an optional dictionary for additional meta data for this object.
+
+        This will be None until it has been set. All keys and values of this
+        dictionary should be of a standard Python type to ensure correct
+        serialization of the object to/from JSON (eg. str, float, int, list, dict)
+        """
+        if self._user_data is not None:
+            return self._user_data
+    
+    @user_data.setter
+    def user_data(self, value):
+        if value is not None:
+            assert isinstance(value, dict), 'Expected dictionary for honeybee_energy' \
+                'object user_data. Got {}.'.format(type(value))
+        self._user_data = value
+
 
     def duplicate(self):
         """Get a copy of this construction."""
@@ -73,6 +93,7 @@ class _EnergyMaterialBase(object):
     def __copy__(self):
         new_obj = self.__class__(self.identifier)
         new_obj._display_name = self._display_name
+        new_obj._user_data = None if self._user_data is None else self._user_data.copy()
         return new_obj
 
     def ToString(self):

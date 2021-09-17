@@ -60,10 +60,11 @@ class ProgramType(object):
         * setpoint
         * schedules
         * schedules_unique
+        * user_data
     """
     __slots__ = ('_identifier', '_display_name', '_people', '_lighting',
                  '_electric_equipment', '_gas_equipment', '_service_hot_water',
-                 '_infiltration', '_ventilation', '_setpoint', '_locked')
+                 '_infiltration', '_ventilation', '_setpoint', '_locked', '_user_data')
 
     def __init__(self, identifier, people=None, lighting=None, electric_equipment=None,
                  gas_equipment=None, service_hot_water=None,
@@ -80,6 +81,7 @@ class ProgramType(object):
         self.infiltration = infiltration
         self.ventilation = ventilation
         self.setpoint = setpoint
+        self._user_data = None
 
     @property
     def identifier(self):
@@ -234,6 +236,23 @@ class ProgramType(object):
     def schedules_unique(self):
         """List of all unique schedules contained within the ProgramType."""
         return list(set(self.schedules))
+    
+    @property
+    def user_data(self):
+        """Get or set an optional dictionary for additional meta data for this object.
+
+        This will be None until it has been set. All keys and values of this
+        dictionary should be of a standard Python type to ensure correct
+        serialization of the object to/from JSON (eg. str, float, int, list, dict)
+        """
+        return self._user_data
+
+    @user_data.setter
+    def user_data(self, value):
+        if value is not None:
+            assert isinstance(value, dict), 'Expected dictionary for honeybee_energy' \
+                'object user_data. Got {}.'.format(type(value))
+        self._user_data = value
 
     @classmethod
     def from_dict(cls, data):
@@ -290,6 +309,8 @@ class ProgramType(object):
                       gas_equipment, shw, infiltration, ventilation, setpoint)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
+        if 'user_data' in data and data['user_data'] is not None:
+            new_obj.user_data = data['user_data']
         return new_obj
 
     @classmethod
@@ -329,6 +350,8 @@ class ProgramType(object):
                       gas_equipment, shw, infiltration, ventilation, setpoint)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
+        if 'user_data' in data and data['user_data'] is not None:
+            new_obj.user_data = data['user_data']
         return new_obj
 
     def to_dict(self, abridged=False):
@@ -361,6 +384,8 @@ class ProgramType(object):
 
         if self._display_name is not None:
             base['display_name'] = self.display_name
+        if self._user_data is not None:
+            base['user_data'] = self.user_data
         return base
 
     def diversify(self, program_count, occupancy_stdev=20, lighting_stdev=20,
@@ -669,6 +694,7 @@ class ProgramType(object):
         new_obj = ProgramType(self.identifier, people, lighting, electric_equipment,
                               gas_equipment, shw, infiltration, ventilation, setpoint)
         new_obj._display_name = self._display_name
+        new_obj._user_data = None if self._user_data is None else self._user_data.copy()
         return new_obj
 
     def __key(self):

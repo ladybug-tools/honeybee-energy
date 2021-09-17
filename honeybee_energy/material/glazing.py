@@ -82,6 +82,7 @@ class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
         * resistivity
         * u_value
         * r_value
+        * user_data
     """
     __slots__ = ('_thickness', '_solar_transmittance', '_solar_reflectance',
                  '_solar_reflectance_back', '_visible_transmittance',
@@ -102,7 +103,7 @@ class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
         self._solar_reflectance_back = None
         self._visible_reflectance = 0
         self._visible_reflectance_back = None
-
+        self._user_data = None
         self.thickness = thickness
         self.solar_transmittance = solar_transmittance
         self.solar_reflectance = solar_reflectance
@@ -400,6 +401,8 @@ class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
         new_mat.solar_diffusing = sol_diff
         if 'display_name' in data and data['display_name'] is not None:
             new_mat.display_name = data['display_name']
+        if 'user_data' in data and data['user_data'] is not None:
+            new_mat.user_data = data['user_data']
         return new_mat
 
     def to_idf(self):
@@ -442,6 +445,8 @@ class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
         }
         if self._display_name is not None:
             base['display_name'] = self.display_name
+        if self._user_data is not None:
+            base['user_data'] = self.user_data
         return base
 
     def __key(self):
@@ -508,6 +513,7 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
         * r_value
         * solar_transmittance
         * thickness
+        * user_data
     """
     __slots__ = ('_u_factor', '_shgc', '_vt')
 
@@ -640,6 +646,8 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
         new_obj = cls(data['identifier'], data['u_factor'], data['shgc'], vt)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
+        if 'user_data' in data and data['user_data'] is not None:
+            new_obj.user_data = data['user_data']
         return new_obj
 
     def to_idf(self):
@@ -660,6 +668,8 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
         }
         if self._display_name is not None:
             base['display_name'] = self.display_name
+        if self._user_data is not None:
+            base['user_data'] = self.user_data
         return base
 
     def __key(self):
