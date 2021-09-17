@@ -9,16 +9,16 @@ import honeybee_energy.lib.scheduletypelimits as schedule_types
 from ladybug.dt import Time, Date
 
 import pytest
-from .conftest import apply_ud, userdatadict
+from .fixtures.userdata_fixtures import userdatadict
 
-def test_equipment_init():
+def test_equipment_init(userdatadict):
     """Test the initialization of ElectricEquipment and basic properties."""
     simple_office = ScheduleDay('Simple Weekday', [0, 1, 0],
                                 [Time(0, 0), Time(9, 0), Time(17, 0)])
     schedule = ScheduleRuleset('Office Equip', simple_office,
                                None, schedule_types.fractional)
     equipment = ElectricEquipment('Open Office Zone Equip', 8, schedule)
-    equipment = apply_ud(equipment)
+    equipment.user_data = userdatadict
     str(equipment)  # test the string representation
 
     assert equipment.identifier == 'Open Office Zone Equip'
@@ -33,13 +33,14 @@ def test_equipment_init():
     assert equipment.user_data == userdatadict
 
 
-def test_gas_equipment_init():
+def test_gas_equipment_init(userdatadict):
     """Test the initialization of GasEquipment and basic properties."""
     simple_office = ScheduleDay('Simple Weekday', [0, 1, 0],
                                 [Time(0, 0), Time(9, 0), Time(17, 0)])
     schedule = ScheduleRuleset('Kitchen Equip', simple_office,
                                None, schedule_types.fractional)
     equipment = GasEquipment('Kitchen Stove Equip', 8, schedule)
+    equipment.user_data = userdatadict
     str(equipment)  # test the string representation
 
     assert equipment.identifier == 'Kitchen Stove Equip'
@@ -51,6 +52,7 @@ def test_gas_equipment_init():
     assert equipment.latent_fraction == 0
     assert equipment.lost_fraction == 0
     assert equipment.convected_fraction == 1
+    assert equipment.user_data == userdatadict
 
 
 def test_equipment_setability():
@@ -78,7 +80,7 @@ def test_equipment_setability():
     assert equipment.lost_fraction == 0.1
 
 
-def test_equipment_equality():
+def test_equipment_equality(userdatadict):
     """Test the equality of ElectricEquipment objects."""
     weekday_office = ScheduleDay('Weekday Office Equip', [0, 1, 0],
                                  [Time(0, 0), Time(9, 0), Time(17, 0)])
@@ -89,6 +91,7 @@ def test_equipment_equality():
     schedule = ScheduleRuleset('Office Equip', weekday_office,
                                [weekend_rule], schedule_types.fractional)
     equipment = ElectricEquipment('Open Office Zone Equip', 10, schedule)
+    equipment.user_data = userdatadict
     equipment_dup = equipment.duplicate()
     equipment_alt = ElectricEquipment(
         'Open Office Zone Equip', 10,
@@ -102,7 +105,7 @@ def test_equipment_equality():
     assert equipment != equipment_alt
 
 
-def test_equipment_lockability():
+def test_equipment_lockability(userdatadict):
     """Test the lockability of ElectricEquipment objects."""
     weekday_office = ScheduleDay('Weekday Office Equip', [0, 1, 0],
                                  [Time(0, 0), Time(9, 0), Time(17, 0)])
@@ -113,6 +116,7 @@ def test_equipment_lockability():
     schedule = ScheduleRuleset('Office Equip', weekday_office,
                                [weekend_rule], schedule_types.fractional)
     equipment = ElectricEquipment('Open Office Zone Equip', 10, schedule)
+    equipment.user_data = userdatadict
 
     equipment.watts_per_area = 6
     equipment.lock()
@@ -146,7 +150,7 @@ def test_equipment_init_from_idf():
     assert zone_id == rebuilt_zone_id
 
 
-def test_equipment_dict_methods():
+def test_equipment_dict_methods(userdatadict):
     """Test the to/from dict methods."""
     weekday_office = ScheduleDay('Weekday Office Equip', [0, 1, 0],
                                  [Time(0, 0), Time(9, 0), Time(17, 0)])
@@ -157,9 +161,9 @@ def test_equipment_dict_methods():
     schedule = ScheduleRuleset('Office Equip', weekday_office,
                                [weekend_rule], schedule_types.fractional)
     equipment = ElectricEquipment('Open Office Zone Equip', 10, schedule)
-    equipment = apply_ud(equipment)
+    equipment.user_data = userdatadict
     gas_equipment = GasEquipment('Open Office Zone Equip', 10, schedule)
-    gas_equipment = apply_ud(gas_equipment)
+    gas_equipment.user_data = userdatadict
 
     equip_dict = equipment.to_dict()
     gaseq_dict = gas_equipment.to_dict()

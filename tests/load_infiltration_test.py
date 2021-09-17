@@ -9,17 +9,17 @@ import honeybee_energy.lib.scheduletypelimits as schedule_types
 from ladybug.dt import Time, Date
 
 import pytest
-from .conftest import apply_ud, userdatadict
+from .fixtures.userdata_fixtures import userdatadict
 
 
-def test_infiltration_init():
+def test_infiltration_init(userdatadict):
     """Test the initialization of Infiltration and basic properties."""
     simple_lobby = ScheduleDay('Simple Weekday', [0, 1, 0],
                                [Time(0, 0), Time(9, 0), Time(17, 0)])
     schedule = ScheduleRuleset('Lobby Infiltration Schedule', simple_lobby,
                                None, schedule_types.fractional)
     infiltration = Infiltration('Lobby Infiltration', 0.0003, schedule)
-    infiltration = apply_ud(infiltration)
+    infiltration.user_data = userdatadict
     str(infiltration)  # test the string representation
 
     assert infiltration.identifier == 'Lobby Infiltration'
@@ -33,7 +33,7 @@ def test_infiltration_init():
     assert infiltration.user_data == userdatadict
 
 
-def test_infiltration_setability():
+def test_infiltration_setability(userdatadict):
     """Test the setting of properties of Infiltration."""
     simple_lobby = ScheduleDay('Simple Weekday', [0, 1, 0],
                                [Time(0, 0), Time(9, 0), Time(17, 0)])
@@ -42,6 +42,7 @@ def test_infiltration_setability():
     constant = ScheduleRuleset.from_constant_value(
         'Constant Infiltration', 1, schedule_types.fractional)
     infiltration = Infiltration('Lobby Infiltration', 0.0003, schedule)
+    infiltration.user_data = userdatadict
 
     infiltration.identifier = 'Lobby Zone Infiltration'
     assert infiltration.identifier == 'Lobby Zone Infiltration'
@@ -56,9 +57,10 @@ def test_infiltration_setability():
     assert infiltration.temperature_coefficient == 0.03636
     infiltration.velocity_coefficient = 0.1177
     assert infiltration.velocity_coefficient == 0.1177
+    assert infiltration.user_data == userdatadict
 
 
-def test_infiltration_equality():
+def test_infiltration_equality(userdatadict):
     """Test the equality of Infiltration objects."""
     simple_lobby = ScheduleDay('Simple Weekday', [0, 1, 0],
                                [Time(0, 0), Time(9, 0), Time(17, 0)])
@@ -67,6 +69,7 @@ def test_infiltration_equality():
     constant = ScheduleRuleset.from_constant_value(
         'Constant Infiltration', 1, schedule_types.fractional)
     infiltration = Infiltration('Lobby Infiltration', 0.0003, schedule)
+    infiltration.user_data = userdatadict
     infiltration_dup = infiltration.duplicate()
     infiltration_alt = Infiltration(
         'Lobby Infiltration', 0.0003, constant)
@@ -79,13 +82,14 @@ def test_infiltration_equality():
     assert infiltration != infiltration_alt
 
 
-def test_infiltration_lockability():
+def test_infiltration_lockability(userdatadict):
     """Test the lockability of Infiltration objects."""
     simple_lobby = ScheduleDay('Simple Weekday', [0, 1, 0],
                                [Time(0, 0), Time(9, 0), Time(17, 0)])
     schedule = ScheduleRuleset('Lobby Infiltration Schedule', simple_lobby,
                                None, schedule_types.fractional)
     infiltration = Infiltration('Lobby Infiltration', 0.0003, schedule)
+    infiltration.user_data = userdatadict
 
     infiltration.flow_per_exterior_area = 0.0006
     infiltration.lock()
@@ -115,14 +119,14 @@ def test_infiltration_init_from_idf():
     assert zone_id == rebuilt_zone_id
 
 
-def test_infiltration_dict_methods():
+def test_infiltration_dict_methods(userdatadict):
     """Test the to/from dict methods."""
     simple_lobby = ScheduleDay('Simple Weekday', [0, 1, 0],
                                [Time(0, 0), Time(9, 0), Time(17, 0)])
     schedule = ScheduleRuleset('Lobby Infiltration Schedule', simple_lobby,
                                None, schedule_types.fractional)
     infiltration = Infiltration('Lobby Infiltration', 0.0003, schedule)
-    infiltration = apply_ud(infiltration)
+    infiltration.user_data = userdatadict
     inf_dict = infiltration.to_dict()
     new_infiltration = Infiltration.from_dict(inf_dict)
     assert new_infiltration == infiltration
