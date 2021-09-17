@@ -11,15 +11,16 @@ from ladybug.dt import Time, Date
 
 import pytest
 import sys
+from .fixtures.userdata_fixtures import userdatadict
 
-
-def test_service_hot_water_init(): 
+def test_service_hot_water_init(userdatadict): 
     """Test the initialization of ServiceHotWater and basic properties."""
     simple_office = ScheduleDay('Simple Weekday', [0, 1, 0],
                                 [Time(0, 0), Time(9, 0), Time(17, 0)])
     schedule = ScheduleRuleset('Office Water Use', simple_office,
                                None, schedule_types.fractional)
     shw = ServiceHotWater('Office Hot Water', 0.1, schedule)
+    shw.user_data = userdatadict
     str(shw)  # test the string representation
 
     assert shw.identifier == 'Office Hot Water'
@@ -31,15 +32,17 @@ def test_service_hot_water_init():
     assert shw.sensible_fraction == 0.2
     assert shw.latent_fraction == 0.05
     assert shw.lost_fraction == 0.75
+    assert shw.user_data == userdatadict
 
 
-def test_init_from_watts_per_area(): 
+def test_init_from_watts_per_area(userdatadict): 
     """Test the initialization of ServiceHotWater from_watts_per_area."""
     simple_office = ScheduleDay('Simple Weekday', [0, 1, 0],
                                 [Time(0, 0), Time(9, 0), Time(17, 0)])
     schedule = ScheduleRuleset('Office Water Use', simple_office,
                                None, schedule_types.fractional)
     shw = ServiceHotWater.from_watts_per_area('Office Hot Water', 10, schedule)
+    shw.user_data = userdatadict
 
     assert shw.identifier == 'Office Hot Water'
     assert 0.1 < shw.flow_per_area < 0.2
@@ -50,9 +53,10 @@ def test_init_from_watts_per_area():
     assert shw.sensible_fraction == 0.2
     assert shw.latent_fraction == 0.05
     assert shw.lost_fraction == 0.75
+    assert shw.user_data == userdatadict
 
 
-def test_service_hot_water_setability():
+def test_service_hot_water_setability(userdatadict):
     """Test the setting of properties of ServiceHotWater."""
     simple_office = ScheduleDay('Simple Weekday', [0, 1, 0],
                                 [Time(0, 0), Time(9, 0), Time(17, 0)])
@@ -61,6 +65,7 @@ def test_service_hot_water_setability():
     constant = ScheduleRuleset.from_constant_value(
         'Constant Water Use', 1, schedule_types.fractional)
     shw = ServiceHotWater('Office Hot Water', 0.1, schedule)
+    shw.user_data = userdatadict
 
     shw.identifier = 'Office Zone Hot Water'
     assert shw.identifier == 'Office Zone Hot Water'
@@ -75,9 +80,10 @@ def test_service_hot_water_setability():
     assert shw.sensible_fraction == 0.25
     shw.latent_fraction = 0.1
     assert shw.latent_fraction == 0.1
+    assert shw.user_data == userdatadict
 
 
-def test_service_hot_water_equality():
+def test_service_hot_water_equality(userdatadict):
     """Test the equality of ServiceHotWater objects."""
     weekday_office = ScheduleDay('Weekday Office Water Use', [0, 1, 0],
                                  [Time(0, 0), Time(9, 0), Time(17, 0)])
@@ -88,6 +94,7 @@ def test_service_hot_water_equality():
     schedule = ScheduleRuleset('Office Water Use', weekday_office,
                                [weekend_rule], schedule_types.fractional)
     shw = ServiceHotWater('Open Office Zone Hot Water', 0.1, schedule)
+    shw.user_data = userdatadict
     shw_dup = shw.duplicate()
     shw_alt = ServiceHotWater(
         'Open Office Zone Hot Water', 0.1,
@@ -101,7 +108,7 @@ def test_service_hot_water_equality():
     assert shw != shw_alt
 
 
-def test_service_hot_water_lockability():
+def test_service_hot_water_lockability(userdatadict):
     """Test the lockability of ServiceHotWater objects."""
     weekday_office = ScheduleDay('Weekday Office Water Use', [0, 1, 0],
                                  [Time(0, 0), Time(9, 0), Time(17, 0)])
@@ -114,6 +121,7 @@ def test_service_hot_water_lockability():
     shw = ServiceHotWater('Open Office Zone Hot Water', 0.1, schedule)
 
     shw.flow_per_area = 0.2
+    shw.user_data = userdatadict
     shw.lock()
     with pytest.raises(AttributeError):
         shw.flow_per_area = 0.25
@@ -152,7 +160,7 @@ def test_service_hot_water_init_from_idf():
         assert flow == shw.flow_per_area * room.floor_area
 
 
-def test_service_hot_water_dict_methods():
+def test_service_hot_water_dict_methods(userdatadict):
     """Test the to/from dict methods."""
     weekday_office = ScheduleDay('Weekday Office Water Use', [0, 1, 0],
                                  [Time(0, 0), Time(9, 0), Time(17, 0)])
@@ -163,7 +171,7 @@ def test_service_hot_water_dict_methods():
     schedule = ScheduleRuleset('Office Water Use', weekday_office,
                                [weekend_rule], schedule_types.fractional)
     shw = ServiceHotWater('Open Office Zone Hot Water', 0.1, schedule)
-
+    shw.user_data = userdatadict
     shw_dict = shw.to_dict()
     new_shw = ServiceHotWater.from_dict(shw_dict)
     assert new_shw == shw

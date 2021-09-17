@@ -8,11 +8,13 @@ from honeybee_energy.material.glazing import EnergyWindowMaterialGlazing
 from honeybee_energy.material.gas import EnergyWindowMaterialGas
 
 import pytest
+from .fixtures.userdata_fixtures import userdatadict
 
 
-def test_constructionset_init():
+def test_constructionset_init(userdatadict):
     """Test the initialization of ConstructionSet and basic properties."""
     default_set = ConstructionSet('Default Set')
+    default_set.user_data = userdatadict
     str(default_set)  # test the string representation of the construction
 
     assert default_set.identifier == 'Default Set'
@@ -161,7 +163,7 @@ def test_setting_window_construction():
     assert len(default_set.modified_materials_unique) == 2
 
 
-def test_constructionset_equality():
+def test_constructionset_equality(userdatadict):
     """Test the equality of ConstructionSets to one another."""
     default_set = ConstructionSet('Default Set')
     concrete = EnergyMaterial('Concrete', 0.15, 2.31, 2322, 832, 'MediumRough',
@@ -169,6 +171,7 @@ def test_constructionset_equality():
     wall_constr = OpaqueConstruction(
         'Concrete Construction', [concrete])
     default_set.wall_set.exterior_construction = wall_constr
+    default_set.user_data = userdatadict
     new_default_set = default_set.duplicate()
 
     cnstr_set_list = [default_set, default_set, new_default_set]
@@ -180,9 +183,10 @@ def test_constructionset_equality():
     assert cnstr_set_list[0] != cnstr_set_list[2]
 
 
-def test_constructionset_to_dict_full():
+def test_constructionset_to_dict_full(userdatadict):
     """Test the to_dict method writing out all constructions."""
     default_set = ConstructionSet('Default Set')
+    default_set.user_data = userdatadict
 
     constr_dict = default_set.to_dict(none_for_defaults=False)
 
@@ -207,7 +211,7 @@ def test_constructionset_to_dict_full():
     assert constr_dict['shade_construction'] is not None
 
 
-def test_constructionset_dict_methods():
+def test_constructionset_dict_methods(userdatadict):
     """Test the to/from dict methods."""
     insulated_set = ConstructionSet('Insulated Set')
     clear_glass = EnergyWindowMaterialGlazing(
@@ -218,7 +222,9 @@ def test_constructionset_dict_methods():
         'Triple Clear Window', [clear_glass, gap, clear_glass, gap, clear_glass])
 
     insulated_set.aperture_set.window_construction = triple_clear
+    insulated_set.user_data = userdatadict
     constr_dict = insulated_set.to_dict()
+    
 
     assert constr_dict['wall_set']['exterior_construction'] is None
     assert constr_dict['wall_set']['interior_construction'] is None

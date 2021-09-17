@@ -15,9 +15,9 @@ import honeybee_energy.lib.scheduletypelimits as schedule_types
 from ladybug.dt import Time
 
 import pytest
+from .fixtures.userdata_fixtures import userdatadict
 
-
-def test_program_type_init():
+def test_program_type_init(userdatadict):
     """Test the initialization of ProgramType and basic properties."""
     simple_office = ScheduleDay('Simple Weekday Occupancy', [0, 1, 0],
                                 [Time(0, 0), Time(9, 0), Time(17, 0)])
@@ -42,6 +42,7 @@ def test_program_type_init():
     setpoint = Setpoint('Office Setpoints', heat_setpt, cool_setpt)
     office_program = ProgramType('Open Office Program', people, lighting, equipment,
                                  None, None, infiltration, ventilation, setpoint)
+    office_program.user_data = userdatadict
 
     str(office_program)  # test the string representation
 
@@ -61,9 +62,10 @@ def test_program_type_init():
     assert office_program.setpoint == setpoint
     assert len(office_program.schedules) == 7
     assert len(office_program.schedules_unique) == 6
+    assert office_program.user_data == userdatadict
 
 
-def test_program_type_setability():
+def test_program_type_setability(userdatadict):
     """Test the setting of properties of ProgramType."""
     simple_office = ScheduleDay('Simple Weekday Occupancy', [0, 1, 0],
                                 [Time(0, 0), Time(9, 0), Time(17, 0)])
@@ -109,6 +111,9 @@ def test_program_type_setability():
     assert office_program.setpoint is None
     office_program.setpoint = setpoint
     assert office_program.setpoint == setpoint
+    assert office_program.user_data is None
+    office_program.user_data = userdatadict
+    assert office_program.user_data == userdatadict
 
     with pytest.raises(AssertionError):
         office_program.people = lighting
@@ -124,7 +129,7 @@ def test_program_type_setability():
         office_program.setpoint = ventilation
 
 
-def test_program_type_equality():
+def test_program_type_equality(userdatadict):
     """Test the equality of ProgramType objects."""
     simple_office = ScheduleDay('Simple Weekday Occupancy', [0, 1, 0],
                                 [Time(0, 0), Time(9, 0), Time(17, 0)])
@@ -150,6 +155,7 @@ def test_program_type_equality():
     setpoint = Setpoint('Office Setpoints', heat_setpt, cool_setpt)
     office_program = ProgramType('Open Office Program', people, lighting, equipment,
                                  None, None, infiltration, ventilation, setpoint)
+    office_program.user_data = userdatadict
     office_program_dup = office_program.duplicate()
     office_program_alt = ProgramType(
         'Open Office Program', people, led_lighting, equipment,
@@ -163,7 +169,7 @@ def test_program_type_equality():
     assert office_program != office_program_alt
 
 
-def test_program_type_lockability():
+def test_program_type_lockability(userdatadict):
     """Test the lockability of ProgramType objects."""
     simple_office = ScheduleDay('Simple Weekday Occupancy', [0, 1, 0],
                                 [Time(0, 0), Time(9, 0), Time(17, 0)])
@@ -172,6 +178,7 @@ def test_program_type_lockability():
     lighting = Lighting('Open Office Lighting', 10, light_schedule)
     led_lighting = Lighting('LED Office Lighting', 5, light_schedule)
     office_program = ProgramType('Open Office Program', lighting=lighting)
+    office_program.user_data = userdatadict
 
     office_program.lighting.watts_per_area = 6
     office_program.lock()
@@ -184,7 +191,7 @@ def test_program_type_lockability():
     office_program.lighting = led_lighting
 
 
-def test_program_type_dict_methods():
+def test_program_type_dict_methods(userdatadict):
     """Test the to/from dict methods."""
     simple_office = ScheduleDay('Simple Weekday Occupancy', [0, 1, 0],
                                 [Time(0, 0), Time(9, 0), Time(17, 0)])
@@ -209,6 +216,7 @@ def test_program_type_dict_methods():
     setpoint = Setpoint('Office Setpoints', heat_setpt, cool_setpt)
     office_program = ProgramType('Open Office Program', people, lighting, equipment,
                                  None, None, infiltration, ventilation, setpoint)
+    office_program.user_data = userdatadict
 
     prog_dict = office_program.to_dict()
     new_office_program = ProgramType.from_dict(prog_dict)

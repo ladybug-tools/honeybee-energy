@@ -57,7 +57,7 @@ class ScheduleRuleset(object):
     """
     __slots__ = ('_identifier', '_display_name', '_default_day_schedule',
                  '_schedule_rules', '_holiday_schedule', '_summer_designday_schedule',
-                 '_winter_designday_schedule', '_schedule_type_limit', '_locked')
+                 '_winter_designday_schedule', '_schedule_type_limit', '_locked', '_user_data')
     _dow_text_to_int = {'sunday': 1, 'monday': 2, 'tuesday': 3, 'wednesday': 4,
                         'thursday': 2, 'friday': 3, 'saturday': 7}
     _schedule_week_comments = (
@@ -78,6 +78,7 @@ class ScheduleRuleset(object):
         self.holiday_schedule = holiday_schedule
         self.summer_designday_schedule = summer_designday_schedule
         self.winter_designday_schedule = winter_designday_schedule
+        self._user_data = None
 
     @property
     def identifier(self):
@@ -237,6 +238,24 @@ class ScheduleRuleset(object):
                   for sch in self._schedule_rules]):
             return True
         return False
+    
+    @property
+    def user_data(self):
+        """Get or set an optional dictionary for additional meta data for this object.
+
+        This will be None until it has been set. All keys and values of this
+        dictionary should be of a standard Python type to ensure correct
+        serialization of the object to/from JSON (eg. str, float, int, list, dict)
+        """
+        return self._user_data
+
+    @user_data.setter
+    def user_data(self, value):
+        if value is not None:
+            assert isinstance(value, dict), 'Expected dictionary for honeybee_energy' \
+                'object user_data. Got {}.'.format(type(value))
+        self._user_data = value
+
 
     def add_rule(self, rule):
         """Add a ScheduleRule to this ScheduleRuleset.
@@ -703,6 +722,8 @@ class ScheduleRuleset(object):
                       holiday_sched, summer_sched, winter_sched)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
+        if 'user_data' in data and data['user_data'] is not None:
+            new_obj.user_data = data['user_data']
         return new_obj
 
     @classmethod
@@ -743,6 +764,8 @@ class ScheduleRuleset(object):
             typ_lim is not None else None
         if 'display_name' in data and data['display_name'] is not None:
             schedule.display_name = data['display_name']
+        if 'user_data' in data and data['user_data'] is not None:
+            new_obj.user_data = data['user_data']
         return schedule
 
     def to_rules(self, start_date, end_date):
@@ -928,6 +951,8 @@ class ScheduleRuleset(object):
                 base['schedule_type_limit'] = self._schedule_type_limit.identifier
         if self._display_name is not None:
             base['display_name'] = self.display_name
+        if self._user_data is not None:
+            base['user_data'] = self.user_data
         return base
 
     def duplicate(self):
@@ -1590,6 +1615,7 @@ class ScheduleRuleset(object):
             [rule.duplicate() for rule in self._schedule_rules],
             self._schedule_type_limit, holiday, summer, winter)
         new_obj._display_name = self._display_name
+        new_obj._user_data = None if self._user_data is None else self._user_data.copy()
         return new_obj
 
     def ToString(self):

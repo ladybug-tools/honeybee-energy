@@ -14,13 +14,15 @@ from ladybug.futil import csv_to_matrix
 import random
 import os
 import pytest
+from .fixtures.userdata_fixtures import userdatadict
 
 
-def test_schedule_fixedinterval_init():
+def test_schedule_fixedinterval_init(userdatadict):
     """Test the ScheduleFixedInterval initialization and basic properties."""
     trans_sched = ScheduleFixedInterval(
         'Custom Transmittance', [x / 8760 for x in range(8760)],
         schedule_types.fractional)
+    trans_sched.user_data = userdatadict
     str(trans_sched)  # test the string representation
 
     assert trans_sched.identifier == 'Custom Transmittance'
@@ -95,11 +97,12 @@ def test_schedule_fixedinterval_equality():
     assert trans_sched != occ_sched
 
 
-def test_schedule_fixedinterval_lockability():
+def test_schedule_fixedinterval_lockability(userdatadict):
     """Test the lockability of ScheduleFixedInterval objects."""
     schedule = ScheduleFixedInterval(
         'Custom Transmittance', [x / 8760 for x in range(8760)],
         schedule_types.fractional)
+    schedule.user_data = userdatadict
 
     schedule.interpolate = True
     schedule.lock()
@@ -223,11 +226,12 @@ def test_schedule_fixedinterval_data_collection():
     assert len(sch_data) == 8760 * 2
 
 
-def test_schedule_fixedinterval_dict_methods():
+def test_schedule_fixedinterval_dict_methods(userdatadict):
     """Test the ScheduleFixedInterval to/from dict methods."""
     trans_sched = ScheduleFixedInterval(
         'Custom Transmittance', [x / 8760 for x in range(8760)],
         schedule_types.fractional)
+    trans_sched.user_data = userdatadict
 
     sch_dict = trans_sched.to_dict()
     new_schedule = ScheduleFixedInterval.from_dict(sch_dict)

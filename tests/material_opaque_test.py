@@ -2,12 +2,13 @@
 from honeybee_energy.material.opaque import EnergyMaterial, EnergyMaterialNoMass
 
 import pytest
+from .fixtures.userdata_fixtures import userdatadict
 
-
-def test_material_init():
+def test_material_init(userdatadict):
     """Test the initialization of EnergyMaterial objects and basic properties."""
     concrete = EnergyMaterial('Concrete', 0.2, 0.5, 800, 1200,
                               'MediumSmooth', 0.95, 0.75, 0.8)
+    concrete.user_data = userdatadict
     str(concrete)  # test the string representation of the material
     concrete_dup = concrete.duplicate()
 
@@ -31,16 +32,19 @@ def test_material_init():
     assert concrete.conductivity != concrete_dup.conductivity
     assert concrete.r_value == 0.5
     assert concrete.conductivity == pytest.approx(0.4, rel=1e-2)
+    assert concrete.user_data == userdatadict
 
     with pytest.raises(ValueError):
         concrete.thickness = 0
     with pytest.raises(AssertionError):
         concrete.thickness = 0.000000001
+    
 
 
-def test_material_equivalency():
+def test_material_equivalency(userdatadict):
     """Test the equality of a material to another EnergyMaterial."""
     concrete_1 = EnergyMaterial('Concrete [HW]', 0.2, 0.5, 800, 1200)
+    concrete_1.user_data = userdatadict
     concrete_2 = concrete_1.duplicate()
     insulation = EnergyMaterial('Insulation', 0.05, 0.049, 265, 836)
 
@@ -54,10 +58,11 @@ def test_material_equivalency():
     assert len(set(collection)) == 3
 
 
-def test_material_lockability():
+def test_material_lockability(userdatadict):
     """Test the lockability of the EnergyMaterial."""
     concrete = EnergyMaterial('Concrete [HW]', 0.2, 0.5, 800, 1200)
     concrete.density = 600
+    concrete.user_data = userdatadict
     concrete.lock()
     with pytest.raises(AttributeError):
         concrete.density = 700
@@ -135,18 +140,20 @@ def test_material_to_from_idf():
     assert idf_str == new_mat_1.to_idf()
 
 
-def test_material_dict_methods():
+def test_material_dict_methods(userdatadict):
     """Test the to/from dict methods."""
     material = EnergyMaterial('Concrete', 0.2, 0.5, 800, 1200)
+    material.user_data = userdatadict
     material_dict = material.to_dict()
     new_material = EnergyMaterial.from_dict(material_dict)
     assert material_dict == new_material.to_dict()
 
 
-def test_material_nomass_init():
+def test_material_nomass_init(userdatadict):
     """Test the initialization of EnergyMaterialNoMass and basic properties."""
     insul_r2 = EnergyMaterialNoMass('Insulation R-2', 2,
                                     'MediumSmooth', 0.95, 0.75, 0.8)
+    insul_r2.user_data = userdatadict
     str(insul_r2)  # test the string representation of the material
     insul_r2_dup = insul_r2.duplicate()
 
@@ -210,9 +217,10 @@ def test_material_nomass_init_from_idf():
     assert idf_str == new_mat_1.to_idf()
 
 
-def test_material_nomass_dict_methods():
+def test_material_nomass_dict_methods(userdatadict):
     """Test the to/from dict methods."""
     material = EnergyMaterialNoMass('Insulation R-2', 2)
+    material.user_data = userdatadict
     material_dict = material.to_dict()
     new_material = EnergyMaterialNoMass.from_dict(material_dict)
     assert material_dict == new_material.to_dict()

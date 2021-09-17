@@ -58,6 +58,7 @@ class _DOASBase(_TemplateSystem):
         * demand_controlled_ventilation
         * doas_availability_schedule
         * schedules
+        * user_data
     """
     __slots__ = ('_sensible_heat_recovery', '_latent_heat_recovery',
                  '_demand_controlled_ventilation', '_doas_availability_schedule')
@@ -165,6 +166,8 @@ class _DOASBase(_TemplateSystem):
                       sensible, latent, dcv, doas_avail)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
+        if 'user_data' in data and data['user_data'] is not None:
+            new_obj.user_data = data['user_data']
         return new_obj
 
     @classmethod
@@ -208,6 +211,8 @@ class _DOASBase(_TemplateSystem):
                       sensible, latent, dcv, doas_avail)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
+        if 'user_data' in data and data['user_data'] is not None:
+            new_obj.user_data = data['user_data']
         return new_obj
 
     def to_dict(self, abridged=False):
@@ -236,6 +241,8 @@ class _DOASBase(_TemplateSystem):
             base['doas_availability_schedule'] = \
                 self.doas_availability_schedule.identifier if \
                 abridged else self.doas_availability_schedule.to_dict()
+        if self._user_data is not None:
+            base['user_data'] = self.user_data
         return base
 
     @staticmethod
@@ -257,6 +264,7 @@ class _DOASBase(_TemplateSystem):
             self._sensible_heat_recovery, self._latent_heat_recovery,
             self._demand_controlled_ventilation, self._doas_availability_schedule)
         new_obj._display_name = self._display_name
+        new_obj._user_data = None if self._user_data is None else self._user_data.copy()
         return new_obj
 
     def __key(self):

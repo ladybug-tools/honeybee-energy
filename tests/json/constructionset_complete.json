@@ -18,6 +18,7 @@
                     "thermal_absorptance": 0.9,
                     "solar_absorptance": 0.65,
                     "visible_absorptance": 0.65
+                    
                 },
                 {
                     "type": "EnergyMaterial",

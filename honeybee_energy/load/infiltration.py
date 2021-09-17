@@ -57,6 +57,7 @@ class Infiltration(_LoadBase):
         * constant_coefficient
         * temperature_coefficient
         * velocity_coefficient
+        * user_data
     """
     __slots__ = ('_flow_per_exterior_area', '_schedule', '_constant_coefficient',
                  '_temperature_coefficient', '_velocity_coefficient')
@@ -261,6 +262,8 @@ class Infiltration(_LoadBase):
                       sched, const, tem, vel)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
+        if 'user_data' in data and data['user_data'] is not None:
+            new_obj.user_data = data['user_data']
         return new_obj
 
     @classmethod
@@ -298,6 +301,8 @@ class Infiltration(_LoadBase):
                       sched, const, tem, vel)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
+        if 'user_data' in data and data['user_data'] is not None:
+            new_obj.user_data = data['user_data']
         return new_obj
 
     def to_idf(self, zone_identifier):
@@ -344,6 +349,8 @@ class Infiltration(_LoadBase):
             base['velocity_coefficient'] = self.velocity_coefficient
         if self._display_name is not None:
             base['display_name'] = self.display_name
+        if self._user_data is not None:
+            base['user_data'] = self._user_data
         return base
 
     @staticmethod
@@ -418,6 +425,7 @@ class Infiltration(_LoadBase):
             self.constant_coefficient, self.temperature_coefficient,
             self.velocity_coefficient)
         new_obj._display_name = self._display_name
+        new_obj._user_data = None if self._user_data is None else self._user_data.copy()
         return new_obj
 
     def __repr__(self):

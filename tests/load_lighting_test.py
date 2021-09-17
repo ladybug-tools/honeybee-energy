@@ -9,15 +9,16 @@ import honeybee_energy.lib.scheduletypelimits as schedule_types
 from ladybug.dt import Time, Date
 
 import pytest
+from .fixtures.userdata_fixtures import userdatadict
 
-
-def test_lighting_init(): 
+def test_lighting_init(userdatadict): 
     """Test the initialization of Lighting and basic properties."""
     simple_office = ScheduleDay('Simple Weekday', [0, 1, 0],
                                 [Time(0, 0), Time(9, 0), Time(17, 0)])
     schedule = ScheduleRuleset('Office Lighting', simple_office,
                                None, schedule_types.fractional)
     lighting = Lighting('Open Office Zone Lighting', 10, schedule)
+    lighting.user_data = userdatadict
     str(lighting)  # test the string representation
 
     assert lighting.identifier == 'Open Office Zone Lighting'
@@ -29,9 +30,10 @@ def test_lighting_init():
     assert lighting.radiant_fraction == 0.32
     assert lighting.visible_fraction == 0.25
     assert lighting.baseline_watts_per_area == 11.84029
+    assert lighting.user_data == userdatadict
 
 
-def test_lighting_setability():
+def test_lighting_setability(userdatadict):
     """Test the setting of properties of Lighting."""
     simple_office = ScheduleDay('Simple Weekday Light', [0, 1, 0],
                                 [Time(0, 0), Time(9, 0), Time(17, 0)])
@@ -40,6 +42,7 @@ def test_lighting_setability():
     constant = ScheduleRuleset.from_constant_value(
         'Constant Light', 1, schedule_types.fractional)
     lighting = Lighting('Open Office Zone Lighting', 10, schedule)
+    lighting.user_data = userdatadict
 
     lighting.identifier = 'Office Zone Lighting'
     assert lighting.identifier == 'Office Zone Lighting'
@@ -56,9 +59,10 @@ def test_lighting_setability():
     assert lighting.visible_fraction == 0.2
     lighting.baseline_watts_per_area = 5.0
     assert lighting.baseline_watts_per_area == 5.0
+    assert lighting.user_data == userdatadict
 
 
-def test_lighting_equality():
+def test_lighting_equality(userdatadict):
     """Test the equality of Lighting objects."""
     weekday_office = ScheduleDay('Weekday Office Lighting', [0, 1, 0],
                                  [Time(0, 0), Time(9, 0), Time(17, 0)])
@@ -69,6 +73,7 @@ def test_lighting_equality():
     schedule = ScheduleRuleset('Office Lighting', weekday_office,
                                [weekend_rule], schedule_types.fractional)
     lighting = Lighting('Open Office Zone Lighting', 10, schedule)
+    lighting.user_data = userdatadict
     lighting_dup = lighting.duplicate()
     lighting_alt = Lighting(
         'Open Office Zone Lighting', 10,
@@ -82,7 +87,7 @@ def test_lighting_equality():
     assert lighting != lighting_alt
 
 
-def test_lighting_lockability():
+def test_lighting_lockability(userdatadict):
     """Test the lockability of Lighting objects."""
     weekday_office = ScheduleDay('Weekday Office Lighting', [0, 1, 0],
                                  [Time(0, 0), Time(9, 0), Time(17, 0)])
@@ -93,6 +98,7 @@ def test_lighting_lockability():
     schedule = ScheduleRuleset('Office Lighting', weekday_office,
                                [weekend_rule], schedule_types.fractional)
     lighting = Lighting('Open Office Zone Lighting', 10, schedule)
+    lighting.user_data = userdatadict
 
     lighting.watts_per_area = 6
     lighting.lock()
@@ -126,7 +132,7 @@ def test_lighting_init_from_idf():
     assert zone_id == rebuilt_zone_id
 
 
-def test_lighting_dict_methods():
+def test_lighting_dict_methods(userdatadict):
     """Test the to/from dict methods."""
     weekday_office = ScheduleDay('Weekday Office Lighting', [0, 1, 0],
                                  [Time(0, 0), Time(9, 0), Time(17, 0)])
@@ -137,12 +143,13 @@ def test_lighting_dict_methods():
     schedule = ScheduleRuleset('Office Lighting', weekday_office,
                                [weekend_rule], schedule_types.fractional)
     lighting = Lighting('Open Office Zone Lighting', 10, schedule)
+    lighting.user_data = userdatadict
 
     light_dict = lighting.to_dict()
     new_lighting = Lighting.from_dict(light_dict)
     assert new_lighting == lighting
     assert light_dict == new_lighting.to_dict()
-
+    assert lighting.user_data == new_lighting.user_data
 
 def test_lighting_average():
     """Test the Lighting.average method."""

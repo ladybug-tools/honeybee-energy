@@ -288,6 +288,7 @@
                         ]
                     ],
                     "interpolate": false
+                    
                 },
                 {
                     "type": "ScheduleDay",

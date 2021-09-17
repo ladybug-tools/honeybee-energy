@@ -13,11 +13,13 @@ from ladybug.dt import Time
 from ladybug_geometry.geometry3d.pointvector import Point3D
 
 import pytest
+from .fixtures.userdata_fixtures import userdatadict
 
 
-def test_ideal_air_system_init():
+def test_ideal_air_system_init(userdatadict):
     """Test the initialization of IdealAirSystem and basic properties."""
     ideal_air = IdealAirSystem('Test System')
+    ideal_air.user_data = userdatadict
     str(ideal_air)  # test the string representation
 
     assert ideal_air.identifier == 'Test System'
@@ -31,11 +33,13 @@ def test_ideal_air_system_init():
     assert ideal_air.cooling_limit == autosize
     assert ideal_air.heating_availability is None
     assert ideal_air.cooling_availability is None
+    assert ideal_air.user_data == userdatadict
 
 
-def test_ideal_air_system_setability():
+def test_ideal_air_system_setability(userdatadict):
     """Test the setting of properties of IdealAirSystem."""
     ideal_air = IdealAirSystem('Test System')
+    ideal_air.user_data = userdatadict
 
     ideal_air.identifier = 'Test System2'
     assert ideal_air.identifier == 'Test System2'
@@ -62,9 +66,10 @@ def test_ideal_air_system_setability():
     assert ideal_air.cooling_availability == schedule
 
 
-def test_ideal_air_system_equality():
+def test_ideal_air_system_equality(userdatadict):
     """Test the equality of IdealAirSystem objects."""
     ideal_air = IdealAirSystem('Test System')
+    ideal_air.user_data = userdatadict
     ideal_air_dup = ideal_air.duplicate()
     ideal_air_alt = IdealAirSystem(
         'Test System', sensible_heat_recovery=0.75, latent_heat_recovery=0.6)
@@ -77,9 +82,10 @@ def test_ideal_air_system_equality():
     assert ideal_air != ideal_air_alt
 
 
-def test_ideal_air_init_from_idf():
+def test_ideal_air_init_from_idf(userdatadict):
     """Test the initialization of IdealAirSystem from_idf."""
     ideal_air = IdealAirSystem('Test_System')
+    ideal_air.user_data = userdatadict
     zone_id = 'ShoeBox'
     room = Room.from_box(zone_id, 5, 10, 3, 90, Point3D(0, 0, 3))
     room.properties.energy.add_default_ideal_air()
@@ -101,7 +107,7 @@ def test_ideal_air_init_from_idf():
     assert zone_id == rebuilt_zone_id
 
 
-def test_ideal_air_to_dict():
+def test_ideal_air_to_dict(userdatadict):
     """Test the to_dict method."""
     ideal_air = IdealAirSystem('Passive House HVAC System')
 
@@ -117,6 +123,7 @@ def test_ideal_air_to_dict():
     schedule = ScheduleRuleset('HVAC Control', sch_day, None, schedule_types.on_off)
     ideal_air.heating_availability = schedule
     ideal_air.cooling_availability = schedule
+    ideal_air.user_data = userdatadict
 
     ideal_air_dict = ideal_air.to_dict(abridged=True)
 
@@ -132,7 +139,7 @@ def test_ideal_air_to_dict():
     assert ideal_air_dict['cooling_availability'] == 'HVAC Control'
 
 
-def test_ideal_air_dict_methods():
+def test_ideal_air_dict_methods(userdatadict):
     """Test the to/from dict methods."""
     ideal_air = IdealAirSystem('Passive House HVAC System')
     ideal_air.economizer_type = 'DifferentialEnthalpy'
@@ -147,6 +154,7 @@ def test_ideal_air_dict_methods():
     schedule = ScheduleRuleset('HVAC Control', sch_day, None, schedule_types.on_off)
     ideal_air.heating_availability = schedule
     ideal_air.cooling_availability = schedule
+    ideal_air.user_data = userdatadict
 
     hvac_dict = ideal_air.to_dict()
     new_ideal_air = IdealAirSystem.from_dict(hvac_dict)

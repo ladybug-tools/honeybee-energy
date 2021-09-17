@@ -56,6 +56,7 @@ class WindowConstruction(_ConstructionBase):
         * glazing_count
         * gap_count
         * glazing_materials
+        * user_data
     """
     __slots__ = ()
 
@@ -463,6 +464,8 @@ class WindowConstruction(_ConstructionBase):
         new_obj = cls(data['identifier'], mat_layers)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
+        if 'user_data' in data and data['user_data'] is not None:
+            new_obj.user_data = data['user_data']
         return new_obj
 
     @classmethod
@@ -493,6 +496,8 @@ class WindowConstruction(_ConstructionBase):
         new_obj = cls(data['identifier'], mat_layers)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
+        if 'user_data' in data and data['user_data'] is not None:
+            new_obj.user_data = data['user_data']
         return new_obj
 
     def to_idf(self):
@@ -564,6 +569,7 @@ class WindowConstruction(_ConstructionBase):
             [m.to_dict() for m in self.materials]
         if self._display_name is not None:
             base['display_name'] = self.display_name
+        
         return base
 
     def to_simple_construction(self):

@@ -33,10 +33,11 @@ class AirBoundaryConstruction(object):
         * display_name
         * air_mixing_per_area
         * air_mixing_schedule
+        * user_data
     """
 
     __slots__ = ('_identifier', '_display_name', '_air_mixing_per_area',
-                 '_air_mixing_schedule', '_locked')
+                 '_air_mixing_schedule', '_locked', '_user_data')
 
     def __init__(self, identifier, air_mixing_per_area=0.1,
                  air_mixing_schedule=always_on):
@@ -46,6 +47,7 @@ class AirBoundaryConstruction(object):
         self._display_name = None
         self.air_mixing_per_area = air_mixing_per_area
         self.air_mixing_schedule = air_mixing_schedule
+        self._user_data = None
 
     @property
     def identifier(self):
@@ -102,6 +104,23 @@ class AirBoundaryConstruction(object):
         else:
             self._air_mixing_schedule = always_on
 
+    @property
+    def user_data(self):
+        """Get or set an optional dictionary for additional meta data for this object.
+
+        This will be None until it has been set. All keys and values of this
+        dictionary should be of a standard Python type to ensure correct
+        serialization of the object to/from JSON (eg. str, float, int, list, dict)
+        """
+        return self._user_data
+
+    @user_data.setter
+    def user_data(self, value):
+        if value is not None:
+            assert isinstance(value, dict), 'Expected dictionary for honeybee_energy' \
+                'object user_data. Got {}.'.format(type(value))
+        self._user_data = value
+
     @classmethod
     def from_dict(cls, data):
         """Create a AirBoundaryConstruction from a dictionary.
@@ -129,6 +148,8 @@ class AirBoundaryConstruction(object):
         new_obj = cls(data['identifier'], a_mix, a_sch)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
+        if 'user_data' in data and data['user_data'] is not None:
+            new_obj.user_data = data['user_data']
         return new_obj
 
     @classmethod
@@ -159,6 +180,8 @@ class AirBoundaryConstruction(object):
         new_obj = cls(data['identifier'], a_mix, a_sch)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
+        if 'user_data' in data and data['user_data'] is not None:
+            new_obj.user_data = data['user_data']
         return new_obj
 
     def to_idf(self):
@@ -198,6 +221,8 @@ class AirBoundaryConstruction(object):
             else self.air_mixing_schedule.to_dict()
         if self._display_name is not None:
             base['display_name'] = self.display_name
+        if self._user_data is not None:
+            base['user_data'] = self._user_data
         return base
 
     def to_radiance_solar(self):
@@ -226,6 +251,7 @@ class AirBoundaryConstruction(object):
         new_con = AirBoundaryConstruction(
             self.identifier, self._air_mixing_per_area, self._air_mixing_schedule)
         new_con._display_name = self._display_name
+        new_con.user_data = None if self._user_data is None else self._user_data.copy()
         return new_con
 
     def __key(self):

@@ -3,11 +3,12 @@ from honeybee_energy.material.gas import EnergyWindowMaterialGas, \
     EnergyWindowMaterialGasMixture, EnergyWindowMaterialGasCustom
 
 import pytest
+from .fixtures.userdata_fixtures import userdatadict
 
-
-def test_gas_init():
+def test_gas_init(userdatadict):
     """Test the initalization of gas material objects and basic properties."""
     air = EnergyWindowMaterialGas('Air Gap', 0.0125, 'Air')
+    air.user_data = userdatadict
     str(air)  # test the string representation of the material
     air_dup = air.duplicate()
 
@@ -19,7 +20,7 @@ def test_gas_init():
     assert air.specific_heat == air_dup.specific_heat == pytest.approx(1006.1033, rel=1e-2)
     assert air.density == air_dup.density == pytest.approx(1.292, rel=1e-2)
     assert air.prandtl == air_dup.prandtl == pytest.approx(0.7263, rel=1e-2)
-
+    assert air.user_data == userdatadict
 
 def test_gas_defaults():
     """Test the EnergyWindowMaterialGas default properties."""
@@ -65,18 +66,21 @@ def test_gas_init_from_idf():
     assert air.gas_type == 'Air'
 
 
-def test_gas_dict_methods():
+def test_gas_dict_methods(userdatadict):
     """Test the to/from dict methods."""
     argon = EnergyWindowMaterialGas('Argon Gap', 0.0125, 'Argon')
+    argon.user_data = userdatadict
     material_dict = argon.to_dict()
     new_material = EnergyWindowMaterialGas.from_dict(material_dict)
     assert material_dict == new_material.to_dict()
+    assert argon.user_data == new_material.user_data
 
 
-def test_gas_mixture_init():
+def test_gas_mixture_init(userdatadict):
     """Test the initialization of a gas mixture."""
     air_argon = EnergyWindowMaterialGasMixture(
         'Air Argon Gap', 0.0125, ('Air', 'Argon'), (0.1, 0.9))
+    air_argon.user_data = userdatadict
     str(air_argon)  # test the string representation of the material
     aa_dup = air_argon.duplicate()
 
@@ -145,20 +149,22 @@ def test_gas_mixture_init_from_idf():
     assert gas_mix.gas_fractions == (0.8, 0.2)
 
 
-def test_gas_mixture_dict_methods():
+def test_gas_mixture_dict_methods(userdatadict):
     """Test the to/from dict methods."""
     air_xenon = EnergyWindowMaterialGasMixture(
         'Air Xenon Gap', 0.0125, ('Air', 'Xenon'), (0.1, 0.9))
+    air_xenon.user_data = userdatadict
     material_dict = air_xenon.to_dict()
     new_material = EnergyWindowMaterialGasMixture.from_dict(material_dict)
     assert material_dict == new_material.to_dict()
 
 
-def test_gas_custom_init():
+def test_gas_custom_init(userdatadict):
     """Test the initialization of a custom gas."""
     co2_gap = EnergyWindowMaterialGasCustom('CO2', 0.0125, 0.0146, 0.000014, 827.73)
     co2_gap.specific_heat_ratio = 1.4
     co2_gap.molecular_weight = 44
+    co2_gap.user_data = userdatadict
     str(co2_gap)  # test the string representation of the material
     co2_dup = co2_gap.duplicate()
 
@@ -193,11 +199,13 @@ def test_gas_custom_properties_at_temperature():
     assert co2_gap.prandtl_at_temperature(223) == pytest.approx(0.7937, rel=1e-2)
 
 
-def test_gas_custom_dict_methods():
+def test_gas_custom_dict_methods(userdatadict):
     """Test the to/from dict methods."""
     co2_gap = EnergyWindowMaterialGasCustom('CO2', 0.0125, 0.0146, 0.000014, 827.73)
     co2_gap.specific_heat_ratio = 1.4
     co2_gap.molecular_weight = 44
+    co2_gap.user_data = userdatadict
     material_dict = co2_gap.to_dict()
     new_material = EnergyWindowMaterialGasCustom.from_dict(material_dict)
     assert material_dict == new_material.to_dict()
+    assert co2_gap.user_data == new_material.user_data

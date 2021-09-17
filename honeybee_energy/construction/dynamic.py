@@ -45,10 +45,11 @@ class WindowConstructionDynamic(object):
         * thickness
         * glazing_count
         * gap_count
+        * user_data
     """
 
     __slots__ = ('_identifier', '_display_name', '_constructions', '_schedule',
-                 '_locked')
+                 '_locked', '_user_data')
 
     def __init__(self, identifier, constructions, schedule):
         """Initialize dynamic window construction."""
@@ -57,6 +58,7 @@ class WindowConstructionDynamic(object):
         self._display_name = None
         self.constructions = constructions
         self.schedule = schedule
+        self._user_data = None
 
     @property
     def identifier(self):
@@ -261,6 +263,24 @@ class WindowConstructionDynamic(object):
         """The number of gas gaps contained within the first construction."""
         return self._constructions[0].gap_count
 
+    @property
+    def user_data(self):
+        """Get or set an optional dictionary for additional meta data for this object.
+
+        This will be None until it has been set. All keys and values of this
+        dictionary should be of a standard Python type to ensure correct
+        serialization of the object to/from JSON (eg. str, float, int, list, dict)
+        """
+        if self._user_data is not None:
+            return self._user_data
+
+    @user_data.setter
+    def user_data(self, value):
+        if value is not None:
+            assert isinstance(value, dict), 'Expected dictionary for honeybee_energy' \
+                'object user_data. Got {}.'.format(type(value))
+        self._user_data = value
+
     @classmethod
     def from_dict(cls, data):
         """Create a WindowConstructionDynamic from a dictionary.
@@ -292,6 +312,8 @@ class WindowConstructionDynamic(object):
         new_obj = cls(data['identifier'], constrs, schedule)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
+        if 'user_data' in data and data['user_data'] is not None:
+            new_obj.user_data = data['user_data']
         return new_obj
 
     @classmethod
@@ -326,6 +348,8 @@ class WindowConstructionDynamic(object):
         new_obj = cls(data['identifier'], constrs, schedule)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
+        if 'user_data' in data and data['user_data'] is not None:
+            new_obj.user_data = data['user_data']
         return new_obj
 
     def to_idf(self):
@@ -363,6 +387,8 @@ class WindowConstructionDynamic(object):
             else self.schedule.to_dict()
         if self._display_name is not None:
             base['display_name'] = self.display_name
+        if self._user_data is not None:
+            base['user_data'] = self.user_data
         return base
 
     def lock(self):
@@ -385,6 +411,7 @@ class WindowConstructionDynamic(object):
         new_con = WindowConstructionDynamic(
             self.identifier, self.constructions, self.schedule)
         new_con._display_name = self._display_name
+        new_con.user_data = None if self._user_data is None else self._user_data.copy()
         return new_con
 
     def __len__(self):
