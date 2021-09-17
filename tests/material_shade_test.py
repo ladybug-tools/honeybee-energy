@@ -3,14 +3,14 @@ from honeybee_energy.material.shade import EnergyWindowMaterialShade, \
     EnergyWindowMaterialBlind
 
 import pytest
-from .conftest import apply_ud, userdatadict
+from .fixtures.userdata_fixtures import userdatadict
 
-def test_shade_init():
+def test_shade_init(userdatadict):
     """Test the initialization of shade material objects and basic properties."""
     shade_mat = EnergyWindowMaterialShade(
         'Low-e Diffusing Shade', 0.025, 0.15, 0.5, 0.25, 0.5, 0, 0.4,
         0.2, 0.1, 0.75, 0.25)
-    shade_mat = apply_ud(shade_mat)
+    shade_mat.user_data = userdatadict
     str(shade_mat)  # test the string representation of the material
     shade_dup = shade_mat.duplicate()
 
@@ -125,16 +125,15 @@ def test_shade_from_idf():
     assert shade_mat.airflow_permeability == 0.04
 
 
-def test_shade_dict_methods():
+def test_shade_dict_methods(userdatadict):
     """Test the to/from dict methods."""
     shade_mat = EnergyWindowMaterialShade(
         'Low-e Diffusing Shade', 0.025, 0.15, 0.5, 0.25, 0.5, 0, 0.4,
         0.2, 0.1, 0.75, 0.25)
-    shade_mat = apply_ud(shade_mat)
+    shade_mat.user_data = userdatadict
     material_dict = shade_mat.to_dict()
     new_material = EnergyWindowMaterialShade.from_dict(material_dict)
     assert material_dict == new_material.to_dict()
-    assert shade_mat.user_data == new_material.user_data
 
 
 def test_blind_init():
@@ -310,12 +309,12 @@ def test_blind_from_idf():
     assert shade_mat.right_opening_multiplier == 1
 
 
-def test_blind_dict_methods():
+def test_blind_dict_methods(userdatadict):
     """Test the to/from dict methods."""
     shade_mat = EnergyWindowMaterialBlind(
         'Plastic Blind', 'Vertical', 0.025, 0.01875, 0.003, 90, 0.2, 0.05, 0.4,
         0.05, 0.45, 0, 0.95, 0.1, 1)
-    shade_mat = apply_ud(shade_mat)
+    shade_mat.user_data = userdatadict
     material_dict = shade_mat.to_dict()
     new_material = EnergyWindowMaterialBlind.from_dict(material_dict)
     assert material_dict == new_material.to_dict()

@@ -3,15 +3,15 @@ from honeybee_energy.material.glazing import EnergyWindowMaterialGlazing, \
     EnergyWindowMaterialSimpleGlazSys
 
 import pytest
-from .conftest import apply_ud, userdatadict
+from .fixtures.userdata_fixtures import userdatadict
 
 
-def test_glazing_init():
+def test_glazing_init(userdatadict):
     """Test the initialization of EnergyMaterial objects and basic properties."""
     lowe = EnergyWindowMaterialGlazing(
         'Low-e Glass', 0.00318, 0.4517, 0.359, 0.714, 0.207,
         0, 0.84, 0.046578, 1.0)
-    lowe = apply_ud(lowe)
+    lowe.user_data = userdatadict
     str(lowe)  # test the string representation of the material
     lowe_dup = lowe.duplicate()
 
@@ -117,22 +117,22 @@ def test_glazing_init_from_idf():
     assert idf_str == new_mat_1.to_idf()
 
 
-def test_glazing_dict_methods():
+def test_glazing_dict_methods(userdatadict):
     """Test the to/from dict methods."""
     lowe = EnergyWindowMaterialGlazing(
         'Low-e Glass', 0.00318, 0.4517, 0.359, 0.714, 0.207,
         0, 0.84, 0.046578, 1.0)
-    lowe = apply_ud(lowe)
+    lowe.user_data = userdatadict
     material_dict = lowe.to_dict()
     new_material = EnergyWindowMaterialGlazing.from_dict(material_dict)
     assert material_dict == new_material.to_dict()
-    assert lowe.user_data == new_material.user_data
 
 
-def test_simple_sys_init():
+def test_simple_sys_init(userdatadict):
     """Test initialization of EnergyWindowMaterialSimpleGlazSys and properties."""
     lowe_sys = EnergyWindowMaterialSimpleGlazSys(
         'Double Pane Low-e', 1.8, 0.35, 0.55)
+    lowe_sys.user_data = userdatadict
     str(lowe_sys)  # test the string representation of the material
     lowe_sys_dup = lowe_sys.duplicate()
 
@@ -182,11 +182,10 @@ def test_simple_sys_init_from_idf():
     assert glaz_sys.vt == 0.35
 
 
-def test_simple_sys_dict_methods():
+def test_simple_sys_dict_methods(userdatadict):
     """Test the to/from dict methods."""
     clear = EnergyWindowMaterialSimpleGlazSys('Clear Window', 5.5, 0.8)
-    clear = apply_ud(clear)
+    clear.user_data = userdatadict
     material_dict = clear.to_dict()
     new_material = EnergyWindowMaterialSimpleGlazSys.from_dict(material_dict)
     assert material_dict == new_material.to_dict()
-    assert clear.user_data == new_material.user_data

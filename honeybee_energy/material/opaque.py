@@ -478,24 +478,6 @@ class EnergyMaterialNoMass(_EnergyMaterialOpaqueBase):
     def area_heat_capacity(self):
         """Returns 0 for the heat capacity of a no mass material."""
         return 0
-    
-    @property
-    def user_data(self):
-        """Get or set an optional dictionary for additional meta data for this object.
-
-        This will be None until it has been set. All keys and values of this
-        dictionary should be of a standard Python type to ensure correct
-        serialization of the object to/from JSON (eg. str, float, int, list, dict)
-        """
-        if self._user_data is not None:
-            return self._user_data
-    
-    @user_data.setter
-    def user_data(self, value):
-        if value is not None:
-            assert isinstance(value, dict), 'Expected dictionary for honeybee_energy' \
-                'object user_data. Got {}.'.format(type(value))
-        self._user_data = value
 
     @classmethod
     def from_idf(cls, idf_string):

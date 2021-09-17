@@ -489,7 +489,7 @@ class EnergyWindowMaterialGasMixture(_EnergyWindowMaterialGasBase):
         * density
         * prandtl
     """
-    __slots__ = ('_gas_count', '_gas_types', '_gas_fractions', '_user_data')
+    __slots__ = ('_gas_count', '_gas_types', '_gas_fractions')
 
     def __init__(self, identifier, thickness=0.0125,
                  gas_types=('Argon', 'Air'), gas_fractions=(0.9, 0.1)):
@@ -504,7 +504,6 @@ class EnergyWindowMaterialGasMixture(_EnergyWindowMaterialGasBase):
             'between 2 anf 4. Got {}.'.format(self._gas_count)
         self.gas_types = gas_types
         self.gas_fractions = gas_fractions
-        self._user_data = None
 
     @property
     def gas_types(self):

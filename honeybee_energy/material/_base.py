@@ -72,7 +72,6 @@ class _EnergyMaterialBase(object):
                 'object user_data. Got {}.'.format(type(value))
         self._user_data = value
 
-    
 
     def duplicate(self):
         """Get a copy of this construction."""
