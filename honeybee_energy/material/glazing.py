@@ -515,7 +515,7 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
         * thickness
         * user_data
     """
-    __slots__ = ('_u_factor', '_shgc', '_vt', '_user_data')
+    __slots__ = ('_u_factor', '_shgc', '_vt')
 
     def __init__(self, identifier, u_factor, shgc, vt=0.6):
         """Initialize energy window material simple glazing system."""
@@ -523,7 +523,6 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
         self.u_factor = u_factor
         self.shgc = shgc
         self.vt = vt
-        self._user_data = None
 
     @property
     def u_factor(self):
