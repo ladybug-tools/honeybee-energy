@@ -84,7 +84,7 @@ class _EnergyWindowMaterialGasBase(_EnergyMaterialWindowBase):
     def prandtl(self):
         """Prandtl number of the gas at 0C."""
         return self.prandtl_at_temperature(273.15)
-    
+
     def density_at_temperature(self, t_kelvin, pressure=101325):
         """Get the density of the gas [kg/m3] at a given temperature and pressure.
 
@@ -334,7 +334,7 @@ class EnergyWindowMaterialGas(_EnergyWindowMaterialGasBase):
         * prandtl
         * user_data
     """
-    __slots__ = ('_gas_type')
+    __slots__ = ('_gas_type',)
 
     def __init__(self, identifier, thickness=0.0125, gas_type='Air'):
         """Initialize gas energy material."""
@@ -909,14 +909,18 @@ class EnergyWindowMaterialGasCustom(_EnergyWindowMaterialGasBase):
             'Expected EnergyWindowMaterialGasCustom. Got {}.'.format(data['type'])
         con_b = 0 if 'conductivity_coeff_b' not in data else data['conductivity_coeff_b']
         vis_b = 0 if 'viscosity_coeff_b' not in data else data['viscosity_coeff_b']
-        sph_b = 0 if 'specific_heat_coeff_b' not in data else data['specific_heat_coeff_b']
+        sph_b = 0 if 'specific_heat_coeff_b' not in data \
+            else data['specific_heat_coeff_b']
         con_c = 0 if 'conductivity_coeff_c' not in data else data['conductivity_coeff_c']
         vis_c = 0 if 'viscosity_coeff_c' not in data else data['viscosity_coeff_c']
-        sph_c = 0 if 'specific_heat_coeff_c' not in data else data['specific_heat_coeff_c']
+        sph_c = 0 if 'specific_heat_coeff_c' not in data \
+            else data['specific_heat_coeff_c']
         sphr = 1.0 if 'specific_heat_ratio' not in data else data['specific_heat_ratio']
         mw = 20.0 if 'molecular_weight' not in data else data['molecular_weight']
-        new_obj = cls(data['identifier'], data['thickness'], data['conductivity_coeff_a'],
-                      data['viscosity_coeff_a'], data['specific_heat_coeff_a'],
+        new_obj = cls(data['identifier'], data['thickness'],
+                      data['conductivity_coeff_a'],
+                      data['viscosity_coeff_a'],
+                      data['specific_heat_coeff_a'],
                       con_b, vis_b, sph_b, con_c, vis_c, sph_c, sphr, mw)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']

@@ -102,12 +102,13 @@ class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
         """Initialize energy window material glazing."""
         _EnergyWindowMaterialGlazingBase.__init__(self, identifier)
 
-        # default for checking transmittance + reflectance < 1
+        # default values for checking transmittance + reflectance < 1
         self._solar_reflectance = 0
         self._solar_reflectance_back = None
         self._visible_reflectance = 0
         self._visible_reflectance_back = None
-        self._user_data = None
+
+        # assign the specified properties from __init__
         self.thickness = thickness
         self.solar_transmittance = solar_transmittance
         self.solar_reflectance = solar_reflectance
