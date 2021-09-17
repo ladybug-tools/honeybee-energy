@@ -14,10 +14,10 @@ from honeybee.room import Room
 from ladybug_geometry.geometry3d.pointvector import Point3D
 
 import pytest
-from .conftest import apply_ud, userdatadict
+from .fixtures.userdata_fixtures import userdatadict
 
 
-def test_fcu_init():
+def test_fcu_init(userdatadict):
     """Test the initialization of FCU and basic properties."""
     hvac_sys = FCU('Test System')
     hvac_sys.user_data = userdatadict
@@ -31,9 +31,10 @@ def test_fcu_init():
     hvac_sys.equipment_type = 'FCU_DCW_DHW'
     assert hvac_sys.vintage == 'ASHRAE_2010'
     assert hvac_sys.equipment_type == 'FCU_DCW_DHW'
+    assert hvac_sys.user_data == userdatadict
 
 
-def test_fcu_equality():
+def test_fcu_equality(userdatadict):
     """Test the equality of FCU objects."""
     hvac_sys = FCU('Test System')
     hvac_sys.user_data = userdatadict
@@ -48,7 +49,7 @@ def test_fcu_equality():
     assert hvac_sys != hvac_sys_alt
 
 
-def test_fcu_multi_room():
+def test_fcu_multi_room(userdatadict):
     """Test that FCU systems can be assigned to multiple Rooms."""
     first_floor = Room.from_box('First_Floor', 10, 10, 3, origin=Point3D(0, 0, 0))
     second_floor = Room.from_box('Second_Floor', 10, 10, 3, origin=Point3D(0, 0, 3))
@@ -68,7 +69,7 @@ def test_fcu_multi_room():
     assert model_dict['rooms'][0]['properties']['energy']['hvac'] == hvac_sys.identifier
 
 
-def test_fcu_dict_methods():
+def test_fcu_dict_methods(userdatadict):
     """Test the to/from dict methods."""
     hvac_sys = FCU('High Efficiency HVAC System')
     hvac_sys.vintage = 'ASHRAE_2010'
@@ -81,7 +82,7 @@ def test_fcu_dict_methods():
     assert hvac_dict == new_hvac_sys.to_dict()
 
 
-def test_vrf_init():
+def test_vrf_init(userdatadict):
     """Test the initialization of VRF and basic properties."""
     hvac_sys = VRF('Test System')
     hvac_sys.user_data = userdatadict
@@ -95,9 +96,10 @@ def test_vrf_init():
     with pytest.raises(ValueError):
         hvac_sys.equipment_type = 'Ground sourced VRF'
     assert hvac_sys.vintage == 'ASHRAE_2010'
+    assert hvac_sys.user_data == userdatadict
 
 
-def test_vrf_equality():
+def test_vrf_equality(userdatadict):
     """Test the equality of VRF objects."""
     hvac_sys = VRF('Test System')
     hvac_sys.user_data = userdatadict
@@ -112,7 +114,7 @@ def test_vrf_equality():
     assert hvac_sys != hvac_sys_alt
 
 
-def test_vrf_dict_methods():
+def test_vrf_dict_methods(userdatadict):
     """Test the to/from dict methods."""
     hvac_sys = VRF('High Efficiency HVAC System')
     hvac_sys.vintage = 'ASHRAE_2010'
@@ -124,7 +126,7 @@ def test_vrf_dict_methods():
     assert hvac_dict == new_hvac_sys.to_dict()
 
 
-def test_wshp_init():
+def test_wshp_init(userdatadict):
     """Test the initialization of WSHP and basic properties."""
     hvac_sys = WSHP('Test System')
     hvac_sys.user_data = userdatadict
@@ -138,9 +140,10 @@ def test_wshp_init():
     hvac_sys.equipment_type = 'WSHP_GSHP'
     assert hvac_sys.vintage == 'ASHRAE_2010'
     assert hvac_sys.equipment_type == 'WSHP_GSHP'
+    assert hvac_sys.user_data == userdatadict
 
 
-def test_wshp_equality():
+def test_wshp_equality(userdatadict):
     """Test the equality of WSHP objects."""
     hvac_sys = WSHP('Test System')
     hvac_sys.user_data = userdatadict
@@ -155,7 +158,7 @@ def test_wshp_equality():
     assert hvac_sys != hvac_sys_alt
 
 
-def test_wshp_dict_methods():
+def test_wshp_dict_methods(userdatadict):
     """Test the to/from dict methods."""
     hvac_sys = WSHP('High Efficiency HVAC System')
     hvac_sys.vintage = 'ASHRAE_2010'
@@ -167,7 +170,7 @@ def test_wshp_dict_methods():
     assert hvac_dict == new_hvac_sys.to_dict()
 
 
-def test_baseboard_init():
+def test_baseboard_init(userdatadict):
     """Test the initialization of Baseboard and basic properties."""
     hvac_sys = Baseboard('Test System')
     hvac_sys.user_data = userdatadict
@@ -181,9 +184,10 @@ def test_baseboard_init():
     hvac_sys.equipment_type = 'DHWBaseboard'
     assert hvac_sys.vintage == 'ASHRAE_2010'
     assert hvac_sys.equipment_type == 'DHWBaseboard'
+    assert hvac_sys.user_data == userdatadict
 
 
-def test_baseboard_equality():
+def test_baseboard_equality(userdatadict):
     """Test the equality of Baseboard objects."""
     hvac_sys = Baseboard('Test System')
     hvac_sys.user_data = userdatadict
@@ -199,7 +203,7 @@ def test_baseboard_equality():
     assert hvac_sys != hvac_sys_alt
 
 
-def test_baseboard_multi_room():
+def test_baseboard_multi_room(userdatadict):
     """Test that Baseboard systems can be assigned to multiple Rooms."""
     first_floor = Room.from_box('First_Floor', 10, 10, 3, origin=Point3D(0, 0, 0))
     second_floor = Room.from_box('Second_Floor', 10, 10, 3, origin=Point3D(0, 0, 3))
@@ -218,7 +222,7 @@ def test_baseboard_multi_room():
     assert model_dict['rooms'][0]['properties']['energy']['hvac'] == hvac_sys.identifier
 
 
-def test_baseboard_dict_methods():
+def test_baseboard_dict_methods(userdatadict):
     """Test the to/from dict methods."""
     hvac_sys = Baseboard('High Efficiency HVAC System')
     hvac_sys.vintage = 'ASHRAE_2010'
@@ -231,7 +235,7 @@ def test_baseboard_dict_methods():
     assert hvac_dict == new_hvac_sys.to_dict()
 
 
-def test_evap_cool_init():
+def test_evap_cool_init(userdatadict):
     """Test the initialization of EvaporativeCooler and basic properties."""
     hvac_sys = EvaporativeCooler('Test System')
     hvac_sys.user_data = userdatadict
@@ -245,9 +249,10 @@ def test_evap_cool_init():
     hvac_sys.equipment_type = 'EvapCoolers_DHWBaseboard'
     assert hvac_sys.vintage == 'ASHRAE_2010'
     assert hvac_sys.equipment_type == 'EvapCoolers_DHWBaseboard'
+    assert hvac_sys.user_data == userdatadict
 
 
-def test_evap_cool_equality():
+def test_evap_cool_equality(userdatadict):
     """Test the equality of EvaporativeCooler objects."""
     hvac_sys = EvaporativeCooler('Test System')
     hvac_sys.user_data = userdatadict
@@ -264,7 +269,7 @@ def test_evap_cool_equality():
     assert hvac_sys != hvac_sys_alt
 
 
-def test_evap_cool_multi_room():
+def test_evap_cool_multi_room(userdatadict):
     """Test that EvaporativeCooler systems can be assigned to multiple Rooms."""
     first_floor = Room.from_box('First_Floor', 10, 10, 3, origin=Point3D(0, 0, 0))
     second_floor = Room.from_box('Second_Floor', 10, 10, 3, origin=Point3D(0, 0, 3))
@@ -284,7 +289,7 @@ def test_evap_cool_multi_room():
     assert model_dict['rooms'][0]['properties']['energy']['hvac'] == hvac_sys.identifier
 
 
-def test_evap_cool_dict_methods():
+def test_evap_cool_dict_methods(userdatadict):
     """Test the to/from dict methods."""
     hvac_sys = EvaporativeCooler('High Efficiency HVAC System')
     hvac_sys.vintage = 'ASHRAE_2010'
@@ -297,7 +302,7 @@ def test_evap_cool_dict_methods():
     assert hvac_dict == new_hvac_sys.to_dict()
 
 
-def test_gasunit_init():
+def test_gasunit_init(userdatadict):
     """Test the initialization of GasUnitHeater and basic properties."""
     hvac_sys = GasUnitHeater('Test System')
     hvac_sys.user_data = userdatadict
@@ -309,9 +314,10 @@ def test_gasunit_init():
 
     hvac_sys.vintage = 'ASHRAE_2010'
     assert hvac_sys.vintage == 'ASHRAE_2010'
+    assert hvac_sys.user_data == userdatadict
 
 
-def test_gasunit_equality():
+def test_gasunit_equality(userdatadict):
     """Test the equality of GasUnitHeater objects."""
     hvac_sys = GasUnitHeater('Test System')
     hvac_sys.user_data = userdatadict
@@ -326,7 +332,7 @@ def test_gasunit_equality():
     assert hvac_sys != hvac_sys_alt
 
 
-def test_gasunit_dict_methods():
+def test_gasunit_dict_methods(userdatadict):
     """Test the to/from dict methods."""
     hvac_sys = GasUnitHeater('High Efficiency HVAC System')
     hvac_sys.vintage = 'ASHRAE_2010'
@@ -338,7 +344,7 @@ def test_gasunit_dict_methods():
     assert hvac_dict == new_hvac_sys.to_dict()
 
 
-def test_residential_init():
+def test_residential_init(userdatadict):
     """Test the initialization of Residential and basic properties."""
     hvac_sys = Residential('Test System')
     hvac_sys.user_data = userdatadict
@@ -352,9 +358,10 @@ def test_residential_init():
     hvac_sys.equipment_type = 'ResidentialFurnace'
     assert hvac_sys.vintage == 'ASHRAE_2010'
     assert hvac_sys.equipment_type == 'ResidentialFurnace'
+    assert hvac_sys.user_data == userdatadict
 
 
-def test_residential_equality():
+def test_residential_equality(userdatadict):
     """Test the equality of Residential objects."""
     hvac_sys = Residential('Test System')
     hvac_sys.user_data = userdatadict
@@ -370,7 +377,7 @@ def test_residential_equality():
     assert hvac_sys != hvac_sys_alt
 
 
-def test_residential_multi_room():
+def test_residential_multi_room(userdatadict):
     """Test that Residential systems can be assigned to multiple Rooms."""
     first_floor = Room.from_box('First_Floor', 10, 10, 3, origin=Point3D(0, 0, 0))
     second_floor = Room.from_box('Second_Floor', 10, 10, 3, origin=Point3D(0, 0, 3))
@@ -390,7 +397,7 @@ def test_residential_multi_room():
     assert model_dict['rooms'][0]['properties']['energy']['hvac'] == hvac_sys.identifier
 
 
-def test_residential_dict_methods():
+def test_residential_dict_methods(userdatadict):
     """Test the to/from dict methods."""
     hvac_sys = Residential('High Efficiency HVAC System')
     hvac_sys.vintage = 'ASHRAE_2010'
@@ -403,7 +410,7 @@ def test_residential_dict_methods():
     assert hvac_dict == new_hvac_sys.to_dict()
 
 
-def test_window_ac_init():
+def test_window_ac_init(userdatadict):
     """Test the initialization of WindowAC and basic properties."""
     hvac_sys = WindowAC('Test System')
     hvac_sys.user_data = userdatadict
@@ -417,9 +424,10 @@ def test_window_ac_init():
     hvac_sys.equipment_type = 'WindowAC_ASHPBaseboard'
     assert hvac_sys.vintage == 'ASHRAE_2010'
     assert hvac_sys.equipment_type == 'WindowAC_ASHPBaseboard'
+    assert hvac_sys.user_data == userdatadict
 
 
-def test_window_ac_equality():
+def test_window_ac_equality(userdatadict):
     """Test the equality of WindowAC objects."""
     hvac_sys = WindowAC('Test System')
     hvac_sys.user_data = userdatadict
@@ -436,7 +444,7 @@ def test_window_ac_equality():
     assert hvac_sys != hvac_sys_alt
 
 
-def test_window_ac_multi_room():
+def test_window_ac_multi_room(userdatadict):
     """Test that WindowAC systems can be assigned to multiple Rooms."""
     first_floor = Room.from_box('First_Floor', 10, 10, 3, origin=Point3D(0, 0, 0))
     second_floor = Room.from_box('Second_Floor', 10, 10, 3, origin=Point3D(0, 0, 3))
@@ -456,7 +464,7 @@ def test_window_ac_multi_room():
     assert model_dict['rooms'][0]['properties']['energy']['hvac'] == hvac_sys.identifier
 
 
-def test_window_ac_dict_methods():
+def test_window_ac_dict_methods(userdatadict):
     """Test the to/from dict methods."""
     hvac_sys = WindowAC('High Efficiency HVAC System')
     hvac_sys.vintage = 'ASHRAE_2010'

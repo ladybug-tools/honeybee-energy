@@ -70,6 +70,7 @@ def test_set_construction(userdatadict):
 
     assert aperture.properties.energy.construction == triple_pane
     assert aperture.properties.energy.is_construction_set_on_object
+    assert aperture.user_data == userdatadict
 
     with pytest.raises(AttributeError):
         aperture.properties.energy.construction[0].thickness = 0.1

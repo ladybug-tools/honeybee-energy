@@ -13,10 +13,10 @@ from ladybug.dt import Time
 from ladybug_geometry.geometry3d.pointvector import Point3D
 
 import pytest
-from .conftest import apply_ud, userdatadict
+from .fixtures.userdata_fixtures import userdatadict
 
 
-def test_ideal_air_system_init():
+def test_ideal_air_system_init(userdatadict):
     """Test the initialization of IdealAirSystem and basic properties."""
     ideal_air = IdealAirSystem('Test System')
     ideal_air.user_data = userdatadict
@@ -33,9 +33,10 @@ def test_ideal_air_system_init():
     assert ideal_air.cooling_limit == autosize
     assert ideal_air.heating_availability is None
     assert ideal_air.cooling_availability is None
+    assert ideal_air.user_data == userdatadict
 
 
-def test_ideal_air_system_setability():
+def test_ideal_air_system_setability(userdatadict):
     """Test the setting of properties of IdealAirSystem."""
     ideal_air = IdealAirSystem('Test System')
     ideal_air.user_data = userdatadict
@@ -65,7 +66,7 @@ def test_ideal_air_system_setability():
     assert ideal_air.cooling_availability == schedule
 
 
-def test_ideal_air_system_equality():
+def test_ideal_air_system_equality(userdatadict):
     """Test the equality of IdealAirSystem objects."""
     ideal_air = IdealAirSystem('Test System')
     ideal_air.user_data = userdatadict
@@ -81,7 +82,7 @@ def test_ideal_air_system_equality():
     assert ideal_air != ideal_air_alt
 
 
-def test_ideal_air_init_from_idf():
+def test_ideal_air_init_from_idf(userdatadict):
     """Test the initialization of IdealAirSystem from_idf."""
     ideal_air = IdealAirSystem('Test_System')
     ideal_air.user_data = userdatadict
@@ -106,7 +107,7 @@ def test_ideal_air_init_from_idf():
     assert zone_id == rebuilt_zone_id
 
 
-def test_ideal_air_to_dict():
+def test_ideal_air_to_dict(userdatadict):
     """Test the to_dict method."""
     ideal_air = IdealAirSystem('Passive House HVAC System')
 
@@ -138,7 +139,7 @@ def test_ideal_air_to_dict():
     assert ideal_air_dict['cooling_availability'] == 'HVAC Control'
 
 
-def test_ideal_air_dict_methods():
+def test_ideal_air_dict_methods(userdatadict):
     """Test the to/from dict methods."""
     ideal_air = IdealAirSystem('Passive House HVAC System')
     ideal_air.economizer_type = 'DifferentialEnthalpy'

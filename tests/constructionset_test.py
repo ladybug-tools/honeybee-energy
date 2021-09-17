@@ -8,10 +8,10 @@ from honeybee_energy.material.glazing import EnergyWindowMaterialGlazing
 from honeybee_energy.material.gas import EnergyWindowMaterialGas
 
 import pytest
-from .conftest import apply_ud, userdatadict
+from .fixtures.userdata_fixtures import userdatadict
 
 
-def test_constructionset_init():
+def test_constructionset_init(userdatadict):
     """Test the initialization of ConstructionSet and basic properties."""
     default_set = ConstructionSet('Default Set')
     default_set.user_data = userdatadict
@@ -182,7 +182,7 @@ def test_constructionset_equality():
     assert cnstr_set_list[0] != cnstr_set_list[2]
 
 
-def test_constructionset_to_dict_full():
+def test_constructionset_to_dict_full(userdatadict):
     """Test the to_dict method writing out all constructions."""
     default_set = ConstructionSet('Default Set')
     default_set.user_data = userdatadict
@@ -210,7 +210,7 @@ def test_constructionset_to_dict_full():
     assert constr_dict['shade_construction'] is not None
 
 
-def test_constructionset_dict_methods():
+def test_constructionset_dict_methods(userdatadict):
     """Test the to/from dict methods."""
     insulated_set = ConstructionSet('Insulated Set')
     clear_glass = EnergyWindowMaterialGlazing(
@@ -247,4 +247,3 @@ def test_constructionset_dict_methods():
 
     new_constr = ConstructionSet.from_dict(constr_dict)
     assert constr_dict == new_constr.to_dict()
-    assert new_constr.user_data == userdatadict
