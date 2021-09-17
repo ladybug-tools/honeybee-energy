@@ -14,9 +14,9 @@ from honeybee_energy.construction.air import AirBoundaryConstruction
 from honeybee_energy.schedule.ruleset import ScheduleRuleset
 
 import pytest
-from .conftest import apply_ud, userdatadict
+from .fixtures.userdata_fixtures import userdatadict
 
-def test_opaque_construction_init():
+def test_opaque_construction_init(userdatadict):
     """Test the initialization of OpaqueConstruction objects and basic properties."""
     concrete = EnergyMaterial('Concrete', 0.15, 2.31, 2322, 832, 'MediumRough',
                               0.95, 0.75, 0.8)
@@ -26,7 +26,7 @@ def test_opaque_construction_init():
                             0.93, 0.6, 0.65)
     wall_constr = OpaqueConstruction(
         'Generic Wall Construction', [concrete, insulation, wall_gap, gypsum])
-    wall_constr = apply_ud(wall_constr)
+    wall_constr.user_data = userdatadict
     str(wall_constr)  # test the string representation of the construction
     constr_dup = wall_constr.duplicate()
 
@@ -55,10 +55,10 @@ def test_opaque_construction_init():
         constr_dup.outside_solar_reflectance == 0.25
     assert wall_constr.outside_visible_reflectance == \
         constr_dup.outside_visible_reflectance == pytest.approx(0.2, rel=1e-2)
-    assert wall_constr.user_data == userdatadict
+    
 
 
-def test_opaque_lockability():
+def test_opaque_lockability(userdatadict):
     """Test the lockability of the construction."""
     concrete = EnergyMaterial('Concrete', 0.15, 2.31, 2322, 832, 'MediumRough',
                               0.95, 0.75, 0.8)
@@ -70,6 +70,7 @@ def test_opaque_lockability():
         'Generic Wall Construction', [concrete, insulation, wall_gap, gypsum])
 
     wall_constr.materials = [concrete, wall_gap, gypsum]
+    wall_constr.user_data = userdatadict
     wall_constr.lock()
     with pytest.raises(AttributeError):
         wall_constr.materials = [concrete, insulation, wall_gap, gypsum]
@@ -80,7 +81,7 @@ def test_opaque_lockability():
     wall_constr[0].density = 600
 
 
-def test_opaque_equivalency():
+def test_opaque_equivalency(userdatadict):
     """Test the equality of an opaque construction to another."""
     concrete = EnergyMaterial('Concrete', 0.15, 2.31, 2322, 832)
     insulation = EnergyMaterial('Insulation', 0.05, 0.049, 265, 836)
@@ -88,14 +89,14 @@ def test_opaque_equivalency():
     gypsum = EnergyMaterial('Gypsum', 0.0127, 0.16, 784.9, 830)
     wall_constr_1 = OpaqueConstruction(
         'Wall Construction', [concrete, insulation, wall_gap, gypsum])
-    wall_constr_1 = apply_ud(wall_constr_1)
+    wall_constr_1.user_data = userdatadict
     wall_constr_2 = wall_constr_1.duplicate()
     wall_constr_3 = OpaqueConstruction(
         'Wall Construction', [concrete, wall_gap, gypsum, insulation])
-    wall_constr_3 = apply_ud(wall_constr_3)
+    wall_constr_3.user_data = userdatadict
     wall_constr_4 = OpaqueConstruction(
         'Other Wall Construction', [concrete, insulation, wall_gap, gypsum])
-    wall_constr_4 = apply_ud(wall_constr_4)
+    wall_constr_4.user_data = userdatadict
 
     collection = [wall_constr_1, wall_constr_1, wall_constr_2, wall_constr_3]
     assert len(set(collection)) == 2
@@ -177,7 +178,7 @@ def test_opaque_construction_from_idf():
     assert constr_str == new_constr_str
 
 
-def test_opaque_dict_methods():
+def test_opaque_dict_methods(userdatadict):
     """Test the to/from dict methods."""
     concrete = EnergyMaterial('Concrete', 0.15, 2.31, 2322, 832)
     insulation = EnergyMaterial('Insulation', 0.05, 0.049, 265, 836)
@@ -185,15 +186,14 @@ def test_opaque_dict_methods():
     gypsum = EnergyMaterial('Gypsum', 0.0127, 0.16, 784.9, 830)
     wall_constr = OpaqueConstruction(
         'Wall Construction', [concrete, insulation, wall_gap, gypsum])
-    wall_constr = apply_ud(wall_constr)
+    wall_constr.user_data = userdatadict
     constr_dict = wall_constr.to_dict()
     new_constr = OpaqueConstruction.from_dict(constr_dict)
     assert constr_dict == new_constr.to_dict()
-    assert wall_constr.user_data == new_constr.user_data
     
 
 
-def test_window_construction_init():
+def test_window_construction_init(userdatadict):
     """Test the initialization of WindowConstruction objects and basic properties."""
     lowe_glass = EnergyWindowMaterialGlazing(
         'Low-e Glass', 0.00318, 0.4517, 0.359, 0.714, 0.207,
@@ -204,13 +204,13 @@ def test_window_construction_init():
     gap = EnergyWindowMaterialGas('air gap', thickness=0.0127)
     double_low_e = WindowConstruction(
         'Double Low-E Window', [lowe_glass, gap, clear_glass])
-    double_low_e = apply_ud(double_low_e)
+    double_low_e.user_data = userdatadict
     double_clear = WindowConstruction(
         'Double Clear Window', [clear_glass, gap, clear_glass])
-    doble_clear = apply_ud(double_clear)
+    double_clear.user_data = userdatadict
     triple_clear = WindowConstruction(
         'Triple Clear Window', [clear_glass, gap, clear_glass, gap, clear_glass])
-    triple_clear = apply_ud(triple_clear)
+    triple_clear.user_data = userdatadict
     double_low_e_dup = double_low_e.duplicate()
     str(double_low_e)  # test the string representation of the construction
 
@@ -243,7 +243,7 @@ def test_window_construction_init():
     assert triple_clear.u_factor == pytest.approx(1.757, rel=1e-2)
 
 
-def test_window_lockability():
+def test_window_lockability(userdatadict):
     """Test the lockability of the window construction."""
     clear_glass = EnergyWindowMaterialGlazing(
         'Clear Glass', 0.005715, 0.770675, 0.07, 0.8836, 0.0804,
@@ -253,6 +253,7 @@ def test_window_lockability():
         'Double Clear Window', [clear_glass, gap, clear_glass])
 
     double_clear.materials = [clear_glass, gap, clear_glass, gap, clear_glass]
+    double_clear.user_data = userdatadict
     double_clear.lock()
     with pytest.raises(AttributeError):
         double_clear.materials = [clear_glass]
@@ -263,7 +264,7 @@ def test_window_lockability():
     double_clear[0].solar_transmittance = 0.45
 
 
-def test_window_equivalency():
+def test_window_equivalency(userdatadict):
     """Test the equality of a window construction to another."""
     clear_glass = EnergyWindowMaterialGlazing(
         'Clear Glass', 0.005715, 0.770675, 0.07, 0.8836, 0.0804,
@@ -271,7 +272,7 @@ def test_window_equivalency():
     gap = EnergyWindowMaterialGas('air gap', thickness=0.0127)
     double_clear = WindowConstruction(
         'Clear Window', [clear_glass, gap, clear_glass])
-    double_clear = apply_ud(double_clear)
+    double_clear.user_data = userdatadict
     double_clear_2 = double_clear.duplicate()
     triple_clear = WindowConstruction(
         'Clear Window', [clear_glass, gap, clear_glass, gap, clear_glass])
@@ -374,7 +375,7 @@ def test_window_construction_init_from_idf_file():
     assert constr_str == new_constr_str
 
 
-def test_window_dict_methods():
+def test_window_dict_methods(userdatadict):
     """Test the to/from dict methods."""
     clear_glass = EnergyWindowMaterialGlazing(
         'Clear Glass', 0.005715, 0.770675, 0.07, 0.8836, 0.0804,
@@ -382,13 +383,13 @@ def test_window_dict_methods():
     gap = EnergyWindowMaterialGas('air gap', thickness=0.0127)
     triple_clear = WindowConstruction(
         'Triple Clear Window', [clear_glass, gap, clear_glass, gap, clear_glass])
-    triple_clear = apply_ud(triple_clear)
+    triple_clear.user_data = userdatadict
     constr_dict = triple_clear.to_dict()
     new_constr = WindowConstruction.from_dict(constr_dict)
     assert constr_dict == new_constr.to_dict()
 
 
-def test_window_construction_shade_init():
+def test_window_construction_shade_init(userdatadict):
     """Test the initialization of WindowConstructionShade objects with shades."""
     lowe_glass = EnergyWindowMaterialGlazing(
         'Low-e Glass', 0.00318, 0.4517, 0.359, 0.714, 0.207,
@@ -416,10 +417,13 @@ def test_window_construction_shade_init():
     double_low_e_shade = WindowConstructionShade(
         'Double Low-E with Shade', window_constr, shade_mat, 'Exterior',
         'OnIfHighSolarOnWindow', 200, sched)
+    double_low_e_shade.user_data = userdatadict
     double_low_e_between_shade = WindowConstructionShade(
         'Double Low-E Between Shade', window_clear, shade_mat, 'Between')
+    double_low_e_between_shade.user_data = userdatadict
     double_ext_shade = WindowConstructionShade(
         'Double Outside Shade', window_clear, shade_mat, 'Interior')
+    double_ext_shade.user_data = userdatadict
 
     double_low_e_shade_dup = double_low_e_shade.duplicate()
 
@@ -471,7 +475,7 @@ def test_window_construction_shade_init():
     assert len(double_ext_shade.unique_materials) == 3
 
 
-def test_window_construction_blind_init():
+def test_window_construction_blind_init(userdatadict):
     """Test the initialization of WindowConstructionShade objects with blinds."""
     lowe_glass = EnergyWindowMaterialGlazing(
         'Low-e Glass', 0.00318, 0.4517, 0.359, 0.714, 0.207,
@@ -491,10 +495,13 @@ def test_window_construction_blind_init():
     double_low_e_shade = WindowConstructionShade(
         'Double Low-E with Blind', window_constr, shade_mat, 'Exterior',
         'OnIfHighSolarOnWindow', 200, sched)
+    double_low_e_shade.user_data = userdatadict
     double_low_e_between_shade = WindowConstructionShade(
         'Double Low-E Between Blind', window_clear, shade_mat, 'Between')
+    double_low_e_between_shade.user_data = userdatadict
     double_low_e_ext_shade = WindowConstructionShade(
         'Double Low-E Outside Blind', window_constr, shade_mat, 'Interior')
+    double_low_e_ext_shade.user_data = userdatadict
     double_low_e_shade_dup = double_low_e_shade.duplicate()
 
     assert double_low_e_shade.identifier == 'Double Low-E with Blind'
@@ -536,7 +543,7 @@ def test_window_construction_blind_init():
     assert len(double_low_e_ext_shade.materials) == 4
 
 
-def test_window_construction_ec_init():
+def test_window_construction_ec_init(userdatadict):
     """Test the initialization of WindowConstructionShade objects with electrochromic."""
     lowe_glass = EnergyWindowMaterialGlazing(
         'Low-e Glass', 0.00318, 0.4517, 0.359, 0.714, 0.207,
@@ -555,10 +562,13 @@ def test_window_construction_ec_init():
     double_low_e_ec = WindowConstructionShade(
         'Double Low-E Inside EC', window_constr, tint_glass, 'Exterior',
         'OnIfHighSolarOnWindow', 200, sched)
+    double_low_e_ec.user_data = userdatadict
     double_low_e_between_ec = WindowConstructionShade(
         'Double Low-E Between EC', window_constr, tint_glass, 'Between')
+    double_low_e_between_ec.user_data = userdatadict
     double_low_e_ext_ec = WindowConstructionShade(
         'Double Low-E Outside EC', window_constr, tint_glass, 'Interior')
+    double_low_e_ext_ec.user_data = userdatadict
     double_low_e_ec_dup = double_low_e_ec.duplicate()
 
     assert double_low_e_ec.identifier == 'Double Low-E Inside EC'
@@ -596,7 +606,7 @@ def test_window_construction_ec_init():
     assert len(double_low_e_ext_ec.materials) == 3
 
 
-def test_window_shade_lockability():
+def test_window_shade_lockability(userdatadict):
     """Test the lockability of the WindowConstructionShade construction."""
     clear_glass = EnergyWindowMaterialGlazing(
         'Clear Glass', 0.005715, 0.770675, 0.07, 0.8836, 0.0804,
@@ -613,6 +623,7 @@ def test_window_shade_lockability():
     double_low_e_ec = WindowConstructionShade(
         'Double Low-E Inside EC', double_clear, shade_mat, 'Exterior',
         'OnIfHighSolarOnWindow', 200, sched)
+    double_low_e_ec.user_data = userdatadict
 
     with pytest.raises(AttributeError):
         double_low_e_ec.window_construction.materials = \
@@ -662,7 +673,7 @@ def test_window_shade_equivalency():
     assert double_low_e_ec != double_low_e_ec_2
 
 
-def test_window_shade_dict_methods():
+def test_window_shade_dict_methods(userdatadict):
     """Test the to/from dict methods."""
     clear_glass = EnergyWindowMaterialGlazing(
         'Clear Glass', 0.005715, 0.770675, 0.07, 0.8836, 0.0804,
@@ -679,7 +690,7 @@ def test_window_shade_dict_methods():
     double_low_e_ec = WindowConstructionShade(
         'Double Low-E Inside EC', double_clear, shade_mat, 'Exterior',
         'OnIfHighSolarOnWindow', 200, sched)
-    double_low_e_ec = apply_ud(double_low_e_ec)
+    double_low_e_ec.user_data = userdatadict
     constr_dict = double_low_e_ec.to_dict()
     new_constr = WindowConstructionShade.from_dict(constr_dict)
     assert double_low_e_ec == new_constr
@@ -722,7 +733,7 @@ def test_window_construction_dynamic_init():
     assert double_low_e_ec.gap_count == 1
 
 
-def test_window_dynamic_lockability():
+def test_window_dynamic_lockability(userdatadict):
     """Test the lockability of the WindowConstructionDynamic construction."""
     lowe_glass = EnergyWindowMaterialGlazing(
         'Low-e Glass', 0.00318, 0.4517, 0.359, 0.714, 0.207,
@@ -736,8 +747,10 @@ def test_window_dynamic_lockability():
         0, 0.84, 0.046578, 1.0)
     window_constr_off = WindowConstruction(
         'Double Low-E Clear', [lowe_glass, gap, clear_glass])
+    window_constr_off.user_data = userdatadict
     window_constr_on = WindowConstruction(
         'Double Low-E Tint', [lowe_glass, gap, tint_glass])
+    window_constr_on.user_data = userdatadict
     sched = ScheduleRuleset.from_daily_values(
         'NightSched', [1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                       0, 0, 0, 0, 0, 1, 1, 1])
@@ -760,7 +773,7 @@ def test_window_dynamic_lockability():
     double_low_e_ec.schedule = sched
 
 
-def test_window_dynamic_equality():
+def test_window_dynamic_equality(userdatadict):
     """Test the equality of the WindowConstructionDynamic construction."""
     lowe_glass = EnergyWindowMaterialGlazing(
         'Low-e Glass', 0.00318, 0.4517, 0.359, 0.714, 0.207,
@@ -784,6 +797,7 @@ def test_window_dynamic_equality():
                       1, 1, 1, 1, 1, 0, 0, 0])
     double_low_e_ec = WindowConstructionDynamic(
         'Double Low-E EC', [window_constr_on, window_constr_off], sched)
+    double_low_e_ec.user_data = userdatadict
 
     double_low_e_ec_2 = double_low_e_ec.duplicate()
     double_low_e_ec_3 = WindowConstructionDynamic(
@@ -799,7 +813,7 @@ def test_window_dynamic_equality():
     assert double_low_e_ec != double_low_e_ec_2
 
 
-def test_window_dynamic_dict_methods():
+def test_window_dynamic_dict_methods(userdatadict):
     """Test the to/from dict methods."""
     lowe_glass = EnergyWindowMaterialGlazing(
         'Low-e Glass', 0.00318, 0.4517, 0.359, 0.714, 0.207,
@@ -820,18 +834,18 @@ def test_window_dynamic_dict_methods():
                       0, 0, 0, 0, 0, 1, 1, 1])
     double_low_e_ec = WindowConstructionDynamic(
         'Double Low-E EC', [window_constr_on, window_constr_off], sched)
-    double_low_e_ec = apply_ud(double_low_e_ec)
+    double_low_e_ec.user_data = userdatadict
     constr_dict = double_low_e_ec.to_dict()
     new_constr = WindowConstructionDynamic.from_dict(constr_dict)
     assert double_low_e_ec == new_constr
     assert constr_dict == new_constr.to_dict()
-    assert double_low_e_ec.user_data == new_constr.user_data
 
 
-def test_shade_construction_init():
+def test_shade_construction_init(userdatadict):
     """Test the initialization of ShadeConstruction objects and basic properties."""
     default_constr = ShadeConstruction('Default Shade Construction')
     light_shelf_out = ShadeConstruction('Outdoor Light Shelf', 0.5, 0.6)
+    light_shelf_out.user_data = userdatadict
     str(light_shelf_out)  # test the string representation of the construction
     assert default_constr.is_default
     assert not light_shelf_out.is_default
@@ -885,14 +899,13 @@ def test_shade_equivalency():
     assert shade_constr_1 != shade_constr_2
 
 
-def test_shade_dict_methods():
+def test_shade_dict_methods(userdatadict):
     """Test the to/from dict methods."""
     shade_constr = ShadeConstruction('Outdoor Light Shelf', 0.4, 0.6)
-    shade_constr = apply_ud(shade_constr)
+    shade_constr.user_data = userdatadict
     constr_dict = shade_constr.to_dict()
     new_constr = ShadeConstruction.from_dict(constr_dict)
     assert constr_dict == new_constr.to_dict()
-    assert shade_constr.user_data == new_constr.user_data
 
 
 def test_air_construction_init():
@@ -922,7 +935,7 @@ def test_air_construction_to_idf():
     assert isinstance(night_flush_constr.to_idf(), str)
 
 
-def test_air_equivalency():
+def test_air_equivalency(userdatadict):
     """Test the equality of a AirBoundaryConstruction to another."""
     default_constr = AirBoundaryConstruction('Default Air Construction')
 
@@ -931,6 +944,7 @@ def test_air_equivalency():
                         0.5, 0.5, 0.5, 0.5, 0.5, 1, 1, 1])
     night_flush_constr = AirBoundaryConstruction(
         'Night Flush Boundary', 0.4, night_flush)
+    night_flush_constr.user_data = userdatadict
     night_flush_constr_dup = night_flush_constr.duplicate()
 
     assert night_flush_constr is night_flush_constr
@@ -944,13 +958,13 @@ def test_air_equivalency():
     assert len(set(collection)) == 2
 
 
-def test_air_dict_methods():
+def test_air_dict_methods(userdatadict):
     """Test the to/from dict methods."""
     night_flush = ScheduleRuleset.from_daily_values(
         'Night Flush', [1, 1, 1, 1, 1, 1, 1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5,
                         0.5, 0.5, 0.5, 0.5, 0.5, 1, 1, 1])
     night_flush_constr = AirBoundaryConstruction('Night Flush Boundary', 0.4, night_flush)
-    night_flush_constr = apply_ud(night_flush_constr)
+    night_flush_constr.user_data = userdatadict
     constr_dict = night_flush_constr.to_dict()
     new_constr = AirBoundaryConstruction.from_dict(constr_dict)
     assert night_flush_constr == new_constr
