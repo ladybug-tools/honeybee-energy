@@ -48,6 +48,8 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
         * thermal_absorptance
         * solar_absorptance
         * visible_absorptance
+        * solar_reflectance
+        * visible_reflectance
         * resistivity
         * u_value
         * r_value
@@ -155,6 +157,26 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
         self._visible_absorptance = float_in_range(
             v_abs, 0.0, 1.0, 'material visible absorptance') if v_abs is not None \
             else None
+
+    @property
+    def solar_reflectance(self):
+        """Get or set the front solar reflectance of the material layer."""
+        return 1 - self.solar_absorptance
+
+    @solar_reflectance.setter
+    def solar_reflectance(self, v_ref):
+        v_ref = float_in_range(v_ref, 0.0, 1.0, 'material solar reflectance')
+        self.solar_absorptance = 1 - v_ref
+
+    @property
+    def visible_reflectance(self):
+        """Get or set the front visible reflectance of the material layer."""
+        return 1 - self.visible_absorptance
+
+    @visible_reflectance.setter
+    def visible_reflectance(self, v_ref):
+        v_ref = float_in_range(v_ref, 0.0, 1.0, 'material visible reflectance')
+        self.visible_absorptance = 1 - v_ref
 
     @property
     def resistivity(self):
@@ -370,6 +392,8 @@ class EnergyMaterialNoMass(_EnergyMaterialOpaqueBase):
         * thermal_absorptance
         * solar_absorptance
         * visible_absorptance
+        * solar_reflectance
+        * visible_reflectance
         * mass_area_density
         * area_heat_capacity
     """
@@ -448,6 +472,26 @@ class EnergyMaterialNoMass(_EnergyMaterialOpaqueBase):
         self._visible_absorptance = float_in_range(
             v_abs, 0.0, 1.0, 'material visible absorptance') if v_abs is not None \
             else None
+
+    @property
+    def solar_reflectance(self):
+        """Get or set the front solar reflectance of the material layer."""
+        return 1 - self.solar_absorptance
+
+    @solar_reflectance.setter
+    def solar_reflectance(self, v_ref):
+        v_ref = float_in_range(v_ref, 0.0, 1.0, 'material solar reflectance')
+        self.solar_absorptance = 1 - v_ref
+
+    @property
+    def visible_reflectance(self):
+        """Get or set the front visible reflectance of the material layer."""
+        return 1 - self.visible_absorptance
+
+    @visible_reflectance.setter
+    def visible_reflectance(self, v_ref):
+        v_ref = float_in_range(v_ref, 0.0, 1.0, 'material visible reflectance')
+        self.visible_absorptance = 1 - v_ref
 
     @property
     def mass_area_density(self):

@@ -16,6 +16,7 @@ from honeybee_energy.schedule.ruleset import ScheduleRuleset
 import pytest
 from .fixtures.userdata_fixtures import userdatadict
 
+
 def test_opaque_construction_init(userdatadict):
     """Test the initialization of OpaqueConstruction objects and basic properties."""
     concrete = EnergyMaterial('Concrete', 0.15, 2.31, 2322, 832, 'MediumRough',
@@ -150,12 +151,15 @@ def test_opaque_temperature_profile():
     for i, mat in enumerate(wall_constr.materials):
         assert mat.r_value == pytest.approx(r_values[i + 1])
 
-    temperatures, r_values = wall_constr.temperature_profile(
-        36, 21, 4, 2., 180.0, 100000)
-    assert len(temperatures) == 7
-    assert temperatures[0] == pytest.approx(36, rel=1e-2)
-    assert temperatures[-1] == pytest.approx(21, rel=1e-2)
-    assert len(r_values) == 6
+    temperatures2, r_values2 = wall_constr.temperature_profile(
+        36, 21, 4, 700, 2., 180.0, 100000)
+    assert len(temperatures2) == 7
+    assert temperatures2[0] == pytest.approx(36, rel=1e-2)
+    assert temperatures2[-1] == pytest.approx(21, rel=1e-2)
+    assert len(r_values2) == 6
+    temperatures3, r_values3 = wall_constr.temperature_profile(
+        36, 21, 4, 0, 2., 180.0, 100000)
+    assert temperatures2[1] > temperatures3[1]
 
 
 def test_opaque_construction_from_idf():
@@ -189,7 +193,6 @@ def test_opaque_dict_methods(userdatadict):
     constr_dict = wall_constr.to_dict()
     new_constr = OpaqueConstruction.from_dict(constr_dict)
     assert constr_dict == new_constr.to_dict()
-    
 
 
 def test_window_construction_init(userdatadict):
@@ -345,12 +348,15 @@ def test_window_temperature_profile():
     assert sum(r_values) == pytest.approx(triple_clear.r_factor, rel=1e-1)
     assert r_values[-1] == pytest.approx((1 / triple_clear.in_h_simple()), rel=1)
 
-    temperatures, r_values = triple_clear.temperature_profile(
-        36, 21, 4, 2., 180.0, 100000)
-    assert len(temperatures) == 8
-    assert temperatures[0] == pytest.approx(36, rel=1e-2)
-    assert temperatures[-1] == pytest.approx(21, rel=1e-2)
-    assert len(r_values) == 7
+    temperatures2, r_values2 = triple_clear.temperature_profile(
+        36, 21, 4, 700, 2., 180.0, 100000)
+    assert len(temperatures2) == 8
+    assert temperatures2[0] == pytest.approx(36, rel=1e-2)
+    assert temperatures2[-1] == pytest.approx(21, rel=1e-2)
+    assert len(r_values2) == 7
+    temperatures3, r_values3 = triple_clear.temperature_profile(
+        36, 21, 4, 0, 2., 180.0, 100000)
+    assert temperatures2[1] > temperatures3[1]
 
 
 def test_window_construction_init_from_idf_file():

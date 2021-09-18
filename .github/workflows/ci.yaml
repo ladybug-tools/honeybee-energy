@@ -39,14 +39,7 @@ jobs:
           pip install -r requirements.txt
           pip install -r dev-requirements.txt
       - name: run tests
-        run: python -m pytest --cov=. tests/
-      - name: run test coverage
-        if: ${{ matrix.python-version == 3.7 }}
-        run: |
-          coverage report
-          coveralls
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python -m pytest tests/
 
   deploy:
     name: Deploy to GitHub and PyPI

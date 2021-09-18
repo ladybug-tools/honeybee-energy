@@ -111,24 +111,28 @@ class OpaqueConstruction(_ConstructionBase):
         return thickness
 
     def temperature_profile(self, outside_temperature=-18, inside_temperature=21,
-                            outside_wind_speed=6.7, height=1.0, angle=90.0,
-                            pressure=101325):
+                            outside_wind_speed=6.7, solar_irradiance=0,
+                            height=1.0, angle=90.0, pressure=101325):
         """Get a list of temperatures at each material boundary across the construction.
 
         Args:
-            outside_temperature: The temperature on the outside of the construction [C].
-                Default is -18, which is consistent with NFRC 100-2010.
-            inside_temperature: The temperature on the inside of the construction [C].
-                Default is 21, which is consistent with NFRC 100-2010.
+            outside_temperature: The temperature on the outside of the
+                construction [C]. (Default: -18, consistent with NFRC 100-2010).
+            inside_temperature: The temperature on the inside of the
+                construction [C]. (Default: 21, consistent with NFRC 100-2010).
             wind_speed: The average outdoor wind speed [m/s]. This affects outdoor
-                convective heat transfer coefficient. Default is 6.7 m/s.
-            height: An optional height for the surface in meters. Default is 1.0 m.
+                convective heat transfer coefficient. (Default: 6.7 m/s).
+            solar_irradiance: An optional value for solar irradiance that is incident
+                on the front (exterior) of the construction [W/m2]. (Default: 0 W/m2).
+            height: An optional height for the surface in meters. (Default: 1.0 m).
             angle: An angle in degrees between 0 and 180.
-            * 0 = A horizontal surface with the outside boundary on the bottom.
-            * 90 = A vertical surface
-            * 180 = A horizontal surface with the outside boundary on the top.
-            pressure: The average pressure of in Pa.
-                Default is 101325 Pa for standard pressure at sea level.
+
+                * 0 = A horizontal surface with the outside boundary on the bottom.
+                * 90 = A vertical surface
+                * 180 = A horizontal surface with the outside boundary on the top.
+
+            pressure: The average pressure of in Pa. (Default: 101325 Pa for
+                standard pressure at sea level).
 
         Returns:
             A tuple with two elements
@@ -145,8 +149,16 @@ class OpaqueConstruction(_ConstructionBase):
                 The sum of this list is the R-factor for this construction given
                 the input parameters.
         """
+        # reverse the angle if the outside temperature is greater than the inside one
         if angle != 90 and outside_temperature > inside_temperature:
             angle = abs(180 - angle)
+
+        # compute delta temperature from solar irradiance if applicable
+        heat_gen = None
+        if solar_irradiance != 0:
+            heat_gen = self.materials[0].solar_absorptance * solar_irradiance
+
+        # use the r-values to get the temperature profile
         in_r_init = 1 / self.in_h_simple()
         r_values = [1 / self.out_h(outside_wind_speed, outside_temperature + 273.15)] + \
             [mat.r_value for mat in self.materials] + [in_r_init]
@@ -155,7 +167,7 @@ class OpaqueConstruction(_ConstructionBase):
         r_values[-1] = 1 / self.in_h(inside_temperature - (in_delta_t / 2) + 273.15,
                                      in_delta_t, height, angle, pressure)
         temperatures = self._temperature_profile_from_r_values(
-            r_values, outside_temperature, inside_temperature)
+            r_values, outside_temperature, inside_temperature, heat_gen)
         return temperatures, r_values
 
     @classmethod

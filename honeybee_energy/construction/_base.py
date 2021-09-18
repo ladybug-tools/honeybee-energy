@@ -166,7 +166,7 @@ class _ConstructionBase(object):
         """
         if self._user_data is not None:
             return self._user_data
-    
+
     @user_data.setter
     def user_data(self, value):
         if value is not None:
@@ -277,7 +277,15 @@ class _ConstructionBase(object):
         for i, r_val in enumerate(r_values):
             temperatures.append(temperatures[i] + (delta_t * (r_val / r_factor)))
         # account for heat_generation in material layers if specified
-        if heat_generation is not None:
+        if isinstance(heat_generation, float):  # single heat incident on the exterior
+            r_prev, r_follow = r_values[0], r_values[1:]
+            q_prev = heat_generation * (1 - (r_prev / r_factor))
+            q_follow = heat_generation * (1 - (sum(r_follow) / r_factor))
+            temperatures[1] += q_prev * r_prev  # heat going to exterior
+            # add the heat transferred to the interior
+            for j in range(len(r_follow)):
+                temperatures[2 + j] += q_follow * sum(r_follow[j + 1:])
+        elif isinstance(heat_generation, list):  # a list of heat generated inside layers
             for i, heat_g in enumerate(heat_generation):
                 if heat_g == 0:
                     continue

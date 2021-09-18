@@ -343,8 +343,8 @@ class WindowConstruction(_ConstructionBase):
         return trans, reflect, absorb
 
     def temperature_profile(self, outside_temperature=-18, inside_temperature=21,
-                            wind_speed=6.7, height=1.0, angle=90.0, pressure=101325,
-                            solar_irradiance=0):
+                            wind_speed=6.7, solar_irradiance=0,
+                            height=1.0, angle=90.0, pressure=101325):
         """Get a list of temperatures at each material boundary across the construction.
 
         Args:
@@ -354,15 +354,17 @@ class WindowConstruction(_ConstructionBase):
                 construction [C]. (Default: 21, consistent with NFRC 100-2010).
             wind_speed: The average outdoor wind speed [m/s]. This affects outdoor
                 convective heat transfer coefficient. (Default: 6.7 m/s).
-            height: An optional height for the surface in meters. (Default: 1.0 m).
-            angle: An angle in degrees between 0 and 180.
-                0 = A horizontal surface with the outside boundary on the bottom.
-                90 = A vertical surface
-                180 = A horizontal surface with the outside boundary on the top.
-            pressure: The average pressure of in Pa. (Default: 101325 Pa for
-                standard pressure at sea level).
             solar_irradiance: An optional value for solar irradiance that is incident
                 on the front (exterior) of the construction [W/m2]. (Default: 0 W/m2).
+            height: An optional height for the surface in meters. (Default: 1.0 m).
+            angle: An angle in degrees between 0 and 180.
+
+                * 0 = A horizontal surface with the outside boundary on the bottom.
+                * 90 = A vertical surface
+                * 180 = A horizontal surface with the outside boundary on the top.
+
+            pressure: The average pressure of in Pa. (Default: 101325 Pa for
+                standard pressure at sea level).
 
         Returns:
             A tuple with two elements
@@ -569,7 +571,6 @@ class WindowConstruction(_ConstructionBase):
             [m.to_dict() for m in self.materials]
         if self._display_name is not None:
             base['display_name'] = self.display_name
-        
         return base
 
     def to_simple_construction(self):
