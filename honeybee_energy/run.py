@@ -8,6 +8,7 @@ import subprocess
 import xml.etree.ElementTree as ET
 
 from .config import folders
+from .measure import Measure
 
 from honeybee.model import Model
 from honeybee.boundarycondition import Surface
@@ -157,7 +158,8 @@ def to_gbxml_osw(model_path, output_path=None, osw_directory=None):
 
 def to_openstudio_osw(osw_directory, model_json_path, sim_par_json_path=None,
                       additional_measures=None, base_osw=None, epw_file=None,
-                      schedule_directory=None):
+                      schedule_directory=None, strings_to_inject=None,
+                      report_units=None):
     """Create a .osw to translate honeybee JSONs to an .osm file.
 
     Args:
@@ -181,6 +183,15 @@ def to_openstudio_osw(osw_directory, model_json_path, sim_par_json_path=None,
             schedules should be written to. If None, all ScheduleFixedIntervals
             will be translated to Schedule:Compact and written fully into the
             IDF string instead of to Schedule:File. (Default: None).
+        strings_to_inject: An additional text string to get appended to the IDF
+            before simulation. The input should include complete EnergyPlus objects
+            as a single string following the IDF format.
+        report_units: A text value to set the units of the OpenStudio Results report
+            that can optionally be included in the OSW. If set to None, no report
+            will be produced. (Default: None). Choose from the following.
+
+            * si - all units will be in SI
+            * ip - all units will be in IP
 
     Returns:
         The file path to the .osw written out by this method.
@@ -228,6 +239,35 @@ def to_openstudio_osw(osw_directory, model_json_path, sim_par_json_path=None,
             osw_dict['file_paths'] = [schedule_directory]
         else:
             osw_dict['file_paths'].append(schedule_directory)
+
+    # load the inject IDF measure if strings_to_inject have bee specified
+    if strings_to_inject is not None and strings_to_inject != '':
+        assert folders.inject_idf_measure_path is not None, \
+            'Additional IDF strings input but the inject_idf measure is not installed.'
+        idf_measure = Measure(folders.inject_idf_measure_path)
+        inject_idf = os.path.join(osw_directory, 'inject.idf')
+        with open(inject_idf, "w") as idf_file:
+            idf_file.write(strings_to_inject)
+        units_arg = idf_measure.arguments[0]
+        units_arg.value = inject_idf
+        if additional_measures is None:
+            additional_measures = [idf_measure]
+        else:
+            additional_measures = list(additional_measures)
+            additional_measures.append(idf_measure)
+
+    # load the OpenStudio Results measure if report_units have bee specified
+    if report_units is not None and report_units.lower() != 'none':
+        assert folders.openstudio_results_measure_path is not None, 'OpenStudio report' \
+            ' requested but the openstudio_results measure is not installed.'
+        report_measure = Measure(folders.openstudio_results_measure_path)
+        units_arg = report_measure.arguments[0]
+        units_arg.value = report_units.upper()
+        if additional_measures is None:
+            additional_measures = [report_measure]
+        else:
+            additional_measures = list(additional_measures)
+            additional_measures.append(report_measure)
 
     # add any additional measures to the osw_dict
     if additional_measures:
@@ -737,7 +777,7 @@ def add_gbxml_space_boundaries(base_gbxml, honeybee_model, new_gbxml=None):
     gbxml_header = r'{http://www.gbxml.org/schema}'
     building = root[0][1]
 
-    # loop through the surfaces in the gbXML so that we know the name of the interior ones
+    # loop through surfaces in the gbXML so that we know the name of the interior ones
     surface_set = set()
     for room_element in root[0].findall(gbxml_header + 'Surface'):
         surface_set.add(room_element.get('id'))
@@ -775,7 +815,7 @@ def _face_to_gbxml_geo(face, face_set):
         face: A honeybee Face for which an gbXML representation will be returned.
         face_set: A set of surface identifiers in the model, used to evaluate whether
             the geometry must be associated with its boundary condition surface.
-    
+
     Returns:
         A tuple with two elements.
 

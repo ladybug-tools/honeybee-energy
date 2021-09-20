@@ -32,16 +32,25 @@ def simulate():
               'the simulation.', default=None, show_default=True,
               type=click.Path(exists=False, file_okay=True, dir_okay=False,
                               resolve_path=True))
-@click.option('--base-osw', '-osw', help='Full path to an OSW JSON be used as the '
-              'base for the execution of the OpenStuduo CLI. This can be used to add '
-              'measures in the workflow.', default=None, show_default=True,
-              type=click.Path(exists=True, file_okay=True, dir_okay=False,
+@click.option('--measures', '-m', help='Full path to a folder containing an OSW JSON '
+              'be used as the base for the execution of the OpenStuduo CLI. While this '
+              'OSW can contain paths to measures that exist anywhere on the machine '
+              'executing the simulation, the best practice is to copy the measures '
+              'into this measures folder and use relative paths within the OSW. '
+              'This makes it easier to move the inputs for this command from one '
+              'machine to another.', default=None, show_default=True,
+              type=click.Path(exists=True, file_okay=False, dir_okay=True,
                               resolve_path=True))
 @click.option('--additional-string', '-as', help='An additional text string to get '
               'appended to the IDF before simulation. The input should include '
               'complete EnergyPlus objects as a single string following the IDF '
               'format. This input can be used to include EnergyPlus objects that '
               'are not currently supported by honeybee.', default=None, type=str)
+@click.option('--report-units', '-r', help='A text value to set the units of the '
+              'OpenStudio Results report that this command can output. Choose from the '
+              'following:\nnone - no results report will be produced\nsi - all units '
+              'will be in SI\nip - all units will be in IP.',
+              type=str, default='none', show_default=True)
 @click.option('--folder', '-f', help='Folder on this computer, into which the IDF '
               'and result files will be written. If None, the files will be output '
               'to the honeybee default simulation folder and placed in a project '
@@ -57,8 +66,8 @@ def simulate():
               'generated files (osw, osm, idf, sql, zsz, rdd, html, err) if successfully'
               ' created. By default the list will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
-def simulate_model(model_json, epw_file, sim_par_json, base_osw, additional_string,
-                   folder, check_model, log_file):
+def simulate_model(model_json, epw_file, sim_par_json, measures, additional_string,
+                   report_units, folder, check_model, log_file):
     """Simulate a Model JSON file in EnergyPlus.
 
     \b
@@ -112,17 +121,31 @@ def simulate_model(model_json, epw_file, sim_par_json, base_osw, additional_stri
             ddy_from_epw(epw_file, sim_par)
         sim_par_json = write_sim_par(sim_par)
 
+        # process the measures input if it is specified
+        base_osw = None
+        if measures is not None and os.path.isdir(measures):
+            for f_name in os.listdir(measures):
+                if f_name.lower().endswith('.osw'):
+                    base_osw = os.path.join(measures, f_name)
+                    break
+
         # run the Model re-serialization and check if specified
         if check_model:
             model_json = measure_compatible_model_json(model_json, folder)
 
         # Write the osw file to translate the model to osm
-        osw = to_openstudio_osw(folder, model_json, sim_par_json,
-                                base_osw=base_osw, epw_file=epw_file)
+        no_report = True if base_osw is None \
+            and report_units.lower() == 'none' else False
+        strings_to_inject = additional_string
+        if no_report and additional_string is not None and additional_string != '':
+            strings_to_inject = ''
+        osw = to_openstudio_osw(
+            folder, model_json, sim_par_json, base_osw=base_osw, epw_file=epw_file,
+            strings_to_inject=strings_to_inject, report_units=report_units)
 
         # run the measure to translate the model JSON to an openstudio measure
         gen_files = [osw]
-        if base_osw is None:  # separate the OS CLI run from the E+ run
+        if no_report:  # separate the OS CLI run from the E+ run
             osm, idf = run_osw(osw)
             # run the resulting idf through EnergyPlus
             if idf is not None and os.path.isfile(idf):

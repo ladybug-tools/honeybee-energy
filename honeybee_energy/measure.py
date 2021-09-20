@@ -131,7 +131,7 @@ class Measure(object):
 
             {
             "type": "Measure",
-            "identifier": string,  # Measure identifer
+            "identifier": string,  # Measure identifier
             "xml_data": string,  # XML file data as string
             "rb_data": string,  # Ruby file data as string
             "resource_data": {},  # Dictionary of strings for any resource ruby files

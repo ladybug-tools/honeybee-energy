@@ -6,6 +6,7 @@ import json
 
 from honeybee.cli import main
 from ..config import folders
+from .setconfig import set_config
 from .lib import lib
 from .translate import translate
 from .edit import edit
@@ -57,6 +58,7 @@ def config(output_file):
 
 
 # add sub-commands to energy
+energy.add_command(set_config, name='set-config')
 energy.add_command(lib)
 energy.add_command(translate)
 energy.add_command(edit)

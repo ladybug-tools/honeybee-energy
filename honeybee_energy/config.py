@@ -42,6 +42,10 @@ class Folders(object):
         * energyplus_version
         * energyplus_version_str
         * energyplus_idd_path
+        * lbt_measures_path
+        * openstudio_results_measure_path
+        * view_data_measure_path
+        * inject_idf_measure_path
         * honeybee_openstudio_gem_path
         * honeybee_adapter_path
         * standards_data_folder
@@ -175,6 +179,58 @@ class Folders(object):
         return self._energyplus_idd_path
 
     @property
+    def lbt_measures_path(self):
+        """Get or set the path to the the measures that ship with with Ladybug Tools.
+
+        This folder must have the following sub-folders in order to be valid:
+
+        * openstudio_results - Measure to display a clean energy use HTML report.
+        * view_data - Measure to color geometry with simulation results.
+        """
+        return self._lbt_measures_path
+
+    @lbt_measures_path.setter
+    def lbt_measures_path(self, path):
+        if not path:  # check the default locations of the lbt_measures
+            path = self._find_lbt_measures_path()
+
+        # check that the library's sub-folders exist
+        self._openstudio_results_measure_path = None
+        self._view_data_measure_path = None
+        self._inject_idf_measure_path = None
+        if path:
+            result_mea = os.path.join(path, 'openstudio_results')
+            view_mea = os.path.join(path, 'view_data')
+            idf_mea = os.path.join(path, 'inject_idf')
+            if os.path.isdir(result_mea):
+                self._openstudio_results_measure_path = result_mea
+            if os.path.isdir(view_mea):
+                self._view_data_measure_path = view_mea
+            if os.path.isdir(idf_mea):
+                self._inject_idf_measure_path = idf_mea
+
+        # set the lbt_measures_path
+        self._lbt_measures_path = path
+        if path and not self.mute:
+            print('Path to the lbt_measures is set to: '
+                  '{}'.format(self._lbt_measures_path))
+
+    @property
+    def openstudio_results_measure_path(self):
+        """Get the path to the measure that displays a clean energy use HTML report."""
+        return self._openstudio_results_measure_path
+
+    @property
+    def view_data_measure_path(self):
+        """Get the path to the measure that colors geometry with simulation results."""
+        return self._view_data_measure_path
+
+    @property
+    def inject_idf_measure_path(self):
+        """Get the path to the measure that injects IDF text."""
+        return self._inject_idf_measure_path
+
+    @property
     def honeybee_openstudio_gem_path(self):
         """Get or set the path to the honeybee_openstudio_gem.
 
@@ -256,9 +312,9 @@ class Folders(object):
         * constructions - folder with honeybee JSON files for materials + constructions.
             It should have the following 4 JSON files:
             opaque_material, opaque_construction, window_material, window_construction.
-        * constructionsets - folder with honeybee JSON files of abridged ConstructionSets.
+        * constructionsets - folder with honeybee JSON files of ConstructionSets.
         * schedules - folder with honeybee JSON files for schedules.
-        * programtypes - folder with honeybee JSON files of abridged ProgramTypes.
+        * programtypes - folder with honeybee JSON files of ProgramTypes.
         """
         return tuple(self._standards_extension_folders)
 
@@ -332,6 +388,7 @@ class Folders(object):
         default_path = {
             "energyplus_path": r'',
             "openstudio_path": r'',
+            "lbt_measures_path": r'',
             "honeybee_openstudio_gem_path": r'',
             "standards_data_folder": r'',
             "standards_extension_folders": []
@@ -354,7 +411,8 @@ class Folders(object):
         self.openstudio_path = default_path["openstudio_path"]
         self.energyplus_path = default_path["energyplus_path"]
 
-        # set the paths for the honeybee_openstudio_gem
+        # set the paths for lbt_measures and the honeybee_openstudio_gem
+        self.lbt_measures_path = default_path["lbt_measures_path"]
         self.honeybee_openstudio_gem_path = default_path["honeybee_openstudio_gem_path"]
 
         # set path for the standards_data_folder
@@ -363,13 +421,29 @@ class Folders(object):
         # set path for the standards_extension_folders
         self.standards_extension_folders = default_path["standards_extension_folders"]
 
+    def _find_lbt_measures_path(self):
+        """Find the lbt_measures_path in its default location.
+
+        The ladybug_tools/resources/measures folder will be checked for the
+        expected directories of measures.
+        """
+        # first, check the resources/measures folder in the ladybug_tools folder
+        lb_install = lb_config.folders.ladybug_tools_folder
+        if os.path.isdir(lb_install):
+            measure_path = os.path.join(lb_install, 'resources', 'measures')
+            if os.path.isdir(os.path.join(measure_path, 'openstudio_results')):
+                return measure_path
+        return None  # No lbt_measures is installed
+
     def _find_honeybee_openstudio_gem_path(self):
         """Find the honeybee_openstudio_gem_path in its default location.
 
-        First, the OpenStudio installation will be checked to see if there is a
-        compatible version of the measure installed for that version of OpenStudio.
-        If nothing is found there, the root of the ladybug_tools folder will be
-        checked for an honeybee_openstudio_gem directory.
+        First, the ladybug_tools/resources/measures folder will be checked for a
+        honeybee_openstudio_gem directory.
+
+        If nothing is found there, the OpenStudio installation will be checked
+        to see if there is a compatible version of the measure installed that
+        is specific for that version of OpenStudio.
         """
         # first, check the resources/measures folder in the ladybug_tools folder
         lb_install = lb_config.folders.ladybug_tools_folder
@@ -420,9 +494,10 @@ class Folders(object):
                           if (f.lower().startswith('energyplus') and
                               os.path.isdir('C:\\{}'.format(f)))]
         elif platform.system() == 'Darwin':  # search the Applications folder on Mac
-            ep_folders = ['/Applications/{}'.format(f) for f in os.listdir('/Applications/')
-                          if (f.lower().startswith('energyplus') and
-                              os.path.isdir('/Applications/{}'.format(f)))]
+            ep_folders = \
+                ['/Applications/{}'.format(f) for f in os.listdir('/Applications/')
+                 if (f.lower().startswith('energyplus') and
+                 os.path.isdir('/Applications/{}'.format(f)))]
         elif platform.system() == 'Linux':  # search the usr/local folder
             ep_folders = ['/usr/local/{}'.format(f) for f in os.listdir('/usr/local/')
                           if (f.lower().startswith('energyplus') and
@@ -445,7 +520,8 @@ class Folders(object):
         base_str = str(stdout[0]).replace("b'", '').replace(r"\r\n'", '')
         self._openstudio_version_str = base_str
         ver_nums = self._openstudio_version_str.split('+')[0].split('.')
-        ver_nums[-1] = ver_nums[-1].split('-')[0] if '-' in ver_nums[-1] else ver_nums[-1]
+        ver_nums[-1] = ver_nums[-1].split('-')[0] \
+            if '-' in ver_nums[-1] else ver_nums[-1]
         try:
             self._openstudio_version = tuple(int(i) for i in ver_nums)
         except Exception:
@@ -498,9 +574,10 @@ class Folders(object):
                           if (f.lower().startswith('openstudio') and
                               os.path.isdir('C:\\{}'.format(f)))]
         elif platform.system() == 'Darwin':  # search the Applications folder on Mac
-            os_folders = ['/Applications/{}'.format(f) for f in os.listdir('/Applications/')
-                          if (f.lower().startswith('openstudio') and
-                              os.path.isdir('/Applications/{}'.format(f)))]
+            os_folders = \
+                ['/Applications/{}'.format(f) for f in os.listdir('/Applications/')
+                 if (f.lower().startswith('openstudio') and
+                 os.path.isdir('/Applications/{}'.format(f)))]
         elif platform.system() == 'Linux':  # search the usr/local folder
             os_folders = ['/usr/local/{}'.format(f) for f in os.listdir('/usr/local/')
                           if (f.lower().startswith('openstudio') and
