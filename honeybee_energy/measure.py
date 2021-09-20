@@ -251,14 +251,16 @@ class Measure(object):
 
         # parse the measure arguments
         self._arguments = []
-        for arg in root.find('arguments'):
-            arg_obj = MeasureArgument(arg)
-            if arg_obj.model_dependent:
-                # TODO: Figure out how to implement model-dependent arguments
-                raise NotImplementedError(
-                    'Model dependent arguments are not yet supported and measure '
-                    'argument is "{}" model dependent.'.format(arg_obj.identifier))
-            self._arguments.append(arg_obj)
+        arg_info = root.find('arguments')
+        if arg_info is not None:
+            for arg in arg_info:
+                arg_obj = MeasureArgument(arg)
+                if arg_obj.model_dependent:
+                    # TODO: Figure out how to implement model-dependent arguments
+                    raise NotImplementedError(
+                        'Model dependent arguments are not yet supported and measure '
+                        'argument is "{}" model dependent.'.format(arg_obj.identifier))
+                self._arguments.append(arg_obj)
 
     @staticmethod
     def _compress_file(filepath):
