@@ -19,7 +19,7 @@ mv OpenStudio-*-Ubuntu-*/ ${OPENSTUDIO_FILENAME}
 
 # Get the gem
 
-export HONEYBEE_OPENSTUDIO_GEM_VERSION="2.23.4"
+export HONEYBEE_OPENSTUDIO_GEM_VERSION="2.23.5"
 export HONEYBEE_OPENSTUDIO_GEM_URL="https://github.com/ladybug-tools/honeybee-openstudio-gem/archive/v${HONEYBEE_OPENSTUDIO_GEM_VERSION}.tar.gz"
 export HONEYBEE_OPENSTUDIO_GEM_TAR='honeybee-openstudio-gem.tar.gz'
 export HONEYBEE_GEM_FILENAME='honeybee-gem'
