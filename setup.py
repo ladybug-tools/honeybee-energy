@@ -7,9 +7,11 @@ with open("README.md", "r") as fh:
 with open('requirements.txt') as f:
     requirements = f.read().splitlines()
 
-#with open('standards-requirements.txt') as f:
-#    standards_requirements = f.read().splitlines()
-standards_requirements = 'honeybee-energy-standards==2.2.0'
+# TODO: put back this code if I ever figure out how to include it in semantic deployment
+#  with open('standards-requirements.txt') as f:
+#      standards_requirements = f.read().splitlines()
+
+standards_requirements = 'honeybee-energy-standards==2.2.1'
 
 setuptools.setup(
     name="honeybee-energy",
