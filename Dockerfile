@@ -32,13 +32,13 @@ COPY ${OPENSTUDIO_FILENAME}/usr/local/openstudio-${OPENSTUDIO_VERSION}/bin \
 
 # Add lbt-measures to the ladybug_tools folder
 # https://github.com/ladybug-tools/lbt-measures
-COPY ${LBT_MEASURES_FILENAME} \
+COPY ${LBT_MEASURES_FILENAME}/lib \
     ${LBT_PATH}/resources/measures
 
 # Add honeybee-openstudio-gem lib to ladybug_tools folder
 # Expects an untarred honeybee-openstudio-gem in the build context
 # https://github.com/ladybug-tools/honeybee-openstudio-gem
-COPY ${HONEYBEE_GEM_FILENAME} \
+COPY ${HONEYBEE_GEM_FILENAME}/lib \
     ${LBT_PATH}/resources/measures/honeybee_openstudio_gem/lib
 
 # Install honeybee-energy

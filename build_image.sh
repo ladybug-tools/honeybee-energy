@@ -26,7 +26,7 @@ export LBT_MEASURES_FILENAME='measures-gem'
 
 curl -SL -o ${LBT_MEASURES_TAR} ${LBT_MEASURES_URL}
 tar zxvf ${LBT_MEASURES_TAR}
-mv lbt-measures/lib-*/ ${LBT_MEASURES_FILENAME}
+mv lbt-measures-*/ ${LBT_MEASURES_FILENAME}
 
 # Get the gem
 
@@ -37,7 +37,7 @@ export HONEYBEE_GEM_FILENAME='honeybee-gem'
 
 curl -SL -o ${HONEYBEE_OPENSTUDIO_GEM_TAR} ${HONEYBEE_OPENSTUDIO_GEM_URL}
 tar zxvf ${HONEYBEE_OPENSTUDIO_GEM_TAR}
-mv honeybee-openstudio-gem/lib-*/ ${HONEYBEE_GEM_FILENAME}
+mv honeybee-openstudio-gem-*/ ${HONEYBEE_GEM_FILENAME}
 
 docker build . \
   -t $CONTAINER_NAME:$TAG \
