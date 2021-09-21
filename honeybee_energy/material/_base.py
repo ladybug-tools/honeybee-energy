@@ -27,7 +27,7 @@ class _EnergyMaterialBase(object):
         self.identifier = identifier
         self._display_name = None
         self._user_data = None
-        
+
     @property
     def identifier(self):
         """Get or set the text string for material identifier."""
@@ -53,7 +53,7 @@ class _EnergyMaterialBase(object):
             self._display_name = str(value)
         except UnicodeEncodeError:  # Python 2 machine lacking the character set
             self._display_name = value  # keep it as unicode
-            
+
     @property
     def user_data(self):
         """Get or set an optional dictionary for additional meta data for this object.
@@ -64,14 +64,13 @@ class _EnergyMaterialBase(object):
         """
         if self._user_data is not None:
             return self._user_data
-    
+
     @user_data.setter
     def user_data(self, value):
         if value is not None:
             assert isinstance(value, dict), 'Expected dictionary for honeybee_energy' \
                 'object user_data. Got {}.'.format(type(value))
         self._user_data = value
-
 
     def duplicate(self):
         """Get a copy of this construction."""
@@ -82,7 +81,8 @@ class _EnergyMaterialBase(object):
         try:
             assert self._conductivity / self._thickness <= 200000, \
                 'Material layer "{}" does not have sufficient thermal resistance.\n'\
-                'Either increase the thickness or remove it from the construction.'
+                'Either increase the thickness or remove it from the ' \
+                'construction.'.format(self.identifier)
         except ZeroDivisionError:
             raise ValueError(
                 'Material layer "{}" cannot have zero thickness.'.format(self.identifier)
