@@ -51,6 +51,13 @@ def simulate():
               'following:\nnone - no results report will be produced\nsi - all units '
               'will be in SI\nip - all units will be in IP.',
               type=str, default='none', show_default=True)
+@click.option('--viz-variable', '-v', help='Text for an EnergyPlus output variable to '
+              'be visualized on the geometry in an output view_data HTML report. '
+              'If unspecified, no view_data report is produced. Multiple variables '
+              'can be requested by using multiple -v options. For example\n'
+              ' -v "Zone Air System Sensible Heating Rate" -v "Zone Air System '
+              'Sensible Cooling Rate"',
+              type=str, default=None, show_default=True, multiple=True)
 @click.option('--folder', '-f', help='Folder on this computer, into which the IDF '
               'and result files will be written. If None, the files will be output '
               'to the honeybee default simulation folder and placed in a project '
@@ -67,7 +74,7 @@ def simulate():
               ' created. By default the list will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
 def simulate_model(model_json, epw_file, sim_par_json, measures, additional_string,
-                   report_units, folder, check_model, log_file):
+                   report_units, viz_variable, folder, check_model, log_file):
     """Simulate a Model JSON file in EnergyPlus.
 
     \b
@@ -135,13 +142,14 @@ def simulate_model(model_json, epw_file, sim_par_json, measures, additional_stri
 
         # Write the osw file to translate the model to osm
         no_report = True if base_osw is None \
-            and report_units.lower() == 'none' else False
+            and report_units.lower() == 'none' and len(viz_variable) == 0 else False
         strings_to_inject = additional_string
         if no_report and additional_string is not None and additional_string != '':
             strings_to_inject = ''
         osw = to_openstudio_osw(
             folder, model_json, sim_par_json, base_osw=base_osw, epw_file=epw_file,
-            strings_to_inject=strings_to_inject, report_units=report_units)
+            strings_to_inject=strings_to_inject, report_units=report_units,
+            viz_variables=viz_variable)
 
         # run the measure to translate the model JSON to an openstudio measure
         gen_files = [osw]

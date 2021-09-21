@@ -39,7 +39,8 @@ class InternalMass(object):
         * area
         * user_data
     """
-    __slots__ = ('_identifier', '_display_name', '_construction', '_area', '_locked', '_user_data')
+    __slots__ = ('_identifier', '_display_name', '_construction', '_area',
+                 '_locked', '_user_data')
 
     def __init__(self, identifier, construction, area):
         self._locked = False  # unlocked by default
@@ -121,9 +122,10 @@ class InternalMass(object):
         """Create an InternalMass object from a list of geometries.
 
         Args:
-            identifier: Text string for a unique InternalMass ID. Must be < 100 characters
-                and not contain any EnergyPlus special characters. This will be used to
-                identify the object across a model and in the exported IDF.
+            identifier: Text string for a unique InternalMass ID. Must be < 100
+                characters and not contain any EnergyPlus special characters. This
+                will be used to identify the object across a model and in the
+                exported IDF.
             construction: An OpaqueConstruction object that represents the material
                 that the internal thermal mass is composed of.
             geometry: An array of Face3D representing the exposed surface of the

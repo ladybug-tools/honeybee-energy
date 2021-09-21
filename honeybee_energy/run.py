@@ -159,7 +159,7 @@ def to_gbxml_osw(model_path, output_path=None, osw_directory=None):
 def to_openstudio_osw(osw_directory, model_json_path, sim_par_json_path=None,
                       additional_measures=None, base_osw=None, epw_file=None,
                       schedule_directory=None, strings_to_inject=None,
-                      report_units=None):
+                      report_units=None, viz_variables=None):
     """Create a .osw to translate honeybee JSONs to an .osm file.
 
     Args:
@@ -192,6 +192,18 @@ def to_openstudio_osw(osw_directory, model_json_path, sim_par_json_path=None,
 
             * si - all units will be in SI
             * ip - all units will be in IP
+
+        viz_variables: An optional list of EnergyPlus output variable names to
+            be visualized on the geometry in an output view_data HTML report.
+            If None or an empty list, no view_data report is produced. See below
+            for an example.
+
+    .. code-block:: python
+
+        viz_variables = [
+            "Zone Air System Sensible Heating Rate",
+            "Zone Air System Sensible Cooling Rate"
+        ]
 
     Returns:
         The file path to the .osw written out by this method.
@@ -268,6 +280,22 @@ def to_openstudio_osw(osw_directory, model_json_path, sim_par_json_path=None,
         else:
             additional_measures = list(additional_measures)
             additional_measures.append(report_measure)
+
+    # load the OpenStudio view_data measure if outputs have been requested
+    if viz_variables is not None and len(viz_variables) != 0:
+        assert folders.view_data_measure_path is not None, 'A visualization variable' \
+            'has been requested but the view_data measure is not installed.'
+        viz_measure = Measure(folders.view_data_measure_path)
+        if len(viz_variables) > 3:
+            viz_variables = viz_variables[:3]
+        for i, var in enumerate(viz_variables):
+            var_arg = viz_measure.arguments[i + 2]
+            var_arg.value = var
+        if additional_measures is None:
+            additional_measures = [viz_measure]
+        else:
+            additional_measures = list(additional_measures)
+            additional_measures.append(viz_measure)
 
     # add any additional measures to the osw_dict
     if additional_measures:
