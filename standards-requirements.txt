@@ -1,1 +1,1 @@
-honeybee-energy-standards==2.2.0
+honeybee-energy-standards==2.2.1
