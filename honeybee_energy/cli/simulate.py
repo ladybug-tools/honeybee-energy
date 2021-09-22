@@ -140,8 +140,8 @@ def simulate_model(model_json, epw_file, sim_par_json, measures, additional_stri
             model_json = measure_compatible_model_json(model_json, folder)
 
         # Write the osw file to translate the model to osm
-        no_report = True if base_osw is None \
-            and report_units.lower() == 'none' and len(viz_variable) == 0 else False
+        no_report = True if base_osw is None and report_units.lower() == 'none' and \
+            (len(viz_variable) == 0 or viz_variable[0] == '') else False
         strings_to_inject = additional_string
         if no_report and additional_string is not None and additional_string != '':
             strings_to_inject = ''
