@@ -39,8 +39,7 @@ def simulate():
               'into this measures folder and use relative paths within the OSW. '
               'This makes it easier to move the inputs for this command from one '
               'machine to another.', default=None, show_default=True,
-              type=click.Path(exists=True, file_okay=False, dir_okay=True,
-                              resolve_path=True))
+              type=click.Path(file_okay=False, dir_okay=True, resolve_path=True))
 @click.option('--additional-string', '-as', help='An additional text string to get '
               'appended to the IDF before simulation. The input should include '
               'complete EnergyPlus objects as a single string following the IDF '
