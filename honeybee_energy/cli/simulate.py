@@ -129,10 +129,16 @@ def simulate_model(model_json, epw_file, sim_par_json, measures, additional_stri
 
         # process the measures input if it is specified
         base_osw = None
-        if measures is not None and os.path.isdir(measures):
+        if measures is not None and measures != '' and os.path.isdir(measures):
             for f_name in os.listdir(measures):
                 if f_name.lower().endswith('.osw'):
                     base_osw = os.path.join(measures, f_name)
+                    # write the path of the measures folder into the OSW
+                    with open(base_osw) as json_file:
+                        osw_dict = json.load(json_file)
+                    osw_dict['measure_paths'] = [os.path.abspath(measures)]
+                    with open(base_osw, 'w') as fp:
+                        json.dump(osw_dict, fp)
                     break
 
         # run the Model re-serialization and check if specified
