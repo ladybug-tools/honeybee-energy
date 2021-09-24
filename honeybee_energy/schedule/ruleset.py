@@ -54,10 +54,12 @@ class ScheduleRuleset(object):
         * day_schedules
         * is_constant
         * is_single_week
+        * user_data
     """
     __slots__ = ('_identifier', '_display_name', '_default_day_schedule',
                  '_schedule_rules', '_holiday_schedule', '_summer_designday_schedule',
-                 '_winter_designday_schedule', '_schedule_type_limit', '_locked', '_user_data')
+                 '_winter_designday_schedule', '_schedule_type_limit',
+                 '_locked', '_user_data')
     _dow_text_to_int = {'sunday': 1, 'monday': 2, 'tuesday': 3, 'wednesday': 4,
                         'thursday': 2, 'friday': 3, 'saturday': 7}
     _schedule_week_comments = (
@@ -765,7 +767,7 @@ class ScheduleRuleset(object):
         if 'display_name' in data and data['display_name'] is not None:
             schedule.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
-            new_obj.user_data = data['user_data']
+            schedule.user_data = data['user_data']
         return schedule
 
     def to_rules(self, start_date, end_date):
