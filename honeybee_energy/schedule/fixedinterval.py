@@ -491,7 +491,7 @@ class ScheduleFixedInterval(object):
         if 'display_name' in data and data['display_name'] is not None:
             schedule.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
-            new_obj.user_data = data['user_data']
+            schedule.user_data = data['user_data']
         return schedule
 
     def to_idf(self, schedule_directory, include_datetimes=False):
