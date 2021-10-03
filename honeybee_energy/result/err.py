@@ -90,7 +90,8 @@ class Err(object):
             elif '**  Fatal  **' in line:
                 self._fatal_errors.append(line)
             elif '** Severe  **' in line:
-                self._severe_errors.append(line)
+                if 'Degenerate surfaces' not in line:
+                    self._severe_errors.append(line)
 
     def ToString(self):
         """Overwrite .NET ToString."""
