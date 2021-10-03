@@ -24,10 +24,11 @@ from ..ventcool.crack import AFNCrack
 from ..ventcool.opening import VentilationOpening
 from ..construction.opaque import OpaqueConstruction
 
-# import all hvac modules to ensure they are all re-serialize-able in Room.from_dict
+# import all hvac and shw modules
 from ..hvac import HVAC_TYPES_DICT
 from ..hvac._base import _HVACSystem
 from ..hvac.idealair import IdealAirSystem
+from ..shw import SHWSystem
 
 # import the libraries of constructionsets and programs
 from ..lib.constructionsets import generic_construction_set
@@ -57,6 +58,7 @@ class RoomEnergyProperties(object):
         * program_type
         * construction_set
         * hvac
+        * shw
         * people
         * lighting
         * electric_equipment
@@ -71,18 +73,20 @@ class RoomEnergyProperties(object):
         * is_conditioned
     """
 
-    __slots__ = ('_host', '_program_type', '_construction_set', '_hvac',
+    __slots__ = ('_host', '_program_type', '_construction_set', '_hvac', '_shw',
                  '_people', '_lighting', '_electric_equipment', '_gas_equipment',
                  '_service_hot_water', '_infiltration', '_ventilation', '_setpoint',
                  '_daylighting_control', '_window_vent_control', '_internal_masses')
 
-    def __init__(self, host, program_type=None, construction_set=None, hvac=None):
+    def __init__(
+            self, host, program_type=None, construction_set=None, hvac=None, shw=None):
         """Initialize Room energy properties."""
         # set the main properties of the Room
         self._host = host
         self.program_type = program_type
         self.construction_set = construction_set
         self.hvac = hvac
+        self.shw = shw
 
         # set the Room's specific properties that override the program_type to None
         self._people = None
@@ -155,6 +159,23 @@ class RoomEnergyProperties(object):
                 'Expected HVACSystem for Room hvac. Got {}'.format(type(value))
             value.lock()   # lock in case hvac has multiple references
         self._hvac = value
+
+    @property
+    def shw(self):
+        """Get or set the SHWSystem object for the Room.
+
+        If None, all hot water loads will be met with a system that doesn't compute
+        fuel or electricity usage.
+        """
+        return self._shw
+
+    @shw.setter
+    def shw(self, value):
+        if value is not None:
+            assert isinstance(value, SHWSystem), \
+                'Expected SHWSystem for Room shw. Got {}'.format(type(value))
+            value.lock()   # lock in case shw has multiple references
+        self._shw = value
 
     @property
     def people(self):
@@ -895,6 +916,7 @@ class RoomEnergyProperties(object):
             self.add_default_ideal_air()
         elif not conditioned:
             self.hvac = None
+        self._shw = None
 
         # remove the loads and reapply infiltration/setpoints as needed
         infiltration = None if remove_infiltration else self.infiltration
@@ -954,6 +976,7 @@ class RoomEnergyProperties(object):
         self._program_type = None
         self._construction_set = None
         self._hvac = None
+        self._shw = None
         self._people = None
         self._lighting = None
         self._electric_equipment = None
@@ -985,6 +1008,7 @@ class RoomEnergyProperties(object):
             "construction_set": {},  # A ConstructionSet dictionary
             "program_type": {},  # A ProgramType dictionary
             "hvac": {}, # A HVACSystem dictionary
+            "shw": {}, # A SHWSystem dictionary
             "people":{},  # A People dictionary
             "lighting": {},  # A Lighting dictionary
             "electric_equipment": {},  # A ElectricEquipment dictionary
@@ -1010,6 +1034,8 @@ class RoomEnergyProperties(object):
         if 'hvac' in data and data['hvac'] is not None:
             hvac_class = HVAC_TYPES_DICT[data['hvac']['type']]
             new_prop.hvac = hvac_class.from_dict(data['hvac'])
+        if 'shw' in data and data['shw'] is not None:
+            new_prop.shw = SHWSystem.from_dict(data['shw'])
 
         if 'people' in data and data['people'] is not None:
             new_prop.people = People.from_dict(data['people'])
@@ -1041,8 +1067,9 @@ class RoomEnergyProperties(object):
 
         return new_prop
 
-    def apply_properties_from_dict(self, abridged_data, construction_sets,
-                                   program_types, hvacs, schedules, constructions):
+    def apply_properties_from_dict(
+            self, abridged_data, construction_sets, program_types,
+            hvacs, shws, schedules, constructions):
         """Apply properties from a RoomEnergyPropertiesAbridged dictionary.
 
         Args:
@@ -1054,6 +1081,8 @@ class RoomEnergyProperties(object):
                 keys, which will be used to re-assign program_types.
             hvacs: A dictionary of HVACSystems with the identifiers of the systems as
                 keys, which will be used to re-assign hvac to the Room.
+            shws: A dictionary of SHWSystems with the identifiers of the systems as
+                keys, which will be used to re-assign shw to the Room.
             schedules: A dictionary of Schedules with identifiers of the schedules as
                 keys, which will be used to re-assign schedules.
             constructions: A dictionary with construction identifiers as keys
@@ -1079,6 +1108,11 @@ class RoomEnergyProperties(object):
                 self.hvac = hvacs[abridged_data['hvac']]
             except KeyError:
                 raise ValueError(base_e.format(abridged_data['hvac'], 'hvac'))
+        if 'shw' in abridged_data and abridged_data['shw'] is not None:
+            try:
+                self.shw = shws[abridged_data['shw']]
+            except KeyError:
+                raise ValueError(base_e.format(abridged_data['shw'], 'shw'))
 
         if 'people' in abridged_data and abridged_data['people'] is not None:
             self.people = People.from_dict_abridged(
@@ -1150,6 +1184,11 @@ class RoomEnergyProperties(object):
             base['energy']['hvac'] = \
                 self._hvac.identifier if abridged else self._hvac.to_dict()
 
+        # write the shw into the dictionary
+        if self._shw is not None:
+            base['energy']['shw'] = \
+                self._shw.identifier if abridged else self._shw.to_dict()
+
         # write any room-specific overriding properties into the dictionary
         if self._people is not None:
             base['energy']['people'] = self._people.to_dict(abridged)
@@ -1189,7 +1228,7 @@ class RoomEnergyProperties(object):
         """
         _host = new_host or self._host
         new_room = RoomEnergyProperties(
-            _host, self._program_type, self._construction_set, self._hvac)
+            _host, self._program_type, self._construction_set, self._hvac, self._shw)
         new_room._people = self._people
         new_room._lighting = self._lighting
         new_room._electric_equipment = self._electric_equipment

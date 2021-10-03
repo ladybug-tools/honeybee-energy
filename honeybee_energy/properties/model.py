@@ -12,6 +12,8 @@ from honeybee.facetype import AirBoundary
 from honeybee.extensionutil import model_extension_dicts
 from honeybee.checkdup import check_duplicate_identifiers
 
+from honeybee_energy.shw import SHWSystem
+
 from ..material.dictutil import dict_to_material
 from ..construction.dictutil import CONSTRUCTION_TYPES, dict_to_construction, \
     dict_abridged_to_construction
@@ -56,6 +58,7 @@ class ModelEnergyProperties(object):
         * hvac_schedules
         * program_types
         * hvacs
+        * shws
         * ventilation_simulation_control
     """
 
@@ -71,7 +74,7 @@ class ModelEnergyProperties(object):
 
     @property
     def materials(self):
-        """List of all unique materials contained within the model.
+        """Get a list of all unique materials contained within the model.
 
         This includes materials across all Faces, Apertures, Doors and Room
         ConstructionSets but it does NOT include the Honeybee generic default
@@ -90,7 +93,7 @@ class ModelEnergyProperties(object):
 
     @property
     def constructions(self):
-        """A list of all unique constructions in the model.
+        """Get a list of all unique constructions in the model.
 
         This includes constructions across all Faces, Apertures, Doors, Shades,
         and Room ConstructionSets but it does NOT include the Honeybee generic
@@ -102,7 +105,7 @@ class ModelEnergyProperties(object):
 
     @property
     def room_constructions(self):
-        """A list of all unique constructions assigned to Room ConstructionSets.
+        """Get a list of all unique constructions assigned to Room ConstructionSets.
 
         This also includes the constructions assigned to Room InternalMasses.
         """
@@ -118,7 +121,8 @@ class ModelEnergyProperties(object):
 
     @property
     def face_constructions(self):
-        """A list of all unique constructions assigned to Faces, Apertures and Doors."""
+        """Get a list of all unique constructions assigned to Faces, Apertures and Doors.
+        """
         constructions = []
         for room in self.host.rooms:
             for face in room.faces:  # check all Face constructions
@@ -131,7 +135,7 @@ class ModelEnergyProperties(object):
 
     @property
     def shade_constructions(self):
-        """A list of all unique constructions assigned to Shades in the model."""
+        """Get a list of all unique constructions assigned to Shades in the model."""
         constructions = []
         for shade in self.host.orphaned_shades:
             self._check_and_add_obj_construction(shade, constructions)
@@ -151,7 +155,7 @@ class ModelEnergyProperties(object):
 
     @property
     def construction_sets(self):
-        """A list of all unique Room-Assigned ConstructionSets in the Model."""
+        """Get a list of all unique Room-Assigned ConstructionSets in the Model."""
         construction_sets = []
         for room in self.host.rooms:
             if room.properties.energy._construction_set is not None:
@@ -162,7 +166,7 @@ class ModelEnergyProperties(object):
 
     @property
     def schedule_type_limits(self):
-        """List of all unique schedule type limits contained within the model.
+        """Get a list of all unique schedule type limits contained within the model.
 
         This includes schedules across all Shades and Rooms.
         """
@@ -175,7 +179,7 @@ class ModelEnergyProperties(object):
 
     @property
     def schedules(self):
-        """A list of all unique schedules in the model.
+        """Get a list of all unique schedules in the model.
 
         This includes schedules across all ProgramTypes, HVACs, Rooms and Shades.
         """
@@ -185,7 +189,7 @@ class ModelEnergyProperties(object):
 
     @property
     def construction_schedules(self):
-        """A list of all unique schedules assigned to constructions in the model.
+        """Get a list of all unique schedules assigned to constructions in the model.
 
         This includes schedules on al AirBoundaryConstructions.
         """
@@ -202,7 +206,7 @@ class ModelEnergyProperties(object):
 
     @property
     def shade_schedules(self):
-        """A list of all unique transmittance schedules assigned to Shades in the model.
+        """Get a list of unique transmittance schedules assigned to Shades in the model.
         """
         schedules = []
         for shade in self.host.orphaned_shades:
@@ -223,7 +227,7 @@ class ModelEnergyProperties(object):
 
     @property
     def room_schedules(self):
-        """A list of all unique schedules assigned directly to Rooms in the model.
+        """Get a list of all unique schedules assigned directly to Rooms in the model.
 
         Note that this does not include schedules from ProgramTypes assigned to the
         rooms. For this, use the program_type_schedules property.
@@ -268,7 +272,7 @@ class ModelEnergyProperties(object):
 
     @property
     def program_type_schedules(self):
-        """A list of all unique schedules assigned to ProgramTypes in the model."""
+        """Get a list of all unique schedules assigned to ProgramTypes in the model."""
         schedules = []
         for p_type in self.program_types:
             for sched in p_type.schedules:
@@ -277,7 +281,7 @@ class ModelEnergyProperties(object):
 
     @property
     def hvac_schedules(self):
-        """A list of all unique HVAC-assigned schedules in the model."""
+        """Get a list of all unique HVAC-assigned schedules in the model."""
         schedules = []
         for hvac in self.hvacs:
             for sched in hvac.schedules:
@@ -286,7 +290,7 @@ class ModelEnergyProperties(object):
 
     @property
     def program_types(self):
-        """A list of all unique ProgramTypes in the Model."""
+        """Get a list of all unique ProgramTypes in the Model."""
         program_types = []
         for room in self.host.rooms:
             if room.properties.energy._program_type is not None:
@@ -297,13 +301,23 @@ class ModelEnergyProperties(object):
 
     @property
     def hvacs(self):
-        """A list of all unique HVAC systems in the Model."""
+        """Get a list of all unique HVAC systems in the Model."""
         hvacs = []
         for room in self.host.rooms:
             if room.properties.energy._hvac is not None:
                 if not self._instance_in_array(room.properties.energy._hvac, hvacs):
                     hvacs.append(room.properties.energy._hvac)
         return hvacs
+
+    @property
+    def shws(self):
+        """Get a list of all unique SHW systems in the Model."""
+        shws = []
+        for room in self.host.rooms:
+            if room.properties.energy._shw is not None:
+                if not self._instance_in_array(room.properties.energy._shw, shws):
+                    shws.append(room.properties.energy._shw)
+        return shws
 
     @property
     def ventilation_simulation_control(self):
@@ -482,6 +496,7 @@ class ModelEnergyProperties(object):
         msgs.append(self.check_duplicate_schedule_identifiers(False))
         msgs.append(self.check_duplicate_program_type_identifiers(False))
         msgs.append(self.check_duplicate_hvac_identifiers(False))
+        msgs.append(self.check_duplicate_shw_identifiers(False))
         msgs.append(self.check_interior_constructions_reversed(False))
         # output a final report of errors or raise an exception
         full_msgs = [msg for msg in msgs if msg != '']
@@ -524,6 +539,10 @@ class ModelEnergyProperties(object):
         """Check that there are no duplicate HVAC identifiers in the model."""
         return check_duplicate_identifiers(self.hvacs, raise_exception, 'HVAC')
 
+    def check_duplicate_shw_identifiers(self, raise_exception=True):
+        """Check that there are no duplicate SHW identifiers in the model."""
+        return check_duplicate_identifiers(self.shws, raise_exception, 'SHW')
+
     def check_interior_constructions_reversed(self, raise_exception=True):
         """Check that all interior constructions are in reversed order for paired faces.
         """
@@ -565,7 +584,7 @@ class ModelEnergyProperties(object):
         """
         assert 'energy' in data['properties'], \
             'Dictionary possesses no ModelEnergyProperties.'
-        _, constructions, construction_sets, _, schedules, program_types, hvacs = \
+        _, constructions, construction_sets, _, schedules, program_types, hvacs, shws = \
             self.load_properties_from_dict(data)
 
         # collect lists of energy property dictionaries
@@ -576,7 +595,7 @@ class ModelEnergyProperties(object):
         for room, r_dict in zip(self.host.rooms, room_e_dicts):
             if r_dict is not None:
                 room.properties.energy.apply_properties_from_dict(
-                    r_dict, construction_sets, program_types, hvacs,
+                    r_dict, construction_sets, program_types, hvacs, shws,
                     schedules, constructions)
         for face, f_dict in zip(self.host.faces, face_e_dicts):
             if f_dict is not None:
@@ -609,7 +628,7 @@ class ModelEnergyProperties(object):
         # add all materials, constructions and construction sets to the dictionary
         schs = self._add_constr_type_objs_to_dict(base)
 
-        # add all schedule type limits, schedules, program types and hvacs to the dict
+        # add all schedule type limits, schedules, program types, hvacs, shws to the dict
         self._add_sched_type_objs_to_dict(base, schs)
 
         # add ventilation_simulation_control
@@ -807,8 +826,16 @@ class ModelEnergyProperties(object):
                 hvacs[hvac['identifier']] = \
                     hvac_class.from_dict_abridged(hvac, schedules)
 
+        # process all SHW systems in the ModelEnergyProperties dictionary
+        shws = {}
+        if 'shws' in data['properties']['energy'] and \
+                data['properties']['energy']['shws'] is not None:
+            for shw in data['properties']['energy']['shws']:
+                shws[shw['identifier']] = \
+                    SHWSystem.from_dict_abridged(shw)
+
         return materials, constructions, construction_sets, schedule_type_limits, \
-            schedules, program_types, hvacs
+            schedules, program_types, hvacs, shws
 
     def _add_constr_type_objs_to_dict(self, base):
         """Add materials, constructions and construction sets to a base dictionary.
@@ -870,7 +897,7 @@ class ModelEnergyProperties(object):
         return schedules
 
     def _add_sched_type_objs_to_dict(self, base, schs):
-        """Add type limits, schedules, program types, and hvacs to a base dictionary.
+        """Add type limits, schedules, program types, hvacs, shws to a base dictionary.
 
         Args:
             base: A base dictionary for a Honeybee Model.
@@ -882,6 +909,9 @@ class ModelEnergyProperties(object):
         base['energy']['hvacs'] = []
         for hvac in hvacs:
             base['energy']['hvacs'].append(hvac.to_dict(abridged=True))
+
+        # add all unique shws to the dictionary
+        base['energy']['shws'] = [shw.to_dict() for shw in self.shws]
 
         # add all unique program types to the dictionary
         program_types = self.program_types
