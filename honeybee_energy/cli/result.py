@@ -205,14 +205,7 @@ def energy_use_intensity(result_paths, si, output_file):
     try:
         # set initial values that will be computed based on results
         total_floor_area, conditioned_floor_area, total_energy = 0, 0, 0
-        all_uses = \
-            ('heating', 'cooling', 'interior_lighting', 'exterior_lighting',
-             'interior_equipment', 'exterior_equipment', 'fans', 'pumps',
-             'heat_rejection', 'humidification', 'heat_recovery', 'water_systems',
-             'refrigeration', 'generators')
         end_uses = {}
-        for use in all_uses:
-            end_uses[use] = 0
 
         # create a list of sql file path that were either passed directly or are
         # contained within passed folders
@@ -235,23 +228,18 @@ def energy_use_intensity(result_paths, si, output_file):
             total_floor_area += areas[0][0]
             conditioned_floor_area += areas[1][0]
             # get the energy use
-            eui_dict = sql_obj.tabular_data_by_name('End Uses')
-            euis = tuple(eui_dict.values())
-            total_energy += sum([val for val in euis[-2][:12]])
-            end_uses['heating'] += sum([val for val in euis[0][:12]])
-            end_uses['cooling'] += sum([val for val in euis[1][:12]])
-            end_uses['interior_lighting'] += sum([val for val in euis[2][:12]])
-            end_uses['exterior_lighting'] += sum([val for val in euis[3][:12]])
-            end_uses['interior_equipment'] += sum([val for val in euis[4][:12]])
-            end_uses['exterior_equipment'] += sum([val for val in euis[5][:12]])
-            end_uses['fans'] += sum([val for val in euis[6][:12]])
-            end_uses['pumps'] += sum([val for val in euis[7][:12]])
-            end_uses['heat_rejection'] += sum([val for val in euis[8][:12]])
-            end_uses['humidification'] += sum([val for val in euis[9][:12]])
-            end_uses['heat_recovery'] += sum([val for val in euis[10][:12]])
-            end_uses['water_systems'] += sum([val for val in euis[11][:12]])
-            end_uses['refrigeration'] += sum([val for val in euis[12][:12]])
-            end_uses['generators'] += sum([val for val in euis[13][:12]])
+            eui_dict = sql_obj.tabular_data_by_name('End Uses By Subcategory')
+            for catgory, vals in eui_dict.items():
+                total_use = sum([val for val in vals[:12]])
+                if total_use != 0:
+                    total_energy += total_use
+                    cat, sub_cat = catgory.split(':')
+                    eu_cat = cat if sub_cat == 'General' or sub_cat == 'Other' \
+                        else sub_cat
+                    try:
+                        end_uses[eu_cat] += total_use
+                    except KeyError:
+                        end_uses[eu_cat] = total_use
 
         # assemble all of the results into a final dictionary
         result_dict = {
@@ -261,7 +249,7 @@ def energy_use_intensity(result_paths, si, output_file):
             'total_energy': round(total_energy, 3)
         }
         result_dict['end_uses'] = {key: round(val / total_floor_area, 3)
-                                   for key, val in end_uses.items() if val != 0}
+                                   for key, val in end_uses.items()}
 
         # convert data to IP if requested
         if not si:
