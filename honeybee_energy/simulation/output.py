@@ -258,7 +258,7 @@ output-table-summaryreports.html#outputtablesummaryreports)
                    'Boiler Electricity Energy',
                    'Water Heater NaturalGas Energy',
                    'Water Heater Electricity Energy',
-                   'Heating Coil Water Heating Electricity Energy']
+                   'Cooling Coil Water Heating Electricity Energy']
         for outp in outputs:
             self._outputs.add(outp)
 
