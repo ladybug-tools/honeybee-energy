@@ -96,10 +96,9 @@ def measure_compatible_model_json(
     parsed_model = Model.from_dict(data)
 
     # remove colinear vertices to avoid E+ tolerance issues and convert Model to Meters
-    if parsed_model.tolerance != 0:
-        for room in parsed_model.rooms:
-            room.remove_colinear_vertices_envelope(parsed_model.tolerance)
     parsed_model.convert_to_units('Meters')
+    for room in parsed_model.rooms:
+        room.remove_colinear_vertices_envelope(0.01, delete_degenerate=True)
 
     # get the dictionary representation of the Model and add auto-calculated properties
     model_dict = parsed_model.to_dict(triangulate_sub_faces=True)
