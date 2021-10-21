@@ -627,9 +627,9 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
         if self.u_factor < 4.5:
             term_2 = (0.085775 * (self.shgc ** 2)) + (0.963954 * self.shgc) - 0.084958 \
                 if self.shgc > 0.15 else (0.4104 * self.shgc)
-        if self.u_factor > 4.5:
+        if self.u_factor >= 4.5:
             return term_1
-        elif self.u_factor < 3.4:
+        elif self.u_factor <= 3.4:
             return term_2
         else:
             weight = (self.u_factor - 3.4) / 1.1
@@ -653,9 +653,9 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
             term_2_is = 1 / ((199.8208128 * (s_t ** 3)) - (90.639733 * (s_t ** 2)) +
                              (19.737055 * s_t) + 6.766575)
             term_2_os = 1 / ((5.763355 * s_t) + 20.541528)
-        if self.u_factor > 4.5:
+        if self.u_factor >= 4.5:
             r_is, r_os = term_1_is, term_1_os
-        elif self.u_factor < 3.4:
+        elif self.u_factor <= 3.4:
             r_is, r_os = term_2_is, term_2_os
         else:
             weight = (self.u_factor - 3.4) / 1.1
