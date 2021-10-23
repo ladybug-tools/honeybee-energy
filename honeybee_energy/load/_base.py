@@ -58,7 +58,7 @@ class _LoadBase(object):
             self._display_name = str(value)
         except UnicodeEncodeError:  # Python 2 machine lacking the character set
             self._display_name = value  # keep it as unicode
-    
+
     @property
     def user_data(self):
         """Get or set an optional dictionary for additional meta data for this object.

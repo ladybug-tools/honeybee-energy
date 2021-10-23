@@ -388,9 +388,12 @@ class Lighting(_LoadBase):
 
         # calculate the average values
         lpd = sum([li.watts_per_area * w for li, w in zip(lightings, weights)])
-        ret_fract = sum([li.return_air_fraction * w for li, w in zip(lightings, u_weights)])
-        rad_fract = sum([li.radiant_fraction * w for li, w in zip(lightings, u_weights)])
-        vis_fract = sum([li.visible_fraction * w for li, w in zip(lightings, u_weights)])
+        ret_fract = sum(
+            [li.return_air_fraction * w for li, w in zip(lightings, u_weights)])
+        rad_fract = sum(
+            [li.radiant_fraction * w for li, w in zip(lightings, u_weights)])
+        vis_fract = sum(
+            [li.visible_fraction * w for li, w in zip(lightings, u_weights)])
 
         # calculate the average schedules
         sched = Lighting._average_schedule(

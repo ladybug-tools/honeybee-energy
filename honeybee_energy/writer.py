@@ -360,6 +360,10 @@ def room_to_idf(room):
     if room.properties.energy.daylighting_control is not None:
         zone_str.extend(room.properties.energy.daylighting_control.to_idf())
 
+    # write any process load definitions
+    for p_load in room.properties.energy._process_loads:
+        zone_str.append(p_load.to_idf(room.identifier))
+
     # write any internal mass definitions
     for int_mass in room.properties.energy._internal_masses:
         zone_str.append(int_mass.to_idf(room.identifier))

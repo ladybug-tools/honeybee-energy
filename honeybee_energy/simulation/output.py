@@ -196,7 +196,9 @@ output-table-summaryreports.html#outputtablesummaryreports)
                        'Zone Electric Equipment Electricity Energy',
                        'Zone Gas Equipment NaturalGas Energy',
                        'Zone Ventilation Fan Electricity Energy',
-                       'Water Use Equipment Heating Energy']
+                       'Water Use Equipment Heating Energy',
+                       'Zone Other Equipment Total Heating Energy',
+                       'Zone Other Equipment Lost Heat Energy']
         elif load_type == 'Total':
             outputs = ['Zone Ideal Loads Supply Air Total Cooling Energy',
                        'Zone Ideal Loads Supply Air Total Heating Energy',
@@ -204,7 +206,8 @@ output-table-summaryreports.html#outputtablesummaryreports)
                        'Zone Electric Equipment Total Heating Energy',
                        'Zone Gas Equipment Total Heating Energy',
                        'Water Use Equipment Zone Sensible Heat Gain Energy',
-                       'Water Use Equipment Zone Latent Gain Energy']
+                       'Water Use Equipment Zone Latent Gain Energy',
+                       'Zone Other Equipment Total Heating Energy']
         elif load_type == 'Sensible':
             outputs = ['Zone Ideal Loads Supply Air Sensible Cooling Energy',
                        'Zone Ideal Loads Supply Air Sensible Heating Energy',
@@ -213,13 +216,16 @@ output-table-summaryreports.html#outputtablesummaryreports)
                        'Zone Electric Equipment Convective Heating Energy',
                        'Zone Gas Equipment Radiant Heating Energy',
                        'Zone Gas Equipment Convective Heating Energy',
-                       'Water Use Equipment Zone Sensible Heat Gain Energy']
+                       'Water Use Equipment Zone Sensible Heat Gain Energy',
+                       'Zone Other Equipment Convective Heating Energy',
+                       'Zone Other Equipment Radiant Heating Energy']
         elif load_type == 'Latent':
             outputs = ['Zone Ideal Loads Supply Air Latent Cooling Energy',
                        'Zone Ideal Loads Supply Air Latent Heating Energy',
                        'Zone Electric Equipment Latent Gain Energy',
                        'Zone Gas Equipment Latent Gain Energy',
-                       'Water Use Equipment Zone Latent Gain Energy']
+                       'Water Use Equipment Zone Latent Gain Energy',
+                       'Zone Other Equipment Latent Heating Energy']
         else:
             raise ValueError('load_type {} is not valid'.format(load_type))
         for outp in outputs:

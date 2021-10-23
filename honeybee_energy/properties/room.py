@@ -18,6 +18,7 @@ from ..load.infiltration import Infiltration
 from ..load.ventilation import Ventilation
 from ..load.setpoint import Setpoint
 from ..load.daylight import DaylightingControl
+from ..load.process import Process
 from ..internalmass import InternalMass
 from ..ventcool.control import VentilationControl
 from ..ventcool.crack import AFNCrack
@@ -69,14 +70,18 @@ class RoomEnergyProperties(object):
         * setpoint
         * daylighting_control
         * window_vent_control
+        * process_loads
         * internal_masses
         * is_conditioned
     """
 
-    __slots__ = ('_host', '_program_type', '_construction_set', '_hvac', '_shw',
-                 '_people', '_lighting', '_electric_equipment', '_gas_equipment',
-                 '_service_hot_water', '_infiltration', '_ventilation', '_setpoint',
-                 '_daylighting_control', '_window_vent_control', '_internal_masses')
+    __slots__ = (
+        '_host', '_program_type', '_construction_set', '_hvac', '_shw',
+        '_people', '_lighting', '_electric_equipment', '_gas_equipment',
+        '_service_hot_water', '_infiltration', '_ventilation', '_setpoint',
+        '_daylighting_control', '_window_vent_control',
+        '_internal_masses', '_process_loads'
+    )
 
     def __init__(
             self, host, program_type=None, construction_set=None, hvac=None, shw=None):
@@ -100,6 +105,7 @@ class RoomEnergyProperties(object):
         self._daylighting_control = None
         self._window_vent_control = None
         self._internal_masses = []
+        self._process_loads = []
 
     @property
     def host(self):
@@ -339,6 +345,19 @@ class RoomEnergyProperties(object):
         self._window_vent_control = value
 
     @property
+    def process_loads(self):
+        """Get or set an array of Process objects for process loads within the room."""
+        return tuple(self._process_loads)
+
+    @process_loads.setter
+    def process_loads(self, value):
+        for val in value:
+            assert isinstance(val, InternalMass), 'Expected Process ' \
+                'object for Room process_loads. Got {}'.format(type(val))
+            val.lock()   # lock because we don't duplicate the object
+        self._process_loads = list(value)
+
+    @property
     def internal_masses(self):
         """Get or set an array of InternalMass objects for mass exposed to Room air.
 
@@ -516,6 +535,21 @@ class RoomEnergyProperties(object):
         ventilation.air_changes_per_hour = 0
         ventilation.flow_per_zone = flow_rate
         self.ventilation = ventilation
+
+    def add_process_load(self, process_load):
+        """Add a Process load to this Room.
+
+        Args:
+            process_load: A Process load to add to this Room.
+        """
+        assert isinstance(process_load, Process), \
+            'Expected InternalMass. Got {}.'.format(type(process_load))
+        process_load.lock()   # lock because we don't duplicate the object
+        self._process_loads.append(process_load)
+
+    def remove_process_loads(self):
+        """Remove all internal masses from the Room."""
+        self._process_loads = []
 
     def add_internal_mass(self, internal_mass):
         """Add an InternalMass to this Room.
@@ -987,6 +1021,7 @@ class RoomEnergyProperties(object):
         self._setpoint = None
         self._daylighting_control = None
         self._window_vent_control = None
+        self._process_loads = []
         self._internal_masses = []
 
     @classmethod
@@ -1019,6 +1054,7 @@ class RoomEnergyProperties(object):
             "setpoint": {},  # A Setpoint dictionary
             "daylighting_control": {},  # A DaylightingControl dictionary
             "window_vent_control": {},  # A VentilationControl dictionary
+            "process_loads": []  # An array of Process dictionaries
             "internal_masses": []  # An array of InternalMass dictionaries
             }
         """
@@ -1061,6 +1097,9 @@ class RoomEnergyProperties(object):
         if 'window_vent_control' in data and data['window_vent_control'] is not None:
             new_prop.window_vent_control = \
                 VentilationControl.from_dict(data['window_vent_control'])
+        if 'process_loads' in data and data['process_loads'] is not None:
+            new_prop.process_loads = \
+                [Process.from_dict(dat) for dat in data['process_loads']]
         if 'internal_masses' in data and data['internal_masses'] is not None:
             new_prop.internal_masses = \
                 [InternalMass.from_dict(dat) for dat in data['internal_masses']]
@@ -1149,11 +1188,23 @@ class RoomEnergyProperties(object):
                 abridged_data['window_vent_control'] is not None:
             self.window_vent_control = VentilationControl.from_dict_abridged(
                 abridged_data['window_vent_control'], schedules)
+        if 'process_loads' in abridged_data and \
+                abridged_data['process_loads'] is not None:
+            self.process_loads = []
+            for dat in abridged_data['process_loads']:
+                if dat['type'] == 'Process':
+                    self.process_loads.append(Process.from_dict(dat))
+                else:
+                    self.process_loads.append(Process.from_dict_abridged(dat, schedules))
         if 'internal_masses' in abridged_data and \
                 abridged_data['internal_masses'] is not None:
-            self.internal_masses = \
-                [InternalMass.from_dict_abridged(dat, constructions)
-                 for dat in abridged_data['internal_masses']]
+            self.internal_masses = []
+            for dat in abridged_data['internal_masses']:
+                if dat['type'] == 'InternalMass':
+                    self.internal_masses.append(InternalMass.from_dict(dat))
+                else:
+                    self.internal_masses.append(
+                        InternalMass.from_dict_abridged(dat, constructions))
 
     def to_dict(self, abridged=False):
         """Return Room energy properties as a dictionary.
@@ -1213,6 +1264,9 @@ class RoomEnergyProperties(object):
         if self._window_vent_control is not None:
             base['energy']['window_vent_control'] = \
                 self._window_vent_control.to_dict(abridged)
+        if len(self._process_loads) != 0:
+            base['energy']['process_loads'] = \
+                [p.to_dict(abridged) for p in self._process_loads]
         if len(self._internal_masses) != 0:
             base['energy']['internal_masses'] = \
                 [m.to_dict(abridged) for m in self._internal_masses]
@@ -1239,6 +1293,7 @@ class RoomEnergyProperties(object):
         new_room._setpoint = self._setpoint
         new_room._daylighting_control = self._daylighting_control
         new_room._window_vent_control = self._window_vent_control
+        new_room._process_loads = self._process_loads[:]  # copy process load list
         new_room._internal_masses = self._internal_masses[:]  # copy internal masses list
         return new_room
 
