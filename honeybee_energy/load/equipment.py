@@ -200,15 +200,19 @@ class _EquipmentBase(_LoadBase):
     def _extract_ep_properties(ep_strs, schedule_dict):
         """Extract relevant EnergyPlus properties from a list of strings."""
         # check the inputs
-        assert ep_strs[3].lower() == 'watts/area', 'Equipment must use ' \
-            'Watts/Area method to be loaded from IDF to honeybee.'
+        if len(ep_strs) > 3:
+            assert ep_strs[3].lower() == 'watts/area', 'Equipment must use ' \
+                'Watts/Area method to be loaded from IDF to honeybee.'
+        else:
+            raise AssertionError('Equipment must use Watts/Area method to be loaded '
+                                 'from IDF to honeybee.')
         # extract the properties from the string
         rad_fract = 0
         lat_fract = 0
         lost_fract = 0
         try:
-            rad_fract = ep_strs[8] if ep_strs[8] != '' else 0
             lat_fract = ep_strs[7] if ep_strs[7] != '' else 0
+            rad_fract = ep_strs[8] if ep_strs[8] != '' else 0
             lost_fract = ep_strs[9] if ep_strs[9] != '' else 0
         except IndexError:
             pass  # shorter equipment definition lacking fractions
