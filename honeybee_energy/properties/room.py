@@ -352,7 +352,7 @@ class RoomEnergyProperties(object):
     @process_loads.setter
     def process_loads(self, value):
         for val in value:
-            assert isinstance(val, InternalMass), 'Expected Process ' \
+            assert isinstance(val, Process), 'Expected Process ' \
                 'object for Room process_loads. Got {}'.format(type(val))
             val.lock()   # lock because we don't duplicate the object
         self._process_loads = list(value)
@@ -543,12 +543,12 @@ class RoomEnergyProperties(object):
             process_load: A Process load to add to this Room.
         """
         assert isinstance(process_load, Process), \
-            'Expected InternalMass. Got {}.'.format(type(process_load))
+            'Expected Process load object. Got {}.'.format(type(process_load))
         process_load.lock()   # lock because we don't duplicate the object
         self._process_loads.append(process_load)
 
     def remove_process_loads(self):
-        """Remove all internal masses from the Room."""
+        """Remove all Process loads from the Room."""
         self._process_loads = []
 
     def add_internal_mass(self, internal_mass):
