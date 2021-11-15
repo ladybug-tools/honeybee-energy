@@ -14,6 +14,8 @@ from honeybee_energy.construction.opaque import OpaqueConstruction
 from honeybee_energy.construction.window import WindowConstruction
 from honeybee_energy.construction.shade import ShadeConstruction
 from honeybee_energy.construction.air import AirBoundaryConstruction
+from honeybee_energy.internalmass import InternalMass
+from honeybee_energy.load.process import Process
 from honeybee_energy.material._base import _EnergyMaterialBase
 from honeybee_energy.material.opaque import EnergyMaterial
 from honeybee_energy.schedule.ruleset import ScheduleRuleset
@@ -377,6 +379,9 @@ def test_to_dict_single_zone():
     table = Shade('Table', table_geo)
     room.add_indoor_shade(table)
 
+    int_mass = InternalMass('Stone Fireplace', thermal_mass_constr, 8)
+    room.properties.energy.internal_masses = [int_mass]
+
     model = Model('TinyHouse', [room], orphaned_shades=[tree_canopy])
 
     model_dict = model.to_dict()
@@ -404,6 +409,9 @@ def test_to_dict_single_zone():
         office_program.identifier
     assert model_dict['rooms'][0]['properties']['energy']['hvac'] == \
         room.properties.energy.hvac.identifier
+
+    assert model_dict['rooms'][0]['properties']['energy']['internal_masses'][0]['identifier'] == \
+        int_mass.identifier
 
 
 def test_to_dict_single_zone_schedule_fixed_interval():
@@ -486,6 +494,10 @@ def test_to_dict_single_zone_detailed_loads():
     room.properties.energy.infiltration = office_program.infiltration
     room.properties.energy.ventilation = office_program.ventilation
     room.properties.energy.setpoint = office_program.setpoint
+    
+    fireplace = Process('Wood Burning Fireplace', 300,
+                        office_program.people.occupancy_schedule, 'OtherFuel1')
+    room.properties.energy.process_loads = [fireplace]
 
     room[0].boundary_condition = boundary_conditions.adiabatic
     room[1].boundary_condition = boundary_conditions.adiabatic
@@ -515,6 +527,8 @@ def test_to_dict_single_zone_detailed_loads():
     assert 'setpoint' in model_dict['rooms'][0]['properties']['energy']
     assert model_dict['rooms'][0]['properties']['energy']['setpoint']['identifier'] == \
         office_program.setpoint.identifier
+    assert model_dict['rooms'][0]['properties']['energy']['process_loads'][0]['identifier'] == \
+        fireplace.identifier
 
 
 def test_to_dict_shoe_box():

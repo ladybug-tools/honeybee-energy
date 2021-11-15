@@ -1190,20 +1190,18 @@ class RoomEnergyProperties(object):
                 abridged_data['window_vent_control'], schedules)
         if 'process_loads' in abridged_data and \
                 abridged_data['process_loads'] is not None:
-            self.process_loads = []
             for dat in abridged_data['process_loads']:
                 if dat['type'] == 'Process':
-                    self.process_loads.append(Process.from_dict(dat))
+                    self._process_loads.append(Process.from_dict(dat))
                 else:
-                    self.process_loads.append(Process.from_dict_abridged(dat, schedules))
+                    self._process_loads.append(Process.from_dict_abridged(dat, schedules))
         if 'internal_masses' in abridged_data and \
                 abridged_data['internal_masses'] is not None:
-            self.internal_masses = []
             for dat in abridged_data['internal_masses']:
                 if dat['type'] == 'InternalMass':
-                    self.internal_masses.append(InternalMass.from_dict(dat))
+                    self._internal_masses.append(InternalMass.from_dict(dat))
                 else:
-                    self.internal_masses.append(
+                    self._internal_masses.append(
                         InternalMass.from_dict_abridged(dat, constructions))
 
     def to_dict(self, abridged=False):
