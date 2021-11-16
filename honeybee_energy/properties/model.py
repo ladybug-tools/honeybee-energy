@@ -11,8 +11,7 @@ from honeybee.boundarycondition import Outdoors, Surface
 from honeybee.facetype import AirBoundary
 from honeybee.extensionutil import model_extension_dicts
 from honeybee.checkdup import check_duplicate_identifiers
-
-from honeybee_energy.shw import SHWSystem
+from honeybee.typing import invalid_dict_error
 
 from ..material.dictutil import dict_to_material
 from ..construction.dictutil import CONSTRUCTION_TYPES, dict_to_construction, \
@@ -28,6 +27,7 @@ from ..schedule.dictutil import SCHEDULE_TYPES, dict_to_schedule, \
     dict_abridged_to_schedule
 from ..programtype import ProgramType
 from ..hvac import HVAC_TYPES_DICT
+from ..shw import SHWSystem
 from ..ventcool.simulation import VentilationSimulationControl
 
 from ..lib.constructionsets import generic_construction_set
@@ -770,56 +770,74 @@ class ModelEnergyProperties(object):
         if 'schedule_type_limits' in data['properties']['energy'] and \
                 data['properties']['energy']['schedule_type_limits'] is not None:
             for t_lim in data['properties']['energy']['schedule_type_limits']:
-                schedule_type_limits[t_lim['identifier']] = \
-                    ScheduleTypeLimit.from_dict(t_lim)
+                try:
+                    schedule_type_limits[t_lim['identifier']] = \
+                        ScheduleTypeLimit.from_dict(t_lim)
+                except Exception as e:
+                    invalid_dict_error(t_lim, e)
 
         # process all schedules in the ModelEnergyProperties dictionary
         schedules = {}
         if 'schedules' in data['properties']['energy'] and \
                 data['properties']['energy']['schedules'] is not None:
             for sched in data['properties']['energy']['schedules']:
-                if sched['type'] in SCHEDULE_TYPES:
-                    schedules[sched['identifier']] = dict_to_schedule(sched)
-                else:
-                    schedules[sched['identifier']] = dict_abridged_to_schedule(
-                        sched, schedule_type_limits)
+                try:
+                    if sched['type'] in SCHEDULE_TYPES:
+                        schedules[sched['identifier']] = dict_to_schedule(sched)
+                    else:
+                        schedules[sched['identifier']] = dict_abridged_to_schedule(
+                            sched, schedule_type_limits)
+                except Exception as e:
+                    invalid_dict_error(sched, e)
 
         # process all materials in the ModelEnergyProperties dictionary
         materials = {}
         for mat in data['properties']['energy']['materials']:
-            materials[mat['identifier']] = dict_to_material(mat)
+            try:
+                materials[mat['identifier']] = dict_to_material(mat)
+            except Exception as e:
+                invalid_dict_error(mat, e)
 
         # process all constructions in the ModelEnergyProperties dictionary
         constructions = {}
         for cnstr in data['properties']['energy']['constructions']:
-            if cnstr['type'] in CONSTRUCTION_TYPES:
-                constructions[cnstr['identifier']] = dict_to_construction(cnstr)
-            else:
-                constructions[cnstr['identifier']] = \
-                    dict_abridged_to_construction(cnstr, materials, schedules)
+            try:
+                if cnstr['type'] in CONSTRUCTION_TYPES:
+                    constructions[cnstr['identifier']] = dict_to_construction(cnstr)
+                else:
+                    constructions[cnstr['identifier']] = \
+                        dict_abridged_to_construction(cnstr, materials, schedules)
+            except Exception as e:
+                invalid_dict_error(cnstr, e)
 
         # process all construction sets in the ModelEnergyProperties dictionary
         construction_sets = {}
         if 'construction_sets' in data['properties']['energy'] and \
                 data['properties']['energy']['construction_sets'] is not None:
             for c_set in data['properties']['energy']['construction_sets']:
-                if c_set['type'] == 'ConstructionSet':
-                    construction_sets[c_set['identifier']] = \
-                        ConstructionSet.from_dict(c_set)
-                else:
-                    construction_sets[c_set['identifier']] = \
-                        ConstructionSet.from_dict_abridged(c_set, constructions)
+                try:
+                    if c_set['type'] == 'ConstructionSet':
+                        construction_sets[c_set['identifier']] = \
+                            ConstructionSet.from_dict(c_set)
+                    else:
+                        construction_sets[c_set['identifier']] = \
+                            ConstructionSet.from_dict_abridged(c_set, constructions)
+                except Exception as e:
+                    invalid_dict_error(c_set, e)
 
         # process all ProgramType in the ModelEnergyProperties dictionary
         program_types = {}
         if 'program_types' in data['properties']['energy'] and \
                 data['properties']['energy']['program_types'] is not None:
             for p_typ in data['properties']['energy']['program_types']:
-                if p_typ['type'] == 'ProgramType':
-                    program_types[p_typ['identifier']] = ProgramType.from_dict(p_typ)
-                else:
-                    program_types[p_typ['identifier']] = \
-                        ProgramType.from_dict_abridged(p_typ, schedules)
+                try:
+                    if p_typ['type'] == 'ProgramType':
+                        program_types[p_typ['identifier']] = ProgramType.from_dict(p_typ)
+                    else:
+                        program_types[p_typ['identifier']] = \
+                            ProgramType.from_dict_abridged(p_typ, schedules)
+                except Exception as e:
+                    invalid_dict_error(p_typ, e)
 
         # process all HVAC systems in the ModelEnergyProperties dictionary
         hvacs = {}
@@ -827,16 +845,21 @@ class ModelEnergyProperties(object):
                 data['properties']['energy']['hvacs'] is not None:
             for hvac in data['properties']['energy']['hvacs']:
                 hvac_class = HVAC_TYPES_DICT[hvac['type'].replace('Abridged', '')]
-                hvacs[hvac['identifier']] = \
-                    hvac_class.from_dict_abridged(hvac, schedules)
+                try:
+                    hvacs[hvac['identifier']] = \
+                        hvac_class.from_dict_abridged(hvac, schedules)
+                except Exception as e:
+                    invalid_dict_error(hvac, e)
 
         # process all SHW systems in the ModelEnergyProperties dictionary
         shws = {}
         if 'shws' in data['properties']['energy'] and \
                 data['properties']['energy']['shws'] is not None:
             for shw in data['properties']['energy']['shws']:
-                shws[shw['identifier']] = \
-                    SHWSystem.from_dict_abridged(shw)
+                try:
+                    shws[shw['identifier']] = SHWSystem.from_dict_abridged(shw)
+                except Exception as e:
+                    invalid_dict_error(shw, e)
 
         return materials, constructions, construction_sets, schedule_type_limits, \
             schedules, program_types, hvacs, shws
