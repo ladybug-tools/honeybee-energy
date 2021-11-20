@@ -20,6 +20,10 @@ def test_config_init():
     assert folders.openstudio_exe is None or isinstance(folders.openstudio_exe, str)
     assert hasattr(folders, 'openstudio_version')
     assert folders.openstudio_version is None or isinstance(folders.openstudio_version, tuple)
+    assert hasattr(folders, 'openstudio_csharp_path')
+    assert folders.openstudio_csharp_path is None or isinstance(folders.openstudio_csharp_path, str)
+    assert hasattr(folders, 'openstudio_lib_path')
+    assert folders.openstudio_lib_path is None or isinstance(folders.openstudio_lib_path, str)
 
     assert hasattr(folders, 'honeybee_openstudio_gem_path')
     assert folders.honeybee_openstudio_gem_path is None or \
