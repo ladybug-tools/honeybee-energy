@@ -82,6 +82,17 @@ class Folders(object):
         if path:  # check that the OpenStudio executable exists in the path
             assert os.path.isfile(os_exe_file), \
                 '{} is not a valid path to an openstudio installation.'.format(path)
+            # see if the CSharp folder is installed
+            csharp_path = os.path.join(os.path.dirname(path), 'CSharp', 'openstudio')
+            self._openstudio_csharp_path = csharp_path \
+                if os.path.isdir(csharp_path) else None
+            # see if the lib path is installed
+            lib_path = os.path.join(os.path.dirname(path), 'lib')
+            self._openstudio_lib_path = lib_path \
+                if os.path.isdir(lib_path) else None
+        else:
+            self._openstudio_csharp_path = None
+            self._openstudio_lib_path = None
 
         # set the openstudio_path
         self._openstudio_path = path
@@ -117,6 +128,16 @@ class Folders(object):
         if self._openstudio_exe and self._openstudio_version_str is None:
             self._openstudio_version_from_cli()
         return self._openstudio_version_str
+
+    @property
+    def openstudio_csharp_path(self):
+        """Get the path to the OpenStudio CSharp folder if it exists."""
+        return self._openstudio_csharp_path
+
+    @property
+    def openstudio_lib_path(self):
+        """Get the path to the OpenStudio lib folder if it exists."""
+        return self._openstudio_lib_path
 
     @property
     def energyplus_path(self):
