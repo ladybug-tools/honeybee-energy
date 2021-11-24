@@ -37,6 +37,8 @@ class Folders(object):
         * openstudio_exe
         * openstudio_version
         * openstudio_version_str
+        * openstudio_csharp_path
+        * openstudio_lib_path
         * energyplus_path
         * energyplus_exe
         * energyplus_version
