@@ -423,13 +423,15 @@ def model_to_idf(model, schedule_directory=None):
     """
     # duplicate model to avoid mutating it as we edit it for energy simulation
     model = model.duplicate()
-    # remove colinear vertices using the Model tolerance to avoid E+ tolerance issues
-    if model.tolerance != 0:
-        for room in model.rooms:
-            room.remove_colinear_vertices_envelope(model.tolerance)
     # scale the model if the units are not meters
     if model.units != 'Meters':
         model.convert_to_units('Meters')
+    # remove colinear vertices using the Model tolerance to avoid E+ tolerance issues
+    if model.tolerance != 0:
+        for room in model.rooms:
+            room.remove_colinear_vertices_envelope(
+                tolerance=0.01, delete_degenerate=True)
+
     # check to be sure that the Airflow Network is not being used
     assert model.properties.energy.ventilation_simulation_control.vent_control_type == \
         'SingleZone', 'The Honeybee Airflow Network does not support direct ' \
