@@ -363,7 +363,7 @@ class Process(_LoadBase):
         _idf_comments = (
             'name', 'fuel type', 'zone name', 'schedule name', 'level method',
             'power level {W}', 'power per floor area {W/m2}',
-            'power per person {W/ppl}', 'latent fraction', 'radiant fration',
+            'power per person {W/ppl}', 'latent fraction', 'radiant fraction',
             'lost fraction', 'co2 generation {m3/s-W', 'end use subcategory'
         )
         _idf_values = (
