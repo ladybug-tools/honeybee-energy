@@ -391,7 +391,7 @@ class ServiceHotWater(_LoadBase):
         comments = ('name', 'end use subcategory', 'peak flow rate {m/s}',
                     'schedule name', 'target temp schedule', 'hot water temp schedule',
                     'cold water temp schedule', 'zone name',
-                    'sensible fration', 'latent fraction')
+                    'sensible fraction', 'latent fraction')
         water_use = generate_idf_string('WaterUse:Equipment', values, comments)
         return water_use, schedules
 

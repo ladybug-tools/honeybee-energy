@@ -329,7 +329,7 @@ class People(_LoadBase):
                   self.activity_schedule.identifier)
         comments = ('name', 'zone name', 'occupancy schedule name', 'occupancy method',
                     'number of people {ppl}', 'people per floor area {ppl/m2}',
-                    'floor area per person {m2/ppl}', 'radiant fration',
+                    'floor area per person {m2/ppl}', 'radiant fraction',
                     'sensible heat fraction', 'activity schedule name')
         return generate_idf_string('People', values, comments)
 

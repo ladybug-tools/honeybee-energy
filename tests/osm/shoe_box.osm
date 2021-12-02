@@ -1,7 +1,7 @@
 
 OS:Version,
-  {f2a7822f-e9ba-4a5f-aba0-99459f420e77}, !- Handle
-  3.1.0;                                  !- Version Identifier
+  {3a22b962-696a-4e90-b153-4eff5c35711e}, !- Handle
+  3.3.0;                                  !- Version Identifier
 
 OS:Building,
   {1cff9464-2d09-491c-8c6a-7f12bbeb8392}, !- Handle
@@ -2104,8 +2104,6 @@ OS:Construction,
 OS:Construction:AirBoundary,
   {0b1ed274-fac7-4609-95ee-ccaf4567ff9a}, !- Handle
   Generic Air Boundary,                   !- Name
-  GroupedZones,                           !- Solar and Daylighting Method
-  GroupedZones,                           !- Radiant Exchange Method
   None,                                   !- Air Exchange Method
   0;                                      !- Simple Mixing Air Changes per Hour {1/hr}
 
@@ -2223,7 +2221,7 @@ OS:Space,
 
 OS:ThermalZone,
   {2debf754-09a6-4b50-a006-d956ece25937}, !- Handle
-  OfficeShoeBox_dc02f559,                 !- Name
+  OfficeShoeBox_dc02f559 1,               !- Name
   ,                                       !- Multiplier
   ,                                       !- Ceiling Height {m}
   ,                                       !- Volume {m3}
@@ -2252,7 +2250,6 @@ OS:Node,
 
 OS:Connection,
   {af1bc8ea-863a-4169-acfd-e91a3a9577ac}, !- Handle
-  {0eea8753-8e4f-4d89-8623-b195f6f80724}, !- Name
   {2debf754-09a6-4b50-a006-d956ece25937}, !- Source Object
   11,                                     !- Outlet Port
   {97b5dca3-45f4-4cfd-8ce3-1188e44802dc}, !- Target Object
@@ -2260,19 +2257,16 @@ OS:Connection,
 
 OS:PortList,
   {d5250b10-c7e8-4acd-81a5-127b5f2b5847}, !- Handle
-  {0a038d8b-97c0-48a0-aaa8-e42f4f89bc1e}, !- Name
   {2debf754-09a6-4b50-a006-d956ece25937}, !- HVAC Component
   {2a7252ce-e4bf-4d6d-8c53-473d04106547}; !- Port 1
 
 OS:PortList,
   {336fdc9d-b5e2-4be8-a41e-dcf52073f798}, !- Handle
-  {ee5913d1-031d-4fe5-8b40-a933e9a0ff52}, !- Name
   {2debf754-09a6-4b50-a006-d956ece25937}, !- HVAC Component
   {a8cbf14b-7e17-4680-9d65-1c7f860cfc8a}; !- Port 1
 
 OS:PortList,
   {2a4f2f9e-f2c7-4b19-85b6-eb68d805aa7d}, !- Handle
-  {f3847a9a-3b13-4aff-8587-5ed5f4d88cb7}, !- Name
   {2debf754-09a6-4b50-a006-d956ece25937}; !- HVAC Component
 
 OS:Sizing:Zone,
@@ -2531,7 +2525,6 @@ OS:Node,
 
 OS:Connection,
   {a8cbf14b-7e17-4680-9d65-1c7f860cfc8a}, !- Handle
-  {fc999bfa-f4fc-485b-a222-67a5f98d2cf6}, !- Name
   {336fdc9d-b5e2-4be8-a41e-dcf52073f798}, !- Source Object
   3,                                      !- Outlet Port
   {ec2fa55b-054c-4d06-9f53-e6dde29ec723}, !- Target Object
@@ -2539,7 +2532,6 @@ OS:Connection,
 
 OS:Connection,
   {21488de5-c386-4d9c-b4cc-67ee0b31616f}, !- Handle
-  {875ec1bb-b81e-4d71-a0ab-e87a73e7a3b0}, !- Name
   {ec2fa55b-054c-4d06-9f53-e6dde29ec723}, !- Source Object
   3,                                      !- Outlet Port
   {a9892e9f-15a5-4e0f-bc46-5e3964e7937b}, !- Target Object
@@ -2553,7 +2545,6 @@ OS:Node,
 
 OS:Connection,
   {2a7252ce-e4bf-4d6d-8c53-473d04106547}, !- Handle
-  {96b0f63e-55a6-4644-a2b0-a0d5d3a0a8de}, !- Name
   {e0c73990-8f4a-4eaa-bb86-6a817b69e2e4}, !- Source Object
   3,                                      !- Outlet Port
   {d5250b10-c7e8-4acd-81a5-127b5f2b5847}, !- Target Object
@@ -2561,7 +2552,6 @@ OS:Connection,
 
 OS:Connection,
   {e3f05537-8fd4-4e73-bb35-5b29a9a5d9fd}, !- Handle
-  {f54b921c-c0bf-4e74-a293-c86fe4baa32f}, !- Name
   {a9892e9f-15a5-4e0f-bc46-5e3964e7937b}, !- Source Object
   4,                                      !- Outlet Port
   {e0c73990-8f4a-4eaa-bb86-6a817b69e2e4}, !- Target Object
@@ -2572,21 +2562,23 @@ OS:SizingPeriod:DesignDay,
   Boston Logan IntL Arpt Ann Htg 99.6% Condns DB, !- Name
   -13.6,                                  !- Maximum Dry-Bulb Temperature {C}
   0,                                      !- Daily Dry-Bulb Temperature Range {deltaC}
-  -13.6,                                  !- Humidity Indicating Conditions at Maximum Dry-Bulb
   101253,                                 !- Barometric Pressure {Pa}
   7.2,                                    !- Wind Speed {m/s}
   320,                                    !- Wind Direction {deg}
   0,                                      !- Sky Clearness
   ,                                       !- Rain Indicator
-  0,                                      !- Snow Indicator
+  No,                                     !- Snow Indicator
   21,                                     !- Day of Month
   1,                                      !- Month
   WinterDesignDay,                        !- Day Type
-  0,                                      !- Daylight Saving Time Indicator
-  Wetbulb,                                !- Humidity Indicating Type
-  ,                                       !- Humidity Indicating Day Schedule Name
+  No,                                     !- Daylight Saving Time Indicator
+  Wetbulb,                                !- Humidity Condition Type
+  ,                                       !- Humidity Condition Day Schedule Name
+  -13.6,                                  !- Wetbulb or DewPoint at Maximum Dry-Bulb {C}
+  ,                                       !- Humidity Ratio at Maximum Dry-Bulb {kgWater/kgDryAir}
+  ,                                       !- Enthalpy at Maximum Dry-Bulb {J/kg}
   DefaultMultipliers,                     !- Dry-Bulb Temperature Range Modifier Type
-  ,                                       !- Dry-Bulb Temperature Range Modifier Schedule Name
+  ,                                       !- Dry-Bulb Temperature Range Modifier Day Schedule Name
   ASHRAEClearSky;                         !- Solar Model Indicator
 
 OS:SizingPeriod:DesignDay,
@@ -2594,21 +2586,23 @@ OS:SizingPeriod:DesignDay,
   Boston Logan IntL Arpt Ann Hum_n 99.6% Condns DP=>MCDB, !- Name
   -12,                                    !- Maximum Dry-Bulb Temperature {C}
   0,                                      !- Daily Dry-Bulb Temperature Range {deltaC}
-  -24.4,                                  !- Humidity Indicating Conditions at Maximum Dry-Bulb
   101253,                                 !- Barometric Pressure {Pa}
   7.2,                                    !- Wind Speed {m/s}
   320,                                    !- Wind Direction {deg}
   0,                                      !- Sky Clearness
   ,                                       !- Rain Indicator
-  0,                                      !- Snow Indicator
+  No,                                     !- Snow Indicator
   21,                                     !- Day of Month
   1,                                      !- Month
   WinterDesignDay,                        !- Day Type
-  0,                                      !- Daylight Saving Time Indicator
-  Dewpoint,                               !- Humidity Indicating Type
-  ,                                       !- Humidity Indicating Day Schedule Name
+  No,                                     !- Daylight Saving Time Indicator
+  Dewpoint,                               !- Humidity Condition Type
+  ,                                       !- Humidity Condition Day Schedule Name
+  -24.4,                                  !- Wetbulb or DewPoint at Maximum Dry-Bulb {C}
+  ,                                       !- Humidity Ratio at Maximum Dry-Bulb {kgWater/kgDryAir}
+  ,                                       !- Enthalpy at Maximum Dry-Bulb {J/kg}
   DefaultMultipliers,                     !- Dry-Bulb Temperature Range Modifier Type
-  ,                                       !- Dry-Bulb Temperature Range Modifier Schedule Name
+  ,                                       !- Dry-Bulb Temperature Range Modifier Day Schedule Name
   ASHRAEClearSky;                         !- Solar Model Indicator
 
 OS:SizingPeriod:DesignDay,
@@ -2616,21 +2610,23 @@ OS:SizingPeriod:DesignDay,
   Boston Logan IntL Arpt Ann Htg Wind 99.6% Condns WS=>MCDB, !- Name
   2.1,                                    !- Maximum Dry-Bulb Temperature {C}
   0,                                      !- Daily Dry-Bulb Temperature Range {deltaC}
-  2.1,                                    !- Humidity Indicating Conditions at Maximum Dry-Bulb
   101253,                                 !- Barometric Pressure {Pa}
   14.1,                                   !- Wind Speed {m/s}
   320,                                    !- Wind Direction {deg}
   0,                                      !- Sky Clearness
   ,                                       !- Rain Indicator
-  0,                                      !- Snow Indicator
+  No,                                     !- Snow Indicator
   21,                                     !- Day of Month
   1,                                      !- Month
   WinterDesignDay,                        !- Day Type
-  0,                                      !- Daylight Saving Time Indicator
-  Wetbulb,                                !- Humidity Indicating Type
-  ,                                       !- Humidity Indicating Day Schedule Name
+  No,                                     !- Daylight Saving Time Indicator
+  Wetbulb,                                !- Humidity Condition Type
+  ,                                       !- Humidity Condition Day Schedule Name
+  2.1,                                    !- Wetbulb or DewPoint at Maximum Dry-Bulb {C}
+  ,                                       !- Humidity Ratio at Maximum Dry-Bulb {kgWater/kgDryAir}
+  ,                                       !- Enthalpy at Maximum Dry-Bulb {J/kg}
   DefaultMultipliers,                     !- Dry-Bulb Temperature Range Modifier Type
-  ,                                       !- Dry-Bulb Temperature Range Modifier Schedule Name
+  ,                                       !- Dry-Bulb Temperature Range Modifier Day Schedule Name
   ASHRAEClearSky;                         !- Solar Model Indicator
 
 OS:SizingPeriod:DesignDay,
@@ -2638,104 +2634,112 @@ OS:SizingPeriod:DesignDay,
   Boston Logan IntL Arpt Ann Clg .4% Condns DB=>MWB, !- Name
   32.7,                                   !- Maximum Dry-Bulb Temperature {C}
   8.4,                                    !- Daily Dry-Bulb Temperature Range {deltaC}
-  22.9,                                   !- Humidity Indicating Conditions at Maximum Dry-Bulb
   101253,                                 !- Barometric Pressure {Pa}
   6.3,                                    !- Wind Speed {m/s}
   270,                                    !- Wind Direction {deg}
   0,                                      !- Sky Clearness
   ,                                       !- Rain Indicator
-  0,                                      !- Snow Indicator
+  No,                                     !- Snow Indicator
   21,                                     !- Day of Month
   7,                                      !- Month
   SummerDesignDay,                        !- Day Type
-  0,                                      !- Daylight Saving Time Indicator
-  Wetbulb,                                !- Humidity Indicating Type
-  ,                                       !- Humidity Indicating Day Schedule Name
+  No,                                     !- Daylight Saving Time Indicator
+  Wetbulb,                                !- Humidity Condition Type
+  ,                                       !- Humidity Condition Day Schedule Name
+  22.9,                                   !- Wetbulb or DewPoint at Maximum Dry-Bulb {C}
+  ,                                       !- Humidity Ratio at Maximum Dry-Bulb {kgWater/kgDryAir}
+  ,                                       !- Enthalpy at Maximum Dry-Bulb {J/kg}
   DefaultMultipliers,                     !- Dry-Bulb Temperature Range Modifier Type
-  ,                                       !- Dry-Bulb Temperature Range Modifier Schedule Name
+  ,                                       !- Dry-Bulb Temperature Range Modifier Day Schedule Name
   ASHRAETau,                              !- Solar Model Indicator
   ,                                       !- Beam Solar Day Schedule Name
   ,                                       !- Diffuse Solar Day Schedule Name
-  0.488,                                  !- ASHRAE Taub {dimensionless}
-  1.95;                                   !- ASHRAE Taud {dimensionless}
+  0.488,                                  !- ASHRAE Clear Sky Optical Depth for Beam Irradiance {dimensionless}
+  1.95;                                   !- ASHRAE Clear Sky Optical Depth for Diffuse Irradiance {dimensionless}
 
 OS:SizingPeriod:DesignDay,
   {92c4d501-fb3d-4208-8cfb-fbbfa9eaf0f6}, !- Handle
   Boston Logan IntL Arpt Ann Clg .4% Condns WB=>MDB, !- Name
   30.2,                                   !- Maximum Dry-Bulb Temperature {C}
   8.4,                                    !- Daily Dry-Bulb Temperature Range {deltaC}
-  24.6,                                   !- Humidity Indicating Conditions at Maximum Dry-Bulb
   101253,                                 !- Barometric Pressure {Pa}
   6.3,                                    !- Wind Speed {m/s}
   270,                                    !- Wind Direction {deg}
   0,                                      !- Sky Clearness
   ,                                       !- Rain Indicator
-  0,                                      !- Snow Indicator
+  No,                                     !- Snow Indicator
   21,                                     !- Day of Month
   7,                                      !- Month
   SummerDesignDay,                        !- Day Type
-  0,                                      !- Daylight Saving Time Indicator
-  Wetbulb,                                !- Humidity Indicating Type
-  ,                                       !- Humidity Indicating Day Schedule Name
+  No,                                     !- Daylight Saving Time Indicator
+  Wetbulb,                                !- Humidity Condition Type
+  ,                                       !- Humidity Condition Day Schedule Name
+  24.6,                                   !- Wetbulb or DewPoint at Maximum Dry-Bulb {C}
+  ,                                       !- Humidity Ratio at Maximum Dry-Bulb {kgWater/kgDryAir}
+  ,                                       !- Enthalpy at Maximum Dry-Bulb {J/kg}
   DefaultMultipliers,                     !- Dry-Bulb Temperature Range Modifier Type
-  ,                                       !- Dry-Bulb Temperature Range Modifier Schedule Name
+  ,                                       !- Dry-Bulb Temperature Range Modifier Day Schedule Name
   ASHRAETau,                              !- Solar Model Indicator
   ,                                       !- Beam Solar Day Schedule Name
   ,                                       !- Diffuse Solar Day Schedule Name
-  0.488,                                  !- ASHRAE Taub {dimensionless}
-  1.95;                                   !- ASHRAE Taud {dimensionless}
+  0.488,                                  !- ASHRAE Clear Sky Optical Depth for Beam Irradiance {dimensionless}
+  1.95;                                   !- ASHRAE Clear Sky Optical Depth for Diffuse Irradiance {dimensionless}
 
 OS:SizingPeriod:DesignDay,
   {37971dbf-bfe7-4a64-8ffc-0d679ca4a655}, !- Handle
   Boston Logan IntL Arpt Ann Clg .4% Condns DP=>MDB, !- Name
   27.3,                                   !- Maximum Dry-Bulb Temperature {C}
   8.4,                                    !- Daily Dry-Bulb Temperature Range {deltaC}
-  22.8,                                   !- Humidity Indicating Conditions at Maximum Dry-Bulb
   101253,                                 !- Barometric Pressure {Pa}
   6.3,                                    !- Wind Speed {m/s}
   270,                                    !- Wind Direction {deg}
   0,                                      !- Sky Clearness
   ,                                       !- Rain Indicator
-  0,                                      !- Snow Indicator
+  No,                                     !- Snow Indicator
   21,                                     !- Day of Month
   7,                                      !- Month
   SummerDesignDay,                        !- Day Type
-  0,                                      !- Daylight Saving Time Indicator
-  Dewpoint,                               !- Humidity Indicating Type
-  ,                                       !- Humidity Indicating Day Schedule Name
+  No,                                     !- Daylight Saving Time Indicator
+  Dewpoint,                               !- Humidity Condition Type
+  ,                                       !- Humidity Condition Day Schedule Name
+  22.8,                                   !- Wetbulb or DewPoint at Maximum Dry-Bulb {C}
+  ,                                       !- Humidity Ratio at Maximum Dry-Bulb {kgWater/kgDryAir}
+  ,                                       !- Enthalpy at Maximum Dry-Bulb {J/kg}
   DefaultMultipliers,                     !- Dry-Bulb Temperature Range Modifier Type
-  ,                                       !- Dry-Bulb Temperature Range Modifier Schedule Name
+  ,                                       !- Dry-Bulb Temperature Range Modifier Day Schedule Name
   ASHRAETau,                              !- Solar Model Indicator
   ,                                       !- Beam Solar Day Schedule Name
   ,                                       !- Diffuse Solar Day Schedule Name
-  0.488,                                  !- ASHRAE Taub {dimensionless}
-  1.95;                                   !- ASHRAE Taud {dimensionless}
+  0.488,                                  !- ASHRAE Clear Sky Optical Depth for Beam Irradiance {dimensionless}
+  1.95;                                   !- ASHRAE Clear Sky Optical Depth for Diffuse Irradiance {dimensionless}
 
 OS:SizingPeriod:DesignDay,
   {2cb991c9-f3c3-467f-b950-9991fd933f33}, !- Handle
   Boston Logan IntL Arpt Ann Clg .4% Condns Enth=>MDB, !- Name
   30.6,                                   !- Maximum Dry-Bulb Temperature {C}
   8.4,                                    !- Daily Dry-Bulb Temperature Range {deltaC}
-  74100,                                  !- Humidity Indicating Conditions at Maximum Dry-Bulb
   101253,                                 !- Barometric Pressure {Pa}
   6.3,                                    !- Wind Speed {m/s}
   270,                                    !- Wind Direction {deg}
   0,                                      !- Sky Clearness
   ,                                       !- Rain Indicator
-  0,                                      !- Snow Indicator
+  No,                                     !- Snow Indicator
   21,                                     !- Day of Month
   7,                                      !- Month
   SummerDesignDay,                        !- Day Type
-  0,                                      !- Daylight Saving Time Indicator
-  Enthalpy,                               !- Humidity Indicating Type
-  ,                                       !- Humidity Indicating Day Schedule Name
+  No,                                     !- Daylight Saving Time Indicator
+  Enthalpy,                               !- Humidity Condition Type
+  ,                                       !- Humidity Condition Day Schedule Name
+  ,                                       !- Wetbulb or DewPoint at Maximum Dry-Bulb {C}
+  ,                                       !- Humidity Ratio at Maximum Dry-Bulb {kgWater/kgDryAir}
+  74100,                                  !- Enthalpy at Maximum Dry-Bulb {J/kg}
   DefaultMultipliers,                     !- Dry-Bulb Temperature Range Modifier Type
-  ,                                       !- Dry-Bulb Temperature Range Modifier Schedule Name
+  ,                                       !- Dry-Bulb Temperature Range Modifier Day Schedule Name
   ASHRAETau,                              !- Solar Model Indicator
   ,                                       !- Beam Solar Day Schedule Name
   ,                                       !- Diffuse Solar Day Schedule Name
-  0.488,                                  !- ASHRAE Taub {dimensionless}
-  1.95;                                   !- ASHRAE Taud {dimensionless}
+  0.488,                                  !- ASHRAE Clear Sky Optical Depth for Beam Irradiance {dimensionless}
+  1.95;                                   !- ASHRAE Clear Sky Optical Depth for Diffuse Irradiance {dimensionless}
 
 OS:Output:Variable,
   {fb933c99-8444-4334-9630-f0d6593eef2e}, !- Handle

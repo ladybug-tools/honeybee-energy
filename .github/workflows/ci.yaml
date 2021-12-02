@@ -21,8 +21,8 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: install openstudio
         run: |
-          wget https://github.com/NREL/OpenStudio/releases/download/v3.2.0/OpenStudio-3.2.0+e11f0a08b2-Ubuntu-20.04.deb
-          sudo dpkg -i ./OpenStudio-3.2.0+e11f0a08b2-Ubuntu-20.04.deb
+          wget https://github.com/NREL/OpenStudio/releases/download/v3.3.0/OpenStudio-3.3.0+ad235ff36e-Ubuntu-20.04.deb
+          sudo dpkg -i ./OpenStudio-3.3.0+ad235ff36e-Ubuntu-20.04.deb
       - name: install honeybee-openstudio-gem
         run: |
           mkdir -p ~/ladybug_tools/resources/measures/honeybee_openstudio_gem

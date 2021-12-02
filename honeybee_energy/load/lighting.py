@@ -335,7 +335,7 @@ class Lighting(_LoadBase):
         comments = ('name', 'zone name', 'schedule name', 'lighting level method',
                     'lighting power level {W}', 'lighting per floor area {W/m2}',
                     'lighting per person {W/ppl}', 'return air fraction',
-                    'radiant fration', 'visible fraction')
+                    'radiant fraction', 'visible fraction')
         return generate_idf_string('Lights', values, comments)
 
     def to_dict(self, abridged=False):

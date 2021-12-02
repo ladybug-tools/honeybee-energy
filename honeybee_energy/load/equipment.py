@@ -51,7 +51,7 @@ class _EquipmentBase(_LoadBase):
     _idf_comments = ('name', 'zone name', 'schedule name', 'equipment level method',
                      'equipment power level {W}', 'equipment per floor area {W/m2}',
                      'equipment per person {W/ppl}', 'latent fraction',
-                     'radiant fration', 'lost fraction')
+                     'radiant fraction', 'lost fraction')
 
     def __init__(self, identifier, watts_per_area, schedule, radiant_fraction=0,
                  latent_fraction=0, lost_fraction=0):

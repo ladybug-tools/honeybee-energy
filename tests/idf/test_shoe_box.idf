@@ -1,5 +1,5 @@
 Version,
- 9.5.0;                    !- version identifier
+ 9.6.0;                    !- version identifier
 
 !-   ==========================================
 !-   =========  SIMULATION PARAMETERS =========
@@ -395,7 +395,10 @@ Building,
  FullExterior;             !- solar distribution
 
 Site:WaterMainsTemperature,
- CorrelationFromWeatherFile; !- ,
+ Correlation,              !- calculation method
+ ,                         !- schedule
+ 12,                       !- average temperature
+ 4;                        !- delta temperature
 
 !-   =======================================
 !-   ================ MODEL ================
@@ -1534,6 +1537,7 @@ BuildingSurface:Detailed,
  Wall,                     !- surface type
  Typical Insulated Steel Framed Exterior Wall-R19, !- construction name
  HospitalShoeBox_dd3546aa, !- zone name
+ ,                         !- space name
  Outdoors,                 !- boundary condition
  ,                         !- boundary condition object
  SunExposed,               !- sun exposure
@@ -1565,6 +1569,7 @@ BuildingSurface:Detailed,
  Wall,                     !- surface type
  Generic Interior Wall,    !- construction name
  HospitalShoeBox_dd3546aa, !- zone name
+ ,                         !- space name
  Adiabatic,                !- boundary condition
  ,                         !- boundary condition object
  NoSun,                    !- sun exposure
@@ -1581,6 +1586,7 @@ BuildingSurface:Detailed,
  Wall,                     !- surface type
  Generic Interior Wall,    !- construction name
  HospitalShoeBox_dd3546aa, !- zone name
+ ,                         !- space name
  Adiabatic,                !- boundary condition
  ,                         !- boundary condition object
  NoSun,                    !- sun exposure
@@ -1597,6 +1603,7 @@ BuildingSurface:Detailed,
  Wall,                     !- surface type
  Generic Interior Wall,    !- construction name
  HospitalShoeBox_dd3546aa, !- zone name
+ ,                         !- space name
  Adiabatic,                !- boundary condition
  ,                         !- boundary condition object
  NoSun,                    !- sun exposure
@@ -1613,6 +1620,7 @@ BuildingSurface:Detailed,
  Floor,                    !- surface type
  Generic Interior Floor,   !- construction name
  HospitalShoeBox_dd3546aa, !- zone name
+ ,                         !- space name
  Adiabatic,                !- boundary condition
  ,                         !- boundary condition object
  NoSun,                    !- sun exposure
@@ -1629,6 +1637,7 @@ BuildingSurface:Detailed,
  Ceiling,                  !- surface type
  Generic Interior Ceiling, !- construction name
  HospitalShoeBox_dd3546aa, !- zone name
+ ,                         !- space name
  Adiabatic,                !- boundary condition
  ,                         !- boundary condition object
  NoSun,                    !- sun exposure
