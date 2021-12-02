@@ -43,7 +43,7 @@ def test_simulate_model():
     result = runner.invoke(simulate_model, [input_model, input_epw])
     assert result.exit_code == 0
 
-    folder = os.path.join(folders.default_simulation_folder, 'ShoeBox')
-    output_sql = os.path.join(folder, 'OpenStudio', 'run', 'eplusout.sql')
+    folder = os.path.join(folders.default_simulation_folder, 'shoebox')
+    output_sql = os.path.join(folder, 'openstudio', 'run', 'eplusout.sql')
     assert os.path.isfile(output_sql)
     nukedir(folder)
