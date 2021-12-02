@@ -155,7 +155,7 @@ def to_gbxml_osw(model_path, output_path=None, osw_directory=None):
     return os.path.abspath(osw_json)
 
 
-def to_openstudio_osw(osw_directory, model_json_path, sim_par_json_path=None,
+def to_openstudio_osw(osw_directory, model_path, sim_par_json_path=None,
                       additional_measures=None, base_osw=None, epw_file=None,
                       schedule_directory=None, strings_to_inject=None,
                       report_units=None, viz_variables=None):
@@ -164,7 +164,7 @@ def to_openstudio_osw(osw_directory, model_json_path, sim_par_json_path=None,
     Args:
         osw_directory: The directory into which the .osw should be written and the
             .osm will eventually be written into.
-        model_json_path: File path to the Model JSON.
+        model_path: File path to the Model as either a HBJSON or an OSM.
         sim_par_json_path: Optional file path to the SimulationParameter JSON.
             If None, the resulting OSM will not have everything it needs to be
             simulate-able in EnergyPlus. (Default: None).
@@ -227,15 +227,18 @@ def to_openstudio_osw(osw_directory, model_json_path, sim_par_json_path=None,
         osw_dict['steps'].insert(0, sim_par_dict)
 
     # add the model json serialization into the steps
-    model_measure_dict = {
-        'arguments': {
-            'model_json': model_json_path
-        },
-        'measure_dir_name': 'from_honeybee_model'
-    }
-    if schedule_directory is not None:
-        model_measure_dict['arguments']['schedule_csv_dir'] = schedule_directory
-    osw_dict['steps'].insert(0, model_measure_dict)
+    if model_path.lower().endswith('.osm'):  # use the OSM as a seed file
+        osw_dict['seed_file'] = model_path
+    else:  # assume that it is a HBJSON
+        model_measure_dict = {
+            'arguments': {
+                'model_json': model_path
+            },
+            'measure_dir_name': 'from_honeybee_model'
+        }
+        if schedule_directory is not None:
+            model_measure_dict['arguments']['schedule_csv_dir'] = schedule_directory
+        osw_dict['steps'].insert(0, model_measure_dict)
 
     # assign the measure_paths to the osw_dict
     if 'measure_paths' not in osw_dict:

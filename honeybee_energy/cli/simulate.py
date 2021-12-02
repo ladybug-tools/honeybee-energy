@@ -10,6 +10,7 @@ from honeybee_energy.simulation.parameter import SimulationParameter
 from honeybee_energy.run import measure_compatible_model_json, to_openstudio_osw, \
     run_osw, run_idf, output_energyplus_files
 from honeybee_energy.result.err import Err
+from honeybee_energy.result.osw import OSW
 from honeybee.config import folders
 from ladybug.futil import preparedir
 from ladybug.epw import EPW
@@ -23,24 +24,25 @@ def simulate():
 
 
 @simulate.command('model')
-@click.argument('model-json', type=click.Path(
+@click.argument('model-file', type=click.Path(
     exists=True, file_okay=True, dir_okay=False, resolve_path=True))
 @click.argument('epw-file', type=click.Path(
     exists=True, file_okay=True, dir_okay=False, resolve_path=True))
 @click.option('--sim-par-json', '-sp', help='Full path to a honeybee energy '
               'SimulationParameter JSON that describes all of the settings for '
-              'the simulation.', default=None, show_default=True,
+              'the simulation. This will be ignored if the input model-file is '
+              'an OSM or IDF.', default=None, show_default=True,
               type=click.Path(exists=False, file_okay=True, dir_okay=False,
                               resolve_path=True))
 @click.option('--measures', '-m', help='Full path to a folder containing an OSW JSON '
               'be used as the base for the execution of the OpenStuduo CLI. While this '
-              'OSW can contain paths to measures that exist anywhere on the machine '
-              'executing the simulation, the best practice is to copy the measures '
-              'into this measures folder and use relative paths within the OSW. '
+              'OSW can contain paths to measures that exist anywhere on the machine, '
+              'the best practice is to copy the measures into this measures '
+              'folder and use relative paths within the OSW. '
               'This makes it easier to move the inputs for this command from one '
               'machine to another.', default=None, show_default=True,
               type=click.Path(file_okay=False, dir_okay=True, resolve_path=True))
-@click.option('--additional-string', '-as', help='An additional text string to get '
+@click.option('--additional-string', '-as', help='An additional IDF text string to get '
               'appended to the IDF before simulation. The input should include '
               'complete EnergyPlus objects as a single string following the IDF '
               'format. This input can be used to include EnergyPlus objects that '
@@ -60,25 +62,26 @@ def simulate():
 @click.option('--folder', '-f', help='Folder on this computer, into which the IDF '
               'and result files will be written. If None, the files will be output '
               'to the honeybee default simulation folder and placed in a project '
-              'folder with the same name as the model_json.',
+              'folder with the same name as the model-file.',
               default=None, show_default=True,
               type=click.Path(file_okay=False, dir_okay=True, resolve_path=True))
 @click.option('--check-model/--bypass-check', ' /-bc', help='Flag to note whether '
               'the Model should be re-serialized to Python and checked before it '
-              'is translated to .osm. The check is not needed if the model-json '
-              'was expored directly from the honeybee-energy Python library.',
+              'is translated to .osm. The check is not needed if the model-file '
+              'was expored directly from the honeybee-energy Python library. '
+              'It will be automatically bypassed if the model-file is an OSM or IDF.',
               default=True, show_default=True)
 @click.option('--log-file', '-log', help='Optional log file to output the paths of the '
               'generated files (osw, osm, idf, sql, zsz, rdd, html, err) if successfully'
               ' created. By default the list will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
-def simulate_model(model_json, epw_file, sim_par_json, measures, additional_string,
+def simulate_model(model_file, epw_file, sim_par_json, measures, additional_string,
                    report_units, viz_variable, folder, check_model, log_file):
-    """Simulate a Model JSON file in EnergyPlus.
+    """Simulate a Model in EnergyPlus.
 
     \b
     Args:
-        model_json: Full path to a Model JSON file.
+        model_file: Full path to a Model file as either a HBJSON, OSM, or IDF.
         epw_file: Full path to an .epw file.
     """
     try:
@@ -86,12 +89,17 @@ def simulate_model(model_json, epw_file, sim_par_json, measures, additional_stri
         epw_folder, epw_file_name = os.path.split(epw_file)
         ddy_file = os.path.join(epw_folder, epw_file_name.replace('.epw', '.ddy'))
 
+        # sense what type of file has been input
+        file_type = _sense_input_file_type(model_file)
+        proj_name = os.path.basename(model_file).lower()
+
         # set the default folder to the default if it's not specified
         if folder is None:
-            proj_name = \
-                os.path.basename(model_json).replace('.json', '').replace('.hbjson', '')
-            folder = os.path.join(
-                folders.default_simulation_folder, proj_name, 'OpenStudio')
+            for ext in ('.hbjson', '.json', '.osm', '.idf'):
+                proj_name = proj_name.replace(ext, '')
+            folder = os.path.join(folders.default_simulation_folder, proj_name)
+            folder = os.path.join(folder, 'energyplus', 'run') if file_type == 'idf' \
+                else os.path.join(folder, 'openstudio')
         preparedir(folder, remove_content=False)
 
         # process the simulation parameters and write new ones if necessary
@@ -110,22 +118,26 @@ def simulate_model(model_json, epw_file, sim_par_json, measures, additional_stri
                 json.dump(sim_par_dict, fp)
             return sp_json
 
-        if sim_par_json is None or not os.path.isfile(sim_par_json):
-            sim_par = SimulationParameter()
-            sim_par.output.add_zone_energy_use()
-            sim_par.output.add_hvac_energy_use()
-        else:
-            with open(sim_par_json) as json_file:
-                data = json.load(json_file)
-            sim_par = SimulationParameter.from_dict(data)
-        if len(sim_par.sizing_parameter.design_days) == 0 and os.path.isfile(ddy_file):
-            try:
-                sim_par.sizing_parameter.add_from_ddy_996_004(ddy_file)
-            except AssertionError:  # no design days within the DDY file
+        if file_type == 'hbjson':
+            if sim_par_json is None or not os.path.isfile(sim_par_json):
+                sim_par = SimulationParameter()
+                sim_par.output.add_zone_energy_use()
+                sim_par.output.add_hvac_energy_use()
+            else:
+                with open(sim_par_json) as json_file:
+                    data = json.load(json_file)
+                sim_par = SimulationParameter.from_dict(data)
+            if len(sim_par.sizing_parameter.design_days) == 0 and \
+                    os.path.isfile(ddy_file):
+                try:
+                    sim_par.sizing_parameter.add_from_ddy_996_004(ddy_file)
+                except AssertionError:  # no design days within the DDY file
+                    ddy_from_epw(epw_file, sim_par)
+            elif len(sim_par.sizing_parameter.design_days) == 0:
                 ddy_from_epw(epw_file, sim_par)
-        elif len(sim_par.sizing_parameter.design_days) == 0:
-            ddy_from_epw(epw_file, sim_par)
-        sim_par_json = write_sim_par(sim_par)
+            sim_par_json = write_sim_par(sim_par)
+        else:
+            sim_par_json = None
 
         # process the measures input if it is specified
         base_osw = None
@@ -142,8 +154,8 @@ def simulate_model(model_json, epw_file, sim_par_json, measures, additional_stri
                     break
 
         # run the Model re-serialization and check if specified
-        if check_model:
-            model_json = measure_compatible_model_json(model_json, folder)
+        if check_model and file_type == 'hbjson':
+            model_file = measure_compatible_model_json(model_file, folder)
 
         # Write the osw file to translate the model to osm
         no_report = True if base_osw is None and report_units.lower() == 'none' and \
@@ -151,14 +163,28 @@ def simulate_model(model_json, epw_file, sim_par_json, measures, additional_stri
         strings_to_inject = additional_string
         if no_report and additional_string is not None and additional_string != '':
             strings_to_inject = ''
-        osw = to_openstudio_osw(
-            folder, model_json, sim_par_json, base_osw=base_osw, epw_file=epw_file,
-            strings_to_inject=strings_to_inject, report_units=report_units,
-            viz_variables=viz_variable)
+        if file_type != 'idf':
+            if file_type == 'osm' and not proj_name.endswith('.osm'):
+                new_model = os.path.join(folder, 'in.osm')
+                shutil.copy(model_file, new_model)
+                model_file = new_model
+            osw = to_openstudio_osw(
+                folder, model_file, sim_par_json, base_osw=base_osw, epw_file=epw_file,
+                strings_to_inject=strings_to_inject, report_units=report_units,
+                viz_variables=viz_variable)
+            gen_files = [osw]
 
-        # run the measure to translate the model JSON to an openstudio measure
-        gen_files = [osw]
-        if no_report:  # separate the OS CLI run from the E+ run
+        # run the simulation
+        if file_type == 'idf':
+            idf = os.path.join(folder, 'in.idf')
+            shutil.copy(model_file, idf)
+            gen_files = [idf]
+            sql, eio, rdd, html, err = run_idf(idf, epw_file)
+            if err is not None and os.path.isfile(err):
+                gen_files.extend([sql, eio, rdd, html, err])
+            else:
+                raise Exception('Running EnergyPlus failed.')
+        elif no_report:  # separate the OS CLI run from the E+ run
             osm, idf = run_osw(osw)
             # run the resulting idf through EnergyPlus
             if idf is not None and os.path.isfile(idf):
@@ -173,13 +199,13 @@ def simulate_model(model_json, epw_file, sim_par_json, measures, additional_stri
                 else:
                     raise Exception('Running EnergyPlus failed.')
             else:
-                raise Exception('Running OpenStudio CLI failed.')
+                _parse_os_cli_failure(folder)
         else:  # run the whole simulation with the OpenStudio CLI
             osm, idf = run_osw(osw, measures_only=False)
             if idf is not None and os.path.isfile(idf):
                 gen_files.extend([osm, idf])
             else:
-                raise Exception('Running OpenStudio CLI failed.')
+                _parse_os_cli_failure(folder)
             sql, eio, rdd, html, err = output_energyplus_files(os.path.dirname(idf))
             if os.path.isfile(err):
                 gen_files.extend([sql, eio, rdd, html, err])
@@ -250,7 +276,7 @@ def simulate_osm(osm_file, epw_file, folder, log_file):
             else:
                 raise Exception('Running EnergyPlus failed.')
         else:
-            raise Exception('Running OpenStudio CLI failed.')
+            _parse_os_cli_failure(folder)
         log_file.write(json.dumps(gen_files))
     except Exception as e:
         _logger.exception('OSM simulation failed.\n{}'.format(e))
@@ -308,3 +334,35 @@ def simulate_idf(idf_file, epw_file, folder, log_file):
         sys.exit(1)
     else:
         sys.exit(0)
+
+
+def _sense_input_file_type(model_file):
+    """Sense whether an input model_file is a HBJSON, OSM, or IDF.
+
+    Args:
+        model_file: A file, which will have its contents evaluated to determine
+            the file type.
+    """
+    # sense the file type from the first character to avoid maxing memory with JSON
+    # this is needed since queenbee overwrites all file extensions
+    with open(model_file) as inf:
+        first_char = inf.read(1)
+    if first_char == '{':
+        return 'hbjson'
+    with open(model_file) as inf:
+        inf.readline()
+        second_line = inf.readline()
+    if 'OS:Version,' in second_line:
+        return 'osm'
+    return 'idf'
+
+
+def _parse_os_cli_failure(directory):
+    """Parse the failure log of OpenStudio CLI.
+
+    Args:
+        directory: Path to the directory out of which the simulation is run.
+    """
+    log_osw = OSW(os.path.join(directory, 'out.osw'))
+    raise Exception(
+        'Failed to run OpenStudio CLI:\n{}'.format('\n'.join(log_osw.errors)))
