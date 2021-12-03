@@ -55,6 +55,7 @@ RUN apt-get update \
     && apt-get -y install --no-install-recommends git \
     # EnergyPlus dynamically links to libx11
     && apt-get -y install libx11-6 \
+    && apt-get -y install libgomp1 \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
     && pip3 install --no-cache-dir setuptools wheel \
