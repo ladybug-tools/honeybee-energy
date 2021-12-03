@@ -424,6 +424,7 @@ def model_to_idf(model, schedule_directory=None):
         write_to_file(idf, idf_str, True)
     """
     # duplicate model to avoid mutating it as we edit it for energy simulation
+    original_model = model
     model = model.duplicate()
     # scale the model if the units are not meters
     if model.units != 'Meters':
@@ -431,8 +432,13 @@ def model_to_idf(model, schedule_directory=None):
     # remove colinear vertices using the Model tolerance to avoid E+ tolerance issues
     if model.tolerance != 0:
         for room in model.rooms:
-            room.remove_colinear_vertices_envelope(
-                tolerance=0.01, delete_degenerate=True)
+            try:
+                room.remove_colinear_vertices_envelope(
+                    tolerance=0.01, delete_degenerate=True)
+            except AssertionError as e:
+                error = 'Your Model units system is: {}. ' \
+                    'Is this correct?\n{}'.format(original_model.units, e)
+                raise ValueError(error)
 
     # check to be sure that the Airflow Network is not being used
     assert model.properties.energy.ventilation_simulation_control.vent_control_type == \
