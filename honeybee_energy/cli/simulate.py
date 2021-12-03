@@ -100,6 +100,8 @@ def simulate_model(model_file, epw_file, sim_par_json, measures, additional_stri
             folder = os.path.join(folders.default_simulation_folder, proj_name)
             folder = os.path.join(folder, 'energyplus', 'run') if file_type == 'idf' \
                 else os.path.join(folder, 'openstudio')
+        elif file_type == 'idf':  # ensure that all of the files end up in the same dir
+            folder = os.path.join(folder, 'run')
         preparedir(folder, remove_content=False)
 
         # process the simulation parameters and write new ones if necessary
