@@ -124,33 +124,24 @@ class ModelEnergyProperties(object):
         """Get a list of all unique constructions assigned to Faces, Apertures and Doors.
         """
         constructions = []
-        for room in self.host.rooms:
-            for face in room.faces:  # check all Face constructions
-                self._check_and_add_obj_construction(face, constructions)
-                for ap in face.apertures:  # check all Aperture constructions
-                    self._check_and_add_obj_construction(ap, constructions)
-                for dr in face.doors:  # check all Door constructions
-                    self._check_and_add_obj_construction(dr, constructions)
+        for face in self.host.faces:
+            self._check_and_add_obj_construction(face, constructions)
+            for ap in face.apertures:
+                self._check_and_add_obj_construction(ap, constructions)
+            for dr in face.doors:
+                self._check_and_add_obj_construction(dr, constructions)
+        for ap in self.host.orphaned_apertures:
+            self._check_and_add_obj_construction(ap, constructions)
+        for dr in self.host.orphaned_doors:
+            self._check_and_add_obj_construction(dr, constructions)
         return list(set(constructions))
 
     @property
     def shade_constructions(self):
         """Get a list of all unique constructions assigned to Shades in the model."""
         constructions = []
-        for shade in self.host.orphaned_shades:
+        for shade in self.host.shades:
             self._check_and_add_obj_construction(shade, constructions)
-        for room in self.host.rooms:  # check all Room Shade constructions
-            for shade in room.shades:
-                self._check_and_add_obj_construction(shade, constructions)
-            for face in room.faces:  # check all Face Shade constructions
-                for shade in face.shades:
-                    self._check_and_add_obj_construction(shade, constructions)
-                for ap in face.apertures:  # check all Aperture Shade constructions
-                    for shade in ap.shades:
-                        self._check_and_add_obj_construction(shade, constructions)
-                for dr in face.doors:  # check all Door Shade constructions
-                    for shade in dr.shades:
-                        self._check_and_add_obj_construction(shade, constructions)
         return list(set(constructions))
 
     @property
@@ -678,6 +669,10 @@ class ModelEnergyProperties(object):
                 if shd.geometry.has_holes:
                     shd_d['geometry']['vertices'] = \
                         [pt.to_array() for pt in shd.vertices]
+        if len(self.host._orphaned_faces) != 0:
+            for shd, shd_d in zip(self.host._orphaned_faces, data['orphaned_faces']):
+                shd_d['geometry']['vertices'] = \
+                    [pt.to_array() for pt in shd.punched_vertices]
 
     @staticmethod
     def _add_shade_vertices(obj, obj_dict):
