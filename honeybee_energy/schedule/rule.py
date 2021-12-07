@@ -543,7 +543,7 @@ class ScheduleRule(object):
 
     def _check_start_before_end(self):
         """Check that the start_date is before the end_date."""
-        assert self._start_date < self._end_date, 'ScheduleRule start_date must come ' \
+        assert self._start_date <= self._end_date, 'ScheduleRule start_date must come ' \
             'before end_date. {} comes after {}.'.format(self.start_date, self.end_date)
 
     @staticmethod
