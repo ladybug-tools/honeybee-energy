@@ -852,7 +852,7 @@ class ModelEnergyProperties(object):
                 data['properties']['energy']['shws'] is not None:
             for shw in data['properties']['energy']['shws']:
                 try:
-                    shws[shw['identifier']] = SHWSystem.from_dict_abridged(shw)
+                    shws[shw['identifier']] = SHWSystem.from_dict(shw)
                 except Exception as e:
                     invalid_dict_error(shw, e)
 
