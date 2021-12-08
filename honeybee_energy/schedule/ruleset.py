@@ -52,6 +52,7 @@ class ScheduleRuleset(object):
         * winter_designday_schedule
         * holiday_schedule
         * day_schedules
+        * annual_day_schedules
         * is_constant
         * is_single_week
         * user_data
@@ -218,6 +219,19 @@ class ScheduleRuleset(object):
         if self._holiday_schedule is not None and not \
                 self._instance_in_array(self._holiday_schedule, day_scheds):
             day_scheds.append(self._holiday_schedule)
+        for rule in self.schedule_rules:
+            if not self._instance_in_array(rule._schedule_day, day_scheds):
+                day_scheds.append(rule._schedule_day)
+        return day_scheds
+
+    @property
+    def typical_day_schedules(self):
+        """Get a list of all unique ScheduleDay objects used over the annual run period.
+
+        This excludes the schedules of the design days and the holiday schedule,
+        which gives a sense of the typical schedule over the year.
+        """
+        day_scheds = [self.default_day_schedule]
         for rule in self.schedule_rules:
             if not self._instance_in_array(rule._schedule_day, day_scheds):
                 day_scheds.append(rule._schedule_day)
