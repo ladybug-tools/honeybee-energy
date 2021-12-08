@@ -600,7 +600,7 @@ class Setpoint(_LoadBase):
         """Extract the minimum value from a schedule."""
         try:  # ScheduleRuleset
             vals = []
-            for sch in schedule.day_schedules:
+            for sch in schedule.typical_day_schedules:
                 vals.extend(sch.values)
             return min(vals)
         except AttributeError:  # ScheduleFixedInterval
@@ -610,7 +610,7 @@ class Setpoint(_LoadBase):
         """Extract the maximum value from a schedule."""
         try:  # ScheduleRuleset
             vals = []
-            for sch in schedule.day_schedules:
+            for sch in schedule.typical_day_schedules:
                 vals.extend(sch.values)
             return max(vals)
         except AttributeError:  # ScheduleFixedInterval
