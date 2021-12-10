@@ -767,3 +767,104 @@ class EnergyMaterialGreenRoof(_EnergyMaterialOpaqueBase):
         self._visible_absorptance = float_in_range(
             v_abs, 0.0, 1.0, 'material visible absorptance') if v_abs is not None \
             else None
+
+    @property
+    def plant_height(self):
+        return(self._plant_height)
+
+    @plant_height.setter
+    def plant_height(self, p_h):
+        self._plant_height = float_in_range(
+            p_h, 0.005, 1.000, 'plant height') if p_h is not None \
+            else None
+
+    @property
+    def leaf_area_ind(self):
+        return(self._leaf_area_ind)
+
+    @leaf_area_ind.setter
+    def leaf_area_ind(self, lai):
+        self._leaf_area_ind = float_in_range(
+            lai, 0.001, 5.00, 'leaf area index') if lai is not None \
+            else None
+
+    @property
+    def leaf_reflectivity(self):
+        return(self._leaf_reflectivity)
+
+    @leaf_reflectivity.setter
+    def leaf_reflectivity(self, l_r):
+        self._leaf_reflectivity = float_in_range(
+            l_r, 0.05, 0.50, 'leaf reflectivity') if l_r is not None \
+            else None
+
+    @property
+    def leaf_emissivity(self):
+        return(self._leaf_emissivity)
+
+    @leaf_emissivity.setter
+    def leaf_emissivity(self, l_e):
+        self._leaf_emissivity = float_in_range(
+            l_e, 0.8, 1.0) if l_e is not None \
+            else None
+
+    @property
+    def min_stomatal_res(self):
+        return(self._min_stomatal_res)
+
+    @min_stomatal_res.setter
+    def min_stomatal_res(self, msr):
+        self._min_stomatal_res = float_in_range(
+            msr, 50.0, 300.0, 'minimum stomatal resistance') if msr is not None \
+            else None
+
+    @property
+    def soil_layer_name(self):
+        return(self._soil_layer_name)
+
+    @soil_layer_name.setter
+    def soil_layer_name(self, sln):
+        self._soil_layer_name = sln if sln is not None \
+            else None
+
+    @property
+    def sat_vol_moist_cont(self):
+        return(self._sat_vol_moist_cont)
+
+    @sat_vol_moist_cont.setter
+    def sat_vol_moist_cont(self, svmc):
+        self._sat_vol_moist_cont = float_in_range(
+            svmc, 0.1, 0.5, 'saturation volumetric moisture content of soil layer') \
+            if svmc is not None \
+            else None
+
+    @property
+    def res_vol_moist_cont(self):
+        return(self._res_vol_moist_cont)
+
+    @res_vol_moist_cont.setter
+    def res_vol_moist_cont(self, rvmc):
+        self._res_vol_moist_cont = float_in_range(
+            rvmc, 0.01, 0.1) if rvmc is not None \
+            else None
+
+    @property
+    def init_vol_moist_cont(self):
+        return(self._init_vol_moist_cont)
+
+    @init_vol_moist_cont.setter
+    def init_vol_moist_cont(self, ivmc):
+        self._init_vol_moist_cont = float_in_range(
+            ivmc, 0.05, 0.50) if ivmc is not None \
+            else None
+
+    @property
+    def moist_dif_calc(self):
+        return(self._moist_dif_calc)
+
+    @moist_dif_calc.setter
+    def moist_dif_calc(self, mdc):
+        if mdc == 'Simple':
+            self._moist_dif_calc = mdc
+        else:
+            self._moist_dif_calc = 'Simple'
