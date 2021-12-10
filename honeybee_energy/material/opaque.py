@@ -868,3 +868,78 @@ class EnergyMaterialGreenRoof(_EnergyMaterialOpaqueBase):
             self._moist_dif_calc = mdc
         else:
             self._moist_dif_calc = 'Simple'
+
+    @classmethod
+    def from_idf(cls, idf_string):
+        pass
+
+    @classmethod
+    def from_dict(cls, data):
+        """Create an EnergyMaterialGreenRoof from a dictionary.
+
+        Args:
+            data: A python dictionary in the following format
+
+        .. code-block:: python
+
+            {
+            "type": 'EnergyMaterialGreenRoof',
+            "identifier": 'My_New_Green_Roof_040_110_5834_654',
+            "display_name": 'My green roof',
+            "thickness"
+
+            }
+
+        """
+        assert data['type'] == 'EnergyMaterialGreenRoof', \
+            'Expectend EnergyMaterialGreenRoof. Got {}'.format(data['type'])
+        # Use .setter arg_names
+        # For setting default values from dict to obj:
+        rough = data['roughness'] if 'roughness' in data and \
+            data['roughness'] is not None else 'MediumRough'
+        thick = data['thickness'] if 'thickness' in data and \
+            data['thickness'] is not None else 0.1
+        t_abs = data['thermal_absorptance'] if 'thermal_absorptance' in data and \
+            data['thermal_absorptance'] is not None else 0.9
+        s_abs = data['solar_absorptance'] if 'solar_absorptance' in data and \
+            data['solar_absorptance'] is not None else 0.7
+        v_abs = data['visible_absorptance'] if 'visible_absorptance' in data else None
+        cond = data['conductivity'] if 'conductivity' in data and \
+            data['conductivity'] is not None else 0.35
+        dens = data['density'] if 'density' in data and \
+            data['density'] is not None else 1100
+        sp_ht = data['specific_heat'] if 'specific_heat' in data and \
+            data['specific_heat'] is not None else 800
+        p_h = data['plant_height'] if 'plant_height' in data and \
+            data['plant_height'] is not None else 0.2
+        lai = data['leaf_area_index'] if 'leaf_area_index' in data and \
+            data['leaf_area_index'] is not None else 1.0
+        l_r = data['leaf_reflectivity'] if 'leaf_reflectivity' in data and \
+            data['leaf_reflectivity'] is not None else 0.22
+        l_e = data['leaf_emissivity'] if 'leaf_emissivity' in data and \
+            data['leaf_emissivity'] is not None else 0.95
+        msr = data['min_stomatal_res'] if 'min_stomatal_res' in data and \
+            data['min_stomatal_res'] is not None else 180
+        sln = data['soil_layer_name'] if 'soil_layer_name' in data and \
+            data['soil_layer_name'] is not None else 'GreenRoofSoil'
+        svmc = data['sat_vol_moist_cont'] if 'sat_vol_moist_cont' \
+            in data and data['sat_vol_moist_cont'] is not None else 0.3
+        rvmc = data['res_vol_moist_cont'] if 'res_vol_moist_cont' \
+            in data and data['res_vol_moist_cont'] is not None else 0.01
+        ivmc = data['init_vol_moist_cont'] if 'init_vol_moist_cont' \
+            in data and data['init_vol_moist_cont'] is not None else 0.1
+        mdc = data['moisture_dif_calculation'] if 'moisture_dif_calculation' in data and \
+            data['moisture_dif_calculation'] is not None else 'Simple'
+
+        new_mat = cls(rough, thick, t_abs, s_abs, v_abs, dense, sp_ht, p_h, lai,
+                      l_r, l_e, msr, sln, svmc, rvmc, ivmc, mdc)
+        if 'display_name' in data and data['display_name'] is not None:
+            new_mat.display_name = data['display_name']
+        if 'user_data' in data and data['user_data'] is not None:
+            new_mat.user_data = data['user_data']
+
+        return new_mat
+
+    def to_idf(self):
+        """Get an EnergyPlus string representation of the material."""
+        pass
