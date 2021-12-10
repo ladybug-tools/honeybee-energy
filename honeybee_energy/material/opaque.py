@@ -889,11 +889,26 @@ class EnergyMaterialGreenRoof(_EnergyMaterialOpaqueBase):
         .. code-block:: python
 
             {
-            "type": 'EnergyMaterialGreenRoof',
-            "identifier": 'My_New_Green_Roof_040_110_5834_654',
-            "display_name": 'My green roof',
-            "thickness"
-
+            'type': 'EnergyMaterialGreenRoof',
+            'identifier': 'Green_Roof_040_110_7868_987',
+            'plant_height': 0.9,
+            'leaf_area_ind': 1.0,
+            'leaf_reflectivity': 0.22,
+            'leaf_emissivity': 0.95,
+            'min_stomatal_res': 180,
+            'soil_layer_name': 'GreenRoofSoil,
+            'roughness': 'MediumRough,
+            'thickness':0.1,
+            'conductivity': 0.35,
+            'density': 1100,
+            'specific_heat': 800,
+            'thermal_absorptance': 0.9,
+            'solar_absorptance': 0.7,
+            'visible_absorptance':0.7,
+            'sat_vol_moist_cont': 0.3,
+            'res_vol_moist_cont': 0.01,
+            'init_vol_moist_cont': 0.1,
+            'moist_dif_calc': 'Simple'
             }
 
         """
@@ -1012,6 +1027,9 @@ class EnergyMaterialGreenRoof(_EnergyMaterialOpaqueBase):
 
     def __ne__(self, other):
         return not self.__eq__(other)
+
+    def __repr__(self):
+        return self.to_idf()
 
     def __copy__(self):
         new_material = self.__class__(self.identifier, self.plant_height, self.leaf_area_ind,
