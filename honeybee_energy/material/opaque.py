@@ -651,7 +651,8 @@ class EnergyMaterialNoMass(_EnergyMaterialOpaqueBase):
 @lockable
 class EnergyMaterialGreenRoof(_EnergyMaterialOpaqueBase):
     """Green Roof Material
-    https://bigladdersoftware.com/epx/docs/9-5/input-output-reference/group-surface-construction-elements.html#materialroofvegetation"""
+    https://bigladdersoftware.com/epx/docs/9-5/input-output-reference/group-surface-construction-elements.html#materialroofvegetation
+    """
     __slots__ = ('_plant_height', '_leaf_area_ind', '_leaf_reflectivity',
                  '_leaf_emissivity', '_min_stomatal_res', '_soil_layer_name',
                  '_roughness', '_thickness', '_conductivity', '_density',
