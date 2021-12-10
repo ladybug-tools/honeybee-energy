@@ -1,8 +1,9 @@
 # coding=utf-8
-from honeybee_energy.material.opaque import EnergyMaterial, EnergyMaterialNoMass
+from honeybee_energy.material.opaque import EnergyMaterial, EnergyMaterialNoMass, EnergyMaterialGreenRoof
 
 import pytest
 from .fixtures.userdata_fixtures import userdatadict
+
 
 def test_material_init(userdatadict):
     """Test the initialization of EnergyMaterial objects and basic properties."""
@@ -38,7 +39,6 @@ def test_material_init(userdatadict):
         concrete.thickness = 0
     with pytest.raises(AssertionError):
         concrete.thickness = 0.000000001
-    
 
 
 def test_material_equivalency(userdatadict):
@@ -224,3 +224,15 @@ def test_material_nomass_dict_methods(userdatadict):
     material_dict = material.to_dict()
     new_material = EnergyMaterialNoMass.from_dict(material_dict)
     assert material_dict == new_material.to_dict()
+
+
+def test_greenroof_init(userdatadict):
+    """Test initialization of EnergyMaterialGreenRoof Object and basic properties"""
+    groof = EnergyMaterialGreenRoof('roofmcroofface', 0.2, 0.45, 1200, 900, 'Rough', 0.91, 0.65,
+                                    0.7, 0.5, 2.0, 0.25, 0.89, 250, 'Greendirt', 0.4, 0.04,
+                                    0.2, 'Simple')
+    groof.user_data = userdatadict
+    str(groof)
+    groof_dup = groof.duplicate()
+
+    assert groof.identifier == groof_dup.identifier == 'roofmcroofface'

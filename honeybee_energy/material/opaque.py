@@ -667,6 +667,7 @@ class EnergyMaterialGreenRoof(_EnergyMaterialOpaqueBase):
                  min_stomatal_res=180, soil_layer_name='GreenRoofSoil',
                  sat_vol_moist_cont=0.3, res_vol_moist_cont=0.01, init_vol_moist_cont=0.1,
                  moist_dif_calc='Simple'):
+        _EnergyMaterialOpaqueBase.__init__(self, identifier)
         self.thickness = thickness
         self.conductivity = conductivity
         self.density = density
@@ -685,6 +686,7 @@ class EnergyMaterialGreenRoof(_EnergyMaterialOpaqueBase):
         self.res_vol_moist_cont = res_vol_moist_cont
         self.init_vol_moist_cont = init_vol_moist_cont
         self.moist_dif_calc = moist_dif_calc
+        self._locked = False
 
     @property
     def roughness(self):
@@ -735,7 +737,8 @@ class EnergyMaterialGreenRoof(_EnergyMaterialOpaqueBase):
     @specific_heat.setter
     def specific_heat(self, sp_ht):
         self._specific_heat = float_in_range(
-            sp_ht, 100.0, input_name='material specific heat')
+            sp_ht, 100.0, input_name='material specific heat') if sp_ht is not None \
+            else None
 
     @property
     def thermal_absorptance(self):
@@ -1033,12 +1036,12 @@ class EnergyMaterialGreenRoof(_EnergyMaterialOpaqueBase):
         return self.to_idf()
 
     def __copy__(self):
-        new_material = self.__class__(self.identifier, self.plant_height, self.leaf_area_ind,
-                                      self.leaf_reflectivity, self.leaf_emissivity, self.min_stomatal_res,
-                                      self.soil_layer_name, self.roughness, self.thickness, self.conductivity,
-                                      self.density, self.specific_heat, self.thermal_absorptance,
-                                      self.solar_absorptance, self.visible_absorptance,
-                                      self.sat_vol_moist_cont, self.res_vol_moist_cont, self.init_vol_moist_cont,
-                                      self.moist_dif_calc)
+        new_material = self.__class__(
+            self.identifier, self.plant_height, self.leaf_area_ind,
+            self.leaf_reflectivity, self.leaf_emissivity, self.min_stomatal_res,
+            self.soil_layer_name, self.roughness, self.thickness, self.conductivity,
+            self.density, self.specific_heat, self.thermal_absorptance,
+            self.solar_absorptance, self.visible_absorptance, self.sat_vol_moist_cont,
+            self.res_vol_moist_cont, self.init_vol_moist_cont, self.moist_dif_calc)
         new_material._display_name = self._display_name
         return new_material
