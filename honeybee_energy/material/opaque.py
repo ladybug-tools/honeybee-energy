@@ -871,6 +871,13 @@ class EnergyMaterialGreenRoof(_EnergyMaterialOpaqueBase):
 
     @classmethod
     def from_idf(cls, idf_string):
+        """Create an EnergyMaterial from an EnergyPlus text string.
+
+        Args:
+            idf_string: A text string fully describing an EnergyPlus material.
+        """
+        ep_strs = parse_idf_string(idf_string, 'Material:RoofVegetation,')
+
         pass
 
     @classmethod
@@ -928,8 +935,8 @@ class EnergyMaterialGreenRoof(_EnergyMaterialOpaqueBase):
             in data and data['res_vol_moist_cont'] is not None else 0.01
         ivmc = data['init_vol_moist_cont'] if 'init_vol_moist_cont' \
             in data and data['init_vol_moist_cont'] is not None else 0.1
-        mdc = data['moisture_dif_calculation'] if 'moisture_dif_calculation' in data and \
-            data['moisture_dif_calculation'] is not None else 'Simple'
+        mdc = data['moist_dif_calc'] if 'moist_dif_calc' in data and \
+            data['moist_dif_calc'] is not None else 'Simple'
 
         new_mat = cls(rough, thick, t_abs, s_abs, v_abs, dense, sp_ht, p_h, lai,
                       l_r, l_e, msr, sln, svmc, rvmc, ivmc, mdc)
@@ -942,4 +949,19 @@ class EnergyMaterialGreenRoof(_EnergyMaterialOpaqueBase):
 
     def to_idf(self):
         """Get an EnergyPlus string representation of the material."""
-        pass
+        values = (self.identifier, self.plant_height, self.leaf_area_ind,
+                  self.leaf_reflectivity, self.leaf_emissivity, self.min_stomatal_res,
+                  self.soil_layer_name, self.roughness, self.thickness, self.conductivity,
+                  self.density, self.specific_heat, self.thermal_absorptance,
+                  self.solar_absorptance, self.visible_absorptance,
+                  self.sat_vol_moist_cont, self.res_vol_moist_cont, self.init_vol_moist_cont,
+                  self.moist_dif_calc)
+        comments = ('name', 'height of plants', 'leaf area index', 'leaf reflectivity',
+                    'leaf emissivity', 'minimum stomatal resistance', 'soil layer name',
+                    'roughness', 'thickness', 'conductivity of dry soil', 'density of dry soil',
+                    'specific heat of dry soil', 'thermal absorptance', 'solar absorptance',
+                    'visible absorptance', 'saturation volumetric moisture content of the soil layer',
+                    'residual volumetric moisture content of the soil layer',
+                    'initial volumetric moisture content of the soil layer',
+                    'moisture diffusion calculation method')
+        return generate_idf_string('Material:RoofVegetation', values, comments)
