@@ -84,7 +84,8 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
     @roughness.setter
     def roughness(self, rough):
         assert rough in self.ROUGHTYPES, 'Invalid input "{}" for material roughness.' \
-            ' Roughness must be one of the following:\n'.format(rough, self.ROUGHTYPES)
+            ' Roughness must be one of the following:\n'.format(
+                rough, self.ROUGHTYPES)
         self._roughness = rough
 
     @property
@@ -198,7 +199,8 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
 
     @r_value.setter
     def r_value(self, r_val):
-        _new_conductivity = self.thickness / float_positive(r_val, 'material r-value')
+        _new_conductivity = self.thickness / \
+            float_positive(r_val, 'material r-value')
         self._conductivity = _new_conductivity
 
     @property
@@ -300,7 +302,8 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
             raise ImportError('honeybee_radiance library must be installed to use '
                               'to_radiance_solar() method. {}'.format(e))
         return Plastic.from_single_reflectance(
-            clean_rad_string(self.identifier), 1 - self.solar_absorptance, specularity,
+            clean_rad_string(self.identifier), 1 -
+            self.solar_absorptance, specularity,
             self.RADIANCEROUGHTYPES[self.roughness])
 
     def to_radiance_visible(self, specularity=0.0):
@@ -311,7 +314,8 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
             raise ImportError('honeybee_radiance library must be installed to use '
                               'to_radiance_solar() method. {}'.format(e))
         return Plastic.from_single_reflectance(
-            clean_rad_string(self.identifier), 1 - self.visible_absorptance, specularity,
+            clean_rad_string(self.identifier), 1 -
+            self.visible_absorptance, specularity,
             self.RADIANCEROUGHTYPES[self.roughness])
 
     def to_dict(self):
@@ -438,7 +442,8 @@ class EnergyMaterialNoMass(_EnergyMaterialOpaqueBase):
     @roughness.setter
     def roughness(self, rough):
         assert rough in self.ROUGHTYPES, 'Invalid input "{}" for material roughness.' \
-            ' Roughness must be one of the following:\n'.format(rough, self.ROUGHTYPES)
+            ' Roughness must be one of the following:\n'.format(
+                rough, self.ROUGHTYPES)
         self._roughness = rough
 
     @property
@@ -559,7 +564,8 @@ class EnergyMaterialNoMass(_EnergyMaterialOpaqueBase):
             data['solar_absorptance'] is not None else 0.7
         v_abs = data['visible_absorptance'] if 'visible_absorptance' in data else None
 
-        new_mat = cls(data['identifier'], data['r_value'], rough, t_abs, s_abs, v_abs)
+        new_mat = cls(data['identifier'], data['r_value'],
+                      rough, t_abs, s_abs, v_abs)
         if 'display_name' in data and data['display_name'] is not None:
             new_mat.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
@@ -584,7 +590,8 @@ class EnergyMaterialNoMass(_EnergyMaterialOpaqueBase):
             raise ImportError('honeybee_radiance library must be installed to use '
                               'to_radiance_solar() method. {}'.format(e))
         return Plastic.from_single_reflectance(
-            clean_rad_string(self.identifier), 1 - self.solar_absorptance, specularity,
+            clean_rad_string(self.identifier), 1 -
+            self.solar_absorptance, specularity,
             self.RADIANCEROUGHTYPES[self.roughness])
 
     def to_radiance_visible(self, specularity=0.0):
@@ -595,7 +602,8 @@ class EnergyMaterialNoMass(_EnergyMaterialOpaqueBase):
             raise ImportError('honeybee_radiance library must be installed to use '
                               'to_radiance_solar() method. {}'.format(e))
         return Plastic.from_single_reflectance(
-            clean_rad_string(self.identifier), 1 - self.visible_absorptance, specularity,
+            clean_rad_string(self.identifier), 1 -
+            self.visible_absorptance, specularity,
             self.RADIANCEROUGHTYPES[self.roughness])
 
     def to_dict(self):
@@ -638,3 +646,124 @@ class EnergyMaterialNoMass(_EnergyMaterialOpaqueBase):
             self.solar_absorptance, self._visible_absorptance)
         new_material._display_name = self._display_name
         return new_material
+
+
+@lockable
+class EnergyMaterialGreenRoof(_EnergyMaterialOpaqueBase):
+    """Green Roof Material
+    https://bigladdersoftware.com/epx/docs/9-5/input-output-reference/group-surface-construction-elements.html#materialroofvegetation"""
+    __slots__ = ('_plant_height', '_leaf_area_ind', '_leaf_reflectivity',
+                 '_leaf_emissivity', '_min_stomatal_res', '_soil_layer_name',
+                 '_roughness', '_thickness', '_conductivity', '_density',
+                 '_specific_heat', '_thermal_absorptance', '_solar_absorptance', '_visible_absorptance',
+                 '_sat_vol_moist_cont', '_res_vol_moist_cont', '_init_vol_moist_cont',
+                 '_moist_dif_calc')
+
+    def __init__(self, identifier, thickness=0.1, conductivity=0.35, density=1100, specific_heat=800,
+                 roughness='MediumRough', thermal_absorptance=0.9,
+                 solar_absorptance=0.7, visible_absorptance=None, plant_height=0.2,
+                 leaf_area_ind=1.0, leaf_reflectivity=0.22, leaf_emissivity=0.95,
+                 min_stomatal_res=180, soil_layer_name='GreenRoofSoil',
+                 sat_vol_moist_cont=0.3, res_vol_moist_cont=0.01, init_vol_moist_cont=0.1,
+                 moist_dif_calc='Simple'):
+        self.thickness = thickness
+        self.conductivity = conductivity
+        self.density = density
+        self.specific_heat = specific_heat
+        self.roughness = roughness
+        self.thermal_absorptance = thermal_absorptance
+        self.solar_absorptance = solar_absorptance
+        self.visible_absorptance = visible_absorptance
+        self.plant_height = plant_height
+        self.leaf_area_ind = leaf_area_ind
+        self.leaf_reflectivity = leaf_reflectivity
+        self.leaf_emissivity = leaf_emissivity
+        self.min_stomatal_res = min_stomatal_res
+        self.soil_layer_name = soil_layer_name
+        self.sat_vol_moist_cont = sat_vol_moist_cont
+        self.res_vol_moist_cont = res_vol_moist_cont
+        self.init_vol_moist_cont = init_vol_moist_cont
+        self.moist_dif_calc = moist_dif_calc
+
+    @property
+    def roughness(self):
+        """Get or set the text describing the roughness of the material layer."""
+        return self._roughness
+
+    @roughness.setter
+    def roughness(self, rough):
+        assert rough in self.ROUGHTYPES, 'Invalid input "{}" for material roughness.' \
+            ' Roughness must be one of the following:\n'.format(
+                rough, self.ROUGHTYPES)
+        self._roughness = rough
+
+    @property
+    def thickness(self):
+        """Get or set the thickess of the material layer [m]."""
+        return self._thickness
+
+    @thickness.setter
+    def thickness(self, thick):
+        self._thickness = float_positive(thick, 'material thickness')
+        self._compare_thickness_conductivity()
+
+    @property
+    def conductivity(self):
+        """Get or set the conductivity of the material layer [W/m-K]."""
+        return self._conductivity
+
+    @conductivity.setter
+    def conductivity(self, cond):
+        self._conductivity = float_positive(cond, 'material conductivity')
+        self._compare_thickness_conductivity()
+
+    @property
+    def density(self):
+        """Get or set the density of the material layer [kg/m3]."""
+        return self._density
+
+    @density.setter
+    def density(self, dens):
+        self._density = float_positive(dens, 'material density')
+
+    @property
+    def specific_heat(self):
+        """Get or set the specific heat of the material layer [J/kg-K]."""
+        return self._specific_heat
+
+    @specific_heat.setter
+    def specific_heat(self, sp_ht):
+        self._specific_heat = float_in_range(
+            sp_ht, 100.0, input_name='material specific heat')
+
+    @property
+    def thermal_absorptance(self):
+        """Get or set the thermal absorptance of the material layer."""
+        return self._thermal_absorptance
+
+    @thermal_absorptance.setter
+    def thermal_absorptance(self, t_abs):
+        self._thermal_absorptance = float_in_range(
+            t_abs, 0.0, 1.0, 'material thermal absorptance')
+
+    @property
+    def solar_absorptance(self):
+        """Get or set the solar absorptance of the material layer."""
+        return self._solar_absorptance
+
+    @solar_absorptance.setter
+    def solar_absorptance(self, s_abs):
+        self._solar_absorptance = float_in_range(
+            s_abs, 0.0, 1.0, 'material solar absorptance')
+
+    @property
+    def visible_absorptance(self):
+        """Get or set the visible absorptance of the material layer."""
+        return self._visible_absorptance if self._visible_absorptance is not None \
+            else self._solar_absorptance
+
+    @visible_absorptance.setter
+    def visible_absorptance(self, v_abs):
+        self._visible_absorptance = float_in_range(
+            v_abs, 0.0, 1.0, 'material visible absorptance') if v_abs is not None \
+            else None
