@@ -877,8 +877,7 @@ class EnergyMaterialGreenRoof(_EnergyMaterialOpaqueBase):
             idf_string: A text string fully describing an EnergyPlus material.
         """
         ep_strs = parse_idf_string(idf_string, 'Material:RoofVegetation,')
-
-        pass
+        return cls(*ep_strs)
 
     @classmethod
     def from_dict(cls, data):
@@ -965,3 +964,62 @@ class EnergyMaterialGreenRoof(_EnergyMaterialOpaqueBase):
                     'initial volumetric moisture content of the soil layer',
                     'moisture diffusion calculation method')
         return generate_idf_string('Material:RoofVegetation', values, comments)
+
+    def to_dict(self):
+        base = {
+            'type': 'EnergyMaterialGreenRoof',
+            'identifier': self.identifier,
+            'plant_height': self.plant_height,
+            'leaf_area_ind': self.leaf_area_ind,
+            'leaf_reflectivity': self.leaf_reflectivity,
+            'leaf_emissivity': self.leaf_emissivity,
+            'min_stomatal_res': self.min_stomatal_res,
+            'soil_layer_name': self.soil_layer_name,
+            'roughness': self.roughness,
+            'thickness': self.thickness,
+            'conductivity': self.conductivity,
+            'density': self.density,
+            'specific_heat': self.specific_heat,
+            'thermal_absorptance': self.thermal_absorptance,
+            'solar_absorptance': self.solar_absorptance,
+            'visible_absorptance': self.visible_absorptance,
+            'sat_vol_moist_cont': self.sat_vol_moist_cont,
+            'res_vol_moist_cont': self.res_vol_moist_cont,
+            'init_vol_moist_cont': self.init_vol_moist_cont,
+            'moist_dif_calc': self.moist_dif_calc
+        }
+        if self._display_name is not None:
+            base['display_name'] = self.display_name
+        if self._user_data is not None:
+            base['user_data'] = self.user_data
+        return base
+
+    def __key(self):
+        """A tuple based on the object properties, useful for hashing."""
+        return (self.identifier, self.plant_height, self.leaf_area_ind,
+                self.leaf_reflectivity, self.leaf_emissivity, self.min_stomatal_res,
+                self.soil_layer_name, self.roughness, self.thickness, self.conductivity,
+                self.density, self.specific_heat, self.thermal_absorptance,
+                self.solar_absorptance, self.visible_absorptance,
+                self.sat_vol_moist_cont, self.res_vol_moist_cont, self.init_vol_moist_cont,
+                self.moist_dif_calc)
+
+    def __hash__(self):
+        return hash(self.__key())
+
+    def __eq__(self, other):
+        return isinstance(other, EnergyMaterialGreenRoof) and self.__key() == other.__key()
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __copy__(self):
+        new_material = self.__class__(self.identifier, self.plant_height, self.leaf_area_ind,
+                                      self.leaf_reflectivity, self.leaf_emissivity, self.min_stomatal_res,
+                                      self.soil_layer_name, self.roughness, self.thickness, self.conductivity,
+                                      self.density, self.specific_heat, self.thermal_absorptance,
+                                      self.solar_absorptance, self.visible_absorptance,
+                                      self.sat_vol_moist_cont, self.res_vol_moist_cont, self.init_vol_moist_cont,
+                                      self.moist_dif_calc)
+        new_material._display_name = self._display_name
+        return new_material
