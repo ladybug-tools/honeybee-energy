@@ -653,10 +653,10 @@ class EnergyMaterialGreenRoof(_EnergyMaterialOpaqueBase):
     """Green Roof Material
     https://bigladdersoftware.com/epx/docs/9-5/input-output-reference/group-surface-construction-elements.html#materialroofvegetation
     """
-    __slots__ = ('_plant_height', '_leaf_area_ind', '_leaf_reflectivity',
+    __slots__ = ('_thickness', '_conductivity', '_density', '_specific_heat', '_roughness',
+                 '_thermal_absorptance', '_solar_absorptance', '_visible_absorptance',
+                 '_plant_height', '_leaf_area_ind', '_leaf_reflectivity',
                  '_leaf_emissivity', '_min_stomatal_res', '_soil_layer_name',
-                 '_roughness', '_thickness', '_conductivity', '_density',
-                 '_specific_heat', '_thermal_absorptance', '_solar_absorptance', '_visible_absorptance',
                  '_sat_vol_moist_cont', '_res_vol_moist_cont', '_init_vol_moist_cont',
                  '_moist_dif_calc')
 
@@ -1037,11 +1037,11 @@ class EnergyMaterialGreenRoof(_EnergyMaterialOpaqueBase):
 
     def __copy__(self):
         new_material = self.__class__(
-            self.identifier, self.plant_height, self.leaf_area_ind,
-            self.leaf_reflectivity, self.leaf_emissivity, self.min_stomatal_res,
-            self.soil_layer_name, self.roughness, self.thickness, self.conductivity,
-            self.density, self.specific_heat, self.thermal_absorptance,
-            self.solar_absorptance, self.visible_absorptance, self.sat_vol_moist_cont,
+            self.identifier, self.thickness, self.conductivity, self.density,
+            self.specific_heat, self.roughness, self.thermal_absorptance,
+            self.solar_absorptance, self.visible_absorptance, self.plant_height,
+            self.leaf_area_ind, self.leaf_reflectivity, self.leaf_emissivity,
+            self.min_stomatal_res, self.soil_layer_name, self.sat_vol_moist_cont,
             self.res_vol_moist_cont, self.init_vol_moist_cont, self.moist_dif_calc)
         new_material._display_name = self._display_name
         return new_material
