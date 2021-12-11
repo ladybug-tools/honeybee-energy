@@ -650,8 +650,83 @@ class EnergyMaterialNoMass(_EnergyMaterialOpaqueBase):
 
 @lockable
 class EnergyMaterialGreenRoof(_EnergyMaterialOpaqueBase):
-    """Green Roof Material
-    https://bigladdersoftware.com/epx/docs/9-5/input-output-reference/group-surface-construction-elements.html#materialroofvegetation
+    """EnergyPlus Material:RoofVegetation
+
+    Args:
+        identifier: Text string for a unique Material ID. Must be < 100 characters
+            and not contain any EnergyPlus special characters. This will be used to
+            identify the object across a model and in the exported IDF.
+        thickness: Number for the thickness of the soil layer [m].
+        conductivity: Number for the thermal conductivity of the dry soil [W/m-K].
+        density: Number for the density of the dry soil [kg/m3].
+        specific_heat: Number for the specific heat of the material [J/kg-K].
+        roughness: Text describing the relative roughness of the material.
+            Must be one of the following: 'VeryRough', 'Rough', 'MediumRough',
+            'MediumSmooth', 'Smooth', 'VerySmooth'. Default is 'MediumRough'.
+        thermal_absorptance: A number between 0 and 1 for the fraction of
+            incident long wavelength radiation that is absorbed by the material.
+            Default value is 0.9.
+        solar_absorptance: A number between 0 and 1 for the fraction of incident
+            solar radiation absorbed by the material. Default value is 0.7.
+        visible_absorptance: A number between 0 and 1 for the fraction of incident
+            visible wavelength radiation absorbed by the material.
+            Default is None, which will yield the same value as solar_absorptance.
+        plant_height: This field defines the height of plants in units of meters. 
+            This field is limited to values in the range 0.005 < Height < 1.00 m. 
+            Default is .2 m.
+        leaf_area_ind: This is the projected leaf area per unit area of soil surface.
+            This field is dimensionless and is limited to values in the range of
+            0.001 < LAI < 5.0. Default is 1.0. At the present time the fraction 
+            vegetation cover is calculated directly from LAI (Leaf Area Index) 
+            using an empirical relation.
+        leaf_reflectivity: This field represents the fraction of incident solar 
+            radiation that is reflected by the individual leaf surfaces (albedo). 
+            Solar radiation includes the visible spectrum as well as infrared 
+            and ultraviolet wavelengths. Values for this field must be between 
+            0.05 and 0.5. Default is .22. Typical values are .18 to .25.
+        leaf_emissivity: This field is the ratio of thermal radiation emitted from 
+            leaf surfaces to that emitted by an ideal black body at the same temperature. 
+            This parameter is used when calculating the long wavelength radiant exchange 
+            at the leaf surfaces. Values for this field must be between 
+            0.8 and 1.0 (with 1.0 representing “black body” conditions). Default is .95.
+        min_stomatal_res: This field represents the resistance of the plants to moisture 
+            transport. It has units of s/m. Plants with low values of stomatal resistance 
+            will result in higher evapotranspiration rates than plants with high resistance. 
+            Values for this field must be in the range of 50.0 to 300.0. Default is 180.
+        soil_layer_name: This field is a unique reference name that the user assigns to the 
+            soil layer for a particular ecoroof. This name can then be referred to by 
+            other input data. Default is Green Roof Soil.
+        sat_vol_moist_cont: The field allows for user input of the saturation moisture 
+            content of the soil layer. Maximum moisture content is typically less than 
+            0.5. Range is [.1,.5] with the default being .3.
+        res_vol_moist_cont: The field allows for user input of the residual moisture 
+            content of the soil layer. Default is .01, range is [.01,.1].
+        init_vol_moist_cont: The field allows for user input of the initial moisture 
+            content of the soil layer. Range is (.05, .5] with the default being .1.
+        moist_dif_calc: The field allows for two models to be selected: Simple or Advanced. 
+            EnergyPlus Currently supports only the Simple Moisture Diffusion Calculation Method.
+
+    Properties:
+        * identifier
+        * display_name
+        * roughness
+        * thickness
+        * conductivity
+        * density
+        * specific_heat
+        * thermal_absorptance
+        * solar_absorptance
+        * visible_absorptance
+        * plant_height
+        * leaf_area_ind
+        * leaf_reflectivity
+        * leaf_emissivity
+        * min_stomatal_res
+        * soil_layer_name
+        * sat_vol_moist_cont
+        * res_vol_moist_cont
+        * init_vol_moist_cont
+        * moist_dif_calc
     """
     __slots__ = ('_thickness', '_conductivity', '_density', '_specific_heat', '_roughness',
                  '_thermal_absorptance', '_solar_absorptance', '_visible_absorptance',
