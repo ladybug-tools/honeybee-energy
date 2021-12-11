@@ -291,6 +291,7 @@ def test_greenroof_lockability(userdatadict):
 
 
 def test_greenroof_defaults():
+    """Test the EnergyMaterialGreenRoof default properties."""
     groof = EnergyMaterialGreenRoof('myroof')
 
     assert groof.thickness == 0.1
@@ -315,3 +316,77 @@ def test_greenroof_defaults():
 
 def test_greenroof_invalid():
     """Test the initializaion of EnergyMaterialGreenRoof objects with invalid properties."""
+    groof = EnergyMaterialGreenRoof('roofmcroofface', 0.5, 0.45, 1250, 950, 'Rough',
+                                    0.89, 0.65, 0.7, 0.5, 2, 0.35, 0.9, 275,
+                                    'greendirt', 0.4, 0.02, 0.15, 'Simple')
+
+    with pytest.raises(TypeError):
+        groof.identifier = ['test_identifier']
+    with pytest.raises(AssertionError):
+        groof.thickness = -1
+    with pytest.raises(AssertionError):
+        groof.roughness = 'Shmedium'
+    with pytest.raises(AssertionError):
+        groof.conductivity = -3.25
+    with pytest.raises(AssertionError):
+        groof.density = -15
+    with pytest.raises(AssertionError):
+        groof.specific_heat = 25
+    with pytest.raises(AssertionError):
+        groof.thermal_absorptance = 5
+    with pytest.raises(AssertionError):
+        groof.solar_absorptance = 5
+    with pytest.raises(AssertionError):
+        groof.visible_absorptance = 12.53
+    with pytest.raises(AssertionError):
+        groof.plant_height = 0.0001
+    with pytest.raises(AssertionError):
+        groof.leaf_area_ind = 10
+    with pytest.raises(AssertionError):
+        groof.leaf_reflectivity = 1
+    with pytest.raises(AssertionError):
+        groof.leaf_emissivity = 0.1
+    with pytest.raises(AssertionError):
+        groof.min_stomatal_res = 10
+    with pytest.raises(AssertionError):
+        groof.sat_vol_moist_cont = 1
+    with pytest.raises(AssertionError):
+        groof.res_vol_moist_cont = 0.4
+    with pytest.raises(AssertionError):
+        groof.init_vol_moist_cont = 5
+
+
+def test_greenroof_init_from_idf():
+    """Test the initialization of EnergyMaterialGreenRoof objects from strings."""
+    ep_str_1 = "Material:RoofVegetation,\n" \
+        "myroof,                   !- name\n"\
+        "0.5,                      !- height of plants\n"\
+        "2.0,                      !- leaf area index\n"\
+        "0.25,                     !- leaf reflectivity\n"\
+        "0.90,                     !- leaf emissivity\n"\
+        "350.0,                    !- minimum stomatal resistance\n"\
+        "GreenRoofDIRT,            !- soil layer name\n"\
+        "MediumRough,              !- roughness\n"\
+        "0.5,                      !- thickness\n"\
+        "0.45,                     !- conductivity of dry soil\n"\
+        "1250.0,                   !- density of dry soil\n"\
+        "950.0,                    !- specific heat of dry soil\n"\
+        "0.74,                      !- thermal absorptance\n"\
+        "0.6,                      !- solar absorptance\n"\
+        "0.5,                      !- visible absorptance\n"\
+        "0.4,                      !- saturation volumetric moisture content of the soil layer\n"\
+        "0.9,                     !- residual volumetric moisture content of the soil layer\n"\
+        "0.4,                      !- initial volumetric moisture content of the soil layer\n"\
+        "Simple;                   !- moisture diffusion calculation method"
+    mat_1 = EnergyMaterial.from_idf(ep_str_1)
+
+    ep_str_2 = "Material:RoofVegetation, myroof, 0.5, 2.0, 0.25, 0.90, 350.0, " \
+        "GreenRoofDIRT, MediumRough, 0.5, 0.45, 1250.0, 950.0, 0.74, 0.6, " \
+        "0.5, 0.4, 0.9, 0.4, Simple;"
+    mat_2 = EnergyMaterialGreenRoof.from_idf(ep_str_2)
+
+    assert mat_1.identifier == mat_2.identifier
+    assert mat_1 == mat_2
+
+    new_mat = EnergyMaterialGreenRoof.from_idf(mat_1.to_idf())
+    assert ep_str_1 == new_mat.to_idf()
