@@ -356,41 +356,42 @@ def test_greenroof_invalid():
         groof.init_vol_moist_cont = 5
 
 
-# def test_greenroof_init_from_idf():
-#    """Test the initialization of EnergyMaterialGreenRoof objects from strings."""
-#    ep_st_1 = "Material:RoofVegetation,\n" \
-#        " myroof,                   !- name\n"\
-#        " 0.5,                      !- height of plants\n"\
-#        " 2.0,                      !- leaf area index\n"\
-#        " 0.25,                     !- leaf reflectivity\n"\
-#        " 0.90,                     !- leaf emissivity\n"\
-#        " 350.0,                    !- minimum stomatal resistance\n"\
-#        " GreenRoofDIRT,            !- soil layer name\n"\
-#        " MediumRough,              !- roughness\n"\
-#        " 0.5,                      !- thickness\n"\
-#        " 0.45,                     !- conductivity of dry soil\n"\
-#        " 1250.0,                   !- density of dry soil\n"\
-#        " 950.0,                    !- specific heat of dry soil\n"\
-#        " 0.74,                     !- thermal absorptance\n"\
-#        " 0.6,                      !- solar absorptance\n"\
-#        " 0.5,                      !- visible absorptance\n"\
-#        " 0.4,                      !- saturation volumetric moisture content of the soil layer\n"\
-#        " 0.9,                      !- residual volumetric moisture content of the soil layer\n"\
-#        " 0.4,                      !- initial volumetric moisture content of the soil layer\n"\
-#        " Simple;                   !- moisture diffusion calculation method"
-#    matter_1 = EnergyMaterial.from_idf(ep_st_1)
-#
-#    ep_st_2 = "Material:RoofVegetation, myroof, 0.5, 2.0, 0.25, 0.90, 350.0, " \
-#        "GreenRoofDIRT, MediumRough, 0.5, 0.45, 1250.0, 950.0, 0.74, 0.6, " \
-#        "0.5, 0.4, 0.9, 0.4, Simple;"
-#    matter_2 = EnergyMaterialGreenRoof.from_idf(ep_str_2)
-#
-#    assert matter_1.identifier == matter_2.identifier
-#    assert matter_1 == matter_2
-#
-#    new_idfstr = matter_1.to_idf()
-#    new_matter = EnergyMaterialGreenRoof.from_idf(new_idfstr)
-#    assert new_idfstr == new_mat.to_idf()
+def test_greenroof_init_from_idf():
+    """Test the initialization of EnergyMaterialGreenRoof objects from strings."""
+    ep_st_1 = """Material:RoofVegetation,
+           myroof,                   !- name
+           0.5,                      !- height of plants
+           2.0,                      !- leaf area index
+           0.25,                     !- leaf reflectivity
+           0.90,                     !- leaf emissivity
+           250.0,                    !- minimum stomatal resistance
+           GreenRoofDIRT,            !- soil layer name
+           MediumRough,              !- roughness
+           0.5,                      !- thickness
+           0.45,                     !- conductivity of dry soil
+           1250.0,                   !- density of dry soil
+           950.0,                    !- specific heat of dry soil
+           0.74,                     !- thermal absorptance
+           0.6,                      !- solar absorptance
+           0.5,                      !- visible absorptance
+           0.4,                      !- saturation volumetric moisture content of the soil layer
+           0.1,                      !- residual volumetric moisture content of the soil layer
+           0.4,                      !- initial volumetric moisture content of the soil layer
+           Simple;                   !- moisture diffusion calculation method"""
+    matter_1 = EnergyMaterialGreenRoof.from_idf(ep_st_1)
+
+    ep_st_2 = "Material:RoofVegetation, myroof, 0.5, 2.0, 0.25, 0.90, 250.0, " \
+        "GreenRoofDIRT, MediumRough, 0.5, 0.45, 1250.0, 950.0, 0.74, 0.6, " \
+        "0.5, 0.4, 0.1, 0.4, Simple;"
+    matter_2 = EnergyMaterialGreenRoof.from_idf(ep_st_2)
+
+    assert matter_1.identifier == matter_2.identifier
+    assert matter_1 == matter_2
+
+    new_idfstr = matter_1.to_idf()
+    new_matter = EnergyMaterialGreenRoof.from_idf(new_idfstr)
+    assert new_idfstr == new_matter.to_idf()
+
 
 def test_greenroof_dict_methods(userdatadict):
     """Test to/from dict methods"""

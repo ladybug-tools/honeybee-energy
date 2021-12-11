@@ -955,8 +955,11 @@ class EnergyMaterialGreenRoof(_EnergyMaterialOpaqueBase):
         Args:
             idf_string: A text string fully describing an EnergyPlus material.
         """
-        ep_strs = parse_idf_string(idf_string, "Material:RoofVegetation, ")
-        return cls(*ep_strs)
+        ep_strs = parse_idf_string(idf_string, 'Material:RoofVegetation')
+        return cls(ep_strs[0], ep_strs[8], ep_strs[9], ep_strs[10], ep_strs[11],
+                   ep_strs[7], ep_strs[12], ep_strs[13], ep_strs[14], ep_strs[1],
+                   ep_strs[2], ep_strs[3], ep_strs[4], ep_strs[5], ep_strs[6],
+                   ep_strs[15], ep_strs[16], ep_strs[17], ep_strs[18])
 
     @classmethod
     def from_dict(cls, data):
