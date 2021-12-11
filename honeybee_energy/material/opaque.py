@@ -880,7 +880,7 @@ class EnergyMaterialGreenRoof(_EnergyMaterialOpaqueBase):
         Args:
             idf_string: A text string fully describing an EnergyPlus material.
         """
-        ep_strs = parse_idf_string(idf_string, 'Material:RoofVegetation,')
+        ep_strs = parse_idf_string(idf_string, "Material:RoofVegetation, ")
         return cls(*ep_strs)
 
     @classmethod
@@ -937,8 +937,8 @@ class EnergyMaterialGreenRoof(_EnergyMaterialOpaqueBase):
             data['specific_heat'] is not None else 800
         p_h = data['plant_height'] if 'plant_height' in data and \
             data['plant_height'] is not None else 0.2
-        lai = data['leaf_area_index'] if 'leaf_area_index' in data and \
-            data['leaf_area_index'] is not None else 1.0
+        lai = data['leaf_area_ind'] if 'leaf_area_ind' in data and \
+            data['leaf_area_ind'] is not None else 1.0
         l_r = data['leaf_reflectivity'] if 'leaf_reflectivity' in data and \
             data['leaf_reflectivity'] is not None else 0.22
         l_e = data['leaf_emissivity'] if 'leaf_emissivity' in data and \
@@ -956,8 +956,8 @@ class EnergyMaterialGreenRoof(_EnergyMaterialOpaqueBase):
         mdc = data['moist_dif_calc'] if 'moist_dif_calc' in data and \
             data['moist_dif_calc'] is not None else 'Simple'
 
-        new_mat = cls(rough, thick, t_abs, s_abs, v_abs, dense, sp_ht, p_h, lai,
-                      l_r, l_e, msr, sln, svmc, rvmc, ivmc, mdc)
+        new_mat = cls(data['identifier'], thick, cond, dens, sp_ht, rough, t_abs, s_abs, v_abs, p_h,
+                      lai, l_r, l_e, msr, sln, svmc, rvmc, ivmc, mdc)
         if 'display_name' in data and data['display_name'] is not None:
             new_mat.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
