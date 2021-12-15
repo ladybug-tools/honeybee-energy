@@ -549,27 +549,20 @@ def model_occ_schedules(model_json, threshold, period, output_file):
         # process the run period if it is supplied
         if period is not None and period != '' and period != 'None':
             a_per = AnalysisPeriod.from_string(period)
-            start = Date(a_per.st_month, a_per.st_day)
-            end = Date(a_per.end_month, a_per.end_day)
-            a_period = AnalysisPeriod(start.month, start.day, 0, end.month, end.day, 23)
-            timestep = a_per.timestep
         else:
-            a_per = a_period = AnalysisPeriod()
-            start, end, timestep = Date(1, 1), Date(12, 31), 1
+            a_per = AnalysisPeriod()
 
         # convert occupancy schedules to lists of 0/1 values
         schedules = {}
         for sch in scheds:
+            sch_data = sch.data_collection()
+            if not a_per.is_annual:
+                sch_data = sch_data.filter_by_analysis_period(a_per)
             values = []
-            for val in sch.values(timestep, start, end):
+            for val in sch_data.values:
                 is_occ = 0 if val <= threshold else 1
                 values.append(is_occ)
-            header = Header(Fraction(), 'fraction', a_period)
-            schedules[sch.identifier] = HourlyContinuousCollection(header, values)
-        if a_per.st_hour != 0 or a_per.end_hour != 23:
-            schedules = {key: data.filter_by_analysis_period(a_per)
-                         for key, data in schedules.items()}
-        schedules = {key: data.values for key, data in schedules.items()}
+            schedules[sch.identifier] = values
 
         # write out the JSON file
         occ_dict = {'schedules': schedules, 'room_occupancy': room_occupancy}
