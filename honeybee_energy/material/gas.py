@@ -879,10 +879,24 @@ class EnergyWindowMaterialGasCustom(_EnergyWindowMaterialGasBase):
         Args:
             idf_string: A text string fully describing an EnergyPlus material.
         """
+        # check that the gas is, in fact custom
         ep_s = parse_idf_string(idf_string, 'WindowMaterial:Gas,')
         assert ep_s[1].title() == 'Custom', 'Exected Custom Gas. Got a specific one.'
+        assert len(ep_s) == 14, 'Not enough fields present for Custom Gas ' \
+            'IDF description. Expected 14 properties. Got {}.'.format(len(ep_s))
         ep_s.pop(1)
-        return cls(*ep_s)
+        # reorder the coefficients
+        start = [ep_s[0], ep_s[1]]
+        a_coef = [ep_s[2], ep_s[5], ep_s[8]]
+        b_coef = [ep_s[3], ep_s[6], ep_s[9]]
+        c_coef = [ep_s[4], ep_s[7], ep_s[10]]
+        end = [ep_s[12], ep_s[11]]
+        eps_cl = start + a_coef + b_coef + c_coef + end
+        # assume that any blank strings are just coefficients of 0
+        for i, val in enumerate(eps_cl[2:11]):
+            clean_val = val if val != '' else 0
+            eps_cl[i + 2] = clean_val
+        return cls(*eps_cl)
 
     @classmethod
     def from_dict(cls, data):

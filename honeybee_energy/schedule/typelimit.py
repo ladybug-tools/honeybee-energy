@@ -2,7 +2,7 @@
 """Schedule type definition."""
 from __future__ import division
 
-from ..reader import parse_idf_string
+from ..reader import parse_idf_string, clean_idf_file_contents
 from ..writer import generate_idf_string
 
 from honeybee.typing import valid_ep_string, valid_string, float_in_range
@@ -243,10 +243,8 @@ class ScheduleTypeLimit(object):
             schedule_type_limits -- A list of all ScheduleTypeLimits objects in the
                 IDF file as honeybee_energy ScheduleTypeLimit objects.
         """
-        # check the file
-        assert os.path.isfile(idf_file), 'Cannot find an idf file at {}'.format(idf_file)
-        with open(idf_file, 'r') as ep_file:
-            file_contents = ep_file.read()
+        # read the file and remove lines of comments
+        file_contents = clean_idf_file_contents(idf_file)
         # extract all of the ScheduleTypeLimit objects
         type_pattern = re.compile(r"(?i)(ScheduleTypeLimits,[\s\S]*?;)")
         type_idf_strings = type_pattern.findall(file_contents)

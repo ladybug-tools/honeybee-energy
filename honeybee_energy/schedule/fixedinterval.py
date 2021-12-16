@@ -3,7 +3,7 @@
 from __future__ import division
 
 from .typelimit import ScheduleTypeLimit
-from ..reader import parse_idf_string
+from ..reader import parse_idf_string, clean_idf_file_contents
 from ..writer import generate_idf_string
 
 from honeybee._lockable import lockable
@@ -692,11 +692,8 @@ class ScheduleFixedInterval(object):
             A list of all Schedule:File objects in the IDF file as honeybee_energy
             ScheduleFixedInterval objects.
         """
-        # check the file
-        assert os.path.isfile(idf_file), 'Cannot find an idf file at {}'.format(idf_file)
-        with open(idf_file, 'r') as ep_file:
-            file_contents = ep_file.read()
-
+        # read the file and remove lines of comments
+        file_contents = clean_idf_file_contents(idf_file)
         # extract all of the ScheduleTypeLimit objects
         type_pattern = re.compile(r"(?i)(ScheduleTypeLimits,[\s\S]*?;)")
         sch_type_str = type_pattern.findall(file_contents)

@@ -1,5 +1,26 @@
 """Methods to read from idf."""
 import re
+import os
+
+
+def clean_idf_file_contents(idf_file):
+    """Get the contents of an IDF file without any commented lines.
+
+    These comment lines might interfere with regex parsing if they are present.
+
+    Args:
+        idf_file: A path to an IDF file containing objects to be parsed.
+
+    Returns:
+        A single string for the clean IDF file contents.
+    """
+    assert os.path.isfile(idf_file), 'Cannot find an idf file at {}'.format(idf_file)
+    file_lines = []
+    with open(idf_file, 'r') as ep_file:
+        for line in ep_file:
+            if not line.startswith('!'):
+                file_lines.append(line)
+    return ''.join(file_lines)
 
 
 def parse_idf_string(idf_string, expected_type=None):
