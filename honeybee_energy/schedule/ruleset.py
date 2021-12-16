@@ -13,7 +13,7 @@ from ladybug.datatype.generic import GenericType
 from ladybug.dt import Date, Time
 from ladybug.header import Header
 
-from ..reader import parse_idf_string
+from ..reader import parse_idf_string, clean_idf_file_contents
 from ..writer import generate_idf_string
 from .day import ScheduleDay
 from .rule import ScheduleRule
@@ -1018,10 +1018,8 @@ class ScheduleRuleset(object):
             A list of all Schedule:Year objects in the IDF file as honeybee_energy
             ScheduleRuleset objects.
         """
-        # check the file
-        assert os.path.isfile(idf_file), 'Cannot find an idf file at {}'.format(idf_file)
-        with open(idf_file, 'r') as ep_file:
-            file_contents = ep_file.read()
+        # read the file and remove lines of comments
+        file_contents = clean_idf_file_contents(idf_file)
         # extract all of the ScheduleDay objects
         day_pattern1 = re.compile(r"(?i)(Schedule:Day:Interval,[\s\S]*?;)")
         day_pattern2 = re.compile(r"(?i)(Schedule:Day:Hourly,[\s\S]*?;)")

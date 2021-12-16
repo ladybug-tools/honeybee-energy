@@ -10,7 +10,7 @@ from ..material.glazing import _EnergyWindowMaterialGlazingBase, \
 from ..material.gas import _EnergyWindowMaterialGasBase, EnergyWindowMaterialGas, \
     EnergyWindowMaterialGasMixture, EnergyWindowMaterialGasCustom
 from ..material.shade import EnergyWindowMaterialShade, EnergyWindowMaterialBlind
-from ..reader import parse_idf_string
+from ..reader import parse_idf_string, clean_idf_file_contents
 
 from honeybee._lockable import lockable
 from honeybee.typing import clean_rad_string
@@ -608,10 +608,8 @@ class WindowConstruction(_ConstructionBase):
             -   materials: A list of all window materials in the IDF file as
                 honeybee_energy Material objects.
         """
-        # check the file
-        assert os.path.isfile(idf_file), 'Cannot find an idf file at {}'.format(idf_file)
-        with open(idf_file, 'r') as ep_file:
-            file_contents = ep_file.read()
+        # read the file and remove lines of comments
+        file_contents = clean_idf_file_contents(idf_file)
         # extract all material objects
         mat_pattern = re.compile(r"(?i)(WindowMaterial:[\s\S]*?;)")
         material_str = mat_pattern.findall(file_contents)

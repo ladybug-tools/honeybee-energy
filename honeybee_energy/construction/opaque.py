@@ -6,7 +6,7 @@ from ._base import _ConstructionBase
 from ..material.dictutil import dict_to_material
 from ..material._base import _EnergyMaterialOpaqueBase
 from ..material.opaque import EnergyMaterial, EnergyMaterialNoMass
-from ..reader import parse_idf_string
+from ..reader import parse_idf_string, clean_idf_file_contents
 
 from honeybee._lockable import lockable
 
@@ -314,10 +314,8 @@ class OpaqueConstruction(_ConstructionBase):
             -   materials: A list of all opaque materials in the IDF file as
                 honeybee_energy EnergyMaterial objects.
         """
-        # check the file
-        assert os.path.isfile(idf_file), 'Cannot find an idf file at {}'.format(idf_file)
-        with open(idf_file, 'r') as ep_file:
-            file_contents = ep_file.read()
+        # read the file and remove lines of comments
+        file_contents = clean_idf_file_contents(idf_file)
         # extract all of the opaque material objects
         mat_pattern1 = re.compile(r"(?i)(Material,[\s\S]*?;)")
         mat_pattern2 = re.compile(r"(?i)(Material:NoMass,[\s\S]*?;)")
