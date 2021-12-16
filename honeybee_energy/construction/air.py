@@ -237,11 +237,11 @@ class AirBoundaryConstruction(object):
     def _transparent_radiance_material():
         """Get a transparent radiance material for the air boundary."""
         try:
-            from honeybee_radiance.modifier.material import Glass
+            from honeybee_radiance.modifier.material import Trans
         except ImportError as e:
             raise ImportError('honeybee_radiance library must be installed to use '
                               'to_radiance() method. {}'.format(e))
-        return Glass('air_boundary', 1, 1, 1)
+        return Trans('air_boundary', 1, 1, 1, 0, 0, 1, 1)
 
     def duplicate(self):
         """Get a copy of this construction."""
