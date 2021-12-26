@@ -801,20 +801,32 @@ class ScheduleRuleset(object):
         ScheduleRule._check_date(end_date)
         st_doy = ScheduleRule._doy_non_leap_year(start_date)
         end_doy = ScheduleRule._doy_non_leap_year(end_date)
+        assert start_date <= end_date, \
+            'Start date must be before end date for ScheduleRuleset.to_rules().'
 
         # assemble all of the rules already applied to this ScheduleRuleset
         rules = []
         for rule in self._schedule_rules:
-            if (rule._start_doy < st_doy and rule._end_doy < st_doy) or \
-                    (rule._start_doy > st_doy and rule._end_doy > end_doy):
-                pass  # no overlap with input period
-            else:
-                new_rule = rule.duplicate()
-                if rule._start_doy < st_doy:
-                    new_rule.start_date = start_date
-                if rule._end_doy > end_doy:
-                    new_rule.end_date = end_date
-                rules.append(new_rule)
+            if not rule.is_reversed:
+                if (rule._start_doy < st_doy and rule._end_doy < st_doy) or \
+                        (rule._start_doy > st_doy and rule._end_doy > end_doy):
+                    pass  # no overlap with input period
+                else:
+                    new_rule = rule.duplicate()
+                    if rule._start_doy < st_doy:
+                        new_rule.start_date = start_date
+                    if rule._end_doy > end_doy:
+                        new_rule.end_date = end_date
+                    rules.append(new_rule)
+            else:                    
+                if rule._start_doy <= end_doy:
+                    new_rule1 = rule.duplicate()
+                    new_rule1.end_date = end_doy
+                    rules.append(new_rule1)
+                if rule._end_doy >= st_doy:
+                    new_rule2 = rule.duplicate()
+                    new_rule2.start_date = st_doy
+                    rules.append(new_rule2)
 
         # add the default_day_schedule for all days not covered by rules
         default_rule = ScheduleRule(self.default_day_schedule.duplicate(),
@@ -885,7 +897,7 @@ class ScheduleRuleset(object):
             rules_each_day = []
             for doy in range(1, 366):
                 rules_on_doy = tuple(i for i, rule in enumerate(self._schedule_rules)
-                                     if rule._start_doy <= doy <= rule._end_doy)
+                                     if rule.does_rule_apply_doy(doy))
                 rules_each_day.append(rules_on_doy)
             unique_rule_sets = set(rules_each_day)
             # check if any combination yield the same week schedule and remove duplicates
