@@ -10,6 +10,7 @@ from ladybug.datatype import fraction
 from ladybug.analysisperiod import AnalysisPeriod
 
 import pytest
+import json
 from .fixtures.userdata_fixtures import userdatadict
 
 def test_schedule_ruleset_init(userdatadict):
@@ -507,3 +508,15 @@ def test_schedule_ruleset_average_schedules_date_range():
                 0.3, 0.3, 0.3, 0.3, 0.3, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05]
     assert week_vals[:24] == [0.05] * 24
     assert week_vals[24:48] == avg_vals
+
+
+def test_schedule_ruleset_reversed():
+    """Test the to_idf method with a reversed rule."""
+    rev_sch_file = 'tests/json/reversed_sch_ruleset.json'
+    with open(rev_sch_file) as sf:
+        sch_dict = json.load(sf)
+    school_schedule = ScheduleRuleset.from_dict(sch_dict)
+
+    year_schedule, week_schedules = school_schedule.to_idf()
+    assert len(year_schedule.split('\n')) == 18
+    assert len(week_schedules) == 2

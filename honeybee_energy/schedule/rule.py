@@ -48,6 +48,7 @@ class ScheduleRule(object):
         * apply_all
         * days_applied
         * week_apply_tuple
+        * is_reversed
     """
     __slots__ = ('_schedule_day', '_apply_sunday', '_apply_monday', '_apply_tuesday',
                  '_apply_wednesday', '_apply_thursday', '_apply_friday',
@@ -199,7 +200,6 @@ class ScheduleRule(object):
             self._start_date = value
         else:
             self._start_date = self._year_start
-        self._check_start_before_end()
         self._start_doy = self._doy_non_leap_year(self._start_date)
 
     @property
@@ -214,7 +214,6 @@ class ScheduleRule(object):
             self._end_date = value
         else:
             self._end_date = self._year_end
-        self._check_start_before_end()
         self._end_doy = self._doy_non_leap_year(self._end_date)
 
     @property
@@ -231,6 +230,15 @@ class ScheduleRule(object):
         return (self._apply_sunday, self._apply_monday, self._apply_tuesday,
                 self._apply_wednesday, self._apply_thursday, self._apply_friday,
                 self._apply_saturday)
+
+    @property
+    def is_reversed(self):
+        """A property to note whether the start date is after the end date.
+
+        This indicates that the rule applies through the end of the year into
+        the start of the year.
+        """
+        return self._start_date > self._end_date
 
     def apply_day_by_name(self, day_name):
         """Set the rule to apply to the day of the week by its name.
@@ -329,7 +337,10 @@ class ScheduleRule(object):
         Args:
             doy: An integer between 1 anf 365 for the day of the year to test.
         """
-        return self._start_doy <= doy <= self._end_doy
+        if self.is_reversed:
+            return doy <= self._end_doy or self._start_doy <= doy
+        else:
+            return self._start_doy <= doy <= self._end_doy
 
     def does_rule_apply_doy_leap_year(self, doy):
         """Check if this rule applies to a given day of a leap year.
@@ -339,7 +350,10 @@ class ScheduleRule(object):
         """
         st_doy = self._start_doy if self._start_date.month <= 2 else self._start_doy + 1
         end_doy = self._end_doy if self._end_date.month <= 2 else self._end_doy + 1
-        return st_doy <= doy <= end_doy
+        if self.is_reversed:
+            return doy <= end_doy or st_doy <= doy
+        else:
+            return st_doy <= doy <= end_doy
 
     @classmethod
     def from_days_applied(cls, schedule_day, applicable_days=None,
@@ -540,11 +554,6 @@ class ScheduleRule(object):
                 if len(rule.days_applied) != 0:
                     schedule_rules.append(rule)
         return schedule_rules
-
-    def _check_start_before_end(self):
-        """Check that the start_date is before the end_date."""
-        assert self._start_date <= self._end_date, 'ScheduleRule start_date must come ' \
-            'before end_date. {} comes after {}.'.format(self.start_date, self.end_date)
 
     @staticmethod
     def _extract_apply_from_dict(data):
