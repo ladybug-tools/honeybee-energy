@@ -493,6 +493,7 @@ class ModelEnergyProperties(object):
         msgs.append(self.check_duplicate_hvac_identifiers(False))
         msgs.append(self.check_duplicate_shw_identifiers(False))
         msgs.append(self.check_interior_constructions_reversed(False))
+        msgs.append(self.check_air_boundary_constructions(False))
         # output a final report of errors or raise an exception
         full_msgs = [msg for msg in msgs if msg != '']
         full_msg = '\n'.join(full_msgs)
@@ -544,10 +545,11 @@ class ModelEnergyProperties(object):
         # first gather all interior faces in the model and their adjacent object
         adj_constr, adj_ids = [], []
         for face in self.host.faces:
-            if isinstance(face.boundary_condition, Surface) \
-                    and not isinstance(face.type, AirBoundary):
-                adj_constr.append(face.properties.energy.construction)
-                adj_ids.append(face.boundary_condition.boundary_condition_object)
+            if isinstance(face.boundary_condition, Surface):
+                const = face.properties.energy.construction
+                if not isinstance(const, AirBoundaryConstruction):
+                    adj_constr.append(face.properties.energy.construction)
+                    adj_ids.append(face.boundary_condition.boundary_condition_object)
         # next, get the adjacent objects and check their construction
         try:
             adj_faces = self.host.faces_by_identifier(adj_ids)
@@ -556,13 +558,39 @@ class ModelEnergyProperties(object):
                 'of missing adjacencies in the model.  \n{}'.format(e)
         full_msgs = []
         for adj_c, adj_f in zip(adj_constr, adj_faces):
-            rev_mat = tuple(reversed(adj_f.properties.energy.construction.materials))
+            try:
+                rev_mat = tuple(reversed(adj_f.properties.energy.construction.materials))
+            except AttributeError:
+                rev_mat = None
             if not adj_c.materials == rev_mat:
                 full_msgs.append(
                     'Face "{}" with construction "{}" does not have material layers '
                     'matching in reversed order with its adjacent pair.'.format(
                         adj_f.full_id, adj_f.properties.energy.construction.identifier
                     )
+                )
+        full_msg = '\n'.join(full_msgs)
+        if raise_exception and len(full_msgs) != 0:
+            raise ValueError(full_msg)
+        return full_msg
+
+    def check_air_boundary_constructions(self, raise_exception=True):
+        """Check that air boundary constructions align with the air boundary face type.
+        """
+        full_msgs = []
+        for face in self.host.faces:
+            const = face.properties.energy.construction
+            if isinstance(face.type, AirBoundary) and not \
+                    isinstance(const, AirBoundaryConstruction):
+                full_msgs.append(
+                    'Face "{}" has an AirBoundary face type but does not have '
+                    'the AirBoundary construction.'.format(face.full_id)
+                )
+            elif isinstance(const, AirBoundaryConstruction) and not \
+                    isinstance(face.type, AirBoundary):
+                full_msgs.append(
+                    'Face "{}" has an AirBoundary construction but does not have '
+                    'the AirBoundary face type.'.format(face.full_id)
                 )
         full_msg = '\n'.join(full_msgs)
         if raise_exception and len(full_msgs) != 0:
