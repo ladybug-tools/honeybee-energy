@@ -344,8 +344,13 @@ class ProgramType(object):
             'Expected ProgramTypeAbridged dictionary. Got {}.'.format(data['type'])
 
         # build each of the load objects
-        people, lighting, electric_equipment, gas_equipment, shw, infiltration, \
-            ventilation, setpoint = cls._get_loads_from_abridged(data, schedule_dict)
+        try:
+            people, lighting, electric_equipment, gas_equipment, shw, infiltration, \
+                ventilation, setpoint = cls._get_loads_from_abridged(data, schedule_dict)
+        except KeyError as e:
+            raise ValueError(
+                'The following schedule is missing from the model: {}'.format(e)
+            )
         new_obj = cls(data['identifier'], people, lighting, electric_equipment,
                       gas_equipment, shw, infiltration, ventilation, setpoint)
         if 'display_name' in data and data['display_name'] is not None:
