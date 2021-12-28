@@ -50,6 +50,7 @@ class ModelEnergyProperties(object):
         * face_constructions
         * shade_constructions
         * construction_sets
+        * global_construction_set
         * schedule_type_limits
         * schedules
         * shade_schedules
@@ -154,6 +155,16 @@ class ModelEnergyProperties(object):
                                                construction_sets):
                     construction_sets.append(room.properties.energy._construction_set)
         return list(set(construction_sets))  # catch equivalent construction sets
+
+    @property
+    def global_construction_set(self):
+        """The global energy construction set.
+
+        This is what is used whenever no construction has been assigned to a given
+        Face/Aperture/Door/Shade and there is no construction_set assigned to the
+        parent Room.
+        """
+        return generic_construction_set
 
     @property
     def schedule_type_limits(self):
@@ -896,6 +907,26 @@ class ModelEnergyProperties(object):
         Returns:
             A list of of schedules that are assigned to the constructions.
         """
+        # add the global construction set to the dictionary
+        gs = self.global_construction_set.to_dict(abridged=True, none_for_defaults=False)
+        gs['type'] = 'GlobalConstructionSet'
+        del gs['identifier']
+        g_constr = self.global_construction_set.constructions_unique
+        g_materials = []
+        for constr in g_constr:
+            try:
+                g_materials.extend(constr.materials)
+            except AttributeError:
+                pass  # ShadeConstruction or AirBoundaryConstruction
+        gs['constructions'] = []
+        for cnst in g_constr:
+            try:
+                gs['constructions'].append(cnst.to_dict(abridged=True))
+            except TypeError:  # ShadeConstruction
+                gs['constructions'].append(cnst.to_dict())
+        gs['materials'] = [mat.to_dict() for mat in set(g_materials)]
+        base['energy']['global_construction_set'] = gs
+
         # add all ConstructionSets to the dictionary
         base['energy']['construction_sets'] = []
         construction_sets = self.construction_sets
