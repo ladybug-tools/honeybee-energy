@@ -441,8 +441,13 @@ class ConstructionSet(object):
         """
         assert data['type'] == 'ConstructionSetAbridged', \
             'Expected ConstructionSetAbridged. Got {}.'.format(data['type'])
-        wall_set, floor_set, roof_ceiling_set, aperture_set, door_set, shade_con, \
-            air_con = cls._get_subsets_from_abridged(data, construction_dict)
+        try:
+            wall_set, floor_set, roof_ceiling_set, aperture_set, door_set, shade_con, \
+                air_con = cls._get_subsets_from_abridged(data, construction_dict)
+        except KeyError as e:
+            raise ValueError(
+                'The following construction is missing from the model: {}'.format(e)
+            )
         new_obj = cls(data['identifier'], wall_set, floor_set, roof_ceiling_set,
                       aperture_set, door_set, shade_con, air_con)
         if 'display_name' in data and data['display_name'] is not None:
