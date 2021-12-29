@@ -696,7 +696,7 @@ class ModelEnergyProperties(object):
                 self._add_shade_vertices(face, face_dict)
                 if face.geometry.has_holes:
                     face_dict['geometry']['vertices'] = \
-                        [pt.to_array() for pt in face.vertices]
+                        [pt.to_array() for pt in face.upper_left_counter_clockwise_vertices]
                 if len(face._apertures) != 0:
                     for ap, ap_dict in zip(face._apertures, face_dict['apertures']):
                         self._add_shade_vertices(ap, ap_dict)
@@ -707,7 +707,7 @@ class ModelEnergyProperties(object):
             for shd, shd_d in zip(self.host._orphaned_shades, data['orphaned_shades']):
                 if shd.geometry.has_holes:
                     shd_d['geometry']['vertices'] = \
-                        [pt.to_array() for pt in shd.vertices]
+                        [pt.to_array() for pt in shd.upper_left_counter_clockwise_vertices]
         if len(self.host._orphaned_faces) != 0:
             for shd, shd_d in zip(self.host._orphaned_faces, data['orphaned_faces']):
                 shd_d['geometry']['vertices'] = \
@@ -719,7 +719,7 @@ class ModelEnergyProperties(object):
             for shd, shd_dict in zip(obj._outdoor_shades, obj_dict['outdoor_shades']):
                 if shd.geometry.has_holes:
                     shd_dict['geometry']['vertices'] = \
-                        [pt.to_array() for pt in shd.vertices]
+                        [pt.to_array() for pt in shd.upper_left_counter_clockwise_vertices]
 
     def simplify_window_constructions_in_dict(self, data):
         """Convert all window constructions in a model dictionary to SimpleGlazSys.
