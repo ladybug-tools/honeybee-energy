@@ -504,7 +504,6 @@ class ModelEnergyProperties(object):
         msgs.append(self.check_duplicate_hvac_identifiers(False))
         msgs.append(self.check_duplicate_shw_identifiers(False))
         msgs.append(self.check_interior_constructions_reversed(False))
-        msgs.append(self.check_air_boundary_constructions(False))
         # output a final report of errors or raise an exception
         full_msgs = [msg for msg in msgs if msg != '']
         full_msg = '\n'.join(full_msgs)
@@ -579,29 +578,6 @@ class ModelEnergyProperties(object):
                     'matching in reversed order with its adjacent pair.'.format(
                         adj_f.full_id, adj_f.properties.energy.construction.identifier
                     )
-                )
-        full_msg = '\n'.join(full_msgs)
-        if raise_exception and len(full_msgs) != 0:
-            raise ValueError(full_msg)
-        return full_msg
-
-    def check_air_boundary_constructions(self, raise_exception=True):
-        """Check that air boundary constructions align with the air boundary face type.
-        """
-        full_msgs = []
-        for face in self.host.faces:
-            const = face.properties.energy.construction
-            if isinstance(face.type, AirBoundary) and not \
-                    isinstance(const, AirBoundaryConstruction):
-                full_msgs.append(
-                    'Face "{}" has an AirBoundary face type but does not have '
-                    'the AirBoundary construction.'.format(face.full_id)
-                )
-            elif isinstance(const, AirBoundaryConstruction) and not \
-                    isinstance(face.type, AirBoundary):
-                full_msgs.append(
-                    'Face "{}" has an AirBoundary construction but does not have '
-                    'the AirBoundary face type.'.format(face.full_id)
                 )
         full_msg = '\n'.join(full_msgs)
         if raise_exception and len(full_msgs) != 0:
@@ -696,7 +672,7 @@ class ModelEnergyProperties(object):
                 self._add_shade_vertices(face, face_dict)
                 if face.geometry.has_holes:
                     face_dict['geometry']['vertices'] = \
-                        [pt.to_array() for pt in face.upper_left_counter_clockwise_vertices]
+                        [pt.to_array() for pt in face.upper_left_vertices]
                 if len(face._apertures) != 0:
                     for ap, ap_dict in zip(face._apertures, face_dict['apertures']):
                         self._add_shade_vertices(ap, ap_dict)
@@ -707,7 +683,7 @@ class ModelEnergyProperties(object):
             for shd, shd_d in zip(self.host._orphaned_shades, data['orphaned_shades']):
                 if shd.geometry.has_holes:
                     shd_d['geometry']['vertices'] = \
-                        [pt.to_array() for pt in shd.upper_left_counter_clockwise_vertices]
+                        [pt.to_array() for pt in shd.upper_left_vertices]
         if len(self.host._orphaned_faces) != 0:
             for shd, shd_d in zip(self.host._orphaned_faces, data['orphaned_faces']):
                 shd_d['geometry']['vertices'] = \
@@ -719,7 +695,7 @@ class ModelEnergyProperties(object):
             for shd, shd_dict in zip(obj._outdoor_shades, obj_dict['outdoor_shades']):
                 if shd.geometry.has_holes:
                     shd_dict['geometry']['vertices'] = \
-                        [pt.to_array() for pt in shd.upper_left_counter_clockwise_vertices]
+                        [pt.to_array() for pt in shd.upper_left_vertices]
 
     def simplify_window_constructions_in_dict(self, data):
         """Convert all window constructions in a model dictionary to SimpleGlazSys.
