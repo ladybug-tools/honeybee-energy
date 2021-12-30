@@ -39,9 +39,9 @@ class ConstructionSet(object):
         shade_construction: An optional ShadeConstruction to set the reflectance
             properties of all outdoor shades to which this ConstructionSet is
             assigned. If None, it will be the honeybee generic shade construction.
-        air_boundary_construction: An optional AirBoundaryConstruction to set
-            the properties of Faces with an AirBoundary type. If None, it
-            will be the honeybee generic air boundary construction.
+        air_boundary_construction: An optional AirBoundaryConstruction or
+            OpaqueConstruction to set the properties of Faces with an AirBoundary
+            type. If None, it will be the honeybee generic air boundary construction.
 
     Properties:
         * identifier
@@ -203,8 +203,9 @@ class ConstructionSet(object):
     @air_boundary_construction.setter
     def air_boundary_construction(self, value):
         if value is not None:
-            assert isinstance(value, AirBoundaryConstruction), \
-                'Expected AirBoundaryConstruction. Got {}'.format(type(value))
+            assert isinstance(value, (AirBoundaryConstruction, OpaqueConstruction)), \
+                'Expected AirBoundaryConstruction or OpaqueConstruction. ' \
+                'Got {}'.format(type(value))
             value.lock()   # lock editing in case construction has multiple references
         self._air_boundary_construction = value
 
@@ -402,9 +403,14 @@ class ConstructionSet(object):
         shade_con = ShadeConstruction.from_dict(data['shade_construction']) if \
             'shade_construction' in data and data['shade_construction'] is not None \
             else None
-        air_con = AirBoundaryConstruction.from_dict(data['air_boundary_construction']) \
-            if 'air_boundary_construction' in data and \
-            data['air_boundary_construction'] is not None else None
+        air_con = None
+        if 'air_boundary_construction' in data and \
+                data['air_boundary_construction'] is not None:
+            if data['air_boundary_construction']['type'] == 'AirBoundaryConstruction':
+                air_con = AirBoundaryConstruction.from_dict(
+                    data['air_boundary_construction'])
+            else:
+                air_con = OpaqueConstruction.from_dict(data['air_boundary_construction'])
 
         new_obj = cls(data['identifier'], wall_set, floor_set, roof_ceiling_set,
                       aperture_set, door_set, shade_con, air_con)
