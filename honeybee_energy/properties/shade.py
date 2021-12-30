@@ -7,6 +7,8 @@ from ..schedule.fixedinterval import ScheduleFixedInterval
 from ..lib.constructions import generic_context
 from ..lib.constructionsets import generic_construction_set
 
+from honeybee.typing import clean_rad_string
+
 
 class ShadeEnergyProperties(object):
     """Energy Properties for Honeybee Shade.
@@ -102,6 +104,26 @@ class ShadeEnergyProperties(object):
         self._construction = None
         self._transmittance_schedule = None
 
+    def radiance_modifier_solar(self):
+        """Get a Radiance modifier that combines the construction and transmittance.
+
+        Note that only the first value from the transmittance schedule will be used
+        to create the Trans modifier and so this method is really only intended for
+        cases of constant transmittance schedules. If there is no transmittance
+        schedule, a plastic material will be returned.
+        """
+        return self._radiance_modifier(self.construction.solar_reflectance)
+
+    def radiance_modifier_visible(self):
+        """Get a Radiance modifier that combines the construction and transmittance.
+
+        Note that only the first value from the transmittance schedule will be used
+        to create the Trans modifier and so this method is really only intended for
+        cases of constant transmittance schedules. If there is no transmittance
+        schedule, a plastic material will be returned.
+        """
+        return self._radiance_modifier(self.construction.visible_reflectance)
+
     @classmethod
     def from_dict(cls, data, host):
         """Create ShadeEnergyProperties from a dictionary.
@@ -196,6 +218,36 @@ class ShadeEnergyProperties(object):
         _host = new_host or self._host
         return ShadeEnergyProperties(_host, self._construction,
                                      self._transmittance_schedule)
+
+    def _radiance_modifier(self, ref):
+        """Get a Radiance modifier that respects the transmittance schedule.
+
+        Args:
+            ref: The reflectance to be used in the modifier.
+        """
+        # check to be sure that the honeybee-radiance installed
+        try:
+            from honeybee_radiance.modifier.material import Trans
+            from honeybee_radiance.modifier.material import Plastic
+        except ImportError as e:
+            raise ImportError('honeybee_radiance library must be installed to use '
+                              'Shade radiance_modifier methods. {}'.format(e))
+
+        # create the modifier from the properties
+        mod_id = '{}_mod'.format(clean_rad_string(self.host.identifier))
+        if self.transmittance_schedule is None:
+            return Plastic.from_single_reflectance(mod_id, ref, 0, 0.15)
+        else:
+            if isinstance(self.transmittance_schedule, ScheduleRuleset):
+                trans = self.transmittance_schedule.default_day_schedule.values[0]
+            else:
+                trans = self.transmittance_schedule.values[0]
+            absorb = 1 - trans - (ref * (1 - trans))
+            rgb_ref = 1 - absorb
+            rgb_trans = trans / rgb_ref
+            return Trans.from_single_reflectance(
+                mod_id, rgb_reflectance=rgb_ref, specularity=0,
+                transmitted_diff=rgb_trans, transmitted_spec=1)
 
     @staticmethod
     def _parent_construction_set(host_parent):
