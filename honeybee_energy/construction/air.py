@@ -176,7 +176,7 @@ class AirBoundaryConstruction(object):
         a_mix = data['air_mixing_per_area'] if 'air_mixing_per_area' in data else 0.1
         a_sch = schedule_dict[data['air_mixing_schedule']] if \
             'air_mixing_schedule' in data and data['air_mixing_schedule'] is not None \
-            else always_on
+            and data['air_mixing_schedule'] != 'Always On' else always_on
         new_obj = cls(data['identifier'], a_mix, a_sch)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']

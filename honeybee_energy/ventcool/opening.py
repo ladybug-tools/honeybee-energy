@@ -302,10 +302,9 @@ class VentilationOpening(object):
         base['discharge_coefficient'] = self.discharge_coefficient
         base['wind_cross_vent'] = self.wind_cross_vent
 
-        if self.flow_coefficient_closed > 0:
-            base['flow_coefficient_closed'] = self.flow_coefficient_closed
-            base['flow_exponent_closed'] = self.flow_exponent_closed
-            base['two_way_threshold'] = self.two_way_threshold
+        base['flow_coefficient_closed'] = self.flow_coefficient_closed
+        base['flow_exponent_closed'] = self.flow_exponent_closed
+        base['two_way_threshold'] = self.two_way_threshold
 
         return base
 
