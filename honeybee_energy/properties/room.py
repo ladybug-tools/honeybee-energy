@@ -358,6 +358,11 @@ class RoomEnergyProperties(object):
         self._process_loads = list(value)
 
     @property
+    def total_process_load(self):
+        """Get a number for the total process load in W within the room."""
+        return sum([load.watts for load in self._process_loads])
+
+    @property
     def internal_masses(self):
         """Get or set an array of InternalMass objects for mass exposed to Room air.
 

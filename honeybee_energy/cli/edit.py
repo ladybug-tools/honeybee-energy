@@ -15,7 +15,7 @@ def edit():
 
 
 @edit.command('modifiers-from-constructions')
-@click.argument('model-json', type=click.Path(
+@click.argument('model-file', type=click.Path(
     exists=True, file_okay=True, dir_okay=False, resolve_path=True))
 @click.option('--solar/--visible', ' /-v', help='Flag to note whether the assigned '
               'radiance modifiers should follow the solar properties of the '
@@ -29,7 +29,7 @@ def edit():
 @click.option('--output-file', '-f', help='Optional hbjson file to output the JSON '
               'string of the converted model. By default this will be printed out to '
               'stdout', type=click.File('w'), default='-', show_default=True)
-def modifiers_from_constructions(model_json, solar, exterior_offset, output_file):
+def modifiers_from_constructions(model_file, solar, exterior_offset, output_file):
     """Assign honeybee Radiance modifiers based on energy construction properties.
 
     Note that the honeybee-radiance extension must be installed in order for this
@@ -41,11 +41,11 @@ def modifiers_from_constructions(model_json, solar, exterior_offset, output_file
 
     \b
     Args:
-        model_json: Full path to a Honeybee Model (HBJSON) file.
+        model_file: Full path to a Honeybee Model (HBJSON) file.
     """
     try:
         # re-serialize the Model to Python
-        with open(model_json) as json_file:
+        with open(model_file) as json_file:
             data = json.load(json_file)
         model = Model.from_dict(data)
         # assign the radiance properties based on the interior energy constructions
@@ -61,6 +61,16 @@ def modifiers_from_constructions(model_json, solar, exterior_offset, output_file
             model.properties.energy.offset_and_assign_exterior_face_modifiers(
                 reflectance_type=ref_type, offset=exterior_offset
             )
+        # assign trans modifiers for any shades with constant schedules 
+        for shade in model.shades:
+            t_sch = shade.properties.energy.transmittance_schedule
+            if t_sch is not None and t_sch.is_constant:
+                if solar:
+                    shade.properties.radiance.modifier = \
+                        shade.properties.energy.radiance_modifier_solar()
+                else:
+                    shade.properties.radiance.modifier = \
+                        shade.properties.energy.radiance_modifier_visible()
         # write the Model JSON string
         output_file.write(json.dumps(model.to_dict()))
     except Exception as e:

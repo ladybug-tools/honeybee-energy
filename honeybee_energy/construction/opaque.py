@@ -263,19 +263,19 @@ class OpaqueConstruction(_ConstructionBase):
         return self._generate_idf_string('opaque', self.identifier, self.materials)
 
     def to_radiance_solar_interior(self, specularity=0.0):
-        """Honeybee Radiance material with the interior solar reflectance."""
+        """Honeybee Radiance modifier with the interior solar reflectance."""
         return self.materials[-1].to_radiance_solar(specularity)
 
     def to_radiance_visible_interior(self, specularity=0.0):
-        """Honeybee Radiance material with the interior visible reflectance."""
+        """Honeybee Radiance modifier with the interior visible reflectance."""
         return self.materials[-1].to_radiance_visible(specularity)
 
     def to_radiance_solar_exterior(self, specularity=0.0):
-        """Honeybee Radiance material with the exterior solar reflectance."""
+        """Honeybee Radiance modifier with the exterior solar reflectance."""
         return self.materials[0].to_radiance_solar(specularity)
 
     def to_radiance_visible_exterior(self, specularity=0.0):
-        """Honeybee Radiance material with the exterior visible reflectance."""
+        """Honeybee Radiance modifier with the exterior visible reflectance."""
         return self.materials[0].to_radiance_visible(specularity)
 
     def to_dict(self, abridged=False):

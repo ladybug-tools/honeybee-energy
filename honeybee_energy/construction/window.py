@@ -515,7 +515,7 @@ class WindowConstruction(_ConstructionBase):
         return self._generate_idf_string('window', self.identifier, self.materials)
 
     def to_radiance_solar(self):
-        """Honeybee Radiance material with the solar transmittance."""
+        """Honeybee Radiance modifier with the solar transmittance."""
         try:
             from honeybee_radiance.modifier.material import Glass
             from honeybee_radiance.modifier.material import Trans
@@ -530,13 +530,14 @@ class WindowConstruction(_ConstructionBase):
             return Glass.from_single_transmittance(
                 clean_rad_string(self.identifier), self.solar_transmittance)
         else:
-            trans, ref, _ = self.solar_optical_properties()
+            _, ref, absorb = self.solar_optical_properties()
+            rgb_ref = 1 - (sum(absorb) / (1 - ref))
             return Trans.from_single_reflectance(
-                clean_rad_string(self.identifier), rgb_reflectance=ref,
-                transmitted_diff=trans, transmitted_spec=0)
+                clean_rad_string(self.identifier), rgb_reflectance=rgb_ref,
+                specularity=ref, transmitted_diff=1, transmitted_spec=0)
 
     def to_radiance_visible(self):
-        """Honeybee Radiance material with the visible transmittance."""
+        """Honeybee Radiance modifier with the visible transmittance."""
         try:
             from honeybee_radiance.modifier.material import Glass
             from honeybee_radiance.modifier.material import Trans
@@ -551,10 +552,11 @@ class WindowConstruction(_ConstructionBase):
             return Glass.from_single_transmittance(
                 clean_rad_string(self.identifier), self.visible_transmittance)
         else:
-            trans, ref, _ = self.visible_optical_properties()
+            _, ref, absorb = self.visible_optical_properties()
+            rgb_ref = 1 - (sum(absorb) / (1 - ref))
             return Trans.from_single_reflectance(
-                clean_rad_string(self.identifier), rgb_reflectance=ref,
-                transmitted_diff=trans, transmitted_spec=0)
+                clean_rad_string(self.identifier), rgb_reflectance=rgb_ref,
+                specularity=ref, transmitted_diff=1, transmitted_spec=0)
 
     def to_dict(self, abridged=False):
         """Window construction dictionary representation.

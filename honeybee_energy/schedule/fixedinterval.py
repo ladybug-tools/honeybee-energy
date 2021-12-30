@@ -77,6 +77,7 @@ class ScheduleFixedInterval(object):
         * interpolate
         * end_date_time
         * is_leap_year
+        * is_constant
         * data_collection
         * user_data
     """
@@ -215,6 +216,12 @@ class ScheduleFixedInterval(object):
         input start_date.
         """
         return self._start_date.leap_year
+
+    @property
+    def is_constant(self):
+        """Boolean noting whether the schedule is representable with a single value."""
+        val_1 = self._values[0]
+        return all(element == val_1 for element in self._values)
 
     @property
     def data_collection(self):
