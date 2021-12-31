@@ -477,8 +477,10 @@ output-table-summaryreports.html#outputtablesummaryreports)
         outputs = data['outputs'] if 'outputs' in data else None
         frequency = data['reporting_frequency'] if \
             'reporting_frequency' in data else 'Hourly'
-        sqlite = data['include_sqlite'] if 'include_sqlite' in data else True
-        html = data['include_html'] if 'include_html' in data else True
+        sqlite = data['include_sqlite'] if 'include_sqlite' in data and \
+            data['include_sqlite'] is not None else True
+        html = data['include_html'] if 'include_html' in data and \
+            data['include_html'] is not None else True
         reports = data['summary_reports'] if 'summary_reports' in data else None
         return cls(outputs, frequency, sqlite, html, reports)
 
@@ -530,9 +532,11 @@ output-table-summaryreports.html#outputtablesummaryreports)
     def to_dict(self):
         """DaylightSavingTime dictionary representation."""
         base = {'type': 'SimulationOutput',
-                'reporting_frequency': self.reporting_frequency,
-                'include_sqlite': self.include_sqlite,
-                'include_html': self.include_html}
+                'reporting_frequency': self.reporting_frequency}
+        if not self.include_sqlite:
+            base['include_sqlite'] = False
+        if not self.include_html:
+            base['include_html'] = False
         if len(self._outputs) != 0:
             base['outputs'] = self.outputs
         if len(self._summary_reports) != 0:
