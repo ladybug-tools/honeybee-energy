@@ -32,7 +32,7 @@ jobs:
           rm -r honeybee-openstudio-gem-$HONEYBEE_OPENSTUDIO_GEM_VERSION
           rm honeybee-openstudio-gem.tar.gz
         env:
-          HONEYBEE_OPENSTUDIO_GEM_VERSION: "2.28.3"
+          HONEYBEE_OPENSTUDIO_GEM_VERSION: "2.28.4"
       - name: install python dependencies
         run: |
           python -m pip install --upgrade pip
