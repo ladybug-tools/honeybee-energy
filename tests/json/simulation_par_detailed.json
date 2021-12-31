@@ -3,8 +3,6 @@
     "output": {
         "type": "SimulationOutput",
         "reporting_frequency": "Daily",
-        "include_sqlite": true,
-        "include_html": true,
         "outputs": [
             "Zone Electric Equipment Electricity Energy",
             "Zone Gas Equipment NaturalGas Energy",
