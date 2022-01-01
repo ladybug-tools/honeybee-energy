@@ -234,7 +234,7 @@ class ShadeConstruction(object):
                               'to_radiance_* methods. {}'.format(e))
         if not self.is_specular:
             return Plastic.from_single_reflectance(
-                clean_rad_string(self.identifier), reflectance)
+                clean_rad_string(self.identifier), reflectance, roughness=0.15)
         else:
             return Mirror.from_single_reflectance(
                 clean_rad_string(self.identifier), reflectance)
