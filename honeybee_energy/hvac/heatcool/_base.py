@@ -6,6 +6,7 @@ import os
 from honeybee._lockable import lockable
 
 from .._template import _TemplateSystem, _EnumerationBase
+from ..idealair import IdealAirSystem
 
 
 @lockable
@@ -42,6 +43,24 @@ class _HeatCoolBase(_TemplateSystem):
         * schedules
     """
     __slots__ = ()
+    COOL_ONLY_TYPES = (
+            'EvapCoolers', 'FCU_Chiller', 'FCU_ACChiller', 'FCU_DCW',
+            'ResidentialAC', 'WindowAC'
+        )
+    HEAT_ONLY_TYPES = (
+            'ElectricBaseboard', 'BoilerBaseboard', 'ASHPBaseboard',
+            'DHWBaseboard', 'GasHeaters', 'ResidentialHPNoCool', 'ResidentialFurnace'
+        )
+
+    def to_ideal_air_equivalent(self):
+        """Get a version of this HVAC as an IdealAirSystem."""
+        i_sys = IdealAirSystem(self.identifier)
+        if self.equipment_type in self.COOL_ONLY_TYPES:
+            i_sys.heating_limit = 0
+        if self.equipment_type in self.HEAT_ONLY_TYPES:
+            i_sys.cooling_limit = 0
+        i_sys._display_name = self._display_name
+        return i_sys
 
 
 class _HeatCoolEnumeration(_EnumerationBase):

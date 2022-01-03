@@ -29,6 +29,8 @@ from ..construction.opaque import OpaqueConstruction
 from ..hvac import HVAC_TYPES_DICT
 from ..hvac._base import _HVACSystem
 from ..hvac.idealair import IdealAirSystem
+from ..hvac.heatcool._base import _HeatCoolBase
+from ..hvac.doas._base import _DOASBase
 from ..shw import SHWSystem
 
 # import the libraries of constructionsets and programs
@@ -644,6 +646,34 @@ class RoomEnergyProperties(object):
         """
         hvac_id = '{} Ideal Loads Air System'.format(self.host.identifier)
         self.hvac = IdealAirSystem(hvac_id)
+
+    def assign_ideal_air_equivalent(self):
+        """Convert any HVAC assigned to this Room to be an equivalent IdealAirSystem.
+
+        Relevant properties will be transferred to the resulting ideal air such as
+        economizer_type, sensible_heat_recovery, latent_heat_recovery, and
+        demand_controlled_ventilation.
+
+        For HeatCool systems that cannot supply ventilation, this Room's ventilation
+        specification will be overridden to zero. For DOAS systems with a
+        doas_availability_schedule, this schedule will be applied with the Room's
+        ventilation schedule.
+        """
+        if self.hvac is None or isinstance(self.hvac, IdealAirSystem):
+            return None  # the room is already good as it is
+        i_sys = self.hvac.to_ideal_air_equivalent()
+        i_sys.identifier = '{} Ideal Loads Air System'.format(self.host.identifier)
+        if isinstance(self.hvac, _HeatCoolBase):
+            if self.ventilation is not None:  # override the ventilation
+                self.ventilation = Ventilation('HeatCool System Zero Ventilation')
+            if self.setpoint is not None and \
+                    self.setpoint.humidifying_schedule is not None:  # remove humid
+                self.setpoint.remove_humidity_setpoints()
+        elif isinstance(self.hvac, _DOASBase) and \
+                self.hvac.doas_availability_schedule is not None:
+            if self.ventilation is not None:  # apply availability to ventilation
+                self.ventilation.schedule = self.hvac.doas_availability_schedule
+        self.hvac = i_sys
 
     def add_daylight_control_to_center(
             self, distance_from_floor, illuminance_setpoint=300, control_fraction=1,
