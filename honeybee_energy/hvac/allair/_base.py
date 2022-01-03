@@ -8,6 +8,7 @@ from honeybee.typing import valid_string, float_in_range
 from honeybee.altnumber import autosize
 
 from .._template import _TemplateSystem, _EnumerationBase
+from ..idealair import IdealAirSystem
 
 
 @lockable
@@ -70,6 +71,8 @@ class _AllAirBase(_TemplateSystem):
     ECONOMIZER_TYPES = ('NoEconomizer', 'DifferentialDryBulb', 'DifferentialEnthalpy',
                         'DifferentialDryBulbAndEnthalpy', 'FixedDryBulb',
                         'FixedEnthalpy', 'ElectronicEnthalpy')
+    COOL_ONLY_TYPES = ('PSZAC', 'PSZAC_DCW', 'PTAC')
+    HEAT_ONLY_TYPES = ('Furnace',)
     _has_air_loop = True
 
     def __init__(self, identifier, vintage='ASHRAE_2019', equipment_type=None,
@@ -155,7 +158,6 @@ class _AllAirBase(_TemplateSystem):
         self._demand_controlled_ventilation = bool(value)
         if self._demand_controlled_ventilation:
             self._air_loop_check('demand_controlled_ventilation')
-
 
     @classmethod
     def from_dict(cls, data):
@@ -243,6 +245,30 @@ class _AllAirBase(_TemplateSystem):
         if self._user_data is not None:
             base['user_data'] = self.user_data
         return base
+
+    def to_ideal_air_equivalent(self):
+        """Get a version of this HVAC as an IdealAirSystem.
+
+        Relevant properties will be transferred to the resulting ideal air such as
+        economizer_type, sensible_heat_recovery, latent_heat_recovery, and
+        demand_controlled_ventilation.
+        """
+        econ_typ = self.economizer_type
+        if econ_typ not in self.ECONOMIZER_TYPES[:3]:
+            enth_types = ('FixedEnthalpy', 'ElectronicEnthalpy')
+            econ_typ = 'DifferentialEnthalpy' if econ_typ in enth_types \
+                else 'DifferentialDryBulb'
+        i_sys = IdealAirSystem(
+            self.identifier, economizer_type=econ_typ,
+            sensible_heat_recovery=self.sensible_heat_recovery,
+            latent_heat_recovery=self.latent_heat_recovery,
+            demand_controlled_ventilation=self.demand_controlled_ventilation)
+        if self.equipment_type in self.COOL_ONLY_TYPES:
+            i_sys.heating_limit = 0
+        if self.equipment_type in self.HEAT_ONLY_TYPES:
+            i_sys.cooling_limit = 0
+        i_sys._display_name = self._display_name
+        return i_sys
 
     def _air_loop_check(self, prop_name):
         """Check whether the system has an air loop and rase an error if not."""

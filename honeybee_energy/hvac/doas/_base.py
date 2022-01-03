@@ -8,6 +8,7 @@ from honeybee.typing import float_in_range
 from honeybee.altnumber import autosize
 
 from .._template import _TemplateSystem, _EnumerationBase
+from ..idealair import IdealAirSystem
 
 
 @lockable
@@ -62,6 +63,8 @@ class _DOASBase(_TemplateSystem):
     """
     __slots__ = ('_sensible_heat_recovery', '_latent_heat_recovery',
                  '_demand_controlled_ventilation', '_doas_availability_schedule')
+    COOL_ONLY_TYPES = ('DOAS_FCU_Chiller', 'DOAS_FCU_ACChiller', 'DOAS_FCU_DCW')
+    HEAT_ONLY_TYPES = ()
 
     def __init__(self, identifier, vintage='ASHRAE_2019', equipment_type=None,
                  sensible_heat_recovery=0, latent_heat_recovery=0,
@@ -244,6 +247,24 @@ class _DOASBase(_TemplateSystem):
         if self._user_data is not None:
             base['user_data'] = self.user_data
         return base
+
+    def to_ideal_air_equivalent(self):
+        """Get a version of this HVAC as an IdealAirSystem.
+
+        Relevant properties will be transferred to the resulting ideal air such as
+        sensible_heat_recovery, latent_heat_recovery, and demand_controlled_ventilation.
+        """
+        i_sys = IdealAirSystem(
+            self.identifier, economizer_type='NoEconomizer',
+            sensible_heat_recovery=self.sensible_heat_recovery,
+            latent_heat_recovery=self.latent_heat_recovery,
+            demand_controlled_ventilation=self.demand_controlled_ventilation)
+        if self.equipment_type in self.COOL_ONLY_TYPES:
+            i_sys.heating_limit = 0
+        if self.equipment_type in self.HEAT_ONLY_TYPES:
+            i_sys.cooling_limit = 0
+        i_sys._display_name = self._display_name
+        return i_sys
 
     @staticmethod
     def _properties_from_dict(data):

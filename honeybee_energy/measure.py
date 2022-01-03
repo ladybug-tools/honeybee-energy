@@ -340,8 +340,13 @@ class MeasureArgument(object):
         # parse any choice arguments if they exist
         self._valid_choices = None
         if self._type_text == 'Choice':
-            self._valid_choices = tuple(choice.find('value').text
-                                        for choice in xml_element.find('choices'))
+            try:
+                self._valid_choices = tuple(choice.find('value').text
+                                            for choice in xml_element.find('choices'))
+            except TypeError as e:
+                raise ValueError(
+                    'The measure is invalid. Choice argument was found without any '
+                    'available choices.\n{}'.format(e))
 
     @property
     def identifier(self):

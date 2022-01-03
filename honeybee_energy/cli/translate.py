@@ -4,6 +4,7 @@ import sys
 import os
 import logging
 import json
+import shutil
 
 from ladybug.futil import preparedir
 from ladybug.datatype.fraction import Fraction
@@ -43,10 +44,17 @@ def translate():
               default=None, show_default=True,
               type=click.Path(exists=True, file_okay=True, dir_okay=False,
                               resolve_path=True))
-@click.option('--folder', '-f', help='Folder on this computer, into which the OSM '
-              'and IDF files will be written. If None, the files will be output in the'
-              'same location as the model_json.', default=None, show_default=True,
+@click.option('--folder', '-f', help='Folder on this computer, into which the '
+              'working files, OSM and IDF files will be written. If None, the '
+              'files will be output in the same location as the model_json.',
+              default=None, show_default=True,
               type=click.Path(file_okay=False, dir_okay=True, resolve_path=True))
+@click.option('--osm-file', '-osm', help='Optional file where the OSM will be copied '
+              'after it is translated in the folder. If None, the file will not '
+              'be copied.', type=str, default=None, show_default=True)
+@click.option('--idf-file', '-idf', help='Optional file where the IDF will be copied '
+              'after it is translated in the folder. If None, the file will not '
+              'be copied.', type=str, default=None, show_default=True)
 @click.option('--check-model/--bypass-check', ' /-bc', help='Flag to note whether the '
               'Model should be re-serialized to Python and checked before it is '
               'translated to .osm. The check is not needed if the model-json was '
@@ -56,7 +64,8 @@ def translate():
               'generated OSM and IDF files if they were successfully created. '
               'By default this will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
-def model_to_osm(model_json, sim_par_json, folder, check_model, log_file):
+def model_to_osm(
+        model_json, sim_par_json, folder, osm_file, idf_file, check_model, log_file):
     """Translate a Model JSON file into an OpenStudio Model and corresponding IDF.
 
     \b
@@ -90,6 +99,14 @@ def model_to_osm(model_json, sim_par_json, folder, check_model, log_file):
         osm, idf = run_osw(osw)
         # run the resulting idf through EnergyPlus
         if idf is not None and os.path.isfile(idf):
+            if osm_file is not None:
+                if not osm_file.lower().endswith('.osm'):
+                    osm_file = osm_file + '.osm'
+                shutil.copyfile(osm, osm_file)
+            if idf_file is not None:
+                if not idf_file.lower().endswith('.idf'):
+                    idf_file = idf_file + '.idf'
+                shutil.copyfile(idf, idf_file)
             log_file.write(json.dumps([osm, idf]))
         else:
             raise Exception('Running OpenStudio CLI failed.')
@@ -111,14 +128,22 @@ def model_to_osm(model_json, sim_par_json, folder, check_model, log_file):
                               resolve_path=True))
 @click.option('--additional-str', '-a', help='Text string for additional lines that '
               'should be added to the IDF.', type=str, default='', show_default=True)
+@click.option('--compact-schedules/--csv-schedules', ' /-c', help='Flag to note '
+              'whether any ScheduleFixedIntervals in the model should be included '
+              'in the IDF string as a Schedule:Compact or they should be written as '
+              'CSV Schedule:File and placed in a directory next to the output-file.',
+              default=True, show_default=True)
+@click.option('--hvac-to-ideal-air/--hvac-check', ' /-h', help='Flag to note '
+              'whether any detailed HVAC system templates should be converted to '
+              'an equivalent IdealAirSystem upon export. If hvac-check is used'
+              'and the Model contains detailed systems, a ValueError will '
+              'be raised.', default=True, show_default=True)
 @click.option('--output-file', '-f', help='Optional IDF file to output the IDF string '
               'of the translation. By default this will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
-def model_to_idf(model_json, sim_par_json, additional_str, output_file):
-    """Translate a Model JSON file to an IDF using direct-to-idf translators.
-
-    If the model contains a feature that is not translate-able through direct-to-idf
-    translators, an exception will be raised.
+def model_to_idf(model_json, sim_par_json, additional_str, compact_schedules,
+                 hvac_to_ideal_air, output_file):
+    """Translate a Model JSON file to a simplified IDF using direct-to-idf translators.
 
     \b
     Args:
@@ -136,20 +161,22 @@ def model_to_idf(model_json, sim_par_json, additional_str, output_file):
             sim_par.output.add_hvac_energy_use()
 
         # re-serialize the Model to Python
-        with open(model_json) as json_file:
-            data = json.load(json_file)
-        model = Model.from_dict(data)
+        model = Model.from_file(model_json)
 
         # set the schedule directory in case it is needed
-        sch_path = os.path.abspath(model_json) if 'stdout' in str(output_file) \
-            else os.path.abspath(str(output_file))
-        sch_directory = os.path.join(os.path.split(sch_path)[0], 'schedules')
+        sch_directory = None
+        if not compact_schedules:
+            sch_path = os.path.abspath(model_json) if 'stdout' in str(output_file) \
+                else os.path.abspath(str(output_file))
+            sch_directory = os.path.join(os.path.split(sch_path)[0], 'schedules')
 
         # create the strings for simulation paramters and model
         ver_str = energyplus_idf_version() if folders.energyplus_version \
             is not None else ''
         sim_par_str = sim_par.to_idf()
-        model_str = model.to.idf(model, schedule_directory=sch_directory)
+        model_str = model.to.idf(
+            model, schedule_directory=sch_directory,
+            use_ideal_air_equivalent=hvac_to_ideal_air)
         idf_str = '\n\n'.join([ver_str, sim_par_str, model_str, additional_str])
 
         # write out the IDF file

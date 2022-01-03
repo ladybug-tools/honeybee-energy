@@ -762,15 +762,10 @@ def test_writer_to_idf():
     idf_string = model.to.idf(model, schedule_directory='./tests/idf/')
     assert len(idf_string) != 0
 
-    model.properties.energy.ventilation_simulation_control.vent_control_type = \
-        'MultiZoneWithoutDistribution'
-    with pytest.raises(AssertionError):
-        idf_string = model.to.idf(model, schedule_directory='./tests/idf/')
-    model.properties.energy.ventilation_simulation_control.vent_control_type = \
-        'SingleZone'
     room.properties.energy.hvac = VAV('Test VAV System')
     with pytest.raises(TypeError):
-        idf_string = model.to.idf(model, schedule_directory='./tests/idf/')
+        idf_string = model.to.idf(
+            model, schedule_directory='./tests/idf/', use_ideal_air_equivalent=False)
 
 
 def test_energy_ventilation_simulation_properties():
