@@ -34,6 +34,10 @@ class ShadeConstruction(object):
         * visible_reflectance
         * is_specular
         * is_default
+        * inside_solar_reflectance
+        * inside_visible_reflectance
+        * outside_solar_reflectance
+        * outside_visible_reflectance
         * user_data
     """
 
@@ -112,10 +116,30 @@ class ShadeConstruction(object):
 
     @property
     def is_default(self):
-        """Boolean to note whether all properties follow the EnergyPlus default."""
+        """Get a Boolean for whether all properties follow the EnergyPlus default."""
         return self._solar_reflectance == 0.2 and \
             self._visible_reflectance == 0.2 and not self._is_specular
-    
+
+    @property
+    def inside_solar_reflectance(self):
+        """Get the solar reflectance of the construction."""
+        return self._solar_reflectance
+
+    @property
+    def inside_visible_reflectance(self):
+        """Get the visible reflectance of the construction."""
+        return self._visible_reflectance
+
+    @property
+    def outside_solar_reflectance(self):
+        """Get the solar reflectance of the construction."""
+        return self._solar_reflectance
+
+    @property
+    def outside_visible_reflectance(self):
+        """Get the visible reflectance of the construction."""
+        return self._visible_reflectance
+
     @property
     def user_data(self):
         """Get or set an optional dictionary for additional meta data for this object.
