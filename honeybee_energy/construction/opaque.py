@@ -73,22 +73,22 @@ class OpaqueConstruction(_ConstructionBase):
 
     @property
     def inside_solar_reflectance(self):
-        """"The solar reflectance of the inside face of the construction."""
+        """The solar reflectance of the inside face of the construction."""
         return 1 - self.materials[-1].solar_absorptance
 
     @property
     def inside_visible_reflectance(self):
-        """"The visible reflectance of the inside face of the construction."""
+        """The visible reflectance of the inside face of the construction."""
         return 1 - self.materials[-1].visible_absorptance
 
     @property
     def outside_solar_reflectance(self):
-        """"The solar reflectance of the outside face of the construction."""
+        """The solar reflectance of the outside face of the construction."""
         return 1 - self.materials[0].solar_absorptance
 
     @property
     def outside_visible_reflectance(self):
-        """"The visible reflectance of the outside face of the construction."""
+        """The visible reflectance of the outside face of the construction."""
         return 1 - self.materials[0].visible_absorptance
 
     @property

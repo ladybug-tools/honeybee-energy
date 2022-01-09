@@ -215,6 +215,26 @@ class WindowConstruction(_ConstructionBase):
         return thickness
 
     @property
+    def inside_solar_reflectance(self):
+        """The solar reflectance of the inside face of the construction."""
+        return self.materials[-1].solar_reflectance_back
+
+    @property
+    def inside_visible_reflectance(self):
+        """The visible reflectance of the inside face of the construction."""
+        return self.materials[-1].visible_reflectance_back
+
+    @property
+    def outside_solar_reflectance(self):
+        """The solar reflectance of the outside face of the construction."""
+        return self.materials[0].solar_reflectance
+
+    @property
+    def outside_visible_reflectance(self):
+        """The visible reflectance of the outside face of the construction."""
+        return self.materials[0].visible_reflectance
+
+    @property
     def glazing_count(self):
         """The number of glazing materials contained within the window construction.
         """

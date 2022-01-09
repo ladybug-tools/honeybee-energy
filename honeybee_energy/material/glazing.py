@@ -546,6 +546,13 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
         * u_value
         * r_value
         * solar_transmittance
+        * solar_reflectance
+        * solar_reflectance_back
+        * solar_absorptance
+        * visible_transmittance
+        * visible_reflectance
+        * visible_reflectance_back
+        * visible_absorptance
         * thickness
         * user_data
     """
@@ -617,10 +624,7 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
 
     @property
     def solar_transmittance(self):
-        """Get the solar transmittance of the glazing system at normal incidence.
-
-        This is the solar transmittance as understood by EnergyPlus.
-        """
+        """Get the solar transmittance of the glazing system at normal incidence."""
         if self.u_factor > 3.4:
             term_1 = (0.939998 * (self.shgc ** 2)) + (0.20332 * self.shgc) \
                 if self.shgc < 0.7206 else (1.30415 * self.shgc) - 0.30515
@@ -637,10 +641,7 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
 
     @property
     def solar_reflectance(self):
-        """Get the solar reflectance of the glazing system at normal incidence.
-
-        This is the solar reflectance as understood by EnergyPlus.
-        """
+        """Get the solar reflectance of the glazing system at normal incidence."""
         # get values needed to compute the reflectance
         t_sol, r_val = self.solar_transmittance, self.r_value
         # determine the resistance of inside and outside air films
@@ -666,12 +667,22 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
         return 1 - t_sol - ((self.shgc - t_sol) / f_in)
 
     @property
+    def solar_reflectance_back(self):
+        """Get the solar reflectance of the glazing system at normal incidence."""
+        return self.solar_reflectance
+
+    @property
     def solar_absorptance(self):
         """Get the solar absorptance of the glazing system at normal incidence.
 
         This is the solar absorptance as understood by EnergyPlus.
         """
         return 1 - self.solar_transmittance - self.solar_reflectance
+
+    @property
+    def visible_transmittance(self):
+        """Get the visible transmittance of the glazing system at normal incidence."""
+        return self.vt
 
     @property
     def visible_reflectance(self):
@@ -681,6 +692,11 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
         """
         return (-0.0622 * (self.vt ** 3)) + (0.4277 * self.vt ** 2) - \
             (0.4169 * self.vt) + 0.2399
+
+    @property
+    def visible_reflectance_back(self):
+        """Get the visible reflectance of the glazing system at normal incidence."""
+        return self.visible_reflectance
 
     @property
     def visible_absorptance(self):
