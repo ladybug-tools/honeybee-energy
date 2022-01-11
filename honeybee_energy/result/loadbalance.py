@@ -115,12 +115,12 @@ class LoadBalance(object):
     # List of all EnergyPlus output strings relevant for thermal load balances
     COOLING = (
         'Zone Ideal Loads Supply Air Total Cooling Energy',
-        'Zone Ideal Loads Zone Sensible Cooling Energy',
-        'Zone Ideal Loads Zone Latent Cooling Energy')
+        'Zone Ideal Loads Supply Air Sensible Cooling Energy',
+        'Zone Ideal Loads Supply Air Latent Cooling Energy')
     HEATING = (
         'Zone Ideal Loads Supply Air Total Heating Energy',
-        'Zone Ideal Loads Zone Sensible Heating Energy',
-        'Zone Ideal Loads Zone Latent Heating Energy')
+        'Zone Ideal Loads Supply Air Sensible Heating Energy',
+        'Zone Ideal Loads Supply Air Latent Heating Energy')
     LIGHTING = (
         'Zone Lights Electricity Energy',
         'Zone Lights Total Heating Energy')
