@@ -598,7 +598,7 @@ class RoomEnergyProperties(object):
                 fg.boundary_segments + fg.hole_segments
             for seg in segs:
                 w_f = self._segment_wall_face(seg, tolerance)
-                if seg is not None:
+                if w_f is not None:
                     th = w_f.properties.energy.construction.thickness
                     t_c = th if isinstance(flr.boundary_condition, (Outdoors, Ground)) \
                         else th / 2
@@ -1506,17 +1506,11 @@ class RoomEnergyProperties(object):
         for face in self.host.faces:
             if isinstance(face.type, Wall):
                 fg = face.geometry
-                try:
-                    verts = fg._remove_colinear(
-                        fg._boundary, fg.boundary_polygon2d, tolerance)
-                except AssertionError:
-                    return None
-                for v1 in verts:
-                    if segment.p1.is_equivalent(v1, tolerance):
-                        p2 = segment.p2
-                        for v2 in verts:
-                            if p2.is_equivalent(v2, tolerance):
-                                return face
+                segs = fg.boundary_segments if not fg.has_holes else \
+                    fg.boundary_segments + fg.hole_segments
+                for seg in segs:
+                    if seg.is_colinear(segment, tolerance, 0.0349):
+                        return face
 
     def ToString(self):
         return self.__repr__()

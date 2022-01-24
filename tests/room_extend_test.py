@@ -1,5 +1,6 @@
 """Tests the features that honeybee_energy adds to honeybee_core Room."""
 from honeybee.room import Room
+from honeybee.face import Face
 from honeybee.door import Door
 
 from honeybee_energy.properties.room import RoomEnergyProperties
@@ -47,8 +48,68 @@ def test_energy_properties():
     assert room.properties.energy.infiltration == office_program.infiltration
     assert room.properties.energy.ventilation == office_program.ventilation
     assert room.properties.energy.setpoint == office_program.setpoint
+
+
+def test_floor_area_with_contructions():
+    """Test the floor_area_with_contructions method."""
+    room = Room.from_box('ShoeBox', 5, 10, 3, 90, Point3D(0, 0, 3))
     assert room.properties.energy.floor_area_with_constructions('Meters') < \
         room.floor_area
+    assert room.properties.energy.floor_area_with_constructions('Meters') == \
+        pytest.approx(39.119, abs=1e-3)
+    assert room.floor_area  == pytest.approx(50, abs=1e-3)
+
+    pts_1 = [Point3D(0, 0, 3), Point3D(0, 10, 3), Point3D(10, 10, 3), Point3D(10, 0, 3)]
+    pts_2 = [Point3D(0, 0, 0), Point3D(0, 0, 3), Point3D(0, 10, 3), Point3D(0, 10, 0)]
+    pts_3 = [Point3D(0, 0, 0), Point3D(10, 0, 0), Point3D(10, 0, 3), Point3D(0, 0, 3)]
+    pts_4 = [Point3D(10, 10, 0), Point3D(0, 10, 0), Point3D(0, 10, 3), Point3D(10, 10, 3)]
+    pts_5 = [Point3D(10, 10, 0), Point3D(10, 0, 0), Point3D(10, 0, 3), Point3D(10, 10, 3)]
+    pts_6 = [Point3D(10, 0, 0), Point3D(10, 2.5, 0), Point3D(0, 2.5, 0), Point3D(0, 0, 0)]
+    pts_7 = [Point3D(10, 2.5, 0), Point3D(10, 5, 0), Point3D(0, 5, 0), Point3D(0, 2.5, 0)]
+    pts_8 = [Point3D(10, 5, 0), Point3D(10, 10, 0), Point3D(0, 10, 0), Point3D(0, 5, 0)]
+    face_1 = Face('Face1', Face3D(list(reversed(pts_1))))
+    face_2 = Face('Face2', Face3D(pts_2))
+    face_3 = Face('Face3', Face3D(pts_3))
+    face_4 = Face('Face4', Face3D(pts_4))
+    face_5 = Face('Face5', Face3D(pts_5))
+    face_6 = Face('Face6', Face3D(list(reversed(pts_6))))
+    face_7 = Face('Face7', Face3D(list(reversed(pts_7))))
+    face_8 = Face('Face8', Face3D(list(reversed(pts_8))))
+    room = Room('ZoneSHOE_BOX920980',
+                [face_1, face_2, face_3, face_4, face_5, face_6, face_7, face_8],
+                0.01, 1)
+
+    assert room.geometry.is_solid
+    assert room.properties.energy.floor_area_with_constructions('Meters') < \
+        room.floor_area
+    assert room.properties.energy.floor_area_with_constructions('Meters') == \
+        pytest.approx(85.492, abs=1e-3)
+    assert room.floor_area  == pytest.approx(100, abs=1e-3)
+
+    pts_1 = [Point3D(0, 0, 3), Point3D(0, 10, 3), Point3D(10, 10, 3), Point3D(10, 0, 3)]
+    pts_2 = [Point3D(0, 0, 0), Point3D(0, 0, 3), Point3D(0, 10, 3), Point3D(0, 10, 0)]
+    pts_3 = [Point3D(0, 0, 0), Point3D(10, 0, 0), Point3D(10, 0, 3), Point3D(0, 0, 3)]
+    pts_4 = [Point3D(10, 10, 0), Point3D(0, 10, 0), Point3D(0, 10, 3), Point3D(10, 10, 3)]
+    pts_5 = [Point3D(10, 5, 0), Point3D(10, 0, 0), Point3D(10, 0, 3), Point3D(10, 5, 3)]
+    pts_6 = [Point3D(10, 10, 0), Point3D(10, 5, 0), Point3D(10, 5, 3), Point3D(10, 10, 3)]
+    pts_7 = [Point3D(0, 0, 0), Point3D(0, 10, 0), Point3D(10, 10, 0), Point3D(10, 0, 0)]
+    face_1 = Face('Face1', Face3D(list(reversed(pts_1))))
+    face_2 = Face('Face2', Face3D(pts_2))
+    face_3 = Face('Face3', Face3D(pts_3))
+    face_4 = Face('Face4', Face3D(pts_4))
+    face_5 = Face('Face5', Face3D(pts_5))
+    face_6 = Face('Face6', Face3D(pts_6))
+    face_7 = Face('Face7', Face3D(pts_7))
+    room = Room('ZoneSHOE_BOX920980',
+                [face_1, face_2, face_3, face_4, face_5, face_6, face_7],
+                0.01, 1)
+
+    assert room.geometry.is_solid
+    assert room.properties.energy.floor_area_with_constructions('Meters') < \
+        room.floor_area
+    assert room.properties.energy.floor_area_with_constructions('Meters') == \
+        pytest.approx(85.492, abs=1e-3)
+    assert room.floor_area  == pytest.approx(100, abs=1e-3)
 
 
 def test_default_properties():
