@@ -44,6 +44,7 @@ class OpaqueConstruction(_ConstructionBase):
         * outside_visible_reflectance
         * mass_area_density
         * area_heat_capacity
+        * thickness
         * user_data
     """
     __slots__ = ()
