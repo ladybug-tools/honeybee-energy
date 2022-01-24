@@ -47,6 +47,8 @@ def test_energy_properties():
     assert room.properties.energy.infiltration == office_program.infiltration
     assert room.properties.energy.ventilation == office_program.ventilation
     assert room.properties.energy.setpoint == office_program.setpoint
+    assert room.properties.energy.floor_area_with_constructions('Meters') < \
+        room.floor_area
 
 
 def test_default_properties():

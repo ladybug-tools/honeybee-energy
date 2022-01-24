@@ -3,8 +3,9 @@
 # import honeybee-core and ladybug-geometry modules
 from ladybug_geometry.geometry2d.pointvector import Vector2D
 from ladybug_geometry.geometry3d.pointvector import Point3D
-from honeybee.boundarycondition import Outdoors, Surface, boundary_conditions
+from honeybee.boundarycondition import Outdoors, Ground, Surface, boundary_conditions
 from honeybee.facetype import Wall, RoofCeiling, Floor, AirBoundary
+from honeybee.units import conversion_factor_to_meters
 from honeybee.aperture import Aperture
 
 # import the main types of assignable objects
@@ -572,6 +573,37 @@ class RoomEnergyProperties(object):
     def remove_internal_masses(self):
         """Remove all internal masses from the Room."""
         self._internal_masses = []
+
+    def floor_area_with_constructions(
+            self, geometry_units, destination_units='Meters', tolerance=0.01):
+        """Get the floor area of the Room accounting for wall constructions.
+
+        Args:
+            geometry_units: The units in which the Room geometry exists.
+            destination_units: The "squared" units that the output value will
+                be in. (Default: Meters).
+            tolerance: The maximum difference between values at which point vertices
+                are considered to be the same. (Default: 0.01, suitable for objects
+                in meters).
+        """
+        # get the area of the floors without accounting for constructions
+        con_fac = conversion_factor_to_meters(geometry_units)
+        floors = [face for face in self.host._faces if isinstance(face.type, Floor)]
+        base_area = sum((f.area for f in floors)) * con_fac
+        # subtract the thickness of the constructions from the base area
+        seg_sub = 0
+        for flr in floors:
+            fg = flr.geometry
+            segs = fg.boundary_segments if not fg.has_holes else \
+                fg.boundary_segments + fg.hole_segments
+            for seg in segs:
+                w_f = self._segment_wall_face(seg, tolerance)
+                if seg is not None:
+                    th = w_f.properties.energy.construction.thickness
+                    t_c = th if isinstance(flr.boundary_condition, (Outdoors, Ground)) \
+                        else th / 2
+                    seg_sub += seg.length * t_c
+        return (base_area - seg_sub) / conversion_factor_to_meters(destination_units)
 
     def remove_child_constructions(self):
         """Remove constructions assigned to the Room's Faces, Apertures, Doors and Shades.
@@ -1462,6 +1494,29 @@ class RoomEnergyProperties(object):
             setattr(load_obj, property_name, value / floor_area)
         except ZeroDivisionError:
             pass  # no floor area; just leave the load level as is
+
+    def _segment_wall_face(self, segment, tolerance):
+        """Get a Wall Face that corresponds with a certain wall segment.
+
+        Args:
+            segment: A LineSegment3D along one of the walls of the room.
+            tolerance: The maximum difference between values at which point vertices
+                are considered to be the same.
+        """
+        for face in self.host.faces:
+            if isinstance(face.type, Wall):
+                fg = face.geometry
+                try:
+                    verts = fg._remove_colinear(
+                        fg._boundary, fg.boundary_polygon2d, tolerance)
+                except AssertionError:
+                    return None
+                for v1 in verts:
+                    if segment.p1.is_equivalent(v1, tolerance):
+                        p2 = segment.p2
+                        for v2 in verts:
+                            if p2.is_equivalent(v2, tolerance):
+                                return face
 
     def ToString(self):
         return self.__repr__()
