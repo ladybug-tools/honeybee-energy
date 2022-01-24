@@ -34,6 +34,7 @@ class AirBoundaryConstruction(object):
         * air_mixing_per_area
         * air_mixing_schedule
         * user_data
+        * thickness
     """
 
     __slots__ = ('_identifier', '_display_name', '_air_mixing_per_area',
@@ -120,6 +121,11 @@ class AirBoundaryConstruction(object):
             assert isinstance(value, dict), 'Expected dictionary for honeybee_energy' \
                 'object user_data. Got {}.'.format(type(value))
         self._user_data = value
+
+    @property
+    def thickness(self):
+        """Thickness of the construction, always zero for air boundary construction."""
+        return 0
 
     @classmethod
     def from_dict(cls, data):
