@@ -2,17 +2,18 @@
 """Complete definition of people in a simulation, including schedule and load."""
 from __future__ import division
 
+from honeybee._lockable import lockable
+from honeybee.typing import float_in_range, float_positive, clean_and_id_ep_string
+from honeybee.altnumber import autocalculate
+
 from ._base import _LoadBase
 from ..schedule.ruleset import ScheduleRuleset
 from ..schedule.fixedinterval import ScheduleFixedInterval
 from ..reader import parse_idf_string
 from ..writer import generate_idf_string
+from ..properties.extension import PeopleProperties
 
 import honeybee_energy.lib.schedules as _sched_lib
-
-from honeybee._lockable import lockable
-from honeybee.typing import float_in_range, float_positive, clean_and_id_ep_string
-from honeybee.altnumber import autocalculate
 
 
 @lockable
@@ -68,6 +69,7 @@ class People(_LoadBase):
         self.activity_schedule = activity_schedule
         self.radiant_fraction = radiant_fraction
         self.latent_fraction = latent_fraction
+        self._properties = PeopleProperties(self)
 
     @property
     def people_per_area(self):
@@ -266,6 +268,8 @@ class People(_LoadBase):
             new_obj.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
             new_obj.user_data = data['user_data']
+        if 'properties' in data and data['properties'] is not None:
+            new_obj.properties._load_extension_attr_from_dict(data['properties'])
         return new_obj
 
     @classmethod
@@ -305,6 +309,8 @@ class People(_LoadBase):
             new_obj.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
             new_obj.user_data = data['user_data']
+        if 'properties' in data and data['properties'] is not None:
+            new_obj.properties._load_extension_attr_from_dict(data['properties'])
         return new_obj
 
     def to_idf(self, zone_identifier):
@@ -357,6 +363,9 @@ class People(_LoadBase):
             base['display_name'] = self.display_name
         if self._user_data is not None:
             base['user_data'] = self.user_data
+        prop_dict = self.properties.to_dict()
+        if prop_dict is not None:
+            base['properties'] = prop_dict
         return base
 
     @staticmethod
@@ -462,6 +471,7 @@ class People(_LoadBase):
             self.activity_schedule, self.radiant_fraction, self.latent_fraction)
         new_obj._display_name = self._display_name
         new_obj._user_data = None if self._user_data is None else self._user_data.copy()
+        new_obj._properties._duplicate_extension_attr(self._properties)
         return new_obj
 
     def __repr__(self):

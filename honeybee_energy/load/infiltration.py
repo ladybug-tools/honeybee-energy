@@ -2,14 +2,15 @@
 """Complete definition of infiltration in a simulation, including schedule and load."""
 from __future__ import division
 
+from honeybee._lockable import lockable
+from honeybee.typing import float_positive, clean_and_id_ep_string
+
 from ._base import _LoadBase
 from ..schedule.ruleset import ScheduleRuleset
 from ..schedule.fixedinterval import ScheduleFixedInterval
 from ..reader import parse_idf_string
 from ..writer import generate_idf_string
-
-from honeybee._lockable import lockable
-from honeybee.typing import float_positive, clean_and_id_ep_string
+from ..properties.extension import InfiltrationProperties
 
 
 @lockable
@@ -72,6 +73,7 @@ class Infiltration(_LoadBase):
         self.constant_coefficient = constant_coefficient
         self.temperature_coefficient = temperature_coefficient
         self.velocity_coefficient = velocity_coefficient
+        self._properties = InfiltrationProperties(self)
 
     @property
     def flow_per_exterior_area(self):
@@ -264,6 +266,8 @@ class Infiltration(_LoadBase):
             new_obj.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
             new_obj.user_data = data['user_data']
+        if 'properties' in data and data['properties'] is not None:
+            new_obj.properties._load_extension_attr_from_dict(data['properties'])
         return new_obj
 
     @classmethod
@@ -303,6 +307,8 @@ class Infiltration(_LoadBase):
             new_obj.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
             new_obj.user_data = data['user_data']
+        if 'properties' in data and data['properties'] is not None:
+            new_obj.properties._load_extension_attr_from_dict(data['properties'])
         return new_obj
 
     def to_idf(self, zone_identifier):
@@ -351,6 +357,9 @@ class Infiltration(_LoadBase):
             base['display_name'] = self.display_name
         if self._user_data is not None:
             base['user_data'] = self._user_data
+        prop_dict = self.properties.to_dict()
+        if prop_dict is not None:
+            base['properties'] = prop_dict
         return base
 
     @staticmethod
@@ -426,6 +435,7 @@ class Infiltration(_LoadBase):
             self.velocity_coefficient)
         new_obj._display_name = self._display_name
         new_obj._user_data = None if self._user_data is None else self._user_data.copy()
+        new_obj._properties._duplicate_extension_attr(self._properties)
         return new_obj
 
     def __repr__(self):

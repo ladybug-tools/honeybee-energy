@@ -2,6 +2,11 @@
 """Window Construction."""
 from __future__ import division
 
+import re
+
+from honeybee._lockable import lockable
+from honeybee.typing import clean_rad_string
+
 from ._base import _ConstructionBase
 from ..material.dictutil import dict_to_material
 from ..material._base import _EnergyMaterialWindowBase
@@ -11,12 +16,7 @@ from ..material.gas import _EnergyWindowMaterialGasBase, EnergyWindowMaterialGas
     EnergyWindowMaterialGasMixture, EnergyWindowMaterialGasCustom
 from ..material.shade import EnergyWindowMaterialShade, EnergyWindowMaterialBlind
 from ..reader import parse_idf_string, clean_idf_file_contents
-
-from honeybee._lockable import lockable
-from honeybee.typing import clean_rad_string
-
-import re
-import os
+from ..properties.extension import WindowConstructionProperties
 
 
 @lockable
@@ -59,6 +59,11 @@ class WindowConstruction(_ConstructionBase):
         * user_data
     """
     __slots__ = ()
+
+    def __init__(self, identifier, materials):
+        """Initialize window construction."""
+        _ConstructionBase.__init__(self, identifier, materials)
+        self._properties = WindowConstructionProperties(self)
 
     @property
     def materials(self):
@@ -488,6 +493,8 @@ class WindowConstruction(_ConstructionBase):
             new_obj.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
             new_obj.user_data = data['user_data']
+        if 'properties' in data and data['properties'] is not None:
+            new_obj.properties._load_extension_attr_from_dict(data['properties'])
         return new_obj
 
     @classmethod
@@ -520,6 +527,8 @@ class WindowConstruction(_ConstructionBase):
             new_obj.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
             new_obj.user_data = data['user_data']
+        if 'properties' in data and data['properties'] is not None:
+            new_obj.properties._load_extension_attr_from_dict(data['properties'])
         return new_obj
 
     def to_idf(self):
@@ -593,6 +602,11 @@ class WindowConstruction(_ConstructionBase):
             [m.to_dict() for m in self.materials]
         if self._display_name is not None:
             base['display_name'] = self.display_name
+        if self._user_data is not None:
+            base['user_data'] = self.user_data
+        prop_dict = self.properties.to_dict()
+        if prop_dict is not None:
+            base['properties'] = prop_dict
         return base
 
     def to_simple_construction(self):

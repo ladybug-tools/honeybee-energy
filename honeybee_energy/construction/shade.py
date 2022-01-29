@@ -2,12 +2,13 @@
 """Shade Construction."""
 from __future__ import division
 
+from honeybee._lockable import lockable
+from honeybee.typing import valid_ep_string, float_in_range, clean_rad_string
+
 from .window import WindowConstruction
 from ..material.glazing import EnergyWindowMaterialGlazing
 from ..writer import generate_idf_string
-
-from honeybee._lockable import lockable
-from honeybee.typing import valid_ep_string, float_in_range, clean_rad_string
+from ..properties.extension import ShadeConstructionProperties
 
 
 @lockable
@@ -42,7 +43,8 @@ class ShadeConstruction(object):
     """
 
     __slots__ = ('_identifier', '_display_name', '_solar_reflectance',
-                 '_visible_reflectance', '_is_specular', '_locked', '_user_data')
+                 '_visible_reflectance', '_is_specular',
+                 '_locked', '_properties', '_user_data')
 
     def __init__(self, identifier, solar_reflectance=0.2, visible_reflectance=0.2,
                  is_specular=False):
@@ -54,6 +56,7 @@ class ShadeConstruction(object):
         self.visible_reflectance = visible_reflectance
         self.is_specular = is_specular
         self._user_data = None
+        self._properties = ShadeConstructionProperties(self)
 
     @property
     def identifier(self):
@@ -158,6 +161,11 @@ class ShadeConstruction(object):
                 'object _user_data. Got {}.'.format(type(value))
         self._user_data = value
 
+    @property
+    def properties(self):
+        """Get properties for extensions."""
+        return self._properties
+
     def glazing_construction(self):
         """Get a WindowConstruction that EnergyPlus uses for specular reflection.
 
@@ -199,6 +207,8 @@ class ShadeConstruction(object):
             new_obj.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
             new_obj.user_data = data['user_data']
+        if 'properties' in data and data['properties'] is not None:
+            new_obj.properties._load_extension_attr_from_dict(data['properties'])
         return new_obj
 
     def to_idf(self, host_shade_identifier):
@@ -243,6 +253,9 @@ class ShadeConstruction(object):
             base['display_name'] = self.display_name
         if self._user_data is not None:
             base['user_data'] = self.user_data
+        prop_dict = self.properties.to_dict()
+        if prop_dict is not None:
+            base['properties'] = prop_dict
         return base
 
     def duplicate(self):
@@ -269,6 +282,7 @@ class ShadeConstruction(object):
             self._is_specular)
         new_con._display_name = self._display_name
         new_con._user_data = None if self._user_data is None else self._user_data.copy()
+        new_con._properties._duplicate_extension_attr(self._properties)
         return new_con
 
     def __key(self):

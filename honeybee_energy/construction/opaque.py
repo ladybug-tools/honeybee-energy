@@ -2,16 +2,16 @@
 """Opaque Construction."""
 from __future__ import division
 
+import re
+
+from honeybee._lockable import lockable
+
 from ._base import _ConstructionBase
 from ..material.dictutil import dict_to_material
 from ..material._base import _EnergyMaterialOpaqueBase
 from ..material.opaque import EnergyMaterial, EnergyMaterialNoMass
 from ..reader import parse_idf_string, clean_idf_file_contents
-
-from honeybee._lockable import lockable
-
-import re
-import os
+from ..properties.extension import OpaqueConstructionProperties
 
 
 @lockable
@@ -48,6 +48,11 @@ class OpaqueConstruction(_ConstructionBase):
         * user_data
     """
     __slots__ = ()
+
+    def __init__(self, identifier, materials):
+        """Initialize opaque construction."""
+        _ConstructionBase.__init__(self, identifier, materials)
+        self._properties = OpaqueConstructionProperties(self)
 
     @property
     def materials(self):
@@ -216,6 +221,8 @@ class OpaqueConstruction(_ConstructionBase):
             new_obj.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
             new_obj.user_data = data['user_data']
+        if 'properties' in data and data['properties'] is not None:
+            new_obj.properties._load_extension_attr_from_dict(data['properties'])
         return new_obj
 
     @classmethod
@@ -249,6 +256,8 @@ class OpaqueConstruction(_ConstructionBase):
             new_obj.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
             new_obj.user_data = data['user_data']
+        if 'properties' in data and data['properties'] is not None:
+            new_obj.properties._load_extension_attr_from_dict(data['properties'])
         return new_obj
 
     def to_idf(self):
@@ -296,6 +305,9 @@ class OpaqueConstruction(_ConstructionBase):
             base['display_name'] = self.display_name
         if self._user_data is not None:
             base['user_data'] = self.user_data
+        prop_dict = self.properties.to_dict()
+        if prop_dict is not None:
+            base['properties'] = prop_dict
         return base
 
     @staticmethod

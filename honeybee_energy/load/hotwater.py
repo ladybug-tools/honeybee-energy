@@ -2,15 +2,16 @@
 """Complete definition of service hot water, including schedule and load."""
 from __future__ import division
 
+from honeybee._lockable import lockable
+from honeybee.typing import float_in_range, float_positive, clean_and_id_ep_string
+
 from ._base import _LoadBase
 from ..schedule.ruleset import ScheduleRuleset
 from ..schedule.fixedinterval import ScheduleFixedInterval
 from ..reader import parse_idf_string
 from ..writer import generate_idf_string
 from ..lib.schedules import always_on
-
-from honeybee._lockable import lockable
-from honeybee.typing import float_in_range, float_positive, clean_and_id_ep_string
+from ..properties.extension import ServiceHotWaterProperties
 
 
 @lockable
@@ -64,6 +65,7 @@ class ServiceHotWater(_LoadBase):
         self.target_temperature = target_temperature
         self.sensible_fraction = sensible_fraction
         self.latent_fraction = latent_fraction
+        self._properties = ServiceHotWaterProperties(self)
 
     @property
     def flow_per_area(self):
@@ -306,6 +308,8 @@ class ServiceHotWater(_LoadBase):
                       target, sens_fract, lat_fract)
         if 'user_data' in data and data['user_data'] is not None:
             new_obj.user_data = data['user_data']
+        if 'properties' in data and data['properties'] is not None:
+            new_obj.properties._load_extension_attr_from_dict(data['properties'])
         return cls._apply_optional_dict_props(new_obj, data)
 
     @classmethod
@@ -343,6 +347,8 @@ class ServiceHotWater(_LoadBase):
                       target, sens_fract, lat_fract)
         if 'user_data' in data and data['user_data'] is not None:
             new_obj.user_data = data['user_data']
+        if 'properties' in data and data['properties'] is not None:
+            new_obj.properties._load_extension_attr_from_dict(data['properties'])
         return cls._apply_optional_dict_props(new_obj, data)
 
     def to_idf(self, room):
@@ -416,6 +422,9 @@ class ServiceHotWater(_LoadBase):
             base['display_name'] = self.display_name
         if self._user_data is not None:
             base['user_data'] = self.user_data
+        prop_dict = self.properties.to_dict()
+        if prop_dict is not None:
+            base['properties'] = prop_dict
         return base
 
     @staticmethod
@@ -512,6 +521,7 @@ class ServiceHotWater(_LoadBase):
             self.target_temperature, self.sensible_fraction, self.latent_fraction)
         new_obj._display_name = self._display_name
         new_obj._user_data = None if self._user_data is None else self._user_data.copy()
+        new_obj._properties._duplicate_extension_attr(self._properties)
         return new_obj
 
     def __repr__(self):
