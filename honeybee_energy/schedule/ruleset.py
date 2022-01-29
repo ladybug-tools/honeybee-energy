@@ -2,7 +2,6 @@
 """Complete annual schedule object built from ScheduleDay and rules for applying them."""
 from __future__ import division
 
-import os
 import re
 
 from honeybee._lockable import lockable
@@ -15,6 +14,7 @@ from ladybug.header import Header
 
 from ..reader import parse_idf_string, clean_idf_file_contents
 from ..writer import generate_idf_string
+from ..properties.extension import ScheduleRulesetProperties
 from .day import ScheduleDay
 from .rule import ScheduleRule
 from .typelimit import ScheduleTypeLimit
@@ -60,7 +60,7 @@ class ScheduleRuleset(object):
     __slots__ = ('_identifier', '_display_name', '_default_day_schedule',
                  '_schedule_rules', '_holiday_schedule', '_summer_designday_schedule',
                  '_winter_designday_schedule', '_schedule_type_limit',
-                 '_locked', '_user_data')
+                 '_locked', '_properties', '_user_data')
     _dow_text_to_int = {'sunday': 1, 'monday': 2, 'tuesday': 3, 'wednesday': 4,
                         'thursday': 2, 'friday': 3, 'saturday': 7}
     _schedule_week_comments = (
@@ -81,6 +81,9 @@ class ScheduleRuleset(object):
         self.holiday_schedule = holiday_schedule
         self.summer_designday_schedule = summer_designday_schedule
         self.winter_designday_schedule = winter_designday_schedule
+        
+        # initialize properties for extensions and user data
+        self._properties = ScheduleRulesetProperties(self)
         self._user_data = None
 
     @property
@@ -272,6 +275,10 @@ class ScheduleRuleset(object):
                 'object user_data. Got {}.'.format(type(value))
         self._user_data = value
 
+    @property
+    def properties(self):
+        """Get properties for extensions."""
+        return self._properties
 
     def add_rule(self, rule):
         """Add a ScheduleRule to this ScheduleRuleset.
@@ -740,6 +747,8 @@ class ScheduleRuleset(object):
             new_obj.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
             new_obj.user_data = data['user_data']
+        if 'properties' in data and data['properties'] is not None:
+            new_obj.properties._load_extension_attr_from_dict(data['properties'])
         return new_obj
 
     @classmethod
@@ -782,6 +791,8 @@ class ScheduleRuleset(object):
             schedule.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
             schedule.user_data = data['user_data']
+        if 'properties' in data and data['properties'] is not None:
+            schedule.properties._load_extension_attr_from_dict(data['properties'])
         return schedule
 
     def to_rules(self, start_date, end_date):
@@ -981,6 +992,9 @@ class ScheduleRuleset(object):
             base['display_name'] = self.display_name
         if self._user_data is not None:
             base['user_data'] = self.user_data
+        prop_dict = self.properties.to_dict()
+        if prop_dict is not None:
+            base['properties'] = prop_dict
         return base
 
     def duplicate(self):
@@ -1642,6 +1656,7 @@ class ScheduleRuleset(object):
             self._schedule_type_limit, holiday, summer, winter)
         new_obj._display_name = self._display_name
         new_obj._user_data = None if self._user_data is None else self._user_data.copy()
+        new_obj._properties._duplicate_extension_attr(self._properties)
         return new_obj
 
     def ToString(self):

@@ -3,16 +3,17 @@
 from __future__ import division
 import random
 
+from honeybee._lockable import lockable
+from honeybee.typing import float_in_range, clean_and_id_ep_string
+
 from ._base import _LoadBase
 from ..schedule.ruleset import ScheduleRuleset
 from ..schedule.fixedinterval import ScheduleFixedInterval
 from ..reader import parse_idf_string
 from ..writer import generate_idf_string
+from ..properties.extension import SetpointProperties
 
 import honeybee_energy.lib.scheduletypelimits as _type_lib
-
-from honeybee._lockable import lockable
-from honeybee.typing import float_in_range, clean_and_id_ep_string
 
 
 @lockable
@@ -69,6 +70,7 @@ class Setpoint(_LoadBase):
         self.cooling_schedule = cooling_schedule
         self.humidifying_schedule = humidifying_schedule
         self.dehumidifying_schedule = dehumidifying_schedule
+        self._properties = SetpointProperties(self)
 
     @property
     def heating_schedule(self):
@@ -393,6 +395,8 @@ class Setpoint(_LoadBase):
             new_obj.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
             new_obj.user_data = data['user_data']
+        if 'properties' in data and data['properties'] is not None:
+            new_obj.properties._load_extension_attr_from_dict(data['properties'])
         return new_obj
 
     @classmethod
@@ -444,6 +448,8 @@ class Setpoint(_LoadBase):
             new_obj.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
             new_obj.user_data = data['user_data']
+        if 'properties' in data and data['properties'] is not None:
+            new_obj.properties._load_extension_attr_from_dict(data['properties'])
         return new_obj
 
     def to_idf(self, zone_identifier):
@@ -515,6 +521,9 @@ class Setpoint(_LoadBase):
             base['display_name'] = self.display_name
         if self._user_data is not None:
             base['user_data'] = self.user_data
+        prop_dict = self.properties.to_dict()
+        if prop_dict is not None:
+            base['properties'] = prop_dict
         return base
 
     @staticmethod
@@ -636,6 +645,7 @@ class Setpoint(_LoadBase):
             self.humidifying_schedule, self.dehumidifying_schedule)
         new_obj._display_name = self._display_name
         new_obj._user_data = None if self._user_data is None else self._user_data.copy()
+        new_obj._properties._duplicate_extension_attr(self._properties)
         return new_obj
 
     def __repr__(self):

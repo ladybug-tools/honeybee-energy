@@ -238,7 +238,7 @@ def test_schedule_ruleset_from_week_day_schedules():
 
 
 def test_schedule_ruleset_from_idf_file():
-    """Test the initalization of ScheduleRuleset from file."""
+    """Test the initialization of ScheduleRuleset from file."""
     office_sched_idf = './tests/idf/OfficeOccupancySchedule.idf'
     office_scheds = ScheduleRuleset.extract_all_from_idf_file(office_sched_idf)
 
@@ -262,7 +262,7 @@ def test_schedule_ruleset_from_idf_file():
 
 
 def test_schedule_ruleset_from_idf_file_compact():
-    """Test the initalization of ScheduleRuleset from file with Schedule:Week:Compact
+    """Test the initialization of ScheduleRuleset from file with Schedule:Week:Compact
     and Schedule:Compact.
     """
     office_sched_idf = './tests/idf/OfficeOccupancySchedule_Compact.idf'

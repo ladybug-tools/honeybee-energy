@@ -38,7 +38,8 @@ class _ConstructionBase(object):
     # generic air material used to compute indoor film coefficients.
     _air = EnergyWindowMaterialGas('generic air', gas_type='Air')
 
-    __slots__ = ('_identifier', '_display_name', '_materials', '_locked', '_user_data')
+    __slots__ = ('_identifier', '_display_name', '_materials', '_locked',
+                 '_properties', '_user_data')
 
     def __init__(self, identifier, materials):
         """Initialize energy construction."""
@@ -47,6 +48,7 @@ class _ConstructionBase(object):
         self._display_name = None
         self.materials = materials
         self._user_data = None
+        self._properties = None
 
     @property
     def identifier(self):
@@ -173,6 +175,11 @@ class _ConstructionBase(object):
             assert isinstance(value, dict), 'Expected dictionary for honeybee_energy' \
                 'object user_data. Got {}.'.format(type(value))
         self._user_data = value
+
+    @property
+    def properties(self):
+        """Get properties for extensions."""
+        return self._properties
 
     def duplicate(self):
         """Get a copy of this construction."""
@@ -312,6 +319,7 @@ class _ConstructionBase(object):
             self.identifier, [mat.duplicate() for mat in self.materials])
         new_con._display_name = self._display_name
         new_con._user_data = None if self._user_data is None else self._user_data.copy()
+        new_con._properties._duplicate_extension_attr(self._properties)
         return new_con
 
     def __len__(self):

@@ -2,14 +2,15 @@
 """Complete definition of lighting in a simulation, including schedule and load."""
 from __future__ import division
 
+from honeybee._lockable import lockable
+from honeybee.typing import float_in_range, float_positive, clean_and_id_ep_string
+
 from ._base import _LoadBase
 from ..schedule.ruleset import ScheduleRuleset
 from ..schedule.fixedinterval import ScheduleFixedInterval
 from ..reader import parse_idf_string
 from ..writer import generate_idf_string
-
-from honeybee._lockable import lockable
-from honeybee.typing import float_in_range, float_positive, clean_and_id_ep_string
+from ..properties.extension import LightingProperties
 
 
 @lockable
@@ -64,6 +65,7 @@ class Lighting(_LoadBase):
         self.radiant_fraction = radiant_fraction
         self.visible_fraction = visible_fraction
         self.baseline_watts_per_area = None  # can be set by the user later
+        self._properties = LightingProperties(self)
 
     @property
     def watts_per_area(self):
@@ -277,6 +279,8 @@ class Lighting(_LoadBase):
                       ret_fract, rad_fract, vis_fract)
         if 'user_data' in data and data['user_data'] is not None:
             new_obj.user_data = data['user_data']
+        if 'properties' in data and data['properties'] is not None:
+            new_obj.properties._load_extension_attr_from_dict(data['properties'])
         return cls._apply_optional_dict_props(new_obj, data)
 
     @classmethod
@@ -314,6 +318,8 @@ class Lighting(_LoadBase):
                       ret_fract, rad_fract, vis_fract)
         if 'user_data' in data and data['user_data'] is not None:
             new_obj.user_data = data['user_data']
+        if 'properties' in data and data['properties'] is not None:
+            new_obj.properties._load_extension_attr_from_dict(data['properties'])
         return cls._apply_optional_dict_props(new_obj, data)
 
     def to_idf(self, zone_identifier):
@@ -360,6 +366,9 @@ class Lighting(_LoadBase):
             base['baseline_watts_per_area'] = self._baseline_watts_per_area
         if self._user_data is not None:
             base['user_data'] = self._user_data
+        prop_dict = self.properties.to_dict()
+        if prop_dict is not None:
+            base['properties'] = prop_dict
         return base
 
     @staticmethod
@@ -448,6 +457,7 @@ class Lighting(_LoadBase):
         new_obj._display_name = self._display_name
         new_obj._baseline_watts_per_area = self._baseline_watts_per_area
         new_obj._user_data = None if self._user_data is None else self._user_data.copy()
+        new_obj._properties._duplicate_extension_attr(self._properties)
         return new_obj
 
     def __repr__(self):

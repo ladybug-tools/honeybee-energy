@@ -3,11 +3,11 @@
 from __future__ import division
 import random
 
-from ..schedule.ruleset import ScheduleRuleset
-from ..schedule.fixedinterval import ScheduleFixedInterval
-
 from honeybee._lockable import lockable
 from honeybee.typing import valid_ep_string, tuple_with_length
+
+from ..schedule.ruleset import ScheduleRuleset
+from ..schedule.fixedinterval import ScheduleFixedInterval
 
 
 @lockable
@@ -24,7 +24,8 @@ class _LoadBase(object):
         * display_name
         * user_data
     """
-    __slots__ = ('_identifier', '_display_name', '_locked', '_user_data')
+    __slots__ = ('_identifier', '_display_name', '_locked',
+                 '_properties', '_user_data')
 
     def __init__(self, identifier):
         """Initialize LoadBase."""
@@ -32,6 +33,7 @@ class _LoadBase(object):
         self.identifier = identifier
         self._display_name = None
         self._user_data = None
+        self._properties = None
 
     @property
     def identifier(self):
@@ -75,6 +77,11 @@ class _LoadBase(object):
             assert isinstance(value, dict), 'Expected dictionary for honeybee_energy' \
                 'object user_data. Got {}.'.format(type(value))
         self._user_data = value
+
+    @property
+    def properties(self):
+        """Get properties for extensions."""
+        return self._properties
 
     def duplicate(self):
         """Get a copy of this object."""
