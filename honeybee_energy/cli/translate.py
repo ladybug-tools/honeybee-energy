@@ -579,7 +579,8 @@ def model_occ_schedules(model_json, threshold, period, output_file):
         # convert occupancy schedules to lists of 0/1 values
         schedules = {}
         for sch in scheds:
-            sch_data = sch.data_collection()
+            sch_data = sch.data_collection() if isinstance(sch, ScheduleRuleset) \
+                else sch.data_collection
             if not a_per.is_annual:
                 sch_data = sch_data.filter_by_analysis_period(a_per)
             values = []
