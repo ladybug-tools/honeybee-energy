@@ -160,3 +160,7 @@ class SetpointProperties(_EnergyProperties):
 
 class VentilationProperties(_EnergyProperties):
     """Ventilation properties to be extended by extensions."""
+
+
+class IdealAirSystemProperties(_EnergyProperties):
+    """IdealAirSystem properties to be extended by extensions."""

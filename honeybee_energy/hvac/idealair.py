@@ -9,6 +9,7 @@ from honeybee.altnumber import autosize, no_limit
 from ._base import _HVACSystem
 from ..reader import parse_idf_string
 from ..writer import generate_idf_string
+from ..properties.extension import IdealAirSystemProperties
 
 
 @lockable
@@ -72,6 +73,7 @@ class IdealAirSystem(_HVACSystem):
         * heating_availability
         * cooling_availability
         * schedules
+        * properties
     """
     __slots__ = ('_economizer_type', '_demand_controlled_ventilation',
                  '_sensible_heat_recovery', '_latent_heat_recovery',
@@ -105,6 +107,9 @@ class IdealAirSystem(_HVACSystem):
         self.cooling_limit = cooling_limit
         self.heating_availability = heating_availability
         self.cooling_availability = cooling_availability
+
+        # initialize properties for extensions
+        self._properties = IdealAirSystemProperties(self)
 
     @property
     def economizer_type(self):
@@ -369,6 +374,8 @@ class IdealAirSystem(_HVACSystem):
             new_obj.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
             new_obj.user_data = data['user_data']
+        if 'properties' in data and data['properties'] is not None:
+            new_obj.properties._load_extension_attr_from_dict(data['properties'])
         return new_obj
 
     @classmethod
@@ -426,6 +433,8 @@ class IdealAirSystem(_HVACSystem):
             new_obj.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
             new_obj.user_data = data['user_data']
+        if 'properties' in data and data['properties'] is not None:
+            new_obj.properties._load_extension_attr_from_dict(data['properties'])
         return new_obj
 
     def to_idf(self, room):
@@ -556,6 +565,9 @@ class IdealAirSystem(_HVACSystem):
             base['display_name'] = self.display_name
         if self._user_data is not None:
             base['user_data'] = self.user_data
+        prop_dict = self.properties.to_dict()
+        if prop_dict is not None:
+            base['properties'] = prop_dict
         return base
 
     def _air_temperature_check(self):
@@ -606,6 +618,7 @@ class IdealAirSystem(_HVACSystem):
             self._cooling_availability)
         new_obj._display_name = self._display_name
         new_obj._user_data = None if self._user_data is None else self._user_data.copy()
+        new_obj._properties._duplicate_extension_attr(self._properties)
         return new_obj
 
     def __key(self):
