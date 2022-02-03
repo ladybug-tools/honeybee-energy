@@ -24,13 +24,12 @@ class _HVACSystem(object):
         * schedules
         * user_data
     """
-    __slots__ = ('_identifier', '_display_name', '_locked', '_user_data', '_properties')
+    __slots__ = ('_identifier', '_display_name', '_locked', '_user_data')
 
     def __init__(self, identifier):
         """Initialize HVACSystem."""
         self.identifier = identifier
         self._display_name = None
-        self._properties = None
         self._user_data = None
 
     @property
@@ -86,11 +85,6 @@ class _HVACSystem(object):
             assert isinstance(value, dict), 'Expected dictionary for honeybee_energy' \
                 'object user_data. Got {}.'.format(type(value))
         self._user_data = value
-
-    @property
-    def properties(self):
-        """Get properties for extensions."""
-        return self._properties
 
     def duplicate(self):
         """Get a copy of this object."""

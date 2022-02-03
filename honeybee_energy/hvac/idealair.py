@@ -79,7 +79,7 @@ class IdealAirSystem(_HVACSystem):
                  '_sensible_heat_recovery', '_latent_heat_recovery',
                  '_heating_air_temperature', '_cooling_air_temperature',
                  '_heating_limit', '_cooling_limit', '_heating_availability',
-                 '_cooling_availability')
+                 '_cooling_availability', '_properties')
     ECONOMIZER_TYPES = ('NoEconomizer', 'DifferentialDryBulb', 'DifferentialEnthalpy')
 
     def __init__(self, identifier, economizer_type='DifferentialDryBulb',
@@ -608,6 +608,11 @@ class IdealAirSystem(_HVACSystem):
                 else data['cooling_limit']
 
         return econ, dcv, sensible, latent, heat_temp, cool_temp, heat_limit, cool_limit
+
+    @property
+    def properties(self):
+        """Get properties for extensions."""
+        return self._properties
 
     def __copy__(self):
         new_obj = IdealAirSystem(
