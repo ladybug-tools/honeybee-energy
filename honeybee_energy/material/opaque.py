@@ -90,7 +90,7 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
     @roughness.setter
     def roughness(self, rough):
         assert rough in self.ROUGHTYPES, 'Invalid input "{}" for material roughness.' \
-            ' Roughness must be one of the following:\n'.format(
+            ' Roughness must be one of the following:\n{}'.format(
                 rough, self.ROUGHTYPES)
         self._roughness = rough
 
@@ -451,7 +451,7 @@ class EnergyMaterialNoMass(_EnergyMaterialOpaqueBase):
     @roughness.setter
     def roughness(self, rough):
         assert rough in self.ROUGHTYPES, 'Invalid input "{}" for material roughness.' \
-            ' Roughness must be one of the following:\n'.format(
+            ' Roughness must be one of the following:\n{}'.format(
                 rough, self.ROUGHTYPES)
         self._roughness = rough
 
@@ -682,8 +682,9 @@ class EnergyMaterialVegetation(_EnergyMaterialOpaqueBase):
             * Smooth
             * VerySmooth
 
-        soil_thermal_absorptance: A number between 0 and 1 for the fraction of incident long
-            wavelength radiation that is absorbed by the soul material. (Default: 0.9).
+        soil_thermal_absorptance: A number between 0 and 1 for the fraction of
+            incident long wavelength radiation that is absorbed by the soil
+            material. (Default: 0.9).
         soil_solar_absorptance: A number between 0 and 1 for the fraction of incident
             solar radiation absorbed by the soil material. (Default: 0.7).
         soil_visible_absorptance: A number between 0 and 1 for the fraction of incident
@@ -693,7 +694,7 @@ class EnergyMaterialVegetation(_EnergyMaterialOpaqueBase):
             vegetation layer [m]. (Default: 0.2 m).
         leaf_area_index: A number between 0.001 and 5.0 for the projected leaf area
             per unit area of soil surface (aka. Leaf Area Index or LAI). Note that
-            the fraction of vegetation cover is calculated directly from LAI 
+            the fraction of vegetation cover is calculated directly from LAI
             using an empirical relation. (Default: 1.0).
         leaf_reflectivity: A number between 0.05 and 0.5 for the fraction of incident
             solar radiation that is reflected by the leaf surfaces. Solar radiation
@@ -703,7 +704,7 @@ class EnergyMaterialVegetation(_EnergyMaterialOpaqueBase):
             radiation emitted from leaf surfaces to that emitted by an ideal black
             body at the same temperature. (Default: 0.95).
         min_stomatal_resist: A number between 50 and 300 for the resistance of the plants
-            to moisture transport [s/m]. Plants with low values of stomatal resistance 
+            to moisture transport [s/m]. Plants with low values of stomatal resistance
             will result in higher evapotranspiration rates than plants with high
             resistance. (Default: 180).
 
@@ -788,7 +789,7 @@ class EnergyMaterialVegetation(_EnergyMaterialOpaqueBase):
     @roughness.setter
     def roughness(self, rough):
         assert rough in self.ROUGHTYPES, 'Invalid input "{}" for material roughness.' \
-            ' Roughness must be one of the following:\n'.format(rough, self.ROUGHTYPES)
+            ' Roughness must be one of the following:\n{}'.format(rough, self.ROUGHTYPES)
         self._roughness = rough
 
     @property
@@ -853,8 +854,8 @@ class EnergyMaterialVegetation(_EnergyMaterialOpaqueBase):
     @property
     def soil_visible_absorptance(self):
         """Get or set the visible absorptance of the soil material layer."""
-        return self._soil_visible_absorptance if self._soil_visible_absorptance is not None \
-            else self._soil_solar_absorptance
+        return self._soil_visible_absorptance if self._soil_visible_absorptance \
+            is not None else self._soil_solar_absorptance
 
     @soil_visible_absorptance.setter
     def soil_visible_absorptance(self, v_abs):
@@ -962,8 +963,16 @@ class EnergyMaterialVegetation(_EnergyMaterialOpaqueBase):
     @moist_diff_model.setter
     def moist_diff_model(self, mdc):
         assert mdc in self.DIFFTYPES, 'Invalid input "{}" for moisture diffusion ' \
-            'model. Must be one of the following:\n'.format(mdc, self.DIFFTYPES)
+            'model. Must be one of the following:\n{}'.format(mdc, self.DIFFTYPES)
         self._moist_diff_model = mdc
+
+    @property
+    def soil_layer(self):
+        """Get an EnergyMaterial represeting only the soil."""
+        return EnergyMaterial(
+            '{}_Soil'.format(self.identifier), self.thickness, self.conductivity,
+            self.density, self.specific_heat, self.soil_thermal_absorptance,
+            self.soil_solar_absorptance, self.soil_visible_absorptance)
 
     @property
     def thermal_absorptance(self):
@@ -1058,9 +1067,9 @@ class EnergyMaterialVegetation(_EnergyMaterialOpaqueBase):
         for i, ep_str in enumerate(ep_strs):  # fill in any default values
             if ep_str != '':
                 vals[i] = ep_str
-        mat= cls(vals[0], vals[8], vals[9], vals[10], vals[11],
-                 vals[7], vals[12], vals[13], vals[14],
-                 vals[1], vals[2], vals[3], vals[4], vals[5])
+        mat = cls(vals[0], vals[8], vals[9], vals[10], vals[11],
+                  vals[7], vals[12], vals[13], vals[14],
+                  vals[1], vals[2], vals[3], vals[4], vals[5])
         mat.sat_vol_moist_cont = vals[15]
         mat.residual_vol_moist_cont = vals[16]
         mat.init_vol_moist_cont = vals[17]
@@ -1177,7 +1186,7 @@ class EnergyMaterialVegetation(_EnergyMaterialOpaqueBase):
 
     def to_idf(self):
         """Get an EnergyPlus string representation of the material."""
-        soil_name = 'Green Roof Soil {}'.format(self.identifier)
+        soil_name = '{}_SoilLayer'.format(self.identifier)
         values = (
             self.identifier, self.plant_height, self.leaf_area_index,
             self.leaf_reflectivity, self.leaf_emissivity, self.min_stomatal_resist,
@@ -1255,9 +1264,9 @@ class EnergyMaterialVegetation(_EnergyMaterialOpaqueBase):
         new_material = self.__class__(
             self.identifier, self.thickness, self.conductivity, self.density,
             self.specific_heat, self.roughness, self.soil_thermal_absorptance,
-            self.soil_solar_absorptance, self.soil_visible_absorptance, self.plant_height,
-            self.leaf_area_index, self.leaf_reflectivity, self.leaf_emissivity,
-            self.min_stomatal_resist)
+            self.soil_solar_absorptance, self.soil_visible_absorptance,
+            self.plant_height, self.leaf_area_index, self.leaf_reflectivity,
+            self.leaf_emissivity, self.min_stomatal_resist)
         new_material._sat_vol_moist_cont = self._sat_vol_moist_cont
         new_material._residual_vol_moist_cont = self._residual_vol_moist_cont
         new_material._init_vol_moist_cont = self._init_vol_moist_cont
