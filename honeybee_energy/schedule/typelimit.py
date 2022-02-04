@@ -28,16 +28,28 @@ class ScheduleTypeLimit(object):
             schedule. If None or a NoLimit object, there will be no lower limit.
         upper_limit: An optional number for the upper limit for values in the
             schedule. If None or a NoLimit object, there will be no upper limit.
-        numeric_type: Either one of two strings: 'Continuous' or 'Discrete'.
-            The latter means that only integers are accepted as schedule values.
-            Default: 'Continuous'.
+        numeric_type: Either one of two strings: 'Continuous' or 'Discrete'. The
+            latter means that only integers are accepted as schedule values. (Default: 
+            Continuous).
         unit_type: Text for an EnergyPlus unit type, which will be used
             to assign units to the values in the schedule.  Note that this field
-            is not used in the actual calculations of EnergyPlus.
-            Default: 'Dimensionless'. Choose from the following options:
-            'Dimensionless', 'Temperature', 'DeltaTemperature', 'PrecipitationRate',
-            'Angle', 'ConvectionCoefficient', 'ActivityLevel', 'Velocity',
-            'Capacity', 'Power', 'Availability', 'Percent', 'Control', 'Mode'
+            is not used in the actual calculations of EnergyPlus. (Default: 
+            Dimensionless). Choose from the following options:
+
+            * Dimensionless
+            * Temperature
+            * DeltaTemperature
+            * PrecipitationRate
+            * Angle
+            * ConvectionCoefficient
+            * ActivityLevel
+            * Velocity
+            * Capacity
+            * Power
+            * Availability
+            * Percent
+            * Control
+            * Mode
 
     Properties:
         * identifier
@@ -188,7 +200,7 @@ class ScheduleTypeLimit(object):
             "display_name": 'Fractional',
             "lower_limit": 0,
             "upper_limit": 1,
-            "numeric_type": False,
+            "numeric_type": Continuous,
             "unit_type": "Dimensionless"
             }
         """
