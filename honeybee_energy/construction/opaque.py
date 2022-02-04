@@ -9,7 +9,8 @@ from honeybee._lockable import lockable
 from ._base import _ConstructionBase
 from ..material.dictutil import dict_to_material
 from ..material._base import _EnergyMaterialOpaqueBase
-from ..material.opaque import EnergyMaterial, EnergyMaterialNoMass
+from ..material.opaque import EnergyMaterial, EnergyMaterialNoMass, \
+    EnergyMaterialVegetation
 from ..reader import parse_idf_string, clean_idf_file_contents
 from ..properties.extension import OpaqueConstructionProperties
 
@@ -70,9 +71,12 @@ class OpaqueConstruction(_ConstructionBase):
         except TypeError:
             raise TypeError('Expected list or tuple for construction materials. '
                             'Got {}'.format(type(mats)))
-        for mat in mats:
+        for i, mat in enumerate(mats):
             assert isinstance(mat, _EnergyMaterialOpaqueBase), 'Expected opaque energy' \
                 ' material for construction. Got {}.'.format(type(mat))
+            if isinstance(mat, EnergyMaterialVegetation):
+                assert i == 0, 'Vegetation material layer must bet the first ' \
+                    '(exterior) layer in the construction.'
         assert len(mats) > 0, 'Construction must possess at least one material.'
         assert len(mats) <= 10, 'Opaque Construction cannot have more than 10 materials.'
         self._materials = mats
