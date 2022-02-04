@@ -516,6 +516,8 @@ class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
         new_material._dirt_correction = self._dirt_correction
         new_material._solar_diffusing = self._solar_diffusing
         new_material._display_name = self._display_name
+        new_material._user_data = None if self._user_data is None \
+            else self._user_data.copy()
         return new_material
 
 
@@ -798,4 +800,6 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
         new_material = EnergyWindowMaterialSimpleGlazSys(
             self.identifier, self.u_factor, self.shgc, self.vt)
         new_material._display_name = self._display_name
+        new_material._user_data = None if self._user_data is None \
+            else self._user_data.copy()
         return new_material
