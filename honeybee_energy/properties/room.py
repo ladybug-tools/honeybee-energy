@@ -25,6 +25,7 @@ from ..ventcool.control import VentilationControl
 from ..ventcool.crack import AFNCrack
 from ..ventcool.opening import VentilationOpening
 from ..construction.opaque import OpaqueConstruction
+from ..material.opaque import EnergyMaterialVegetation
 
 # import all hvac and shw modules
 from ..hvac import HVAC_TYPES_DICT
@@ -1051,6 +1052,9 @@ class RoomEnergyProperties(object):
                 the ground. If a multi-layered construction is input, the multiple
                 layers will only be used for the roof Face of the Room and all other
                 Faces will get a construction with the inner-most layer assigned.
+                If the outer-most material is an EnergyMaterialVegetation and there
+                are no other layers in the construction, the vegetation's soil
+                material will be used for all other Faces.
         """
         # process the input soil_construction
         assert isinstance(soil_construction, OpaqueConstruction), 'Expected ' \
@@ -1059,6 +1063,8 @@ class RoomEnergyProperties(object):
         int_soil = soil_construction if len(soil_construction.materials) == 1 else \
             OpaqueConstruction('{}_BelowGrade'.format(soil_construction.identifier),
                                (soil_construction.materials[-1],))
+        if isinstance(int_soil.materials[0], EnergyMaterialVegetation):
+            int_soil.materials = [int_soil.materials[0].soil_layer]
 
         # reset all of the properties of the room to reflect the ground
         self.reset_to_default()
@@ -1261,7 +1267,8 @@ class RoomEnergyProperties(object):
                 if dat['type'] == 'Process':
                     self._process_loads.append(Process.from_dict(dat))
                 else:
-                    self._process_loads.append(Process.from_dict_abridged(dat, schedules))
+                    self._process_loads.append(
+                        Process.from_dict_abridged(dat, schedules))
         if 'internal_masses' in abridged_data and \
                 abridged_data['internal_masses'] is not None:
             for dat in abridged_data['internal_masses']:

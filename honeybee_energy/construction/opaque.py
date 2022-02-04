@@ -337,8 +337,10 @@ class OpaqueConstruction(_ConstructionBase):
         mat_pattern1 = re.compile(r"(?i)(Material,[\s\S]*?;)")
         mat_pattern2 = re.compile(r"(?i)(Material:NoMass,[\s\S]*?;)")
         mat_pattern3 = re.compile(r"(?i)(Material:AirGap,[\s\S]*?;)")
+        mat_pattern4 = re.compile(r"(?i)(Material:RoofVegetation,[\s\S]*?;)")
         material_str = mat_pattern1.findall(file_contents) + \
-            mat_pattern2.findall(file_contents) + mat_pattern3.findall(file_contents)
+            mat_pattern2.findall(file_contents) + mat_pattern3.findall(file_contents) + \
+            mat_pattern4.findall(file_contents)
         materials_dict = OpaqueConstruction._idf_materials_dictionary(material_str)
         materials = list(materials_dict.values())
         # extract all of the construction objects
@@ -368,6 +370,9 @@ class OpaqueConstruction(_ConstructionBase):
                 materials_dict[mat_obj.identifier.upper()] = mat_obj
             elif mat_str.startswith('Material:AirGap,'):
                 mat_obj = EnergyMaterialNoMass.from_idf_air_gap(mat_str)
+                materials_dict[mat_obj.identifier.upper()] = mat_obj
+            elif mat_str.startswith('Material:RoofVegetation,'):
+                mat_obj = EnergyMaterialVegetation.from_idf(mat_str)
                 materials_dict[mat_obj.identifier.upper()] = mat_obj
         return materials_dict
 
