@@ -7,7 +7,6 @@ import json
 import shutil
 
 from ladybug.futil import preparedir
-from ladybug.dt import Date
 from ladybug.analysisperiod import AnalysisPeriod
 from honeybee.model import Model
 from honeybee.config import folders as hb_folders

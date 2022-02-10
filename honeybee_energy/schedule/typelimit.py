@@ -10,7 +10,6 @@ from honeybee.altnumber import no_limit
 from ladybug.datatype import fraction, temperature, temperaturedelta, power, \
     angle, speed, distance, uvalue
 
-import os
 import re
 
 
@@ -29,11 +28,11 @@ class ScheduleTypeLimit(object):
         upper_limit: An optional number for the upper limit for values in the
             schedule. If None or a NoLimit object, there will be no upper limit.
         numeric_type: Either one of two strings: 'Continuous' or 'Discrete'. The
-            latter means that only integers are accepted as schedule values. (Default: 
+            latter means that only integers are accepted as schedule values. (Default:
             Continuous).
         unit_type: Text for an EnergyPlus unit type, which will be used
             to assign units to the values in the schedule.  Note that this field
-            is not used in the actual calculations of EnergyPlus. (Default: 
+            is not used in the actual calculations of EnergyPlus. (Default:
             Dimensionless). Choose from the following options:
 
             * Dimensionless
