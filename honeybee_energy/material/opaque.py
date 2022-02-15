@@ -971,7 +971,8 @@ class EnergyMaterialVegetation(_EnergyMaterialOpaqueBase):
         """Get an EnergyMaterial represeting only the soil."""
         return EnergyMaterial(
             '{}_Soil'.format(self.identifier), self.thickness, self.conductivity,
-            self.density, self.specific_heat, self.soil_thermal_absorptance,
+            self.density, self.specific_heat, self.roughness,
+            self.soil_thermal_absorptance,
             self.soil_solar_absorptance, self.soil_visible_absorptance)
 
     @property
@@ -1261,7 +1262,7 @@ class EnergyMaterialVegetation(_EnergyMaterialOpaqueBase):
         return self.to_idf()
 
     def __copy__(self):
-        new_material = self.__class__(
+        new_material = EnergyMaterialVegetation(
             self.identifier, self.thickness, self.conductivity, self.density,
             self.specific_heat, self.roughness, self.soil_thermal_absorptance,
             self.soil_solar_absorptance, self.soil_visible_absorptance,
