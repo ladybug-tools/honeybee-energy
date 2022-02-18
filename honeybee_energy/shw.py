@@ -5,7 +5,7 @@ from __future__ import division
 from honeybee._lockable import lockable
 from honeybee.typing import valid_ep_string, valid_string, float_positive
 from honeybee.altnumber import autocalculate
-
+from .properties.extension import SHWSystemProperties
 
 @lockable
 class SHWSystem(object):
@@ -54,7 +54,7 @@ class SHWSystem(object):
     """
     __slots__ = ('_identifier', '_display_name', '_equipment_type', '_heater_efficiency',
                  '_ambient_condition', '_ambient_loss_coefficient',
-                 '_locked', '_user_data')
+                 '_locked', '_user_data', '_properties')
 
     EQUIPMENT_TYPES = (
         'Gas_WaterHeater',
@@ -79,6 +79,7 @@ class SHWSystem(object):
         self.identifier = identifier
         self._display_name = None
         self._user_data = None
+        self._properties = SHWSystemProperties(self)
 
         # set some dummy values that will get overwritten but let the checks pass
         self._heater_efficiency = None
@@ -197,6 +198,11 @@ class SHWSystem(object):
             assert isinstance(value, dict), 'Expected dictionary for honeybee_energy' \
                 'object user_data. Got {}.'.format(type(value))
         self._user_data = value
+    
+    @property
+    def properties(self):
+        """Get properties for extensions."""
+        return self._properties
 
     @classmethod
     def from_dict(cls, data):
@@ -235,6 +241,8 @@ class SHWSystem(object):
             new_obj.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
             new_obj.user_data = data['user_data']
+        if 'properties' in data and data['properties'] is not None:
+            new_obj.properties._load_extension_attr_from_dict(data['properties'])
         return new_obj
 
     def to_dict(self):
@@ -249,6 +257,9 @@ class SHWSystem(object):
             base['display_name'] = self.display_name
         if self._user_data is not None:
             base['user_data'] = self.user_data
+        prop_dict = self.properties.to_dict()
+        if prop_dict is not None:
+            base['properties'] = prop_dict
         return base
 
     def _check_efficiency_equipment_type(self):
@@ -279,6 +290,7 @@ class SHWSystem(object):
             self._ambient_condition, self._ambient_loss_coefficient)
         new_obj._display_name = self._display_name
         new_obj._user_data = None if self._user_data is None else self._user_data.copy()
+        new_obj._properties._duplicate_extension_attr(self._properties)
         return new_obj
 
     def __key(self):
