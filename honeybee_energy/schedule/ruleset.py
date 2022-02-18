@@ -81,7 +81,7 @@ class ScheduleRuleset(object):
         self.holiday_schedule = holiday_schedule
         self.summer_designday_schedule = summer_designday_schedule
         self.winter_designday_schedule = winter_designday_schedule
-        
+
         # initialize properties for extensions and user data
         self._properties = ScheduleRulesetProperties(self)
         self._user_data = None
@@ -257,7 +257,7 @@ class ScheduleRuleset(object):
                   for sch in self._schedule_rules]):
             return True
         return False
-    
+
     @property
     def user_data(self):
         """Get or set an optional dictionary for additional meta data for this object.
@@ -406,7 +406,8 @@ class ScheduleRuleset(object):
         else:
             unit = 'unknown'
             data_type = GenericType('Unknown Data Type', unit)
-        header = Header(data_type, unit, a_period, metadata={'schedule': self.identifier})
+        header = Header(data_type, unit, a_period,
+                        metadata={'schedule': self.identifier})
         values = self.values(timestep, start_date, end_date, start_dow,
                              holidays, leap_year)
         return HourlyContinuousCollection(header, values)
@@ -517,13 +518,17 @@ class ScheduleRuleset(object):
                 following: (1, 2, 3, 4, 5, 6, 10, 12, 15, 20, 30, 60).
             schedule_type_limit: A ScheduleTypeLimit object that will be used to
                 validate schedule values against upper/lower limits and assign
-                units to the schedule values.
+                units to the schedule values. (Default: None).
             summer_designday_values: A list of [24 * timestep] numerical values for
                 the summer design day. If None, the daily schedule with the highest
-                average value will be used.
+                average value will be used unless the schedule_type_limit has a
+                Temperature unit_type, in which case it will be the daily schedule
+                with the lowest average value. (Default: None).
             winter_designday_values: A list of [24 * timestep] numerical values for
                 the winter design day. If None, the daily schedule with the lowest
-                average value will be used.
+                average value will be used unless the schedule_type_limit has a
+                Temperature unit_type, in which case it will be the daily schedule
+                with the highest average value. (Default: None).
         """
         # process the rules for the days of the week
         schedule_rules = []
@@ -552,15 +557,19 @@ class ScheduleRuleset(object):
 
         # get ScheduleDay for summer and winter design days
         avg_day_vals = [sum(vals) / len(vals) for vals in applied_day_values]
+        temp_type = True if schedule_type_limit is not None and \
+            schedule_type_limit.unit_type == 'Temperature' else False
         if summer_designday_values is None:
-            sch_i = avg_day_vals.index(max(avg_day_vals))
+            sch_i = avg_day_vals.index(min(avg_day_vals)) if temp_type \
+                else avg_day_vals.index(max(avg_day_vals))
             summer = schedule_rules[sch_i]._schedule_day.duplicate()
             summer.identifier = '{}_SmrDsn'.format(summer.identifier)
         else:
             summer = ScheduleDay.from_values_at_timestep(
                 '{}_SmrDsn'.format(identifier), summer_designday_values, timestep)
         if winter_designday_values is None:
-            sch_i = avg_day_vals.index(min(avg_day_vals))
+            sch_i = avg_day_vals.index(max(avg_day_vals)) if temp_type \
+                else avg_day_vals.index(min(avg_day_vals))
             winter = schedule_rules[sch_i]._schedule_day.duplicate()
             winter.identifier = '{}_WntrDsn'.format(summer.identifier)
         else:
@@ -829,7 +838,7 @@ class ScheduleRuleset(object):
                     if rule._end_doy > end_doy:
                         new_rule.end_date = end_date
                     rules.append(new_rule)
-            else:                    
+            else:
                 if rule._start_doy <= end_doy:
                     new_rule1 = rule.duplicate()
                     new_rule1.end_date = end_doy
@@ -974,13 +983,16 @@ class ScheduleRuleset(object):
 
         # optional properties
         if len(self._schedule_rules) != 0:
-            base['schedule_rules'] = [rule.to_dict(True) for rule in self._schedule_rules]
+            base['schedule_rules'] = \
+                [rule.to_dict(True) for rule in self._schedule_rules]
         if self._holiday_schedule is not None:
             base['holiday_schedule'] = self._holiday_schedule.identifier
         if self._summer_designday_schedule is not None:
-            base['summer_designday_schedule'] = self._summer_designday_schedule.identifier
+            base['summer_designday_schedule'] = \
+                self._summer_designday_schedule.identifier
         if self._winter_designday_schedule is not None:
-            base['winter_designday_schedule'] = self._winter_designday_schedule.identifier
+            base['winter_designday_schedule'] = \
+                self._winter_designday_schedule.identifier
 
         # optional properties that can be abridged
         if self._schedule_type_limit is not None:
@@ -1056,7 +1068,8 @@ class ScheduleRuleset(object):
         # extract all of the Schedule:Week objects
         week_pattern_1 = re.compile(r"(?i)(Schedule:Week:Daily,[\s\S]*?;)")
         week_pattern_2 = re.compile(r"(?i)(Schedule:Week:Compact,[\s\S]*?;)")
-        week_sch_str = week_pattern_1.findall(file_contents) + week_pattern_2.findall(file_contents)
+        week_sch_str = week_pattern_1.findall(file_contents) + \
+            week_pattern_2.findall(file_contents)
         week_sch_dict, week_dd_dict = ScheduleRuleset._idf_week_schedule_dictionary(
             week_sch_str, day_schedule_dict)
         # extract all of the ScheduleTypeLimit objects
@@ -1200,15 +1213,21 @@ class ScheduleRuleset(object):
                         holiday_schedule = rule.schedule_day
                         rules.append(rule)
                     if "summerdesignday" in field:
-                        rule = ScheduleRule(ScheduleDay("summerdesignday", [0], [Time(0, 0)]))
+                        rule = ScheduleRule(
+                            ScheduleDay("summerdesignday", [0], [Time(0, 0)])
+                        )
                         summer_designday_schedule = rule.schedule_day
                         rules.append(rule)
                     if "winterdesignday" in field:
-                        rule = ScheduleRule(ScheduleDay("winterdesignday", [0], [Time(0, 0)]))
+                        rule = ScheduleRule(
+                            ScheduleDay("winterdesignday", [0], [Time(0, 0)])
+                        )
                         winter_designday_schedule = rule.schedule_day
                         rules.append(rule)
                     if "allotherdays" in field:
-                        rule = ScheduleRule(ScheduleDay("allotherdays", [0], [Time(0, 0)]))
+                        rule = ScheduleRule(
+                            ScheduleDay("allotherdays", [0], [Time(0, 0)])
+                        )
                         apply_mtx = [rul.week_apply_tuple for rul in schedule_rules]
                         if not apply_mtx:  # situation if allotherdays is the only rule.
                             rule.apply_all = True
@@ -1318,10 +1337,12 @@ class ScheduleRuleset(object):
             week_schedules = []
             for i, rule_indices in enumerate(unique_rule_sets):
                 week_identifier = '{}_{}'.format(identifier, i)
-                week_sched = ScheduleRuleset._get_avg_week(week_identifier, schedules, weights,
-                                                           timestep_resolution, rule_indices)
+                week_sched = ScheduleRuleset._get_avg_week(
+                    week_identifier, schedules, weights,
+                    timestep_resolution, rule_indices
+                )
                 week_schedules.append(week_sched)
-            # create a dictionary mapping unique rule index lists to average week schedules
+            # create a dictionary mapping unique rule indices to average week schedules
             rule_set_map = {}
             for rule_i, week_sched in zip(unique_rule_sets, week_schedules):
                 rule_set_map[rule_i] = week_sched

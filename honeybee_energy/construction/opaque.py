@@ -9,7 +9,8 @@ from honeybee._lockable import lockable
 from ._base import _ConstructionBase
 from ..material.dictutil import dict_to_material
 from ..material._base import _EnergyMaterialOpaqueBase
-from ..material.opaque import EnergyMaterial, EnergyMaterialNoMass
+from ..material.opaque import EnergyMaterial, EnergyMaterialNoMass, \
+    EnergyMaterialVegetation
 from ..reader import parse_idf_string, clean_idf_file_contents
 from ..properties.extension import OpaqueConstructionProperties
 
@@ -70,9 +71,12 @@ class OpaqueConstruction(_ConstructionBase):
         except TypeError:
             raise TypeError('Expected list or tuple for construction materials. '
                             'Got {}'.format(type(mats)))
-        for mat in mats:
+        for i, mat in enumerate(mats):
             assert isinstance(mat, _EnergyMaterialOpaqueBase), 'Expected opaque energy' \
                 ' material for construction. Got {}.'.format(type(mat))
+            if isinstance(mat, EnergyMaterialVegetation):
+                assert i == 0, 'Vegetation material layer must bet the first ' \
+                    '(exterior) layer in the construction.'
         assert len(mats) > 0, 'Construction must possess at least one material.'
         assert len(mats) <= 10, 'Opaque Construction cannot have more than 10 materials.'
         self._materials = mats
@@ -333,8 +337,10 @@ class OpaqueConstruction(_ConstructionBase):
         mat_pattern1 = re.compile(r"(?i)(Material,[\s\S]*?;)")
         mat_pattern2 = re.compile(r"(?i)(Material:NoMass,[\s\S]*?;)")
         mat_pattern3 = re.compile(r"(?i)(Material:AirGap,[\s\S]*?;)")
+        mat_pattern4 = re.compile(r"(?i)(Material:RoofVegetation,[\s\S]*?;)")
         material_str = mat_pattern1.findall(file_contents) + \
-            mat_pattern2.findall(file_contents) + mat_pattern3.findall(file_contents)
+            mat_pattern2.findall(file_contents) + mat_pattern3.findall(file_contents) + \
+            mat_pattern4.findall(file_contents)
         materials_dict = OpaqueConstruction._idf_materials_dictionary(material_str)
         materials = list(materials_dict.values())
         # extract all of the construction objects
@@ -364,6 +370,9 @@ class OpaqueConstruction(_ConstructionBase):
                 materials_dict[mat_obj.identifier.upper()] = mat_obj
             elif mat_str.startswith('Material:AirGap,'):
                 mat_obj = EnergyMaterialNoMass.from_idf_air_gap(mat_str)
+                materials_dict[mat_obj.identifier.upper()] = mat_obj
+            elif mat_str.startswith('Material:RoofVegetation,'):
+                mat_obj = EnergyMaterialVegetation.from_idf(mat_str)
                 materials_dict[mat_obj.identifier.upper()] = mat_obj
         return materials_dict
 

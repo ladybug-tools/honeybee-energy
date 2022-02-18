@@ -1,16 +1,19 @@
 # coding=utf-8
 """Utilities to convert material dictionaries to Python objects."""
-from .opaque import EnergyMaterial, EnergyMaterialNoMass
+from .opaque import EnergyMaterial, EnergyMaterialNoMass, EnergyMaterialVegetation
 from .glazing import EnergyWindowMaterialGlazing, EnergyWindowMaterialSimpleGlazSys
 from .gas import EnergyWindowMaterialGas, EnergyWindowMaterialGasMixture, \
     EnergyWindowMaterialGasCustom
 from .shade import EnergyWindowMaterialShade, EnergyWindowMaterialBlind
 
 
-MATERIAL_TYPES = ('EnergyMaterial', 'EnergyMaterialNoMass', 'EnergyWindowMaterialGlazing',
-                  'EnergyWindowMaterialSimpleGlazSys', 'EnergyWindowMaterialGas',
-                  'EnergyWindowMaterialGasMixture', 'EnergyWindowMaterialGasCustom',
-                  'EnergyWindowMaterialShade', 'EnergyWindowMaterialBlind')
+MATERIAL_TYPES = (
+    'EnergyMaterial', 'EnergyMaterialNoMass', 'EnergyMaterialVegetation',
+    'EnergyWindowMaterialGlazing', 'EnergyWindowMaterialSimpleGlazSys',
+    'EnergyWindowMaterialGas', 'EnergyWindowMaterialGasMixture',
+    'EnergyWindowMaterialGasCustom',
+    'EnergyWindowMaterialShade', 'EnergyWindowMaterialBlind'
+)
 
 
 def dict_to_material(mat_dict, raise_exception=True):
@@ -33,6 +36,8 @@ def dict_to_material(mat_dict, raise_exception=True):
         return EnergyMaterial.from_dict(mat_dict)
     elif mat_type == 'EnergyMaterialNoMass':
         return EnergyMaterialNoMass.from_dict(mat_dict)
+    elif mat_type == 'EnergyMaterialVegetation':
+        return EnergyMaterialVegetation.from_dict(mat_dict)
     elif mat_type == 'EnergyWindowMaterialGlazing':
         return EnergyWindowMaterialGlazing.from_dict(mat_dict)
     elif mat_type == 'EnergyWindowMaterialSimpleGlazSys':
