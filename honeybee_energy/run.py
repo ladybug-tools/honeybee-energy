@@ -3,9 +3,17 @@
 from __future__ import division
 
 import os
+import sys
 import json
 import subprocess
 import xml.etree.ElementTree as ET
+
+if (sys.version_info < (3, 0)):
+    readmode = 'rb'
+    writemode = 'wb'
+else:
+    readmode = 'r'
+    writemode = 'w'
 
 from .config import folders
 from .measure import Measure
@@ -108,8 +116,8 @@ def measure_compatible_model_json(
 
     # write the dictionary into a file
     preparedir(dest_dir, remove_content=False)  # create the directory if it's not there
-    with open(dest_file_path, 'w') as fp:
-        json.dump(model_dict, fp)
+    with open(dest_file_path, writemode) as fp:
+        json.dump(model_dict, fp, ensure_ascii=False)
 
     return os.path.abspath(dest_file_path)
 
@@ -149,8 +157,8 @@ def to_gbxml_osw(model_path, output_path=None, osw_directory=None):
         if not os.path.isdir(osw_directory):
             os.mkdir(osw_directory)
     osw_json = os.path.join(osw_directory, 'translate_honeybee.osw')
-    with open(osw_json, 'w') as fp:
-        json.dump(osw_dict, fp, indent=4)
+    with open(osw_json, writemode) as fp:
+        json.dump(osw_dict, fp, indent=4, ensure_ascii=False)
 
     return os.path.abspath(osw_json)
 
@@ -213,7 +221,7 @@ def to_openstudio_osw(osw_directory, model_path, sim_par_json_path=None,
         osw_dict = {'steps': []}
     else:
         assert os.path.isfile(base_osw), 'No base OSW file found at {}.'.format(base_osw)
-        with open(base_osw, 'r') as base_file:
+        with open(base_osw, readmode) as base_file:
             osw_dict = json.load(base_file)
 
     # add a simulation parameter step if it is specified
@@ -332,8 +340,8 @@ def to_openstudio_osw(osw_directory, model_path, sim_par_json_path=None,
 
     # write the dictionary to a workflow.osw
     osw_json = os.path.join(osw_directory, 'workflow.osw')
-    with open(osw_json, 'w') as fp:
-        json.dump(osw_dict, fp, indent=4)
+    with open(osw_json, writemode) as fp:
+        json.dump(osw_dict, fp, indent=4, ensure_ascii=False)
 
     return os.path.abspath(osw_json)
 
@@ -536,8 +544,8 @@ def _import_model_osw(model_path, extension, output_path=None, osw_directory=Non
         if not os.path.isdir(osw_directory):
             os.mkdir(osw_directory)
     osw_json = os.path.join(osw_directory, 'translate_{}.osw'.format(extension))
-    with open(osw_json, 'w') as fp:
-        json.dump(osw_dict, fp, indent=4)
+    with open(osw_json, writemode) as fp:
+        json.dump(osw_dict, fp, indent=4, ensure_ascii=False)
 
     return os.path.abspath(osw_json)
 

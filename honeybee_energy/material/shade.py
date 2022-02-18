@@ -590,6 +590,8 @@ class EnergyWindowMaterialShade(_EnergyWindowMaterialShadeBase):
         new_material._left_opening_multiplier = self._left_opening_multiplier
         new_material._right_opening_multiplier = self._right_opening_multiplier
         new_material._display_name = self._display_name
+        new_material._user_data = None if self._user_data is None \
+            else self._user_data.copy()
         return new_material
 
 
@@ -1282,4 +1284,5 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
         new_m._left_opening_multiplier = self._left_opening_multiplier
         new_m._right_opening_multiplier = self._right_opening_multiplier
         new_m._display_name = self._display_name
+        new_m._user_data = None if self._user_data is None else self._user_data.copy()
         return new_m

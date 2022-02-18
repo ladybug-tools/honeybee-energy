@@ -456,6 +456,7 @@ class EnergyWindowMaterialGas(_EnergyWindowMaterialGasBase):
     def __copy__(self):
         new_obj = EnergyWindowMaterialGas(self.identifier, self.thickness, self.gas_type)
         new_obj._display_name = self._display_name
+        new_obj._user_data = None if self._user_data is None else self._user_data.copy()
         return new_obj
 
 
@@ -656,6 +657,7 @@ class EnergyWindowMaterialGasMixture(_EnergyWindowMaterialGasBase):
         new_obj = EnergyWindowMaterialGasMixture(
             self.identifier, self.thickness, self.gas_types, self.gas_fractions)
         new_obj._display_name = self._display_name
+        new_obj._user_data = None if self._user_data is None else self._user_data.copy()
         return new_obj
 
 
@@ -1012,4 +1014,5 @@ class EnergyWindowMaterialGasCustom(_EnergyWindowMaterialGasBase):
             self.viscosity_coeff_c, self.specific_heat_coeff_c,
             self.specific_heat_ratio, self.molecular_weight)
         new_obj._display_name = self._display_name
+        new_obj._user_data = None if self._user_data is None else self._user_data.copy()
         return new_obj
