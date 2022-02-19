@@ -249,7 +249,7 @@ class SimulationParameter(object):
 
     def water_mains_idf(self):
         """Get an IDF string for the water mains object."""
-        #TODO: Remove generation of mains temps from des days if bug is fixed in E+ 9.7
+        # TODO: Remove generation of mains temps from des days if bug is fixed in E+ 9.7
         if len(self.sizing_parameter.design_days) > 0:
             db_temps = [dday.dry_bulb_condition.dry_bulb_max
                         for dday in self.sizing_parameter.design_days]

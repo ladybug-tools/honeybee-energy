@@ -333,10 +333,11 @@ class RunPeriod(object):
         year = 2016 if self.is_leap_year else 2017
         values = ('CustomRunPeriod', self.start_date.month, self.start_date.day, year,
                   self.end_date.month, self.end_date.day, year,
-                  self.start_day_of_week, 'Yes', 'Yes')
+                  self.start_day_of_week, 'No', 'No', 'No', 'Yes', 'Yes')
         comments = ('name', 'start month', 'start day', 'start year',
                     'end month', 'end day', 'end year', 'start day of week',
-                    'use weather file holidays', 'use weather file daylight savings')
+                    'use weather file holidays', 'use weather file daylight savings',
+                    'apply weekend holiday', 'use epw rain', 'use epw snow')
         run_period = generate_idf_string('RunPeriod', values, comments)
 
         holidays = [self._holiday_to_idf(hol, i) for i, hol in
