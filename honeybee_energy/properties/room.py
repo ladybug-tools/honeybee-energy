@@ -694,6 +694,8 @@ class RoomEnergyProperties(object):
         """
         if self.hvac is None or isinstance(self.hvac, IdealAirSystem):
             return None  # the room is already good as it is
+        if self.setpoint is None:
+            return None  # the room is not able to be conditioned
         i_sys = self.hvac.to_ideal_air_equivalent()
         i_sys.identifier = '{} Ideal Loads Air System'.format(self.host.identifier)
         if isinstance(self.hvac, _HeatCoolBase):
