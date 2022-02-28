@@ -7,8 +7,8 @@ except ImportError:
 
 from ladybug_geometry.geometry2d.pointvector import Vector2D
 from honeybee.face import Face
-from honeybee.boundarycondition import Outdoors, Surface
-from honeybee.facetype import AirBoundary
+from honeybee.boundarycondition import Outdoors, Surface, boundary_conditions
+from honeybee.facetype import AirBoundary, face_types
 from honeybee.extensionutil import model_extension_dicts
 from honeybee.checkdup import check_duplicate_identifiers
 from honeybee.typing import invalid_dict_error
@@ -384,6 +384,30 @@ class ModelEnergyProperties(object):
         for room in self._host.rooms:
             room.properties.energy.window_construction_by_orientation(
                 construction, orientation, offset, north_vector)
+
+    def missing_adjacencies_to_adiabatic(self):
+        """Set any Faces with missing adjacencies in the model to adiabatic.
+
+        If any of these Faces has any sub-faces, these will be removed in order
+        to accommodate the adiabatic condition. Similarly, if the Face is an
+        AirBoundary, the type will be set to a Wall.
+
+        Note that this method assumes all of the Surface boundary conditions
+        are set up correctly with the last boundary_condition_object being
+        the adjacent room.
+        """
+        room_ids = set()
+        for room in self.host._rooms:
+            room_ids.add(room.identifier)
+        for room in self.host._rooms:
+            for face in room._faces:
+                if isinstance(face.boundary_condition, Surface):
+                    bc_room = face.boundary_condition.boundary_condition_objects[-1]
+                    if bc_room not in room_ids:
+                        face.remove_sub_faces()
+                        if isinstance(face.type, AirBoundary):
+                            face.type = face_types.wall
+                        face.boundary_condition = boundary_conditions.adiabatic
 
     def assign_radiance_solar_interior(self):
         """Assign honeybee Radiance modifiers based on interior solar properties."""
