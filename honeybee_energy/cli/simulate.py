@@ -45,8 +45,14 @@ def simulate():
 @click.option('--additional-string', '-as', help='An additional IDF text string to get '
               'appended to the IDF before simulation. The input should include '
               'complete EnergyPlus objects as a single string following the IDF '
-              'format. This input can be used to include EnergyPlus objects that '
+              'format. This input can be used to include small EnergyPlus objects that '
               'are not currently supported by honeybee.', default=None, type=str)
+@click.option('--additional-idf', '-ai', help='An IDF file with text to be '
+              'appended before simulation. This input can be used to include '
+              'large EnergyPlus objects that are not currently supported by honeybee.',
+              default=None, show_default=True,
+              type=click.Path(exists=False, file_okay=True, dir_okay=False,
+                              resolve_path=True))
 @click.option('--report-units', '-r', help='A text value to set the units of the '
               'OpenStudio Results report that this command can output. Choose from the '
               'following:\nnone - no results report will be produced\nsi - all units '
@@ -75,8 +81,10 @@ def simulate():
               'generated files (osw, osm, idf, sql, zsz, rdd, html, err) if successfully'
               ' created. By default the list will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
-def simulate_model(model_file, epw_file, sim_par_json, measures, additional_string,
-                   report_units, viz_variable, folder, check_model, log_file):
+def simulate_model(
+    model_file, epw_file, sim_par_json, measures, additional_string, additional_idf,
+    report_units, viz_variable, folder, check_model, log_file
+):
     """Simulate a Model in EnergyPlus.
 
     \b
@@ -162,8 +170,13 @@ def simulate_model(model_file, epw_file, sim_par_json, measures, additional_stri
         # Write the osw file to translate the model to osm
         no_report = True if base_osw is None and report_units.lower() == 'none' and \
             (len(viz_variable) == 0 or viz_variable[0] == '') else False
-        strings_to_inject = additional_string
-        if no_report and additional_string is not None and additional_string != '':
+        strings_to_inject = additional_string if additional_string is not None else ''
+        if additional_idf is not None and os.path.isfile(additional_idf):
+            with open(additional_idf, "r") as add_idf_file:
+                strings_to_inject = strings_to_inject + '\n' + add_idf_file.read()
+        after_str_to_inject = None
+        if no_report and strings_to_inject != '':
+            after_str_to_inject = strings_to_inject
             strings_to_inject = ''
         if file_type != 'idf':
             if file_type == 'osm' and not proj_name.endswith('.osm'):
@@ -191,9 +204,9 @@ def simulate_model(model_file, epw_file, sim_par_json, measures, additional_stri
             # run the resulting idf through EnergyPlus
             if idf is not None and os.path.isfile(idf):
                 # process the additional string if specified
-                if additional_string is not None and additional_string != '':
+                if after_str_to_inject is not None:
                     with open(idf, "a") as idf_file:
-                        idf_file.write(additional_string)
+                        idf_file.write(after_str_to_inject)
                 gen_files.extend([osm, idf])
                 sql, eio, rdd, html, err = run_idf(idf, epw_file)
                 if err is not None and os.path.isfile(err):

@@ -24,6 +24,10 @@ def edit():
 @click.option('--solar/--visible', ' /-v', help='Flag to note whether the assigned '
               'radiance modifiers should follow the solar properties of the '
               'constructions or the visible properties.', default=True)
+@click.option('--dynamic-groups/--static-groups', ' /-sg', help='Flag to note whether '
+              'dynamic window constructions and shaded window constructions should '
+              'be translated to dynamic aperture groups or just the static (bare) '
+              'construction should be used.', default=True)
 @click.option('--exterior-offset', '-o', help='A number for the distance at which the '
               'exterior Room faces should be offset in meters. This is used to account '
               'for the fact that the exterior material layer of the construction '
@@ -33,7 +37,9 @@ def edit():
 @click.option('--output-file', '-f', help='Optional hbjson file to output the JSON '
               'string of the converted model. By default this will be printed out to '
               'stdout', type=click.File('w'), default='-', show_default=True)
-def modifiers_from_constructions(model_file, solar, exterior_offset, output_file):
+def modifiers_from_constructions(
+    model_file, solar, dynamic_groups, exterior_offset, output_file
+):
     """Assign honeybee Radiance modifiers based on energy construction properties.
 
     Note that the honeybee-radiance extension must be installed in order for this
@@ -62,7 +68,7 @@ def modifiers_from_constructions(model_file, solar, exterior_offset, output_file
             model.properties.energy.offset_and_assign_exterior_face_modifiers(
                 reflectance_type=ref_type, offset=exterior_offset
             )
-        # assign trans modifiers for any shades with constant schedules 
+        # assign trans modifiers for any shades with constant transmittance schedules
         for shade in model.shades:
             t_sch = shade.properties.energy.transmittance_schedule
             if t_sch is not None and t_sch.is_constant:
@@ -72,6 +78,9 @@ def modifiers_from_constructions(model_file, solar, exterior_offset, output_file
                 else:
                     shade.properties.radiance.modifier = \
                         shade.properties.energy.radiance_modifier_visible()
+        # assign dynamic aperture groups if requested
+        if dynamic_groups:
+            model.properties.energy.assign_dynamic_aperture_groups()
         # write the Model JSON string
         output_file.write(json.dumps(model.to_dict()))
     except Exception as e:
