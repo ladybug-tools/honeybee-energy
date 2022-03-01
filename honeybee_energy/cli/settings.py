@@ -9,10 +9,13 @@ from ladybug.futil import preparedir
 from ladybug.analysisperiod import AnalysisPeriod
 from ladybug.dt import Date
 from honeybee.config import folders
+from honeybee.model import Model
 
 from honeybee_energy.simulation.parameter import SimulationParameter
 from honeybee_energy.simulation.runperiod import RunPeriod
 from honeybee_energy.simulation.control import SimulationControl
+from honeybee_energy.construction.windowshade import WindowConstructionShade
+from honeybee_energy.construction.dynamic import WindowConstructionDynamic
 
 
 _logger = logging.getLogger(__name__)
@@ -357,6 +360,67 @@ def run_period(start_month, start_day, end_month, end_day, start_day_of_week,
         output_file.write(str(run_period))
     except Exception as e:
         _logger.exception('Failed to generate run period.\n{}'.format(e))
+        sys.exit(1)
+    else:
+        sys.exit(0)
+
+
+@settings.command('dynamic-window-outputs')
+@click.argument('model-file', type=click.Path(
+    exists=True, file_okay=True, dir_okay=False, resolve_path=True))
+@click.option(
+    '--base-idf', '-i', help='An optional base IDF file to which the outputs '
+    'for dynamic windows will be appended.', default=None, show_default=True,
+    type=click.Path(exists=False, file_okay=True, dir_okay=False, resolve_path=True))
+@click.option(
+    '--output-file', '-f', help='Optional IDF file to output the list of outputs to '
+    'add to the EnergyPlus simulation. By default this will be printed out to '
+    'stdout', type=click.File('w'), default='-', show_default=True)
+def dynamic_window_optuts(model_file, base_idf, output_file):
+    """Get an IDF string that requests transmittance outputs for dynamic windows.
+
+    This should be used within comfort mapping workflows to request transmittance
+    outputs for dynamic windows. Note that the output is just an IDF text string
+    that should be incorporated in the energy simulation by means of additional
+    strings or additional IDF.
+
+    \b
+    Args:
+        model_file: Full path to a Model JSON or Pkl file to be analyzed for
+            dynamic window constructions.
+    """
+    try:
+        # define templates to be reused for each dynamic window
+        out_vars = [
+            'Surface Window Transmitted Beam to Beam Solar Radiation Rate',
+            'Surface Window Transmitted Beam to Diffuse Solar Radiation Rate',
+            'Surface Window Transmitted Diffuse Solar Radiation Rate',
+            'Surface Outside Face Incident Solar Radiation Rate per Area',
+        ]
+        out_per_win = ['Output:Variable, {}, ' + var + ', Timestep;' for var in out_vars]
+
+        # define dynamic constructions and re-serialize the Model to Python
+        dyn_con = (WindowConstructionShade, WindowConstructionDynamic)
+        model = Model.from_file(model_file)
+
+        # load up the contents of the base IDF file if it exists
+        out_strs = []
+        if base_idf is not None and os.path.isfile(base_idf):
+            with open(base_idf, "r") as add_idf_file:
+                out_strs.append(add_idf_file.read())
+
+        # loop through the apertures and add outputs to be requested
+        for room in model.rooms:
+            for face in room.faces:
+                for ap in face.apertures:
+                    if isinstance(ap.properties.energy.construction, dyn_con):
+                        for op in out_per_win:
+                            out_strs.append(op.format(ap.identifier))
+
+        # write the IDF string
+        output_file.write('\n'.join(out_strs))
+    except Exception as e:
+        _logger.exception('Model baseline geometry creation failed.\n{}'.format(e))
         sys.exit(1)
     else:
         sys.exit(0)

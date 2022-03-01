@@ -1,0 +1,13 @@
+Site:GroundTemperature:BuildingSurface,
+    17,                      !- January Ground Temperature {C}
+    16,                      !- February Ground Temperature {C}
+    16,                      !- March Ground Temperature {C}
+    17,                      !- April Ground Temperature {C}
+    17,                      !- May Ground Temperature {C}
+    17,                      !- June Ground Temperature {C}
+    18,                      !- July Ground Temperature {C}
+    18,                      !- August Ground Temperature {C}
+    18,                      !- September Ground Temperature {C}
+    18,                      !- October Ground Temperature {C}
+    18,                      !- November Ground Temperature {C}
+    17;                      !- December Ground Temperature {C}

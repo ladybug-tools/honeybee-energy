@@ -505,6 +505,59 @@ class ModelEnergyProperties(object):
         for face in new_faces:
             self._host.add_face(face)
 
+    def assign_dynamic_aperture_groups(self):
+        """Assign aperture groups to all Apertures with dynamic and shaded constructions.
+
+        Note that this method will only add two groups for each dynamic aperture.
+        The first group will be completely transparent while the second group
+        will be a 100% transmittance perfectly diffusing modifier. This is done
+        with the assumption that EnergyPlus transmittance results will be used to
+        appropriately account for the transmittance of states in the results.
+        """
+        # import dependencies and set up reused variables
+        try:
+            from honeybee_radiance.modifier.material import Trans
+            from honeybee_radiance.dynamic.state import RadianceSubFaceState
+        except ImportError as e:
+            raise ImportError('honeybee_radiance library must be installed to use '
+                              'assign_dynamic_aperture_groups() method. {}'.format(e))
+        all_spec = Trans('complete_spec', 1, 1, 1, 0, 0, 1, 1)
+        all_diff = Trans('complete_diff', 1, 1, 1, 0, 0, 1, 0)
+
+        # establish groups based on similar constructions, orientations and controls
+        group_dict = {}
+        for room in self.host.rooms:
+            for face in room.faces:
+                for ap in face.apertures:
+                    u_id = None
+                    con = ap.properties.energy.construction
+                    if isinstance(con, WindowConstructionDynamic):
+                        orient = int(ap.horizontal_orientation())
+                        u_id = '{}_{}'.format(con.identifier, orient)
+                    elif isinstance(con, WindowConstructionShade):
+                        orient = int(ap.horizontal_orientation())
+                        if con.is_groupable:
+                            u_id = '{}_{}'.format(con.identifier, orient)
+                        elif con.is_room_groupable:
+                            u_id = '{}_{}_{}'.format(
+                                con.identifier, room.identifier, orient)
+                        else:
+                            u_id = ap.identifier
+                    if u_id is not None:
+                        try:
+                            group_dict[u_id].append(ap)
+                        except KeyError:
+                            group_dict[u_id] = [ap]
+
+        # create the actual aperture groups and assign states
+        for group in group_dict.values():
+            grp_name = group[0].identifier
+            for ap in group:
+                ap.properties.radiance.dynamic_group_identifier = grp_name
+                spec_state = RadianceSubFaceState(all_spec)
+                diff_state = RadianceSubFaceState(all_diff)
+                ap.properties.radiance.states = [spec_state, diff_state]
+
     def check_all(self, raise_exception=True):
         """Check all of the aspects of the Model energy properties.
 

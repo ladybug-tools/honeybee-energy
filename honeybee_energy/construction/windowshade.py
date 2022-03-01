@@ -63,7 +63,7 @@ class WindowConstructionShade(object):
             be a value in (W/m2), (C) or (W) depending upon the control type.
         schedule: An optional ScheduleRuleset or ScheduleFixedInterval to be applied
             on top of the control_type. If None, the control_type will govern all
-            behavior of the construction.
+            behavior of the construction. (Default: None).
 
     Properties:
         * identifier
@@ -89,6 +89,8 @@ class WindowConstructionShade(object):
         * thickness
         * glazing_count
         * gap_count
+        * is_groupable
+        * is_zone_groupable
         * user_data
     """
 
@@ -100,6 +102,12 @@ class WindowConstructionShade(object):
         'AlwaysOn', 'OnIfHighSolarOnWindow', 'OnIfHighHorizontalSolar',
         'OnIfHighOutdoorAirTemperature', 'OnIfHighZoneAirTemperature',
         'OnIfHighZoneCooling', 'OnNightIfLowOutdoorTempAndOffDay',
+        'OnNightIfLowInsideTempAndOffDay', 'OnNightIfHeatingAndOffDay')
+    GROUPABLE_TYPES = (
+        'AlwaysOn', 'OnIfHighHorizontalSolar', 'OnIfHighOutdoorAirTemperature',
+        'OnNightIfLowOutdoorTempAndOffDay')
+    ROOM_GROUPABLE_TYPES = (
+        'OnIfHighZoneAirTemperature', 'OnIfHighZoneCooling',
         'OnNightIfLowInsideTempAndOffDay', 'OnNightIfHeatingAndOffDay')
 
     def __init__(self, identifier, window_construction, shade_material,
@@ -475,11 +483,21 @@ class WindowConstructionShade(object):
 
     @property
     def gap_count(self):
-        """The number of gas gaps contained within the construction."""
+        """Get the number of gas gaps contained within the construction."""
         count = self._window_construction.gap_count
         if self.shade_location == 'Between' and not self.is_switchable_glazing:
             count += 1
         return count
+
+    @property
+    def is_groupable(self):
+        """Get a boolean for whether controls allow the construction to be grouped."""
+        return self.control_type in self.GROUPABLE_TYPES
+    
+    @property
+    def is_room_groupable(self):
+        """Get a boolean for whether controls allow grouping by room."""
+        return self.control_type in self.ROOM_GROUPABLE_TYPES
 
     @property
     def _ep_shading_type(self):
