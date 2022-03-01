@@ -138,6 +138,10 @@ class ServiceHotWaterProperties(_EnergyProperties):
     """ServiceHotWater properties to be extended by extensions."""
 
 
+class SHWSystemProperties(_EnergyProperties):
+    """SHWSystem (Equipment) properties to be extended by extensions."""
+
+
 class InfiltrationProperties(_EnergyProperties):
     """Infiltration properties to be extended by extensions."""
 
