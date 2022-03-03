@@ -7,8 +7,8 @@ except ImportError:
 
 from ladybug_geometry.geometry2d.pointvector import Vector2D
 from honeybee.face import Face
-from honeybee.boundarycondition import Outdoors, Surface
-from honeybee.facetype import AirBoundary
+from honeybee.boundarycondition import Outdoors, Surface, boundary_conditions
+from honeybee.facetype import AirBoundary, face_types
 from honeybee.extensionutil import model_extension_dicts
 from honeybee.checkdup import check_duplicate_identifiers
 from honeybee.typing import invalid_dict_error
@@ -385,6 +385,30 @@ class ModelEnergyProperties(object):
             room.properties.energy.window_construction_by_orientation(
                 construction, orientation, offset, north_vector)
 
+    def missing_adjacencies_to_adiabatic(self):
+        """Set any Faces with missing adjacencies in the model to adiabatic.
+
+        If any of these Faces has any sub-faces, these will be removed in order
+        to accommodate the adiabatic condition. Similarly, if the Face is an
+        AirBoundary, the type will be set to a Wall.
+
+        Note that this method assumes all of the Surface boundary conditions
+        are set up correctly with the last boundary_condition_object being
+        the adjacent room.
+        """
+        room_ids = set()
+        for room in self.host._rooms:
+            room_ids.add(room.identifier)
+        for room in self.host._rooms:
+            for face in room._faces:
+                if isinstance(face.boundary_condition, Surface):
+                    bc_room = face.boundary_condition.boundary_condition_objects[-1]
+                    if bc_room not in room_ids:
+                        face.remove_sub_faces()
+                        if isinstance(face.type, AirBoundary):
+                            face.type = face_types.wall
+                        face.boundary_condition = boundary_conditions.adiabatic
+
     def assign_radiance_solar_interior(self):
         """Assign honeybee Radiance modifiers based on interior solar properties."""
         mod_sets = {}
@@ -480,6 +504,59 @@ class ModelEnergyProperties(object):
         # add the new faces to the host model
         for face in new_faces:
             self._host.add_face(face)
+
+    def assign_dynamic_aperture_groups(self):
+        """Assign aperture groups to all Apertures with dynamic and shaded constructions.
+
+        Note that this method will only add two groups for each dynamic aperture.
+        The first group will be completely transparent while the second group
+        will be a 100% transmittance perfectly diffusing modifier. This is done
+        with the assumption that EnergyPlus transmittance results will be used to
+        appropriately account for the transmittance of states in the results.
+        """
+        # import dependencies and set up reused variables
+        try:
+            from honeybee_radiance.modifier.material import Trans
+            from honeybee_radiance.dynamic.state import RadianceSubFaceState
+        except ImportError as e:
+            raise ImportError('honeybee_radiance library must be installed to use '
+                              'assign_dynamic_aperture_groups() method. {}'.format(e))
+        all_spec = Trans('complete_spec', 1, 1, 1, 0, 0, 1, 1)
+        all_diff = Trans('complete_diff', 1, 1, 1, 0, 0, 1, 0)
+
+        # establish groups based on similar constructions, orientations and controls
+        group_dict = {}
+        for room in self.host.rooms:
+            for face in room.faces:
+                for ap in face.apertures:
+                    u_id = None
+                    con = ap.properties.energy.construction
+                    if isinstance(con, WindowConstructionDynamic):
+                        orient = int(ap.horizontal_orientation())
+                        u_id = '{}_{}'.format(con.identifier, orient)
+                    elif isinstance(con, WindowConstructionShade):
+                        orient = int(ap.horizontal_orientation())
+                        if con.is_groupable:
+                            u_id = '{}_{}'.format(con.identifier, orient)
+                        elif con.is_room_groupable:
+                            u_id = '{}_{}_{}'.format(
+                                con.identifier, room.identifier, orient)
+                        else:
+                            u_id = ap.identifier
+                    if u_id is not None:
+                        try:
+                            group_dict[u_id].append(ap)
+                        except KeyError:
+                            group_dict[u_id] = [ap]
+
+        # create the actual aperture groups and assign states
+        for group in group_dict.values():
+            grp_name = group[0].identifier
+            for ap in group:
+                ap.properties.radiance.dynamic_group_identifier = grp_name
+                spec_state = RadianceSubFaceState(all_spec)
+                diff_state = RadianceSubFaceState(all_diff)
+                ap.properties.radiance.states = [spec_state, diff_state]
 
     def check_all(self, raise_exception=True):
         """Check all of the aspects of the Model energy properties.

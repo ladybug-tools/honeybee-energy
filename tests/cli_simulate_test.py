@@ -39,8 +39,16 @@ def test_simulate_model():
     runner = CliRunner()
     input_model = './tests/json/ShoeBox.json'
     input_epw = './tests/epw/chicago.epw'
+    input_ground = './tests/idf/monthly_ground.idf'
 
-    result = runner.invoke(simulate_model, [input_model, input_epw])
+    in_args = [
+        input_model, input_epw, '--additional-string',
+        'Output:Variable, *, Surface Window System Solar Transmittance, Timestep;',
+        '--additional-idf', input_ground
+    ]
+
+    result = runner.invoke(simulate_model, in_args)
+    print(result.output)
     assert result.exit_code == 0
 
     folder = os.path.join(folders.default_simulation_folder, 'shoebox')

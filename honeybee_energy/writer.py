@@ -355,7 +355,8 @@ def room_to_idf(room):
     # write the ventilation and thermostat
     if ventilation is not None:
         zone_str.append(ventilation.to_idf(room.identifier))
-    if room.properties.energy.is_conditioned:
+    if room.properties.energy.is_conditioned and \
+            room.properties.energy.setpoint is not None:
         zone_str.append(room.properties.energy.setpoint.to_idf(room.identifier))
 
     # write the daylighting control
@@ -373,7 +374,10 @@ def room_to_idf(room):
     return '\n\n'.join(zone_str)
 
 
-def model_to_idf(model, schedule_directory=None, use_ideal_air_equivalent=True):
+def model_to_idf(
+    model, schedule_directory=None, use_ideal_air_equivalent=True,
+    patch_missing_adjacencies=False
+):
     r"""Generate an IDF string representation of a Model.
 
     The resulting string will include all geometry (Rooms, Faces, Shades, Apertures,
@@ -395,6 +399,10 @@ def model_to_idf(model, schedule_directory=None, use_ideal_air_equivalent=True):
             If False and the Model contains detailed systems, a ValueError will
             be raised since this method does not support the translation of
             detailed systems. (Default:True).
+        patch_missing_adjacencies: Boolean to note whether any missing adjacencies
+            in the model should be replaced with Adiabatic boundary conditions.
+            This is useful when the input model is only a portion of a much
+            larger model. (Default: False).
 
     Usage:
 
@@ -446,10 +454,15 @@ def model_to_idf(model, schedule_directory=None, use_ideal_air_equivalent=True):
                 raise ValueError(error)
 
     # convert model to simple ventilation and Ideal Air Systems
-    model.properties.energy.ventilation_simulation_control.vent_control_type ='SingleZone'
+    model.properties.energy.ventilation_simulation_control.vent_control_type = \
+        'SingleZone'
     if use_ideal_air_equivalent:
         for room in model.rooms:
             room.properties.energy.assign_ideal_air_equivalent()
+
+    # patch missing adjacencies
+    if patch_missing_adjacencies:
+        model.properties.energy.missing_adjacencies_to_adiabatic()
 
     # write the building object into the string
     model_str = ['!-   =======================================\n'
@@ -520,7 +533,8 @@ def model_to_idf(model, schedule_directory=None, use_ideal_air_equivalent=True):
     # write all of the HVAC systems
     model_str.append('!-   ============ HVAC SYSTEMS ============\n')
     for room in model.rooms:
-        if room.properties.energy.hvac is not None:
+        if room.properties.energy.hvac is not None \
+                and room.properties.energy.setpoint is not None:
             try:
                 model_str.append(room.properties.energy.hvac.to_idf(room))
             except AttributeError:

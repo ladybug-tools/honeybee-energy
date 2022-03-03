@@ -402,8 +402,8 @@ class IdealAirSystem(_HVACSystem):
             "cooling_air_temperature": 15,  # Cooling supply air temperature
             "heating_limit": 'autosize',  # Max size of the heating system in Watts
             "cooling_limit": 'autosize',  # Max size of the cooling system in Watts
-            "heating_availability": "Warehouse Heating Control",  # identifier of schedule
-            "cooling_availability": "Warehouse Cooling Control",  # identifier of schedule
+            "heating_availability": "Warehouse Heating Control",  # schedule identifier
+            "cooling_availability": "Warehouse Cooling Control",  # schedule identifier
             }
         """
         assert data['type'] == 'IdealAirSystemAbridged', \

@@ -236,9 +236,10 @@ class ScheduleFixedInterval(object):
                                   end_dt.month, end_dt.day, end_dt.hour, self.timestep,
                                   self.is_leap_year)
         data_type, unit = self._get_lb_data_type_and_unit()
-        header = Header(data_type, unit, a_period, metadata={'schedule': self.identifier})
+        header = Header(
+            data_type, unit, a_period, metadata={'schedule': self.identifier})
         return HourlyContinuousCollection(header, self._values)
-    
+
     @property
     def user_data(self):
         """Get or set an optional dictionary for additional meta data for this object.
@@ -385,7 +386,8 @@ class ScheduleFixedInterval(object):
                                   end_date.month, end_date.day, 23, timestep,
                                   self.is_leap_year)
         data_type, unit = self._get_lb_data_type_and_unit()
-        header = Header(data_type, unit, a_period, metadata={'schedule': self.identifier})
+        header = Header(
+            data_type, unit, a_period, metadata={'schedule': self.identifier})
         values = self.values_at_timestep(timestep, start_date, end_date)
         return HourlyContinuousCollection(header, values)
 
@@ -795,8 +797,10 @@ class ScheduleFixedInterval(object):
                     for values in zip(*all_values)]
 
         # return the final schedule
-        return ScheduleFixedInterval(identifier, sch_vals, schedules[0].schedule_type_limit,
-                                     timestep, start_date=Date(1, 1, lp_yr))
+        return ScheduleFixedInterval(
+            identifier, sch_vals, schedules[0].schedule_type_limit,
+            timestep, start_date=Date(1, 1, lp_yr)
+        )
 
     def _check_values(self, values):
         """Check values whenever they come through the values setter."""
