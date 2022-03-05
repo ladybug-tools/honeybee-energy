@@ -1639,6 +1639,12 @@ class ScheduleRuleset(object):
                 return True
         return False
 
+    def __bool__(self):
+        return True
+    
+    def __nonzero__(self):
+        return True
+
     def __len__(self):
         return len(self._schedule_rules)
 

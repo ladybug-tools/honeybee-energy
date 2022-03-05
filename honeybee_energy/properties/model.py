@@ -532,10 +532,10 @@ class ModelEnergyProperties(object):
                     u_id = None
                     con = ap.properties.energy.construction
                     if isinstance(con, WindowConstructionDynamic):
-                        orient = int(ap.horizontal_orientation())
+                        orient = '{}_{}'.format(int(ap.azimuth), int(ap.altitude))
                         u_id = '{}_{}'.format(con.identifier, orient)
                     elif isinstance(con, WindowConstructionShade):
-                        orient = int(ap.horizontal_orientation())
+                        orient = '{}_{}'.format(int(ap.azimuth), int(ap.altitude))
                         if con.is_groupable:
                             u_id = '{}_{}'.format(con.identifier, orient)
                         elif con.is_room_groupable:
