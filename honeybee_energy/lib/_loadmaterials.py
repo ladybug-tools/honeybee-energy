@@ -43,7 +43,7 @@ def load_material_object(mat_dict, opaque_mats, window_mats):
 
 def load_materials_from_folder(construction_lib_folder):
     """Load all of the material layer objects from a construction standards folder.
-    
+
     Args:
         construction_lib_folder: Path to a constructions sub-folder within a
             honeybee standards folder.
@@ -60,6 +60,7 @@ def load_materials_from_folder(construction_lib_folder):
                 for mat_id in data:
                     load_material_object(data[mat_id], opaque_mats, window_mats)
     return opaque_mats, window_mats
+
 
 opaque_m, window_m = load_materials_from_folder(folders.construction_lib)
 _opaque_materials.update(opaque_m)
