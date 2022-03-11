@@ -224,16 +224,6 @@ def to_openstudio_osw(osw_directory, model_path, sim_par_json_path=None,
         with open(base_osw, readmode) as base_file:
             osw_dict = json.load(base_file)
 
-    # add a simulation parameter step if it is specified
-    if sim_par_json_path is not None:
-        sim_par_dict = {
-            'arguments': {
-                'simulation_parameter_json': sim_par_json_path
-            },
-            'measure_dir_name': 'from_honeybee_simulation_parameter'
-        }
-        osw_dict['steps'].insert(0, sim_par_dict)
-
     # add the model json serialization into the steps
     if model_path.lower().endswith('.osm'):  # use the OSM as a seed file
         osw_dict['seed_file'] = model_path
@@ -247,6 +237,16 @@ def to_openstudio_osw(osw_directory, model_path, sim_par_json_path=None,
         if schedule_directory is not None:
             model_measure_dict['arguments']['schedule_csv_dir'] = schedule_directory
         osw_dict['steps'].insert(0, model_measure_dict)
+
+    # add a simulation parameter step if it is specified
+    if sim_par_json_path is not None:
+        sim_par_dict = {
+            'arguments': {
+                'simulation_parameter_json': sim_par_json_path
+            },
+            'measure_dir_name': 'from_honeybee_simulation_parameter'
+        }
+        osw_dict['steps'].insert(0, sim_par_dict)
 
     # assign the measure_paths to the osw_dict
     if 'measure_paths' not in osw_dict:

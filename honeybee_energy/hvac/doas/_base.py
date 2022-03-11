@@ -263,6 +263,7 @@ class _DOASBase(_TemplateSystem):
             i_sys.heating_limit = 0
         if self.equipment_type in self.HEAT_ONLY_TYPES:
             i_sys.cooling_limit = 0
+        i_sys.economizer_type = 'NoEconomizer'
         i_sys._display_name = self._display_name
         return i_sys
 

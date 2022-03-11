@@ -517,6 +517,8 @@ def model_to_idf(
     for constr in set(all_constrs):
         try:
             materials.extend(constr.materials)
+            if hasattr(constr, 'is_switchable_glazing') and constr.is_switchable_glazing:
+                materials.append(constr.switched_glass_material)
             construction_strs.append(constr.to_idf())
             if constr.has_shade:
                 construction_strs.append(constr.to_shaded_idf())
