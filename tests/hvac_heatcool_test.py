@@ -7,6 +7,7 @@ from honeybee_energy.hvac.heatcool.evapcool import EvaporativeCooler
 from honeybee_energy.hvac.heatcool.gasunit import GasUnitHeater
 from honeybee_energy.hvac.heatcool.residential import Residential
 from honeybee_energy.hvac.heatcool.windowac import WindowAC
+from honeybee_energy.hvac.heatcool.radiant import Radiant
 
 from honeybee.model import Model
 from honeybee.room import Room
@@ -473,5 +474,89 @@ def test_window_ac_dict_methods(userdatadict):
 
     hvac_dict = hvac_sys.to_dict()
     new_hvac_sys = WindowAC.from_dict(hvac_dict)
+    assert new_hvac_sys == hvac_sys
+    assert hvac_dict == new_hvac_sys.to_dict()
+
+
+
+
+def test_radiant_init(userdatadict):
+    """Test the initialization of Radiant and basic properties."""
+    hvac_sys = Radiant('Test System')
+    hvac_sys.user_data = userdatadict
+    str(hvac_sys)  # test the string representation
+
+    assert hvac_sys.identifier == 'Test System'
+    assert hvac_sys.vintage == 'ASHRAE_2019'
+    assert hvac_sys.equipment_type == 'Radiant_Chiller_Boiler'
+    assert hvac_sys.proportional_gain == 0.3
+    assert hvac_sys.minimum_operation_time == 1
+    assert hvac_sys.switch_over_time == 24
+    assert hvac_sys.water_economizer_type == 'None'
+
+    hvac_sys.vintage = 'ASHRAE_2010'
+    hvac_sys.equipment_type = 'Radiant_Chiller_ASHP'
+    hvac_sys.proportional_gain = 0.2
+    hvac_sys.minimum_operation_time = 0.5
+    hvac_sys.switch_over_time = 12
+    hvac_sys.water_economizer_type = 'Integrated'
+    assert hvac_sys.vintage == 'ASHRAE_2010'
+    assert hvac_sys.equipment_type == 'Radiant_Chiller_ASHP'
+    assert hvac_sys.proportional_gain == 0.2
+    assert hvac_sys.minimum_operation_time == 0.5
+    assert hvac_sys.switch_over_time == 12
+    assert hvac_sys.water_economizer_type == 'Integrated'
+    assert hvac_sys.user_data == userdatadict
+
+
+def test_radiant_equality(userdatadict):
+    """Test the equality of Radiant objects."""
+    hvac_sys = Radiant('Test System')
+    hvac_sys.user_data = userdatadict
+    hvac_sys_dup = hvac_sys.duplicate()
+    hvac_sys_alt = Radiant(
+        'Test System', equipment_type='Radiant_Chiller_ASHP')
+
+    assert hvac_sys is hvac_sys
+    assert hvac_sys is not hvac_sys_dup
+    assert hvac_sys == hvac_sys_dup
+    hvac_sys.proportional_gain = 0.2
+    assert hvac_sys != hvac_sys_dup
+    assert hvac_sys != hvac_sys_alt
+
+
+def test_radiant_multi_room(userdatadict):
+    """Test that Radiant systems can be assigned to multiple Rooms."""
+    first_floor = Room.from_box('First_Floor', 10, 10, 3, origin=Point3D(0, 0, 0))
+    second_floor = Room.from_box('Second_Floor', 10, 10, 3, origin=Point3D(0, 0, 3))
+    hvac_sys = Radiant('Test System')
+    hvac_sys.user_data = userdatadict
+
+    first_floor.properties.energy.hvac = hvac_sys
+    second_floor.properties.energy.hvac = hvac_sys
+
+    model = Model('Test_Bldg', [first_floor, second_floor])
+    hvacs = model.properties.energy.hvacs
+    assert len(hvacs) == 1
+    assert hvacs[0] == hvac_sys
+
+    model_dict = model.to_dict()
+    assert len(model_dict['properties']['energy']['hvacs']) == 1
+    assert model_dict['rooms'][0]['properties']['energy']['hvac'] == hvac_sys.identifier
+
+
+def test_radiant_dict_methods(userdatadict):
+    """Test the to/from dict methods."""
+    hvac_sys = Radiant('High Efficiency HVAC System')
+    hvac_sys.vintage = 'ASHRAE_2010'
+    hvac_sys.equipment_type = 'Radiant_Chiller_ASHP'
+    hvac_sys.proportional_gain = 0.2
+    hvac_sys.minimum_operation_time = 0.5
+    hvac_sys.switch_over_time = 12
+    hvac_sys.water_economizer_type = 'Integrated'
+    hvac_sys.user_data = userdatadict
+
+    hvac_dict = hvac_sys.to_dict()
+    new_hvac_sys = Radiant.from_dict(hvac_dict)
     assert new_hvac_sys == hvac_sys
     assert hvac_dict == new_hvac_sys.to_dict()
