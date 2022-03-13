@@ -1028,7 +1028,7 @@ class RoomEnergyProperties(object):
         elif not conditioned:
             self.hvac = None
         self._shw = None
-        
+
         # discount the floor area unless otherwise specified
         if not include_floor_area:
             self.host.exclude_floor_area = True
@@ -1085,7 +1085,8 @@ class RoomEnergyProperties(object):
             OpaqueConstruction('{}_BelowGrade'.format(soil_construction.identifier),
                                (soil_construction.materials[-1],))
         if isinstance(int_soil.materials[0], EnergyMaterialVegetation):
-            int_soil.materials = [int_soil.materials[0].soil_layer]
+            below_id = '{}_BelowGrade'.format(soil_construction.identifier)
+            int_soil = OpaqueConstruction(below_id, (int_soil.materials[0].soil_layer,))
 
         # discount the floor area unless otherwise specified
         if not include_floor_area:

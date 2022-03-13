@@ -116,8 +116,7 @@ class OpaqueConstruction(_ConstructionBase):
         """Thickness of the construction [m]."""
         thickness = 0
         for mat in self.materials:
-            if isinstance(mat, EnergyMaterial):
-                thickness += mat.thickness
+            thickness += mat.thickness
         return thickness
 
     def temperature_profile(self, outside_temperature=-18, inside_temperature=21,
