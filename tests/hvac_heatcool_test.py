@@ -492,20 +492,20 @@ def test_radiant_init(userdatadict):
     assert hvac_sys.proportional_gain == 0.3
     assert hvac_sys.minimum_operation_time == 1
     assert hvac_sys.switch_over_time == 24
-    assert hvac_sys.water_economizer_type == 'None'
+    assert hvac_sys.radiant_face_type == 'Floor'
 
     hvac_sys.vintage = 'ASHRAE_2010'
     hvac_sys.equipment_type = 'Radiant_Chiller_ASHP'
     hvac_sys.proportional_gain = 0.2
     hvac_sys.minimum_operation_time = 0.5
     hvac_sys.switch_over_time = 12
-    hvac_sys.water_economizer_type = 'Integrated'
+    hvac_sys.radiant_face_type = 'Ceiling'
     assert hvac_sys.vintage == 'ASHRAE_2010'
     assert hvac_sys.equipment_type == 'Radiant_Chiller_ASHP'
     assert hvac_sys.proportional_gain == 0.2
     assert hvac_sys.minimum_operation_time == 0.5
     assert hvac_sys.switch_over_time == 12
-    assert hvac_sys.water_economizer_type == 'Integrated'
+    assert hvac_sys.radiant_face_type == 'Ceiling'
     assert hvac_sys.user_data == userdatadict
 
 
@@ -553,7 +553,7 @@ def test_radiant_dict_methods(userdatadict):
     hvac_sys.proportional_gain = 0.2
     hvac_sys.minimum_operation_time = 0.5
     hvac_sys.switch_over_time = 12
-    hvac_sys.water_economizer_type = 'Integrated'
+    hvac_sys.radiant_face_type = 'Ceiling'
     hvac_sys.user_data = userdatadict
 
     hvac_dict = hvac_sys.to_dict()
