@@ -317,8 +317,7 @@ class Folders(object):
 
         # gather all of the sub folders underneath the master folder
         self._construction_lib, self._constructionset_lib, self._schedule_lib, \
-            self._programtype_lib, self._defaults_file = \
-            self._check_standards_folder(path, True)
+            self._programtype_lib = self._check_standards_folder(path)
 
         # set the standards_data_folder
         self._standards_data_folder = path
@@ -380,6 +379,16 @@ class Folders(object):
         """Get the path to the JSON file where honeybee's defaults are loaded from."""
         return self._defaults_file
 
+    @defaults_file.setter
+    def defaults_file(self, path):
+        if not path:  # check the default location
+            path = self._find_defaults_file()
+        assert os.path.isfile(path), \
+            '{} is not a valid path to an defaults JSON file.'.format(path)
+        self._defaults_file = path
+        if not self.mute:
+            print("Path to defaults file is set to: %s" % self._defaults_file)
+
     @property
     def config_file(self):
         """Get or set the path to the config.json file from which folders are loaded.
@@ -414,7 +423,8 @@ class Folders(object):
             "lbt_measures_path": r'',
             "honeybee_openstudio_gem_path": r'',
             "standards_data_folder": r'',
-            "standards_extension_folders": []
+            "standards_extension_folders": [],
+            "defaults_file": r''
         }
 
         with open(file_path, 'r') as cfg:
@@ -438,8 +448,9 @@ class Folders(object):
         self.lbt_measures_path = default_path["lbt_measures_path"]
         self.honeybee_openstudio_gem_path = default_path["honeybee_openstudio_gem_path"]
 
-        # set path for the standards_data_folder
+        # set path for the standards_data_folder and defaults_file
         self.standards_data_folder = default_path["standards_data_folder"]
+        self.defaults_file = default_path["defaults_file"]
 
         # set path for the standards_extension_folders
         self.standards_extension_folders = default_path["standards_extension_folders"]
@@ -620,12 +631,20 @@ class Folders(object):
     def _find_standards_data_folder():
         """Find the user template library in its default location.
 
-        The ladybug_tools/resources/standards/honeybee_standards folder will be
-        checked first, which can contain libraries that are not overwritten
-        with the update of the honeybee_energy package. If no such folder is found,
-        this method defaults to the lib/library/ folder within this package.
+        The %AppData%/ladybug_tools/standards folder will be checked first, which
+        can contain libraries that are not overwritten with the update of the
+        honeybee_energy package. If this is not found, the ladybug_tools/resources/
+        standards/honeybee_standards folder will be checked next,  If no such folder
+        is found, this method defaults to the lib/library/ folder within this package.
         """
-        # first check the ladybug_tools installation folder were permanent lib is
+        # first check if there's a user-defined folder in AppData
+        app_folder = os.getenv('APPDATA')
+        if app_folder is not None:
+            lib_folder = os.path.join(app_folder, 'ladybug_tools', 'standards')
+            if os.path.isdir(lib_folder):
+                return lib_folder
+
+        # then check the ladybug_tools installation folder were permanent lib is
         lb_install = lb_config.folders.ladybug_tools_folder
         if os.path.isdir(lb_install):
             lib_folder = os.path.join(
@@ -669,17 +688,16 @@ class Folders(object):
         return standards_extensions
 
     @staticmethod
-    def _check_standards_folder(path, check_defaults=False):
+    def _check_standards_folder(path):
         """Check that a standards data sub-folders exist."""
         if not path:  # first check that a path exists
-            return [None] * 5
+            return [None] * 4
 
         # gather all of the sub folders underneath the master folder
         _construction_lib = os.path.join(path, 'constructions')
         _constructionset_lib = os.path.join(path, 'constructionsets')
         _schedule_lib = os.path.join(path, 'schedules')
         _programtype_lib = os.path.join(path, 'programtypes')
-        _energy_default = os.path.join(path, 'energy_default.json')
 
         assert os.path.isdir(_construction_lib), \
             '{} lacks a "constructions" folder.'.format(path)
@@ -690,12 +708,23 @@ class Folders(object):
         assert os.path.isdir(_programtype_lib), \
             '{} lacks a "programtypes" folder.'.format(path)
 
-        if check_defaults:
-            assert os.path.isfile(_energy_default), \
-                '{} lacks a "energy_default.json."'.format(path)
+        return _construction_lib, _constructionset_lib, _schedule_lib, _programtype_lib
 
-        return _construction_lib, _constructionset_lib, _schedule_lib, \
-            _programtype_lib, _energy_default
+    @staticmethod
+    def _find_defaults_file():
+        """Find the energy default JSON in its default locations."""
+        # first check the ladybug_tools installation folder were permanent lib is
+        lb_install = lb_config.folders.ladybug_tools_folder
+        if os.path.isdir(lb_install):
+            def_file = os.path.join(
+                lb_install, 'resources', 'standards', 'honeybee_standards',
+                'energy_default.json')
+            if os.path.isfile(def_file):
+                return def_file
+
+        # default to the library folder that installs with this Python package
+        return os.path.join(
+            os.path.dirname(honeybee_standards.__file__), 'energy_default.json')
 
 
 """Object possesing all key folders within the configuration."""
