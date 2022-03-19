@@ -2,14 +2,17 @@
 """Window Construction with any number of dynamic states."""
 from __future__ import division
 
+import re
+
+from honeybee._lockable import lockable
+from honeybee.typing import valid_ep_string
+
 from .window import WindowConstruction
 from ..material.glazing import EnergyWindowMaterialSimpleGlazSys
 from ..schedule.dictutil import dict_to_schedule
 from ..schedule.ruleset import ScheduleRuleset
 from ..schedule.fixedinterval import ScheduleFixedInterval
-
-from honeybee._lockable import lockable
-from honeybee.typing import valid_ep_string
+from ..writer import generate_idf_string
 
 
 @lockable
@@ -40,6 +43,7 @@ class WindowConstructionDynamic(object):
         * r_factor
         * is_symmetric
         * has_shade
+        * is_dynamic
         * inside_emissivity
         * outside_emissivity
         * thickness
@@ -230,6 +234,14 @@ class WindowConstructionDynamic(object):
         return False
 
     @property
+    def is_dynamic(self):
+        """Get a boolean noting whether the construction is dynamic.
+
+        This will always be True for this class.
+        """
+        return True
+
+    @property
     def inside_emissivity(self):
         """"The emissivity of the inside face of the first construction."""
         mats = self._constructions[0].materials
@@ -353,12 +365,112 @@ class WindowConstructionDynamic(object):
         return new_obj
 
     def to_idf(self):
-        """IDF string representation of construction object.
+        """Get an IDF string representation of this construction object.
 
-        This is a placeholder and has not been implemented yet.
+        Note that writing this string is not enough to add everything needed for
+        the construction to the IDF. The construction's materials also have to
+        be added as well as the schedule. The to_program_idf method must also
+        be called in order to add the EMS program that controls the constructions.
+        
+        Returns:
+            Text string that includes the following EnergyPlus objects.
+
+            -   Construction definitions for each state
+
+            -   The EMS Construction Index Variable object for each state
+
+            -   The EMS Sensor linked to the schedule
+
         """
-        raise NotImplementedError(
-            'WindowConstructionDynamic to_idf has not yet been implemented.')
+        idf_strs = []
+        # add all of the construction definitions and EMS states
+        state_com = ('name', 'construction name')
+        for i, con in enumerate(self.constructions):
+            con_dup = con.duplicate()
+            con_dup.identifier = '{}State{}'.format(con.identifier, i)
+            idf_strs.append(con_dup.to_idf())
+            state_id = 'State{}{}'.format(i, re.sub('[^A-Za-z0-9]', '', con.identifier))
+            vals = [state_id, con_dup.identifier]
+            state_str = generate_idf_string(
+                'EnergyManagementSystem:ConstructionIndexVariable', vals, state_com)
+            idf_strs.append(state_str)
+
+        # add the EMS Sensor definition
+        sensor_com = ('name', 'variable key name', 'variable name')
+        sensor_id = 'Sensor{}'.format(re.sub('[^A-Za-z0-9]', '', self.identifier))
+        sen_vals = [sensor_id, self.schedule.identifier, 'Schedule Value']
+        sensor = generate_idf_string('EnergyManagementSystem:Sensor', sen_vals, sensor_com)
+        idf_strs.append(sensor)
+        return '\n\n'.join(idf_strs)
+
+    def to_program_idf(self, aperture_identifiers):
+        """Get an IDF string representation of the EMS program.
+
+        Args:
+            aperture_identifiers: A list of Aperture identifiers to
+                which this construction is assigned.
+
+        Returns:
+            Text string that includes the following EnergyPlus objects.
+
+            -   The EMS Actuators linked to the apertures
+
+            -   The EMS Program definition
+
+        """
+        idf_strs = []
+        # add all of the actuators linked to the apertures
+        act_com = ('name', 'component name', 'component type', 'component control')
+        actuator_ids = []
+        for i, ap_id in enumerate(aperture_identifiers):
+            act_id = 'Actuator{}{}'.format(i, re.sub('[^A-Za-z0-9]', '', ap_id))
+            act_vals = [act_id, ap_id, 'Surface', 'Construction State']
+            actuator = generate_idf_string(
+                'EnergyManagementSystem:Actuator', act_vals, act_com)
+            actuator_ids.append(act_id)
+            idf_strs.append(actuator)
+
+        # add each construction state to the program
+        pid = 'StateChange{}'.format(re.sub('[^A-Za-z0-9]', '', self.identifier))
+        ems_program = [pid]
+        sensor_id = 'Sensor{}'.format(re.sub('[^A-Za-z0-9]', '', self.identifier))
+        max_state_count = len(self.constructions) - 1
+        for i, con in enumerate(self.constructions):
+            # determine which conditional operator to use
+            cond_op = 'IF' if i == 0 else 'ELSEIF'
+            # add the conditional statement
+            state_count = i + 1
+            if i == max_state_count:
+                cond_stmt = 'ELSE'
+            else:
+                cond_stmt = '{} ({} < {})'.format(cond_op, sensor_id, state_count)
+            ems_program.append(cond_stmt)
+            # loop through the actuators and set the appropriate window state
+            state_id = 'State{}{}'.format(i, re.sub('[^A-Za-z0-9]', '', con.identifier))
+            for act_name in actuator_ids:
+                ems_program.append('SET {} = {}'.format(act_name, state_id))
+        ems_program.append('ENDIF')
+        ems_prog_str = generate_idf_string('EnergyManagementSystem:Program', ems_program)
+        idf_strs.append(ems_prog_str)
+        return '\n\n'.join(idf_strs)
+
+    @staticmethod
+    def idf_program_manager(consructions):
+        """Get an IDF string representation of the EMS program calling manager.
+
+        Args:
+            consructions: A list of WindowConstructionDynamic objects to be written
+                into a program manager.
+        """
+        man_com = ['name', 'calling point']
+        man_vals = ['Dynamic_Window_Constructions', 'BeginTimestepBeforePredictor']
+        for i, con in enumerate(consructions):
+            pid = 'StateChange{}'.format(re.sub('[^A-Za-z0-9]', '', con.identifier))
+            man_vals.append(pid)
+            man_com.append('program name{}'.format(i))
+        manager = generate_idf_string(
+            'EnergyManagementSystem:ProgramCallingManager', man_vals, man_com)
+        return manager
 
     def to_radiance_solar(self):
         """Honeybee Radiance material for the first construction."""

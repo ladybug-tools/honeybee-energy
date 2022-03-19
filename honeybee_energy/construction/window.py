@@ -43,6 +43,8 @@ class WindowConstruction(_ConstructionBase):
         * u_factor
         * r_factor
         * is_symmetric
+        * has_shade
+        * is_dynamic
         * inside_emissivity
         * outside_emissivity
         * solar_transmittance

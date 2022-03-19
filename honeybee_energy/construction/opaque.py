@@ -37,6 +37,8 @@ class OpaqueConstruction(_ConstructionBase):
         * u_factor
         * r_factor
         * is_symmetric
+        * has_shade
+        * is_dynamic
         * inside_emissivity
         * inside_solar_reflectance
         * inside_visible_reflectance
