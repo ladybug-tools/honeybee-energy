@@ -33,6 +33,7 @@ class _ConstructionBase(object):
         * r_factor
         * is_symmetric
         * has_shade
+        * is_dynamic
         * user_data
     """
     # generic air material used to compute indoor film coefficients.
@@ -156,6 +157,14 @@ class _ConstructionBase(object):
         """Get a boolean noting whether dynamic shade materials are in the construction.
         """
         # This is False for all construction types except WindowConstructionShade.
+        return False
+
+    @property
+    def is_dynamic(self):
+        """Get a boolean noting whether the construction is dynamic.
+
+        This will always be False for this class.
+        """
         return False
 
     @property
