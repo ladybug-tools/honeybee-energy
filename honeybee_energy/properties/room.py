@@ -1391,7 +1391,9 @@ class RoomEnergyProperties(object):
         new_room._infiltration = self._infiltration
         new_room._ventilation = self._ventilation
         new_room._setpoint = self._setpoint
-        new_room._daylighting_control = self._daylighting_control
+        if self._daylighting_control is not None:
+            new_room._daylighting_control = self._daylighting_control.duplicate()
+            new_room._daylighting_control._parent = _host
         new_room._window_vent_control = self._window_vent_control
         new_room._process_loads = self._process_loads[:]  # copy process load list
         new_room._internal_masses = self._internal_masses[:]  # copy internal masses list
