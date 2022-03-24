@@ -210,28 +210,25 @@ def test_radiant_with_doas_init(userdatadict):
     assert hvac_sys.sensible_heat_recovery == 0
     assert hvac_sys.latent_heat_recovery == 0
     assert not hvac_sys.demand_controlled_ventilation
-    assert hvac_sys.proportional_gain == 0.3
     assert hvac_sys.minimum_operation_time == 1
     assert hvac_sys.switch_over_time == 24
-    assert hvac_sys.radiant_face_type == 'Floor'
+    assert hvac_sys.radiant_type == 'Floor'
 
     hvac_sys.vintage = 'ASHRAE_2010'
     hvac_sys.equipment_type = 'DOAS_Radiant_DCW_DHW'
     hvac_sys.sensible_heat_recovery = 0.8
     hvac_sys.latent_heat_recovery = 0.65
     hvac_sys.demand_controlled_ventilation = True
-    hvac_sys.proportional_gain = 0.2
     hvac_sys.minimum_operation_time = 0.5
     hvac_sys.switch_over_time = 12
-    hvac_sys.radiant_face_type = 'Ceiling'
+    hvac_sys.radiant_type = 'Ceiling'
     assert hvac_sys.vintage == 'ASHRAE_2010'
     assert hvac_sys.equipment_type == 'DOAS_Radiant_DCW_DHW'
     assert hvac_sys.sensible_heat_recovery == 0.8
     assert hvac_sys.latent_heat_recovery == 0.65
-    assert hvac_sys.proportional_gain == 0.2
     assert hvac_sys.minimum_operation_time == 0.5
     assert hvac_sys.switch_over_time == 12
-    assert hvac_sys.radiant_face_type == 'Ceiling'
+    assert hvac_sys.radiant_type == 'Ceiling'
     assert hvac_sys.user_data == userdatadict
 
 
@@ -246,7 +243,7 @@ def test_radiant_with_doas_equality(userdatadict):
     assert hvac_sys is hvac_sys
     assert hvac_sys is not hvac_sys_dup
     assert hvac_sys == hvac_sys_dup
-    hvac_sys_dup.proportional_gain = 0.2
+    hvac_sys.latent_heat_recovery = 0.5
     assert hvac_sys != hvac_sys_dup
     assert hvac_sys != hvac_sys_alt
 
@@ -279,10 +276,9 @@ def test_radiant_with_doas_dict_methods(userdatadict):
     hvac_sys.sensible_heat_recovery = 0.8
     hvac_sys.latent_heat_recovery = 0.65
     hvac_sys.demand_controlled_ventilation = True
-    hvac_sys.proportional_gain = 0.2
     hvac_sys.minimum_operation_time = 0.5
     hvac_sys.switch_over_time = 12
-    hvac_sys.radiant_face_type = 'Ceiling'
+    hvac_sys.radiant_type = 'Ceiling'
     hvac_sys.user_data = userdatadict
 
     hvac_dict = hvac_sys.to_dict()

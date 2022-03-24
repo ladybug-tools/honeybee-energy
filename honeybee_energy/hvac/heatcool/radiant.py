@@ -13,11 +13,7 @@ class Radiant(_HeatCoolBase):
     """Low temperature radiant HVAC system.
 
     By default, this HVAC template will swap out all floor and ceiling constructions
-    of the Rooms that it is applied to (according to the radiant_face_type property).
-    If the Rooms that the system is assigned to have constructions with internal
-    source material layers, no floor or ceiling constructions will be changed
-    and these existing constructions with internal sources will dictate the thermally
-    active surfaces.
+    of the Rooms that it is applied to (according to the radiant_type property).
 
     Note that radiant systems are particularly limited in cooling capacity
     and using them may result in many unmet hours. To reduce unmet hours, use
@@ -54,35 +50,34 @@ class Radiant(_HeatCoolBase):
             * Radiant_DCW_ASHP
             * Radiant_DCW_DHW
 
-        proportional_gain: A fractional number for the proportional gain constant.
-            Recommended values are 0.3 or less. (Default: 0.3).
-        minimum_operation_time: A number for the minimum number of hours of operation
-            for the radiant system before it shuts off. (Default: 1).
-        switch_over_time: A number for the minimum number of hours for when the system
-            can switch between heating and cooling. (Default: 24).
-        radiant_face_type: Text to indicate which faces are thermally active by default.
-            Note that this property has no effect when the rooms to which the HVAC
-            system is assigned have constructions with internal source materials.
-            In this case, those constructions will dictate the thermally active
-            surfaces. Choose from the following. (Default: Floor).
+        radiant_type: Text to indicate which faces are thermally active. Note that
+            systems are assumed to be embedded in concrete slabs with no insulation
+            within the slab unless otherwise specified. Choose from the
+            following. (Default: Floor).
 
             * Floor
             * Ceiling
             * FloorWithCarpet
+            * CeilingMetalPanel
+
+        minimum_operation_time: A number for the minimum number of hours of operation
+            for the radiant system before it shuts off. Note that this has no effect 
+            if the radiant_type is not in a slab. (Default: 1).
+        switch_over_time: A number for the minimum number of hours for when the system
+            can switch between heating and cooling. Note that this has no effect 
+            if the radiant_type is not in a slab. (Default: 24).
 
     Properties:
         * identifier
         * display_name
         * vintage
         * equipment_type
-        * proportional_gain
+        * radiant_type
         * minimum_operation_time
         * switch_over_time
-        * radiant_face_type
         * schedules
     """
-    __slots__ = ('_proportional_gain', '_minimum_operation_time',
-                 '_switch_over_time', '_radiant_face_type')
+    __slots__ = ('_radiant_type', '_minimum_operation_time', '_switch_over_time')
 
     EQUIPMENT_TYPES = (
         'Radiant_Chiller_Boiler',
@@ -96,30 +91,37 @@ class Radiant(_HeatCoolBase):
         'Radiant_DCW_DHW'
     )
 
-    RADIANT_FACE_TYPES = ('Floor', 'Ceiling', 'FloorWithCarpet')
+    radiant_typeS = ('Floor', 'Ceiling', 'FloorWithCarpet', 'CeilingMetalPanel')
 
     def __init__(self, identifier, vintage='ASHRAE_2019', equipment_type=None,
-                 proportional_gain=0.3, minimum_operation_time=1,
-                 switch_over_time=24, radiant_face_type='Floor'):
+                 radiant_type='Floor', minimum_operation_time=1,
+                 switch_over_time=24):
         """Initialize HVACSystem."""
         # initialize base HVAC system properties
         _HeatCoolBase.__init__(self, identifier, vintage, equipment_type)
 
         # set the main features of the HVAC system
-        self.proportional_gain = proportional_gain
+        self.radiant_type = radiant_type
         self.minimum_operation_time = minimum_operation_time
         self.switch_over_time = switch_over_time
-        self.radiant_face_type = radiant_face_type
 
     @property
-    def proportional_gain(self):
-        """Get or set a fractional number for the proportional gain constant."""
-        return self._proportional_gain
+    def radiant_type(self):
+        """Get or set text to indicate the type of radiant system."""
+        return self._radiant_type
 
-    @proportional_gain.setter
-    def proportional_gain(self, value):
-        self._proportional_gain = \
-            float_in_range(value, 0.0, 1.0, 'hvac proportional gain')
+    @radiant_type.setter
+    def radiant_type(self, value):
+        clean_input = valid_string(value).lower()
+        for key in self.radiant_typeS:
+            if key.lower() == clean_input:
+                value = key
+                break
+        else:
+            raise ValueError(
+                'radiant_type {} is not recognized.\nChoose from the '
+                'following:\n{}'.format(value, self.radiant_typeS))
+        self._radiant_type = value
 
     @property
     def minimum_operation_time(self):
@@ -140,31 +142,6 @@ class Radiant(_HeatCoolBase):
     def switch_over_time(self, value):
         self._switch_over_time = float_positive(value, 'hvac switch over time')
 
-    @property
-    def radiant_face_type(self):
-        """Get or set text to indicate the type of default radiant face.
-
-        Choose from the following options.
-
-        * Floor
-        * Ceiling
-        * FloorWithCarpet
-        """
-        return self._radiant_face_type
-
-    @radiant_face_type.setter
-    def radiant_face_type(self, value):
-        clean_input = valid_string(value).lower()
-        for key in self.RADIANT_FACE_TYPES:
-            if key.lower() == clean_input:
-                value = key
-                break
-        else:
-            raise ValueError(
-                'radiant_face_type {} is not recognized.\nChoose from the '
-                'following:\n{}'.format(value, self.RADIANT_FACE_TYPES))
-        self._radiant_face_type = value
-
     @classmethod
     def from_dict(cls, data):
         """Create a HVAC object from a dictionary.
@@ -180,18 +157,17 @@ class Radiant(_HeatCoolBase):
             "display_name": "Standard System",  # name for the HVAC
             "vintage": "ASHRAE_2019",  # text for the vintage of the template
             "equipment_type": "",  # text for the HVAC equipment type
-            "proportional_gain": 0.3,
+            "radiant_type": "Ceiling",
             "minimum_operation_time": 1,
-            "switch_over_time": 24,
-            "radiant_face_type": "Ceiling"
+            "switch_over_time": 24
             }
         """
         assert data['type'] == cls.__name__, \
             'Expected {} dictionary. Got {}.'.format(cls.__name__, data['type'])
         # extract the key features and properties of the HVAC
-        pro_g, mot, sot, f_type = cls._radiant_properties_from_dict(data)
+        f_type, mot, sot = cls._radiant_properties_from_dict(data)
         new_obj = cls(data['identifier'], data['vintage'], data['equipment_type'],
-                      pro_g, mot, sot, f_type)
+                      f_type, mot, sot)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
@@ -217,10 +193,9 @@ class Radiant(_HeatCoolBase):
             "display_name": "Standard System",  # name for the HVAC
             "vintage": "ASHRAE_2019",  # text for the vintage of the template
             "equipment_type": "",  # text for the HVAC equipment type
-            "proportional_gain": 0.3,
+            "radiant_type": "Ceiling",
             "minimum_operation_time": 1,
-            "switch_over_time": 24,
-            "radiant_face_type": "Ceiling"
+            "switch_over_time": 24
             }
         """
         # this is the same as the from_dict method for as long as there are not schedules
@@ -239,10 +214,9 @@ class Radiant(_HeatCoolBase):
         base['identifier'] = self.identifier
         base['vintage'] = self.vintage
         base['equipment_type'] = self.equipment_type
-        base['proportional_gain'] = self.proportional_gain
+        base['radiant_type'] = self.radiant_type
         base['minimum_operation_time'] = self.minimum_operation_time
         base['switch_over_time'] = self.switch_over_time
-        base['radiant_face_type'] = self.radiant_face_type
         if self._display_name is not None:
             base['display_name'] = self.display_name
         if self._user_data is not None:
@@ -252,18 +226,17 @@ class Radiant(_HeatCoolBase):
     @staticmethod
     def _radiant_properties_from_dict(data):
         """Extract basic radiant properties from a dictionary and assign defaults."""
-        pro_g = data['proportional_gain'] if 'proportional_gain' in data else 0.3
         mot = data['minimum_operation_time'] if 'minimum_operation_time' in data else 1
         sot = data['switch_over_time'] if 'switch_over_time' in data else 24
-        econ = data['radiant_face_type'] if 'radiant_face_type' in data and \
-            data['radiant_face_type'] is not None else 'Floor'
-        return pro_g, mot, sot, econ
+        rad_type = data['radiant_type'] if 'radiant_type' in data and \
+            data['radiant_type'] is not None else 'Floor'
+        return rad_type, mot, sot
 
     def __copy__(self):
         new_obj = self.__class__(
             self._identifier, self._vintage, self._equipment_type,
-            self._proportional_gain, self._minimum_operation_time,
-            self._switch_over_time, self._radiant_face_type)
+            self._radiant_type, self._minimum_operation_time,
+            self._switch_over_time)
         new_obj._display_name = self._display_name
         new_obj._user_data = None if self._user_data is None else self._user_data.copy()
         return new_obj
@@ -271,8 +244,8 @@ class Radiant(_HeatCoolBase):
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""
         return (self._identifier, self._vintage, self._equipment_type,
-                self._proportional_gain, self._minimum_operation_time,
-                self._switch_over_time, self._radiant_face_type)
+                self._radiant_type, self._minimum_operation_time,
+                self._switch_over_time)
 
     def __hash__(self):
         return hash(self.__key())

@@ -826,7 +826,7 @@ class ModelEnergyProperties(object):
                 for this method to successfully load the energy properties.
 
         Returns:
-            A tuple with seven elements
+            A tuple with eight elements
 
             -   materials -- A dictionary with identifiers of materials as keys
                 and Python material objects as values.
@@ -848,6 +848,9 @@ class ModelEnergyProperties(object):
 
             -   hvacs -- A dictionary with identifiers of HVAC systems as keys
                 and Python HVACSystem objects as values.
+            
+            -   shws -- A dictionary with identifiers of SHW systems as keys
+                and Python SHWSystem objects as values.
         """
         assert 'energy' in data['properties'], \
             'Dictionary possesses no ModelEnergyProperties.'
