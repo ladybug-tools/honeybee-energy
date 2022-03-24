@@ -887,15 +887,17 @@ class ModelEnergyProperties(object):
 
         # process all constructions in the ModelEnergyProperties dictionary
         constructions = {}
-        for cnstr in data['properties']['energy']['constructions']:
-            try:
-                if cnstr['type'] in CONSTRUCTION_TYPES:
-                    constructions[cnstr['identifier']] = dict_to_construction(cnstr)
-                else:
-                    constructions[cnstr['identifier']] = \
-                        dict_abridged_to_construction(cnstr, materials, schedules)
-            except Exception as e:
-                invalid_dict_error(cnstr, e)
+        if 'constructions' in data['properties']['energy'] and \
+                data['properties']['energy']['constructions'] is not None:
+            for cnstr in data['properties']['energy']['constructions']:
+                try:
+                    if cnstr['type'] in CONSTRUCTION_TYPES:
+                        constructions[cnstr['identifier']] = dict_to_construction(cnstr)
+                    else:
+                        constructions[cnstr['identifier']] = \
+                            dict_abridged_to_construction(cnstr, materials, schedules)
+                except Exception as e:
+                    invalid_dict_error(cnstr, e)
 
         # process all construction sets in the ModelEnergyProperties dictionary
         construction_sets = {}
