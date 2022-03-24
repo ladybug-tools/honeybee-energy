@@ -13,11 +13,7 @@ class RadiantwithDOAS(_DOASBase):
     """Low temperature radiant with DOAS HVAC system.
 
     By default, this HVAC template will swap out all floor and ceiling constructions
-    of the Rooms that it is applied to (according to the radiant_face_type property).
-    If the Rooms that the system is assigned to have constructions with internal
-    source material layers, no floor or ceiling constructions will be changed
-    and these existing constructions with internal sources will dictate the thermally
-    active surfaces.
+    of the Rooms that it is applied to (according to the radiant_type property).
 
     Note that radiant systems are particularly limited in cooling capacity
     and using them may result in many unmet hours. To reduce unmet hours, use
@@ -68,21 +64,22 @@ class RadiantwithDOAS(_DOASBase):
             shut off the fans, which can result in more energy savings when spaces
             served by the DOAS are completely unoccupied. If None, the DOAS will be
             always on. (Default: None).
-        proportional_gain: A fractional number for the proportional gain constant.
-            Recommended values are 0.3 or less. (Default: 0.3).
-        minimum_operation_time: A number for the minimum number of hours of operation
-            for the radiant system before it shuts off. (Default: 1).
-        switch_over_time: A number for the minimum number of hours for when the system
-            can switch between heating and cooling. (Default: 24).
-        radiant_face_type: Text to indicate which faces are thermally active by default.
-            Note that this property has no effect when the rooms to which the HVAC
-            system is assigned have constructions with internal source materials.
-            In this case, those constructions will dictate the thermally active
-            surfaces. Choose from the following. (Default: Floor).
+        radiant_type: Text to indicate which faces are thermally active. Note that
+            systems are assumed to be embedded in concrete slabs with no insulation
+            within the slab unless otherwise specified. Choose from the
+            following. (Default: Floor).
 
             * Floor
             * Ceiling
             * FloorWithCarpet
+            * CeilingMetalPanel
+
+        minimum_operation_time: A number for the minimum number of hours of operation
+            for the radiant system before it shuts off. Note that this has no effect 
+            if the radiant_type is not in a slab. (Default: 1).
+        switch_over_time: A number for the minimum number of hours for when the system
+            can switch between heating and cooling. Note that this has no effect 
+            if the radiant_type is not in a slab. (Default: 24).
 
     Properties:
         * identifier
@@ -93,14 +90,12 @@ class RadiantwithDOAS(_DOASBase):
         * latent_heat_recovery
         * demand_controlled_ventilation
         * doas_availability_schedule
-        * proportional_gain
         * minimum_operation_time
         * switch_over_time
-        * radiant_face_type
+        * radiant_type
         * schedules
     """
-    __slots__ = ('_proportional_gain', '_minimum_operation_time',
-                 '_switch_over_time', '_radiant_face_type')
+    __slots__ = ('_radiant_type', '_minimum_operation_time', '_switch_over_time')
 
     EQUIPMENT_TYPES = (
         'DOAS_Radiant_Chiller_Boiler',
@@ -114,13 +109,12 @@ class RadiantwithDOAS(_DOASBase):
         'DOAS_Radiant_DCW_DHW'
     )
 
-    RADIANT_FACE_TYPES = ('Floor', 'Ceiling', 'FloorWithCarpet')
+    radiant_typeS = ('Floor', 'Ceiling', 'FloorWithCarpet', 'CeilingMetalPanel')
 
     def __init__(self, identifier, vintage='ASHRAE_2019', equipment_type=None,
                  sensible_heat_recovery=0, latent_heat_recovery=0,
                  demand_controlled_ventilation=False, doas_availability_schedule=None,
-                 proportional_gain=0.3, minimum_operation_time=1, switch_over_time=24,
-                 radiant_face_type='Floor'):
+                 radiant_type='Floor', minimum_operation_time=1, switch_over_time=24):
         """Initialize HVACSystem."""
         # initialize base HVAC system properties
         _DOASBase.__init__(
@@ -130,20 +124,27 @@ class RadiantwithDOAS(_DOASBase):
         )
 
         # set the main features of the HVAC system
-        self.proportional_gain = proportional_gain
+        self.radiant_type = radiant_type
         self.minimum_operation_time = minimum_operation_time
         self.switch_over_time = switch_over_time
-        self.radiant_face_type = radiant_face_type
 
     @property
-    def proportional_gain(self):
-        """Get or set a fractional number for the proportional gain constant."""
-        return self._proportional_gain
+    def radiant_type(self):
+        """Get or set text to indicate the type of radiant system."""
+        return self._radiant_type
 
-    @proportional_gain.setter
-    def proportional_gain(self, value):
-        self._proportional_gain = \
-            float_in_range(value, 0.0, 1.0, 'hvac proportional gain')
+    @radiant_type.setter
+    def radiant_type(self, value):
+        clean_input = valid_string(value).lower()
+        for key in self.radiant_typeS:
+            if key.lower() == clean_input:
+                value = key
+                break
+        else:
+            raise ValueError(
+                'radiant_type {} is not recognized.\nChoose from the '
+                'following:\n{}'.format(value, self.radiant_typeS))
+        self._radiant_type = value
 
     @property
     def minimum_operation_time(self):
@@ -164,31 +165,6 @@ class RadiantwithDOAS(_DOASBase):
     def switch_over_time(self, value):
         self._switch_over_time = float_positive(value, 'hvac switch over time')
 
-    @property
-    def radiant_face_type(self):
-        """Get or set text to indicate the type of default radiant face.
-
-        Choose from the following options.
-
-        * Floor
-        * Ceiling
-        * FloorWithCarpet
-        """
-        return self._radiant_face_type
-
-    @radiant_face_type.setter
-    def radiant_face_type(self, value):
-        clean_input = valid_string(value).lower()
-        for key in self.RADIANT_FACE_TYPES:
-            if key.lower() == clean_input:
-                value = key
-                break
-        else:
-            raise ValueError(
-                'radiant_face_type {} is not recognized.\nChoose from the '
-                'following:\n{}'.format(value, self.RADIANT_FACE_TYPES))
-        self._radiant_face_type = value
-
     @classmethod
     def from_dict(cls, data):
         """Create a HVAC object from a dictionary.
@@ -208,24 +184,23 @@ class RadiantwithDOAS(_DOASBase):
             "latent_heat_recovery": 0.7,  # Latent heat recovery effectiveness
             "demand_controlled_ventilation": False  # Boolean for DCV
             "doas_availability_schedule": {},  # Schedule for DOAS availability or None
-            "proportional_gain": 0.3,
+            "radiant_type": "Ceiling",
             "minimum_operation_time": 1,
-            "switch_over_time": 24,
-            "radiant_face_type": "Ceiling"
+            "switch_over_time": 24
             }
         """
         assert data['type'] == cls.__name__, \
             'Expected {} dictionary. Got {}.'.format(cls.__name__, data['type'])
         # extract the key features and properties of the HVAC
         sensible, latent, dcv = cls._properties_from_dict(data)
-        pro_g, mot, sot, f_type = cls._radiant_properties_from_dict(data)
+        f_type, mot, sot = cls._radiant_properties_from_dict(data)
         # extract the schedule
         doas_avail = cls._get_schedule_from_dict(data['doas_availability_schedule']) if \
             'doas_availability_schedule' in data and \
             data['doas_availability_schedule'] is not None else None
 
         new_obj = cls(data['identifier'], data['vintage'], data['equipment_type'],
-                      sensible, latent, dcv, doas_avail, pro_g, mot, sot, f_type)
+                      sensible, latent, dcv, doas_avail, f_type, mot, sot)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
@@ -255,17 +230,16 @@ class RadiantwithDOAS(_DOASBase):
             "latent_heat_recovery": 0.7,  # Latent heat recovery effectiveness
             "demand_controlled_ventilation": False  # Boolean for DCV
             "doas_availability_schedule": "",  # Schedule id for DOAS availability
-            "proportional_gain": 0.3,
+            "radiant_type": "Ceiling",
             "minimum_operation_time": 1,
-            "switch_over_time": 24,
-            "radiant_face_type": "Ceiling"
+            "switch_over_time": 24
             }
         """
         assert cls.__name__ in data['type'], \
             'Expected {} dictionary. Got {}.'.format(cls.__name__, data['type'])
         # extract the key features and properties of the HVAC
         sensible, latent, dcv = cls._properties_from_dict(data)
-        pro_g, mot, sot, f_type = cls._radiant_properties_from_dict(data)
+        f_type, mot, sot = cls._radiant_properties_from_dict(data)
         # extract the schedule
         doas_avail = None
         if 'doas_availability_schedule' in data and \
@@ -275,7 +249,7 @@ class RadiantwithDOAS(_DOASBase):
             except KeyError as e:
                 raise ValueError('Failed to find {} in the schedule_dict.'.format(e))
         new_obj = cls(data['identifier'], data['vintage'], data['equipment_type'],
-                      sensible, latent, dcv, doas_avail, pro_g, mot, sot, f_type)
+                      sensible, latent, dcv, doas_avail, f_type, mot, sot)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
@@ -292,29 +266,27 @@ class RadiantwithDOAS(_DOASBase):
                 schedule-type properties are exposed on this template.
         """
         base = self._base_dict(abridged)
-        base['proportional_gain'] = self.proportional_gain
+        base['radiant_type'] = self.radiant_type
         base['minimum_operation_time'] = self.minimum_operation_time
         base['switch_over_time'] = self.switch_over_time
-        base['radiant_face_type'] = self.radiant_face_type
         return base
 
     @staticmethod
     def _radiant_properties_from_dict(data):
         """Extract basic radiant properties from a dictionary and assign defaults."""
-        pro_g = data['proportional_gain'] if 'proportional_gain' in data else 0.3
         mot = data['minimum_operation_time'] if 'minimum_operation_time' in data else 1
         sot = data['switch_over_time'] if 'switch_over_time' in data else 24
-        econ = data['radiant_face_type'] if 'radiant_face_type' in data and \
-            data['radiant_face_type'] is not None else 'Floor'
-        return pro_g, mot, sot, econ
+        rad_type = data['radiant_type'] if 'radiant_type' in data and \
+            data['radiant_type'] is not None else 'Floor'
+        return rad_type, mot, sot
 
     def __copy__(self):
         new_obj = self.__class__(
             self._identifier, self._vintage, self._equipment_type,
             self._sensible_heat_recovery, self._latent_heat_recovery,
             self._demand_controlled_ventilation, self._doas_availability_schedule,
-            self._proportional_gain, self._minimum_operation_time,
-            self._switch_over_time, self._radiant_face_type)
+            self._radiant_type, self._minimum_operation_time,
+            self._switch_over_time)
         new_obj._display_name = self._display_name
         new_obj._user_data = None if self._user_data is None else self._user_data.copy()
         return new_obj
@@ -325,8 +297,7 @@ class RadiantwithDOAS(_DOASBase):
                 self._sensible_heat_recovery, self._latent_heat_recovery,
                 self._demand_controlled_ventilation,
                 hash(self._doas_availability_schedule),
-                self._proportional_gain, self._minimum_operation_time,
-                self._switch_over_time, self._radiant_face_type)
+                self._radiant_type, self._minimum_operation_time, self._switch_over_time)
 
     def __hash__(self):
         return hash(self.__key())
