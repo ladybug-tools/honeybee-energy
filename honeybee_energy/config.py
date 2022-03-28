@@ -650,7 +650,11 @@ class Folders(object):
             lib_folder = os.path.join(
                 lb_install, 'resources', 'standards', 'honeybee_standards')
             if os.path.isdir(lib_folder):
-                return lib_folder
+                try:
+                    Folders._check_standards_folder(lib_folder)
+                    return lib_folder
+                except AssertionError:  # the folder is not valid
+                    pass
 
         # default to the library folder that installs with this Python package
         return os.path.join(os.path.dirname(honeybee_standards.__file__))
