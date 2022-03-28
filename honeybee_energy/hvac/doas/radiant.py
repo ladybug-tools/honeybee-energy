@@ -5,7 +5,7 @@ from __future__ import division
 from ._base import _DOASBase
 
 from honeybee._lockable import lockable
-from honeybee.typing import float_in_range, float_positive, valid_string
+from honeybee.typing import float_positive, valid_string
 
 
 @lockable
@@ -75,10 +75,10 @@ class RadiantwithDOAS(_DOASBase):
             * CeilingMetalPanel
 
         minimum_operation_time: A number for the minimum number of hours of operation
-            for the radiant system before it shuts off. Note that this has no effect 
+            for the radiant system before it shuts off. Note that this has no effect
             if the radiant_type is not in a slab. (Default: 1).
         switch_over_time: A number for the minimum number of hours for when the system
-            can switch between heating and cooling. Note that this has no effect 
+            can switch between heating and cooling. Note that this has no effect
             if the radiant_type is not in a slab. (Default: 24).
 
     Properties:

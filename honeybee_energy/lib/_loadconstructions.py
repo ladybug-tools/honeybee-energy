@@ -93,7 +93,7 @@ def load_construction_object(
 def load_constructions_from_folder(
         construction_lib_folder, loaded_materials, loaded_schedules):
     """Load all of the construction objects from a construction standards folder.
-    
+
     Args:
         construction_lib_folder: Path to a constructions sub-folder within a
             honeybee standards folder.
@@ -139,6 +139,7 @@ def load_constructions_from_folder(
                             opaque_cons, window_cons, shade_cons, misc_mats, misc_sch)
     return opaque_cons, window_cons, shade_cons, opaque_mats, window_mats, \
         misc_mats, misc_sch
+
 
 opaque_c, window_c, shade_c, opaque_m, window_m, misc_m, misc_s = \
     load_constructions_from_folder(folders.construction_lib, _all_materials, _schedules)

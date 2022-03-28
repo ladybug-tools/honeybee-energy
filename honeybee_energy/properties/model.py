@@ -848,7 +848,7 @@ class ModelEnergyProperties(object):
 
             -   hvacs -- A dictionary with identifiers of HVAC systems as keys
                 and Python HVACSystem objects as values.
-            
+
             -   shws -- A dictionary with identifiers of SHW systems as keys
                 and Python SHWSystem objects as values.
         """
@@ -882,11 +882,13 @@ class ModelEnergyProperties(object):
 
         # process all materials in the ModelEnergyProperties dictionary
         materials = {}
-        for mat in data['properties']['energy']['materials']:
-            try:
-                materials[mat['identifier']] = dict_to_material(mat)
-            except Exception as e:
-                invalid_dict_error(mat, e)
+        if 'materials' in data['properties']['energy'] and \
+                data['properties']['energy']['materials'] is not None:
+            for mat in data['properties']['energy']['materials']:
+                try:
+                    materials[mat['identifier']] = dict_to_material(mat)
+                except Exception as e:
+                    invalid_dict_error(mat, e)
 
         # process all constructions in the ModelEnergyProperties dictionary
         constructions = {}
@@ -955,6 +957,94 @@ class ModelEnergyProperties(object):
 
         return materials, constructions, construction_sets, schedule_type_limits, \
             schedules, program_types, hvacs, shws
+
+    @staticmethod
+    def dump_properties_to_dict(
+            materials=None, constructions=None, construction_sets=None,
+            schedule_type_limits=None, schedules=None, program_types=None,
+            hvacs=None, shws=None):
+        """Get a ModelEnergyProperties dictionary from arrays of Python objects.
+
+        Args:
+            materials: A list or tuple of energy material objects.
+            constructions:  A list or tuple of construction objects.
+            construction_sets:  A list or tuple of construction set objects.
+            schedule_type_limits:  A list or tuple of schedule type limit objects.
+            schedules:  A list or tuple of schedule objects.
+            program_types:  A list or tuple of program type objects.
+            hvacs: A list or tuple of HVACSystem objects.
+            shws:  A list or tuple of SHWSystem objects.
+
+        Returns:
+            data: A dictionary representation of ModelEnergyProperties. Note that
+                all objects in this dictionary will follow the abridged schema.
+        """
+        # process the input schedules and type limits
+        type_lim = [] if schedule_type_limits is None else list(schedule_type_limits)
+        scheds = [] if schedules is None else list(schedules)
+
+        # process the program types
+        all_progs, misc_p_scheds = [], []
+        if program_types is not None:
+            for program in program_types:
+                all_progs.append(program)
+                misc_p_scheds.extend(program.schedules)
+
+        # process the materials, constructions, and construction sets
+        all_m = [] if materials is None else list(materials)
+        all_c = [] if constructions is None else list(constructions)
+        all_con_sets = [] if construction_sets is None else list(construction_sets)
+        for con_set in all_con_sets:
+            all_c.extend(con_set.modified_constructions)
+
+        # get schedules assigned in constructions
+        misc_c_scheds = []
+        for constr in all_c:
+            if isinstance(constr, (WindowConstructionShade, WindowConstructionDynamic)):
+                misc_c_scheds.append(constr.schedule)
+            elif isinstance(constr, AirBoundaryConstruction):
+                misc_c_scheds.append(constr.air_mixing_schedule)
+
+        # process the HVAC and SHW systems
+        all_hvac = [] if hvacs is None else list(hvacs)
+        all_shw = [] if shws is None else list(shws)
+        misc_hvac_scheds = []
+        for hvac_obj in all_hvac:
+            misc_hvac_scheds.extend(hvac_obj.schedules)
+
+        # get sets of unique objects
+        all_scheds = set(scheds + misc_p_scheds + misc_c_scheds + misc_hvac_scheds)
+        sched_tl = [sch.schedule_type_limit for sch in all_scheds
+                    if sch.schedule_type_limit is not None]
+        all_typ_lim = set(type_lim + sched_tl)
+        all_cons = set(all_c)
+        misc_c_mats = []
+        for constr in all_cons:
+            try:
+                misc_c_mats.extend(constr.materials)
+                if constr.has_shade:
+                    if constr.is_switchable_glazing:
+                        misc_c_mats.append(constr.switched_glass_material)
+            except AttributeError:  # not a construction with materials
+                pass
+        all_mats = set(all_m + misc_c_mats)
+
+        # add all object dictionaries into one object
+        data = {'type': 'ModelEnergyProperties'}
+        data['schedule_type_limits'] = [tl.to_dict() for tl in all_typ_lim]
+        data['schedules'] = [sch.to_dict(abridged=True) for sch in all_scheds]
+        data['program_types'] = [pro.to_dict(abridged=True) for pro in all_progs]
+        data['materials'] = [m.to_dict() for m in all_mats]
+        data['constructions'] = []
+        for con in all_cons:
+            try:
+                data['constructions'].append(con.to_dict(abridged=True))
+            except TypeError:  # no abridged option
+                data['constructions'].append(con.to_dict())
+        data['construction_sets'] = [cs.to_dict(abridged=True) for cs in all_con_sets]
+        data['hvacs'] = [hv.to_dict(abridged=True) for hv in all_hvac]
+        data['shws'] = [sw.to_dict(abridged=True) for sw in all_shw]
+        return data
 
     def _add_constr_type_objs_to_dict(self, base):
         """Add materials, constructions and construction sets to a base dictionary.
