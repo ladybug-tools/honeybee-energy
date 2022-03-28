@@ -41,7 +41,7 @@ def load_program_object(pro_dict, loaded_schedules, p_types, misc_scheds):
 
 def load_programtypes_from_folder(programtypes_lib_folder, loaded_schedules):
     """Load all of the ProgramTypes objects from a programtypes standards folder.
-    
+
     Args:
         programtypes_lib_folder: Path to a programtypes sub-folder within a
             honeybee standards folder.
@@ -61,6 +61,7 @@ def load_programtypes_from_folder(programtypes_lib_folder, loaded_schedules):
                     load_program_object(
                         p_dict[p_id], loaded_schedules, p_types, misc_scheds)
     return p_types, misc_scheds
+
 
 loaded_p_types, misc_s = \
     load_programtypes_from_folder(folders.programtype_lib, _schedules)
