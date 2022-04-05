@@ -65,7 +65,8 @@ def from_idf_osw(idf_path, model_path=None, osw_directory=None):
 
 
 def measure_compatible_model_json(
-        model_json_path, destination_directory=None, simplify_window_cons=False):
+        model_json_path, destination_directory=None, simplify_window_cons=False,
+        triangulate_sub_faces=True):
     """Convert a Model JSON to one that is compatible with the honeybee_openstudio_gem.
 
     This includes the re-serialization of the Model to Python, which will
@@ -85,6 +86,11 @@ def measure_compatible_model_json(
             be simplified during the translation. This is useful when the ultimate
             destination of the OSM is a format that does not supported layered
             window constructions (like gbXML). (Default: False).
+        triangulate_sub_faces: Boolean to note whether sub-faces (including
+            Apertures and Doors) should be triangulated if they have more than
+            4 sides (True) or whether they should be left as they are (False).
+            This triangulation is necessary when exporting directly to EnergyPlus
+            since it cannot accept sub-faces with more than 4 vertices. (Default: True).
 
     Returns:
         The full file path to the new Model JSON written out by this method.
@@ -109,7 +115,7 @@ def measure_compatible_model_json(
         room.remove_colinear_vertices_envelope(0.01, delete_degenerate=True)
 
     # get the dictionary representation of the Model and add auto-calculated properties
-    model_dict = parsed_model.to_dict(triangulate_sub_faces=True)
+    model_dict = parsed_model.to_dict(triangulate_sub_faces=triangulate_sub_faces)
     parsed_model.properties.energy.add_autocal_properties_to_dict(model_dict)
     if simplify_window_cons:
         parsed_model.properties.energy.simplify_window_constructions_in_dict(model_dict)
