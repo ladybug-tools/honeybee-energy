@@ -7,6 +7,7 @@ from honeybee.typing import valid_ep_string, valid_string, float_positive
 from honeybee.altnumber import autocalculate
 from .properties.extension import SHWSystemProperties
 
+
 @lockable
 class SHWSystem(object):
     """Detailed Service Hot Water (SHW) system template used to meet hot water demand.
@@ -198,7 +199,7 @@ class SHWSystem(object):
             assert isinstance(value, dict), 'Expected dictionary for honeybee_energy' \
                 'object user_data. Got {}.'.format(type(value))
         self._user_data = value
-    
+
     @property
     def properties(self):
         """Get properties for extensions."""
@@ -273,8 +274,8 @@ class SHWSystem(object):
     def _check_condition_equipment_type(self):
         """Check that the ambient condition is suitable for th equipment type"""
         if self._equipment_type == 'HeatPump_WaterHeater':
-                assert isinstance(self.ambient_condition, str), 'ambient_condition ' \
-                    'must be a Room when using HeatPump_WaterHeater.'
+            assert isinstance(self.ambient_condition, str), 'ambient_condition ' \
+                'must be a Room when using HeatPump_WaterHeater.'
 
     def duplicate(self):
         """Get a copy of this object."""
