@@ -168,3 +168,15 @@ class VentilationProperties(_EnergyProperties):
 
 class IdealAirSystemProperties(_EnergyProperties):
     """IdealAirSystem properties to be extended by extensions."""
+
+
+class AllAirSystemProperties(_EnergyProperties):
+    """AllAirSystem HVAC properties to be extended by extensions."""
+
+
+class DOASSystemProperties(_EnergyProperties):
+    """DOASSystem HVAC properties to be extended by extensions."""
+
+
+class HeatCoolSystemProperties(_EnergyProperties):
+    """HeatCoolSystem HVAC properties to be extended by extensions."""
