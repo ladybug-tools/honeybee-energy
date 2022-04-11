@@ -10,7 +10,6 @@ from .load.hotwater import ServiceHotWater
 from .load.infiltration import Infiltration
 from .load.ventilation import Ventilation
 from .load.setpoint import Setpoint
-from .schedule.ruleset import ScheduleRuleset
 
 from honeybee._lockable import lockable
 from honeybee.typing import valid_ep_string, tuple_with_length, clean_and_id_ep_string
@@ -236,7 +235,7 @@ class ProgramType(object):
     def schedules_unique(self):
         """List of all unique schedules contained within the ProgramType."""
         return list(set(self.schedules))
-    
+
     @property
     def user_data(self):
         """Get or set an optional dictionary for additional meta data for this object.
@@ -406,7 +405,7 @@ class ProgramType(object):
         generate loads that vary about the mean program. Note that the randomly
         generated values can be set to something predictable by using the native
         Python random.seed() method before running this method.
-        
+
         In addition to diversifying load values, approximately 2/3 of the schedules
         in the output programs will be offset from the mean by the input
         schedule_offset (1/3 ahead and another 1/3 behind).

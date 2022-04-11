@@ -8,7 +8,8 @@ from the library.
 from honeybee_energy.programtype import ProgramType
 from honeybee_energy.constructionset import ConstructionSet
 from honeybee_energy.material.dictutil import dict_to_material, MATERIAL_TYPES
-from honeybee_energy.construction.dictutil import dict_to_construction, CONSTRUCTION_TYPES
+from honeybee_energy.construction.dictutil import dict_to_construction, \
+    CONSTRUCTION_TYPES
 from honeybee_energy.schedule.dictutil import dict_to_schedule, SCHEDULE_TYPES
 from honeybee_energy.load.dictutil import dict_to_load, LOAD_TYPES
 from honeybee_energy.simulation.dictutil import dict_to_simulation, SIMULATION_TYPES
@@ -50,4 +51,6 @@ def dict_to_object(honeybee_energy_dict, raise_exception=True):
     elif obj_type in SIMULATION_TYPES:
         return dict_to_simulation(honeybee_energy_dict)
     elif raise_exception:
-        raise ValueError('{} is not a recognized honeybee energy object'.format(obj_type))
+        raise ValueError(
+            '{} is not a recognized honeybee energy object'.format(obj_type)
+        )

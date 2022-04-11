@@ -191,6 +191,12 @@ def model_to_idf(model_json, sim_par_json, additional_str, compact_schedules,
               'working files will be written. If None, it will be written into the a '
               'temp folder in the default simulation folder.', default=None,
               type=click.Path(file_okay=False, dir_okay=True, resolve_path=True))
+@click.option('--default-subfaces/--triangulate-subfaces', ' /-t',
+              help='Flag to note whether sub-faces (including Apertures and Doors) '
+              'should be triangulated if they have more than 4 sides (True) or whether '
+              'they should be left as they are (False). This triangulation is '
+              'necessary when exporting directly to EnergyPlus since it cannot accept '
+              'sub-faces with more than 4 vertices.', default=True, show_default=True)
 @click.option('--check-model/--bypass-check', ' /-bc', help='Flag to note whether the '
               'Model should be re-serialized to Python and checked before it is '
               'translated to .osm. The check is not needed if the model-json was '
@@ -203,7 +209,8 @@ def model_to_idf(model_json, sim_par_json, additional_str, compact_schedules,
 @click.option('--output-file', '-f', help='Optional gbXML file to output the string '
               'of the translation. By default it printed out to stdout', default='-',
               type=click.Path(file_okay=True, dir_okay=False, resolve_path=True))
-def model_to_gbxml(model_json, osw_folder, check_model, minimal, output_file):
+def model_to_gbxml(
+        model_json, osw_folder, default_subfaces, check_model, minimal, output_file):
     """Translate a Honeybee Model (HBJSON) to a gbXML file.
 
     \b
@@ -222,8 +229,10 @@ def model_to_gbxml(model_json, osw_folder, check_model, minimal, output_file):
 
         # run the Model re-serialization and check if specified
         if check_model:
+            tri_sub = not default_subfaces
             model_json = measure_compatible_model_json(
-                model_json, out_directory, simplify_window_cons=True)
+                model_json, out_directory, simplify_window_cons=True,
+                triangulate_sub_faces=tri_sub)
 
         # Write the osw file and translate the model to gbXML
         out_f = out_path if output_file.endswith('-') else output_file

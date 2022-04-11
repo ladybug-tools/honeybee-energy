@@ -182,7 +182,9 @@ def opaque_material_by_id(material_id, output_file):
         material_id: The identifier of an opaque material in the library.
     """
     try:
-        output_file.write(json.dumps(opaque_material_by_identifier(material_id).to_dict()))
+        output_file.write(
+            json.dumps(opaque_material_by_identifier(material_id).to_dict())
+        )
     except Exception as e:
         _logger.exception(
             'Retrieval from opaque material library failed.\n{}'.format(e))
@@ -204,7 +206,9 @@ def window_material_by_id(material_id, output_file):
         material_id: The identifier of an window material in the library.
     """
     try:
-        output_file.write(json.dumps(window_material_by_identifier(material_id).to_dict()))
+        output_file.write(
+            json.dumps(window_material_by_identifier(material_id).to_dict())
+        )
     except Exception as e:
         _logger.exception(
             'Retrieval from window material library failed.\n{}'.format(e))
@@ -580,7 +584,7 @@ def program_types_by_id(program_type_ids, complete, output_file):
     'to be loaded as ModelEnergyProperties. Note that this standards folder MUST '
     'contain these subfolders. Each sub-folder can contain JSON files of objects '
     'following honeybee schema or IDF files (if appropriate). If None, the honeybee '
-    'default standards folder will be used.',type=click.Path(
+    'default standards folder will be used.', type=click.Path(
         exists=True, file_okay=False, dir_okay=True, resolve_path=True)
 )
 @click.option(
@@ -640,6 +644,9 @@ def to_model_properties(standards_folder, output_file):
         for m_con in misc_c:
             try:
                 misc_c_mats.extend(m_con.materials)
+                if m_con.has_shade:
+                    if m_con.is_switchable_glazing:
+                        misc_c_mats.append(m_con.switched_glass_material)
             except AttributeError:  # not a construction with materials
                 pass
         all_mats = set(list(all_m.values()) + misc_m + misc_c_mats)
@@ -648,7 +655,8 @@ def to_model_properties(standards_folder, output_file):
         base = {'type': 'ModelEnergyProperties'}
         base['schedule_type_limits'] = [tl.to_dict() for tl in all_typ_lim]
         base['schedules'] = [sch.to_dict(abridged=True) for sch in all_scheds]
-        base['programtypes'] = [pro.to_dict(abridged=True) for pro in all_progs.values()]
+        base['program_types'] = \
+            [pro.to_dict(abridged=True) for pro in all_progs.values()]
         base['materials'] = [m.to_dict() for m in all_mats]
         base['constructions'] = []
         for con in all_cons:

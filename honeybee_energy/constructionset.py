@@ -281,7 +281,7 @@ class ConstructionSet(object):
         if value is not None:
             assert isinstance(value, dict), 'Expected dictionary for honeybee_energy' \
                 'object user_data. Got {}.'.format(type(value))
-        self._user_data = value    
+        self._user_data = value
 
     def get_face_construction(self, face_type, boundary_condition):
         """Get a construction object that will be assigned to a given type of face.
@@ -526,9 +526,9 @@ class ConstructionSet(object):
         # convert all interior constructions into modifiers
         unique_mods = {}
         for constr in self.constructions_unique:
-                unique_mods[constr.identifier] = constr.to_radiance_visible_interior() \
-                    if isinstance(constr, OpaqueConstruction) \
-                    else constr.to_radiance_visible()
+            unique_mods[constr.identifier] = constr.to_radiance_visible_interior() \
+                if isinstance(constr, OpaqueConstruction) \
+                else constr.to_radiance_visible()
         return self._create_modifier_set('Visible_Interior', unique_mods)
 
     def to_radiance_solar_exterior(self):
@@ -778,7 +778,6 @@ class _FaceSetBase(object):
         self.exterior_construction = exterior_construction
         self.interior_construction = interior_construction
         self.ground_construction = ground_construction
-        
 
     @property
     def exterior_construction(self):
@@ -914,7 +913,7 @@ class _FaceSetBase(object):
         return iter(self.constructions)
 
     def __copy__(self):
-        new_obj =  self.__class__(
+        new_obj = self.__class__(
             self._exterior_construction, self._interior_construction,
             self._ground_construction)
         return(new_obj)
@@ -1317,9 +1316,10 @@ class ApertureConstructionSet(object):
         return iter(self.constructions)
 
     def __copy__(self):
-        new_obj =  self.__class__(
-                        self._window_construction, self._interior_construction,
-                        self._skylight_construction, self._operable_construction)
+        new_obj = self.__class__(
+            self._window_construction, self._interior_construction,
+            self._skylight_construction, self._operable_construction
+        )
         return(new_obj)
 
     def __repr__(self):
@@ -1500,7 +1500,7 @@ class DoorConstructionSet(object):
         ohc = OpaqueConstruction.from_dict(data['overhead_construction']) \
             if 'overhead_construction' in data and data['overhead_construction'] \
             is not None else None
-    
+
         return cls(extc, intc, egc, igc, ohc)
 
     def to_dict(self, abridged=False, none_for_defaults=True):
@@ -1591,7 +1591,6 @@ class DoorConstructionSet(object):
             self._exterior_glass_construction, self._interior_glass_construction,
             self._overhead_construction)
         return(new_obj)
-        
 
     def __repr__(self):
         return 'Door Construction Set: [Exterior: {}] [Interior: {}]' \

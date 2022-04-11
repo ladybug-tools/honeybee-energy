@@ -2,15 +2,16 @@
 from honeybee_energy.hvac.doas.fcu import FCUwithDOAS
 from honeybee_energy.hvac.doas.vrf import VRFwithDOAS
 from honeybee_energy.hvac.doas.wshp import WSHPwithDOAS
+from honeybee_energy.hvac.doas.radiant import RadiantwithDOAS
 
 from honeybee.model import Model
 from honeybee.room import Room
-from honeybee.altnumber import autosize
 
 from ladybug_geometry.geometry3d.pointvector import Point3D
 
 import pytest
 from .fixtures.userdata_fixtures import userdatadict
+
 
 def test_fcu_with_doas_init(userdatadict):
     """Test the initialization of FCUwithDOAS and basic properties."""
@@ -23,17 +24,21 @@ def test_fcu_with_doas_init(userdatadict):
     assert hvac_sys.equipment_type == 'DOAS_FCU_Chiller_Boiler'
     assert hvac_sys.sensible_heat_recovery == 0
     assert hvac_sys.latent_heat_recovery == 0
+    assert not hvac_sys.demand_controlled_ventilation
 
     hvac_sys.vintage = 'ASHRAE_2010'
     hvac_sys.equipment_type = 'DOAS_FCU_DCW_DHW'
     hvac_sys.sensible_heat_recovery = 0.8
     hvac_sys.latent_heat_recovery = 0.65
+    hvac_sys.demand_controlled_ventilation = True
     assert hvac_sys.vintage == 'ASHRAE_2010'
     assert hvac_sys.equipment_type == 'DOAS_FCU_DCW_DHW'
     assert hvac_sys.sensible_heat_recovery == 0.8
     assert hvac_sys.latent_heat_recovery == 0.65
+    assert hvac_sys.demand_controlled_ventilation
     assert hvac_sys.user_data == userdatadict
-    
+
+
 def test_fcu_with_doas_equality(userdatadict):
     """Test the equality of FCUwithDOAS objects."""
     hvac_sys = FCUwithDOAS('Test System')
@@ -189,5 +194,94 @@ def test_wshp_with_doas_dict_methods(userdatadict):
 
     hvac_dict = hvac_sys.to_dict()
     new_hvac_sys = WSHPwithDOAS.from_dict(hvac_dict)
+    assert new_hvac_sys == hvac_sys
+    assert hvac_dict == new_hvac_sys.to_dict()
+
+
+def test_radiant_with_doas_init(userdatadict):
+    """Test the initialization of RadiantwithDOAS and basic properties."""
+    hvac_sys = RadiantwithDOAS('Test System')
+    hvac_sys.user_data = userdatadict
+    str(hvac_sys)  # test the string representation
+
+    assert hvac_sys.identifier == 'Test System'
+    assert hvac_sys.vintage == 'ASHRAE_2019'
+    assert hvac_sys.equipment_type == 'DOAS_Radiant_Chiller_Boiler'
+    assert hvac_sys.sensible_heat_recovery == 0
+    assert hvac_sys.latent_heat_recovery == 0
+    assert not hvac_sys.demand_controlled_ventilation
+    assert hvac_sys.minimum_operation_time == 1
+    assert hvac_sys.switch_over_time == 24
+    assert hvac_sys.radiant_type == 'Floor'
+
+    hvac_sys.vintage = 'ASHRAE_2010'
+    hvac_sys.equipment_type = 'DOAS_Radiant_DCW_DHW'
+    hvac_sys.sensible_heat_recovery = 0.8
+    hvac_sys.latent_heat_recovery = 0.65
+    hvac_sys.demand_controlled_ventilation = True
+    hvac_sys.minimum_operation_time = 0.5
+    hvac_sys.switch_over_time = 12
+    hvac_sys.radiant_type = 'Ceiling'
+    assert hvac_sys.vintage == 'ASHRAE_2010'
+    assert hvac_sys.equipment_type == 'DOAS_Radiant_DCW_DHW'
+    assert hvac_sys.sensible_heat_recovery == 0.8
+    assert hvac_sys.latent_heat_recovery == 0.65
+    assert hvac_sys.minimum_operation_time == 0.5
+    assert hvac_sys.switch_over_time == 12
+    assert hvac_sys.radiant_type == 'Ceiling'
+    assert hvac_sys.user_data == userdatadict
+
+
+def test_radiant_with_doas_equality(userdatadict):
+    """Test the equality of RadiantwithDOAS objects."""
+    hvac_sys = RadiantwithDOAS('Test System')
+    hvac_sys_dup = hvac_sys.duplicate()
+    hvac_sys_alt = RadiantwithDOAS(
+        'Test System', sensible_heat_recovery=0.75, latent_heat_recovery=0.6)
+    hvac_sys.user_data = userdatadict
+
+    assert hvac_sys is hvac_sys
+    assert hvac_sys is not hvac_sys_dup
+    assert hvac_sys == hvac_sys_dup
+    hvac_sys.latent_heat_recovery = 0.5
+    assert hvac_sys != hvac_sys_dup
+    assert hvac_sys != hvac_sys_alt
+
+
+def test_radiant_with_doas_multi_room(userdatadict):
+    """Test that RadiantwithDOAS systems can be assigned to multiple Rooms."""
+    first_floor = Room.from_box('First_Floor', 10, 10, 3, origin=Point3D(0, 0, 0))
+    second_floor = Room.from_box('Second_Floor', 10, 10, 3, origin=Point3D(0, 0, 3))
+    hvac_sys = RadiantwithDOAS('Test System')
+    hvac_sys.user_data = userdatadict
+
+    first_floor.properties.energy.hvac = hvac_sys
+    second_floor.properties.energy.hvac = hvac_sys
+
+    model = Model('Test_Bldg', [first_floor, second_floor])
+    hvacs = model.properties.energy.hvacs
+    assert len(hvacs) == 1
+    assert hvacs[0] == hvac_sys
+
+    model_dict = model.to_dict()
+    assert len(model_dict['properties']['energy']['hvacs']) == 1
+    assert model_dict['rooms'][0]['properties']['energy']['hvac'] == hvac_sys.identifier
+
+
+def test_radiant_with_doas_dict_methods(userdatadict):
+    """Test the to/from dict methods."""
+    hvac_sys = RadiantwithDOAS('High Efficiency HVAC System')
+    hvac_sys.vintage = 'ASHRAE_2010'
+    hvac_sys.equipment_type = 'DOAS_Radiant_DCW_DHW'
+    hvac_sys.sensible_heat_recovery = 0.8
+    hvac_sys.latent_heat_recovery = 0.65
+    hvac_sys.demand_controlled_ventilation = True
+    hvac_sys.minimum_operation_time = 0.5
+    hvac_sys.switch_over_time = 12
+    hvac_sys.radiant_type = 'Ceiling'
+    hvac_sys.user_data = userdatadict
+
+    hvac_dict = hvac_sys.to_dict()
+    new_hvac_sys = RadiantwithDOAS.from_dict(hvac_dict)
     assert new_hvac_sys == hvac_sys
     assert hvac_dict == new_hvac_sys.to_dict()

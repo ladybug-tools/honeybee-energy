@@ -152,7 +152,8 @@ class ShadowCalculation(object):
 
     @property
     def calculation_frequency(self):
-        """Get or set a integer for the number of days with unique shadow calculations."""
+        """Get or set a integer for the number of days with unique shadow calculations.
+        """
         return self._calculation_frequency
 
     @calculation_frequency.setter
@@ -177,8 +178,9 @@ class ShadowCalculation(object):
         Args:
             idf_string: A text string fully describing an EnergyPlus
                 ShadowCalculation definition.
-            solar_distribution: Text desribing how EnergyPlus should treat beam solar
-                radiation and reflectances from surfaces that strike the building surfaces.
+            solar_distribution: Text desribing how EnergyPlus should treat beam
+                solar radiation and reflectances from surfaces that strike the
+                building surfaces.
         """
         # check the inputs
         ep_strs = parse_idf_string(idf_string, 'ShadowCalculation,')

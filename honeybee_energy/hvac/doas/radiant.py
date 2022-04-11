@@ -1,19 +1,24 @@
 # coding=utf-8
-"""Base class for all HVAC systems with DOAS ventilation."""
+"""Low temperature radiant with DOAS HVAC system."""
 from __future__ import division
-import os
+
+from ._base import _DOASBase
 
 from honeybee._lockable import lockable
-from honeybee.typing import float_in_range
-from honeybee.altnumber import autosize
-
-from .._template import _TemplateSystem, _EnumerationBase
-from ..idealair import IdealAirSystem
+from honeybee.typing import float_positive, valid_string
 
 
 @lockable
-class _DOASBase(_TemplateSystem):
-    """Base class for all HVAC systems with DOAS ventilation.
+class RadiantwithDOAS(_DOASBase):
+    """Low temperature radiant with DOAS HVAC system.
+
+    By default, this HVAC template will swap out all floor and ceiling constructions
+    of the Rooms that it is applied to (according to the radiant_type property).
+
+    Note that radiant systems are particularly limited in cooling capacity
+    and using them may result in many unmet hours. To reduce unmet hours, use
+    an expanded comfort range, remove carpet, reduce internal loads, reduce
+    solar and envelope gains during peak times, and add thermal mass.
 
     Args:
         identifier: Text string for system identifier. Must be < 100 characters
@@ -32,8 +37,19 @@ class _DOASBase(_TemplateSystem):
             * ASHRAE_2016
             * ASHRAE_2019
 
-        equipment_type: Text for the specific type of the system and equipment.
-            For example, 'DOAS with fan coil chiller with boiler'.
+        equipment_type: Text for the specific type of the system and equipment. (Default:
+            the first option below) Choose from.
+
+            * DOAS_Radiant_Chiller_Boiler
+            * DOAS_Radiant_Chiller_ASHP
+            * DOAS_Radiant_Chiller_DHW
+            * DOAS_Radiant_ACChiller_Boiler
+            * DOAS_Radiant_ACChiller_ASHP
+            * DOAS_Radiant_ACChiller_DHW
+            * DOAS_Radiant_DCW_Boiler
+            * DOAS_Radiant_DCW_ASHP
+            * DOAS_Radiant_DCW_DHW
+
         sensible_heat_recovery: A number between 0 and 1 for the effectiveness
             of sensible heat recovery within the system. (Default: 0).
         latent_heat_recovery: A number between 0 and 1 for the effectiveness
@@ -48,6 +64,22 @@ class _DOASBase(_TemplateSystem):
             shut off the fans, which can result in more energy savings when spaces
             served by the DOAS are completely unoccupied. If None, the DOAS will be
             always on. (Default: None).
+        radiant_type: Text to indicate which faces are thermally active. Note that
+            systems are assumed to be embedded in concrete slabs with no insulation
+            within the slab unless otherwise specified. Choose from the
+            following. (Default: Floor).
+
+            * Floor
+            * Ceiling
+            * FloorWithCarpet
+            * CeilingMetalPanel
+
+        minimum_operation_time: A number for the minimum number of hours of operation
+            for the radiant system before it shuts off. Note that this has no effect
+            if the radiant_type is not in a slab. (Default: 1).
+        switch_over_time: A number for the minimum number of hours for when the system
+            can switch between heating and cooling. Note that this has no effect
+            if the radiant_type is not in a slab. (Default: 24).
 
     Properties:
         * identifier
@@ -58,82 +90,80 @@ class _DOASBase(_TemplateSystem):
         * latent_heat_recovery
         * demand_controlled_ventilation
         * doas_availability_schedule
+        * minimum_operation_time
+        * switch_over_time
+        * radiant_type
         * schedules
-        * user_data
     """
-    __slots__ = ('_sensible_heat_recovery', '_latent_heat_recovery',
-                 '_demand_controlled_ventilation', '_doas_availability_schedule')
-    COOL_ONLY_TYPES = ('DOAS_FCU_Chiller', 'DOAS_FCU_ACChiller', 'DOAS_FCU_DCW')
-    HEAT_ONLY_TYPES = ()
+    __slots__ = ('_radiant_type', '_minimum_operation_time', '_switch_over_time')
+
+    EQUIPMENT_TYPES = (
+        'DOAS_Radiant_Chiller_Boiler',
+        'DOAS_Radiant_Chiller_ASHP',
+        'DOAS_Radiant_Chiller_DHW',
+        'DOAS_Radiant_ACChiller_Boiler',
+        'DOAS_Radiant_ACChiller_ASHP',
+        'DOAS_Radiant_ACChiller_DHW',
+        'DOAS_Radiant_DCW_Boiler',
+        'DOAS_Radiant_DCW_ASHP',
+        'DOAS_Radiant_DCW_DHW'
+    )
+
+    radiant_typeS = ('Floor', 'Ceiling', 'FloorWithCarpet', 'CeilingMetalPanel')
 
     def __init__(self, identifier, vintage='ASHRAE_2019', equipment_type=None,
                  sensible_heat_recovery=0, latent_heat_recovery=0,
-                 demand_controlled_ventilation=False, doas_availability_schedule=None):
+                 demand_controlled_ventilation=False, doas_availability_schedule=None,
+                 radiant_type='Floor', minimum_operation_time=1, switch_over_time=24):
         """Initialize HVACSystem."""
         # initialize base HVAC system properties
-        _TemplateSystem.__init__(self, identifier, vintage, equipment_type)
+        _DOASBase.__init__(
+            self, identifier, vintage, equipment_type, sensible_heat_recovery,
+            latent_heat_recovery, demand_controlled_ventilation,
+            doas_availability_schedule
+        )
 
         # set the main features of the HVAC system
-        self.sensible_heat_recovery = sensible_heat_recovery
-        self.latent_heat_recovery = latent_heat_recovery
-        self.demand_controlled_ventilation = demand_controlled_ventilation
-        self.doas_availability_schedule = doas_availability_schedule
+        self.radiant_type = radiant_type
+        self.minimum_operation_time = minimum_operation_time
+        self.switch_over_time = switch_over_time
 
     @property
-    def sensible_heat_recovery(self):
-        """Get or set a number for the effectiveness of sensible heat recovery."""
-        return self._sensible_heat_recovery
+    def radiant_type(self):
+        """Get or set text to indicate the type of radiant system."""
+        return self._radiant_type
 
-    @sensible_heat_recovery.setter
-    def sensible_heat_recovery(self, value):
-        if value is None or value == 0:
-            self._sensible_heat_recovery = 0
+    @radiant_type.setter
+    def radiant_type(self, value):
+        clean_input = valid_string(value).lower()
+        for key in self.radiant_typeS:
+            if key.lower() == clean_input:
+                value = key
+                break
         else:
-            self._sensible_heat_recovery = \
-                float_in_range(value, 0.0, 1.0, 'hvac sensible heat recovery')
+            raise ValueError(
+                'radiant_type {} is not recognized.\nChoose from the '
+                'following:\n{}'.format(value, self.radiant_typeS))
+        self._radiant_type = value
 
     @property
-    def latent_heat_recovery(self):
-        """Get or set a number for the effectiveness of latent heat recovery."""
-        return self._latent_heat_recovery
+    def minimum_operation_time(self):
+        """Get or set a the minimum hours of operation before the system shuts off."""
+        return self._minimum_operation_time
 
-    @latent_heat_recovery.setter
-    def latent_heat_recovery(self, value):
-        if value is None:
-            self._latent_heat_recovery = 0
-        else:
-            self._latent_heat_recovery = \
-                float_in_range(value, 0.0, 1.0, 'hvac latent heat recovery')
+    @minimum_operation_time.setter
+    def minimum_operation_time(self, value):
+        self._minimum_operation_time = \
+            float_positive(value, 'hvac minimum operation time')
 
     @property
-    def demand_controlled_ventilation(self):
-        """Get or set a boolean for whether demand controlled ventilation is present."""
-        return self._demand_controlled_ventilation
+    def switch_over_time(self):
+        """Get or set the minimum hours the system can switch between heating/cooling."""
+        return self._switch_over_time
 
-    @demand_controlled_ventilation.setter
-    def demand_controlled_ventilation(self, value):
-        self._demand_controlled_ventilation = bool(value)
-
-    @property
-    def doas_availability_schedule(self):
-        """Get or set am on/off schedule for availability of the DOAS air loop.
-        """
-        return self._doas_availability_schedule
-
-    @doas_availability_schedule.setter
-    def doas_availability_schedule(self, value):
-        if value is not None:
-            self._check_schedule(value, 'doas_availability_schedule')
-            value.lock()   # lock editing in case schedule has multiple references
-        self._doas_availability_schedule = value
-
-    @property
-    def schedules(self):
-        """Get an array of all the schedules associated with the HVAC system."""
-        schedules = []
-        if self._doas_availability_schedule is not None:
-            schedules.append(self._doas_availability_schedule)
-        return schedules
+    @switch_over_time.setter
+    def switch_over_time(self, value):
+        self._switch_over_time = float_positive(value, 'hvac switch over time')
 
     @classmethod
     def from_dict(cls, data):
@@ -153,20 +183,24 @@ class _DOASBase(_TemplateSystem):
             "sensible_heat_recovery": 0.75,  # Sensible heat recovery effectiveness
             "latent_heat_recovery": 0.7,  # Latent heat recovery effectiveness
             "demand_controlled_ventilation": False  # Boolean for DCV
-            "doas_availability_schedule": {}  # Schedule for DOAS availability or None
+            "doas_availability_schedule": {},  # Schedule for DOAS availability or None
+            "radiant_type": "Ceiling",
+            "minimum_operation_time": 1,
+            "switch_over_time": 24
             }
         """
         assert data['type'] == cls.__name__, \
             'Expected {} dictionary. Got {}.'.format(cls.__name__, data['type'])
         # extract the key features and properties of the HVAC
         sensible, latent, dcv = cls._properties_from_dict(data)
+        f_type, mot, sot = cls._radiant_properties_from_dict(data)
         # extract the schedule
         doas_avail = cls._get_schedule_from_dict(data['doas_availability_schedule']) if \
             'doas_availability_schedule' in data and \
             data['doas_availability_schedule'] is not None else None
 
         new_obj = cls(data['identifier'], data['vintage'], data['equipment_type'],
-                      sensible, latent, dcv, doas_avail)
+                      sensible, latent, dcv, doas_avail, f_type, mot, sot)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
@@ -195,13 +229,17 @@ class _DOASBase(_TemplateSystem):
             "sensible_heat_recovery": 0.75,  # Sensible heat recovery effectiveness
             "latent_heat_recovery": 0.7,  # Latent heat recovery effectiveness
             "demand_controlled_ventilation": False  # Boolean for DCV
-            "doas_availability_schedule": ""  # Schedule id for DOAS availability
+            "doas_availability_schedule": "",  # Schedule id for DOAS availability
+            "radiant_type": "Ceiling",
+            "minimum_operation_time": 1,
+            "switch_over_time": 24
             }
         """
         assert cls.__name__ in data['type'], \
             'Expected {} dictionary. Got {}.'.format(cls.__name__, data['type'])
         # extract the key features and properties of the HVAC
         sensible, latent, dcv = cls._properties_from_dict(data)
+        f_type, mot, sot = cls._radiant_properties_from_dict(data)
         # extract the schedule
         doas_avail = None
         if 'doas_availability_schedule' in data and \
@@ -211,7 +249,7 @@ class _DOASBase(_TemplateSystem):
             except KeyError as e:
                 raise ValueError('Failed to find {} in the schedule_dict.'.format(e))
         new_obj = cls(data['identifier'], data['vintage'], data['equipment_type'],
-                      sensible, latent, dcv, doas_avail)
+                      sensible, latent, dcv, doas_avail, f_type, mot, sot)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
@@ -227,68 +265,28 @@ class _DOASBase(_TemplateSystem):
                 This input currently has no effect but may eventually have one if
                 schedule-type properties are exposed on this template.
         """
-        return self._base_dict(abridged)
-
-    def to_ideal_air_equivalent(self):
-        """Get a version of this HVAC as an IdealAirSystem.
-
-        Relevant properties will be transferred to the resulting ideal air such as
-        sensible_heat_recovery, latent_heat_recovery, and demand_controlled_ventilation.
-        """
-        i_sys = IdealAirSystem(
-            self.identifier, economizer_type='NoEconomizer',
-            sensible_heat_recovery=self.sensible_heat_recovery,
-            latent_heat_recovery=self.latent_heat_recovery,
-            demand_controlled_ventilation=self.demand_controlled_ventilation)
-        if self.equipment_type in self.COOL_ONLY_TYPES:
-            i_sys.heating_limit = 0
-        if self.equipment_type in self.HEAT_ONLY_TYPES:
-            i_sys.cooling_limit = 0
-        i_sys.economizer_type = 'NoEconomizer'
-        i_sys._display_name = self._display_name
-        return i_sys
-
-    def _base_dict(self, abridged):
-        """Get a base dictionary of the DOAS system."""
-        class_type = '{}Abridged'.format(self.__class__.__name__) \
-            if abridged else self.__class__.__name__
-        base = {'type': class_type}
-        base['identifier'] = self.identifier
-        if self._display_name is not None:
-            base['display_name'] = self.display_name
-        base['vintage'] = self.vintage
-        base['equipment_type'] = self.equipment_type
-        if self.sensible_heat_recovery != 0:
-            base['sensible_heat_recovery'] = self.sensible_heat_recovery
-        if self.latent_heat_recovery != 0:
-            base['latent_heat_recovery'] = self.latent_heat_recovery
-        base['demand_controlled_ventilation'] = self.demand_controlled_ventilation
-        if self.doas_availability_schedule is not None:
-            base['doas_availability_schedule'] = \
-                self.doas_availability_schedule.identifier if \
-                abridged else self.doas_availability_schedule.to_dict()
-        if self._user_data is not None:
-            base['user_data'] = self.user_data
+        base = self._base_dict(abridged)
+        base['radiant_type'] = self.radiant_type
+        base['minimum_operation_time'] = self.minimum_operation_time
+        base['switch_over_time'] = self.switch_over_time
         return base
 
     @staticmethod
-    def _properties_from_dict(data):
-        """Extract basic properties from a dictionary and assign defaults."""
-        sensible = data['sensible_heat_recovery'] if \
-            'sensible_heat_recovery' in data else 0
-        sensible = sensible if sensible != autosize.to_dict() else 0
-        latent = data['latent_heat_recovery'] if \
-            'latent_heat_recovery' in data else 0
-        latent = latent if latent != autosize.to_dict() else 0
-        dcv = data['demand_controlled_ventilation'] \
-            if 'demand_controlled_ventilation' in data else False
-        return sensible, latent, dcv
+    def _radiant_properties_from_dict(data):
+        """Extract basic radiant properties from a dictionary and assign defaults."""
+        mot = data['minimum_operation_time'] if 'minimum_operation_time' in data else 1
+        sot = data['switch_over_time'] if 'switch_over_time' in data else 24
+        rad_type = data['radiant_type'] if 'radiant_type' in data and \
+            data['radiant_type'] is not None else 'Floor'
+        return rad_type, mot, sot
 
     def __copy__(self):
         new_obj = self.__class__(
             self._identifier, self._vintage, self._equipment_type,
             self._sensible_heat_recovery, self._latent_heat_recovery,
-            self._demand_controlled_ventilation, self._doas_availability_schedule)
+            self._demand_controlled_ventilation, self._doas_availability_schedule,
+            self._radiant_type, self._minimum_operation_time,
+            self._switch_over_time)
         new_obj._display_name = self._display_name
         new_obj._user_data = None if self._user_data is None else self._user_data.copy()
         return new_obj
@@ -298,7 +296,8 @@ class _DOASBase(_TemplateSystem):
         return (self._identifier, self._vintage, self._equipment_type,
                 self._sensible_heat_recovery, self._latent_heat_recovery,
                 self._demand_controlled_ventilation,
-                hash(self._doas_availability_schedule))
+                hash(self._doas_availability_schedule),
+                self._radiant_type, self._minimum_operation_time, self._switch_over_time)
 
     def __hash__(self):
         return hash(self.__key())
@@ -308,18 +307,3 @@ class _DOASBase(_TemplateSystem):
 
     def __ne__(self, other):
         return not self.__eq__(other)
-
-
-class _DOASEnumeration(_EnumerationBase):
-    """Enumerates the systems that inherit from _DOASBase."""
-
-    def __init__(self, import_modules=True):
-        if import_modules:
-            self._import_modules(os.path.dirname(__file__), 'honeybee_energy.hvac.doas')
-
-        self._HVAC_TYPES = {}
-        self._EQUIPMENT_TYPES = {}
-        for clss in _DOASBase.__subclasses__():
-            self._HVAC_TYPES[clss.__name__] = clss
-            for equip_type in clss.EQUIPMENT_TYPES:
-                self._EQUIPMENT_TYPES[equip_type] = clss

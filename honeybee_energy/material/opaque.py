@@ -508,6 +508,11 @@ class EnergyMaterialNoMass(_EnergyMaterialOpaqueBase):
         self.visible_absorptance = 1 - v_ref
 
     @property
+    def thickness(self):
+        """Returns 0 for the thickness of a no mass material."""
+        return 0
+
+    @property
     def mass_area_density(self):
         """Returns 0 for the area density of a no mass material."""
         return 0

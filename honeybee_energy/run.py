@@ -65,7 +65,8 @@ def from_idf_osw(idf_path, model_path=None, osw_directory=None):
 
 
 def measure_compatible_model_json(
-        model_json_path, destination_directory=None, simplify_window_cons=False):
+        model_json_path, destination_directory=None, simplify_window_cons=False,
+        triangulate_sub_faces=True):
     """Convert a Model JSON to one that is compatible with the honeybee_openstudio_gem.
 
     This includes the re-serialization of the Model to Python, which will
@@ -85,6 +86,11 @@ def measure_compatible_model_json(
             be simplified during the translation. This is useful when the ultimate
             destination of the OSM is a format that does not supported layered
             window constructions (like gbXML). (Default: False).
+        triangulate_sub_faces: Boolean to note whether sub-faces (including
+            Apertures and Doors) should be triangulated if they have more than
+            4 sides (True) or whether they should be left as they are (False).
+            This triangulation is necessary when exporting directly to EnergyPlus
+            since it cannot accept sub-faces with more than 4 vertices. (Default: True).
 
     Returns:
         The full file path to the new Model JSON written out by this method.
@@ -109,7 +115,7 @@ def measure_compatible_model_json(
         room.remove_colinear_vertices_envelope(0.01, delete_degenerate=True)
 
     # get the dictionary representation of the Model and add auto-calculated properties
-    model_dict = parsed_model.to_dict(triangulate_sub_faces=True)
+    model_dict = parsed_model.to_dict(triangulate_sub_faces=triangulate_sub_faces)
     parsed_model.properties.energy.add_autocal_properties_to_dict(model_dict)
     if simplify_window_cons:
         parsed_model.properties.energy.simplify_window_constructions_in_dict(model_dict)
@@ -224,16 +230,6 @@ def to_openstudio_osw(osw_directory, model_path, sim_par_json_path=None,
         with open(base_osw, readmode) as base_file:
             osw_dict = json.load(base_file)
 
-    # add a simulation parameter step if it is specified
-    if sim_par_json_path is not None:
-        sim_par_dict = {
-            'arguments': {
-                'simulation_parameter_json': sim_par_json_path
-            },
-            'measure_dir_name': 'from_honeybee_simulation_parameter'
-        }
-        osw_dict['steps'].insert(0, sim_par_dict)
-
     # add the model json serialization into the steps
     if model_path.lower().endswith('.osm'):  # use the OSM as a seed file
         osw_dict['seed_file'] = model_path
@@ -247,6 +243,16 @@ def to_openstudio_osw(osw_directory, model_path, sim_par_json_path=None,
         if schedule_directory is not None:
             model_measure_dict['arguments']['schedule_csv_dir'] = schedule_directory
         osw_dict['steps'].insert(0, model_measure_dict)
+
+    # add a simulation parameter step if it is specified
+    if sim_par_json_path is not None:
+        sim_par_dict = {
+            'arguments': {
+                'simulation_parameter_json': sim_par_json_path
+            },
+            'measure_dir_name': 'from_honeybee_simulation_parameter'
+        }
+        osw_dict['steps'].insert(0, sim_par_dict)
 
     # assign the measure_paths to the osw_dict
     if 'measure_paths' not in osw_dict:
@@ -340,8 +346,13 @@ def to_openstudio_osw(osw_directory, model_path, sim_par_json_path=None,
 
     # write the dictionary to a workflow.osw
     osw_json = os.path.join(osw_directory, 'workflow.osw')
-    with open(osw_json, writemode) as fp:
-        json.dump(osw_dict, fp, indent=4, ensure_ascii=False)
+    if (sys.version_info < (3, 0)):  # we need to manually encode it as UTF-8
+        with open(osw_json, writemode) as fp:
+            workflow_str = json.dumps(osw_dict, indent=4, ensure_ascii=False)
+            fp.write(workflow_str.encode('utf-8'))
+    else:
+        with open(osw_json, writemode, encoding='utf-8') as fp:
+            workflow_str = json.dump(osw_dict, fp, indent=4, ensure_ascii=False)
 
     return os.path.abspath(osw_json)
 
@@ -595,7 +606,8 @@ def _run_osw_windows(osw_json, measures_only=True, silent=False):
     # check the input file
     directory = _check_osw(osw_json)
 
-    if not silent:  # write the batch file to call OpenStudio CLI
+    if not silent:
+        # write a batch file to call OpenStudio CLI; useful for re-running the sim
         working_drive = directory[:2]
         measure_str = '-m ' if measures_only else ''
         batch = '{}\n"{}" -I "{}" run {}-w "{}"'.format(
@@ -603,14 +615,16 @@ def _run_osw_windows(osw_json, measures_only=True, silent=False):
             measure_str, osw_json)
         batch_file = os.path.join(directory, 'run_workflow.bat')
         write_to_file(batch_file, batch, True)
-        os.system('"{}"'.format(batch_file))  # run the batch file
-    else:  # run it all using subprocess
-        cmds = [folders.openstudio_exe, '-I', folders.honeybee_openstudio_gem_path,
-                'run', '-w', osw_json]
-        if measures_only:
-            cmds.append('-m')
-        process = subprocess.Popen(cmds, stdout=subprocess.PIPE, shell=True)
-        process.communicate()  # prevents the script from running before command is done
+        if all(ord(c) < 128 for c in batch):  # just run the batch file as it is
+            os.system('"{}"'.format(batch_file))  # run the batch file
+            return directory
+    # given .bat file restrictions with non-ASCII characters, run the sim with subprocess
+    cmds = [folders.openstudio_exe, '-I', folders.honeybee_openstudio_gem_path,
+            'run', '-w', osw_json]
+    if measures_only:
+        cmds.append('-m')
+    process = subprocess.Popen(cmds, shell=silent)
+    process.communicate()  # prevents the script from running before command is done
 
     return directory
 
@@ -709,7 +723,7 @@ def _run_idf_windows(idf_file_path, epw_file_path=None, expand_objects=True,
     # check and prepare the input files
     directory = prepare_idf_for_simulation(idf_file_path, epw_file_path)
 
-    if not silent:  # run the simulations using a batch file
+    if not silent:  # write a batch file; useful for re-running the sim
         # generate various arguments to pass to the energyplus command
         epw_str = '-w "{}"'.format(os.path.abspath(epw_file_path)) \
             if epw_file_path is not None else ''
@@ -722,17 +736,18 @@ def _run_idf_windows(idf_file_path, epw_file_path=None, expand_objects=True,
             idd_str, expand_str)
         batch_file = os.path.join(directory, 'in.bat')
         write_to_file(batch_file, batch, True)
-        os.system('"{}"'.format(batch_file))  # run the batch file
-    else:  # run the simulation using subprocess
-        cmds = [folders.energyplus_exe, '-i', folders.energyplus_idd_path]
-        if epw_file_path is not None:
-            cmds.append('-w')
-            cmds.append(os.path.abspath(epw_file_path))
-        if expand_objects:
-            cmds.append('-x')
-        process = subprocess.Popen(
-            cmds, cwd=directory, stdout=subprocess.PIPE, shell=True)
-        process.communicate()  # prevents the script from running before command is done
+        if all(ord(c) < 128 for c in batch):  # just run the batch file as it is
+            os.system('"{}"'.format(batch_file))  # run the batch file
+            return directory
+    # given .bat file restrictions with non-ASCII characters, run the sim with subprocess
+    cmds = [folders.energyplus_exe, '-i', folders.energyplus_idd_path]
+    if epw_file_path is not None:
+        cmds.append('-w')
+        cmds.append(os.path.abspath(epw_file_path))
+    if expand_objects:
+        cmds.append('-x')
+    process = subprocess.Popen(cmds, cwd=directory, shell=silent)
+    process.communicate()  # prevents the script from running before command is done
 
     return directory
 
