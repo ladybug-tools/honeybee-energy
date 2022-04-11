@@ -92,7 +92,8 @@ class VentilationControl(object):
 
     @property
     def min_outdoor_temperature(self):
-        """Get or set a number for the minimum outdoor temperature for ventilation (C)."""
+        """Get or set a number for the minimum outdoor temperature for ventilation (C).
+        """
         return self._min_outdoor_temperature
 
     @min_outdoor_temperature.setter
@@ -102,7 +103,8 @@ class VentilationControl(object):
 
     @property
     def max_outdoor_temperature(self):
-        """Get or set a number for the maximum outdoor temperature for ventilation (C)."""
+        """Get or set a number for the maximum outdoor temperature for ventilation (C).
+        """
         return self._max_outdoor_temperature
 
     @max_outdoor_temperature.setter
@@ -135,8 +137,9 @@ class VentilationControl(object):
                 'Expected schedule for VentilationControl schedule. ' \
                 'Got {}.'.format(type(value))
             if value.schedule_type_limit is not None:
-                assert value.schedule_type_limit.unit == 'fraction', 'VentilationControl ' \
-                    'schedule should be fractional [Dimensionless]. Got a schedule ' \
+                assert value.schedule_type_limit.unit == 'fraction', \
+                    'VentilationControl schedule should be fractional ' \
+                    '[Dimensionless]. Got a schedule ' \
                     'of unit_type [{}].'.format(value.schedule_type_limit.unit_type)
             value.lock()  # lock editing in case schedule has multiple references
             self._schedule = value

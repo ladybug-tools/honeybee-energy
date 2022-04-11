@@ -5,5 +5,6 @@
     "lbt_measures_path": "",
     "honeybee_openstudio_gem_path": "",
     "standards_data_folder": "",
-    "standards_extension_folders": []
+    "standards_extension_folders": [],
+    "defaults_file": ""
 }

@@ -84,6 +84,7 @@ class WindowConstructionShade(object):
         * is_symmetric
         * is_switchable_glazing
         * has_shade
+        * is_dynamic
         * inside_emissivity
         * outside_emissivity
         * thickness
@@ -410,6 +411,14 @@ class WindowConstructionShade(object):
         """Get a boolean noting whether dynamic materials are in the construction.
 
         This should always be True for this class.
+        """
+        return True
+
+    @property
+    def is_dynamic(self):
+        """Get a boolean noting whether the construction is dynamic.
+
+        This will always be True for this class.
         """
         return True
 

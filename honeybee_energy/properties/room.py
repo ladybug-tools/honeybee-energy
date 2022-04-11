@@ -996,7 +996,8 @@ class RoomEnergyProperties(object):
         if self.daylighting_control is not None:
             self.daylighting_control.scale(factor, origin)
 
-    def make_plenum(self, conditioned=False, remove_infiltration=False):
+    def make_plenum(self, conditioned=False, remove_infiltration=False,
+                    include_floor_area=False):
         """Turn the host Room into a plenum with no internal loads.
 
         This includes removing all people, lighting, equipment, hot water, and
@@ -1014,6 +1015,12 @@ class RoomEnergyProperties(object):
                 be kept in addition to the heating/cooling system (Default: False).
             remove_infiltration: Boolean to indicate whether infiltration should be
                 removed from the Rooms. (Default: False).
+            include_floor_area: Boolean to indicate whether the floor area of the
+                plenum contributes to the Model that it is a part of. Note that this
+                will not affect the floor_area property of this Room but it will
+                ensure the Room's floor area is excluded from any calculations when
+                the Room is part of a Model and when it is simulated in
+                EnergyPlus. (Default: False).
         """
         # remove or add the HVAC system as needed
         if conditioned and not self.is_conditioned:
@@ -1021,6 +1028,12 @@ class RoomEnergyProperties(object):
         elif not conditioned:
             self.hvac = None
         self._shw = None
+
+        # discount the floor area unless otherwise specified
+        if not include_floor_area:
+            self.host.exclude_floor_area = True
+        else:
+            self.host.exclude_floor_area = False
 
         # remove the loads and reapply infiltration/setpoints as needed
         infiltration = None if remove_infiltration else self.infiltration
@@ -1035,7 +1048,7 @@ class RoomEnergyProperties(object):
         self._infiltration = infiltration
         self._setpoint = setpt
 
-    def make_ground(self, soil_construction):
+    def make_ground(self, soil_construction, include_floor_area=False):
         """Change the properties of the host Room to reflect those of a ground surface.
 
         This is particularly useful for setting up outdoor thermal comfort maps
@@ -1057,6 +1070,12 @@ class RoomEnergyProperties(object):
                 If the outer-most material is an EnergyMaterialVegetation and there
                 are no other layers in the construction, the vegetation's soil
                 material will be used for all other Faces.
+            include_floor_area: Boolean to indicate whether the floor area of the ground
+                room contributes to the Model that it is a part of. Note that this
+                will not affect the floor_area property of this Room but it will
+                ensure the Room's floor area is excluded from any calculations when
+                the Room is part of a Model and when it is simulated in
+                EnergyPlus. (Default: False).
         """
         # process the input soil_construction
         assert isinstance(soil_construction, OpaqueConstruction), 'Expected ' \
@@ -1066,7 +1085,14 @@ class RoomEnergyProperties(object):
             OpaqueConstruction('{}_BelowGrade'.format(soil_construction.identifier),
                                (soil_construction.materials[-1],))
         if isinstance(int_soil.materials[0], EnergyMaterialVegetation):
-            int_soil.materials = [int_soil.materials[0].soil_layer]
+            below_id = '{}_BelowGrade'.format(soil_construction.identifier)
+            int_soil = OpaqueConstruction(below_id, (int_soil.materials[0].soil_layer,))
+
+        # discount the floor area unless otherwise specified
+        if not include_floor_area:
+            self.host.exclude_floor_area = True
+        else:
+            self.host.exclude_floor_area = False
 
         # reset all of the properties of the room to reflect the ground
         self.reset_to_default()
@@ -1365,7 +1391,9 @@ class RoomEnergyProperties(object):
         new_room._infiltration = self._infiltration
         new_room._ventilation = self._ventilation
         new_room._setpoint = self._setpoint
-        new_room._daylighting_control = self._daylighting_control
+        if self._daylighting_control is not None:
+            new_room._daylighting_control = self._daylighting_control.duplicate()
+            new_room._daylighting_control._parent = _host
         new_room._window_vent_control = self._window_vent_control
         new_room._process_loads = self._process_loads[:]  # copy process load list
         new_room._internal_masses = self._internal_masses[:]  # copy internal masses list

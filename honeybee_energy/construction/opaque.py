@@ -37,6 +37,8 @@ class OpaqueConstruction(_ConstructionBase):
         * u_factor
         * r_factor
         * is_symmetric
+        * has_shade
+        * is_dynamic
         * inside_emissivity
         * inside_solar_reflectance
         * inside_visible_reflectance
@@ -116,8 +118,7 @@ class OpaqueConstruction(_ConstructionBase):
         """Thickness of the construction [m]."""
         thickness = 0
         for mat in self.materials:
-            if isinstance(mat, EnergyMaterial):
-                thickness += mat.thickness
+            thickness += mat.thickness
         return thickness
 
     def temperature_profile(self, outside_temperature=-18, inside_temperature=21,

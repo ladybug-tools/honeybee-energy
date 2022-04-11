@@ -232,7 +232,7 @@ class _DOASBase(_TemplateSystem):
         return new_obj
 
     def to_dict(self, abridged=False):
-        """All air system dictionary representation.
+        """DOAS system dictionary representation.
 
         Args:
             abridged: Boolean to note whether the full dictionary describing the
@@ -240,6 +240,29 @@ class _DOASBase(_TemplateSystem):
                 This input currently has no effect but may eventually have one if
                 schedule-type properties are exposed on this template.
         """
+        return self._base_dict(abridged)
+
+    def to_ideal_air_equivalent(self):
+        """Get a version of this HVAC as an IdealAirSystem.
+
+        Relevant properties will be transferred to the resulting ideal air such as
+        sensible_heat_recovery, latent_heat_recovery, and demand_controlled_ventilation.
+        """
+        i_sys = IdealAirSystem(
+            self.identifier, economizer_type='NoEconomizer',
+            sensible_heat_recovery=self.sensible_heat_recovery,
+            latent_heat_recovery=self.latent_heat_recovery,
+            demand_controlled_ventilation=self.demand_controlled_ventilation)
+        if self.equipment_type in self.COOL_ONLY_TYPES:
+            i_sys.heating_limit = 0
+        if self.equipment_type in self.HEAT_ONLY_TYPES:
+            i_sys.cooling_limit = 0
+        i_sys.economizer_type = 'NoEconomizer'
+        i_sys._display_name = self._display_name
+        return i_sys
+
+    def _base_dict(self, abridged):
+        """Get a base dictionary of the DOAS system."""
         class_type = '{}Abridged'.format(self.__class__.__name__) \
             if abridged else self.__class__.__name__
         base = {'type': class_type}
@@ -263,24 +286,6 @@ class _DOASBase(_TemplateSystem):
         if prop_dict is not None:
             base['properties'] = prop_dict
         return base
-
-    def to_ideal_air_equivalent(self):
-        """Get a version of this HVAC as an IdealAirSystem.
-
-        Relevant properties will be transferred to the resulting ideal air such as
-        sensible_heat_recovery, latent_heat_recovery, and demand_controlled_ventilation.
-        """
-        i_sys = IdealAirSystem(
-            self.identifier, economizer_type='NoEconomizer',
-            sensible_heat_recovery=self.sensible_heat_recovery,
-            latent_heat_recovery=self.latent_heat_recovery,
-            demand_controlled_ventilation=self.demand_controlled_ventilation)
-        if self.equipment_type in self.COOL_ONLY_TYPES:
-            i_sys.heating_limit = 0
-        if self.equipment_type in self.HEAT_ONLY_TYPES:
-            i_sys.cooling_limit = 0
-        i_sys._display_name = self._display_name
-        return i_sys
 
     @staticmethod
     def _properties_from_dict(data):

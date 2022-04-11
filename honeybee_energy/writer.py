@@ -199,8 +199,12 @@ def aperture_to_idf(aperture):
     ap_bc_obj = aperture.boundary_condition.boundary_condition_object if \
         isinstance(aperture.boundary_condition, Surface) else ''
     construction = aperture.properties.energy.construction
-    constr_name = construction.identifier if not construction.has_shade \
-        else construction.window_construction.identifier
+    if construction.has_shade:
+        constr_name = construction.window_construction.identifier
+    elif construction.is_dynamic:
+        constr_name = '{}State0'.format(construction.constructions[0].identifier)
+    else:
+        constr_name = construction.identifier
     if aperture.has_parent:
         parent_face = aperture.parent.identifier
         parent_room = aperture.parent.parent.identifier if aperture.parent.has_parent \
@@ -512,6 +516,7 @@ def model_to_idf(
     # write all of the materials and constructions
     materials = []
     construction_strs = []
+    dynamic_cons = []
     all_constrs = model.properties.energy.constructions + \
         generic_construction_set.constructions_unique
     for constr in set(all_constrs):
@@ -519,7 +524,11 @@ def model_to_idf(
             materials.extend(constr.materials)
             construction_strs.append(constr.to_idf())
             if constr.has_shade:
+                if constr.is_switchable_glazing:
+                    materials.append(constr.switched_glass_material)
                 construction_strs.append(constr.to_shaded_idf())
+            elif constr.is_dynamic:
+                dynamic_cons.append(constr)
         except AttributeError:
             try:  # AirBoundaryConstruction or ShadeConstruction
                 construction_strs.append(constr.to_idf())  # AirBoundaryConstruction
@@ -549,6 +558,7 @@ def model_to_idf(
 
     # write all of the zone geometry
     model_str.append('!-   ============ ZONE GEOMETRY ============\n')
+    ap_objs = []
     for room in model.rooms:
         model_str.append(room.to.idf(room))
         for face in room.faces:
@@ -568,6 +578,7 @@ def model_to_idf(
             for ap in face.apertures:
                 if len(ap.geometry) <= 4:  # ignore apertures to be triangulated
                     model_str.append(ap.to.idf(ap))
+                    ap_objs.append(ap)
                 for shade in ap.outdoor_shades:
                     model_str.append(shade.to.idf(shade))
             for dr in face.doors:
@@ -585,6 +596,7 @@ def model_to_idf(
     for tri_aps in tri_apertures:
         for ap in tri_aps:
             model_str.append(ap.to.idf(ap))
+            ap_objs.append(ap)
     tri_doors, _ = model.triangulated_doors()
     for tri_drs in tri_doors:
         for dr in tri_drs:
@@ -594,6 +606,20 @@ def model_to_idf(
     model_str.append('!-   ========== CONTEXT GEOMETRY ==========\n')
     for shade in model.orphaned_shades:
         model_str.append(shade.to.idf(shade))
+
+    # write any EMS programs for dynamic constructions
+    if len(dynamic_cons) != 0:
+        model_str.append('!-   ========== EMS PROGRAMS ==========\n')
+        dyn_dict = {}
+        for ap in ap_objs:
+            con = ap.properties.energy.construction
+            try:
+                dyn_dict[con.identifier].append(ap.identifier)
+            except KeyError:
+                dyn_dict[con.identifier] = [ap.identifier]
+        for con in dynamic_cons:
+            model_str.append(con.to_program_idf(dyn_dict[con.identifier]))
+        model_str.append(dynamic_cons[0].idf_program_manager(dynamic_cons))
 
     return '\n\n'.join(model_str)
 

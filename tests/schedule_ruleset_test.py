@@ -172,6 +172,7 @@ def test_schedule_ruleset_from_constant_value():
     assert len(sched.schedule_rules) == 0
     assert sched.summer_designday_schedule is None
     assert sched.winter_designday_schedule is None
+    assert bool(sched)
 
 
 def test_schedule_ruleset_from_daily_values():
