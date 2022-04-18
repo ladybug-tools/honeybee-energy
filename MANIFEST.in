@@ -6,3 +6,12 @@ include honeybee_energy/lib/data/schedules/*.json
 include honeybee_energy/lib/data/constructionsets/*.json
 include honeybee_energy/lib/data/programtypes/*.json
 include honeybee_energy/cli/data/*.csv
+recursive-exclude tests *
+recursive-exclude docs *
+recursive-exclude .github *
+exclude .gitignore
+exclude .dockerignore
+exclude .releaserc.json
+exclude deploy.sh
+exclude Dockerfile
+exclude build_image.sh
