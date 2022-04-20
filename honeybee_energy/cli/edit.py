@@ -6,6 +6,7 @@ import os
 import json
 
 from honeybee.model import Model
+from honeybee.typing import clean_rad_string
 
 from honeybee_energy.schedule.fixedinterval import ScheduleFixedInterval
 from honeybee_energy.lib.scheduletypelimits import fractional
@@ -28,6 +29,10 @@ def edit():
               'dynamic window constructions and shaded window constructions should '
               'be translated to dynamic aperture groups or just the static (bare) '
               'construction should be used.', default=True)
+@click.option('--dynamic-shade/--static-shade', ' /-ss', help='Flag to note whether '
+              'dynamic shade transmittance schedules should be translated to dynamic '
+              'shade groups or just a static, fully-opaque construction should '
+              'be used.', default=True)
 @click.option('--exterior-offset', '-o', help='A number for the distance at which the '
               'exterior Room faces should be offset in meters. This is used to account '
               'for the fact that the exterior material layer of the construction '
@@ -38,7 +43,7 @@ def edit():
               'string of the converted model. By default this will be printed out to '
               'stdout', type=click.File('w'), default='-', show_default=True)
 def modifiers_from_constructions(
-    model_file, solar, dynamic_groups, exterior_offset, output_file
+    model_file, solar, dynamic_groups, dynamic_shade, exterior_offset, output_file
 ):
     """Assign honeybee Radiance modifiers based on energy construction properties.
 
@@ -53,6 +58,13 @@ def modifiers_from_constructions(
         model_file: Full path to a Honeybee Model (HBJSON or HBpkl) file.
     """
     try:
+        # import dependencies and set up reused variables
+        try:
+            from honeybee_radiance.lib.modifiers import air_boundary
+            from honeybee_radiance.dynamic.state import RadianceShadeState
+        except ImportError as e:
+            raise ImportError('honeybee_radiance library must be installed to use '
+                              'modifiers-from-constructions method. {}'.format(e))
         # re-serialize the Model to Python
         model = Model.from_file(model_file)
         # assign the radiance properties based on the interior energy constructions
@@ -69,15 +81,31 @@ def modifiers_from_constructions(
                 reflectance_type=ref_type, offset=exterior_offset
             )
         # assign trans modifiers for any shades with constant transmittance schedules
+        tr_sch_dict = {}
         for shade in model.shades:
             t_sch = shade.properties.energy.transmittance_schedule
-            if t_sch is not None and t_sch.is_constant:
-                if solar:
-                    shade.properties.radiance.modifier = \
-                        shade.properties.energy.radiance_modifier_solar()
-                else:
-                    shade.properties.radiance.modifier = \
-                        shade.properties.energy.radiance_modifier_visible()
+            if t_sch is not None:
+                if t_sch.is_constant:  # just use a trans modifier
+                    if solar:
+                        shade.properties.radiance.modifier = \
+                            shade.properties.energy.radiance_modifier_solar()
+                    else:
+                        shade.properties.radiance.modifier = \
+                            shade.properties.energy.radiance_modifier_visible()
+                else:  # represent the shade as a dynamic group
+                    try:
+                        tr_sch_dict[t_sch.identifier].append(shade)
+                    except KeyError:
+                        tr_sch_dict[t_sch.identifier] = [shade]
+        # assign dynamic shade groups if requested
+        if dynamic_shade:
+            for grp_name, group in tr_sch_dict.items():
+                grp_name = clean_rad_string(grp_name)
+                for shd in group:
+                    shd.properties.radiance.dynamic_group_identifier = grp_name
+                    on_state = RadianceShadeState(shd.properties.radiance.modifier)
+                    off_state = RadianceShadeState(air_boundary)
+                    shd.properties.radiance.states = [on_state, off_state]
         # assign dynamic aperture groups if requested
         if dynamic_groups:
             model.properties.energy.assign_dynamic_aperture_groups()

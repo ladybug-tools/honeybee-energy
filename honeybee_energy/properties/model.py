@@ -1201,14 +1201,24 @@ class ModelEnergyProperties(object):
     def _assign_face_modifiers(self, unique_mods):
         """Assign modifiers to faces, apertures, doors and shades using a dictionary."""
         for room in self._host.rooms:
-            for face in room.faces:  # check all Face constructions
+            for face in room.faces:  # check Face constructions
                 self._assign_obj_modifier_shade(face, unique_mods)
-                for ap in face.apertures:  # check all Aperture constructions
+                for ap in face.apertures:  # check  Aperture constructions
                     self._assign_obj_modifier_shade(ap, unique_mods)
-                for dr in face.doors:  # check all Door constructions
+                for dr in face.doors:  # check  Door constructions
                     self._assign_obj_modifier_shade(dr, unique_mods)
             for shade in room.shades:
                 self._assign_obj_modifier(shade, unique_mods)
+        for face in self.host.orphaned_faces:  # check orphaned Face constructions
+            self._assign_obj_modifier_shade(face, unique_mods)
+            for ap in face.apertures:  # check Aperture constructions
+                self._assign_obj_modifier_shade(ap, unique_mods)
+            for dr in face.doors:  # check Door constructions
+                self._assign_obj_modifier_shade(dr, unique_mods)
+        for ap in self.host.orphaned_apertures:  # check orphaned Aperture constructions
+            self._assign_obj_modifier_shade(ap, unique_mods)
+        for dr in self.host.orphaned_doors:  # check orphaned Door constructions
+            self._assign_obj_modifier_shade(dr, unique_mods)
         for shade in self.host.orphaned_shades:
             self._assign_obj_modifier(shade, unique_mods)
 
