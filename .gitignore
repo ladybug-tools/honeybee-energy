@@ -13,3 +13,5 @@ tox.ini
 /.vscode
 honeybee.log*
 .env
+htmlcov/*
+.DS_store
