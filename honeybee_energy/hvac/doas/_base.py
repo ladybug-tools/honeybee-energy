@@ -9,6 +9,7 @@ from honeybee.altnumber import autosize
 
 from .._template import _TemplateSystem, _EnumerationBase
 from ..idealair import IdealAirSystem
+from ...properties.extension import DOASSystemProperties
 
 
 @lockable
@@ -60,9 +61,11 @@ class _DOASBase(_TemplateSystem):
         * doas_availability_schedule
         * schedules
         * user_data
+        * properties
     """
     __slots__ = ('_sensible_heat_recovery', '_latent_heat_recovery',
-                 '_demand_controlled_ventilation', '_doas_availability_schedule')
+                 '_demand_controlled_ventilation', '_doas_availability_schedule',
+                 '_properties')
     COOL_ONLY_TYPES = ('DOAS_FCU_Chiller', 'DOAS_FCU_ACChiller', 'DOAS_FCU_DCW')
     HEAT_ONLY_TYPES = ()
 
@@ -78,6 +81,7 @@ class _DOASBase(_TemplateSystem):
         self.latent_heat_recovery = latent_heat_recovery
         self.demand_controlled_ventilation = demand_controlled_ventilation
         self.doas_availability_schedule = doas_availability_schedule
+        self._properties = DOASSystemProperties(self)
 
     @property
     def sensible_heat_recovery(self):
@@ -135,6 +139,11 @@ class _DOASBase(_TemplateSystem):
             schedules.append(self._doas_availability_schedule)
         return schedules
 
+    @property
+    def properties(self):
+        """Get properties for extensions."""
+        return self._properties
+
     @classmethod
     def from_dict(cls, data):
         """Create a HVAC object from a dictionary.
@@ -154,6 +163,7 @@ class _DOASBase(_TemplateSystem):
             "latent_heat_recovery": 0.7,  # Latent heat recovery effectiveness
             "demand_controlled_ventilation": False  # Boolean for DCV
             "doas_availability_schedule": {}  # Schedule for DOAS availability or None
+            "properties": { ... } # dict of the DOASSystemProperties
             }
         """
         assert data['type'] == cls.__name__, \
@@ -171,6 +181,8 @@ class _DOASBase(_TemplateSystem):
             new_obj.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
             new_obj.user_data = data['user_data']
+        if 'properties' in data and data['properties'] is not None:
+            new_obj.properties._load_extension_attr_from_dict(data['properties'])
         return new_obj
 
     @classmethod
@@ -196,6 +208,7 @@ class _DOASBase(_TemplateSystem):
             "latent_heat_recovery": 0.7,  # Latent heat recovery effectiveness
             "demand_controlled_ventilation": False  # Boolean for DCV
             "doas_availability_schedule": ""  # Schedule id for DOAS availability
+            "properties": { ... } # dict of the DOASSystemProperties
             }
         """
         assert cls.__name__ in data['type'], \
@@ -216,6 +229,8 @@ class _DOASBase(_TemplateSystem):
             new_obj.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
             new_obj.user_data = data['user_data']
+        if 'properties' in data and data['properties'] is not None:
+            new_obj.properties._load_extension_attr_from_dict(data['properties'])
         return new_obj
 
     def to_dict(self, abridged=False):
@@ -269,6 +284,9 @@ class _DOASBase(_TemplateSystem):
                 abridged else self.doas_availability_schedule.to_dict()
         if self._user_data is not None:
             base['user_data'] = self.user_data
+        prop_dict = self.properties.to_dict()
+        if prop_dict is not None:
+            base['properties'] = prop_dict
         return base
 
     @staticmethod
@@ -291,6 +309,7 @@ class _DOASBase(_TemplateSystem):
             self._demand_controlled_ventilation, self._doas_availability_schedule)
         new_obj._display_name = self._display_name
         new_obj._user_data = None if self._user_data is None else self._user_data.copy()
+        new_obj._properties._duplicate_extension_attr(self._properties)
         return new_obj
 
     def __key(self):
