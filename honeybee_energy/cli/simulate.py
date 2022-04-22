@@ -77,13 +77,19 @@ def simulate():
               'was expored directly from the honeybee-energy Python library. '
               'It will be automatically bypassed if the model-file is an OSM or IDF.',
               default=True, show_default=True)
+@click.option('--enforce-rooms/--skip-no-rooms', ' /-sr', help='Flag to note whether '
+              'the simulation should be skipped if the Model has no Rooms and is '
+              'therefore not simulate-able in EnergyPlus. Otherwise, this command '
+              'will fail with an explicit error about the lack of rooms. Note that '
+              'the input model must be a HBJSON and you must NOT --bypass-check in '
+              'order for this to work correctly', default=True, show_default=True)
 @click.option('--log-file', '-log', help='Optional log file to output the paths of the '
               'generated files (osw, osm, idf, sql, zsz, rdd, html, err) if successfully'
               ' created. By default the list will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
 def simulate_model(
     model_file, epw_file, sim_par_json, measures, additional_string, additional_idf,
-    report_units, viz_variable, folder, check_model, log_file
+    report_units, viz_variable, folder, check_model, enforce_rooms, log_file
 ):
     """Simulate a Model in EnergyPlus.
 
@@ -165,7 +171,15 @@ def simulate_model(
 
         # run the Model re-serialization and check if specified
         if check_model and file_type == 'hbjson':
-            model_file = measure_compatible_model_json(model_file, folder)
+            try:
+                model_file = measure_compatible_model_json(
+                    model_file, folder, enforce_rooms=True)
+            except AssertionError as e:
+                if not enforce_rooms and 'Model contains no Rooms' in str(e):
+                    sys.exit(0)
+                    return None
+                else:
+                    raise AssertionError(e)
 
         # Write the osw file to translate the model to osm
         no_report = True if base_osw is None and report_units.lower() == 'none' and \
