@@ -66,7 +66,7 @@ def from_idf_osw(idf_path, model_path=None, osw_directory=None):
 
 def measure_compatible_model_json(
         model_json_path, destination_directory=None, simplify_window_cons=False,
-        triangulate_sub_faces=True):
+        triangulate_sub_faces=True, enforce_rooms=False):
     """Convert a Model JSON to one that is compatible with the honeybee_openstudio_gem.
 
     This includes the re-serialization of the Model to Python, which will
@@ -91,6 +91,9 @@ def measure_compatible_model_json(
             4 sides (True) or whether they should be left as they are (False).
             This triangulation is necessary when exporting directly to EnergyPlus
             since it cannot accept sub-faces with more than 4 vertices. (Default: True).
+        enforce_rooms: Boolean to note whether this method should enforce the
+            presence of Rooms in the Model, which is as necessary prerequisite
+            for simulation in EnergyPlus. (Default: False).
 
     Returns:
         The full file path to the new Model JSON written out by this method.
@@ -108,6 +111,9 @@ def measure_compatible_model_json(
     with open(model_json_path) as json_file:
         data = json.load(json_file)
     parsed_model = Model.from_dict(data)
+    if enforce_rooms:
+        assert len(parsed_model.rooms) != 0, \
+            'Model contains no Rooms and therefore cannot be simulated in EnergyPlus.'
 
     # remove colinear vertices to avoid E+ tolerance issues and convert Model to Meters
     parsed_model.convert_to_units('Meters')

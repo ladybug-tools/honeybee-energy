@@ -228,7 +228,6 @@ class ShadeEnergyProperties(object):
         # check to be sure that the honeybee-radiance installed
         try:
             from honeybee_radiance.modifier.material import Trans
-            from honeybee_radiance.modifier.material import Plastic
         except ImportError as e:
             raise ImportError('honeybee_radiance library must be installed to use '
                               'Shade radiance_modifier methods. {}'.format(e))
