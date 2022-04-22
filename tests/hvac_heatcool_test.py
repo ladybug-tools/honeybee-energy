@@ -478,8 +478,6 @@ def test_window_ac_dict_methods(userdatadict):
     assert hvac_dict == new_hvac_sys.to_dict()
 
 
-
-
 def test_radiant_init(userdatadict):
     """Test the initialization of Radiant and basic properties."""
     hvac_sys = Radiant('Test System')
