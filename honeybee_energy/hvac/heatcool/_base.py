@@ -7,6 +7,7 @@ from honeybee._lockable import lockable
 
 from .._template import _TemplateSystem, _EnumerationBase
 from ..idealair import IdealAirSystem
+from ...properties.extension import HeatCoolSystemProperties
 
 
 @lockable
@@ -38,11 +39,9 @@ class _HeatCoolBase(_TemplateSystem):
         * display_name
         * vintage
         * equipment_type
-        * sensible_heat_recovery
-        * latent_heat_recovery
-        * schedules
+        * properties
     """
-    __slots__ = ()
+    __slots__ = ('_properties',)
     COOL_ONLY_TYPES = (
             'EvapCoolers', 'FCU_Chiller', 'FCU_ACChiller', 'FCU_DCW',
             'ResidentialAC', 'WindowAC'
@@ -51,6 +50,11 @@ class _HeatCoolBase(_TemplateSystem):
             'ElectricBaseboard', 'BoilerBaseboard', 'ASHPBaseboard',
             'DHWBaseboard', 'GasHeaters', 'ResidentialHPNoCool', 'ResidentialFurnace'
         )
+
+    def __init__(self, identifier, vintage='ASHRAE_2019', equipment_type=None):
+        # initialize base HVAC system properties
+        _TemplateSystem.__init__(self, identifier, vintage, equipment_type)
+        self._properties = HeatCoolSystemProperties(self)
 
     def to_ideal_air_equivalent(self):
         """Get a version of this HVAC as an IdealAirSystem."""
@@ -63,6 +67,104 @@ class _HeatCoolBase(_TemplateSystem):
         i_sys._display_name = self._display_name
         return i_sys
 
+    @property
+    def properties(self):
+        """Get properties for extensions."""
+        return self._properties
+    
+    @classmethod
+    def from_dict(cls, data):
+        """Create a HVAC object from a dictionary.
+
+        Args:
+            data: A HeatCool dictionary in following the format below.
+
+        .. code-block:: python
+
+            {
+            "type": "",  # text for the class name of the HVAC
+            "identifier": "Classroom1_System",  # identifier for the HVAC
+            "display_name": "Standard System",  # name for the HVAC
+            "vintage": "ASHRAE_2019",  # text for the vintage of the template
+            "equipment_type": "",  # text for the HVAC equipment type
+            "properties": { ... } # HeatCoolSystemProperties as a dict
+            }
+        """
+        assert data['type'] == cls.__name__, \
+            'Expected {} dictionary. Got {}.'.format(cls.__name__, data['type'])
+
+        new_obj = cls(data['identifier'], data['vintage'], data['equipment_type'])
+        if 'display_name' in data and data['display_name'] is not None:
+            new_obj.display_name = data['display_name']
+        if 'user_data' in data and data['user_data'] is not None:
+            new_obj.user_data = data['user_data']
+        if 'properties' in data and data['properties'] is not None:
+            new_obj.properties._load_extension_attr_from_dict(data['properties'])
+        return new_obj
+
+
+    @classmethod
+    def from_dict_abridged(cls, data):
+        """Create a HVAC object from an abridged dictionary.
+
+        Args:
+            data: A HeatCool abridged dictionary in following the format below.
+
+        .. code-block:: python
+
+            {
+            "type": "",  # text for the class name of the HVAC
+            "identifier": "Classroom1_System",  # identifier for the HVAC
+            "display_name": "Standard System",  # name for the HVAC
+            "vintage": "ASHRAE_2019",  # text for the vintage of the template
+            "equipment_type": "",  # text for the HVAC equipment type
+            "properties": { ... } # dict of the HeatCoolSystemProperties
+            }
+        """
+        assert cls.__name__ in data['type'], \
+            'Expected {} dictionary. Got {}.'.format(cls.__name__, data['type'])
+
+        new_obj = cls(data['identifier'], data['vintage'], data['equipment_type'])
+        if 'display_name' in data and data['display_name'] is not None:
+            new_obj.display_name = data['display_name']
+        if 'user_data' in data and data['user_data'] is not None:
+            new_obj.user_data = data['user_data']
+        if 'properties' in data and data['properties'] is not None:
+            new_obj.properties._load_extension_attr_from_dict(data['properties'])
+        return new_obj
+
+    def to_dict(self, abridged=False):
+        """HeatCool system dictionary representation.
+
+        Args:
+            abridged: Boolean to note whether the full dictionary describing the
+                object should be returned (False) or just an abridged version (True).
+                This input currently has no effect but may eventually have one if
+                schedule-type properties are exposed on this template.
+        """
+
+        """Get a base dictionary of the HeatCool system."""
+        class_type = '{}Abridged'.format(self.__class__.__name__) \
+            if abridged else self.__class__.__name__
+        base = {'type': class_type}
+        base['identifier'] = self.identifier
+        if self._display_name is not None:
+            base['display_name'] = self.display_name
+        base['vintage'] = self.vintage
+        base['equipment_type'] = self.equipment_type
+        if self._user_data is not None:
+            base['user_data'] = self.user_data
+        prop_dict = self.properties.to_dict()
+        if prop_dict is not None:
+            base['properties'] = prop_dict
+        return base
+
+    def __copy__(self):
+        new_obj = self.__class__(self._identifier, self.vintage, self._equipment_type)
+        new_obj._display_name = self._display_name
+        new_obj._user_data = None if self._user_data is None else self._user_data.copy()
+        new_obj._properties._duplicate_extension_attr(self._properties)
+        return new_obj
 
 class _HeatCoolEnumeration(_EnumerationBase):
     """Enumerates the systems that inherit from _HeatCoolBase."""

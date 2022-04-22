@@ -9,6 +9,7 @@ from honeybee.altnumber import autosize
 
 from .._template import _TemplateSystem, _EnumerationBase
 from ..idealair import IdealAirSystem
+from ...properties.extension import AllAirSystemProperties
 
 
 @lockable
@@ -65,9 +66,10 @@ class _AllAirBase(_TemplateSystem):
         * demand_controlled_ventilation
         * schedules
         * user_data
+        * properties
     """
     __slots__ = ('_economizer_type', '_sensible_heat_recovery', '_latent_heat_recovery',
-                 '_demand_controlled_ventilation')
+                 '_demand_controlled_ventilation', '_properties')
     ECONOMIZER_TYPES = ('NoEconomizer', 'DifferentialDryBulb', 'DifferentialEnthalpy',
                         'DifferentialDryBulbAndEnthalpy', 'FixedDryBulb',
                         'FixedEnthalpy', 'ElectronicEnthalpy')
@@ -88,6 +90,7 @@ class _AllAirBase(_TemplateSystem):
         self.sensible_heat_recovery = sensible_heat_recovery
         self.latent_heat_recovery = latent_heat_recovery
         self.demand_controlled_ventilation = demand_controlled_ventilation
+        self._properties = AllAirSystemProperties(self)
 
     @property
     def economizer_type(self):
@@ -159,6 +162,11 @@ class _AllAirBase(_TemplateSystem):
         if self._demand_controlled_ventilation:
             self._air_loop_check('demand_controlled_ventilation')
 
+    @property
+    def properties(self):
+        """Get properties for extensions."""
+        return self._properties
+
     @classmethod
     def from_dict(cls, data):
         """Create a HVAC object from a dictionary.
@@ -178,6 +186,7 @@ class _AllAirBase(_TemplateSystem):
             "sensible_heat_recovery": 0.75,  # Sensible heat recovery effectiveness
             "latent_heat_recovery": 0.7,  # Latent heat recovery effectiveness
             "demand_controlled_ventilation": False  # Boolean for DCV
+            "properties": { ... } # AllAirSystemProperties as a dict
             }
         """
         assert cls.__name__ in data['type'], \
@@ -190,6 +199,8 @@ class _AllAirBase(_TemplateSystem):
             new_obj.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
             new_obj.user_data = data['user_data']
+        if 'properties' in data and data['properties'] is not None:
+            new_obj.properties._load_extension_attr_from_dict(data['properties'])
         return new_obj
 
     @classmethod
@@ -215,6 +226,7 @@ class _AllAirBase(_TemplateSystem):
             "sensible_heat_recovery": 0.75,  # Sensible heat recovery effectiveness
             "latent_heat_recovery": 0.7,  # Latent heat recovery effectiveness
             "demand_controlled_ventilation": False  # Boolean for DCV
+            "properties": { ... } # dict of the AllAirSystemProperties
             }
         """
         # this is the same as the from_dict method for as long as there are not schedules
@@ -244,6 +256,9 @@ class _AllAirBase(_TemplateSystem):
         base['demand_controlled_ventilation'] = self.demand_controlled_ventilation
         if self._user_data is not None:
             base['user_data'] = self.user_data
+        prop_dict = self.properties.to_dict()
+        if prop_dict is not None:
+            base['properties'] = prop_dict
         return base
 
     def to_ideal_air_equivalent(self):
@@ -297,6 +312,7 @@ class _AllAirBase(_TemplateSystem):
             self._demand_controlled_ventilation)
         new_obj._display_name = self._display_name
         new_obj._user_data = None if self._user_data is None else self._user_data.copy()
+        new_obj._properties._duplicate_extension_attr(self._properties)
         return new_obj
 
     def __key(self):
