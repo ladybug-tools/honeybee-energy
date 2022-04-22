@@ -186,6 +186,7 @@ class _AllAirBase(_TemplateSystem):
             "sensible_heat_recovery": 0.75,  # Sensible heat recovery effectiveness
             "latent_heat_recovery": 0.7,  # Latent heat recovery effectiveness
             "demand_controlled_ventilation": False  # Boolean for DCV
+            "properties": { ... } # AllAirSystemProperties as a dict
             }
         """
         assert cls.__name__ in data['type'], \
@@ -225,6 +226,7 @@ class _AllAirBase(_TemplateSystem):
             "sensible_heat_recovery": 0.75,  # Sensible heat recovery effectiveness
             "latent_heat_recovery": 0.7,  # Latent heat recovery effectiveness
             "demand_controlled_ventilation": False  # Boolean for DCV
+            "properties": { ... } # dict of the AllAirSystemProperties
             }
         """
         # this is the same as the from_dict method for as long as there are not schedules

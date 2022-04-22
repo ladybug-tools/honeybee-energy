@@ -163,6 +163,7 @@ class _DOASBase(_TemplateSystem):
             "latent_heat_recovery": 0.7,  # Latent heat recovery effectiveness
             "demand_controlled_ventilation": False  # Boolean for DCV
             "doas_availability_schedule": {}  # Schedule for DOAS availability or None
+            "properties": { ... } # dict of the DOASSystemProperties
             }
         """
         assert data['type'] == cls.__name__, \
@@ -207,6 +208,7 @@ class _DOASBase(_TemplateSystem):
             "latent_heat_recovery": 0.7,  # Latent heat recovery effectiveness
             "demand_controlled_ventilation": False  # Boolean for DCV
             "doas_availability_schedule": ""  # Schedule id for DOAS availability
+            "properties": { ... } # dict of the DOASSystemProperties
             }
         """
         assert cls.__name__ in data['type'], \
