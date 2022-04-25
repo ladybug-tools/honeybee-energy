@@ -542,7 +542,7 @@ class ModelEnergyProperties(object):
                             u_id = '{}_{}_{}'.format(
                                 con.identifier, room.identifier, orient)
                         else:
-                            u_id = face.identifier
+                            u_id = ap.identifier
                     if u_id is not None:
                         try:
                             group_dict[u_id].append(ap)
