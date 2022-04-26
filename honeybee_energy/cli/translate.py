@@ -9,6 +9,7 @@ import shutil
 from ladybug.futil import preparedir
 from ladybug.analysisperiod import AnalysisPeriod
 from honeybee.model import Model
+from honeybee.typing import clean_rad_string
 from honeybee.config import folders as hb_folders
 
 from honeybee_energy.simulation.parameter import SimulationParameter
@@ -541,7 +542,7 @@ def schedule_from_idf(schedule_idf, output_file):
 
 
 @translate.command('model-occ-schedules')
-@click.argument('model-json', type=click.Path(
+@click.argument('model-file', type=click.Path(
     exists=True, file_okay=True, dir_okay=False, resolve_path=True))
 @click.option('--threshold', '-t', help='A number between 0 and 1 for the threshold '
               'at and above which a schedule value is considered occupied.',
@@ -554,18 +555,16 @@ def schedule_from_idf(schedule_idf, output_file):
 @click.option('--output-file', '-f', help='Optional file to output the JSON of '
               'occupancy values. By default this will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
-def model_occ_schedules(model_json, threshold, period, output_file):
+def model_occ_schedules(model_file, threshold, period, output_file):
     """Translate a Model's occupancy schedules into a JSON of 0/1 values.
 
     \b
     Args:
-        model_json: Full path to a Model JSON file.
+        model_file: Full path to a Model JSON or Pkl file.
     """
     try:
         # re-serialize the Model
-        with open(model_json) as json_file:
-            data = json.load(json_file)
-        model = Model.from_dict(data)
+        model = Model.from_file(model_file)
 
         # loop through the rooms and collect all unique occupancy schedules
         scheds, room_occupancy = [], {}
@@ -600,6 +599,59 @@ def model_occ_schedules(model_json, threshold, period, output_file):
         # write out the JSON file
         occ_dict = {'schedules': schedules, 'room_occupancy': room_occupancy}
         output_file.write(json.dumps(occ_dict))
+    except Exception as e:
+        _logger.exception('Model translation failed.\n{}'.format(e))
+        sys.exit(1)
+    else:
+        sys.exit(0)
+
+
+@translate.command('model-transmittance-schedules')
+@click.argument('model-file', type=click.Path(
+    exists=True, file_okay=True, dir_okay=False, resolve_path=True))
+@click.option('--period', '-p', help='An AnalysisPeriod string to dictate '
+              'the start and end of the exported occupancy values '
+              '(eg. "6/21 to 9/21 between 0 and 23 @1"). Note that the timestep '
+              'of the period will determine the timestep of output values. If '
+              'unspecified, the values will be annual.', default=None, type=str)
+@click.option('--output-file', '-f', help='Optional file to output the JSON of '
+              'occupancy values. By default this will be printed out to stdout',
+              type=click.File('w'), default='-', show_default=True)
+def model_trans_schedules(model_file, period, output_file):
+    """Translate a Model's shade transmittance schedules into a JSON of fractional vals.
+
+    \b
+    Args:
+        model_file: Full path to a Model JSON or Pkl file.
+    """
+    try:
+        # re-serialize the Model
+        model = Model.from_file(model_file)
+
+        # loop through the rooms and collect all unique occupancy schedules
+        scheds = []
+        for shade in model.shades:
+            t_sch = shade.properties.energy.transmittance_schedule
+            if t_sch is not None:
+                model.properties.energy._check_and_add_schedule(t_sch, scheds)
+
+        # process the run period if it is supplied
+        if period is not None and period != '' and period != 'None':
+            a_per = AnalysisPeriod.from_string(period)
+        else:
+            a_per = AnalysisPeriod()
+
+        # convert occupancy schedules to lists of 0/1 values
+        schedules = {}
+        for sch in scheds:
+            sch_data = sch.data_collection() if isinstance(sch, ScheduleRuleset) \
+                else sch.data_collection
+            if not a_per.is_annual:
+                sch_data = sch_data.filter_by_analysis_period(a_per)
+            schedules[clean_rad_string(sch.identifier)] = sch_data.values
+
+        # write out the JSON file
+        output_file.write(json.dumps(schedules))
     except Exception as e:
         _logger.exception('Model translation failed.\n{}'.format(e))
         sys.exit(1)

@@ -9,7 +9,7 @@ from honeybee.model import Model
 from honeybee_energy.cli.translate import model_to_idf, model_to_gbxml, \
     model_from_gbxml, model_from_osm, model_from_idf, \
     construction_from_idf, construction_to_idf, \
-    schedule_to_idf, schedule_from_idf, model_occ_schedules
+    schedule_to_idf, schedule_from_idf, model_occ_schedules, model_trans_schedules
 
 
 def test_model_to_idf():
@@ -122,3 +122,21 @@ def test_model_occ_schedules():
     occ_dict = json.loads(result.output)
     assert len(occ_dict['schedules']) == 1
     assert len(list(occ_dict['schedules'].values())[0]) == len(a_per)
+
+
+def test_model_trans_schedules():
+    runner = CliRunner()
+    input_model = './tests/json/shade_trans_model.hbjson'
+
+    result = runner.invoke(model_trans_schedules, [input_model])
+    assert result.exit_code == 0
+    sch_dict = json.loads(result.output)
+    assert len(sch_dict) == 1
+    assert len(list(sch_dict.values())[0]) == 8760
+
+    a_per = AnalysisPeriod(6, 21, 8, 9, 21, 16)
+    result = runner.invoke(model_trans_schedules, [input_model, '--period', str(a_per)])
+    assert result.exit_code == 0
+    sch_dict = json.loads(result.output)
+    assert len(sch_dict) == 1
+    assert len(list(sch_dict.values())[0]) == len(a_per)
