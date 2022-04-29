@@ -67,11 +67,13 @@ class _EnergyProperties(object):
             var = getattr(self, atr)
             if not hasattr(var, 'from_dict'):
                 continue
-            try:
-                setattr(self, '_' + atr, var.__class__.from_dict(
-                    property_dict[atr], self.host))
-            except KeyError:
-                pass  # the property_dict possesses no properties for that extension
+            
+            atr_prop_dict = property_dict.get(atr, None)
+            if not atr_prop_dict:
+                # the property_dict possesses no properties for that extension
+                continue 
+            setattr(self, '_' + atr, var.__class__.from_dict(atr_prop_dict, self.host)) 
+
 
     def _duplicate_extension_attr(self, original_properties):
         """Duplicate the attributes added by extensions.
