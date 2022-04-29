@@ -87,6 +87,9 @@ class WindowConstructionShade(object):
         * is_dynamic
         * inside_emissivity
         * outside_emissivity
+        * solar_transmittance
+        * visible_transmittance
+        * shgc
         * thickness
         * glazing_count
         * gap_count

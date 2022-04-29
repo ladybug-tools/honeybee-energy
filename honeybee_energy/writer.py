@@ -66,7 +66,7 @@ def shade_to_idf(shade):
     if shade.has_parent and not isinstance(shade.parent, Room):
         if isinstance(shade.parent, Face):
             base_srf = shade.parent.identifier
-        else:  # Aperture or Door for parent
+        else:  # aperture or door for parent
             try:
                 base_srf = shade.parent.parent.identifier
             except AttributeError:
@@ -83,7 +83,7 @@ def shade_to_idf(shade):
                     'number of vertices',
                     '')
         shade_str = generate_idf_string('Shading:Zone:Detailed', values, comments)
-    else:
+    else:  # orphaned shade
         values = (shade.identifier,
                   trans_sched,
                   len(shade.vertices),
@@ -180,6 +180,42 @@ def door_to_idf(door):
     return fen_str
 
 
+def orphaned_door_to_idf(door):
+    """Generate an IDF string representation of an orphaned Door.
+
+    The resulting string will possess both the Shading object as well as
+    a ShadingProperty:Reflectance that aligns with the Door's exterior
+    construction properties. However, a transmittance schedule that matches
+    the transmittance of a window construction will only be referenced and
+    not included in the resulting string.
+
+    Args:
+        door: An orphaned Door for which an IDF shade representation will
+            be returned.
+    """
+    # create the Shading:Detailed IDF string
+    cns = door.properties.energy.construction
+    trans_sch = 'Constant %.3f Transmittance' % cns.solar_transmittance \
+        if door.is_glass else ''
+    verts = door.upper_left_vertices
+    verts_str = ',\n '.join('%.3f, %.3f, %.3f' % (v.x, v.y, v.z) for v in verts)
+    values = (door.identifier, trans_sch, len(verts), verts_str)
+    comments = ('name', 'transmittance schedule', 'number of vertices', '')
+    shade_str = generate_idf_string('Shading:Building:Detailed', values, comments)
+
+    # create the ShadingProperty:Reflectance
+    comments = (
+        'shade surface name', 'diffuse solar reflectance', 'diffuse visible reflectance')
+    if door.is_glass:
+        values = (door.identifier, 0.2, 0.2, 1, cns.identifier)
+        comments = comments + ('glazed fraction of surface', 'glazing construction')
+    else:
+        values = (door.identifier, cns.outside_solar_reflectance,
+                  cns.outside_visible_reflectance)
+    constr_str = generate_idf_string('ShadingProperty:Reflectance', values, comments)
+    return '\n\n'.join((shade_str, constr_str))
+
+
 def aperture_to_idf(aperture):
     """Generate an IDF string representation of an Aperture.
 
@@ -252,6 +288,39 @@ def aperture_to_idf(aperture):
     return fen_str
 
 
+def orphaned_aperture_to_idf(aperture):
+    """Generate an IDF string representation of an orphaned Aperture.
+
+    The resulting string will possess both the Shading object as well as
+    a ShadingProperty:Reflectance that aligns with the Aperture's exterior
+    construction properties. However, a transmittance schedule that matches
+    the transmittance of the window construction will only be referenced and
+    not included in the resulting string. All transmittance schedules follow
+    the format of 'Constant %.3f Transmittance'.
+
+    Args:
+        aperture: An orphaned Aperture for which an IDF shade representation will
+            be returned.
+    """
+    # create the Shading:Detailed IDF string
+    cns = aperture.properties.energy.construction
+    trans_sch = 'Constant %.3f Transmittance' % cns.solar_transmittance
+    verts = aperture.upper_left_vertices
+    verts_str = ',\n '.join('%.3f, %.3f, %.3f' % (v.x, v.y, v.z) for v in verts)
+    values = (aperture.identifier, trans_sch, len(verts), verts_str)
+    comments = ('name', 'transmittance schedule', 'number of vertices', '')
+    shade_str = generate_idf_string('Shading:Building:Detailed', values, comments)
+
+    # create the ShadingProperty:Reflectance
+    values = (aperture.identifier, 0.2, 0.2, 1, cns.identifier)
+    comments = (
+        'shade surface name', 'diffuse solar reflectance', 'diffuse visible reflectance',
+        'glazed fraction of surface', 'glazing construction'
+    )
+    constr_str = generate_idf_string('ShadingProperty:Reflectance', values, comments)
+    return '\n\n'.join((shade_str, constr_str))
+
+
 def face_to_idf(face):
     """Generate an IDF string representation of a Face.
 
@@ -301,6 +370,33 @@ def face_to_idf(face):
                 'number of vertices',
                 '')
     return generate_idf_string('BuildingSurface:Detailed', values, comments)
+
+
+def orphaned_face_to_idf(face):
+    """Generate an IDF string representation of an orphaned Face.
+
+    The resulting string will possess both the Shading object as well as
+    a ShadingProperty:Reflectance that aligns with the Face's exterior
+    construction properties.
+
+    Args:
+        face: An orphaned Face for which an IDF representation will be returned.
+    """
+    # create the Shading:Detailed IDF string
+    verts = face.punched_geometry.upper_left_counter_clockwise_vertices
+    verts_str = ',\n '.join('%.3f, %.3f, %.3f' % (v.x, v.y, v.z) for v in verts)
+    values = (face.identifier, '', len(verts), verts_str)
+    comments = ('name', 'transmittance schedule', 'number of vertices', '')
+    shade_str = generate_idf_string('Shading:Building:Detailed', values, comments)
+
+    # create the ShadingProperty:Reflectance IDF string
+    cns = face.properties.energy.construction
+    values = (
+        face.identifier, cns.outside_solar_reflectance, cns.outside_visible_reflectance)
+    comments = (
+        'shade surface name', 'diffuse solar reflectance', 'diffuse visible reflectance')
+    constr_str = generate_idf_string('ShadingProperty:Reflectance', values, comments)
+    return '\n\n'.join((shade_str, constr_str))
 
 
 def room_to_idf(room):
@@ -478,7 +574,9 @@ def model_to_idf(
     type_limits = []
     used_day_sched_ids = []
     always_on_included = False
-    for sched in model.properties.energy.schedules:
+    all_scheds = model.properties.energy.schedules + \
+        model.properties.energy.orphaned_trans_schedules
+    for sched in all_scheds:
         if sched.identifier == 'Always On':
             always_on_included = True
         try:  # ScheduleRuleset
@@ -606,6 +704,16 @@ def model_to_idf(
     model_str.append('!-   ========== CONTEXT GEOMETRY ==========\n')
     for shade in model.orphaned_shades:
         model_str.append(shade.to.idf(shade))
+    for face in model.orphaned_faces:
+        model_str.append(face.to.idf_shade(face))
+        for ap in face.apertures:
+            model_str.append(ap.to.idf_shade(ap))
+        for dr in face.doors:
+            model_str.append(dr.to.idf_shade(dr))
+    for ap in model.orphaned_apertures:
+        model_str.append(ap.to.idf_shade(ap))
+    for dr in model.orphaned_doors:
+        model_str.append(dr.to.idf_shade(dr))
 
     # write any EMS programs for dynamic constructions
     if len(dynamic_cons) != 0:
