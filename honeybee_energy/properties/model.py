@@ -23,6 +23,7 @@ from ..construction.dynamic import WindowConstructionDynamic
 from ..construction.air import AirBoundaryConstruction
 from ..constructionset import ConstructionSet
 from ..schedule.typelimit import ScheduleTypeLimit
+from ..schedule.ruleset import ScheduleRuleset
 from ..schedule.dictutil import SCHEDULE_TYPES, dict_to_schedule, \
     dict_abridged_to_schedule
 from ..programtype import ProgramType
@@ -32,6 +33,7 @@ from ..ventcool.simulation import VentilationSimulationControl
 
 from ..lib.constructionsets import generic_construction_set
 from ..lib.schedules import always_on
+from ..lib.scheduletypelimits import fractional
 
 
 class ModelEnergyProperties(object):
@@ -57,6 +59,7 @@ class ModelEnergyProperties(object):
         * room_schedules
         * program_type_schedules
         * hvac_schedules
+        * orphaned_trans_schedules
         * program_types
         * hvacs
         * shws
@@ -181,9 +184,12 @@ class ModelEnergyProperties(object):
 
     @property
     def schedules(self):
-        """Get a list of all unique schedules in the model.
+        """Get a list of all unique schedules directly assigned to objects in the model.
 
         This includes schedules across all ProgramTypes, HVACs, Rooms and Shades.
+        However, it does not include any of the orphaned_trans_schedules as these
+        are not directly assigned to objects but rather generated from their
+        constructions.
         """
         all_scheds = self.program_type_schedules + self.hvac_schedules + \
             self.room_schedules + self.shade_schedules + self.construction_schedules
@@ -293,6 +299,35 @@ class ModelEnergyProperties(object):
             for sched in hvac.schedules:
                 self._check_and_add_schedule(sched, schedules)
         return list(set(schedules))
+
+    @property
+    def orphaned_trans_schedules(self):
+        """Get a list of constant transmittance schedules for transparent orphaned objs.
+
+        These schedules are not directly assigned to any honeybee objects but
+        they are automatically generated from the constructions of orphaned objects.
+        They are intended to be assigned to shade representations of the orphaned
+        objects in the simulation in order to account for their transparency.
+        """
+        # collect all unique transmittances
+        transmittances = set()
+        for face in self.host.orphaned_faces:
+            for ap in face.apertures:
+                self._check_and_add_obj_transmit(ap, transmittances)
+            for dr in face.doors:
+                self._check_and_add_obj_transmit(dr, transmittances)
+        for ap in self.host.orphaned_apertures:
+            self._check_and_add_obj_transmit(ap, transmittances)
+        for dr in self.host.orphaned_doors:
+            if dr.is_glass:
+                self._check_and_add_obj_transmit(dr, transmittances)
+        # create the schedules from the transmittances
+        schedules = []
+        for trans in transmittances:
+            sch_name = 'Constant %.3f Transmittance' % trans
+            sch = ScheduleRuleset.from_constant_value(sch_name, trans, fractional)
+            schedules.append(sch)
+        return schedules
 
     @property
     def program_types(self):
@@ -761,10 +796,41 @@ class ModelEnergyProperties(object):
                 if shd.geometry.has_holes:
                     shd_d['geometry']['vertices'] = \
                         [pt.to_array() for pt in shd.upper_left_vertices]
+        # process orphaned faces for punched geometry and aperture transmittance
+        trans_orphaned = False
         if len(self.host._orphaned_faces) != 0:
             for shd, shd_d in zip(self.host._orphaned_faces, data['orphaned_faces']):
                 shd_d['geometry']['vertices'] = \
                     [pt.to_array() for pt in shd.punched_vertices]
+                if 'apertures' in shd_d:
+                    for ap, ap_d in zip(shd._apertures, shd_d['apertures']):
+                        ap_con = ap.properties.energy.construction
+                        ap_d['transmit'] = str(round(ap_con.solar_transmittance, 3))
+                        trans_orphaned = True
+                if 'doors' in shd_d:
+                    for dr, dr_d in zip(shd._doors, shd_d['doors']):
+                        if dr.is_glass:
+                            dr_con = dr.properties.energy.construction
+                            dr_d['transmit'] = str(round(dr_con.solar_transmittance, 3))
+                            trans_orphaned = True
+        # add auto-generated transmittance schedules for transparent orphaned objects
+        if len(self.host._orphaned_apertures) != 0:
+            trans_orphaned = True
+            ap_iter = zip(self.host._orphaned_apertures, data['orphaned_apertures'])
+            for ap, ap_d in ap_iter:
+                ap_con = ap.properties.energy.construction
+                ap_d['transmit'] = str(round(ap_con.solar_transmittance, 3))
+        if len(self.host._orphaned_doors) != 0:
+            for dr, dr_d in zip(shd._orphaned_doors, shd_d['orphaned_doors']):
+                if dr.is_glass:
+                    dr_con = dr.properties.energy.construction
+                    dr_d['transmit'] = str(round(dr_con.solar_transmittance, 3))
+                    trans_orphaned = True
+        # add transmittance schedules to the model if needed
+        if trans_orphaned:
+            for sched in self.orphaned_trans_schedules:
+                data['properties']['energy']['schedules'].append(
+                    sched.to_dict(abridged=True))
 
     @staticmethod
     def _add_shade_vertices(obj, obj_dict):
@@ -1157,8 +1223,8 @@ class ModelEnergyProperties(object):
         for hvac in hvacs:
             for sched in hvac.schedules:
                 self._check_and_add_schedule(sched, hvac_scheds)
-        all_scheds = hvac_scheds + p_type_scheds + \
-            self.room_schedules + self.shade_schedules + schs
+        all_scheds = hvac_scheds + p_type_scheds + self.room_schedules + \
+            self.shade_schedules + schs
         schedules = list(set(all_scheds))
         base['energy']['schedules'] = []
         for sched in schedules:
@@ -1191,6 +1257,11 @@ class ModelEnergyProperties(object):
         """Check if a schedule is in a list and add it if not."""
         if not self._instance_in_array(sched, schedules):
             schedules.append(sched)
+
+    def _check_and_add_obj_transmit(self, hb_obj, transmittances):
+        """Check and add the transmittance of a honeybee object to a set."""
+        constr = hb_obj.properties.energy.construction
+        transmittances.add(round(constr.solar_transmittance, 3))
 
     def _assing_room_modifier_sets(self, unique_mod_sets):
         """Assign modifier sets to rooms using a dictionary of unique modifier sets."""

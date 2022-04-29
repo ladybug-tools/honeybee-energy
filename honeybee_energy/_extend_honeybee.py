@@ -23,7 +23,8 @@ from .properties.shade import ShadeEnergyProperties
 from .properties.aperture import ApertureEnergyProperties
 from .properties.door import DoorEnergyProperties
 from .writer import model_to_idf, room_to_idf, face_to_idf, shade_to_idf, \
-    aperture_to_idf, door_to_idf
+    aperture_to_idf, door_to_idf, orphaned_face_to_idf, orphaned_aperture_to_idf, \
+    orphaned_door_to_idf
 from .boundarycondition import Adiabatic
 
 # set a hidden energy attribute on each core geometry Property class to None
@@ -87,7 +88,9 @@ face_writer.idf = face_to_idf
 shade_writer.idf = shade_to_idf
 aperture_writer.idf = aperture_to_idf
 door_writer.idf = door_to_idf
-
+face_writer.idf_shade = orphaned_face_to_idf
+aperture_writer.idf_shade = orphaned_aperture_to_idf
+door_writer.idf_shade = orphaned_door_to_idf
 
 # extend boundary conditions
 setattr(hbc, 'Adiabatic', Adiabatic)
