@@ -1546,8 +1546,11 @@ class RoomEnergyProperties(object):
                 segs = fg.boundary_segments if not fg.has_holes else \
                     fg.boundary_segments + fg.hole_segments
                 for seg in segs:
-                    if seg.is_colinear(segment, tolerance, 0.0349):
-                        return face
+                    try:
+                        if seg.is_colinear(segment, tolerance, 0.0349):
+                            return face
+                    except ZeroDivisionError:
+                        pass  # zero-length segment; just ignore it
 
     def ToString(self):
         return self.__repr__()
