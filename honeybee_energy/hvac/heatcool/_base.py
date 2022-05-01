@@ -104,11 +104,15 @@ class _HeatCoolBase(_TemplateSystem):
 
 
     @classmethod
-    def from_dict_abridged(cls, data):
+    def from_dict_abridged(cls, data, schedule_dict):
         """Create a HVAC object from an abridged dictionary.
 
         Args:
             data: A HeatCool abridged dictionary in following the format below.
+            schedule_dict: A dictionary with schedule identifiers as keys and honeybee
+                schedule objects as values (either ScheduleRuleset or
+                ScheduleFixedInterval). These will be used to assign the schedules
+                to the Setpoint object.
 
         .. code-block:: python
 
