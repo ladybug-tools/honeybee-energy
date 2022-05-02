@@ -71,7 +71,7 @@ class _HeatCoolBase(_TemplateSystem):
     def properties(self):
         """Get properties for extensions."""
         return self._properties
-    
+
     @classmethod
     def from_dict(cls, data):
         """Create a HVAC object from a dictionary.
@@ -92,7 +92,6 @@ class _HeatCoolBase(_TemplateSystem):
         """
         assert data['type'] == cls.__name__, \
             'Expected {} dictionary. Got {}.'.format(cls.__name__, data['type'])
-
         new_obj = cls(data['identifier'], data['vintage'], data['equipment_type'])
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
@@ -101,7 +100,6 @@ class _HeatCoolBase(_TemplateSystem):
         if 'properties' in data and data['properties'] is not None:
             new_obj.properties._load_extension_attr_from_dict(data['properties'])
         return new_obj
-
 
     @classmethod
     def from_dict_abridged(cls, data, schedule_dict):
@@ -125,17 +123,8 @@ class _HeatCoolBase(_TemplateSystem):
             "properties": { ... } # dict of the HeatCoolSystemProperties
             }
         """
-        assert cls.__name__ in data['type'], \
-            'Expected {} dictionary. Got {}.'.format(cls.__name__, data['type'])
-
-        new_obj = cls(data['identifier'], data['vintage'], data['equipment_type'])
-        if 'display_name' in data and data['display_name'] is not None:
-            new_obj.display_name = data['display_name']
-        if 'user_data' in data and data['user_data'] is not None:
-            new_obj.user_data = data['user_data']
-        if 'properties' in data and data['properties'] is not None:
-            new_obj.properties._load_extension_attr_from_dict(data['properties'])
-        return new_obj
+        # this is the same as the from_dict method for as long as there are not schedules
+        return cls.from_dict(data)
 
     def to_dict(self, abridged=False):
         """HeatCool system dictionary representation.
@@ -148,9 +137,7 @@ class _HeatCoolBase(_TemplateSystem):
         """
 
         """Get a base dictionary of the HeatCool system."""
-        class_type = '{}Abridged'.format(self.__class__.__name__) \
-            if abridged else self.__class__.__name__
-        base = {'type': class_type}
+        base = {'type': self.__class__.__name__}
         base['identifier'] = self.identifier
         if self._display_name is not None:
             base['display_name'] = self.display_name
@@ -169,6 +156,7 @@ class _HeatCoolBase(_TemplateSystem):
         new_obj._user_data = None if self._user_data is None else self._user_data.copy()
         new_obj._properties._duplicate_extension_attr(self._properties)
         return new_obj
+
 
 class _HeatCoolEnumeration(_EnumerationBase):
     """Enumerates the systems that inherit from _HeatCoolBase."""
