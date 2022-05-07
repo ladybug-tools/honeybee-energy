@@ -6,12 +6,12 @@ except ImportError:
     pass   # python 3
 
 from ladybug_geometry.geometry2d.pointvector import Vector2D
-from honeybee.face import Face
 from honeybee.boundarycondition import Outdoors, Surface, boundary_conditions
 from honeybee.facetype import AirBoundary, face_types
 from honeybee.extensionutil import model_extension_dicts
 from honeybee.checkdup import check_duplicate_identifiers
 from honeybee.typing import invalid_dict_error
+from honeybee.face import Face
 
 from ..material.dictutil import dict_to_material
 from ..construction.dictutil import CONSTRUCTION_TYPES, dict_to_construction, \
@@ -593,77 +593,189 @@ class ModelEnergyProperties(object):
                 diff_state = RadianceSubFaceState(all_diff)
                 ap.properties.radiance.states = [spec_state, diff_state]
 
-    def check_all(self, raise_exception=True):
+    def check_all(self, raise_exception=True, detailed=False):
         """Check all of the aspects of the Model energy properties.
 
         Args:
             raise_exception: Boolean to note whether a ValueError should be raised
                 if any errors are found. If False, this method will simply
-                return a text string with all errors that were found.
+                return a text string with all errors that were found. (Default: True).
+            detailed: Boolean for whether the returned object is a detailed list of
+                dicts with error info or a string with a message. (Default: False).
 
         Returns:
-            A text string with all errors that were found. This string will be empty
-            of no errors were found.
+            A text string with all errors that were found or a list if detailed is True.
+            This string (or list) will be empty if no errors were found.
         """
+        # set up defaults to ensure the method runs correctly
+        detailed = False if raise_exception else detailed
         msgs = []
         # perform checks for key honeybee model schema rules
-        msgs.append(self.check_duplicate_material_identifiers(False))
-        msgs.append(self.check_duplicate_construction_identifiers(False))
-        msgs.append(self.check_duplicate_construction_set_identifiers(False))
-        msgs.append(self.check_duplicate_schedule_type_limit_identifiers(False))
-        msgs.append(self.check_duplicate_schedule_identifiers(False))
-        msgs.append(self.check_duplicate_program_type_identifiers(False))
-        msgs.append(self.check_duplicate_hvac_identifiers(False))
-        msgs.append(self.check_duplicate_shw_identifiers(False))
-        msgs.append(self.check_interior_constructions_reversed(False))
+        msgs.append(self.check_duplicate_material_identifiers(False, detailed))
+        msgs.append(self.check_duplicate_construction_identifiers(False, detailed))
+        msgs.append(self.check_duplicate_construction_set_identifiers(False, detailed))
+        msgs.append(
+            self.check_duplicate_schedule_type_limit_identifiers(False, detailed))
+        msgs.append(self.check_duplicate_schedule_identifiers(False, detailed))
+        msgs.append(self.check_duplicate_program_type_identifiers(False, detailed))
+        msgs.append(self.check_duplicate_hvac_identifiers(False, detailed))
+        msgs.append(self.check_duplicate_shw_identifiers(False, detailed))
+        msgs.append(self.check_interior_constructions_reversed(False, detailed))
         # output a final report of errors or raise an exception
-        full_msgs = [msg for msg in msgs if msg != '']
+        full_msgs = [msg for msg in msgs if msg]
+        if detailed:
+            return full_msgs
         full_msg = '\n'.join(full_msgs)
         if raise_exception and len(full_msgs) != 0:
             raise ValueError(full_msg)
         return full_msg
 
-    def check_duplicate_material_identifiers(self, raise_exception=True):
-        """Check that there are no duplicate Material identifiers in the model."""
-        return check_duplicate_identifiers(
-            self.materials, raise_exception, 'Energy Material')
+    def check_duplicate_material_identifiers(self, raise_exception=True, detailed=False):
+        """Check that there are no duplicate Material identifiers in the model.
 
-    def check_duplicate_construction_identifiers(self, raise_exception=True):
-        """Check that there are no duplicate Construction identifiers in the model."""
-        return check_duplicate_identifiers(
-            self.constructions, raise_exception, 'Construction')
+        Args:
+            raise_exception: Boolean to note whether a ValueError should be raised
+                if duplicate identifiers are found. (Default: True).
+            detailed: Boolean for whether the returned object is a detailed list of
+                dicts with error info or a string with a message. (Default: False).
 
-    def check_duplicate_construction_set_identifiers(self, raise_exception=True):
-        """Check that there are no duplicate ConstructionSet identifiers in the model."""
+        Returns:
+            A string with the message or a list with a dictionary if detailed is True.
+        """
         return check_duplicate_identifiers(
-            self.construction_sets, raise_exception, 'ConstructionSet')
+            self.materials, raise_exception, 'Energy Material',
+            detailed, '020001', 'Energy')
 
-    def check_duplicate_schedule_type_limit_identifiers(self, raise_exception=True):
+    def check_duplicate_construction_identifiers(
+            self, raise_exception=True, detailed=False):
+        """Check that there are no duplicate Construction identifiers in the model.
+
+        Args:
+            raise_exception: Boolean to note whether a ValueError should be raised
+                if duplicate identifiers are found. (Default: True).
+            detailed: Boolean for whether the returned object is a detailed list of
+                dicts with error info or a string with a message. (Default: False).
+
+        Returns:
+            A string with the message or a list with a dictionary if detailed is True.
+        """
+        return check_duplicate_identifiers(
+            self.constructions, raise_exception, 'Construction',
+            detailed, '020002', 'Energy')
+
+    def check_duplicate_construction_set_identifiers(
+            self, raise_exception=True, detailed=False):
+        """Check that there are no duplicate ConstructionSet identifiers in the model.
+
+        Args:
+            raise_exception: Boolean to note whether a ValueError should be raised
+                if duplicate identifiers are found. (Default: True).
+            detailed: Boolean for whether the returned object is a detailed list of
+                dicts with error info or a string with a message. (Default: False).
+
+        Returns:
+            A string with the message or a list with a dictionary if detailed is True.
+        """
+        return check_duplicate_identifiers(
+            self.construction_sets, raise_exception, 'ConstructionSet',
+            detailed, '020003', 'Energy')
+
+    def check_duplicate_schedule_type_limit_identifiers(
+            self, raise_exception=True, detailed=False):
         """Check that there are no duplicate ScheduleTypeLimit identifiers in the model.
+
+        Args:
+            raise_exception: Boolean to note whether a ValueError should be raised
+                if duplicate identifiers are found. (Default: True).
+            detailed: Boolean for whether the returned object is a detailed list of
+                dicts with error info or a string with a message. (Default: False).
+
+        Returns:
+            A string with the message or a list with a dictionary if detailed is True.
         """
         return check_duplicate_identifiers(
-            self.schedule_type_limits, raise_exception, 'ScheduleTypeLimit')
+            self.schedule_type_limits, raise_exception, 'ScheduleTypeLimit',
+            detailed, '020004', 'Energy')
 
-    def check_duplicate_schedule_identifiers(self, raise_exception=True):
-        """Check that there are no duplicate Schedule identifiers in the model."""
-        return check_duplicate_identifiers(self.schedules, raise_exception, 'Schedule')
+    def check_duplicate_schedule_identifiers(self, raise_exception=True, detailed=False):
+        """Check that there are no duplicate Schedule identifiers in the model.
 
-    def check_duplicate_program_type_identifiers(self, raise_exception=True):
-        """Check that there are no duplicate ProgramType identifiers in the model."""
+        Args:
+            raise_exception: Boolean to note whether a ValueError should be raised
+                if duplicate identifiers are found. (Default: True).
+            detailed: Boolean for whether the returned object is a detailed list of
+                dicts with error info or a string with a message. (Default: False).
+
+        Returns:
+            A string with the message or a list with a dictionary if detailed is True.
+        """
         return check_duplicate_identifiers(
-            self.program_types, raise_exception, 'ProgramType')
+            self.schedules, raise_exception, 'Schedule', detailed, '020005', 'Energy')
 
-    def check_duplicate_hvac_identifiers(self, raise_exception=True):
-        """Check that there are no duplicate HVAC identifiers in the model."""
-        return check_duplicate_identifiers(self.hvacs, raise_exception, 'HVAC')
+    def check_duplicate_program_type_identifiers(
+            self, raise_exception=True, detailed=False):
+        """Check that there are no duplicate ProgramType identifiers in the model.
 
-    def check_duplicate_shw_identifiers(self, raise_exception=True):
-        """Check that there are no duplicate SHW identifiers in the model."""
-        return check_duplicate_identifiers(self.shws, raise_exception, 'SHW')
+        Args:
+            raise_exception: Boolean to note whether a ValueError should be raised
+                if duplicate identifiers are found. (Default: True).
+            detailed: Boolean for whether the returned object is a detailed list of
+                dicts with error info or a string with a message. (Default: False).
 
-    def check_interior_constructions_reversed(self, raise_exception=True):
+        Returns:
+            A string with the message or a list with a dictionary if detailed is True.
+        """
+        return check_duplicate_identifiers(
+            self.program_types, raise_exception, 'ProgramType',
+            detailed, '020006', 'Energy')
+
+    def check_duplicate_hvac_identifiers(self, raise_exception=True, detailed=False):
+        """Check that there are no duplicate HVAC identifiers in the model.
+
+        Args:
+            raise_exception: Boolean to note whether a ValueError should be raised
+                if duplicate identifiers are found. (Default: True).
+            detailed: Boolean for whether the returned object is a detailed list of
+                dicts with error info or a string with a message. (Default: False).
+
+        Returns:
+            A string with the message or a list with a dictionary if detailed is True.
+        """
+        return check_duplicate_identifiers(
+            self.hvacs, raise_exception, 'HVAC', detailed, '020007', 'Energy')
+
+    def check_duplicate_shw_identifiers(self, raise_exception=True, detailed=False):
+        """Check that there are no duplicate SHW identifiers in the model.
+
+        Args:
+            raise_exception: Boolean to note whether a ValueError should be raised
+                if duplicate identifiers are found. (Default: True).
+            detailed: Boolean for whether the returned object is a detailed list of
+                dicts with error info or a string with a message. (Default: False).
+
+        Returns:
+            A string with the message or a list with a dictionary if detailed is True.
+        """
+        return check_duplicate_identifiers(
+            self.shws, raise_exception, 'SHW', detailed, '020008', 'Energy')
+
+    def check_interior_constructions_reversed(
+            self, raise_exception=True, detailed=False):
         """Check that all interior constructions are in reversed order for paired faces.
+
+        Note that, if there are missing adjacencies in the model, the message from
+        this method will simply note this fact without reporting on mis-matched layers.
+
+        Args:
+            raise_exception: Boolean to note whether a ValueError should be raised
+                if mis-matched interior construction layers are found. (Default: True).
+            detailed: Boolean for whether the returned object is a detailed list of
+                dicts with error info or a string with a message. (Default: False).
+
+        Returns:
+            A string with the message or a list with a dictionary if detailed is True.
         """
+        detailed = False if raise_exception else detailed
         # first gather all interior faces in the model and their adjacent object
         adj_constr, adj_ids = [], []
         for face in self.host.faces:
@@ -672,12 +784,19 @@ class ModelEnergyProperties(object):
                 if not isinstance(const, AirBoundaryConstruction):
                     adj_constr.append(face.properties.energy.construction)
                     adj_ids.append(face.boundary_condition.boundary_condition_object)
-        # next, get the adjacent objects and check their construction
+        # next, get the adjacent objects
         try:
             adj_faces = self.host.faces_by_identifier(adj_ids)
         except ValueError as e:  # the model has missing adjacencies
-            return 'Matching adjacent constructions could not be verified because ' \
-                'of missing adjacencies in the model.  \n{}'.format(e)
+            if detailed:  # the user will get a more detailed error in honeybee-core
+                return []
+            else:
+                msg = 'Matching adjacent constructions could not be verified because ' \
+                    'of missing adjacencies in the model.  \n{}'.format(e)
+                if raise_exception:
+                    raise ValueError(msg)
+                return msg
+        # loop through the adjacent face pairs and report if materials are not matched
         full_msgs = []
         for adj_c, adj_f in zip(adj_constr, adj_faces):
             try:
@@ -685,13 +804,13 @@ class ModelEnergyProperties(object):
             except AttributeError:
                 rev_mat = None
             if not adj_c.materials == rev_mat:
-                full_msgs.append(
-                    'Face "{}" with construction "{}" does not have material layers '
-                    'matching in reversed order with its adjacent pair.'.format(
-                        adj_f.full_id, adj_f.properties.energy.construction.identifier
-                    )
-                )
-        full_msg = '\n'.join(full_msgs)
+                f_msg = 'Face "{}" with construction "{}" does not have material ' \
+                    'layers matching in reversed order with its adjacent pair.'.format(
+                        adj_f.full_id, adj_f.properties.energy.construction.identifier)
+                f_msg = self.host._validation_message_child(
+                    f_msg, adj_f, detailed, '020201', 'Energy')
+                full_msgs.append(f_msg)
+        full_msg = full_msgs if detailed else '\n'.join(full_msgs)
         if raise_exception and len(full_msgs) != 0:
             raise ValueError(full_msg)
         return full_msg
