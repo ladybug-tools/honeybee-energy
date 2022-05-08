@@ -4,6 +4,8 @@ import sys
 import logging
 import json
 
+from honeybee.model import Model
+
 from honeybee_energy.simulation.parameter import SimulationParameter
 from honeybee_energy.programtype import ProgramType
 from honeybee_energy.schedule.ruleset import ScheduleRuleset
@@ -11,13 +13,8 @@ from honeybee_energy.schedule.fixedinterval import ScheduleFixedInterval
 from honeybee_energy.schedule.typelimit import ScheduleTypeLimit
 from honeybee_energy.constructionset import ConstructionSet
 
-from honeybee.model import Model
-
 _logger = logging.getLogger(__name__)
-
 try:
-    import honeybee_schema.model as schema_model
-    import honeybee_schema.energy.simulation as schema_simulation_parameter
     import honeybee_schema.energy.programtype as schema_programtype
     import honeybee_schema.energy.schedule as schema_schedule
     import honeybee_schema.energy.constructionset as schema_constructionset
@@ -51,10 +48,7 @@ def validate_model_properties(model_json, output_file):
         model_json: Full path to a Model JSON file.
     """
     try:
-        # first check the JSON against the OpenAPI specification
         click.echo('Validating Model JSON ...')
-        schema_model.Model.parse_file(model_json)
-        click.echo('Pydantic validation passed.')
         # re-serialize the Model to make sure no errors are found in re-serialization
         parsed_model = Model.from_hbjson(model_json)
         click.echo('Python re-serialization passed.')
@@ -85,10 +79,7 @@ def validate_sim_par(sim_par_json):
         sim_par_json: Full path to a SimulationParameter JSON file.
     """
     try:
-        # first check the JSON against the OpenAPI specification
         click.echo('Validating SimulationParameter JSON ...')
-        schema_simulation_parameter.SimulationParameter.parse_file(sim_par_json)
-        click.echo('Pydantic validation passed.')
         # re-serialize to make sure no errors are found in re-serialization
         with open(sim_par_json) as json_file:
             data = json.load(json_file)
@@ -119,8 +110,6 @@ def validate_program_type(program_type_json):
             data = json.load(json_file)
         if data['type'] == 'ProgramType':
             click.echo('Validating ProgramType JSON ...')
-            schema_programtype.ProgramType.parse_file(program_type_json)
-            click.echo('Pydantic validation passed.')
             ProgramType.from_dict(data)
             click.echo('Python re-serialization passed.')
         else:  # assume it's a ProgramTypeAbridged schema
@@ -153,14 +142,10 @@ def validate_schedule(schedule_json):
             data = json.load(json_file)
         if data['type'] == 'ScheduleRuleset':
             click.echo('Validating ScheduleRuleset JSON ...')
-            schema_schedule.ScheduleRuleset.parse_file(schedule_json)
-            click.echo('Pydantic validation passed.')
             ScheduleRuleset.from_dict(data)
             click.echo('Python re-serialization passed.')
         elif data['type'] == 'ScheduleFixedInterval':
             click.echo('Validating ScheduleFixedInterval JSON ...')
-            schema_schedule.ScheduleFixedInterval.parse_file(schedule_json)
-            click.echo('Pydantic validation passed.')
             ScheduleFixedInterval.from_dict(data)
             click.echo('Python re-serialization passed.')
         elif data['type'] == 'ScheduleRulesetAbridged':
@@ -191,10 +176,7 @@ def validate_schedule_type_limit(schedule_type_limit_json):
         schedule_type_limit_json: Full path to a ScheduleTypeLimit JSON file.
     """
     try:
-        # first check the JSON against the OpenAPI specification
         click.echo('Validating ScheduleTypeLimit JSON ...')
-        schema_schedule.ScheduleTypeLimit.parse_file(schedule_type_limit_json)
-        click.echo('Pydantic validation passed.')
         # re-serialize to make sure no errors are found in re-serialization
         with open(schedule_type_limit_json) as json_file:
             data = json.load(json_file)
@@ -226,8 +208,6 @@ def validate_construction_set(construction_set_json):
             data = json.load(json_file)
         if data['type'] == 'ConstructionSet':
             click.echo('Validating ConstructionSet JSON ...')
-            schema_constructionset.ConstructionSet.parse_file(construction_set_json)
-            click.echo('Pydantic validation passed.')
             ConstructionSet.from_dict(data)
             click.echo('Python re-serialization passed.')
         else:  # assume it's a ConstructionSetAbridged schema
