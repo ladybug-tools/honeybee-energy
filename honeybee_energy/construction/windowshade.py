@@ -36,9 +36,9 @@ class WindowConstructionShade(object):
         shade_location: Text to indicate where in the window assembly the shade_material
             is located. (Default: "Interior"). Choose from the following 3 options:
 
-                * Interior
-                * Between
-                * Exterior
+            * Interior
+            * Between
+            * Exterior
 
             Note that the WindowConstruction must have at least one gas gap to use
             the "Between" option. Also note that, for a WindowConstruction with more
@@ -49,15 +49,15 @@ class WindowConstructionShade(object):
              Choose from the options below (units for the values of the corresponding
              setpoint are noted in parentheses next to each option):
 
-                * AlwaysOn
-                * OnIfHighSolarOnWindow (W/m2)
-                * OnIfHighHorizontalSolar (W/m2)
-                * OnIfHighOutdoorAirTemperature (C)
-                * OnIfHighZoneAirTemperature (C)
-                * OnIfHighZoneCooling (W)
-                * OnNightIfLowOutdoorTempAndOffDay (C)
-                * OnNightIfLowInsideTempAndOffDay (C)
-                * OnNightIfHeatingAndOffDay (W)
+            * AlwaysOn
+            * OnIfHighSolarOnWindow (W/m2)
+            * OnIfHighHorizontalSolar (W/m2)
+            * OnIfHighOutdoorAirTemperature (C)
+            * OnIfHighZoneAirTemperature (C)
+            * OnIfHighZoneCooling (W)
+            * OnNightIfLowOutdoorTempAndOffDay (C)
+            * OnNightIfLowInsideTempAndOffDay (C)
+            * OnNightIfHeatingAndOffDay (W)
 
         setpoint: A number that corresponds to the specified control_type. This can
             be a value in (W/m2), (C) or (W) depending upon the control type.
@@ -505,7 +505,7 @@ class WindowConstructionShade(object):
     def is_groupable(self):
         """Get a boolean for whether controls allow the construction to be grouped."""
         return self.control_type in self.GROUPABLE_TYPES
-    
+
     @property
     def is_room_groupable(self):
         """Get a boolean for whether controls allow grouping by room."""
@@ -639,10 +639,10 @@ class WindowConstructionShade(object):
         Note that this method only outputs a single string for the bare window
         construction and, to write the full construction into an IDF, the
         construction's unique_materials must also be written along with the
-        output of to_idf_shaded, which contains the shaded construction.
+        output of to_shaded_idf, which contains the shaded construction.
         Also, for each Aperture to which this construction is assigned, a
         ShadingControl object must also be written, which can be obtained from
-        the to_idf_shading_control.
+        the to_shading_control_idf.
 
         Returns:
             Text string representation of the bare (unshaded) construction.
