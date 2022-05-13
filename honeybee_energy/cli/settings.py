@@ -143,7 +143,6 @@ def comfort_sim_par(ddy_file, run_period, north, filter_des_days, output_file):
         sim_par.output.add_surface_temperature()
         _apply_run_period(run_period, sim_par)
         sim_par.north_angle = north
-        sim_par.shadow_calculation.calculation_method = 'PixelCounting'
         _apply_design_days(ddy_file, filter_des_days, sim_par)
         output_file.write(json.dumps(sim_par.to_dict()))
     except Exception as e:
