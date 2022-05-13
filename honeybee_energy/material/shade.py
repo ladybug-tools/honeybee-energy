@@ -37,7 +37,6 @@ class _EnergyWindowMaterialShadeBase(_EnergyMaterialWindowBase):
         self.emissivity = emissivity
         self.distance_to_glass = distance_to_glass
         self.set_all_opening_multipliers(opening_multiplier)
-        
 
     @property
     def is_shade_material(self):
@@ -1118,12 +1117,13 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
 
         t_vis = data['beam_visible_transmittance'] if 'beam_visible_transmittance' in \
             data and data['beam_visible_transmittance'] is not None else 0.0
-        r_vis = data['beam_visible_reflectance'] if 'beam_visible_reflectance' in data and \
-            data['beam_visible_reflectance'] is not None else 0.5
-        r_vis_b = data['beam_visible_reflectance_back'] if 'beam_visible_reflectance_back' \
-            in data else None
-        td_vis = data['diffuse_visible_transmittance'] if 'diffuse_visible_transmittance' \
-            in data and data['diffuse_visible_transmittance'] is not None else 0.0
+        r_vis = data['beam_visible_reflectance'] if 'beam_visible_reflectance' \
+            in data and data['beam_visible_reflectance'] is not None else 0.5
+        r_vis_b = data['beam_visible_reflectance_back'] if \
+            'beam_visible_reflectance_back' in data else None
+        td_vis = data['diffuse_visible_transmittance'] \
+            if 'diffuse_visible_transmittance' in data \
+            and data['diffuse_visible_transmittance'] is not None else 0.0
         rd_vis = data['diffuse_visible_reflectance'] if 'diffuse_visible_reflectance' \
             in data and data['diffuse_visible_reflectance'] is not None else 0.5
         rd_vis_b = data['diffuse_visible_reflectance_back'] if \
@@ -1265,8 +1265,9 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
 
     def __copy__(self):
         new_m = EnergyWindowMaterialBlind(
-            self.identifier, self.slat_orientation, self.slat_width, self.slat_separation,
-            self.slat_thickness, self.slat_angle, self.slat_conductivity,
+            self.identifier, self.slat_orientation, self.slat_width,
+            self.slat_separation, self.slat_thickness,
+            self.slat_angle, self.slat_conductivity,
             self.beam_solar_transmittance, self.beam_solar_reflectance,
             self.beam_visible_transmittance, self.beam_visible_reflectance,
             self.infrared_transmittance, self.emissivity, self.distance_to_glass,
