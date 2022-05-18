@@ -644,7 +644,7 @@ class ModelEnergyProperties(object):
         """
         return check_duplicate_identifiers(
             self.materials, raise_exception, 'Energy Material',
-            detailed, '020001', 'Energy')
+            detailed, '020001', 'Energy', error_type='Duplicate Material Identifier')
 
     def check_duplicate_construction_identifiers(
             self, raise_exception=True, detailed=False):
@@ -661,7 +661,7 @@ class ModelEnergyProperties(object):
         """
         return check_duplicate_identifiers(
             self.constructions, raise_exception, 'Construction',
-            detailed, '020002', 'Energy')
+            detailed, '020002', 'Energy', error_type='Duplicate Construction Identifier')
 
     def check_duplicate_construction_set_identifiers(
             self, raise_exception=True, detailed=False):
@@ -678,7 +678,8 @@ class ModelEnergyProperties(object):
         """
         return check_duplicate_identifiers(
             self.construction_sets, raise_exception, 'ConstructionSet',
-            detailed, '020003', 'Energy')
+            detailed, '020003', 'Energy',
+            error_type='Duplicate ConstructionSet Identifier')
 
     def check_duplicate_schedule_type_limit_identifiers(
             self, raise_exception=True, detailed=False):
@@ -695,7 +696,8 @@ class ModelEnergyProperties(object):
         """
         return check_duplicate_identifiers(
             self.schedule_type_limits, raise_exception, 'ScheduleTypeLimit',
-            detailed, '020004', 'Energy')
+            detailed, '020004', 'Energy',
+            error_type='Duplicate ScheduleTypeLimit Identifier')
 
     def check_duplicate_schedule_identifiers(self, raise_exception=True, detailed=False):
         """Check that there are no duplicate Schedule identifiers in the model.
@@ -710,7 +712,8 @@ class ModelEnergyProperties(object):
             A string with the message or a list with a dictionary if detailed is True.
         """
         return check_duplicate_identifiers(
-            self.schedules, raise_exception, 'Schedule', detailed, '020005', 'Energy')
+            self.schedules, raise_exception, 'Schedule', detailed, '020005', 'Energy',
+            error_type='Duplicate Schedule Identifier')
 
     def check_duplicate_program_type_identifiers(
             self, raise_exception=True, detailed=False):
@@ -727,7 +730,7 @@ class ModelEnergyProperties(object):
         """
         return check_duplicate_identifiers(
             self.program_types, raise_exception, 'ProgramType',
-            detailed, '020006', 'Energy')
+            detailed, '020006', 'Energy', error_type='Duplicate ProgramType Identifier')
 
     def check_duplicate_hvac_identifiers(self, raise_exception=True, detailed=False):
         """Check that there are no duplicate HVAC identifiers in the model.
@@ -742,7 +745,8 @@ class ModelEnergyProperties(object):
             A string with the message or a list with a dictionary if detailed is True.
         """
         return check_duplicate_identifiers(
-            self.hvacs, raise_exception, 'HVAC', detailed, '020007', 'Energy')
+            self.hvacs, raise_exception, 'HVAC', detailed, '020007', 'Energy',
+            error_type='Duplicate HVAC Identifier')
 
     def check_duplicate_shw_identifiers(self, raise_exception=True, detailed=False):
         """Check that there are no duplicate SHW identifiers in the model.
@@ -757,7 +761,8 @@ class ModelEnergyProperties(object):
             A string with the message or a list with a dictionary if detailed is True.
         """
         return check_duplicate_identifiers(
-            self.shws, raise_exception, 'SHW', detailed, '020008', 'Energy')
+            self.shws, raise_exception, 'SHW', detailed, '020008', 'Energy',
+            error_type='Duplicate SHW Identifier')
 
     def check_interior_constructions_reversed(
             self, raise_exception=True, detailed=False):
@@ -808,7 +813,8 @@ class ModelEnergyProperties(object):
                     'layers matching in reversed order with its adjacent pair.'.format(
                         adj_f.full_id, adj_f.properties.energy.construction.identifier)
                 f_msg = self.host._validation_message_child(
-                    f_msg, adj_f, detailed, '020201', 'Energy')
+                    f_msg, adj_f, detailed, '020201', 'Energy',
+                    error_type='Mismatched Adjacent Constructions')
                 full_msgs.append(f_msg)
         full_msg = full_msgs if detailed else '\n'.join(full_msgs)
         if raise_exception and len(full_msgs) != 0:
