@@ -139,6 +139,8 @@ def comfort_sim_par(ddy_file, run_period, north, filter_des_days, output_file):
     """
     try:
         sim_par = SimulationParameter()
+        sim_par.shadow_calculation.solar_distribution = \
+            'FullInteriorAndExteriorWithReflections'
         sim_par.output.add_comfort_metrics()
         sim_par.output.add_surface_temperature()
         _apply_run_period(run_period, sim_par)

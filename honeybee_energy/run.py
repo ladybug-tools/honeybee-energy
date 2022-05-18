@@ -474,12 +474,26 @@ def run_idf(idf_file_path, epw_file_path=None, expand_objects=True, silent=False
         -   err -- Path to a .err file containing all errors and warnings from the
             simulation. Will be None if no file exists.
     """
+    # rename the stat file to ensure EnergyPlus does not find it and error
+    stat_file, renamed_stat = None, None
+    epw_folder = os.path.dirname(epw_file_path)
+    for wf in os.listdir(epw_folder):
+        if wf.endswith('.stat'):
+            stat_file = os.path.join(epw_folder, wf)
+            renamed_stat = os.path.join(epw_folder, wf.replace('.stat', '.hide'))
+            os.rename(stat_file, renamed_stat)
+            break
+
     # run the simulation
     if os.name == 'nt':  # we are on Windows
         directory = _run_idf_windows(
             idf_file_path, epw_file_path, expand_objects, silent)
     else:  # we are on Mac, Linux, or some other unix-based system
         directory = _run_idf_unix(idf_file_path, epw_file_path, expand_objects)
+
+    # put back the .stat file
+    if stat_file is not None:
+        os.rename(renamed_stat, stat_file)
 
     # output the simulation files
     return output_energyplus_files(directory)
