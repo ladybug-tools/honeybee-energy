@@ -481,7 +481,10 @@ def run_idf(idf_file_path, epw_file_path=None, expand_objects=True, silent=False
         if wf.endswith('.stat'):
             stat_file = os.path.join(epw_folder, wf)
             renamed_stat = os.path.join(epw_folder, wf.replace('.stat', '.hide'))
-            os.rename(stat_file, renamed_stat)
+            try:
+                os.rename(stat_file, renamed_stat)
+            except Exception:  # STAT file is in a restricted location (Program Files)
+                stat_file = None  # hope that it is not a OneBuilding EPW
             break
 
     # run the simulation
