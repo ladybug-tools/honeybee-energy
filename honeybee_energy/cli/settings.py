@@ -28,7 +28,7 @@ def settings():
 
 @settings.command('default-sim-par')
 @click.argument('ddy-file', type=click.Path(
-    exists=True, file_okay=True, dir_okay=False, resolve_path=True))
+    file_okay=True, dir_okay=False, resolve_path=True))
 @click.option('--run-period', '-rp', help='An AnalysisPeriod or RunPeriod string '
               'to dictate the start and end of the simulation '
               '(eg. "6/21 to 9/21 between 0 and 23 @1"). If unspecified, the '
@@ -56,7 +56,8 @@ def default_sim_par(ddy_file, run_period, north, filter_des_days, output_file):
         sim_par.output.add_hvac_energy_use()
         _apply_run_period(run_period, sim_par)
         sim_par.north_angle = north
-        _apply_design_days(ddy_file, filter_des_days, sim_par)
+        if os.path.isfile(ddy_file):
+            _apply_design_days(ddy_file, filter_des_days, sim_par)
         output_file.write(json.dumps(sim_par.to_dict()))
     except Exception as e:
         _logger.exception('Failed to generate simulation parameter.\n{}'.format(e))
@@ -67,7 +68,7 @@ def default_sim_par(ddy_file, run_period, north, filter_des_days, output_file):
 
 @settings.command('load-balance-sim-par')
 @click.argument('ddy-file', type=click.Path(
-    exists=True, file_okay=True, dir_okay=False, resolve_path=True))
+    file_okay=True, dir_okay=False, resolve_path=True))
 @click.option('--load-type', '-lt', help='A text value to set the type of load outputs '
               'requested. Choose from the following:\nAll - all energy use '
               'including heat lost from the zone\nTotal - the total load added to the '
@@ -104,7 +105,8 @@ def load_balance_sim_par(ddy_file, load_type, run_period, north, filter_des_days
         sim_par.output.add_surface_energy_flow()
         _apply_run_period(run_period, sim_par)
         sim_par.north_angle = north
-        _apply_design_days(ddy_file, filter_des_days, sim_par)
+        if os.path.isfile(ddy_file):
+            _apply_design_days(ddy_file, filter_des_days, sim_par)
         output_file.write(json.dumps(sim_par.to_dict()))
     except Exception as e:
         _logger.exception('Failed to generate simulation parameter.\n{}'.format(e))
@@ -115,7 +117,7 @@ def load_balance_sim_par(ddy_file, load_type, run_period, north, filter_des_days
 
 @settings.command('comfort-sim-par')
 @click.argument('ddy-file', type=click.Path(
-    exists=True, file_okay=True, dir_okay=False, resolve_path=True))
+    file_okay=True, dir_okay=False, resolve_path=True))
 @click.option('--run-period', '-rp', help='An AnalysisPeriod or RunPeriod string '
               'to dictate the start and end of the simulation '
               '(eg. "6/21 to 9/21 between 0 and 23 @1"). If unspecified, the '
@@ -145,7 +147,8 @@ def comfort_sim_par(ddy_file, run_period, north, filter_des_days, output_file):
         sim_par.output.add_surface_temperature()
         _apply_run_period(run_period, sim_par)
         sim_par.north_angle = north
-        _apply_design_days(ddy_file, filter_des_days, sim_par)
+        if os.path.isfile(ddy_file):
+            _apply_design_days(ddy_file, filter_des_days, sim_par)
         output_file.write(json.dumps(sim_par.to_dict()))
     except Exception as e:
         _logger.exception('Failed to generate simulation parameter.\n{}'.format(e))
@@ -156,7 +159,7 @@ def comfort_sim_par(ddy_file, run_period, north, filter_des_days, output_file):
 
 @settings.command('sizing-sim-par')
 @click.argument('ddy-file', type=click.Path(
-    exists=True, file_okay=True, dir_okay=False, resolve_path=True))
+    file_okay=True, dir_okay=False, resolve_path=True))
 @click.option('--load-type', '-lt', help='A text value to set the type of load outputs '
               'requested. Choose from the following:\nAll - all energy use '
               'including heat lost from the zone\nTotal - the total load added to the '
@@ -188,7 +191,8 @@ def sizing_sim_par(ddy_file, load_type, north, filter_des_days, output_file):
         sim_par.output.add_surface_energy_flow()
         sim_par.simulation_control = SimulationControl(True, True, True, True, False)
         sim_par.north_angle = north
-        _apply_design_days(ddy_file, filter_des_days, sim_par)
+        if os.path.isfile(ddy_file):
+            _apply_design_days(ddy_file, filter_des_days, sim_par)
         output_file.write(json.dumps(sim_par.to_dict()))
     except Exception as e:
         _logger.exception('Failed to generate simulation parameter.\n{}'.format(e))
@@ -199,7 +203,7 @@ def sizing_sim_par(ddy_file, load_type, north, filter_des_days, output_file):
 
 @settings.command('custom-sim-par')
 @click.argument('ddy-file', type=click.Path(
-    exists=True, file_okay=True, dir_okay=False, resolve_path=True))
+    file_okay=True, dir_okay=False, resolve_path=True))
 @click.argument('output-names', nargs=-1)
 @click.option('--run-period', '-rp', help='An AnalysisPeriod or RunPeriod string '
               'to dictate the start and end of the simulation '
@@ -232,7 +236,8 @@ def custom_sim_par(ddy_file, output_names, run_period, north, filter_des_days,
             sim_par.output.add_output(output_name)
         _apply_run_period(run_period, sim_par)
         sim_par.north_angle = north
-        _apply_design_days(ddy_file, filter_des_days, sim_par)
+        if os.path.isfile(ddy_file):
+            _apply_design_days(ddy_file, filter_des_days, sim_par)
         output_file.write(json.dumps(sim_par.to_dict()))
     except Exception as e:
         _logger.exception('Failed to generate simulation parameter.\n{}'.format(e))
@@ -243,7 +248,7 @@ def custom_sim_par(ddy_file, output_names, run_period, north, filter_des_days,
 
 @settings.command('orientation-sim-pars')
 @click.argument('ddy-file', type=click.Path(
-    exists=True, file_okay=True, dir_okay=False, resolve_path=True))
+    file_okay=True, dir_okay=False, resolve_path=True))
 @click.argument('north-angles', nargs=-1, type=float)
 @click.option('--output-name', '-o', help='Any number of EnergyPlus output names as '
               'strings (eg. Surface Window System Solar Transmittance). These outputs '
@@ -288,7 +293,8 @@ def orientation_sim_pars(ddy_file, north_angles, output_name, run_period, start_
         for out_name in output_name:
             sim_par.output.add_output(out_name)
         _apply_run_period(run_period, sim_par)
-        _apply_design_days(ddy_file, filter_des_days, sim_par)
+        if os.path.isfile(ddy_file):
+            _apply_design_days(ddy_file, filter_des_days, sim_par)
 
         # shift all of the north angles by the start_north if specified
         if start_north != 0:
