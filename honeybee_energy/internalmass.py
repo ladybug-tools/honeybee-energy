@@ -159,7 +159,7 @@ class InternalMass(object):
         """
         ep_strs = parse_idf_string(idf_string, 'InternalMass,')
         obj_id = ep_strs[0].split('..')[0]
-        return cls(obj_id, construction_dict[ep_strs[1]], ep_strs[3])
+        return cls(obj_id, construction_dict[ep_strs[1]], ep_strs[4])
 
     @classmethod
     def from_dict(cls, data):
@@ -233,8 +233,9 @@ class InternalMass(object):
                 object is assigned to.
         """
         values = ('{}..{}'.format(self.identifier, zone_identifier),
-                  self.construction.identifier, zone_identifier, self.area)
-        comments = ('name', 'construction name', 'zone name', 'surface area')
+                  self.construction.identifier, zone_identifier, '', self.area)
+        comments = ('name', 'construction name', 'zone name', 'space name',
+                    'surface area')
         return generate_idf_string('InternalMass', values, comments)
 
     def to_dict(self, abridged=False):
