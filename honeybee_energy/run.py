@@ -476,16 +476,17 @@ def run_idf(idf_file_path, epw_file_path=None, expand_objects=True, silent=False
     """
     # rename the stat file to ensure EnergyPlus does not find it and error
     stat_file, renamed_stat = None, None
-    epw_folder = os.path.dirname(epw_file_path)
-    for wf in os.listdir(epw_folder):
-        if wf.endswith('.stat'):
-            stat_file = os.path.join(epw_folder, wf)
-            renamed_stat = os.path.join(epw_folder, wf.replace('.stat', '.hide'))
-            try:
-                os.rename(stat_file, renamed_stat)
-            except Exception:  # STAT file is in a restricted location (Program Files)
-                stat_file = None  # hope that it is not a OneBuilding EPW
-            break
+    if epw_file_path is not None:
+        epw_folder = os.path.dirname(epw_file_path)
+        for wf in os.listdir(epw_folder):
+            if wf.endswith('.stat'):
+                stat_file = os.path.join(epw_folder, wf)
+                renamed_stat = os.path.join(epw_folder, wf.replace('.stat', '.hide'))
+                try:
+                    os.rename(stat_file, renamed_stat)
+                except Exception:  # STAT file in restricted location (Program Files)
+                    stat_file = None  # hope that it is not a OneBuilding EPW
+                break
 
     # run the simulation
     if os.name == 'nt':  # we are on Windows
@@ -545,7 +546,7 @@ def output_energyplus_files(directory):
 
 
 def _import_model_osw(model_path, extension, output_path=None, osw_directory=None):
-    """Base function used for OSW transating from various formats to HBJSON.
+    """Base function used for OSW translating from various formats to HBJSON.
 
     Args:
         model_path: File path to the file to be translated to HBJSON.
