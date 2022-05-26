@@ -449,7 +449,7 @@ class ModelEnergyProperties(object):
         mod_sets = {}
         for constr_set in self.construction_sets + [generic_construction_set]:
             mod_sets[constr_set.identifier] = constr_set.to_radiance_solar_interior()
-        self._assing_room_modifier_sets(mod_sets)
+        self._assign_room_modifier_sets(mod_sets)
         mods = {}
         for con in self.face_constructions + self.shade_constructions:
             mods[con.identifier] = con.to_radiance_solar_interior() \
@@ -461,7 +461,7 @@ class ModelEnergyProperties(object):
         mod_sets = {}
         for constr_set in self.construction_sets + [generic_construction_set]:
             mod_sets[constr_set.identifier] = constr_set.to_radiance_visible_interior()
-        self._assing_room_modifier_sets(mod_sets)
+        self._assign_room_modifier_sets(mod_sets)
         mods = {}
         for con in self.face_constructions + self.shade_constructions:
             mods[con.identifier] = con.to_radiance_visible_interior() \
@@ -473,7 +473,7 @@ class ModelEnergyProperties(object):
         mod_sets = {}
         for constr_set in self.construction_sets + [generic_construction_set]:
             mod_sets[constr_set.identifier] = constr_set.to_radiance_solar_exterior()
-        self._assing_room_modifier_sets(mod_sets)
+        self._assign_room_modifier_sets(mod_sets)
         mods = {}
         for con in self.face_constructions + self.shade_constructions:
             mods[con.identifier] = con.to_radiance_solar_exterior() \
@@ -485,7 +485,7 @@ class ModelEnergyProperties(object):
         mod_sets = {}
         for constr_set in self.construction_sets + [generic_construction_set]:
             mod_sets[constr_set.identifier] = constr_set.to_radiance_visible_exterior()
-        self._assing_room_modifier_sets(mod_sets)
+        self._assign_room_modifier_sets(mod_sets)
         mods = {}
         for con in self.face_constructions + self.shade_constructions:
             mods[con.identifier] = con.to_radiance_visible_exterior() \
@@ -1388,7 +1388,7 @@ class ModelEnergyProperties(object):
         constr = hb_obj.properties.energy.construction
         transmittances.add(round(constr.solar_transmittance, 3))
 
-    def _assing_room_modifier_sets(self, unique_mod_sets):
+    def _assign_room_modifier_sets(self, unique_mod_sets):
         """Assign modifier sets to rooms using a dictionary of unique modifier sets."""
         for room in self._host.rooms:
             room.properties.radiance.modifier_set = \
