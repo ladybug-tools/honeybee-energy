@@ -1228,7 +1228,7 @@ class RoomEnergyProperties(object):
             constructions: A dictionary with construction identifiers as keys
                 and honeybee construction objects as values.
         """
-        base_e = 'Room {0} "{1}" was not found in {0}s.'
+        base_e = 'Room {1} "{0}" was not found in {1}s.'
         if 'construction_set' in abridged_data and \
                 abridged_data['construction_set'] is not None:
             try:
