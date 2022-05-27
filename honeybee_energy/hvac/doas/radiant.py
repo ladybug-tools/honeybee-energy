@@ -64,15 +64,16 @@ class RadiantwithDOAS(_DOASBase):
             shut off the fans, which can result in more energy savings when spaces
             served by the DOAS are completely unoccupied. If None, the DOAS will be
             always on. (Default: None).
-        radiant_type: Text to indicate which faces are thermally active. Note that
-            systems are assumed to be embedded in concrete slabs with no insulation
-            within the slab unless otherwise specified. Choose from the
+        radiant_type: Text to indicate which faces are thermally active. Note
+            that systems are assumed to be embedded in concrete slabs unless
+            CeilingMetalPanel or FloorWithHardwood is specified. Choose from the
             following. (Default: Floor).
 
             * Floor
             * Ceiling
             * FloorWithCarpet
             * CeilingMetalPanel
+            * FloorWithHardwood
 
         minimum_operation_time: A number for the minimum number of hours of operation
             for the radiant system before it shuts off. Note that this has no effect
@@ -109,7 +110,8 @@ class RadiantwithDOAS(_DOASBase):
         'DOAS_Radiant_DCW_DHW'
     )
 
-    radiant_typeS = ('Floor', 'Ceiling', 'FloorWithCarpet', 'CeilingMetalPanel')
+    radiant_typeS = ('Floor', 'Ceiling', 'FloorWithCarpet',
+                     'CeilingMetalPanel', 'FloorWithHardwood')
 
     def __init__(self, identifier, vintage='ASHRAE_2019', equipment_type=None,
                  sensible_heat_recovery=0, latent_heat_recovery=0,
