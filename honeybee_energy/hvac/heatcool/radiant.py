@@ -50,15 +50,16 @@ class Radiant(_HeatCoolBase):
             * Radiant_DCW_ASHP
             * Radiant_DCW_DHW
 
-        radiant_type: Text to indicate which faces are thermally active. Note that
-            systems are assumed to be embedded in concrete slabs with no insulation
-            within the slab unless otherwise specified. Choose from the
+        radiant_type: Text to indicate which faces are thermally active. Note
+            that systems are assumed to be embedded in concrete slabs unless
+            CeilingMetalPanel or FloorWithHardwood is specified. Choose from the
             following. (Default: Floor).
 
             * Floor
             * Ceiling
             * FloorWithCarpet
             * CeilingMetalPanel
+            * FloorWithHardwood
 
         minimum_operation_time: A number for the minimum number of hours of operation
             for the radiant system before it shuts off. Note that this has no effect
@@ -91,7 +92,8 @@ class Radiant(_HeatCoolBase):
         'Radiant_DCW_DHW'
     )
 
-    radiant_typeS = ('Floor', 'Ceiling', 'FloorWithCarpet', 'CeilingMetalPanel')
+    radiant_typeS = ('Floor', 'Ceiling', 'FloorWithCarpet',
+                     'CeilingMetalPanel', 'FloorWithHardwood')
 
     def __init__(self, identifier, vintage='ASHRAE_2019', equipment_type=None,
                  radiant_type='Floor', minimum_operation_time=1,
