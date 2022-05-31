@@ -402,9 +402,9 @@ def orphaned_face_to_idf(face):
 def room_to_idf(room):
     """Generate an IDF string representation of a Room.
 
-    The resulting string will include all internal gain defintiions for the Room
+    The resulting string will include all internal gain definitions for the Room
     (people, lights, equipment), infiltration definitions, ventilation requirements,
-    and thermostat objects. However, complete schedule defintions assigned to
+    and thermostat objects. However, complete schedule definitions assigned to
     these objects are excluded and the Room's hvac is also excluded.
 
     Also note that this method does not write any of the geometry of the Room
