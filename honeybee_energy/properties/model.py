@@ -423,9 +423,9 @@ class ModelEnergyProperties(object):
     def missing_adjacencies_to_adiabatic(self):
         """Set any Faces with missing adjacencies in the model to adiabatic.
 
-        If any of these Faces has any sub-faces, these will be removed in order
-        to accommodate the adiabatic condition. Similarly, if the Face is an
-        AirBoundary, the type will be set to a Wall.
+        If any of the Faces with missing adjacencies have sub-faces, these will be
+        removed in order to accommodate the adiabatic condition. Similarly, if the
+        Face is an AirBoundary, the type will be set to a Wall.
 
         Note that this method assumes all of the Surface boundary conditions
         are set up correctly with the last boundary_condition_object being
