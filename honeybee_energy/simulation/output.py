@@ -358,7 +358,7 @@ output-table-summaryreports.html#outputtablesummaryreports)
 
     def add_surface_energy_flow(self):
         """Add outputs for energy flow across all surfaces."""
-        outputs = ['Surface Average Face Conduction Heat Transfer Energy',
+        outputs = ['Surface Inside Face Conduction Heat Transfer Energy',
                    'Surface Window Heat Loss Energy',
                    'Surface Window Heat Gain Energy']
         for outp in outputs:
