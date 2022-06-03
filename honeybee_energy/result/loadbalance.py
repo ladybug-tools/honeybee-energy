@@ -181,7 +181,7 @@ class LoadBalance(object):
         'Zone Ventilation Latent Heat Loss Energy',
         'AFN Zone Ventilation Sensible Heat Loss Energy',
         'AFN Zone Ventilation Latent Heat Loss Energy')
-    OPAQUE_ENERGY_FLOW = 'Surface Average Face Conduction Heat Transfer Energy'
+    OPAQUE_ENERGY_FLOW = 'Surface Inside Face Conduction Heat Transfer Energy'
     WINDOW_LOSS = 'Surface Window Heat Loss Energy'
     WINDOW_GAIN = 'Surface Window Heat Gain Energy'
 
