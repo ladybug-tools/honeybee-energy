@@ -22,6 +22,7 @@ from ..construction.windowshade import WindowConstructionShade
 from ..construction.dynamic import WindowConstructionDynamic
 from ..construction.air import AirBoundaryConstruction
 from ..constructionset import ConstructionSet
+from ..material.opaque import EnergyMaterialVegetation
 from ..schedule.typelimit import ScheduleTypeLimit
 from ..schedule.ruleset import ScheduleRuleset
 from ..schedule.dictutil import SCHEDULE_TYPES, dict_to_schedule, \
@@ -400,7 +401,7 @@ class ModelEnergyProperties(object):
         """Set the construction of exterior Apertures in Walls facing a given orientation.
 
         This is useful for testing orientation-specific energy conservation
-        strategies or creating AHSRAE baseline buildings.
+        strategies or creating ASHRAE baseline buildings.
 
         Args:
             construction: A WindowConstruction that will be assigned to all of the
@@ -620,6 +621,8 @@ class ModelEnergyProperties(object):
         msgs.append(self.check_duplicate_program_type_identifiers(False, detailed))
         msgs.append(self.check_duplicate_hvac_identifiers(False, detailed))
         msgs.append(self.check_duplicate_shw_identifiers(False, detailed))
+        msgs.append(self.check_shw_rooms_in_model(False, detailed))
+        msgs.append(self.check_one_vegetation_material(False, detailed))
         msgs.append(self.check_interior_constructions_reversed(False, detailed))
         # output a final report of errors or raise an exception
         full_msgs = [msg for msg in msgs if msg]
@@ -763,6 +766,114 @@ class ModelEnergyProperties(object):
         return check_duplicate_identifiers(
             self.shws, raise_exception, 'SHW', detailed, '020008', 'Energy',
             error_type='Duplicate SHW Identifier')
+
+    def check_shw_rooms_in_model(self, raise_exception=True, detailed=False):
+        """Check that the room_identifiers of SHWSystems are in the model.
+
+        Args:
+            raise_exception: Boolean to note whether a ValueError should be raised if
+                SHWSystems reference Rooms that are not in the Model. (Default: True).
+            detailed: Boolean for whether the returned object is a detailed list of
+                dicts with error info or a string with a message. (Default: False).
+
+        Returns:
+            A string with the message or a list with a dictionary if detailed is True.
+        """
+        detailed = False if raise_exception else detailed
+        # gather a list of all the missing rooms
+        shw_ids = [(shw_sys, shw_sys.ambient_condition) for shw_sys in self.shws
+                   if isinstance(shw_sys.ambient_condition, str)]
+        room_ids = set(room.identifier for room in self.host.rooms)
+        missing_rooms = [] if detailed else set()
+        for shw_sys in shw_ids:
+            if shw_sys[1] not in room_ids:
+                if detailed:
+                    missing_rooms.append(shw_sys[0])
+                else:
+                    missing_rooms.add(shw_sys[1])
+        # if missing rooms were found, then report the issue
+        if len(missing_rooms) != 0:
+            if detailed:
+                all_err = []
+                for shw_sys in missing_rooms:
+                    msg = 'SHWSystem "{}" has a ambient_condition referencing ' \
+                        'a Room that is not in the ' \
+                        'Model: "{}"'.format(shw_sys.identifier, shw_sys.room_identifier)
+                    error_dict = {
+                        'type': 'ValidationError',
+                        'code': '020009',
+                        'error_type': 'SHWSystem Room Not In Model',
+                        'extension_type': 'Energy',
+                        'element_type': 'SHWSystem',
+                        'element_id': shw_sys.identifier,
+                        'element_name': shw_sys.display_name,
+                        'message': msg
+                    }
+                    all_err.append(error_dict)
+                return all_err
+            else:
+                msg = 'The model has the following missing rooms referenced by SHW ' \
+                    'Systems:\n{}'.format('\n'.join(missing_rooms))
+                if raise_exception:
+                    raise ValueError(msg)
+                return msg
+        return [] if detailed else ''
+
+    def check_one_vegetation_material(self, raise_exception=True, detailed=False):
+        """Check that there no more than one EnergyMaterialVegetation in the model.
+
+        It is a limitation of EnergyPlus that it can only simulate a single
+        eco roof per model. This should probably be addressed at some point
+        so that we don't always have to check for it.
+
+        Args:
+            raise_exception: Boolean for whether a ValueError should be raised if there's
+                more than one EnergyMaterialVegetation in the Model. (Default: True).
+            detailed: Boolean for whether the returned object is a detailed list of
+                dicts with error info or a string with a message. (Default: False).
+
+        Returns:
+            A string with the message or a list with a dictionary if detailed is True.
+        """
+        # first see if there's more than one vegetation material
+        all_constrs = self.room_constructions + self.face_constructions
+        materials = []
+        for constr in all_constrs:
+            try:
+                materials.extend(constr.materials)
+            except AttributeError:
+                pass  # ShadeConstruction
+        all_mats = list(set(materials))
+        veg_mats = [m for m in all_mats if isinstance(m, EnergyMaterialVegetation)]
+
+        # if more than one vegetation material was found, then report the issue
+        if len(veg_mats) > 1:
+            if detailed:
+                all_err = []
+                for v_mat in veg_mats:
+                    msg = 'EnergyMaterialVegetation "{}" is one of several vegetation ' \
+                        'materials in the model.\nThis is not allowed by ' \
+                        'EnergyPlus.'.format(v_mat.identifier)
+                    error_dict = {
+                        'type': 'ValidationError',
+                        'code': '020010',
+                        'error_type': 'Multiple Vegetation Materials',
+                        'extension_type': 'Energy',
+                        'element_type': 'Energy Material',
+                        'element_id': v_mat.identifier,
+                        'element_name': v_mat.display_name,
+                        'message': msg
+                    }
+                    all_err.append(error_dict)
+                return all_err
+            else:
+                veg_mats_ids = [v_mat.identifier for v_mat in veg_mats]
+                msg = 'The model has multiple vegetation materials. This is not ' \
+                    'allowed by EnergyPlus:\n{}'.format('\n'.join(veg_mats_ids))
+                if raise_exception:
+                    raise ValueError(msg)
+                return msg
+        return [] if detailed else ''
 
     def check_interior_constructions_reversed(
             self, raise_exception=True, detailed=False):
