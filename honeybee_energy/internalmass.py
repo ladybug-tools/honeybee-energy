@@ -7,6 +7,7 @@ from honeybee.typing import valid_ep_string, float_positive
 from honeybee.units import conversion_factor_to_meters
 
 from .construction.opaque import OpaqueConstruction
+from .material.opaque import EnergyMaterialVegetation
 from .reader import parse_idf_string
 from .writer import generate_idf_string
 
@@ -85,7 +86,9 @@ class InternalMass(object):
     @construction.setter
     def construction(self, value):
         assert isinstance(value, OpaqueConstruction), \
-            'Expected Opaque Construction for face. Got {}'.format(type(value))
+            'Expected Opaque Construction for InternalMass. Got {}'.format(type(value))
+        assert not isinstance(value.materials[0], EnergyMaterialVegetation), \
+            'InternalMass constructions cannot contain vegetation materials'
         value.lock()  # lock editing in case construction has multiple references
         self._construction = value
 
