@@ -637,9 +637,9 @@ def _run_osw_windows(osw_json, measures_only=True, silent=False):
         batch = '{}\n"{}" -I "{}" run {}-w "{}"'.format(
             working_drive, folders.openstudio_exe, folders.honeybee_openstudio_gem_path,
             measure_str, osw_json)
-        batch_file = os.path.join(directory, 'run_workflow.bat')
-        write_to_file(batch_file, batch, True)
         if all(ord(c) < 128 for c in batch):  # just run the batch file as it is
+            batch_file = os.path.join(directory, 'run_workflow.bat')
+            write_to_file(batch_file, batch, True)
             os.system('"{}"'.format(batch_file))  # run the batch file
             return directory
     # given .bat file restrictions with non-ASCII characters, run the sim with subprocess
@@ -758,9 +758,9 @@ def _run_idf_windows(idf_file_path, epw_file_path=None, expand_objects=True,
         batch = '{}\ncd "{}"\n"{}" {} {}{}'.format(
             working_drive, directory, folders.energyplus_exe, epw_str,
             idd_str, expand_str)
-        batch_file = os.path.join(directory, 'in.bat')
-        write_to_file(batch_file, batch, True)
         if all(ord(c) < 128 for c in batch):  # just run the batch file as it is
+            batch_file = os.path.join(directory, 'in.bat')
+            write_to_file(batch_file, batch, True)
             os.system('"{}"'.format(batch_file))  # run the batch file
             return directory
     # given .bat file restrictions with non-ASCII characters, run the sim with subprocess
