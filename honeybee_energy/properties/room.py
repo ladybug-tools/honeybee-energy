@@ -703,11 +703,15 @@ class RoomEnergyProperties(object):
                 self.ventilation = Ventilation('HeatCool System Zero Ventilation')
             if self.setpoint is not None and \
                     self.setpoint.humidifying_schedule is not None:  # remove humid
-                self.setpoint.remove_humidity_setpoints()
+                new_setpt = self.setpoint.duplicate()
+                new_setpt.remove_humidity_setpoints()
+                self.setpoint = new_setpt
         elif isinstance(self.hvac, _DOASBase) and \
                 self.hvac.doas_availability_schedule is not None:
             if self.ventilation is not None:  # apply availability to ventilation
-                self.ventilation.schedule = self.hvac.doas_availability_schedule
+                new_vent = self.ventilation.duplicate()
+                new_vent.schedule = self.hvac.doas_availability_schedule
+                self.ventilation = new_vent
         self.hvac = i_sys
 
     def add_daylight_control_to_center(
