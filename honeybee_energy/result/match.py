@@ -51,9 +51,11 @@ def match_rooms_to_data(data_collections, rooms, invert_multiplier=False):
                 zone_ids.append(hvac_id.split(' IDEAL LOADS AIR SYSTEM')[0])
             elif '..' in hvac_id:  # convention used for service hot water
                 zone_ids.append(hvac_id.split('..')[-1])
+                use_mult = False if 'Gain' in data.header.metadata['type'] else True
             elif '_IDEALAIR' in hvac_id:  # TODO: Remove once test files are updated
                 zone_ids.append(hvac_id.split('_IDEALAIR')[0])
             else:
+                use_mult = False
                 zone_ids.append(hvac_id)
     if invert_multiplier:
         use_mult = not use_mult
@@ -72,7 +74,7 @@ def match_rooms_to_data(data_collections, rooms, invert_multiplier=False):
 def match_faces_to_data(data_collections, faces):
     """Match honeybee faces/sub-faces to data collections from SQLiteResult.
 
-    This method will correctly match traingulated apertures and doors with a
+    This method will correctly match triangulated apertures and doors with a
     merged version of the relevant data_collections.
 
     Args:
