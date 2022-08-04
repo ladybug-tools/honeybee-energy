@@ -1020,7 +1020,7 @@ class ModelEnergyProperties(object):
                 self._add_shade_vertices(face, face_dict)
                 if face.geometry.has_holes:
                     face_dict['geometry']['vertices'] = \
-                        [pt.to_array() for pt in face.upper_left_vertices]
+                        [[round(v, 3) for v in pt] for pt in face.upper_left_vertices]
                 if len(face._apertures) != 0:
                     for ap, ap_dict in zip(face._apertures, face_dict['apertures']):
                         self._add_shade_vertices(ap, ap_dict)
