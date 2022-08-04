@@ -35,7 +35,7 @@ def simulate():
               type=click.Path(exists=False, file_okay=True, dir_okay=False,
                               resolve_path=True))
 @click.option('--measures', '-m', help='Full path to a folder containing an OSW JSON '
-              'be used as the base for the execution of the OpenStuduo CLI. While this '
+              'be used as the base for the execution of the OpenStudio CLI. While this '
               'OSW can contain paths to measures that exist anywhere on the machine, '
               'the best practice is to copy the measures into this measures '
               'folder and use relative paths within the OSW. '
@@ -74,7 +74,7 @@ def simulate():
 @click.option('--check-model/--bypass-check', ' /-bc', help='Flag to note whether '
               'the Model should be re-serialized to Python and checked before it '
               'is translated to .osm. The check is not needed if the model-file '
-              'was expored directly from the honeybee-energy Python library. '
+              'was exported directly from the honeybee-energy Python library. '
               'It will be automatically bypassed if the model-file is an OSM or IDF.',
               default=True, show_default=True)
 @click.option('--enforce-rooms/--skip-no-rooms', ' /-sr', help='Flag to note whether '
@@ -285,7 +285,7 @@ def simulate_osm(osm_file, epw_file, folder, log_file):
         osw_dict = {
             'seed_file': osm_file,
             'weather_file': epw_file
-            }
+        }
         osw = os.path.join(folder, 'workflow.osw')
         with open(osw, 'w') as fp:
             json.dump(osw_dict, fp, indent=4)
