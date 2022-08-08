@@ -303,7 +303,7 @@ class ScheduleDay(object):
 
     def shift_by_step(self, step_count=1, timestep=1):
         """Get a version of this object where the values are shifted in time.
-        
+
         This is useful when attempting to derive a set of diversified schedules
         from a single average schedule.
 
@@ -517,7 +517,8 @@ class ScheduleDay(object):
                     for values in zip(*all_values)]
 
         # return the final list
-        return ScheduleDay.from_values_at_timestep(identifier, sch_vals, timestep_resolution)
+        return ScheduleDay.from_values_at_timestep(
+            identifier, sch_vals, timestep_resolution)
 
     def _get_until_mod(self, time_index):
         """Get the minute of the day until a value is applied given a time_index."""

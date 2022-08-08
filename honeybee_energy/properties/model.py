@@ -1019,8 +1019,18 @@ class ModelEnergyProperties(object):
             for face, face_dict in zip(room._faces, room_dict['faces']):
                 self._add_shade_vertices(face, face_dict)
                 if face.geometry.has_holes:
+                    ul_verts = face.upper_left_vertices
+                    if isinstance(face.boundary_condition, Surface):
+                        # check if the first vertex is the upper-left vertex
+                        pt1, found_i = ul_verts[0], False
+                        for pt in ul_verts[1:]:
+                            if pt == pt1:
+                                found_i = True
+                                break
+                        if found_i:  # reorder the vertices to have boundary first
+                            ul_verts = reversed(ul_verts)
                     face_dict['geometry']['vertices'] = \
-                        [[round(v, 3) for v in pt] for pt in face.upper_left_vertices]
+                        [[round(v, 3) for v in pt] for pt in ul_verts]
                 if len(face._apertures) != 0:
                     for ap, ap_dict in zip(face._apertures, face_dict['apertures']):
                         self._add_shade_vertices(ap, ap_dict)
