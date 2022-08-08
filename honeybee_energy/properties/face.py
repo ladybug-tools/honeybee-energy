@@ -63,7 +63,8 @@ class FaceEnergyProperties(object):
     def construction(self, value):
         if value is not None:
             if isinstance(self.host.type, AirBoundary):
-                assert isinstance(value, (AirBoundaryConstruction, OpaqueConstruction)), \
+                accept_cons = (AirBoundaryConstruction, OpaqueConstruction)
+                assert isinstance(value, accept_cons), \
                     'Expected Air Boundary or Opaque Construction for face with ' \
                     'AirBoundary type. Got {}'.format(type(value))
             else:

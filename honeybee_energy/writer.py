@@ -344,6 +344,16 @@ def face_to_idf(face):
         face_type = face.type.name
     face_bc_obj = face.boundary_condition.boundary_condition_object if \
         isinstance(face.boundary_condition, Surface) else ''
+    ul_verts = face.upper_left_vertices
+    if face.geometry.has_holes and isinstance(face.boundary_condition, Surface):
+        # check if the first vertex is the upper-left vertex
+        pt1, found_i = ul_verts[0], False
+        for pt in ul_verts[1:]:
+            if pt == pt1:
+                found_i = True
+                break
+        if found_i:  # reorder the vertices to have boundary first
+            ul_verts = reversed(ul_verts)
     values = (face.identifier,
               face_type,
               face.properties.energy.construction.identifier,
@@ -355,8 +365,7 @@ def face_to_idf(face):
               face.boundary_condition.wind_exposure_idf,
               face.boundary_condition.view_factor,
               len(face.vertices),
-              ',\n '.join('%.3f, %.3f, %.3f' % (v.x, v.y, v.z)
-                          for v in face.upper_left_vertices))
+              ',\n '.join('%.3f, %.3f, %.3f' % (v.x, v.y, v.z) for v in ul_verts))
     comments = ('name',
                 'surface type',
                 'construction name',
