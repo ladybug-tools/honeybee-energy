@@ -24,7 +24,7 @@ def dict_to_object(honeybee_energy_dict, raise_exception=True):
     Args:
         honeybee_energy_dict: A dictionary of any Honeybee energy object. Note
             that this should be a non-abridged dictionary to be valid.
-        raise_exception: Boolean to note whether an excpetion should be raised
+        raise_exception: Boolean to note whether an exception should be raised
             if the object is not identified as a part of honeybee_energy.
             Default: True.
 

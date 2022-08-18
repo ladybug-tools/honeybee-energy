@@ -373,14 +373,15 @@ class ColorRoom(_ColorObject):
                     return tuple(obj[1].average for obj in self._matched_objects)
             else:  # normalize the data by floor area
                 vals = []
+                zip_obj = zip(self._matched_objects, self.matched_floor_areas)
                 if self._base_type.cumulative:  # divide total values by floor area
-                    for obj, f_area in zip(self._matched_objects, self.matched_floor_areas):
+                    for obj, f_area in zip_obj:
                         try:
                             vals.append(obj[1].total / (f_area * obj[2]))
                         except ZeroDivisionError:  # no floor faces in the Room
                             vals.append(0)
                 else:  # divide average values by floor area
-                    for obj, f_area in zip(self._matched_objects, self.matched_floor_areas):
+                    for obj, f_area in zip_obj:
                         try:
                             vals.append(obj[1].average / f_area)
                         except ZeroDivisionError:  # no floor faces in the Room
@@ -422,7 +423,7 @@ class ColorRoom(_ColorObject):
         upper_title_location, etc.
         """
         return GraphicContainer(
-            self.matched_values, self.min_point, self._max_point,
+            self.matched_values, self.min_point, self.max_point,
             self.legend_parameters, self.data_type, str(self.unit))
 
     def __repr__(self):
@@ -556,11 +557,12 @@ class ColorFace(_ColorObject):
                     return tuple(obj[1].average for obj in self._matched_objects)
             else:  # normalize the data by face area
                 vals = []
+                zip_obj = zip(self._matched_objects, self.matched_flat_areas)
                 if self._base_type.cumulative:  # divide total values by face area
-                    for obj, f_area in zip(self._matched_objects, self.matched_flat_areas):
+                    for obj, f_area in zip_obj:
                         vals.append(obj[1].total / f_area)
                 else:  # divide average values by face area
-                    for obj, f_area in zip(self._matched_objects, self.matched_flat_areas):
+                    for obj, f_area in zip_obj:
                         vals.append(obj[1].average / f_area)
                 return vals
 
@@ -599,7 +601,7 @@ class ColorFace(_ColorObject):
         upper_title_location, etc.
         """
         return GraphicContainer(
-            self.matched_values, self.min_point, self._max_point,
+            self.matched_values, self.min_point, self.max_point,
             self.legend_parameters, self.data_type, str(self.unit))
 
     def __repr__(self):
