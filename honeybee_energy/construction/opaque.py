@@ -110,7 +110,7 @@ class OpaqueConstruction(_ConstructionBase):
 
     @property
     def area_heat_capacity(self):
-        """The heat capacity per unit area of the construction [kg/K-m2]."""
+        """The heat capacity per unit area of the construction [J/K-m2]."""
         return sum(tuple(mat.area_heat_capacity for mat in self.materials))
 
     @property
