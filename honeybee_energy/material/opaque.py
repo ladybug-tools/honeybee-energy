@@ -229,7 +229,7 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
 
     @property
     def area_heat_capacity(self):
-        """The heat capacity per unit area of the material [kg/K-m2]."""
+        """The heat capacity per unit area of the material [J/K-m2]."""
         return self.mass_area_density * self.specific_heat
 
     @classmethod
@@ -1056,7 +1056,7 @@ class EnergyMaterialVegetation(_EnergyMaterialOpaqueBase):
 
     @property
     def area_heat_capacity(self):
-        """The heat capacity per unit area of the material [kg/K-m2]."""
+        """The heat capacity per unit area of the material [J/K-m2]."""
         return self.mass_area_density * self.specific_heat
 
     @classmethod
