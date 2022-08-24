@@ -154,7 +154,7 @@ class ZSZ(object):
     def _process_collections(self, description, data_type_text, unit):
         """Convert the raw data in the hidden _data property to data collections."""
         data_type = Power() if unit == 'W' else MassFlowRate()
-        a_per  = self._cool_a_period if 'Summer' in description else self._heat_a_period
+        a_per = self._cool_a_period if 'Summer' in description else self._heat_a_period
         collections = []
         for i, col_head in enumerate(self._headers):
             if data_type_text in col_head:
