@@ -3,7 +3,8 @@ from click.testing import CliRunner
 from honeybee_energy.cli.result import data_by_output, available_results_info, \
     data_by_outputs, output_csv, zone_sizes, component_sizes, available_results, \
     available_run_period_info, all_available_info, output_csv_queryable, \
-    tabular_data, tabular_metadata, load_balance, energy_use_intensity
+    tabular_data, tabular_metadata, load_balance, energy_use_intensity, \
+    carbon_emission_intensity
 from ladybug.sql import ZoneSize, ComponentSize
 from ladybug.datacollection import HourlyContinuousCollection
 
@@ -100,6 +101,21 @@ def test_energy_use_intensity():
     assert 'total_floor_area' in result_dict
     assert 'conditioned_floor_area' in result_dict
     assert 'total_energy' in result_dict
+
+
+def test_carbon_emission_intensity():
+    """Test the energy_use_intensity command."""
+    runner = CliRunner()
+    sql_path = './tests/result/eplusout_hourly.sql'
+
+    sql_path = './tests/result/sub_folder'
+    result = runner.invoke(carbon_emission_intensity, [sql_path, '-e', '385'])
+    assert result.exit_code == 0
+    result_dict = json.loads(result.output)
+    assert 'carbon_intensity' in result_dict
+    assert 'total_floor_area' in result_dict
+    assert 'conditioned_floor_area' in result_dict
+    assert 'total_carbon' in result_dict
 
 
 def test_data_by_output():
