@@ -335,6 +335,7 @@ def face_to_idf(face):
     Args:
         face: A honeybee Face for which an IDF representation will be returned.
     """
+    # select the correct face type
     if isinstance(face.type, RoofCeiling):
         face_type = 'Roof' if isinstance(face.boundary_condition, (Outdoors, Ground)) \
             else 'Ceiling'  # EnergyPlus distinguishes between Roof and Ceiling
@@ -342,8 +343,17 @@ def face_to_idf(face):
         face_type = 'Wall'  # air boundaries are not a Surface type in EnergyPlus
     else:
         face_type = face.type.name
-    face_bc_obj = face.boundary_condition.boundary_condition_object if \
-        isinstance(face.boundary_condition, Surface) else ''
+    # select the correct boundary condition
+    bc_name, append_txt = face.boundary_condition.name, None
+    if isinstance(face.boundary_condition, Surface):
+        face_bc_obj = face.boundary_condition.boundary_condition_object
+    elif face.boundary_condition.name == 'OtherSideTemperature':
+        face_bc_obj = '{}_OtherTemp'.format(face.identifier)
+        append_txt = face.boundary_condition.to_idf(face_bc_obj)
+        bc_name = 'OtherSideCoefficients'
+    else:
+        face_bc_obj = ''
+    # process the geometry correctly if it has holes
     ul_verts = face.upper_left_vertices
     if face.geometry.has_holes and isinstance(face.boundary_condition, Surface):
         # check if the first vertex is the upper-left vertex
@@ -354,12 +364,13 @@ def face_to_idf(face):
                 break
         if found_i:  # reorder the vertices to have boundary first
             ul_verts = reversed(ul_verts)
+    # assemble the values and the comments
     values = (face.identifier,
               face_type,
               face.properties.energy.construction.identifier,
               face.parent.identifier if face.has_parent else 'unknown',
               '',
-              face.boundary_condition.name,
+              bc_name,
               face_bc_obj,
               face.boundary_condition.sun_exposure_idf,
               face.boundary_condition.wind_exposure_idf,
@@ -378,7 +389,8 @@ def face_to_idf(face):
                 'view factor to ground',
                 'number of vertices',
                 '')
-    return generate_idf_string('BuildingSurface:Detailed', values, comments)
+    face_idf = generate_idf_string('BuildingSurface:Detailed', values, comments)
+    return face_idf if not append_txt else face_idf + append_txt
 
 
 def orphaned_face_to_idf(face):

@@ -25,7 +25,7 @@ from .properties.door import DoorEnergyProperties
 from .writer import model_to_idf, room_to_idf, face_to_idf, shade_to_idf, \
     aperture_to_idf, door_to_idf, orphaned_face_to_idf, orphaned_aperture_to_idf, \
     orphaned_door_to_idf
-from .boundarycondition import Adiabatic
+from .boundarycondition import Adiabatic, OtherSideTemperature
 
 # set a hidden energy attribute on each core geometry Property class to None
 # define methods to produce energy property instances on each Property instance
@@ -96,3 +96,27 @@ door_writer.idf_shade = orphaned_door_to_idf
 setattr(hbc, 'Adiabatic', Adiabatic)
 hbc._BoundaryConditions._adiabatic = Adiabatic()
 hbc._BoundaryConditions.adiabatic = property(lambda self: self._adiabatic)
+
+
+def other_side_temperature(
+        self, temperature=haltn.autocalculate, heat_transfer_coefficient=0):
+    """Get a boundary condition for a custom temperature or heat transfer coefficient.
+
+    Args:
+        temperature: A temperature value in Celsius to note the temperature on the
+            other side of the object. This input can also be an Autocalculate object
+            to signify that the temperature is equal to the outdoor air
+            temperature. (Default: autocalculate).
+        heat_transfer_coefficient: A value in W/m2-K to indicate the combined
+            convective/radiative film coefficient. If equal to 0, then the
+            specified temperature above is equal to the exterior surface
+            temperature. Otherwise, the temperature above is considered the
+            outside air temperature and this coefficient is used to determine the
+            difference between this outside air temperature and the exterior surface
+            temperature. (Default: 0).
+    """
+    return OtherSideTemperature(temperature, heat_transfer_coefficient)
+
+
+setattr(hbc, 'OtherSideTemperature', OtherSideTemperature)
+hbc._BoundaryConditions.other_side_temperature = other_side_temperature
