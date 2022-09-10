@@ -1,0 +1,76 @@
+!       Window Material/Construction file with spectral data in IDF format 
+
+
+!----------------------------------------------------- 
+!       Window Glass Layers 
+!----------------------------------------------------- 
+
+WindowMaterial:Glazing,
+Glass_103_LayerAvg,                                 !- Layer name : CLEAR_6.DAT
+SpectralAverage,                                    !- Optical Data Type
+,                                                   !- Spectral Data name
+0.005715,                                           !- Thickness
+0.770675,                                           !- Solar Transmittance
+6.997562e-002,                                      !- Solar Front Reflectance
+7.023712e-002,                                      !- Solar Back Reflectance
+0.883647,                                           !- Visible Transmittance
+0.080395,                                           !-Visible Front Reflectance
+0.080395,                                           !-Visible Back reflectance
+0.000000,                                           !- IR Transmittance
+0.840000,                                           !-Front Emissivity
+0.840000,                                           !-Back Emissivity
+1.000000;                                           !-Conductivity
+
+
+!----------------------------------------------------------------------
+!         Window Gas Layers
+!----------------------------------------------------------------------
+
+WindowMaterial:Gas,
+Gap_1_W_0_0120,                                     !- gap name - Air
+Air,                                                !- type
+0.0120;                                             !- thickness
+
+
+!----------------------------------------------------- 
+!       Window Construction 
+!----------------------------------------------------- 
+
+CONSTRUCTION,
+GlzSys_2,                                    !- Glazing System name: Double Clear Air
+Glass_103_LayerAvg,                             !- glass name : CLEAR_6.DAT
+Gap_1_W_0_0120,                              !- gap name - Air
+Glass_103_LayerAvg;                             !- glass name : CLEAR_6.DAT
+
+
+!----------------------------------------------------- 
+!       Window Frames and Dividers Data 
+!----------------------------------------------------- 
+WindowProperty:FrameAndDivider,
+Picture-Frame,                                   !- User Supplied Frame/Divider Name
+0.057150,                                      !- Frame Width {m}
+,                                              !- Frame Outside Projection {m}
+,                                              !- Frame Insider Projection {m}
+56.423824,                                     !- Frame Conductance {w/m2-K}
+1.475898,                                      !- Ratio of Frame-Edge Glass Conductance to Center-of-glass Co
+0.900000,                                      !- Frame Solar absorptance
+0.900000,                                      !- Frame Visible absorptance
+0.9,                                           !- Frame Thermal hemispherical Emissivity
+,                                              !- Divider Type
+,                                              !- Divider Width {m}
+,                                              !- Number of Horizontal Dividers
+,                                              !- Number of Vertical Dividers
+,                                              !- Divider Outside Projection {m}
+,                                               !- Divider Insider Projection {m}
+,                                              !- Divider Conductance {w/m2-K}
+,                                              !- Ratio of Divider-Edge Glass Conductance to Center-Of-Glass
+,                                              !- Divider Solar Absorptance
+,                                              !- Divider Visible Absorptance
+,                                              !- Divider Thermal Hemispherical Emissivity
+,                                              !- Outside Reveal Solar Absorptance
+,                                              !- Inside Sill Depth (m)
+,                                              !- Inside Sill Solar Absorptance
+,                                              !- Inside Reveal Depth (m)
+;                                              !- Inside Reveal Solar Absorptance
+
+

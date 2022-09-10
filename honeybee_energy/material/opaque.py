@@ -96,7 +96,7 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
 
     @property
     def thickness(self):
-        """Get or set the thickess of the material layer [m]."""
+        """Get or set the thickness of the material layer [m]."""
         return self._thickness
 
     @thickness.setter
@@ -308,8 +308,7 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
             raise ImportError('honeybee_radiance library must be installed to use '
                               'to_radiance_solar() method. {}'.format(e))
         return Plastic.from_single_reflectance(
-            clean_rad_string(self.identifier), 1 -
-            self.solar_absorptance, specularity,
+            clean_rad_string(self.identifier), 1 - self.solar_absorptance, specularity,
             self.RADIANCEROUGHTYPES[self.roughness])
 
     def to_radiance_visible(self, specularity=0.0):
@@ -320,8 +319,7 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
             raise ImportError('honeybee_radiance library must be installed to use '
                               'to_radiance_solar() method. {}'.format(e))
         return Plastic.from_single_reflectance(
-            clean_rad_string(self.identifier), 1 -
-            self.visible_absorptance, specularity,
+            clean_rad_string(self.identifier), 1 - self.visible_absorptance, specularity,
             self.RADIANCEROUGHTYPES[self.roughness])
 
     def to_dict(self):
@@ -604,8 +602,7 @@ class EnergyMaterialNoMass(_EnergyMaterialOpaqueBase):
             raise ImportError('honeybee_radiance library must be installed to use '
                               'to_radiance_solar() method. {}'.format(e))
         return Plastic.from_single_reflectance(
-            clean_rad_string(self.identifier), 1 -
-            self.solar_absorptance, specularity,
+            clean_rad_string(self.identifier), 1 - self.solar_absorptance, specularity,
             self.RADIANCEROUGHTYPES[self.roughness])
 
     def to_radiance_visible(self, specularity=0.0):
@@ -616,8 +613,7 @@ class EnergyMaterialNoMass(_EnergyMaterialOpaqueBase):
             raise ImportError('honeybee_radiance library must be installed to use '
                               'to_radiance_solar() method. {}'.format(e))
         return Plastic.from_single_reflectance(
-            clean_rad_string(self.identifier), 1 -
-            self.visible_absorptance, specularity,
+            clean_rad_string(self.identifier), 1 - self.visible_absorptance, specularity,
             self.RADIANCEROUGHTYPES[self.roughness])
 
     def to_dict(self):
@@ -799,7 +795,7 @@ class EnergyMaterialVegetation(_EnergyMaterialOpaqueBase):
 
     @property
     def thickness(self):
-        """Get or set the thickess of the soil material layer [m]."""
+        """Get or set the thickness of the soil material layer [m]."""
         return self._thickness
 
     @thickness.setter
@@ -973,7 +969,7 @@ class EnergyMaterialVegetation(_EnergyMaterialOpaqueBase):
 
     @property
     def soil_layer(self):
-        """Get an EnergyMaterial represeting only the soil."""
+        """Get an EnergyMaterial representing only the soil."""
         return EnergyMaterial(
             '{}_Soil'.format(self.identifier), self.thickness, self.conductivity,
             self.density, self.specific_heat, self.roughness,
@@ -1038,7 +1034,7 @@ class EnergyMaterialVegetation(_EnergyMaterialOpaqueBase):
 
     @property
     def u_value(self):
-        """Get or set the  U-value of the material [W/m2-K] (excluding air films).
+        """Get or set the U-value of the material [W/m2-K] (excluding air films).
 
         Note that, when setting the R-value, the thickness of the material will
         remain fixed and only the conductivity will be adjusted.
@@ -1116,7 +1112,7 @@ class EnergyMaterialVegetation(_EnergyMaterialOpaqueBase):
 
         """
         assert data['type'] == 'EnergyMaterialVegetation', \
-            'Expectend EnergyMaterialVegetation. Got {}'.format(data['type'])
+            'Expected EnergyMaterialVegetation. Got {}'.format(data['type'])
 
         rough = data['roughness'] if 'roughness' in data and \
             data['roughness'] is not None else 'MediumRough'

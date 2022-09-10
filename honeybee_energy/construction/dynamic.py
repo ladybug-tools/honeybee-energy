@@ -25,9 +25,9 @@ class WindowConstructionDynamic(object):
             identify the object across a model and in the exported IDF.
         constructions: A list of WindowConstruction objects that define the various
             states that the dynamic window can assume.
-        schedule: A ScheduleRuleset or ScheduleFixedInterval composed of integers that
-            corredpond to the indices of the constructions that are active at given
-            times throughout the simulation.
+        schedule: A ScheduleRuleset or ScheduleFixedInterval composed of integers
+            that correspond to the indices of the constructions that are active
+            at given times throughout the simulation.
 
     Properties:
         * identifier
@@ -37,11 +37,13 @@ class WindowConstructionDynamic(object):
         * materials
         * layers
         * unique_materials
+        * frame
         * r_value
         * u_value
         * u_factor
         * r_factor
         * is_symmetric
+        * has_frame
         * has_shade
         * is_dynamic
         * inside_emissivity
@@ -88,10 +90,12 @@ class WindowConstructionDynamic(object):
 
     @display_name.setter
     def display_name(self, value):
-        try:
-            self._display_name = str(value)
-        except UnicodeEncodeError:  # Python 2 machine lacking the character set
-            self._display_name = value  # keep it as unicode
+        if value is not None:
+            try:
+                value = str(value)
+            except UnicodeEncodeError:  # Python 2 machine lacking the character set
+                pass  # keep it as unicode
+        self._display_name = value
 
     @property
     def constructions(self):
@@ -118,7 +122,7 @@ class WindowConstructionDynamic(object):
     def schedule(self):
         """Get or set a control schedule for the constructions active at given time.
 
-        The values of the schedule should be intergers and range from 0 to one
+        The values of the schedule should be integers and range from 0 to one
         less then the number of constructions. Zero indicates that the first
         construction is active, one indicates that the second on is active, etc.
         The schedule type limits of this schedule should be "Discrete" and the unit
@@ -168,6 +172,11 @@ class WindowConstructionDynamic(object):
         This will include the materials across all dynamic states of the construction.
         """
         return list(set([m for con in self._constructions for m in con.materials]))
+
+    @property
+    def frame(self):
+        """Get a window frame for the frame material surrounding the construction."""
+        return self._constructions[0].frame
 
     @property
     def r_value(self):
@@ -228,6 +237,11 @@ class WindowConstructionDynamic(object):
                 if mats[i] != mats[-(i + 1)]:
                     return False
         return True
+
+    @property
+    def has_frame(self):
+        """Get a boolean noting whether the construction has a frame assigned to it."""
+        return self._constructions[0].has_frame
 
     @property
     def has_shade(self):
@@ -374,7 +388,7 @@ class WindowConstructionDynamic(object):
         the construction to the IDF. The construction's materials also have to
         be added as well as the schedule. The to_program_idf method must also
         be called in order to add the EMS program that controls the constructions.
-        
+
         Returns:
             Text string that includes the following EnergyPlus objects.
 
@@ -402,7 +416,8 @@ class WindowConstructionDynamic(object):
         sensor_com = ('name', 'variable key name', 'variable name')
         sensor_id = 'Sensor{}'.format(re.sub('[^A-Za-z0-9]', '', self.identifier))
         sen_vals = [sensor_id, self.schedule.identifier, 'Schedule Value']
-        sensor = generate_idf_string('EnergyManagementSystem:Sensor', sen_vals, sensor_com)
+        sensor = generate_idf_string(
+            'EnergyManagementSystem:Sensor', sen_vals, sensor_com)
         idf_strs.append(sensor)
         return '\n\n'.join(idf_strs)
 
@@ -458,16 +473,16 @@ class WindowConstructionDynamic(object):
         return '\n\n'.join(idf_strs)
 
     @staticmethod
-    def idf_program_manager(consructions):
+    def idf_program_manager(constructions):
         """Get an IDF string representation of the EMS program calling manager.
 
         Args:
-            consructions: A list of WindowConstructionDynamic objects to be written
+            constructions: A list of WindowConstructionDynamic objects to be written
                 into a program manager.
         """
         man_com = ['name', 'calling point']
         man_vals = ['Dynamic_Window_Constructions', 'BeginTimestepBeforePredictor']
-        for i, con in enumerate(consructions):
+        for i, con in enumerate(constructions):
             pid = 'StateChange{}'.format(re.sub('[^A-Za-z0-9]', '', con.identifier))
             man_vals.append(pid)
             man_com.append('program name{}'.format(i))

@@ -42,7 +42,7 @@ class WindowConstructionShade(object):
 
             Note that the WindowConstruction must have at least one gas gap to use
             the "Between" option. Also note that, for a WindowConstruction with more
-            than one gas gap, the "Between" option defalts to using the inner gap
+            than one gas gap, the "Between" option defaults to using the inner gap
             as this is the only option that EnergyPlus supports.
         control_type: Text to indicate how the shading device is controlled, which
              determines when the shading is “on” or “off.” (Default: "AlwaysOn").
@@ -77,12 +77,14 @@ class WindowConstructionShade(object):
         * materials
         * layers
         * unique_materials
+        * frame
         * r_value
         * u_value
         * u_factor
         * r_factor
         * is_symmetric
         * is_switchable_glazing
+        * has_frame
         * has_shade
         * is_dynamic
         * inside_emissivity
@@ -194,10 +196,12 @@ class WindowConstructionShade(object):
 
     @display_name.setter
     def display_name(self, value):
-        try:
-            self._display_name = str(value)
-        except UnicodeEncodeError:  # Python 2 machine lacking the character set
-            self._display_name = value  # keep it as unicode
+        if value is not None:
+            try:
+                value = str(value)
+            except UnicodeEncodeError:  # Python 2 machine lacking the character set
+                pass  # keep it as unicode
+        self._display_name = value
 
     @property
     def window_construction(self):
@@ -214,7 +218,7 @@ class WindowConstructionShade(object):
         """Get text to indicate where in the construction the shade_material is located.
 
         This will be either "Interior", "Between" or "Exterior". Note that, for a
-        WindowConstruction with more than one gas gap, the "Between" option defalts
+        WindowConstruction with more than one gas gap, the "Between" option defaults
         to using the inner gap as this is the only option that EnergyPlus supports.
         """
         return self._shade_location
@@ -328,12 +332,17 @@ class WindowConstructionShade(object):
         """Get a list of only unique material objects in the construction.
 
         This will include the shade material layer. It will include both types of glass
-        layers if the consruction is a switchable glazing.
+        layers if the construction is a switchable glazing.
         """
         if self.is_switchable_glazing:
             return list(set(
                 self._window_construction.materials + (self.shade_material,)))
         return list(set(self.materials))
+
+    @property
+    def frame(self):
+        """Get a window frame for the frame material surrounding the construction."""
+        return self._window_construction.frame
 
     @property
     def r_value(self):
@@ -410,6 +419,11 @@ class WindowConstructionShade(object):
         return True
 
     @property
+    def has_frame(self):
+        """Get a boolean noting whether the construction has a frame assigned to it."""
+        return self._window_construction.has_frame
+
+    @property
     def has_shade(self):
         """Get a boolean noting whether dynamic materials are in the construction.
 
@@ -438,7 +452,7 @@ class WindowConstructionShade(object):
     def switched_glass_material(self):
         """Get material replaced by shade glass when construction is switchable glazing.
 
-        This can be used to comapre the properties of the glass layer replaced by
+        This can be used to compare the properties of the glass layer replaced by
         the shade glass. Will be None if the construction is not a switchable glazing.
         """
         if not self.is_switchable_glazing:
@@ -642,7 +656,8 @@ class WindowConstructionShade(object):
         output of to_shaded_idf, which contains the shaded construction.
         Also, for each Aperture to which this construction is assigned, a
         ShadingControl object must also be written, which can be obtained from
-        the to_shading_control_idf.
+        the to_shading_control_idf. If the construction has a frame, the frame
+        definition must also be written.
 
         Returns:
             Text string representation of the bare (unshaded) construction.

@@ -71,10 +71,12 @@ class AirBoundaryConstruction(object):
 
     @display_name.setter
     def display_name(self, value):
-        try:
-            self._display_name = str(value)
-        except UnicodeEncodeError:  # Python 2 machine lacking the character set
-            self._display_name = value  # keep it as unicode
+        if value is not None:
+            try:
+                value = str(value)
+            except UnicodeEncodeError:  # Python 2 machine lacking the character set
+                pass  # keep it as unicode
+        self._display_name = value
 
     @property
     def air_mixing_per_area(self):
@@ -281,5 +283,5 @@ class AirBoundaryConstruction(object):
 
     def __repr__(self):
         return 'AirBoundaryConstruction: {} [{} m3/s-m2] [schedule: {}]'.format(
-                self.display_name, round(self.air_mixing_per_area, 4),
-                self.air_mixing_schedule.display_name)
+            self.display_name, round(self.air_mixing_per_area, 4),
+            self.air_mixing_schedule.display_name)

@@ -63,6 +63,7 @@ def shade_to_idf(shade):
     # create the Shading:Detailed IDF string
     trans_sched = shade.properties.energy.transmittance_schedule.identifier if \
         shade.properties.energy.transmittance_schedule is not None else ''
+    ul_verts = shade.upper_left_vertices
     if shade.has_parent and not isinstance(shade.parent, Room):
         if isinstance(shade.parent, Face):
             base_srf = shade.parent.identifier
@@ -71,28 +72,34 @@ def shade_to_idf(shade):
                 base_srf = shade.parent.parent.identifier
             except AttributeError:
                 base_srf = 'unknown'  # aperture without a parent (not simulate-able)
-        values = (shade.identifier,
-                  base_srf,
-                  trans_sched,
-                  len(shade.vertices),
-                  ',\n '.join('%.3f, %.3f, %.3f' % (v.x, v.y, v.z)
-                              for v in shade.upper_left_vertices))
-        comments = ('name',
-                    'base surface',
-                    'transmittance schedule',
-                    'number of vertices',
-                    '')
+        values = (
+            shade.identifier,
+            base_srf,
+            trans_sched,
+            len(shade.vertices),
+            ',\n '.join('%.3f, %.3f, %.3f' % (v.x, v.y, v.z) for v in ul_verts)
+        )
+        comments = (
+            'name',
+            'base surface',
+            'transmittance schedule',
+            'number of vertices',
+            ''
+        )
         shade_str = generate_idf_string('Shading:Zone:Detailed', values, comments)
     else:  # orphaned shade
-        values = (shade.identifier,
-                  trans_sched,
-                  len(shade.vertices),
-                  ',\n '.join('%.3f, %.3f, %.3f' % (v.x, v.y, v.z)
-                              for v in shade.upper_left_vertices))
-        comments = ('name',
-                    'transmittance schedule',
-                    'number of vertices',
-                    '')
+        values = (
+            shade.identifier,
+            trans_sched,
+            len(shade.vertices),
+            ',\n '.join('%.3f, %.3f, %.3f' % (v.x, v.y, v.z) for v in ul_verts)
+        )
+        comments = (
+            'name',
+            'transmittance schedule',
+            'number of vertices',
+            ''
+        )
         shade_str = generate_idf_string('Shading:Building:Detailed', values, comments)
 
     # create the ShadingProperty:Reflectance IDF string if construction is not default
@@ -100,12 +107,16 @@ def shade_to_idf(shade):
     if construction.is_default:
         return shade_str
     else:
-        values = (shade.identifier,
-                  construction.solar_reflectance,
-                  construction.visible_reflectance)
-        comments = ('shading surface name',
-                    'diffuse solar reflectance',
-                    'diffuse visible reflectance')
+        values = (
+            shade.identifier,
+            construction.solar_reflectance,
+            construction.visible_reflectance
+        )
+        comments = (
+            'shading surface name',
+            'diffuse solar reflectance',
+            'diffuse visible reflectance'
+        )
         if construction.is_specular:
             values = values + (1, construction.identifier)
             comments = comments + ('glazed fraction of surface', 'glazing construction')
@@ -134,6 +145,7 @@ def door_to_idf(door):
     construction = door.properties.energy.construction
     constr_name = construction.identifier if not construction.has_shade \
         else construction.window_construction.identifier
+    frame_name = construction.frame.identifier if construction.has_frame else ''
     if door.has_parent:
         parent_face = door.parent.identifier
         parent_room = door.parent.parent.identifier if door.parent.has_parent \
@@ -142,27 +154,31 @@ def door_to_idf(door):
         parent_room = parent_face = 'unknown'
 
     # create the fenestration surface string
-    values = (door.identifier,
-              'Door' if not door.is_glass else 'GlassDoor',
-              constr_name,
-              parent_face,
-              door_bc_obj,
-              door.boundary_condition.view_factor,
-              '',  # TODO: Implement Frame and Divider objects on WindowConstructions
-              '1',
-              len(door.vertices),
-              ',\n '.join('%.3f, %.3f, %.3f' % (v.x, v.y, v.z)
-                          for v in door.upper_left_vertices))
-    comments = ('name',
-                'surface type',
-                'construction name',
-                'building surface name',
-                'boundary condition object',
-                'view factor to ground',
-                'frame and divider name',
-                'multiplier',
-                'number of vertices',
-                '')
+    ul_verts = door.upper_left_vertices
+    values = (
+        door.identifier,
+        'Door' if not door.is_glass else 'GlassDoor',
+        constr_name,
+        parent_face,
+        door_bc_obj,
+        door.boundary_condition.view_factor,
+        frame_name,
+        '1',
+        len(door.vertices),
+        ',\n '.join('%.3f, %.3f, %.3f' % (v.x, v.y, v.z) for v in ul_verts)
+    )
+    comments = (
+        'name',
+        'surface type',
+        'construction name',
+        'building surface name',
+        'boundary condition object',
+        'view factor to ground',
+        'frame and divider name',
+        'multiplier',
+        'number of vertices',
+        ''
+    )
     fen_str = generate_idf_string('FenestrationSurface:Detailed', values, comments)
 
     # create the WindowShadingControl object if it is needed
@@ -235,6 +251,7 @@ def aperture_to_idf(aperture):
     ap_bc_obj = aperture.boundary_condition.boundary_condition_object if \
         isinstance(aperture.boundary_condition, Surface) else ''
     construction = aperture.properties.energy.construction
+    frame_name = construction.frame.identifier if construction.has_frame else ''
     if construction.has_shade:
         constr_name = construction.window_construction.identifier
     elif construction.is_dynamic:
@@ -249,27 +266,31 @@ def aperture_to_idf(aperture):
         parent_room = parent_face = 'unknown'
 
     # create the fenestration surface string
-    values = (aperture.identifier,
-              'Window',
-              constr_name,
-              parent_face,
-              ap_bc_obj,
-              aperture.boundary_condition.view_factor,
-              '',  # TODO: Implement Frame and Divider objects on WindowConstructions
-              '1',
-              len(aperture.vertices),
-              ',\n '.join('%.3f, %.3f, %.3f' % (v.x, v.y, v.z)
-                          for v in aperture.upper_left_vertices))
-    comments = ('name',
-                'surface type',
-                'construction name',
-                'building surface name',
-                'boundary condition object',
-                'view factor to ground',
-                'frame and divider name',
-                'multiplier',
-                'number of vertices',
-                '')
+    ul_verts = aperture.upper_left_vertices
+    values = (
+        aperture.identifier,
+        'Window',
+        constr_name,
+        parent_face,
+        ap_bc_obj,
+        aperture.boundary_condition.view_factor,
+        frame_name,
+        '1',
+        len(aperture.vertices),
+        ',\n '.join('%.3f, %.3f, %.3f' % (v.x, v.y, v.z) for v in ul_verts)
+    )
+    comments = (
+        'name',
+        'surface type',
+        'construction name',
+        'building surface name',
+        'boundary condition object',
+        'view factor to ground',
+        'frame and divider name',
+        'multiplier',
+        'number of vertices',
+        ''
+    )
     fen_str = generate_idf_string('FenestrationSurface:Detailed', values, comments)
 
     # create the WindowShadingControl object if it is needed
@@ -365,30 +386,34 @@ def face_to_idf(face):
         if found_i:  # reorder the vertices to have boundary first
             ul_verts = reversed(ul_verts)
     # assemble the values and the comments
-    values = (face.identifier,
-              face_type,
-              face.properties.energy.construction.identifier,
-              face.parent.identifier if face.has_parent else 'unknown',
-              '',
-              bc_name,
-              face_bc_obj,
-              face.boundary_condition.sun_exposure_idf,
-              face.boundary_condition.wind_exposure_idf,
-              face.boundary_condition.view_factor,
-              len(face.vertices),
-              ',\n '.join('%.3f, %.3f, %.3f' % (v.x, v.y, v.z) for v in ul_verts))
-    comments = ('name',
-                'surface type',
-                'construction name',
-                'zone name',
-                'space name',
-                'boundary condition',
-                'boundary condition object',
-                'sun exposure',
-                'wind exposure',
-                'view factor to ground',
-                'number of vertices',
-                '')
+    values = (
+        face.identifier,
+        face_type,
+        face.properties.energy.construction.identifier,
+        face.parent.identifier if face.has_parent else 'unknown',
+        '',
+        bc_name,
+        face_bc_obj,
+        face.boundary_condition.sun_exposure_idf,
+        face.boundary_condition.wind_exposure_idf,
+        face.boundary_condition.view_factor,
+        len(face.vertices),
+        ',\n '.join('%.3f, %.3f, %.3f' % (v.x, v.y, v.z) for v in ul_verts)
+    )
+    comments = (
+        'name',
+        'surface type',
+        'construction name',
+        'zone name',
+        'space name',
+        'boundary condition',
+        'boundary condition object',
+        'sun exposure',
+        'wind exposure',
+        'view factor to ground',
+        'number of vertices',
+        ''
+    )
     face_idf = generate_idf_string('BuildingSurface:Detailed', values, comments)
     return face_idf if not append_txt else face_idf + append_txt
 
@@ -441,7 +466,7 @@ def room_to_idf(room):
     # list of zone strings that will eventually be joined
     zone_str = ['!-   ________ZONE:{}________\n'.format(room.display_name)]
 
-    # write the zone defintiion
+    # write the zone definition
     ceil_height = room.geometry.max.z - room.geometry.min.z
     zone_values = (room.identifier, '', '', '', '', '', room.multiplier,
                    ceil_height, room.volume, room.floor_area)
@@ -550,7 +575,7 @@ def model_to_idf(
         ddy_file = 'C:/EnergyPlusV9-0-1/WeatherData/USA_CO_Golden-NREL.724666_TMY3.ddy'
         sim_par.sizing_parameter.add_from_ddy_996_004(ddy_file)
 
-        # create the IDF string for simulation paramters and model
+        # create the IDF string for simulation parameters and model
         idf_str = '\n\n'.join((sim_par.to_idf(), model.to.idf(model)))
 
         # write the final string into an IDF
@@ -593,7 +618,7 @@ def model_to_idf(
     # write all of the schedules and type limits
     sched_strs = []
     type_limits = []
-    used_day_sched_ids = []
+    used_day_sched_ids, used_day_count = {}, 1
     always_on_included = False
     all_scheds = model.properties.energy.schedules + \
         model.properties.energy.orphaned_trans_schedules
@@ -610,7 +635,15 @@ def model_to_idf(
                 for day in sched.day_schedules:
                     if day.identifier not in used_day_sched_ids:
                         day_scheds.append(day.to_idf(sched.schedule_type_limit))
-                        used_day_sched_ids.append(day.identifier)
+                        used_day_sched_ids[day.identifier] = day
+                    elif day != used_day_sched_ids[day.identifier]:
+                        new_day = day.duplicate()
+                        new_day.identifier = 'Schedule Day {}'.format(used_day_count)
+                        day_scheds.append(new_day.to_idf(sched.schedule_type_limit))
+                        for i, week_sch in enumerate(week_schedules):
+                            week_schedules[i] = \
+                                week_sch.replace(day.identifier, new_day.identifier)
+                        used_day_count += 1
                 sched_strs.extend([year_schedule] + week_schedules + day_scheds)
         except TypeError:  # ScheduleFixedInterval
             if schedule_directory is None:
@@ -642,6 +675,8 @@ def model_to_idf(
         try:
             materials.extend(constr.materials)
             construction_strs.append(constr.to_idf())
+            if constr.has_frame:
+                materials.append(constr.frame)
             if constr.has_shade:
                 if constr.is_switchable_glazing:
                     materials.append(constr.switched_glass_material)

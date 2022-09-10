@@ -1,6 +1,9 @@
 # coding=utf-8
 """Door Energy Properties."""
+from honeybee.units import conversion_factor_to_meters
+
 from ..construction.dictutil import dict_to_construction
+from ..material.glazing import EnergyWindowMaterialSimpleGlazSys
 from ..construction.opaque import OpaqueConstruction
 from ..construction.window import WindowConstruction
 from ..construction.windowshade import WindowConstructionShade
@@ -91,8 +94,8 @@ class DoorEnergyProperties(object):
     @vent_opening.setter
     def vent_opening(self, value):
         if value is not None:
-            assert isinstance(value, VentilationOpening), 'Expected VentilationOpening ' \
-                'for Door vent_opening. Got {}'.format(type(value))
+            assert isinstance(value, VentilationOpening), 'Expected Ventilation' \
+                'Opening for Door vent_opening. Got {}'.format(type(value))
             if value._parent is None:
                 value._parent = self.host
             elif value._parent.identifier != self.host.identifier:
@@ -111,6 +114,62 @@ class DoorEnergyProperties(object):
         This is opposed to having the construction assigned by a ConstructionSet.
         """
         return self._construction is not None
+
+    def r_factor(self, units='Meters'):
+        """Get the Door R-factor [m2-K/W] (including air film resistance).
+
+        The air film resistances are computed using the orientation and height
+        of the Door geometry.
+
+        Args:
+            units: Text for the units in which the Door geometry exists. These
+                will be used to correctly interpret the dimensions of the
+                geometry for heat flow calculation. (Default: Meters).
+        """
+        u_conv = conversion_factor_to_meters(units)
+        win_con = self.construction
+        if isinstance(win_con, WindowConstructionShade):
+            win_con = win_con.window_construction
+        elif isinstance(win_con, WindowConstructionDynamic):
+            win_con = win_con.constructions[0]
+        height = (self.host.max.z - self.host.min.z) * u_conv
+        height = 1 if height < 1 else height
+        _, r_vals = win_con.temperature_profile(
+            height=height, angle=abs(self.host.altitude - 90))
+        if not win_con.has_frame:
+            return sum(r_vals)
+        # if there is a frame, account for it in the final R-value
+        glass_u = (1 / sum(r_vals))
+        glass_area = (self.host.area * (u_conv ** 2))
+        if win_con.frame.edge_to_center_ratio != 1 and not \
+                isinstance(win_con.materials[0], EnergyWindowMaterialSimpleGlazSys):
+            edge_u = win_con.frame.edge_to_center_ratio * glass_u
+            edge_area = self.host.perimeter * u_conv * 0.06
+            cog_area = glass_area - edge_area
+            cog_area = 0 if cog_area < 0 else cog_area
+            total_area = cog_area + edge_area
+            glass_u = ((glass_u * cog_area) + (edge_u * edge_area)) / total_area
+        _, fr_r_vals = win_con.temperature_profile_frame(
+            angle=abs(self.host.altitude - 90))
+        frame_u = 1 / sum(fr_r_vals)
+        frame_area = (self.host.perimeter * u_conv * win_con.frame.width) + \
+            ((win_con.frame.width * u_conv) ** 2) * len(self.host.geometry)
+        assembly_area = glass_area + frame_area
+        total_u = ((glass_u * glass_area) + (frame_u * frame_area)) / assembly_area
+        return 1 / total_u
+
+    def u_factor(self, units='Meters'):
+        """Get the Door U-factor [W/m2-K] (including resistances for air films).
+
+        The air film resistances are computed using the orientation and height
+        of the Door geometry.
+
+        Args:
+            units: Text for the units in which the Door geometry exists. These
+                will be used to correctly interpret the dimensions of the
+                geometry for heat flow calculation. (Default: Meters).
+        """
+        return 1 / self.r_factor(units)
 
     def reset_to_default(self):
         """Reset a construction assigned at the level of this Door to the default.

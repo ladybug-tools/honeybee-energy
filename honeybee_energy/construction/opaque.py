@@ -37,6 +37,7 @@ class OpaqueConstruction(_ConstructionBase):
         * u_factor
         * r_factor
         * is_symmetric
+        * has_frame
         * has_shade
         * is_dynamic
         * inside_emissivity
@@ -138,9 +139,9 @@ class OpaqueConstruction(_ConstructionBase):
             height: An optional height for the surface in meters. (Default: 1.0 m).
             angle: An angle in degrees between 0 and 180.
 
-                * 0 = A horizontal surface with the outside boundary on the bottom.
+                * 0 = A horizontal surface with the outside boundary on the top.
                 * 90 = A vertical surface
-                * 180 = A horizontal surface with the outside boundary on the top.
+                * 180 = A horizontal surface with the outside boundary on the bottom.
 
             pressure: The average pressure of in Pa. (Default: 101325 Pa for
                 standard pressure at sea level).
