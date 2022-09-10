@@ -103,10 +103,12 @@ class ConstructionSet(object):
 
     @display_name.setter
     def display_name(self, value):
-        try:
-            self._display_name = str(value)
-        except UnicodeEncodeError:  # Python 2 machine lacking the character set
-            self._display_name = value  # keep it as unicode
+        if value is not None:
+            try:
+                value = str(value)
+            except UnicodeEncodeError:  # Python 2 machine lacking the character set
+                pass  # keep it as unicode
+        self._display_name = value
 
     @property
     def wall_set(self):
@@ -250,6 +252,8 @@ class ConstructionSet(object):
         for constr in self.constructions:
             try:
                 materials.extend(constr.materials)
+                if constr.has_frame:
+                    materials.append(constr.frame)
             except AttributeError:
                 pass  # ShadeConstruction or AirBoundaryConstruction
         return list(set(materials))
@@ -261,6 +265,8 @@ class ConstructionSet(object):
         for constr in self.modified_constructions:
             try:
                 materials.extend(constr.materials)
+                if constr.has_frame:
+                    materials.append(constr.frame)
             except AttributeError:
                 pass  # ShadeConstruction or AirBoundaryConstruction
         return list(set(materials))
@@ -546,8 +552,8 @@ class ConstructionSet(object):
         unique_mods = {}
         for constr in self.constructions_unique:
             unique_mods[constr.identifier] = constr.to_radiance_visible_exterior() \
-                    if isinstance(constr, OpaqueConstruction) \
-                    else constr.to_radiance_visible()
+                if isinstance(constr, OpaqueConstruction) \
+                else constr.to_radiance_visible()
         return self._create_modifier_set('Visible_Exterior', unique_mods)
 
     def duplicate(self):

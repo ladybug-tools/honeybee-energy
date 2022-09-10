@@ -72,6 +72,11 @@ def load_construction_object(
             constr = dict_to_construction(con_dict, False)
             try:
                 misc_mats.extend(constr.materials)
+                if constr.has_frame:
+                    misc_mats.append(constr.frame)
+                if constr.has_shade:
+                    if constr.is_switchable_glazing:
+                        misc_mats.append(constr.switched_glass_material)
             except AttributeError:  # construction without materials
                 pass
             if isinstance(constr, (WindowConstructionShade, WindowConstructionDynamic)):

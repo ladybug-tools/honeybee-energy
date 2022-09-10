@@ -392,8 +392,16 @@ def construction_to_idf(construction_json, output_file):
         constr_objs = [dict_to_construction(constr) for constr in constr_list]
         mat_objs = set()
         for constr in constr_objs:
-            for mat in constr.materials:
-                mat_objs.add(mat)
+            try:
+                for mat in constr.materials:
+                    mat_objs.add(mat)
+                if constr.has_frame:
+                    mat_objs.add(constr.frame)
+                if constr.has_shade:
+                    if constr.is_switchable_glazing:
+                        mat_objs.add(constr.switched_glass_material)
+            except AttributeError:  # not a construction with materials
+                pass
 
         # create the IDF strings
         idf_str_list = []

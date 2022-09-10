@@ -644,6 +644,8 @@ def to_model_properties(standards_folder, output_file):
         for m_con in misc_c:
             try:
                 misc_c_mats.extend(m_con.materials)
+                if m_con.has_frame:
+                    misc_c_mats.append(m_con.frame)
                 if m_con.has_shade:
                     if m_con.is_switchable_glazing:
                         misc_c_mats.append(m_con.switched_glass_material)

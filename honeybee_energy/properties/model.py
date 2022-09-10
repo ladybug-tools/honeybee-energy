@@ -89,11 +89,13 @@ class ModelEnergyProperties(object):
         for constr in self.constructions:
             try:
                 materials.extend(constr.materials)
+                if constr.has_frame:
+                    materials.append(constr.frame)
                 if isinstance(constr, WindowConstructionShade) \
                         and constr.is_switchable_glazing:
                     materials.append(constr.switched_glass_material)
             except AttributeError:
-                pass  # ShadeConstruction
+                pass  # ShadeConstruction or AirBoundaryConstruction
         return list(set(materials))
 
     @property
@@ -1334,6 +1336,8 @@ class ModelEnergyProperties(object):
         for constr in all_cons:
             try:
                 misc_c_mats.extend(constr.materials)
+                if constr.has_frame:
+                    misc_c_mats.append(constr.frame)
                 if constr.has_shade:
                     if constr.is_switchable_glazing:
                         misc_c_mats.append(constr.switched_glass_material)
@@ -1418,6 +1422,8 @@ class ModelEnergyProperties(object):
         for cnstr in constructions:
             try:
                 materials.extend(cnstr.materials)
+                if cnstr.has_frame:
+                    materials.append(cnstr.frame)
                 if isinstance(cnstr, WindowConstructionShade) \
                         and cnstr.is_switchable_glazing:
                     materials.append(cnstr.switched_glass_material)

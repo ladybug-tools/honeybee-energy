@@ -32,6 +32,7 @@ class _ConstructionBase(object):
         * u_factor
         * r_factor
         * is_symmetric
+        * has_frame
         * has_shade
         * is_dynamic
         * user_data
@@ -72,10 +73,12 @@ class _ConstructionBase(object):
 
     @display_name.setter
     def display_name(self, value):
-        try:
-            self._display_name = str(value)
-        except UnicodeEncodeError:  # Python 2 machine lacking the character set
-            self._display_name = value  # keep it as unicode
+        if value is not None:
+            try:
+                value = str(value)
+            except UnicodeEncodeError:  # Python 2 machine lacking the character set
+                pass  # keep it as unicode
+        self._display_name = value
 
     @property
     def materials(self):
@@ -157,6 +160,11 @@ class _ConstructionBase(object):
         """Get a boolean noting whether dynamic shade materials are in the construction.
         """
         # This is False for all construction types except WindowConstructionShade.
+        return False
+
+    @property
+    def has_frame(self):
+        """Get a boolean noting whether the construction has a frame assigned to it."""
         return False
 
     @property
@@ -267,7 +275,11 @@ class _ConstructionBase(object):
             nusselt = 0.56 * ((_rayleigh_h * _sin_a) ** (1 / 4))
         else:
             nusselt = 0.58 * (_rayleigh_h ** (1 / 5))
-        _conv_h = nusselt * (self._air.conductivity_at_temperature(t_kelvin) / height)
+        a_cond = self._air.conductivity_at_temperature(t_kelvin)
+        try:
+            _conv_h = nusselt * (a_cond / height)
+        except ZeroDivisionError:  # completely horizontal face
+            _conv_h = nusselt * a_cond
         _rad_h = 4 * 5.6697e-8 * self.inside_emissivity * (t_kelvin ** 3)
         return _conv_h + _rad_h
 

@@ -1,11 +1,12 @@
 # coding=utf-8
 """Face Energy Properties."""
+from honeybee.facetype import AirBoundary
+from honeybee.units import conversion_factor_to_meters
+
 from ..construction.opaque import OpaqueConstruction
 from ..construction.air import AirBoundaryConstruction
 from ..lib.constructionsets import generic_construction_set
 from ..ventcool.crack import AFNCrack
-
-from honeybee.facetype import AirBoundary
 
 
 class FaceEnergyProperties(object):
@@ -98,6 +99,43 @@ class FaceEnergyProperties(object):
         This is opposed to having the construction assigned by a ConstructionSet.
         """
         return self._construction is not None
+
+    def r_factor(self, units='Meters'):
+        """Get the Face R-factor [m2-K/W] (including air film resistance).
+
+        The air film resistances are computed using the orientation and height
+        of the Face geometry.
+
+        Args:
+            units: Text for the units in which the Face geometry exists. These
+                will be used to correctly interpret the dimensions of the
+                geometry for heat flow calculation. (Default: Meters).
+        """
+        constr = self.construction
+        if isinstance(constr, AirBoundaryConstruction):
+            return 0
+        u_conv = conversion_factor_to_meters(units)
+        height = (self.host.max.z - self.host.min.z) * u_conv
+        height = 1 if height < 1 else height
+        temps, r_vals = constr.temperature_profile(
+            height=height, angle=abs(self.host.altitude - 90))
+        return sum(r_vals)
+
+    def u_factor(self, units='Meters'):
+        """Get the Face U-factor [W/m2-K] (including resistances for air films).
+
+        The air film resistances are computed using the orientation and height
+        of the Face geometry.
+
+        Args:
+            units: Text for the units in which the Face geometry exists. These
+                will be used to correctly interpret the dimensions of the
+                geometry for heat flow calculation. (Default: Meters).
+        """
+        try:
+            return 1 / self.r_factor(units)
+        except ZeroDivisionError:
+            return 0  # AirBoundary construction
 
     def reset_to_default(self):
         """Reset a construction assigned at the level of this Face to the default.

@@ -5,6 +5,7 @@ from honeybee_energy.material.gas import EnergyWindowMaterialGas, \
     EnergyWindowMaterialGasMixture
 from honeybee_energy.material.shade import EnergyWindowMaterialShade, \
     EnergyWindowMaterialBlind
+from honeybee_energy.material.frame import EnergyWindowFrame
 from honeybee_energy.construction.opaque import OpaqueConstruction
 from honeybee_energy.construction.window import WindowConstruction
 from honeybee_energy.construction.windowshade import WindowConstructionShade
@@ -378,6 +379,25 @@ def test_window_construction_init_from_idf_file():
     assert glaz_constr.thickness == new_glaz_constr.thickness == \
         pytest.approx(0.0425, rel=1e-2)
     assert constr_str == new_constr_str
+
+
+def test_window_construction_init_from_idf_file_frame():
+    """Test the initialization of WindowConstruction from file."""
+    lbnl_window_idf_file = './tests/idf/Window_Picture_Avg.idf'
+    glaz_constrs, glaz_mats = WindowConstruction.extract_all_from_idf_file(
+        lbnl_window_idf_file)
+
+    assert len(glaz_mats) == 3
+    glaz_constr = glaz_constrs[0]
+
+    assert glaz_constr.identifier == glaz_constr.identifier == 'GlzSys_2'
+    assert glaz_constr.has_frame
+    assert isinstance(glaz_constr.frame, EnergyWindowFrame)
+    assert glaz_constr.u_factor == pytest.approx(3.29274, rel=1e-2)
+    assert glaz_constr.shgc == pytest.approx(0.6389, rel=1e-2)
+    glaz_constr.frame = None
+    assert glaz_constr.u_factor == pytest.approx(2.7359, rel=1e-2)
+    assert glaz_constr.shgc == pytest.approx(0.688267, rel=1e-2)
 
 
 def test_window_dict_methods(userdatadict):
