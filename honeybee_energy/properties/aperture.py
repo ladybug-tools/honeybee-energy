@@ -123,11 +123,7 @@ class ApertureEnergyProperties(object):
         """
         # compute the center-of-glass R-value
         u_conv = conversion_factor_to_meters(units)
-        win_con = self.construction
-        if isinstance(win_con, WindowConstructionShade):
-            win_con = win_con.window_construction
-        elif isinstance(win_con, WindowConstructionDynamic):
-            win_con = win_con.constructions[0]
+        win_con = self._window_construction()
         height = (self.host.max.z - self.host.min.z) * u_conv
         height = 1 if height < 1 else height
         _, r_vals = win_con.temperature_profile(
@@ -167,6 +163,59 @@ class ApertureEnergyProperties(object):
                 geometry for heat flow calculation. (Default: Meters).
         """
         return 1 / self.r_factor(units)
+
+    def shgc(self, units='Meters'):
+        """Get the Aperture solar heat gain coefficient (SHGC).
+
+        If this construction is not a simple glazing system, this value is computed
+        by summing the transmitted and conducted portions of solar irradiance under
+        the NFRC summer conditions. The air film resistances are computed using
+        the orientation and height of the Aperture geometry. If the window
+        construction has a frame, the geometry of the frame will also be accounted for.
+
+        Args:
+            units: Text for the units in which the Aperture geometry exists. These
+                will be used to correctly interpret the dimensions of the
+                geometry for heat flow calculation. (Default: Meters).
+        """
+        win_con = self._window_construction()
+        if isinstance(win_con.materials[0], EnergyWindowMaterialSimpleGlazSys):
+            if not win_con.has_frame:
+                return win_con.materials[0].shgc
+        # compute the temperature profile
+        t_out, t_in, sol_irr = 32, 24, 783  # NFRC 2010 summer conditions
+        u_conv = conversion_factor_to_meters(units)
+        height = (self.host.max.z - self.host.min.z) * u_conv
+        height = 1 if height < 1 else height
+        _, r_vals = win_con.temperature_profile(
+            t_out, t_in, height=height, angle=abs(self.host.altitude - 90),
+            solar_irradiance=sol_irr)
+        heat_gen, transmitted = win_con._heat_gen_from_solar(sol_irr)
+        conducted = 0
+        r_factor = sum(r_vals)
+        for i, heat_g in enumerate(heat_gen):
+            if heat_g != 0:
+                conducted += heat_g * (1 - (sum(r_vals[i + 1:]) / r_factor))
+        if not win_con.has_frame:
+            return (transmitted + conducted) / sol_irr
+        else:  # account for the frame conduction
+            _, r_values = win_con.temperature_profile_frame(
+                t_out, t_in, height=height, angle=abs(self.host.altitude - 90),
+                solar_irradiance=sol_irr)
+            heat_gen = [0, sol_irr * win_con.frame.solar_absorptance, 0]
+            frame_conducted = 0
+            r_factor = sum(r_values)
+            for i, heat_g in enumerate(heat_gen):
+                if heat_g != 0:
+                    frame_conducted += heat_g * (1 - (sum(r_values[i + 1:]) / r_factor))
+            glass_area = (self.host.area * (u_conv ** 2))
+            frame_area = (self.host.perimeter * u_conv * win_con.frame.width) + \
+                ((win_con.frame.width * u_conv) ** 2) * len(self.host.geometry)
+            glass_trans = transmitted * glass_area
+            glass_conduct = conducted * glass_area
+            frame_conduct = frame_conducted * frame_area
+            total_irr = sol_irr * (glass_area + frame_area)
+            return (glass_trans + glass_conduct + frame_conduct) / total_irr
 
     def reset_to_default(self):
         """Reset a construction assigned at the level of this Aperture to the default.
@@ -253,6 +302,15 @@ class ApertureEnergyProperties(object):
         _host = new_host or self._host
         vo = self._vent_opening.duplicate() if self._vent_opening is not None else None
         return ApertureEnergyProperties(_host, self._construction, vo)
+
+    def _window_construction(self):
+        """Get the base window construction assigned to the aperture."""
+        win_con = self.construction
+        if isinstance(win_con, WindowConstructionShade):
+            win_con = win_con.window_construction
+        elif isinstance(win_con, WindowConstructionDynamic):
+            win_con = win_con.constructions[0]
+        return win_con
 
     def ToString(self):
         return self.__repr__()

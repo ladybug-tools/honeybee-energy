@@ -265,8 +265,7 @@ class WindowConstruction(_ConstructionBase):
                 conducted += heat_g * (1 - (sum(r_values[i + 1:]) / r_factor))
         if self.frame is None:
             return (transmitted + conducted) / sol_irr
-        else:
-            # account for the frame conduction
+        else:  # account for the frame conduction
             _, r_values = self.temperature_profile_frame(
                 t_out, t_in, solar_irradiance=sol_irr)
             heat_gen = [0, sol_irr * self.frame.solar_absorptance, 0]

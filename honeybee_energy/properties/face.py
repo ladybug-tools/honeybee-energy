@@ -137,6 +137,34 @@ class FaceEnergyProperties(object):
         except ZeroDivisionError:
             return 0  # AirBoundary construction
 
+    def shgc(self, units='Meters'):
+        """Get the Face solar heat gain coefficient (SHGC).
+
+        This value is computed by summing the conducted portions of solar irradiance
+        under the NFRC summer conditions. The air film resistances are computed using
+        the orientation and height of the Face geometry.
+
+        Args:
+            units: Text for the units in which the Face geometry exists. These
+                will be used to correctly interpret the dimensions of the
+                geometry for heat flow calculation. (Default: Meters).
+        """
+        constr = self.construction
+        if isinstance(constr, AirBoundaryConstruction):
+            return 1
+        # compute the temperature profile
+        t_out, t_in, sol_irr = 32, 24, 783  # NFRC 2010 summer conditions
+        u_conv = conversion_factor_to_meters(units)
+        height = (self.host.max.z - self.host.min.z) * u_conv
+        height = 1 if height < 1 else height
+        _, r_vals = constr.temperature_profile(
+            t_out, t_in, height=height, angle=abs(self.host.altitude - 90),
+            solar_irradiance=sol_irr)
+        heat_gen = sol_irr * (1 - constr.outside_solar_reflectance)
+        r_factor = sum(r_vals)
+        conducted = heat_gen * (1 - (sum(r_vals[1:]) / r_factor))
+        return conducted / sol_irr
+
     def reset_to_default(self):
         """Reset a construction assigned at the level of this Face to the default.
 
