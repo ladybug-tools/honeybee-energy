@@ -74,8 +74,10 @@ def measure_compatible_model_json(
     as their parent Face. If the Model tolerance is non-zero and Rooms are closed
     solids, this will also ensure that all Room Faces point outwards from their
     parent's volume. If the Model units are not Meters, the model will be scaled
-    to be in Meters. Lastly, apertures and doors with more than 4 vertices will
-    be triangulated to ensure EnergyPlus accepts them.
+    to be in Meters. Geometries with holes will have the vertices re-specified
+    in a manner that they are translated to EnergyPlus as a single list. Lastly,
+    apertures and doors with more than 4 vertices will be triangulated to ensure
+    EnergyPlus accepts them.
 
     Args:
         model_json_path: File path to the Model JSON.

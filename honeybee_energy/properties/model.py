@@ -1036,9 +1036,15 @@ class ModelEnergyProperties(object):
                 if len(face._apertures) != 0:
                     for ap, ap_dict in zip(face._apertures, face_dict['apertures']):
                         self._add_shade_vertices(ap, ap_dict)
+                        if ap.properties.energy.construction.has_frame:
+                            ap_dict['properties']['energy']['frame'] = \
+                                ap.properties.energy.construction.frame.identifier
                 if len(face._doors) != 0:
                     for dr, dr_dict in zip(face._doors, face_dict['doors']):
                         self._add_shade_vertices(dr, dr_dict)
+                        if dr.properties.energy.construction.has_frame:
+                            dr_dict['properties']['energy']['frame'] = \
+                                dr.properties.energy.construction.frame.identifier
         if len(self.host._orphaned_shades) != 0:
             for shd, shd_d in zip(self.host._orphaned_shades, data['orphaned_shades']):
                 if shd.geometry.has_holes:

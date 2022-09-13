@@ -4,6 +4,7 @@ from .opaque import EnergyMaterial, EnergyMaterialNoMass, EnergyMaterialVegetati
 from .glazing import EnergyWindowMaterialGlazing, EnergyWindowMaterialSimpleGlazSys
 from .gas import EnergyWindowMaterialGas, EnergyWindowMaterialGasMixture, \
     EnergyWindowMaterialGasCustom
+from .frame import EnergyWindowFrame
 from .shade import EnergyWindowMaterialShade, EnergyWindowMaterialBlind
 
 
@@ -11,7 +12,7 @@ MATERIAL_TYPES = (
     'EnergyMaterial', 'EnergyMaterialNoMass', 'EnergyMaterialVegetation',
     'EnergyWindowMaterialGlazing', 'EnergyWindowMaterialSimpleGlazSys',
     'EnergyWindowMaterialGas', 'EnergyWindowMaterialGasMixture',
-    'EnergyWindowMaterialGasCustom',
+    'EnergyWindowMaterialGasCustom', 'EnergyWindowFrame',
     'EnergyWindowMaterialShade', 'EnergyWindowMaterialBlind'
 )
 
@@ -21,7 +22,7 @@ def dict_to_material(mat_dict, raise_exception=True):
 
     Args:
         mat_dict: A dictionary of any Honeybee energy material.
-        raise_exception: Boolean to note whether an excpetion should be raised
+        raise_exception: Boolean to note whether an exception should be raised
             if the object is not identified as a material. Default: True.
 
     Returns:
@@ -48,6 +49,8 @@ def dict_to_material(mat_dict, raise_exception=True):
         return EnergyWindowMaterialGasMixture.from_dict(mat_dict)
     elif mat_type == 'EnergyWindowMaterialGasCustom':
         return EnergyWindowMaterialGasCustom.from_dict(mat_dict)
+    elif mat_type == 'EnergyWindowFrame':
+        return EnergyWindowFrame.from_dict(mat_dict)
     elif mat_type == 'EnergyWindowMaterialShade':
         return EnergyWindowMaterialShade.from_dict(mat_dict)
     elif mat_type == 'EnergyWindowMaterialBlind':
