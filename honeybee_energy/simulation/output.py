@@ -294,8 +294,10 @@ output-table-summaryreports.html#outputtablesummaryreports)
                        'Zone Ventilation Total Heat Gain Energy',
                        'Zone Ideal Loads Zone Total Heating Energy',
                        'Zone Ideal Loads Zone Total Cooling Energy',
-                       'Zone Infiltration Total Heat Loss Energy',
-                       'Zone Infiltration Total Heat Gain Energy'] + always_sensible
+                       'Zone Ventilation Sensible Heat Gain Energy',
+                       'Zone Ventilation Latent Heat Gain Energy',
+                       'Zone Ventilation Sensible Heat Loss Energy',
+                       'Zone Ventilation Latent Heat Loss Energy'] + always_sensible
         elif load_type == 'Sensible':
             outputs = ['Zone People Sensible Heating Energy',
                        'Zone Ventilation Sensible Heat Loss Energy',
