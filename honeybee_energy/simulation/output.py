@@ -290,10 +290,10 @@ output-table-summaryreports.html#outputtablesummaryreports)
                            'AFN Zone Ventilation Sensible Heat Loss Energy']
         if load_type == 'Total':
             outputs = ['Zone People Total Heating Energy',
-                       'Zone Ventilation Total Heat Loss Energy',
-                       'Zone Ventilation Total Heat Gain Energy',
                        'Zone Ideal Loads Zone Total Heating Energy',
                        'Zone Ideal Loads Zone Total Cooling Energy',
+                       'Zone Infiltration Total Heat Loss Energy',
+                       'Zone Infiltration Total Heat Gain Energy',
                        'Zone Ventilation Sensible Heat Gain Energy',
                        'Zone Ventilation Latent Heat Gain Energy',
                        'Zone Ventilation Sensible Heat Loss Energy',

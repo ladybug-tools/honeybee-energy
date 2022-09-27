@@ -458,7 +458,7 @@ class LoadBalance(object):
 
         Args:
             floor_normalized: Boolean to note whether all of the output data
-                collections should have values that are normaized by the Room
+                collections should have values that are normalized by the Room
                 floor area.
             include_storage: Boolean to note whether the storage term should
                 be included in the list.
