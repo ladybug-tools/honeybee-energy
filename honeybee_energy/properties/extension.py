@@ -182,3 +182,15 @@ class DOASSystemProperties(_EnergyProperties):
 
 class HeatCoolSystemProperties(_EnergyProperties):
     """HeatCoolSystem HVAC properties to be extended by extensions."""
+
+
+class EnergyMaterialProperties(_EnergyProperties):
+    """EnergyMaterial properties to be extended by extensions."""
+
+
+class EnergyMaterialNoMassProperties(_EnergyProperties):
+    """EnergyMaterialNoMass properties to be extended by extensions."""
+
+
+class EnergyMaterialVegetationProperties(_EnergyProperties):
+    """EnergyMaterialVegetation properties to be extended by extensions."""

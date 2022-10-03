@@ -11,6 +11,8 @@ from ..writer import generate_idf_string
 
 from honeybee._lockable import lockable
 from honeybee.typing import float_in_range, float_positive, clean_rad_string
+from ..properties.extension import EnergyMaterialProperties, \
+            EnergyMaterialNoMassProperties, EnergyMaterialVegetationProperties
 
 
 @lockable
@@ -62,6 +64,7 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
         * mass_area_density
         * area_heat_capacity
         * user_data
+        * properties
     """
     __slots__ = ('_roughness', '_thickness', '_conductivity',
                  '_density', '_specific_heat', '_thermal_absorptance',
@@ -81,6 +84,7 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
         self.solar_absorptance = solar_absorptance
         self.visible_absorptance = visible_absorptance
         self._locked = False
+        self._properties = EnergyMaterialProperties(self)
 
     @property
     def roughness(self):
@@ -287,6 +291,8 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
             new_mat.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
             new_mat.user_data = data['user_data']
+        if 'properties' in data and data['properties'] is not None:
+            new_mat.properties._load_extension_attr_from_dict(data['properties'])
 
         return new_mat
 
@@ -340,6 +346,9 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
             base['display_name'] = self.display_name
         if self._user_data is not None:
             base['user_data'] = self.user_data
+        prop_dict = self.properties.to_dict()
+        if prop_dict is not None:
+            base['properties'] = prop_dict
         return base
 
     def __key(self):
@@ -368,6 +377,7 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
         new_material._display_name = self._display_name
         new_material._user_data = None if self._user_data is None \
             else self._user_data.copy()
+        new_material._properties._duplicate_extension_attr(self._properties) 
         return new_material
 
 
@@ -407,6 +417,7 @@ class EnergyMaterialNoMass(_EnergyMaterialOpaqueBase):
         * mass_area_density
         * area_heat_capacity
         * user_data
+        * properties
     """
     __slots__ = ('_r_value', '_roughness', '_thermal_absorptance',
                  '_solar_absorptance', '_visible_absorptance')
@@ -421,6 +432,7 @@ class EnergyMaterialNoMass(_EnergyMaterialOpaqueBase):
         self.thermal_absorptance = thermal_absorptance
         self.solar_absorptance = solar_absorptance
         self.visible_absorptance = visible_absorptance
+        self._properties = EnergyMaterialNoMassProperties(self)
 
     @property
     def r_value(self):
@@ -582,6 +594,8 @@ class EnergyMaterialNoMass(_EnergyMaterialOpaqueBase):
             new_mat.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
             new_mat.user_data = data['user_data']
+        if 'properties' in data and data['properties'] is not None:
+            new_mat.properties._load_extension_attr_from_dict(data['properties'])
         return new_mat
 
     def to_idf(self):
@@ -631,6 +645,9 @@ class EnergyMaterialNoMass(_EnergyMaterialOpaqueBase):
             base['display_name'] = self.display_name
         if self._user_data is not None:
             base['user_data'] = self.user_data
+        prop_dict = self.properties.to_dict()
+        if prop_dict is not None:
+            base['properties'] = prop_dict
         return base
 
     def __key(self):
@@ -657,6 +674,7 @@ class EnergyMaterialNoMass(_EnergyMaterialOpaqueBase):
         new_material._display_name = self._display_name
         new_material._user_data = None if self._user_data is None \
             else self._user_data.copy()
+        new_material._properties._duplicate_extension_attr(self._properties) 
         return new_material
 
 
@@ -741,6 +759,7 @@ class EnergyMaterialVegetation(_EnergyMaterialOpaqueBase):
         * mass_area_density
         * area_heat_capacity
         * user_data
+        * properties
     """
     __slots__ = (
         '_thickness', '_conductivity', '_density', '_specific_heat', '_roughness',
@@ -748,7 +767,7 @@ class EnergyMaterialVegetation(_EnergyMaterialOpaqueBase):
         '_soil_visible_absorptance', '_plant_height', '_leaf_area_index',
         '_leaf_reflectivity', '_leaf_emissivity', '_min_stomatal_resist',
         '_sat_vol_moist_cont', '_residual_vol_moist_cont', '_init_vol_moist_cont',
-        '_moist_diff_model'
+        '_moist_diff_model',
     )
     DIFFTYPES = ('Simple', 'Advanced')
 
@@ -781,7 +800,8 @@ class EnergyMaterialVegetation(_EnergyMaterialOpaqueBase):
         self._init_vol_moist_cont = 0.1
         self._moist_diff_model = 'Simple'
         self._locked = False
-
+        self._properties = EnergyMaterialVegetationProperties(self)
+    
     @property
     def roughness(self):
         """Get or set the text describing the roughness of the soil material layer."""
@@ -1161,6 +1181,8 @@ class EnergyMaterialVegetation(_EnergyMaterialOpaqueBase):
             new_mat.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
             new_mat.user_data = data['user_data']
+        if 'properties' in data and data['properties'] is not None:
+            new_mat.properties._load_extension_attr_from_dict(data['properties'])
 
         return new_mat
 
@@ -1237,6 +1259,9 @@ class EnergyMaterialVegetation(_EnergyMaterialOpaqueBase):
             base['display_name'] = self.display_name
         if self._user_data is not None:
             base['user_data'] = self.user_data
+        prop_dict = self.properties.to_dict()
+        if prop_dict is not None:
+            base['properties'] = prop_dict
         return base
 
     def __key(self):
@@ -1276,4 +1301,5 @@ class EnergyMaterialVegetation(_EnergyMaterialOpaqueBase):
         new_material._display_name = self._display_name
         new_material._user_data = None if self._user_data is None \
             else self._user_data.copy()
+        new_material._properties._duplicate_extension_attr(self._properties) 
         return new_material

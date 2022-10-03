@@ -18,8 +18,10 @@ class _EnergyMaterialBase(object):
     Properties:
         * identifier
         * display_name
+        * user_data
+        * _properties
     """
-    __slots__ = ('_identifier', '_display_name', '_locked', '_user_data')
+    __slots__ = ('_identifier', '_display_name', '_locked', '_user_data', '_properties')
 
     def __init__(self, identifier):
         """Initialize energy material base."""
@@ -27,7 +29,8 @@ class _EnergyMaterialBase(object):
         self.identifier = identifier
         self._display_name = None
         self._user_data = None
-
+        self._properties = None
+    
     @property
     def identifier(self):
         """Get or set the text string for material identifier."""
@@ -73,6 +76,11 @@ class _EnergyMaterialBase(object):
             assert isinstance(value, dict), 'Expected dictionary for honeybee_energy' \
                 'object user_data. Got {}.'.format(type(value))
         self._user_data = value
+    
+    @property
+    def properties(self):
+        """Get properties for extensions."""
+        return self._properties
 
     def duplicate(self):
         """Get a copy of this construction."""
@@ -96,6 +104,7 @@ class _EnergyMaterialBase(object):
         new_obj = self.__class__(self.identifier)
         new_obj._display_name = self._display_name
         new_obj._user_data = None if self._user_data is None else self._user_data.copy()
+        new_obj._properties._duplicate_extension_attr(self._properties)
         return new_obj
 
     def ToString(self):
