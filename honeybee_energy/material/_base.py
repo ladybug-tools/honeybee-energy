@@ -19,7 +19,7 @@ class _EnergyMaterialBase(object):
         * identifier
         * display_name
         * user_data
-        * _properties
+        * properties
     """
     __slots__ = ('_identifier', '_display_name', '_locked', '_user_data', '_properties')
 

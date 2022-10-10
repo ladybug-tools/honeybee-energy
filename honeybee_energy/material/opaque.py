@@ -767,7 +767,7 @@ class EnergyMaterialVegetation(_EnergyMaterialOpaqueBase):
         '_soil_visible_absorptance', '_plant_height', '_leaf_area_index',
         '_leaf_reflectivity', '_leaf_emissivity', '_min_stomatal_resist',
         '_sat_vol_moist_cont', '_residual_vol_moist_cont', '_init_vol_moist_cont',
-        '_moist_diff_model',
+        '_moist_diff_model'
     )
     DIFFTYPES = ('Simple', 'Advanced')
 
