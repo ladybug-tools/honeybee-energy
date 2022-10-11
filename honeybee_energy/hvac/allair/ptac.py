@@ -9,7 +9,14 @@ from honeybee._lockable import lockable
 
 @lockable
 class PTAC(_AllAirBase):
-    """Packaged Terminal Air Conditioning (PTAC) or Heat Pump (PTHP) HVAC system.
+    """Packaged Terminal Air Conditioning (PTAC/HP) HVAC system. (aka. System 1 or 2).
+
+    Each room/zone receives its own packaged unit that supplies heating, cooling
+    and ventilation. Cooling is always done via a single-speed direct expansion (DX)
+    cooling coil. Heating can be done via a heating coil in the unit or via an
+    external baseboard. Fans are constant volume.
+
+    PTAC/HP systems are the traditional baseline system for residential buildings.
 
     Args:
         identifier: Text string for system identifier. Must be < 100 characters

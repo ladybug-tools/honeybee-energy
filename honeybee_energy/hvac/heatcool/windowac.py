@@ -11,6 +11,13 @@ from honeybee._lockable import lockable
 class WindowAC(_HeatCoolBase):
     """Window Air Conditioning cooling system (with optional heating).
 
+    Each room/zone will receive its own Packaged Terminal Air Conditioner (PTAC)
+    with properties set to reflect a typical window air conditioning (AC) unit.
+    No ventilation air is supplied by the unit and the cooling coil within the
+    unit is a single-speed direct expansion (DX) cooling coil. Heating loads
+    can be met with various options, including several types of baseboards,
+    a furnace, or gas unit heaters.
+
     Args:
         identifier: Text string for system identifier. Must be < 100 characters
             and not contain any EnergyPlus special characters. This will be used to

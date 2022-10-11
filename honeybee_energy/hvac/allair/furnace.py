@@ -9,7 +9,15 @@ from honeybee._lockable import lockable
 
 @lockable
 class ForcedAirFurnace(_AllAirBase):
-    """Forced Air Furnace HVAC system. Intended for spaces only requiring heating.
+    """Forced Air Furnace HVAC system (aka. System 9 or 10).
+
+    Forced air furnaces are intended only for spaces only requiring heating and
+    ventilation. Each room/zone receives its own air loop with its own gas heating
+    coil, which will supply air at a temperature up to 50C (122F) to meet the
+    heating needs of the room/zone. Fans are constant volume.
+
+    PTAC/HP systems are the traditional baseline system for storage spaces that
+    only require heating.
 
     Args:
         identifier: Text string for system identifier. Must be < 100 characters

@@ -11,8 +11,28 @@ from honeybee._lockable import lockable
 class FCUwithDOAS(_DOASBase):
     """Fan Coil Unit (FCU) with DOAS HVAC system.
 
-    This template is also relatively close to active chilled beams in performance,
-    though the energy use of the fans in the units can be zeroed out for this case.
+    All rooms/zones in the system are connected to a Dedicated Outdoor Air System
+    (DOAS) that supplies a constant volume of ventilation air at the same temperature
+    to all rooms/zones. The ventilation air temperature will vary from 21.1C (70F)
+    to 15.5C (60F) depending on the outdoor air temperature (the DOAS supplies cooler air
+    when outdoor conditions are warmer). The ventilation air temperature is maintained
+    by a chilled water cooling coil and a heating coil. The heating coil is a hot
+    water coil except when electric baseboards or gas heaters are specified, in
+    which case the heating coil is a single-speed direct expansion (DX) heat pump
+    with a backup electrical resistance coil.
+
+    Each room/zone also receives its own Fan Coil Unit (FCU), which meets the heating
+    and cooling loads of the space. The cooling coil in the FCU is always chilled
+    water cooling coil, which is connected to a chilled water loop operating
+    at 6.7C (44F). The heating coil is a hot water coil except when when electric
+    baseboards or gas heaters are specified. Hot water temperature is 82C (180F) for
+    boiler/district heating and 49C (120F) when ASHP is used.
+
+    The FCU with DOAS template is relatively close in performance to active chilled
+    beams (ACBs). When using this template to represent ACBs, care must be taken
+    to ensure that the DOAS ventilation air requirement is sufficient to extract
+    the heating cooling from the ACB. If so, then this FCUwithDOAS template can be
+    used but with the energy use of the FCU fans ignored.
 
     Args:
         identifier: Text string for system identifier. Must be < 100 characters

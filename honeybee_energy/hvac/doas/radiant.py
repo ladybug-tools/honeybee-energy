@@ -12,13 +12,27 @@ from honeybee.typing import float_positive, valid_string
 class RadiantwithDOAS(_DOASBase):
     """Low temperature radiant with DOAS HVAC system.
 
-    By default, this HVAC template will swap out all floor and ceiling constructions
-    of the Rooms that it is applied to (according to the radiant_type property).
+    This HVAC template will change the floor and/or ceiling constructions
+    of the Rooms that it is applied to, replacing them with a construction that
+    aligns with the radiant_type property (eg. CeilingMetalPanel).
 
-    Note that radiant systems are particularly limited in cooling capacity
-    and using them may result in many unmet hours. To reduce unmet hours, use
-    an expanded comfort range, remove carpet, reduce internal loads, reduce
-    solar and envelope gains during peak times, and add thermal mass.
+    All rooms/zones in the system are connected to a Dedicated Outdoor Air System
+    (DOAS) that supplies a constant volume of ventilation air at the same temperature
+    to all rooms/zones. The ventilation air temperature will vary from 21.1C (70F)
+    to 15.5C (60F) depending on the outdoor air temperature (the DOAS supplies cooler air
+    when outdoor conditions are warmer). The ventilation air temperature is maintained
+    by a two-speed direct expansion (DX) cooling coil and a single-speed DX
+    heating coil with backup electrical resistance heat.
+
+    The heating and cooling needs of the space are met with the radiant constructions,
+    which use chilled water at 12.8C (55F) and a hot water temperature somewhere
+    between 32.2C (90F) and 49C (120F) (warmer temperatures are used in colder
+    climate zones).
+
+    Note that radiant systems are particularly limited in cooling capacity and
+    using them may result in many unmet hours. To reduce unmet hours, one can
+    remove carpets, reduce internal loads, reduce solar and envelope gains during
+    peak times, add thermal mass, and use an expanded comfort range.
 
     Args:
         identifier: Text string for system identifier. Must be < 100 characters
