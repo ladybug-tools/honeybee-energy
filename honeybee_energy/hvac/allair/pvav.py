@@ -9,7 +9,28 @@ from honeybee._lockable import lockable
 
 @lockable
 class PVAV(_AllAirBase):
-    """Packaged Variable Air Volume (PVAV) HVAC system.
+    """Packaged Variable Air Volume (PVAV) HVAC system (aka. System 5 or 6).
+
+    All rooms/zones are connected to a central air loop that is kept at a constant
+    central temperature of 12.8C (55F). The central temperature is maintained by a
+    cooling coil, which runs whenever the combination of return air and fresh outdoor
+    air is greater than 12.8C, as well as a heating coil, which runs whenever
+    the combination of return air and fresh outdoor air is less than 12.8C.
+
+    Each air terminal for the connected rooms/zones contains its own reheat coil,
+    which runs whenever the room is not in need of the cooling supplied by the 12.8C
+    central air.
+
+    The central cooling coil is always a two-speed direct expansion (DX) coil.
+    All heating coils are hot water coils except when Gas Coil equipment_type is
+    used (in which case the central coil is gas and all others are electric)
+    or when Parallel Fan-Powered (PFP) boxes equipment_type is used (in which case
+    coils are electric resistance). Hot water temperature is 82C (180F) for
+    boiler/district heating and 49C (120F) when ASHP is used.
+
+    PVAV systems are the traditional baseline system for commercial buildings
+    with than 4-5 stories or between 2,300 m2 and 14,000 m2 (25,000 ft2 and
+    150,000 ft2) of floor area.
 
     Args:
         identifier: Text string for system identifier. Must be < 100 characters

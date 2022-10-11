@@ -7,7 +7,7 @@ pieces of zone equipment (eg. Fan Coil Units (FCUs)).
 
 Because DOAS systems only have to cool down and re-heat the minimum ventilation air,
 they tend to use less energy than all-air systems. They also tend to use less energy
-to distribute heating + cooling by puping around hot/cold water or refrigerant
+to distribute heating + cooling by pumping around hot/cold water or refrigerant
 instead of blowing hot/cold air. However, they do not provide as good of control
 over humidity and so they may not be appropriate for rooms with high latent loads
 like auditoriums, kitchens, laundromats, etc.

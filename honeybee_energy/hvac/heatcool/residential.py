@@ -11,6 +11,16 @@ from honeybee._lockable import lockable
 class Residential(_HeatCoolBase):
     """Residential Air Conditioning, Heat Pump or Furnace system.
 
+    Residential HVAC systems are intended primarily for single-family homes and
+    include a wide variety of options. In all cases, each room/zone will receive
+    its own air loop WITHOUT an outdoor air inlet (air is simply being recirculated
+    through the loop). Residential air conditioning (AC) systems are modeled
+    using a unitary system with a single-speed direct expansion (DX) cooling
+    coil in the loop. Residential heat pump (HP) systems use a single-speed DX
+    heating coil in the unitary system and the residential furnace option uses
+    a gas coil in the unitary system. In all cases, the properties of these coils
+    are set to reflect a typical residential system.
+
     Args:
         identifier: Text string for system identifier. Must be < 100 characters
             and not contain any EnergyPlus special characters. This will be used to

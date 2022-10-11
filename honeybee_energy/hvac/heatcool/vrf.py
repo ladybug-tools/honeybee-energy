@@ -11,6 +11,11 @@ from honeybee._lockable import lockable
 class VRF(_HeatCoolBase):
     """Variable Refrigerant Flow (VRF) heating/cooling system (with no ventilation).
 
+    Each room/zone receives its own Variable Refrigerant Flow (VRF) terminal,
+    which meets the heating and cooling loads of the space. All room/zone terminals
+    are connected to the same outdoor unit, meaning that either all rooms must be
+    in cooling or heating mode together.
+
     Args:
         identifier: Text string for system identifier. Must be < 100 characters
             and not contain any EnergyPlus special characters. This will be used to

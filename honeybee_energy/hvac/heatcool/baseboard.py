@@ -9,7 +9,11 @@ from honeybee._lockable import lockable
 
 @lockable
 class Baseboard(_HeatCoolBase):
-    """Baseboard heating system. Intended for spaces only requiring heating.
+    """Baseboard heating system.
+
+    Baseboard systems are intended for spaces only requiring heating and
+    no ventilation or cooling. Each room/zone will get its own baseboard
+    heating unit that satisfies the heating load.
 
     Args:
         identifier: Text string for system identifier. Must be < 100 characters

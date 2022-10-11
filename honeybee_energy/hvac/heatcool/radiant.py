@@ -12,13 +12,19 @@ from honeybee.typing import float_positive, valid_string
 class Radiant(_HeatCoolBase):
     """Low temperature radiant HVAC system.
 
-    By default, this HVAC template will swap out all floor and ceiling constructions
-    of the Rooms that it is applied to (according to the radiant_type property).
+    This HVAC template will change the floor and/or ceiling constructions
+    of the Rooms that it is applied to, replacing them with a construction that
+    aligns with the radiant_type property (eg. CeilingMetalPanel).
 
-    Note that radiant systems are particularly limited in cooling capacity
-    and using them may result in many unmet hours. To reduce unmet hours, use
-    an expanded comfort range, remove carpet, reduce internal loads, reduce
-    solar and envelope gains during peak times, and add thermal mass.
+    The heating and cooling needs of the space are met with the radiant constructions,
+    which use chilled water at 12.8C (55F) and a hot water temperature somewhere
+    between 32.2C (90F) and 49C (120F) (warmer temperatures are used in colder
+    climate zones).
+
+    Note that radiant systems are particularly limited in cooling capacity and
+    using them may result in many unmet hours. To reduce unmet hours, one can
+    remove carpets, reduce internal loads, reduce solar and envelope gains during
+    peak times, add thermal mass, and use an expanded comfort range.
 
     Args:
         identifier: Text string for system identifier. Must be < 100 characters
