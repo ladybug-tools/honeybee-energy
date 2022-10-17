@@ -32,6 +32,7 @@ from ..hvac import HVAC_TYPES_DICT
 from ..shw import SHWSystem
 from ..ventcool.simulation import VentilationSimulationControl
 
+from ..lib.constructions import generic_context
 from ..lib.constructionsets import generic_construction_set
 from ..lib.schedules import always_on
 from ..lib.scheduletypelimits import fractional
@@ -1388,7 +1389,8 @@ class ModelEnergyProperties(object):
                 g_materials.extend(constr.materials)
             except AttributeError:
                 pass  # ShadeConstruction or AirBoundaryConstruction
-        gs['constructions'] = []
+        gs['context_construction'] = generic_context.identifier
+        gs['constructions'] = [generic_context.to_dict()]
         for cnst in g_constr:
             try:
                 gs['constructions'].append(cnst.to_dict(abridged=True))

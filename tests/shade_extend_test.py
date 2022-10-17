@@ -27,7 +27,7 @@ def test_energy_properties():
 def test_default_properties():
     """Test the auto-assigning of shade properties."""
     shade = Shade.from_vertices(
-        'overhang', [[0, 0, 3], [1, 0, 3], [1, 1, 3], [0, 1, 3]])
+        'overhang', [[0, 0, 3], [1, 0, 3], [1, 1, 3], [0, 1, 3]], is_detached=True)
     aperture = Aperture.from_vertices(
         'ParentAperture', [[0, 0, 0], [0, 10, 0], [0, 10, 3], [0, 0, 3]])
 
@@ -164,7 +164,7 @@ def test_from_dict():
 def test_writer_to_idf():
     """Test the Shade to_idf method."""
     verts = [Point3D(0, 0, 0), Point3D(1, 0, 0), Point3D(1, 0, 3), Point3D(0, 0, 3)]
-    shade = Shade('overhang', Face3D(verts))
+    shade = Shade('overhang', Face3D(verts), is_detached=True)
 
     assert hasattr(shade.to, 'idf')
     idf_string = shade.to.idf(shade)
@@ -172,7 +172,7 @@ def test_writer_to_idf():
     assert 'Shading:Building:Detailed,' in idf_string
     assert 'ShadingProperty:Reflectance' not in idf_string
 
-    shade = Shade('overhang', Face3D(verts))
+    shade = Shade('overhang', Face3D(verts), is_detached=True)
     light_shelf = ShadeConstruction('Light Shelf', 0.5, 0.5, True)
     shade.properties.energy.construction = light_shelf
     fritted_glass_trans = ScheduleRuleset.from_constant_value(
