@@ -11,8 +11,8 @@ from honeybee._lockable import lockable
 class GasUnitHeater(_HeatCoolBase):
     """Gas unit heating system.
 
-    Gas unit systems are intended for spaces only requiring heating and
-    no ventilation or cooling. Each room/zone will get its own gaa heating unit
+    Gas unit systems are intended for spaces only requiring heating and no
+    ventilation or cooling. Each room/zone will get its own gaa heating unit
     that satisfies the heating load.
 
     Args:

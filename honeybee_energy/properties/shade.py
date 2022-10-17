@@ -57,7 +57,8 @@ class ShadeEnergyProperties(object):
         if self._construction:  # set by user
             return self._construction
         elif not self._host.has_parent:
-            return generic_context
+            return generic_context if self._host.is_detached else \
+                generic_construction_set.shade_construction
         else:
             c_set = self._parent_construction_set(self._host.parent)
             if c_set is None:

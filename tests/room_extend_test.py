@@ -84,7 +84,7 @@ def test_floor_area_with_contructions():
         room.floor_area
     assert room.properties.energy.floor_area_with_constructions('Meters') == \
         pytest.approx(85.492, abs=1e-3)
-    assert room.floor_area  == pytest.approx(100, abs=1e-3)
+    assert room.floor_area == pytest.approx(100, abs=1e-3)
 
     pts_1 = [Point3D(0, 0, 3), Point3D(0, 10, 3), Point3D(10, 10, 3), Point3D(10, 0, 3)]
     pts_2 = [Point3D(0, 0, 0), Point3D(0, 0, 3), Point3D(0, 10, 3), Point3D(0, 10, 0)]
@@ -109,7 +109,7 @@ def test_floor_area_with_contructions():
         room.floor_area
     assert room.properties.energy.floor_area_with_constructions('Meters') == \
         pytest.approx(85.492, abs=1e-3)
-    assert room.floor_area  == pytest.approx(100, abs=1e-3)
+    assert room.floor_area == pytest.approx(100, abs=1e-3)
 
 
 def test_default_properties():
