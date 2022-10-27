@@ -1076,7 +1076,7 @@ class ModelEnergyProperties(object):
                 ap_con = ap.properties.energy.construction
                 ap_d['transmit'] = str(round(ap_con.solar_transmittance, 3))
         if len(self.host._orphaned_doors) != 0:
-            for dr, dr_d in zip(shd._orphaned_doors, shd_d['orphaned_doors']):
+            for dr, dr_d in zip(self.host._orphaned_doors, data['orphaned_doors']):
                 if dr.is_glass:
                     dr_con = dr.properties.energy.construction
                     dr_d['transmit'] = str(round(dr_con.solar_transmittance, 3))
