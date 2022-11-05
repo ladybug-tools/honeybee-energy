@@ -1,13 +1,14 @@
 # coding=utf-8
 """Shade Energy Properties."""
+from honeybee.typing import clean_rad_string
+from honeybee.checkdup import is_equivalent
+
 from ..construction.shade import ShadeConstruction
 from ..schedule.ruleset import ScheduleRuleset
 from ..schedule.fixedinterval import ScheduleFixedInterval
 
 from ..lib.constructions import generic_context
 from ..lib.constructionsets import generic_construction_set
-
-from honeybee.typing import clean_rad_string
 
 
 class ShadeEnergyProperties(object):
@@ -219,6 +220,19 @@ class ShadeEnergyProperties(object):
         _host = new_host or self._host
         return ShadeEnergyProperties(_host, self._construction,
                                      self._transmittance_schedule)
+
+    def is_equivalent(self, other):
+        """Check to see if these energy properties are equivalent to another object.
+        
+        This will only be True if all properties match (except for the host) and
+        will otherwise be False.
+        """
+        if not is_equivalent(self._construction, other._construction):
+            return False
+        if not is_equivalent(
+                self._transmittance_schedule, other._transmittance_schedule):
+            return False
+        return True
 
     def _radiance_modifier(self, ref):
         """Get a Radiance modifier that respects the transmittance schedule.
