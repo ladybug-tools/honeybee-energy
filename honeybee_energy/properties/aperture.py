@@ -1,6 +1,7 @@
 # coding=utf-8
 """Aperture Energy Properties."""
 from honeybee.units import conversion_factor_to_meters
+from honeybee.checkdup import is_equivalent
 
 from ..construction.dictutil import dict_to_construction
 from ..material.glazing import EnergyWindowMaterialSimpleGlazSys
@@ -302,6 +303,18 @@ class ApertureEnergyProperties(object):
         _host = new_host or self._host
         vo = self._vent_opening.duplicate() if self._vent_opening is not None else None
         return ApertureEnergyProperties(_host, self._construction, vo)
+
+    def is_equivalent(self, other):
+        """Check to see if these energy properties are equivalent to another object.
+        
+        This will only be True if all properties match (except for the host) and
+        will otherwise be False.
+        """
+        if not is_equivalent(self._construction, other._construction):
+            return False
+        if not is_equivalent(self._vent_opening, other._vent_opening):
+            return False
+        return True
 
     def _window_construction(self):
         """Get the base window construction assigned to the aperture."""

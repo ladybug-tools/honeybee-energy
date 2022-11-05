@@ -3,6 +3,7 @@
 # import honeybee-core and ladybug-geometry modules
 from ladybug_geometry.geometry2d.pointvector import Vector2D
 from ladybug_geometry.geometry3d.pointvector import Point3D
+from honeybee.checkdup import is_equivalent
 from honeybee.boundarycondition import Outdoors, Ground, Surface, boundary_conditions
 from honeybee.facetype import Wall, RoofCeiling, Floor, AirBoundary
 from honeybee.units import conversion_factor_to_meters
@@ -1403,6 +1404,42 @@ class RoomEnergyProperties(object):
         new_room._internal_masses = self._internal_masses[:]  # copy internal masses list
         return new_room
 
+    def is_equivalent(self, other):
+        """Check to see if these energy properties are equivalent to another object.
+        
+        This will only be True if all properties match (except for the host) and
+        will otherwise be False.
+        """
+        if not is_equivalent(self._program_type, other._program_type):
+            return False
+        if not is_equivalent(self._construction_set, other._construction_set):
+            return False
+        if not is_equivalent(self._hvac, other._hvac):
+            return False
+        if not is_equivalent(self._shw, other._shw):
+            return False
+        if not is_equivalent(self._people, other._people):
+            return False
+        if not is_equivalent(self._lighting, other._lighting):
+            return False
+        if not is_equivalent(self._electric_equipment, other._electric_equipment):
+            return False
+        if not is_equivalent(self._gas_equipment, other._gas_equipment):
+            return False
+        if not is_equivalent(self._service_hot_water, other._service_hot_water):
+            return False
+        if not is_equivalent(self._infiltration, other._infiltration):
+            return False
+        if not is_equivalent(self._ventilation, other._ventilation):
+            return False
+        if not is_equivalent(self._setpoint, other._setpoint):
+            return False
+        if not is_equivalent(self._daylighting_control, other._daylighting_control):
+            return False
+        if not is_equivalent(self._window_vent_control, other._window_vent_control):
+            return False
+        return True
+
     @staticmethod
     def solve_norm_area_flow_coefficient(flow_per_exterior_area, flow_exponent=0.65,
                                          air_density=1.2041, delta_pressure=4):
@@ -1455,7 +1492,7 @@ class RoomEnergyProperties(object):
     @staticmethod
     def solve_norm_perimeter_flow_coefficient(norm_area_flow_coefficient, face_area,
                                               face_perimeter):
-        """Get mass flow coefficient [kg/(s m P^n)] from a normalied one and geometry.
+        """Get mass flow coefficient [kg/(s m P^n)] from a normalized one and geometry.
 
         This parameter is used to derive air flow for the four cracks around the
         perimeter of a closed window or door: one along the bottom, one along the top,
@@ -1512,7 +1549,7 @@ class RoomEnergyProperties(object):
 
         Args:
             load_name: Text for the name of the property as it appears on this object.
-                This is used both to retrive the load and to man an identifier
+                This is used both to retrieve the load and to man an identifier
                 for it. (eg. "people", "lighting").
             load_class: The class of the load object (eg. People).
         """

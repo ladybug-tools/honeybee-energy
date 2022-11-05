@@ -1,6 +1,7 @@
 # coding=utf-8
 """Face Energy Properties."""
 from honeybee.facetype import AirBoundary
+from honeybee.checkdup import is_equivalent
 from honeybee.units import conversion_factor_to_meters
 
 from ..construction.opaque import OpaqueConstruction
@@ -248,6 +249,18 @@ class FaceEnergyProperties(object):
         """
         _host = new_host or self._host
         return FaceEnergyProperties(_host, self._construction, self._vent_crack)
+
+    def is_equivalent(self, other):
+        """Check to see if these energy properties are equivalent to another object.
+        
+        This will only be True if all properties match (except for the host) and
+        will otherwise be False.
+        """
+        if not is_equivalent(self._construction, other._construction):
+            return False
+        if not is_equivalent(self._vent_crack, other._vent_crack):
+            return False
+        return True
 
     def ToString(self):
         return self.__repr__()
