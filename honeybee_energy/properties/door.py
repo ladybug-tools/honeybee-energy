@@ -194,6 +194,11 @@ class DoorEnergyProperties(object):
         _, r_vals = win_con.temperature_profile(
             t_out, t_in, height=height, angle=abs(self.host.altitude - 90),
             solar_irradiance=sol_irr)
+        if isinstance(win_con, OpaqueConstruction):
+            heat_gen = sol_irr * (1 - win_con.outside_solar_reflectance)
+            r_factor = sum(r_vals)
+            conducted = heat_gen * (1 - (sum(r_vals[1:]) / r_factor))
+            return conducted / sol_irr
         heat_gen, transmitted = win_con._heat_gen_from_solar(sol_irr)
         conducted = 0
         r_factor = sum(r_vals)
@@ -310,7 +315,7 @@ class DoorEnergyProperties(object):
 
     def is_equivalent(self, other):
         """Check to see if these energy properties are equivalent to another object.
-        
+
         This will only be True if all properties match (except for the host) and
         will otherwise be False.
         """

@@ -223,7 +223,7 @@ class ShadeEnergyProperties(object):
 
     def is_equivalent(self, other):
         """Check to see if these energy properties are equivalent to another object.
-        
+
         This will only be True if all properties match (except for the host) and
         will otherwise be False.
         """
