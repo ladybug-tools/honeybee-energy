@@ -869,7 +869,7 @@ def add_gbxml_space_boundaries(base_gbxml, honeybee_model, new_gbxml=None):
             shell_element = ET.Element('ShellGeometry')
             shell_element.set('id', '{}Shell'.format(room_id))
             shell_geo_element = ET.SubElement(shell_element, 'ClosedShell')
-            hb_room = room_dict[room_id]
+            hb_room = room_dict[room_id[:-6]]  # remove '_Space' from the end
             for face in hb_room:
                 face_xml, face_geo_xml = _face_to_gbxml_geo(face, surface_set)
                 if face_xml is not None:
