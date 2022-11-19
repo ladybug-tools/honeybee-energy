@@ -11,7 +11,7 @@ with open('requirements.txt') as f:
 #  with open('standards-requirements.txt') as f:
 #      standards_requirements = f.read().splitlines()
 
-standards_requirements = 'honeybee-energy-standards==2.2.1'
+standards_requirements = 'honeybee-energy-standards==2.2.6'
 
 setuptools.setup(
     name="honeybee-energy",
