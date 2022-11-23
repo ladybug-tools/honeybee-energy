@@ -36,7 +36,7 @@ def settings():
 @click.option('--north', '-n', default=0, type=float, show_default=True,
               help='Number from -360 to 360 for the counterclockwise difference between '
               'North and the positive Y-axis in degrees. 90 is west; 270 is east')
-@click.option('--filter-des-days/--all-des-days', ' /-all',  help='Flag to note whether '
+@click.option('--filter-des-days/--all-des-days', ' /-all', help='Flag to note whether '
               'the design days in the ddy-file should be filtered to only include 99.6 '
               'and 0.4 design days.', default=True, show_default=True)
 @click.option('--output-file', '-f', help='Optional file to output the JSON string of '
@@ -82,7 +82,7 @@ def default_sim_par(ddy_file, run_period, north, filter_des_days, output_file):
 @click.option('--north', '-n', default=0, type=float, show_default=True,
               help='Number from -360 to 360 for the counterclockwise difference between '
               'North and the positive Y-axis in degrees. 90 is west; 270 is east')
-@click.option('--filter-des-days/--all-des-days', ' /-all',  help='Flag to note whether '
+@click.option('--filter-des-days/--all-des-days', ' /-all', help='Flag to note whether '
               'the design days in the ddy-file should be filtered to only include 99.6 '
               'and 0.4 design days.', default=True, show_default=True)
 @click.option('--output-file', '-f', help='Optional file to output the JSON string of '
@@ -125,7 +125,7 @@ def load_balance_sim_par(ddy_file, load_type, run_period, north, filter_des_days
 @click.option('--north', '-n', default=0, type=float, show_default=True,
               help='Number from -360 to 360 for the counterclockwise difference between '
               'North and the positive Y-axis in degrees. 90 is west; 270 is east')
-@click.option('--filter-des-days/--all-des-days', ' /-all',  help='Flag to note whether '
+@click.option('--filter-des-days/--all-des-days', ' /-all', help='Flag to note whether '
               'the design days in the ddy-file should be filtered to only include 99.6 '
               'and 0.4 design days.', default=True, show_default=True)
 @click.option('--output-file', '-f', help='Optional file to output the JSON string of '
@@ -169,7 +169,7 @@ def comfort_sim_par(ddy_file, run_period, north, filter_des_days, output_file):
 @click.option('--north', '-n', default=0, type=float, show_default=True,
               help='Number from -360 to 360 for the counterclockwise difference between '
               'North and the positive Y-axis in degrees. 90 is west; 270 is east')
-@click.option('--filter-des-days/--all-des-days', ' /-all',  help='Flag to note whether '
+@click.option('--filter-des-days/--all-des-days', ' /-all', help='Flag to note whether '
               'the design days in the ddy-file should be filtered to only include 99.6 '
               'and 0.4 design days.', default=True, show_default=True)
 @click.option('--output-file', '-f', help='Optional file to output the JSON string of '
@@ -212,7 +212,7 @@ def sizing_sim_par(ddy_file, load_type, north, filter_des_days, output_file):
 @click.option('--north', '-n', default=0, type=float, show_default=True,
               help='Number from -360 to 360 for the counterclockwise difference between '
               'North and the positive Y-axis in degrees. 90 is west; 270 is east')
-@click.option('--filter-des-days/--all-des-days', ' /-all',  help='Flag to note whether '
+@click.option('--filter-des-days/--all-des-days', ' /-all', help='Flag to note whether '
               'the design days in the ddy-file should be filtered to only include 99.6 '
               'and 0.4 design days.', default=True, show_default=True)
 @click.option('--output-file', '-f', help='Optional file to output the JSON string of '
@@ -261,7 +261,7 @@ def custom_sim_par(ddy_file, output_names, run_period, north, filter_des_days,
 @click.option('--start-north', '-n', default=0, type=float, show_default=True,
               help='Number from -360 to 360 for the starting north angle. This will be '
               'added to the north-angles in order to shift all norths.')
-@click.option('--filter-des-days/--all-des-days', ' /-all',  help='Flag to note whether '
+@click.option('--filter-des-days/--all-des-days', ' /-all', help='Flag to note whether '
               'the design days in the ddy-file should be filtered to only include 99.6 '
               'and 0.4 design days.', default=True, show_default=True)
 @click.option('--folder', '-f', help='Output folder for the simulation parameter JSONS.',
@@ -383,7 +383,7 @@ def run_period(start_month, start_day, end_month, end_day, start_day_of_week,
     '--output-file', '-f', help='Optional IDF file to output the list of outputs to '
     'add to the EnergyPlus simulation. By default this will be printed out to '
     'stdout', type=click.File('w'), default='-', show_default=True)
-def dynamic_window_optuts(model_file, base_idf, output_file):
+def dynamic_window_outputs(model_file, base_idf, output_file):
     """Get an IDF string that requests transmittance outputs for dynamic windows.
 
     This should be used within comfort mapping workflows to request transmittance

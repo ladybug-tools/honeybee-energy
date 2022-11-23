@@ -15,14 +15,14 @@ else:
     readmode = 'r'
     writemode = 'w'
 
-from .config import folders
-from .measure import Measure
-
+from ladybug.futil import write_to_file, preparedir
 from honeybee.model import Model
 from honeybee.boundarycondition import Surface
 from honeybee.config import folders as hb_folders
 
-from ladybug.futil import write_to_file, preparedir
+from .config import folders
+from .measure import Measure
+from .result.osw import OSW
 
 
 def from_gbxml_osw(gbxml_path, model_path=None, osw_directory=None):
@@ -926,3 +926,14 @@ def _face_to_gbxml_geo(face, face_set):
             coord_element = ET.SubElement(pt_element, 'Coordinate')
             coord_element.text = str(coord)
     return face_element, loop_element
+
+
+def _parse_os_cli_failure(directory):
+    """Parse the failure log of OpenStudio CLI.
+
+    Args:
+        directory: Path to the directory out of which the simulation is run.
+    """
+    log_osw = OSW(os.path.join(directory, 'out.osw'))
+    raise Exception(
+        'Failed to run OpenStudio CLI:\n{}'.format('\n'.join(log_osw.errors)))
