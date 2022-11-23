@@ -8,9 +8,8 @@ import json
 
 from honeybee_energy.simulation.parameter import SimulationParameter
 from honeybee_energy.run import measure_compatible_model_json, to_openstudio_osw, \
-    run_osw, run_idf, output_energyplus_files
+    run_osw, run_idf, output_energyplus_files, _parse_os_cli_failure
 from honeybee_energy.result.err import Err
-from honeybee_energy.result.osw import OSW
 from honeybee.config import folders
 from ladybug.futil import preparedir
 from ladybug.epw import EPW
@@ -385,14 +384,3 @@ def _sense_input_file_type(model_file):
     if 'OS:Version,' in second_line:
         return 'osm'
     return 'idf'
-
-
-def _parse_os_cli_failure(directory):
-    """Parse the failure log of OpenStudio CLI.
-
-    Args:
-        directory: Path to the directory out of which the simulation is run.
-    """
-    log_osw = OSW(os.path.join(directory, 'out.osw'))
-    raise Exception(
-        'Failed to run OpenStudio CLI:\n{}'.format('\n'.join(log_osw.errors)))

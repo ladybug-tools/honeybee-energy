@@ -20,7 +20,7 @@ from honeybee_energy.schedule.dictutil import dict_to_schedule
 from honeybee_energy.schedule.ruleset import ScheduleRuleset
 from honeybee_energy.run import measure_compatible_model_json, to_openstudio_osw, \
     to_gbxml_osw, run_osw, from_gbxml_osw, from_osm_osw, from_idf_osw, \
-    add_gbxml_space_boundaries
+    add_gbxml_space_boundaries, _parse_os_cli_failure
 from honeybee_energy.writer import energyplus_idf_version
 from honeybee_energy.config import folders
 
@@ -55,7 +55,7 @@ def translate():
 @click.option('--check-model/--bypass-check', ' /-bc', help='Flag to note whether the '
               'Model should be re-serialized to Python and checked before it is '
               'translated to .osm. The check is not needed if the model-json was '
-              'expored directly from the honeybee-energy Python library.',
+              'exported directly from the honeybee-energy Python library.',
               default=True, show_default=True)
 @click.option('--log-file', '-log', help='Optional log file to output the paths to the '
               'generated OSM and IDF files if they were successfully created. '
@@ -106,7 +106,7 @@ def model_to_osm(
                 shutil.copyfile(idf, idf_file)
             log_file.write(json.dumps([osm, idf]))
         else:
-            raise Exception('Running OpenStudio CLI failed.')
+            _parse_os_cli_failure(folder)
     except Exception as e:
         _logger.exception('Model translation failed.\n{}'.format(e))
         sys.exit(1)
@@ -167,7 +167,7 @@ def model_to_idf(model_json, sim_par_json, additional_str, compact_schedules,
                 else os.path.abspath(str(output_file))
             sch_directory = os.path.join(os.path.split(sch_path)[0], 'schedules')
 
-        # create the strings for simulation paramters and model
+        # create the strings for simulation parameters and model
         ver_str = energyplus_idf_version() if folders.energyplus_version \
             is not None else ''
         sim_par_str = sim_par.to_idf()
@@ -201,7 +201,7 @@ def model_to_idf(model_json, sim_par_json, additional_str, compact_schedules,
 @click.option('--check-model/--bypass-check', ' /-bc', help='Flag to note whether the '
               'Model should be re-serialized to Python and checked before it is '
               'translated to .osm. The check is not needed if the model-json was '
-              'expored directly from the honeybee-energy Python library.',
+              'exported directly from the honeybee-energy Python library.',
               default=True, show_default=True)
 @click.option('--minimal/--full-geometry', ' /-fg', help='Flag to note whether space '
               'boundaries and shell geometry should be included in the exported '
@@ -222,7 +222,7 @@ def model_to_gbxml(
         # set the default folder if it's not specified
         out_path = None
         out_directory = os.path.join(
-                hb_folders.default_simulation_folder, 'temp_translate')
+            hb_folders.default_simulation_folder, 'temp_translate')
         if output_file.endswith('-'):
             f_name = os.path.basename(model_json).lower()
             f_name = f_name.replace('.hbjson', '.xml').replace('.json', '.xml')
@@ -249,7 +249,7 @@ def model_to_gbxml(
                     with open(out_path) as json_file:
                         print(json_file.read())
             else:
-                raise Exception('Running OpenStudio CLI failed.')
+                _parse_os_cli_failure(osw_folder)
     except Exception as e:
         _logger.exception('Model translation failed.\n{}'.format(e))
         sys.exit(1)
@@ -676,4 +676,4 @@ def _run_translation_osw(osw, out_path):
             with open(out_path) as json_file:
                 print(json_file.read())
     else:
-        raise Exception('Running OpenStudio CLI failed.')
+        _parse_os_cli_failure(os.path.dirname(osw))
