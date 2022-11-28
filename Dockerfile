@@ -30,6 +30,9 @@ COPY ${OPENSTUDIO_FILENAME}/usr/local/openstudio-${OPENSTUDIO_VERSION}/EnergyPlu
 COPY ${OPENSTUDIO_FILENAME}/usr/local/openstudio-${OPENSTUDIO_VERSION}/bin \
     ${LOCAL_OPENSTUDIO_PATH}/bin
 
+COPY ${OPENSTUDIO_FILENAME}/usr/local/openstudio-${OPENSTUDIO_VERSION}/lib \
+    ${LOCAL_OPENSTUDIO_PATH}/lib
+
 # Add lbt-measures to the ladybug_tools folder
 # https://github.com/ladybug-tools/lbt-measures
 COPY ${LBT_MEASURES_FILENAME}/lib \
