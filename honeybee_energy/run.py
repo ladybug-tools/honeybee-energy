@@ -117,10 +117,15 @@ def measure_compatible_model_json(
         assert len(parsed_model.rooms) != 0, \
             'Model contains no Rooms and therefore cannot be simulated in EnergyPlus.'
 
-    # remove colinear vertices to avoid E+ tolerance issues and convert Model to Meters
+    # remove degenerate geometry within native E+ tolerance of 0.01 meters
+    original_model = parsed_model
     parsed_model.convert_to_units('Meters')
-    for room in parsed_model.rooms:
-        room.remove_colinear_vertices_envelope(0.01, delete_degenerate=True)
+    try:
+        parsed_model.remove_degenerate_geometry(0.01)
+    except ValueError:
+        error = 'Failed to remove degenerate Rooms.\nYour Model units system is: {}. ' \
+            'Is this correct?'.format(original_model.units)
+        raise ValueError(error)
 
     # get the dictionary representation of the Model and add auto-calculated properties
     model_dict = parsed_model.to_dict(triangulate_sub_faces=triangulate_sub_faces)

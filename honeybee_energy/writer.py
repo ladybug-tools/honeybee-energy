@@ -588,16 +588,13 @@ def model_to_idf(
     # scale the model if the units are not meters
     if model.units != 'Meters':
         model.convert_to_units('Meters')
-    # remove colinear vertices using the Model tolerance to avoid E+ tolerance issues
-    if model.tolerance != 0:
-        for room in model.rooms:
-            try:
-                room.remove_colinear_vertices_envelope(
-                    tolerance=0.01, delete_degenerate=True)
-            except AssertionError as e:
-                error = 'Your Model units system is: {}. ' \
-                    'Is this correct?\n{}'.format(original_model.units, e)
-                raise ValueError(error)
+    # remove degenerate geometry within native E+ tolerance of 0.01 meters
+    try:
+        model.remove_degenerate_geometry(0.01)
+    except ValueError:
+        error = 'Failed to remove degenerate Rooms.\nYour Model units system is: {}. ' \
+            'Is this correct?'.format(original_model.units)
+        raise ValueError(error)
 
     # convert model to simple ventilation and Ideal Air Systems
     model.properties.energy.ventilation_simulation_control.vent_control_type = \
