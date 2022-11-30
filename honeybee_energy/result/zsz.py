@@ -34,6 +34,8 @@ class ZSZ(object):
         * cooling_flow_data
         * heating_flow_data
     """
+    # a list if keywords to identify design day names from room names in headers
+    DES_DAY_KEYWORDS = (' CLG ', ' HTG ' ' DESIGN DAY ')
 
     def __init__(self, file_path, cooling_date=Date(1, 1), heating_date=Date(1, 1)):
         """Initialize ZSZ"""
@@ -158,7 +160,23 @@ class ZSZ(object):
         collections = []
         for i, col_head in enumerate(self._headers):
             if data_type_text in col_head:
-                metadata = {'type': description, 'Zone': col_head.split(':')[0]}
+                # try to differentiate the Zone name from the design day name
+                c_head, zone_names, end_found = col_head.split(':')[:-1], [], False
+                for name in c_head:
+                    for kwrd in self.DES_DAY_KEYWORDS:
+                        if kwrd in name:
+                            end_found = True
+                            break
+                    else:
+                        zone_names.append(name)
+                    if end_found:
+                        break
+                if len(zone_names) == len(c_head):  # we did not find it
+                    zone_name = c_head[0]
+                else:
+                    zone_name = ':'.join(zone_names)
+                # create the header
+                metadata = {'type': description, 'Zone': zone_name}
                 head = Header(data_type, unit, a_per, metadata)
                 collections.append(HourlyContinuousCollection(
                     head, [float(val) for val in self._data[i]]))
