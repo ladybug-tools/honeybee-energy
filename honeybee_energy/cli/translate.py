@@ -198,6 +198,12 @@ def model_to_idf(model_json, sim_par_json, additional_str, compact_schedules,
               'they should be left as they are (False). This triangulation is '
               'necessary when exporting directly to EnergyPlus since it cannot accept '
               'sub-faces with more than 4 vertices.', default=True, show_default=True)
+@click.option('--triangulate-non-planar/--permit-non-planar', ' /-np',
+              help='Flag to note whether any non-planar orphaned geometry in the '
+              'model should be triangulated upon export. This can be helpful because '
+              'OpenStudio simply raises an error when it encounters non-planar '
+              'geometry, which would hinder the ability to save gbXML files that are '
+              'to be corrected in other software.', default=True, show_default=True)
 @click.option('--check-model/--bypass-check', ' /-bc', help='Flag to note whether the '
               'Model should be re-serialized to Python and checked before it is '
               'translated to .osm. The check is not needed if the model-json was '
@@ -211,7 +217,8 @@ def model_to_idf(model_json, sim_par_json, additional_str, compact_schedules,
               'of the translation. By default it printed out to stdout', default='-',
               type=click.Path(file_okay=True, dir_okay=False, resolve_path=True))
 def model_to_gbxml(
-        model_json, osw_folder, default_subfaces, check_model, minimal, output_file):
+        model_json, osw_folder, default_subfaces, triangulate_non_planar,
+        check_model, minimal, output_file):
     """Translate a Honeybee Model (HBJSON) to a gbXML file.
 
     \b
@@ -233,7 +240,8 @@ def model_to_gbxml(
             tri_sub = not default_subfaces
             model_json = measure_compatible_model_json(
                 model_json, out_directory, simplify_window_cons=True,
-                triangulate_sub_faces=tri_sub)
+                triangulate_sub_faces=tri_sub,
+                triangulate_non_planar_orphaned=triangulate_non_planar)
 
         # Write the osw file and translate the model to gbXML
         out_f = out_path if output_file.endswith('-') else output_file

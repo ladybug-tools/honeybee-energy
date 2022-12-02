@@ -66,7 +66,8 @@ def from_idf_osw(idf_path, model_path=None, osw_directory=None):
 
 def measure_compatible_model_json(
         model_json_path, destination_directory=None, simplify_window_cons=False,
-        triangulate_sub_faces=True, enforce_rooms=False):
+        triangulate_sub_faces=True, triangulate_non_planar_orphaned=False,
+        enforce_rooms=False):
     """Convert a Model JSON to one that is compatible with the honeybee_openstudio_gem.
 
     This includes the re-serialization of the Model to Python, which will
@@ -93,6 +94,12 @@ def measure_compatible_model_json(
             4 sides (True) or whether they should be left as they are (False).
             This triangulation is necessary when exporting directly to EnergyPlus
             since it cannot accept sub-faces with more than 4 vertices. (Default: True).
+        triangulate_non_planar_orphaned: Boolean to note whether any non-planar
+            orphaned geometry in the model should be triangulated upon export.
+            This can be helpful because OpenStudio simply raises an error when
+            it encounters non-planar geometry, which would hinder the ability
+            to save gbXML files that are to be corrected in other
+            software. (Default: False).
         enforce_rooms: Boolean to note whether this method should enforce the
             presence of Rooms in the Model, which is as necessary prerequisite
             for simulation in EnergyPlus. (Default: False).
@@ -126,6 +133,8 @@ def measure_compatible_model_json(
         error = 'Failed to remove degenerate Rooms.\nYour Model units system is: {}. ' \
             'Is this correct?'.format(original_model.units)
         raise ValueError(error)
+    if triangulate_non_planar_orphaned:
+        parsed_model.triangulate_non_planar_quads(0.01)
 
     # get the dictionary representation of the Model and add auto-calculated properties
     model_dict = parsed_model.to_dict(triangulate_sub_faces=triangulate_sub_faces)
