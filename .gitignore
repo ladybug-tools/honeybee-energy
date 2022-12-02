@@ -15,3 +15,5 @@ honeybee.log*
 .env
 htmlcov/*
 .DS_store
+/build
+.eggs
