@@ -35,7 +35,7 @@ class ZSZ(object):
         * heating_flow_data
     """
     # a list if keywords to identify design day names from room names in headers
-    DES_DAY_KEYWORDS = (' CLG ', ' HTG ' ' DESIGN DAY ')
+    DES_DAY_KEYWORDS = (' CLG ', ' HTG ', ' DESIGN DAY ')
 
     def __init__(self, file_path, cooling_date=Date(1, 1), heating_date=Date(1, 1)):
         """Initialize ZSZ"""
