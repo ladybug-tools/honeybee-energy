@@ -23,11 +23,12 @@ ConstructionSets use:
 
 `pip install -U honeybee-energy[standards]`
 
-To check if the command line interface is installed correctly use `honeybee-energy --help`. 
+To check if the command line interface is installed correctly use `honeybee-energy --help`.
 
 ## [API Documentation](http://ladybug-tools.github.io/honeybee-energy/docs)
 
 ## Local Development
+
 1. Clone this repo locally
 ```console
 git clone git@github.com:ladybug-tools/honeybee-energy
