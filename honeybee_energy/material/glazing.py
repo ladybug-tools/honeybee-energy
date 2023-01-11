@@ -608,7 +608,7 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
     def u_value(self):
         """U-value of the material layer [W/m2-K] (excluding air film resistance).
 
-        This is the U-value of galzing system material layer as understood by EnergyPlus.
+        This is the U-value of glazing system material layer as understood by EnergyPlus.
         """
         return 1 / self.r_value
 
@@ -616,12 +616,12 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
     def r_value(self):
         """R-value of the material layer [m2-K/W] (excluding air film resistance).
 
-        This is the R-value of galzing system as understood by EnergyPlus.
+        This is the R-value of glazing system as understood by EnergyPlus.
         """
         out_r = 1 / ((0.025342 * self._u_factor) + 29.163853)
         in_r = 1 / ((0.359073 * math.log(self._u_factor)) + 6.949915) \
             if self._u_factor < 5.85 else \
-            1 / ((1.788041 * self._u_factor) + 2.886625)
+            1 / ((1.788041 * self._u_factor) - 2.886625)
         return (1 / self.u_factor) - out_r - in_r
 
     @property
