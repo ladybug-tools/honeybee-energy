@@ -281,6 +281,7 @@ class ColorRoom(_ColorObject):
         * normalize_by_floor
         * geo_unit
         * matched_rooms
+        * matched_data
         * matched_values
         * matched_floor_faces
         * matched_floor_areas
@@ -344,6 +345,11 @@ class ColorRoom(_ColorObject):
     def matched_rooms(self):
         """Get a tuple of honeybee Rooms that have been matched to the data."""
         return tuple(obj[0] for obj in self._matched_objects)
+
+    @property
+    def matched_data(self):
+        """Get a tuple of data collections that have been matched to the rooms."""
+        return tuple(obj[1] for obj in self._matched_objects)
 
     @property
     def matched_values(self):
@@ -470,6 +476,7 @@ class ColorFace(_ColorObject):
         * normalize
         * geo_unit
         * matched_flat_faces
+        * matched_data
         * matched_values
         * matched_flat_geometry
         * matched_flat_areas
@@ -531,6 +538,11 @@ class ColorFace(_ColorObject):
     def matched_flat_faces(self):
         """Get a tuple of honeybee objects that have been matched to the data."""
         return tuple(obj[0] for obj in self._matched_objects)
+
+    @property
+    def matched_data(self):
+        """Get a tuple of data collections that have been matched to the flat_faces."""
+        return tuple(obj[1] for obj in self._matched_objects)
 
     @property
     def matched_values(self):
