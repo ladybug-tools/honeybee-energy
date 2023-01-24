@@ -707,8 +707,10 @@ class WindowConstruction(_ConstructionBase):
             if isinstance(mat, EnergyWindowMaterialGlazing) and mat.solar_diffusing:
                 diffusing = True
         if not diffusing:
-            return Glass.from_single_transmittance(
-                clean_rad_string(self.identifier), self.solar_transmittance)
+            tm_sivity = Glass.transmissivity_from_transmittance(self.solar_transmittance)
+            tm_sivity = 1 if tm_sivity > 1 else tm_sivity
+            return Glass.from_single_transmissivity(
+                clean_rad_string(self.identifier), tm_sivity)
         else:
             _, ref, absorb = self.solar_optical_properties()
             rgb_ref = 1 - (sum(absorb) / (1 - ref))

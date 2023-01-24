@@ -43,13 +43,13 @@ class _HeatCoolBase(_TemplateSystem):
     """
     __slots__ = ('_properties',)
     COOL_ONLY_TYPES = (
-            'EvapCoolers', 'FCU_Chiller', 'FCU_ACChiller', 'FCU_DCW',
-            'ResidentialAC', 'WindowAC'
-        )
+        'EvapCoolers', 'FCU_Chiller', 'FCU_ACChiller', 'FCU_DCW',
+        'ResidentialAC', 'WindowAC'
+    )
     HEAT_ONLY_TYPES = (
-            'ElectricBaseboard', 'BoilerBaseboard', 'ASHPBaseboard',
-            'DHWBaseboard', 'GasHeaters', 'ResidentialHPNoCool', 'ResidentialFurnace'
-        )
+        'ElectricBaseboard', 'BoilerBaseboard', 'ASHPBaseboard',
+        'DHWBaseboard', 'GasHeaters', 'ResidentialHPNoCool', 'ResidentialFurnace'
+    )
 
     def __init__(self, identifier, vintage='ASHRAE_2019', equipment_type=None):
         # initialize base HVAC system properties

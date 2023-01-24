@@ -57,7 +57,7 @@ def test_floor_area_with_contructions():
         room.floor_area
     assert room.properties.energy.floor_area_with_constructions('Meters') == \
         pytest.approx(39.119, abs=1e-3)
-    assert room.floor_area  == pytest.approx(50, abs=1e-3)
+    assert room.floor_area == pytest.approx(50, abs=1e-3)
 
     pts_1 = [Point3D(0, 0, 3), Point3D(0, 10, 3), Point3D(10, 10, 3), Point3D(10, 0, 3)]
     pts_2 = [Point3D(0, 0, 0), Point3D(0, 0, 3), Point3D(0, 10, 3), Point3D(0, 10, 0)]
@@ -242,21 +242,21 @@ def test_loads_absolute():
     """Test the methods that assign loads using an absolute number."""
     room = Room.from_box('ShoeBox', 10000, 10000, 3000)
 
-    room.properties.energy.abolute_people(10, 0.001)
+    room.properties.energy.absolute_people(10, 0.001)
     assert room.properties.energy.people.people_per_area == 0.1
-    room.properties.energy.abolute_lighting(1000, 0.001)
+    room.properties.energy.absolute_lighting(1000, 0.001)
     assert room.properties.energy.lighting.watts_per_area == 10
-    room.properties.energy.abolute_electric_equipment(1000, 0.001)
+    room.properties.energy.absolute_electric_equipment(1000, 0.001)
     assert room.properties.energy.electric_equipment.watts_per_area == 10
-    room.properties.energy.abolute_gas_equipment(1000, 0.001)
+    room.properties.energy.absolute_gas_equipment(1000, 0.001)
     assert room.properties.energy.gas_equipment.watts_per_area == 10
-    room.properties.energy.abolute_infiltration(1, 0.001)
+    room.properties.energy.absolute_infiltration(1, 0.001)
     assert room.properties.energy.infiltration.flow_per_exterior_area == \
         pytest.approx(1. / 220., abs=1e-3)
-    room.properties.energy.abolute_infiltration_ach(1, 0.001)
+    room.properties.energy.absolute_infiltration_ach(1, 0.001)
     assert room.properties.energy.infiltration.flow_per_exterior_area == \
         pytest.approx(300. / (220. * 3600.), abs=1e-3)
-    room.properties.energy.abolute_ventilation(0.5)
+    room.properties.energy.absolute_ventilation(0.5)
     assert room.properties.energy.ventilation.flow_per_zone == \
         pytest.approx(0.5, abs=1e-3)
 
