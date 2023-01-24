@@ -392,8 +392,8 @@ class RoomEnergyProperties(object):
         """Boolean to note whether the Room is conditioned."""
         return self._hvac is not None
 
-    def abolute_people(self, person_count, conversion=1):
-        """Set the abolute number of people in the Room.
+    def absolute_people(self, person_count, conversion=1):
+        """Set the absolute number of people in the Room.
 
         This overwrites the RoomEnergyProperties's people per area but preserves
         all schedules and other people properties. If the Room has no people definition,
@@ -410,8 +410,8 @@ class RoomEnergyProperties(object):
         self._absolute_by_floor(people, 'people_per_area', person_count, conversion)
         self.people = people
 
-    def abolute_lighting(self, watts, conversion=1):
-        """Set the abolute wattage of lighting in the Room.
+    def absolute_lighting(self, watts, conversion=1):
+        """Set the absolute wattage of lighting in the Room.
 
         This overwrites the RoomEnergyProperties's lighting per area but preserves all
         schedules and other lighting properties. If the Room has no lighting definition,
@@ -428,8 +428,8 @@ class RoomEnergyProperties(object):
         self._absolute_by_floor(lighting, 'watts_per_area', watts, conversion)
         self.lighting = lighting
 
-    def abolute_electric_equipment(self, watts, conversion=1):
-        """Set the abolute wattage of electric equipment in the Room.
+    def absolute_electric_equipment(self, watts, conversion=1):
+        """Set the absolute wattage of electric equipment in the Room.
 
         This overwrites the RoomEnergyProperties's electric equipment per area but
         preserves all schedules and other properties. If the Room has no electric
@@ -447,8 +447,8 @@ class RoomEnergyProperties(object):
         self._absolute_by_floor(elect_equip, 'watts_per_area', watts, conversion)
         self.electric_equipment = elect_equip
 
-    def abolute_gas_equipment(self, watts, conversion=1):
-        """Set the abolute wattage of gas equipment in the Room.
+    def absolute_gas_equipment(self, watts, conversion=1):
+        """Set the absolute wattage of gas equipment in the Room.
 
         This overwrites the RoomEnergyProperties's gas equipment per area but
         preserves all schedules and other properties. If the Room has no gas
@@ -466,8 +466,8 @@ class RoomEnergyProperties(object):
         self._absolute_by_floor(gas_equipment, 'watts_per_area', watts, conversion)
         self.gas_equipment = gas_equipment
 
-    def abolute_service_hot_water(self, flow, conversion=1):
-        """Set the abolute flow rate of service hot water use in the Room.
+    def absolute_service_hot_water(self, flow, conversion=1):
+        """Set the absolute flow rate of service hot water use in the Room.
 
         This overwrites the RoomEnergyProperties's hot water flow per area but
         preserves all schedules and other properties. If the Room has no service
@@ -485,8 +485,8 @@ class RoomEnergyProperties(object):
         self._absolute_by_floor(shw, 'flow_per_area', flow, conversion)
         self.service_hot_water = shw
 
-    def abolute_infiltration(self, flow_rate, conversion=1):
-        """Set the abolute flow rate of infiltration for the Room in m3/s.
+    def absolute_infiltration(self, flow_rate, conversion=1):
+        """Set the absolute flow rate of infiltration for the Room in m3/s.
 
         This overwrites the RoomEnergyProperties's infiltration flow per exterior area
         but preserves all schedules and other properties. If the Room has no
@@ -508,8 +508,8 @@ class RoomEnergyProperties(object):
             pass  # no exposed area; just leave the load level as is
         self.infiltration = infiltration
 
-    def abolute_infiltration_ach(self, air_changes_per_hour, conversion=1):
-        """Set the abolute flow rate of infiltration for the Room in ACH.
+    def absolute_infiltration_ach(self, air_changes_per_hour, conversion=1):
+        """Set the absolute flow rate of infiltration for the Room in ACH.
 
         This overwrites the RoomEnergyProperties's infiltration flow per exterior area
         but preserves all schedules and other properties. If the Room has no
@@ -524,17 +524,17 @@ class RoomEnergyProperties(object):
                 be 0.001 for millimeters, 0.305 for feet, etc. (Default: 1).
         """
         room_vol = self.host.volume * conversion ** 3
-        self.abolute_infiltration((air_changes_per_hour * room_vol) / 3600., conversion)
+        self.absolute_infiltration((air_changes_per_hour * room_vol) / 3600., conversion)
 
-    def abolute_ventilation(self, flow_rate):
-        """Set the abolute flow rate of outdoor air ventilation for the Room in m3/s.
+    def absolute_ventilation(self, flow_rate):
+        """Set the absolute flow rate of outdoor air ventilation for the Room in m3/s.
 
         This overwrites all values of the RoomEnergyProperties's ventilation flow
         but preserves the schedule. If the Room has no ventilation definition, a
         new one with an Always On schedule will be created.
 
         Args:
-            flow_rate: A number for the abolute of flow of outdoor air ventilation
+            flow_rate: A number for the absolute of flow of outdoor air ventilation
                 for the room in cubic meters per second (m3/s). Note that inputting
                 a value here will overwrite all specification of outdoor air
                 ventilation currently on the room (per_floor, per_person, ach).
@@ -634,7 +634,7 @@ class RoomEnergyProperties(object):
         """Set the construction of exterior Apertures in Walls facing a given orientation.
 
         This is useful for testing orientation-specific energy conservation
-        strategies or creating AHSRAE baseline buildings.
+        strategies or creating ASHRAE baseline buildings.
 
         Args:
             construction: A WindowConstruction that will be assigned to all of the
@@ -1566,7 +1566,8 @@ class RoomEnergyProperties(object):
                 return load_class(load_id)
 
     def _absolute_by_floor(self, load_obj, property_name, value, conversion):
-        """Set a floor-normalized load object to have an abolute value for a property."""
+        """Set a floor-normalized load object to have an absolute value for a property.
+        """
         try:
             floor_area = self.host.floor_area * conversion ** 2
             setattr(load_obj, property_name, value / floor_area)

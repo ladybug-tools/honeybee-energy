@@ -12,8 +12,10 @@ from .idealair import IdealAirSystem
 from .allair import HVAC_TYPES_DICT as allair_types
 from .doas import HVAC_TYPES_DICT as doas_types
 from .heatcool import HVAC_TYPES_DICT as heatcool_types
+from .detailed import DetailedHVAC
 
 HVAC_TYPES_DICT = {'IdealAirSystem': IdealAirSystem}
 HVAC_TYPES_DICT.update(allair_types)
 HVAC_TYPES_DICT.update(doas_types)
 HVAC_TYPES_DICT.update(heatcool_types)
+HVAC_TYPES_DICT['DetailedHVAC'] = DetailedHVAC

@@ -1,0 +1,970 @@
+{
+    "$type": "Ironbug.HVAC.IB_HVACSystem, Ironbug.HVAC",
+    "_existFile": "",
+    "AirLoops": [
+        {
+            "$type": "Ironbug.HVAC.IB_NoAirLoop, Ironbug.HVAC",
+            "ThermalZones": [
+                {
+                    "$type": "Ironbug.HVAC.BaseClass.IB_ThermalZone, Ironbug.HVAC",
+                    "AirTerminal": {
+                        "$type": "Ironbug.HVAC.IB_AirTerminalSingleDuctConstantVolumeNoReheat, Ironbug.HVAC",
+                        "CustomAttributes": [
+                            {
+                                "Field": {
+                                    "FullName": "Comment",
+                                    "DataTypeName": "System.String"
+                                },
+                                "Value": "TrackingID:#[b757be44]"
+                            }
+                        ]
+                    },
+                    "ZoneEquipments": [
+                        {
+                            "$type": "Ironbug.HVAC.IB_ZoneHVACPackagedTerminalAirConditioner, Ironbug.HVAC",
+                            "Children": [
+                                {
+                                    "$type": "Ironbug.HVAC.IB_CoilCoolingDXSingleSpeed, Ironbug.HVAC",
+                                    "CustomAttributes": [
+                                        {
+                                            "Field": {
+                                                "FullName": "Comment",
+                                                "DataTypeName": "System.String"
+                                            },
+                                            "Value": "TrackingID:#[1bed23e5]"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "$type": "Ironbug.HVAC.IB_CoilHeatingWater, Ironbug.HVAC",
+                                    "CustomAttributes": [
+                                        {
+                                            "Field": {
+                                                "FullName": "Comment",
+                                                "DataTypeName": "System.String"
+                                            },
+                                            "Value": "TrackingID:#[3bec8c65]"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "$type": "Ironbug.HVAC.IB_FanConstantVolume, Ironbug.HVAC",
+                                    "CustomAttributes": [
+                                        {
+                                            "Field": {
+                                                "FullName": "Comment",
+                                                "DataTypeName": "System.String"
+                                            },
+                                            "Value": "TrackingID:#[2be1963a]"
+                                        },
+                                        {
+                                            "Field": {
+                                                "FullName": "PressureRise",
+                                                "DataTypeName": "System.Double"
+                                            },
+                                            "Value": 500.0
+                                        }
+                                    ]
+                                }
+                            ],
+                            "CustomAttributes": [
+                                {
+                                    "Field": {
+                                        "FullName": "Comment",
+                                        "DataTypeName": "System.String"
+                                    },
+                                    "Value": "TrackingID:#[3d28bc01]"
+                                }
+                            ]
+                        }
+                    ],
+                    "SizingZone": {
+                        "$type": "Ironbug.HVAC.IB_SizingZone, Ironbug.HVAC",
+                        "CustomAttributes": [
+                            {
+                                "Field": {
+                                    "FullName": "Comment",
+                                    "DataTypeName": "System.String"
+                                },
+                                "Value": "TrackingID:#[ba27a677]"
+                            }
+                        ]
+                    },
+                    "CustomAttributes": [
+                        {
+                            "Field": {
+                                "FullName": "Comment",
+                                "DataTypeName": "System.String"
+                            },
+                            "Value": "TrackingID:#[6634c110]"
+                        },
+                        {
+                            "Field": {
+                                "FullName": "Name",
+                                "DataTypeName": "System.String"
+                            },
+                            "Value": "Residence_1_e2da3e76"
+                        }
+                    ]
+                },
+                {
+                    "$type": "Ironbug.HVAC.BaseClass.IB_ThermalZone, Ironbug.HVAC",
+                    "AirTerminal": {
+                        "$type": "Ironbug.HVAC.IB_AirTerminalSingleDuctConstantVolumeNoReheat, Ironbug.HVAC",
+                        "CustomAttributes": [
+                            {
+                                "Field": {
+                                    "FullName": "Comment",
+                                    "DataTypeName": "System.String"
+                                },
+                                "Value": "TrackingID:#[aa63c743]"
+                            }
+                        ]
+                    },
+                    "ZoneEquipments": [
+                        {
+                            "$type": "Ironbug.HVAC.IB_ZoneHVACPackagedTerminalAirConditioner, Ironbug.HVAC",
+                            "Children": [
+                                {
+                                    "$type": "Ironbug.HVAC.IB_CoilCoolingDXSingleSpeed, Ironbug.HVAC",
+                                    "CustomAttributes": [
+                                        {
+                                            "Field": {
+                                                "FullName": "Comment",
+                                                "DataTypeName": "System.String"
+                                            },
+                                            "Value": "TrackingID:#[7ae5ad03]"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "$type": "Ironbug.HVAC.IB_CoilHeatingWater, Ironbug.HVAC",
+                                    "CustomAttributes": [
+                                        {
+                                            "Field": {
+                                                "FullName": "Comment",
+                                                "DataTypeName": "System.String"
+                                            },
+                                            "Value": "TrackingID:#[53b03e3a]"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "$type": "Ironbug.HVAC.IB_FanConstantVolume, Ironbug.HVAC",
+                                    "CustomAttributes": [
+                                        {
+                                            "Field": {
+                                                "FullName": "Comment",
+                                                "DataTypeName": "System.String"
+                                            },
+                                            "Value": "TrackingID:#[2be1963a]"
+                                        },
+                                        {
+                                            "Field": {
+                                                "FullName": "PressureRise",
+                                                "DataTypeName": "System.Double"
+                                            },
+                                            "Value": 500.0
+                                        }
+                                    ]
+                                }
+                            ],
+                            "CustomAttributes": [
+                                {
+                                    "Field": {
+                                        "FullName": "Comment",
+                                        "DataTypeName": "System.String"
+                                    },
+                                    "Value": "TrackingID:#[e8c1dc20]"
+                                }
+                            ]
+                        }
+                    ],
+                    "SizingZone": {
+                        "$type": "Ironbug.HVAC.IB_SizingZone, Ironbug.HVAC",
+                        "CustomAttributes": [
+                            {
+                                "Field": {
+                                    "FullName": "Comment",
+                                    "DataTypeName": "System.String"
+                                },
+                                "Value": "TrackingID:#[ba27a677]"
+                            }
+                        ]
+                    },
+                    "CustomAttributes": [
+                        {
+                            "Field": {
+                                "FullName": "Comment",
+                                "DataTypeName": "System.String"
+                            },
+                            "Value": "TrackingID:#[356cf742]"
+                        },
+                        {
+                            "Field": {
+                                "FullName": "Name",
+                                "DataTypeName": "System.String"
+                            },
+                            "Value": "Residence_2_5e01d862"
+                        }
+                    ]
+                },
+                {
+                    "$type": "Ironbug.HVAC.BaseClass.IB_ThermalZone, Ironbug.HVAC",
+                    "AirTerminal": {
+                        "$type": "Ironbug.HVAC.IB_AirTerminalSingleDuctConstantVolumeNoReheat, Ironbug.HVAC",
+                        "CustomAttributes": [
+                            {
+                                "Field": {
+                                    "FullName": "Comment",
+                                    "DataTypeName": "System.String"
+                                },
+                                "Value": "TrackingID:#[8a9e4fad]"
+                            }
+                        ]
+                    },
+                    "ZoneEquipments": [
+                        {
+                            "$type": "Ironbug.HVAC.IB_ZoneHVACPackagedTerminalAirConditioner, Ironbug.HVAC",
+                            "Children": [
+                                {
+                                    "$type": "Ironbug.HVAC.IB_CoilCoolingDXSingleSpeed, Ironbug.HVAC",
+                                    "CustomAttributes": [
+                                        {
+                                            "Field": {
+                                                "FullName": "Comment",
+                                                "DataTypeName": "System.String"
+                                            },
+                                            "Value": "TrackingID:#[8ff794c8]"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "$type": "Ironbug.HVAC.IB_CoilHeatingWater, Ironbug.HVAC",
+                                    "CustomAttributes": [
+                                        {
+                                            "Field": {
+                                                "FullName": "Comment",
+                                                "DataTypeName": "System.String"
+                                            },
+                                            "Value": "TrackingID:#[9b40b153]"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "$type": "Ironbug.HVAC.IB_FanConstantVolume, Ironbug.HVAC",
+                                    "CustomAttributes": [
+                                        {
+                                            "Field": {
+                                                "FullName": "Comment",
+                                                "DataTypeName": "System.String"
+                                            },
+                                            "Value": "TrackingID:#[2be1963a]"
+                                        },
+                                        {
+                                            "Field": {
+                                                "FullName": "PressureRise",
+                                                "DataTypeName": "System.Double"
+                                            },
+                                            "Value": 500.0
+                                        }
+                                    ]
+                                }
+                            ],
+                            "CustomAttributes": [
+                                {
+                                    "Field": {
+                                        "FullName": "Comment",
+                                        "DataTypeName": "System.String"
+                                    },
+                                    "Value": "TrackingID:#[288adfc9]"
+                                }
+                            ]
+                        }
+                    ],
+                    "SizingZone": {
+                        "$type": "Ironbug.HVAC.IB_SizingZone, Ironbug.HVAC",
+                        "CustomAttributes": [
+                            {
+                                "Field": {
+                                    "FullName": "Comment",
+                                    "DataTypeName": "System.String"
+                                },
+                                "Value": "TrackingID:#[ba27a677]"
+                            }
+                        ]
+                    },
+                    "CustomAttributes": [
+                        {
+                            "Field": {
+                                "FullName": "Comment",
+                                "DataTypeName": "System.String"
+                            },
+                            "Value": "TrackingID:#[49898eaa]"
+                        },
+                        {
+                            "Field": {
+                                "FullName": "Name",
+                                "DataTypeName": "System.String"
+                            },
+                            "Value": "Residence_3_0c8966ea"
+                        }
+                    ]
+                },
+                {
+                    "$type": "Ironbug.HVAC.BaseClass.IB_ThermalZone, Ironbug.HVAC",
+                    "AirTerminal": {
+                        "$type": "Ironbug.HVAC.IB_AirTerminalSingleDuctConstantVolumeNoReheat, Ironbug.HVAC",
+                        "CustomAttributes": [
+                            {
+                                "Field": {
+                                    "FullName": "Comment",
+                                    "DataTypeName": "System.String"
+                                },
+                                "Value": "TrackingID:#[3f22c0c6]"
+                            }
+                        ]
+                    },
+                    "ZoneEquipments": [
+                        {
+                            "$type": "Ironbug.HVAC.IB_ZoneHVACPackagedTerminalAirConditioner, Ironbug.HVAC",
+                            "Children": [
+                                {
+                                    "$type": "Ironbug.HVAC.IB_CoilCoolingDXSingleSpeed, Ironbug.HVAC",
+                                    "CustomAttributes": [
+                                        {
+                                            "Field": {
+                                                "FullName": "Comment",
+                                                "DataTypeName": "System.String"
+                                            },
+                                            "Value": "TrackingID:#[ab2db4ae]"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "$type": "Ironbug.HVAC.IB_CoilHeatingWater, Ironbug.HVAC",
+                                    "CustomAttributes": [
+                                        {
+                                            "Field": {
+                                                "FullName": "Comment",
+                                                "DataTypeName": "System.String"
+                                            },
+                                            "Value": "TrackingID:#[36ee20dd]"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "$type": "Ironbug.HVAC.IB_FanConstantVolume, Ironbug.HVAC",
+                                    "CustomAttributes": [
+                                        {
+                                            "Field": {
+                                                "FullName": "Comment",
+                                                "DataTypeName": "System.String"
+                                            },
+                                            "Value": "TrackingID:#[2be1963a]"
+                                        },
+                                        {
+                                            "Field": {
+                                                "FullName": "PressureRise",
+                                                "DataTypeName": "System.Double"
+                                            },
+                                            "Value": 500.0
+                                        }
+                                    ]
+                                }
+                            ],
+                            "CustomAttributes": [
+                                {
+                                    "Field": {
+                                        "FullName": "Comment",
+                                        "DataTypeName": "System.String"
+                                    },
+                                    "Value": "TrackingID:#[e7941042]"
+                                }
+                            ]
+                        }
+                    ],
+                    "SizingZone": {
+                        "$type": "Ironbug.HVAC.IB_SizingZone, Ironbug.HVAC",
+                        "CustomAttributes": [
+                            {
+                                "Field": {
+                                    "FullName": "Comment",
+                                    "DataTypeName": "System.String"
+                                },
+                                "Value": "TrackingID:#[ba27a677]"
+                            }
+                        ]
+                    },
+                    "CustomAttributes": [
+                        {
+                            "Field": {
+                                "FullName": "Comment",
+                                "DataTypeName": "System.String"
+                            },
+                            "Value": "TrackingID:#[e8dd1f54]"
+                        },
+                        {
+                            "Field": {
+                                "FullName": "Name",
+                                "DataTypeName": "System.String"
+                            },
+                            "Value": "Residence_4_7fe4fd12"
+                        }
+                    ]
+                },
+                {
+                    "$type": "Ironbug.HVAC.BaseClass.IB_ThermalZone, Ironbug.HVAC",
+                    "AirTerminal": {
+                        "$type": "Ironbug.HVAC.IB_AirTerminalSingleDuctConstantVolumeNoReheat, Ironbug.HVAC",
+                        "CustomAttributes": [
+                            {
+                                "Field": {
+                                    "FullName": "Comment",
+                                    "DataTypeName": "System.String"
+                                },
+                                "Value": "TrackingID:#[f489bc71]"
+                            }
+                        ]
+                    },
+                    "ZoneEquipments": [
+                        {
+                            "$type": "Ironbug.HVAC.IB_ZoneHVACPackagedTerminalAirConditioner, Ironbug.HVAC",
+                            "Children": [
+                                {
+                                    "$type": "Ironbug.HVAC.IB_CoilCoolingDXSingleSpeed, Ironbug.HVAC",
+                                    "CustomAttributes": [
+                                        {
+                                            "Field": {
+                                                "FullName": "Comment",
+                                                "DataTypeName": "System.String"
+                                            },
+                                            "Value": "TrackingID:#[146f1fcf]"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "$type": "Ironbug.HVAC.IB_CoilHeatingWater, Ironbug.HVAC",
+                                    "CustomAttributes": [
+                                        {
+                                            "Field": {
+                                                "FullName": "Comment",
+                                                "DataTypeName": "System.String"
+                                            },
+                                            "Value": "TrackingID:#[32114369]"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "$type": "Ironbug.HVAC.IB_FanConstantVolume, Ironbug.HVAC",
+                                    "CustomAttributes": [
+                                        {
+                                            "Field": {
+                                                "FullName": "Comment",
+                                                "DataTypeName": "System.String"
+                                            },
+                                            "Value": "TrackingID:#[2be1963a]"
+                                        },
+                                        {
+                                            "Field": {
+                                                "FullName": "PressureRise",
+                                                "DataTypeName": "System.Double"
+                                            },
+                                            "Value": 500.0
+                                        }
+                                    ]
+                                }
+                            ],
+                            "CustomAttributes": [
+                                {
+                                    "Field": {
+                                        "FullName": "Comment",
+                                        "DataTypeName": "System.String"
+                                    },
+                                    "Value": "TrackingID:#[d170c7cc]"
+                                }
+                            ]
+                        }
+                    ],
+                    "SizingZone": {
+                        "$type": "Ironbug.HVAC.IB_SizingZone, Ironbug.HVAC",
+                        "CustomAttributes": [
+                            {
+                                "Field": {
+                                    "FullName": "Comment",
+                                    "DataTypeName": "System.String"
+                                },
+                                "Value": "TrackingID:#[ba27a677]"
+                            }
+                        ]
+                    },
+                    "CustomAttributes": [
+                        {
+                            "Field": {
+                                "FullName": "Comment",
+                                "DataTypeName": "System.String"
+                            },
+                            "Value": "TrackingID:#[1ef392fd]"
+                        },
+                        {
+                            "Field": {
+                                "FullName": "Name",
+                                "DataTypeName": "System.String"
+                            },
+                            "Value": "Residence_5_20ebc1c9"
+                        }
+                    ]
+                },
+                {
+                    "$type": "Ironbug.HVAC.BaseClass.IB_ThermalZone, Ironbug.HVAC",
+                    "AirTerminal": {
+                        "$type": "Ironbug.HVAC.IB_AirTerminalSingleDuctConstantVolumeNoReheat, Ironbug.HVAC",
+                        "CustomAttributes": [
+                            {
+                                "Field": {
+                                    "FullName": "Comment",
+                                    "DataTypeName": "System.String"
+                                },
+                                "Value": "TrackingID:#[7b86f6ab]"
+                            }
+                        ]
+                    },
+                    "ZoneEquipments": [
+                        {
+                            "$type": "Ironbug.HVAC.IB_ZoneHVACPackagedTerminalAirConditioner, Ironbug.HVAC",
+                            "Children": [
+                                {
+                                    "$type": "Ironbug.HVAC.IB_CoilCoolingDXSingleSpeed, Ironbug.HVAC",
+                                    "CustomAttributes": [
+                                        {
+                                            "Field": {
+                                                "FullName": "Comment",
+                                                "DataTypeName": "System.String"
+                                            },
+                                            "Value": "TrackingID:#[3f2ddea6]"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "$type": "Ironbug.HVAC.IB_CoilHeatingWater, Ironbug.HVAC",
+                                    "CustomAttributes": [
+                                        {
+                                            "Field": {
+                                                "FullName": "Comment",
+                                                "DataTypeName": "System.String"
+                                            },
+                                            "Value": "TrackingID:#[0fc3bb22]"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "$type": "Ironbug.HVAC.IB_FanConstantVolume, Ironbug.HVAC",
+                                    "CustomAttributes": [
+                                        {
+                                            "Field": {
+                                                "FullName": "Comment",
+                                                "DataTypeName": "System.String"
+                                            },
+                                            "Value": "TrackingID:#[2be1963a]"
+                                        },
+                                        {
+                                            "Field": {
+                                                "FullName": "PressureRise",
+                                                "DataTypeName": "System.Double"
+                                            },
+                                            "Value": 500.0
+                                        }
+                                    ]
+                                }
+                            ],
+                            "CustomAttributes": [
+                                {
+                                    "Field": {
+                                        "FullName": "Comment",
+                                        "DataTypeName": "System.String"
+                                    },
+                                    "Value": "TrackingID:#[0ee72031]"
+                                }
+                            ]
+                        }
+                    ],
+                    "SizingZone": {
+                        "$type": "Ironbug.HVAC.IB_SizingZone, Ironbug.HVAC",
+                        "CustomAttributes": [
+                            {
+                                "Field": {
+                                    "FullName": "Comment",
+                                    "DataTypeName": "System.String"
+                                },
+                                "Value": "TrackingID:#[ba27a677]"
+                            }
+                        ]
+                    },
+                    "CustomAttributes": [
+                        {
+                            "Field": {
+                                "FullName": "Comment",
+                                "DataTypeName": "System.String"
+                            },
+                            "Value": "TrackingID:#[cb8a29ba]"
+                        },
+                        {
+                            "Field": {
+                                "FullName": "Name",
+                                "DataTypeName": "System.String"
+                            },
+                            "Value": "Residence_6_2f8e2063"
+                        }
+                    ]
+                },
+                {
+                    "$type": "Ironbug.HVAC.BaseClass.IB_ThermalZone, Ironbug.HVAC",
+                    "AirTerminal": {
+                        "$type": "Ironbug.HVAC.IB_AirTerminalSingleDuctConstantVolumeNoReheat, Ironbug.HVAC",
+                        "CustomAttributes": [
+                            {
+                                "Field": {
+                                    "FullName": "Comment",
+                                    "DataTypeName": "System.String"
+                                },
+                                "Value": "TrackingID:#[663dabb1]"
+                            }
+                        ]
+                    },
+                    "ZoneEquipments": [
+                        {
+                            "$type": "Ironbug.HVAC.IB_ZoneHVACPackagedTerminalAirConditioner, Ironbug.HVAC",
+                            "Children": [
+                                {
+                                    "$type": "Ironbug.HVAC.IB_CoilCoolingDXSingleSpeed, Ironbug.HVAC",
+                                    "CustomAttributes": [
+                                        {
+                                            "Field": {
+                                                "FullName": "Comment",
+                                                "DataTypeName": "System.String"
+                                            },
+                                            "Value": "TrackingID:#[fd319a81]"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "$type": "Ironbug.HVAC.IB_CoilHeatingWater, Ironbug.HVAC",
+                                    "CustomAttributes": [
+                                        {
+                                            "Field": {
+                                                "FullName": "Comment",
+                                                "DataTypeName": "System.String"
+                                            },
+                                            "Value": "TrackingID:#[f2253704]"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "$type": "Ironbug.HVAC.IB_FanConstantVolume, Ironbug.HVAC",
+                                    "CustomAttributes": [
+                                        {
+                                            "Field": {
+                                                "FullName": "Comment",
+                                                "DataTypeName": "System.String"
+                                            },
+                                            "Value": "TrackingID:#[2be1963a]"
+                                        },
+                                        {
+                                            "Field": {
+                                                "FullName": "PressureRise",
+                                                "DataTypeName": "System.Double"
+                                            },
+                                            "Value": 500.0
+                                        }
+                                    ]
+                                }
+                            ],
+                            "CustomAttributes": [
+                                {
+                                    "Field": {
+                                        "FullName": "Comment",
+                                        "DataTypeName": "System.String"
+                                    },
+                                    "Value": "TrackingID:#[b1a73e3b]"
+                                }
+                            ]
+                        }
+                    ],
+                    "SizingZone": {
+                        "$type": "Ironbug.HVAC.IB_SizingZone, Ironbug.HVAC",
+                        "CustomAttributes": [
+                            {
+                                "Field": {
+                                    "FullName": "Comment",
+                                    "DataTypeName": "System.String"
+                                },
+                                "Value": "TrackingID:#[ba27a677]"
+                            }
+                        ]
+                    },
+                    "CustomAttributes": [
+                        {
+                            "Field": {
+                                "FullName": "Comment",
+                                "DataTypeName": "System.String"
+                            },
+                            "Value": "TrackingID:#[3db76913]"
+                        },
+                        {
+                            "Field": {
+                                "FullName": "Name",
+                                "DataTypeName": "System.String"
+                            },
+                            "Value": "Residence_7_6519c67b"
+                        }
+                    ]
+                }
+            ],
+            "SizingSystem": {
+                "$type": "Ironbug.HVAC.IB_SizingSystem, Ironbug.HVAC",
+                "CustomAttributes": [
+                    {
+                        "Field": {
+                            "FullName": "Comment",
+                            "DataTypeName": "System.String"
+                        },
+                        "Value": "TrackingID:#[2ec22415]"
+                    }
+                ]
+            },
+            "CustomAttributes": [
+                {
+                    "Field": {
+                        "FullName": "Comment",
+                        "DataTypeName": "System.String"
+                    },
+                    "Value": "TrackingID:#[a6e3432a]"
+                }
+            ]
+        }
+    ],
+    "PlantLoops": [
+        {
+            "$type": "Ironbug.HVAC.IB_PlantLoop, Ironbug.HVAC",
+            "SizingPlant": {
+                "$type": "Ironbug.HVAC.IB_SizingPlant, Ironbug.HVAC",
+                "CustomAttributes": [
+                    {
+                        "Field": {
+                            "FullName": "Comment",
+                            "DataTypeName": "System.String"
+                        },
+                        "Value": "TrackingID:#[9ebb49a2]"
+                    },
+                    {
+                        "Field": {
+                            "FullName": "LoopType",
+                            "DataTypeName": "System.String"
+                        },
+                        "Value": "Heating"
+                    }
+                ]
+            },
+            "OperationScheme": null,
+            "supplyComponents": [
+                {
+                    "$type": "Ironbug.HVAC.IB_PumpVariableSpeed, Ironbug.HVAC",
+                    "CustomAttributes": [
+                        {
+                            "Field": {
+                                "FullName": "Comment",
+                                "DataTypeName": "System.String"
+                            },
+                            "Value": "TrackingID:#[4bcab8e6]"
+                        }
+                    ]
+                },
+                {
+                    "$type": "Ironbug.HVAC.IB_PlantLoopBranches, Ironbug.HVAC",
+                    "Branches": [
+                        [
+                            {
+                                "$type": "Ironbug.HVAC.IB_BoilerHotWater, Ironbug.HVAC",
+                                "CustomAttributes": [
+                                    {
+                                        "Field": {
+                                            "FullName": "Comment",
+                                            "DataTypeName": "System.String"
+                                        },
+                                        "Value": "TrackingID:#[3637ceb0]"
+                                    }
+                                ]
+                            }
+                        ]
+                    ],
+                    "CustomAttributes": [
+                        {
+                            "Field": {
+                                "FullName": "Comment",
+                                "DataTypeName": "System.String"
+                            },
+                            "Value": "TrackingID:#[89ec66ae]"
+                        }
+                    ]
+                },
+                {
+                    "$type": "Ironbug.HVAC.IB_SetpointManagerScheduled, Ironbug.HVAC",
+                    "CustomAttributes": [
+                        {
+                            "Field": {
+                                "FullName": "Comment",
+                                "DataTypeName": "System.String"
+                            },
+                            "Value": "TrackingID:#[240a686d]"
+                        },
+                        {
+                            "Field": {
+                                "FullName": "ControlVariable",
+                                "DataTypeName": "System.String"
+                            },
+                            "Value": "Temperature"
+                        }
+                    ]
+                }
+            ],
+            "demandComponents": [
+                {
+                    "$type": "Ironbug.HVAC.IB_PlantLoopBranches, Ironbug.HVAC",
+                    "Branches": [
+                        [
+                            {
+                                "$type": "Ironbug.HVAC.IB_CoilHeatingWater, Ironbug.HVAC",
+                                "CustomAttributes": [
+                                    {
+                                        "Field": {
+                                            "FullName": "Comment",
+                                            "DataTypeName": "System.String"
+                                        },
+                                        "Value": "TrackingID:#[3bec8c65]"
+                                    }
+                                ]
+                            }
+                        ],
+                        [
+                            {
+                                "$type": "Ironbug.HVAC.IB_CoilHeatingWater, Ironbug.HVAC",
+                                "CustomAttributes": [
+                                    {
+                                        "Field": {
+                                            "FullName": "Comment",
+                                            "DataTypeName": "System.String"
+                                        },
+                                        "Value": "TrackingID:#[53b03e3a]"
+                                    }
+                                ]
+                            }
+                        ],
+                        [
+                            {
+                                "$type": "Ironbug.HVAC.IB_CoilHeatingWater, Ironbug.HVAC",
+                                "CustomAttributes": [
+                                    {
+                                        "Field": {
+                                            "FullName": "Comment",
+                                            "DataTypeName": "System.String"
+                                        },
+                                        "Value": "TrackingID:#[9b40b153]"
+                                    }
+                                ]
+                            }
+                        ],
+                        [
+                            {
+                                "$type": "Ironbug.HVAC.IB_CoilHeatingWater, Ironbug.HVAC",
+                                "CustomAttributes": [
+                                    {
+                                        "Field": {
+                                            "FullName": "Comment",
+                                            "DataTypeName": "System.String"
+                                        },
+                                        "Value": "TrackingID:#[36ee20dd]"
+                                    }
+                                ]
+                            }
+                        ],
+                        [
+                            {
+                                "$type": "Ironbug.HVAC.IB_CoilHeatingWater, Ironbug.HVAC",
+                                "CustomAttributes": [
+                                    {
+                                        "Field": {
+                                            "FullName": "Comment",
+                                            "DataTypeName": "System.String"
+                                        },
+                                        "Value": "TrackingID:#[32114369]"
+                                    }
+                                ]
+                            }
+                        ],
+                        [
+                            {
+                                "$type": "Ironbug.HVAC.IB_CoilHeatingWater, Ironbug.HVAC",
+                                "CustomAttributes": [
+                                    {
+                                        "Field": {
+                                            "FullName": "Comment",
+                                            "DataTypeName": "System.String"
+                                        },
+                                        "Value": "TrackingID:#[0fc3bb22]"
+                                    }
+                                ]
+                            }
+                        ],
+                        [
+                            {
+                                "$type": "Ironbug.HVAC.IB_CoilHeatingWater, Ironbug.HVAC",
+                                "CustomAttributes": [
+                                    {
+                                        "Field": {
+                                            "FullName": "Comment",
+                                            "DataTypeName": "System.String"
+                                        },
+                                        "Value": "TrackingID:#[f2253704]"
+                                    }
+                                ]
+                            }
+                        ]
+                    ],
+                    "CustomAttributes": [
+                        {
+                            "Field": {
+                                "FullName": "Comment",
+                                "DataTypeName": "System.String"
+                            },
+                            "Value": "TrackingID:#[d32f0cd0]"
+                        }
+                    ]
+                }
+            ],
+            "CustomAttributes": [
+                {
+                    "Field": {
+                        "FullName": "Comment",
+                        "DataTypeName": "System.String"
+                    },
+                    "Value": "TrackingID:#[07a53751]"
+                },
+                {
+                    "Field": {
+                        "FullName": "Name",
+                        "DataTypeName": "System.String"
+                    },
+                    "Value": "Hot Water Loop"
+                },
+                {
+                    "Field": {
+                        "FullName": "FluidType",
+                        "DataTypeName": "System.String"
+                    },
+                    "Value": "Water"
+                }
+            ]
+        }
+    ],
+    "IBVersion": "1.4.3.0"
+}

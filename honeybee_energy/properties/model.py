@@ -28,6 +28,7 @@ from ..schedule.ruleset import ScheduleRuleset
 from ..schedule.dictutil import SCHEDULE_TYPES, dict_to_schedule, \
     dict_abridged_to_schedule
 from ..programtype import ProgramType
+from ..hvac.detailed import DetailedHVAC
 from ..hvac import HVAC_TYPES_DICT
 from ..shw import SHWSystem
 from ..ventcool.simulation import VentilationSimulationControl
@@ -624,6 +625,7 @@ class ModelEnergyProperties(object):
         msgs.append(self.check_duplicate_program_type_identifiers(False, detailed))
         msgs.append(self.check_duplicate_hvac_identifiers(False, detailed))
         msgs.append(self.check_duplicate_shw_identifiers(False, detailed))
+        msgs.append(self.check_detailed_hvac_rooms(False, detailed))
         msgs.append(self.check_shw_rooms_in_model(False, detailed))
         msgs.append(self.check_one_vegetation_material(False, detailed))
         msgs.append(self.check_interior_constructions_reversed(False, detailed))
@@ -649,7 +651,7 @@ class ModelEnergyProperties(object):
             A string with the message or a list with a dictionary if detailed is True.
         """
         return check_duplicate_identifiers(
-            self.materials, raise_exception, 'Energy Material',
+            self.materials, raise_exception, 'Material',
             detailed, '020001', 'Energy', error_type='Duplicate Material Identifier')
 
     def check_duplicate_construction_identifiers(
@@ -770,6 +772,56 @@ class ModelEnergyProperties(object):
             self.shws, raise_exception, 'SHW', detailed, '020008', 'Energy',
             error_type='Duplicate SHW Identifier')
 
+    def check_detailed_hvac_rooms(self, raise_exception=True, detailed=False):
+        """Check that any rooms referenced within a DetailedHVAC exist in the model.
+
+        Args:
+            raise_exception: Boolean to note whether a ValueError should be raised if
+                DetailedHVAC reference Rooms that are not in the Model. (Default: True).
+            detailed: Boolean for whether the returned object is a detailed list of
+                dicts with error info or a string with a message. (Default: False).
+
+        Returns:
+            A string with the message or a list with a dictionary if detailed is True.
+        """
+        detailed = False if raise_exception else detailed
+        # gather a list of all the missing rooms
+        room_ids = set(room.identifier for room in self.host.rooms)
+        problem_hvacs = []
+        for hvac in self.hvacs:
+            if isinstance(hvac, DetailedHVAC):
+                missing_rooms = []
+                for zone in hvac.thermal_zones:
+                    if zone not in room_ids:
+                        missing_rooms.append(zone)
+                if len(missing_rooms) != 0:
+                    problem_hvacs.append((hvac, missing_rooms))
+        # if missing rooms were found, then report the issue
+        if len(problem_hvacs) != 0:
+            all_err = []
+            for bad_hvac, missing_rooms in problem_hvacs:
+                msg = 'DetailedHVAC "{}" is referencing the following Rooms that ' \
+                    'are not in the Model:\n{}'.format(
+                        bad_hvac.display_name, '\n'.join(missing_rooms))
+                if detailed:
+                    error_dict = {
+                        'type': 'ValidationError',
+                        'code': '020011',
+                        'error_type': 'DetailedHVAC Rooms Not In Model',
+                        'extension_type': 'Energy',
+                        'element_type': 'HVAC',
+                        'element_id': bad_hvac.identifier,
+                        'element_name': bad_hvac.display_name,
+                        'message': msg
+                    }
+                    all_err.append(error_dict)
+                else:
+                    all_err.append(msg)
+            if raise_exception:
+                raise ValueError('\n'.join(all_err))
+            return all_err if detailed else '\n'.join(all_err)
+        return [] if detailed else ''
+
     def check_shw_rooms_in_model(self, raise_exception=True, detailed=False):
         """Check that the room_identifiers of SHWSystems are in the model.
 
@@ -807,7 +859,7 @@ class ModelEnergyProperties(object):
                         'code': '020009',
                         'error_type': 'SHWSystem Room Not In Model',
                         'extension_type': 'Energy',
-                        'element_type': 'SHWSystem',
+                        'element_type': 'SHW',
                         'element_id': shw_sys.identifier,
                         'element_name': shw_sys.display_name,
                         'message': msg
@@ -862,7 +914,7 @@ class ModelEnergyProperties(object):
                         'code': '020010',
                         'error_type': 'Multiple Vegetation Materials',
                         'extension_type': 'Energy',
-                        'element_type': 'Energy Material',
+                        'element_type': 'Material',
                         'element_id': v_mat.identifier,
                         'element_name': v_mat.display_name,
                         'message': msg

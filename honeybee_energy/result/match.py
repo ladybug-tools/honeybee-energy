@@ -114,7 +114,7 @@ def match_faces_to_data(data_collections, faces):
 
     # extract the surface id from each of the data collections
     srf_ids = []
-    tri_srf_ids = {}  # track data collections from traingulated apertures/doors
+    tri_srf_ids = {}  # track data collections from triangulated apertures/doors
     tri_pattern = re.compile(r".*\.\.\d")
     for data in data_collections:
         if 'Surface' in data.header.metadata:

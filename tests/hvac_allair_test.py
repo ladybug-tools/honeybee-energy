@@ -7,12 +7,12 @@ from honeybee_energy.hvac.allair.furnace import ForcedAirFurnace
 
 from honeybee.model import Model
 from honeybee.room import Room
-from honeybee.altnumber import autosize
 
 from ladybug_geometry.geometry3d.pointvector import Point3D
 
 import pytest
 from .fixtures.userdata_fixtures import userdatadict
+
 
 def test_vav_init(userdatadict):
     """Test the initialization of VAV and basic properties."""
