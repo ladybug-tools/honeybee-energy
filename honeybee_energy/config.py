@@ -50,6 +50,10 @@ class Folders(object):
         * inject_idf_measure_path
         * honeybee_openstudio_gem_path
         * honeybee_adapter_path
+        * ironbug_path
+        * ironbug_exe
+        * ironbug_version
+        * ironbug_version_str
         * standards_data_folder
         * construction_lib
         * constructionset_lib
@@ -134,6 +138,10 @@ class Folders(object):
     @property
     def openstudio_csharp_path(self):
         """Get the path to the OpenStudio CSharp folder if it exists."""
+        if self._openstudio_csharp_path is None and self._ironbug_path is not None:
+            os_dll = os.path.join(self._ironbug_path, 'OpenStudio.dll')
+            if os.path.isfile(os_dll):
+                return self._ironbug_path
         return self._openstudio_csharp_path
 
     @property
@@ -298,6 +306,57 @@ class Folders(object):
         return self._honeybee_adapter_path
 
     @property
+    def ironbug_path(self):
+        """Get or set the path to an Ironbug installation folder."""
+        return self._ironbug_path
+
+    @ironbug_path.setter
+    def ironbug_path(self, path):
+        if not path:  # check the default installation location
+            path = self._find_ironbug_path_folder()
+        exe_name = 'Ironbug.Console.exe' if os.name == 'nt' else 'Ironbug.Console'
+        ib_exe_file = os.path.join(path, exe_name) if path is not None else None
+
+        if path:  # check that the Ironbug executable exists in the installation
+            assert os.path.isfile(ib_exe_file), \
+                '{} is not a valid path to an Ironbug installation.'.format(path)
+
+        # set the ironbug_path
+        self._ironbug_path = path
+        self._ironbug_exe = ib_exe_file
+        self._ironbug_version = None
+        self._ironbug_version_str = None
+        if path and not self.mute:
+            print("Path to IronBug is set to: %s" % self._ironbug_path)
+
+    @property
+    def ironbug_exe(self):
+        """Get the path to the executable Ironbug console file."""
+        return self._ironbug_exe
+
+    @property
+    def ironbug_version(self):
+        """Get a tuple for the version of Ironbug (eg. (1, 4, 3, 0)).
+
+        This will be None if the version could not be sensed or if no Ironbug
+        installation was found.
+        """
+        if self._ironbug_exe and self._ironbug_version_str is None:
+            self._ironbug_version_from_cli()
+        return self._ironbug_version
+
+    @property
+    def ironbug_version_str(self):
+        """Get text for the full version of Ironbug (eg. "v1.4.3.0 (Jan 17, 2023)").
+
+        This will be None if the version could not be sensed or if no Ironbug
+        installation was found.
+        """
+        if self._ironbug_exe and self._ironbug_version_str is None:
+            self._ironbug_version_from_cli()
+        return self._ironbug_version_str
+
+    @property
     def standards_data_folder(self):
         """Get or set the path to the library of standards loaded to honeybee_energy.lib.
 
@@ -422,6 +481,7 @@ class Folders(object):
             "openstudio_path": r'',
             "lbt_measures_path": r'',
             "honeybee_openstudio_gem_path": r'',
+            "ironbug_path": r'',
             "standards_data_folder": r'',
             "standards_extension_folders": [],
             "defaults_file": r''
@@ -447,6 +507,9 @@ class Folders(object):
         # set the paths for lbt_measures and the honeybee_openstudio_gem
         self.lbt_measures_path = default_path["lbt_measures_path"]
         self.honeybee_openstudio_gem_path = default_path["honeybee_openstudio_gem_path"]
+
+        # set the paths for ironbug
+        self.ironbug_path = default_path["ironbug_path"]
 
         # set path for the standards_data_folder and defaults_file
         self.standards_data_folder = default_path["standards_data_folder"]
@@ -496,6 +559,20 @@ class Folders(object):
 
         return None  # No energy model measure is installed
 
+    def _find_ironbug_path_folder(self):
+        """Find the ironbug_path in its default location.
+
+        The ladybug_tools/grasshopper/ironbug folder will be checked for the
+        expected directories.
+        """
+        # first, check the grasshopper/ironbug folder in the ladybug_tools folder
+        lb_install = lb_config.folders.ladybug_tools_folder
+        if os.path.isdir(lb_install):
+            ib_path = os.path.join(lb_install, 'grasshopper', 'ironbug')
+            if os.path.isdir(ib_path):
+                return ib_path
+        return None  # No ironbug is installed
+
     def _find_energyplus_folder(self):
         """Find the most recent EnergyPlus installation in its default location.
 
@@ -517,27 +594,27 @@ class Folders(object):
                 return 0
 
         # first check for the EnergyPlus that comes with OpenStudio
-        ep_path = None
+        ep_path, ep_folders = None, []
         if self.openstudio_path is not None and os.path.isdir(os.path.join(
                 os.path.split(self.openstudio_path)[0], 'EnergyPlus')):
             ep_path = os.path.join(os.path.split(self.openstudio_path)[0], 'EnergyPlus')
 
         # then check the default location where standalone EnergyPlus is installed
         elif os.name == 'nt':  # search the C:/ drive on Windows
-            ep_folders = ['C:\\{}'.format(f) for f in os.listdir('C:\\')
-                          if (f.lower().startswith('energyplus') and
-                              os.path.isdir('C:\\{}'.format(f)))]
+            for f in os.listdir('C:\\'):
+                f_path = 'C:\\{}'.format(f)
+                if f.lower().startswith('energyplus') and os.path.isdir(f_path):
+                    ep_folders.append(f_path)
         elif platform.system() == 'Darwin':  # search the Applications folder on Mac
-            ep_folders = \
-                ['/Applications/{}'.format(f) for f in os.listdir('/Applications/')
-                 if (f.lower().startswith('energyplus') and
-                 os.path.isdir('/Applications/{}'.format(f)))]
+            for f in os.listdir('/Applications/'):
+                f_path = '/Applications/{}'.format(f)
+                if f.lower().startswith('energyplus') and os.path.isdir(f_path):
+                    ep_folders.append(f_path)
         elif platform.system() == 'Linux':  # search the usr/local folder
-            ep_folders = ['/usr/local/{}'.format(f) for f in os.listdir('/usr/local/')
-                          if (f.lower().startswith('energyplus') and
-                              os.path.isdir('/usr/local/{}'.format(f)))]
-        else:  # unknown operating system
-            ep_folders = None
+            for f in os.listdir('/usr/local/'):
+                f_path = '/usr/local/{}'.format(f)
+                if f.lower().startswith('energyplus') and os.path.isdir(f_path):
+                    ep_folders.append(f_path)
 
         if not ep_path and not ep_folders:  # No EnergyPlus installations were found
             return None
@@ -575,6 +652,23 @@ class Folders(object):
         except Exception:
             pass  # failed to parse the version into integers
 
+    def _ironbug_version_from_cli(self):
+        """Set this object's Ironbug version by making a call to Ironbug CLI."""
+        cmds = [self.ironbug_exe, '--version']
+        use_shell = True if os.name == 'nt' else False
+        process = subprocess.Popen(cmds, stdout=subprocess.PIPE, shell=use_shell)
+        stdout = process.communicate()
+        base_str = str(stdout[0]).replace("b'", '')
+        base_str = base_str.replace("\r\n", '__').replace(r"\r\n", '__') \
+            if os.name == 'nt' else base_str.replace("\n", '__').replace(r"\n", '__')
+        base_str = base_str.split('__')[-2]
+        self._ironbug_version_str = base_str
+        ver_nums = self._ironbug_version_str.split(' ')[0].replace('v', '').split('.')
+        try:
+            self._ironbug_version = tuple(int(i) for i in ver_nums)
+        except Exception:
+            pass  # failed to parse the version into integers
+
     @staticmethod
     def _find_openstudio_folder():
         """Find the most recent OpenStudio installation in its default location.
@@ -596,26 +690,29 @@ class Folders(object):
         lb_install = lb_config.folders.ladybug_tools_folder
         os_folders = []
         if os.path.isdir(lb_install):
-            os_folders = [os.path.join(lb_install, f) for f in os.listdir(lb_install)
-                          if (f.lower().startswith('openstudio') and
-                              os.path.isdir(os.path.join(lb_install, f)))]
+            for f in os.listdir(lb_install):
+                f_path = os.path.join(lb_install, f)
+                if f.lower().startswith('openstudio') and os.path.isdir(f_path):
+                    os_folders.append(f_path)
 
         # then check the default installation folders
         if len(os_folders) != 0 and os.path.isdir(os.path.join(os_folders[0], 'bin')):
             pass  # we found a version of openstudio in the ladybug_tools folder
         elif os.name == 'nt':  # search the C:/ drive on Windows
-            os_folders = ['C:\\{}'.format(f) for f in os.listdir('C:\\')
-                          if (f.lower().startswith('openstudio') and
-                              os.path.isdir('C:\\{}'.format(f)))]
+            for f in os.listdir('C:\\'):
+                f_path = 'C:\\{}'.format(f)
+                if f.lower().startswith('openstudio') and os.path.isdir(f_path):
+                    os_folders.append(f_path)
         elif platform.system() == 'Darwin':  # search the Applications folder on Mac
-            os_folders = \
-                ['/Applications/{}'.format(f) for f in os.listdir('/Applications/')
-                 if (f.lower().startswith('openstudio') and
-                 os.path.isdir('/Applications/{}'.format(f)))]
+            for f in os.listdir('/Applications/'):
+                f_path = '/Applications/{}'.format(f)
+                if f.lower().startswith('openstudio') and os.path.isdir(f_path):
+                    os_folders.append(f_path)
         elif platform.system() == 'Linux':  # search the usr/local folder
-            os_folders = ['/usr/local/{}'.format(f) for f in os.listdir('/usr/local/')
-                          if (f.lower().startswith('openstudio') and
-                              os.path.isdir('/usr/local/{}'.format(f)))]
+            for f in os.listdir('/usr/local/'):
+                f_path = '/usr/local/{}'.format(f)
+                if f.lower().startswith('openstudio') and os.path.isdir(f_path):
+                    os_folders.append(f_path)
         else:  # unknown operating system
             os_folders = None
 

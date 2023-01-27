@@ -16,7 +16,7 @@ class DetailedHVAC(_HVACSystem):
             and not contain any EnergyPlus special characters.
         specification: A JSON-serializable dictionary representing the full
             specification of the detailed system. This can be obtained by calling
-            the SaveAsJson() method on any IronBug HVAC system and then serializing
+            the ToJson() method on any IronBug HVAC system and then serializing
             the resulting JSON string into a Python dictionary using the native
             Python json package. Note that the Rooms that the HVAC is assigned to
             must be specified as ThermalZones under this specification in order
