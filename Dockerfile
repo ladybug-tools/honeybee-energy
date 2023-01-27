@@ -47,8 +47,8 @@ COPY ${HONEYBEE_GEM_FILENAME}/lib \
 
 # Add ironbug to the ladybug_tools folder
 # https://github.com/MingboPeng/Ironbug
-COPY ${IRONBUG_FILENAME}/ironbug \
-    ${LBT_PATH}/grasshopper/ironbug
+COPY ${IRONBUG_FILENAME} \
+    ${LBT_PATH}/grasshopper
 
 # Install honeybee-energy
 COPY honeybee_energy ${LIBRARY_PATH}/honeybee_energy
