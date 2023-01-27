@@ -33,6 +33,7 @@ from ..hvac import HVAC_TYPES_DICT
 from ..shw import SHWSystem
 from ..ventcool.simulation import VentilationSimulationControl
 
+from ..config import folders
 from ..lib.constructions import generic_context
 from ..lib.constructionsets import generic_construction_set
 from ..lib.schedules import always_on
@@ -1141,6 +1142,12 @@ class ModelEnergyProperties(object):
             for sched in self.orphaned_trans_schedules:
                 data['properties']['energy']['schedules'].append(
                     sched.to_dict(abridged=True))
+        # if there are any detailed HVACs, add the path to the ironbug installation
+        # this is the only reliable way to pass the path to the honeybee-openstudio gem
+        if folders.ironbug_exe is not None:
+            for hvac_dict in data['properties']['energy']['hvacs']:
+                if hvac_dict['type'] == 'DetailedHVAC':
+                    hvac_dict['ironbug_exe'] = folders.ironbug_exe
 
     @staticmethod
     def _add_shade_vertices(obj, obj_dict):

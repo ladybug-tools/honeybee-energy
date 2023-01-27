@@ -6,6 +6,7 @@ ARG OPENSTUDIO_VERSION
 ARG OPENSTUDIO_FILENAME
 ARG LBT_MEASURES_FILENAME
 ARG HONEYBEE_GEM_FILENAME
+ARG IRONBUG_FILENAME
 
 ENV HOME_PATH='/home/ladybugbot'
 ENV LBT_PATH="${HOME_PATH}/ladybug_tools"
@@ -43,6 +44,11 @@ COPY ${LBT_MEASURES_FILENAME}/lib \
 # https://github.com/ladybug-tools/honeybee-openstudio-gem
 COPY ${HONEYBEE_GEM_FILENAME}/lib \
     ${LBT_PATH}/resources/measures/honeybee_openstudio_gem/lib
+
+# Add ironbug to the ladybug_tools folder
+# https://github.com/MingboPeng/Ironbug
+COPY ${IRONBUG_FILENAME}/ironbug \
+    ${LBT_PATH}/grasshopper/ironbug
 
 # Install honeybee-energy
 COPY honeybee_energy ${LIBRARY_PATH}/honeybee_energy
