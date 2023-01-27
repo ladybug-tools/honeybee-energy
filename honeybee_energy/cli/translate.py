@@ -5,6 +5,7 @@ import os
 import logging
 import json
 import shutil
+import re
 
 from ladybug.futil import preparedir
 from ladybug.analysisperiod import AnalysisPeriod
@@ -46,10 +47,10 @@ def translate():
               'files will be output in the same location as the model_json.',
               default=None, show_default=True,
               type=click.Path(file_okay=False, dir_okay=True, resolve_path=True))
-@click.option('--osm-file', '-osm', help='Optional file where the OSM will be copied '
+@click.option('--osm-file', '-osm', help='Optional path where the OSM will be copied '
               'after it is translated in the folder. If None, the file will not '
               'be copied.', type=str, default=None, show_default=True)
-@click.option('--idf-file', '-idf', help='Optional file where the IDF will be copied '
+@click.option('--idf-file', '-idf', help='Optional path where the IDF will be copied '
               'after it is translated in the folder. If None, the file will not '
               'be copied.', type=str, default=None, show_default=True)
 @click.option('--check-model/--bypass-check', ' /-bc', help='Flag to note whether the '
@@ -331,7 +332,29 @@ def model_from_idf(idf_file, osw_folder, output_file):
         # Write the osw file and translate the model to HBJSON
         out_f = out_path if output_file.endswith('-') else output_file
         osw = from_idf_osw(idf_file, out_f, osw_folder)
-        _run_translation_osw(osw, out_path)
+        # run the measure to translate the model JSON to an openstudio measure
+        _, idf = run_osw(osw, silent=True)
+        if idf is not None and os.path.isfile(idf):
+            if out_path is not None:  # load the JSON string to stdout
+                with open(out_path) as json_file:
+                    print(json_file.read())
+        else:
+            # check the version of the IDF; most of the time, this is the issue
+            ver_regex = r'[V|v][E|e][R|r][S|s][I|i][O|o][N|n],\s*(\d*\.\d*);'
+            ver_pattern = re.compile(ver_regex)
+            with open(idf_file, 'r') as mf:
+                ver_val = re.search(ver_pattern, mf.read())
+            if ver_val is not None:
+                ver_tup = tuple(int(v) for v in ver_val.groups()[0].split('.'))
+                if folders.energyplus_version[:2] != ver_tup:
+                    msg = 'The IDF is from EnergyPlus version {}.\nThis must be ' \
+                        'changed to {} with the IDFVersionUpdater\nin order to import ' \
+                        'it with this Ladybug Tools installation.'.format(
+                            '.'.join((str(v) for v in ver_tup)),
+                            '.'.join((str(v) for v in folders.energyplus_version[:2]))
+                        )
+                    raise ValueError(msg)
+            _parse_os_cli_failure(os.path.dirname(osw))
     except Exception as e:
         _logger.exception('Model translation failed.\n{}'.format(e))
         sys.exit(1)
