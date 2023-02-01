@@ -1,7 +1,7 @@
 """Test cli baseline module."""
 from click.testing import CliRunner
-from honeybee_energy.cli.baseline import geometry_2004, lighting_2004, hvac_2004, \
-    remove_ecms
+from honeybee_energy.cli.baseline import baseline_geometry, baseline_lighting, \
+    baseline_hvac, remove_ecms
 from honeybee_energy.hvac.allair.vav import VAV
 from honeybee.model import Model
 
@@ -9,11 +9,11 @@ import json
 import pytest
 
 
-def test_geometry_2004():
+def test_baseline_geometry():
     runner = CliRunner()
     input_hb_model = './tests/json/ShoeBox.json'
 
-    result = runner.invoke(geometry_2004, [input_hb_model])
+    result = runner.invoke(baseline_geometry, [input_hb_model])
     assert result.exit_code == 0
     model_dict = json.loads(result.output)
     new_model = Model.from_dict(model_dict)
@@ -25,11 +25,11 @@ def test_geometry_2004():
     assert sr < 0.06
 
 
-def test_lighting_2004():
+def test_baseline_lighting():
     runner = CliRunner()
     input_hb_model = './tests/json/ShoeBox.json'
 
-    result = runner.invoke(lighting_2004, [input_hb_model])
+    result = runner.invoke(baseline_lighting, [input_hb_model])
     assert result.exit_code == 0
     model_dict = json.loads(result.output)
     new_model = Model.from_dict(model_dict)
@@ -37,11 +37,12 @@ def test_lighting_2004():
         pytest.approx(11.84029, rel=1e-1)
 
 
-def test_hvac_2004():
+def test_baseline_hvac():
     runner = CliRunner()
     input_hb_model = './tests/json/ShoeBox.json'
 
-    result = runner.invoke(hvac_2004, [input_hb_model, '5A', '--floor-area', '20000'])
+    result = runner.invoke(
+        baseline_hvac, [input_hb_model, '5A', '--floor-area', '20000'])
     assert result.exit_code == 0
     model_dict = json.loads(result.output)
     new_model = Model.from_dict(model_dict)
