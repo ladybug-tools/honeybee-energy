@@ -62,7 +62,7 @@ class DetailedHVAC(_HVACSystem):
                                 thermal_zones.append(z_attr['Value'])
                 elif a_loop['$type'].startswith('Ironbug.HVAC.IB_AirLoopHVAC'):
                     air_loop_count += 1
-                    for comp in a_loop['demandComponents']:
+                    for comp in a_loop['DemandComponents']:
                         if comp['$type'].startswith('Ironbug.HVAC.IB_AirLoopBranches'):
                             for branch in comp['Branches']:
                                 for z_attr in branch[0]['CustomAttributes']:
