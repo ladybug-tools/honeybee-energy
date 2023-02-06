@@ -37,7 +37,7 @@ tar zxvf ${HONEYBEE_OPENSTUDIO_GEM_TAR}
 mv honeybee-openstudio-gem-*/ ${HONEYBEE_GEM_FILENAME}
 
 # Get ironbug
-export IRONBUG_VERSION="1.4.4"
+export IRONBUG_VERSION="1.5.3"
 export IRONBUG_URL="https://github.com/MingboPeng/Ironbug/releases/download/v${IRONBUG_VERSION}/ironbug.console.linux-${IRONBUG_VERSION}.zip"
 export IRONBUG_ZIP='ironbug.console.linux.zip'
 export IRONBUG_FILENAME='ironbug'
