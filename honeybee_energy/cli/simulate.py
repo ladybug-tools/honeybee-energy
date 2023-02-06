@@ -240,6 +240,11 @@ def simulate_model(
                 gen_files.extend([sql, eio, rdd, html, err])
             else:
                 raise Exception('Running EnergyPlus failed.')
+        # parse the error log and report any warnings
+        err_obj = Err(err)
+        for error in err_obj.fatal_errors:
+            log_file.write(err_obj.file_contents)  # log before raising the error
+            raise Exception(error)
         log_file.write(json.dumps(gen_files))
     except Exception as e:
         _logger.exception('Model simulation failed.\n{}'.format(e))
