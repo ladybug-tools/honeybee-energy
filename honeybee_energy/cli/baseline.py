@@ -27,7 +27,7 @@ def baseline():
     '--building-type', '-b', help='Text for the building type that the Model represents.'
     ' This is used to determine the baseline window-to-wall ratio and HVAC system. If '
     'the type is not recognized or is "Unknown", it will be assumed that the building is'
-    ' a generic NonResidential.. The following have specified systems per the standard: '
+    ' a generic NonResidential. The following have specified systems per the standard: '
     'Residential, NonResidential, MidriseApartment, HighriseApartment, LargeOffice, '
     'MediumOffice, SmallOffice, Retail, StripMall, PrimarySchool, SecondarySchool, '
     'SmallHotel, LargeHotel, Hospital, Outpatient, Warehouse, SuperMarket, '
@@ -45,7 +45,7 @@ def baseline():
     '--lighting-by-space/--lighting-by-building', ' /-lb', help='Flag to note whether '
     'the building-type should be used to assign the baseline lighting power density, '
     'which will use the same value for all Rooms in the model, or a space-by-space '
-    'method should be used (False). To use the space-by-space method, the model should '
+    'method should be used. To use the space-by-space method, the model should '
     'either be built with the programs that ship with Ladybug Tools in '
     'honeybee-energy-standards or the baseline_watts_per_area should be correctly '
     'assigned for all Rooms.', default=True)
