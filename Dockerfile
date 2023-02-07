@@ -60,13 +60,18 @@ COPY README.md ${LIBRARY_PATH}
 COPY LICENSE ${LIBRARY_PATH}
 
 USER root
+
+# install dotnet package
 RUN apt-get update \
-    && apt-get -y install --no-install-recommends git wget\
+    && apt-get -y install --no-install-recommends wget\
     && wget https://packages.microsoft.com/config/debian/11/packages-microsoft-prod.deb -O packages-microsoft-prod.deb \
     && dpkg -i packages-microsoft-prod.deb \
-    && rm packages-microsoft-prod.deb \
+    && rm packages-microsoft-prod.deb
+
+RUN apt-get update \
+    && apt-get -y install --no-install-recommends git \
     # EnergyPlus dynamically links to libx11
-    && apt-get -y install libx11-6 libgomp1 aspnetcore-runtime-7.0 \
+    && apt-get -y install aspnetcore-runtime-7.0 \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
     && pip3 install --no-cache-dir setuptools wheel \
