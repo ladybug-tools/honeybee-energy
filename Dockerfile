@@ -61,7 +61,10 @@ COPY LICENSE ${LIBRARY_PATH}
 
 USER root
 RUN apt-get update \
-    && apt-get -y install --no-install-recommends git \
+    && apt-get -y install --no-install-recommends git wget\
+    && wget https://packages.microsoft.com/config/debian/11/packages-microsoft-prod.deb -O packages-microsoft-prod.deb \
+    && dpkg -i packages-microsoft-prod.deb \
+    && rm packages-microsoft-prod.deb \
     # EnergyPlus dynamically links to libx11
     && apt-get -y install libx11-6 libgomp1 aspnetcore-runtime-7.0 \
     && apt-get clean \
