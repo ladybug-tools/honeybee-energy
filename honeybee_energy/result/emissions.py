@@ -149,9 +149,11 @@ def emissions_from_sql(sql_results, electricity_emissions):
     for both electricity and district heating/cooling. Fixed numbers will be used
     to convert the following on-site fuel sources:
 
-    * Natural Gas --  277.358 kg/MWh
+    * Natural Gas -- 277.358 kg/MWh
     * Propane -- 323.897 kg/MWh
     * Fuel Oil -- 294.962 kg/MWh
+    * District Heating -- 369.811 kg/MWh
+    * District Cooling -- [electricity_emissions] / 3.5 kg/MWh
 
     Args:
         sql_results: The file path of the SQL result file that has been generated
@@ -229,8 +231,8 @@ def emissions_from_sql(sql_results, electricity_emissions):
                 gas = (vals[1] * 277.358) / 1000
                 pro = (vals[7] * 323.897) / 1000
                 oil = (vals[6] * 294.962) / 1000
-                heat = (vals[11] * electricity_emissions) / 1000
-                cool = (vals[10] * electricity_emissions) / 1000
+                heat = (vals[11] * 369.811) / 1000
+                cool = (vals[10] * (electricity_emissions / 3.5)) / 1000
 
                 tot_elec += elec
                 tot_gas += gas

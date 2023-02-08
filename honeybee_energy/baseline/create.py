@@ -18,7 +18,7 @@ from ..hvac.allair.furnace import ForcedAirFurnace
 from ..shw import SHWSystem
 
 
-def model_to_baseline(model, climate_zone, building_type='Unknown',
+def model_to_baseline(model, climate_zone, building_type='NonResidential',
                       floor_area=None, story_count=None, lighting_by_building=False):
     """Convert a Model to be conformant with ASHRAE 90.1 appendix G.
 
@@ -68,6 +68,7 @@ def model_to_baseline(model, climate_zone, building_type='Unknown',
             * FullServiceRestaurant
             * QuickServiceRestaurant
             * Laboratory
+            * Courthouse
 
         floor_area: A number for the floor area of the building that the model is a part
             of in m2. If None, the model floor area will be used. (Default: None).
@@ -87,13 +88,12 @@ def model_to_baseline(model, climate_zone, building_type='Unknown',
         model_lighting_to_baseline_building(model, building_type)
     else:
         model_lighting_to_baseline(model)
-    model_hvac_to_baseline(model, climate_zone, building_type='Unknown',
-                           floor_area=None, story_count=None)
+    model_hvac_to_baseline(model, climate_zone, building_type, floor_area, story_count)
     model_shw_to_baseline(model, building_type)
     model_remove_ecms(model)
 
 
-def model_geometry_to_baseline(model, building_type='Unknown'):
+def model_geometry_to_baseline(model, building_type='NonResidential'):
     """Convert a Model's geometry to be conformant with ASHRAE 90.1 appendix G.
 
     This includes stripping out all attached shades (leaving detached shade as
@@ -285,7 +285,7 @@ def model_lighting_to_baseline(model):
         room.properties.energy.lighting = dup_light
 
 
-def model_lighting_to_baseline_building(model, building_type='Unknown'):
+def model_lighting_to_baseline_building(model, building_type='NonResidential'):
     """Convert a Model's lighting to be conformant with ASHRAE 90.1-2004 appendix G.
 
     This includes looking up the building type's average lighting power density
@@ -342,7 +342,7 @@ def model_lighting_to_baseline_building(model, building_type='Unknown'):
         room.properties.energy.lighting = dup_light
 
 
-def model_hvac_to_baseline(model, climate_zone, building_type='Unknown',
+def model_hvac_to_baseline(model, climate_zone, building_type='NonResidential',
                            floor_area=None, story_count=None):
     """Convert a Model's HVAC to be conformant with ASHRAE 90.1 appendix G.
 
@@ -463,7 +463,7 @@ def model_hvac_to_baseline(model, climate_zone, building_type='Unknown',
             room.properties.energy.hvac = hvac_sys
 
 
-def model_shw_to_baseline(model, building_type='Unknown'):
+def model_shw_to_baseline(model, building_type='NonResidential'):
     """Convert a Model's SHW systems to be conformant with ASHRAE 90.1-2004 appendix G.
 
     This includes looking up the building type's baseline heating method and
@@ -473,8 +473,8 @@ def model_shw_to_baseline(model, building_type='Unknown'):
         model: A Honeybee Model that will have its Service Hot Water (SHW) systems
             adjusted to conform to the baseline.
         building_type: Text for the building type that the Model represents. If
-            the type is not recognized or is "Unknown", it will be assumed that the
-            building is a generic NonResidential (aka. an office). The following
+            the type is not recognized or is "Unknown", it will be assumed that
+            the building is a generic NonResidential (aka. an office). The following
             have specified meaning per the standard.
 
             * NonResidential

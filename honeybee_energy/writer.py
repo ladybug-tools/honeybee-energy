@@ -590,6 +590,14 @@ def model_to_idf(
         model.convert_to_units('Meters')
     # remove degenerate geometry within native E+ tolerance of 0.01 meters
     try:
+        if model.tolerance < 0.01:
+            for room in model.rooms:
+                try:
+                    room.remove_colinear_vertices_envelope(
+                        tolerance=model.tolerance, delete_degenerate=True)
+                except AssertionError as e:  # room removed; likely wrong units
+                    error = 'Failed to remove degenerate rooms.\n{}'.format(e)
+                    raise ValueError(error)
         model.remove_degenerate_geometry(0.01)
     except ValueError:
         error = 'Failed to remove degenerate Rooms.\nYour Model units system is: {}. ' \
