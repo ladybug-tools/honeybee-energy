@@ -58,8 +58,12 @@ def eui_from_sql(sql_results):
         # get the total floor area of the model
         area_dict = sql_obj.tabular_data_by_name('Building Area')
         areas = tuple(area_dict.values())
-        total_floor_area += areas[0][0]
-        conditioned_floor_area += areas[1][0]
+        try:
+            total_floor_area += areas[0][0]
+            conditioned_floor_area += areas[1][0]
+        except IndexError:
+            msg = 'Failed to find the "Building Area" table in the .sql file.'
+            raise ValueError(msg)
         # get the energy use
         eui_dict = sql_obj.tabular_data_by_name('End Uses By Subcategory')
         for category, vals in eui_dict.items():

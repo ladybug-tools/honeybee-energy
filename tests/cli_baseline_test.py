@@ -1,7 +1,7 @@
 """Test cli baseline module."""
 from click.testing import CliRunner
 from honeybee_energy.cli.baseline import baseline_geometry, baseline_lighting, \
-    baseline_hvac, remove_ecms
+    baseline_hvac, remove_ecms, compute_appendix_g_summary, compute_leed_v4_summary
 from honeybee_energy.hvac.allair.vav import VAV
 from honeybee.model import Model
 
@@ -62,3 +62,37 @@ def test_remove_ecms():
     model_dict = json.loads(result.output)
     new_model = Model.from_dict(model_dict)
     assert new_model.rooms[0].properties.energy.window_vent_control is None
+
+
+def test_appendix_g_summary():
+    """Test the appendix_g_summary command."""
+    runner = CliRunner()
+    sql_path = './tests/result/eplusout_hourly.sql'
+
+    sql_base_path = './tests/result/sub_folder'
+    result = runner.invoke(compute_appendix_g_summary, [sql_path, sql_base_path, '5A'])
+    assert result.exit_code == 0
+    result_dict = json.loads(result.output)
+    assert 'baseline_cost' in result_dict
+    assert 'proposed_cost' in result_dict
+    assert 'pci' in result_dict
+    assert 'pci_improvement_2016' in result_dict
+
+
+def test_leed_v4_summary():
+    """Test the leed_v4_summary command."""
+    runner = CliRunner()
+    sql_path = './tests/result/eplusout_hourly.sql'
+
+    sql_base_path = './tests/result/sub_folder'
+    result = runner.invoke(compute_leed_v4_summary, [sql_path, sql_base_path, '5A'])
+    print(result.output)
+    assert result.exit_code == 0
+    result_dict = json.loads(result.output)
+    assert 'baseline_cost' in result_dict
+    assert 'proposed_cost' in result_dict
+    assert 'baseline_carbon' in result_dict
+    assert 'proposed_carbon' in result_dict
+    assert 'pci_improvement' in result_dict
+    assert 'carbon_improvement' in result_dict
+    assert 'leed_points' in result_dict
