@@ -179,19 +179,22 @@ def comparison_from_sql(
     t_2016 = result_dict['pci_t_2016']
     t_2019 = result_dict['pci_t_2019']
     t_2022 = result_dict['pci_t_2022']
-    result_dict['pci'] = pci
-    result_dict['pci_improvement_2016'] = ((t_2016 - pci) / t_2016) * 100
-    result_dict['pci_improvement_2019'] = ((t_2019 - pci) / t_2019) * 100
-    result_dict['pci_improvement_2022'] = ((t_2022 - pci) / t_2022) * 100
+    result_dict['pci'] = round(pci, 3)
+    result_dict['pci_improvement_2016'] = round(((t_2016 - pci) / t_2016) * 100, 3)
+    result_dict['pci_improvement_2019'] = round(((t_2019 - pci) / t_2019) * 100, 3)
+    result_dict['pci_improvement_2022'] = round(((t_2022 - pci) / t_2022) * 100, 3)
     # compute the improvement indices for energy cost
     pci_c = result_dict['proposed_carbon'] / result_dict['baseline_carbon']
     tc_2016 = result_dict['carbon_t_2016']
     tc_2019 = result_dict['carbon_t_2019']
     tc_2022 = result_dict['carbon_t_2022']
     result_dict['pci_carbon'] = pci_c
-    result_dict['carbon_improvement_2016'] = ((tc_2016 - pci_c) / tc_2016) * 100
-    result_dict['carbon_improvement_2019'] = ((tc_2019 - pci_c) / tc_2019) * 100
-    result_dict['carbon_improvement_2022'] = ((tc_2022 - pci_c) / tc_2022) * 100
+    result_dict['carbon_improvement_2016'] = \
+        round(((tc_2016 - pci_c) / tc_2016) * 100, 3)
+    result_dict['carbon_improvement_2019'] = \
+        round(((tc_2019 - pci_c) / tc_2019) * 100, 3)
+    result_dict['carbon_improvement_2022'] = \
+        round(((tc_2022 - pci_c) / tc_2022) * 100, 3)
     return result_dict
 
 

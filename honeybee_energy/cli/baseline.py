@@ -325,26 +325,26 @@ def remove_ecms(model_file, output_file):
     'FullServiceRestaurant, QuickServiceRestaurant, Laboratory',
     type=str, default='NonResidential', show_default=True)
 @click.option(
-    '--electricity-cost', '-e', help='A number for the cost per each kWh of electricity. '
-    'This can be in any currency as long as it is coordinated with the costs of '
+    '--electricity-cost', '-e', help='A number for the cost per each kWh of electricity.'
+    ' This can be in any currency as long as it is coordinated with the costs of '
     'other inputs to this method. (Default: 0.15 for the average 2020 cost of '
     'electricity in the US in $/kWh).', type=float, default=0.15, show_default=True)
 @click.option(
-    '--natural-gas-cost', '-g', help='A number for the cost per each kWh of natural gas. '
-    'This can be in any currency as long as it is coordinated with the costs of '
+    '--natural-gas-cost', '-g', help='A number for the cost per each kWh of natural gas.'
+    ' This can be in any currency as long as it is coordinated with the costs of '
     'other inputs to this method. (Default: 0.06 for the average 2020 cost of natural '
     'gas in the US in $/kWh).', type=float, default=0.06, show_default=True)
 @click.option(
-    '--district-cooling-cost', '-dc', help='A number for the cost per each kWh of district '
-    'cooling energy. This can be in any currency as long as it is coordinated with '
-    'the costs of other inputs to this method. (Default: 0.04 assuming average 2020 US '
-    'cost of electricity in $/kWh with a COP 3.5 chiller).',
+    '--district-cooling-cost', '-dc', help='A number for the cost per each kWh of '
+    'district cooling energy. This can be in any currency as long as it is coordinated '
+    'with the costs of other inputs to this method. (Default: 0.04 assuming average '
+    '2020 US cost of electricity in $/kWh with a COP 3.5 chiller).',
     type=float, default=0.04, show_default=True)
 @click.option(
-    '--district-heating-cost', '-dh', help='A number for the cost per each kWh of district '
-    'heating energy. This can be in any currency as long as it is coordinated with '
-    'the costs of other inputs to this method. (Default: 0.08 assuming average 2020 US '
-    'cost of natural gas in $/kWh with an efficiency of 0.75 with all burner '
+    '--district-heating-cost', '-dh', help='A number for the cost per each kWh of '
+    'district heating energy. This can be in any currency as long as it is coordinated '
+    'with the costs of other inputs to this method. (Default: 0.08 assuming average '
+    '2020 US cost of natural gas in $/kWh with an efficiency of 0.75 with all burner '
     'and distribution losses).', type=float, default=0.08, show_default=True)
 @click.option(
     '--output-file', '-f', help='Optional json file to output the JSON '
@@ -362,13 +362,10 @@ def compute_appendix_g_summary(
     Args:
         proposed_sql: The path of the SQL result file that has been generated from an
             energy simulation of a proposed building.
-        baseline_sqls: The path of the SQL result file that has been generated from an
-            energy simulation of a baseline building. This can also be a list of SQL
-            result files (eg. for several simulations of different orientations)
-            in which case the baseline performance will be computed as the average
-            across all files. Lastly, it can be a directory or list of directories
-            containing results, in which case, the average performance will be
-            calculated form all files ending in .sql.
+        baseline_sqls: The path of a directory with several SQL result files generated
+            from an energy simulation of a baseline building (eg. for several
+            simulations of different orientations). The baseline performance will
+            be computed as the average across all SQL files in the directory.
         climate_zone: Text indicating the ASHRAE climate zone. This can be a single
             integer (in which case it is interpreted as A) or it can include the
             A, B, or C qualifier (eg. 3C).
@@ -405,26 +402,26 @@ def compute_appendix_g_summary(
     'FullServiceRestaurant, QuickServiceRestaurant, Laboratory',
     type=str, default='NonResidential', show_default=True)
 @click.option(
-    '--electricity-cost', '-e', help='A number for the cost per each kWh of electricity. '
-    'This can be in any currency as long as it is coordinated with the costs of '
+    '--electricity-cost', '-e', help='A number for the cost per each kWh of electricity.'
+    ' This can be in any currency as long as it is coordinated with the costs of '
     'other inputs to this method. (Default: 0.15 for the average 2020 cost of '
     'electricity in the US in $/kWh).', type=float, default=0.15, show_default=True)
 @click.option(
-    '--natural-gas-cost', '-g', help='A number for the cost per each kWh of natural gas. '
-    'This can be in any currency as long as it is coordinated with the costs of '
+    '--natural-gas-cost', '-g', help='A number for the cost per each kWh of natural gas.'
+    ' This can be in any currency as long as it is coordinated with the costs of '
     'other inputs to this method. (Default: 0.06 for the average 2020 cost of natural '
     'gas in the US in $/kWh).', type=float, default=0.06, show_default=True)
 @click.option(
-    '--district-cooling-cost', '-dc', help='A number for the cost per each kWh of district '
-    'cooling energy. This can be in any currency as long as it is coordinated with '
-    'the costs of other inputs to this method. (Default: 0.04 assuming average 2020 US '
-    'cost of electricity in $/kWh with a COP 3.5 chiller).',
+    '--district-cooling-cost', '-dc', help='A number for the cost per each kWh of '
+    'district cooling energy. This can be in any currency as long as it is coordinated '
+    'with the costs of other inputs to this method. (Default: 0.04 assuming average '
+    '2020 US cost of electricity in $/kWh with a COP 3.5 chiller).',
     type=float, default=0.04, show_default=True)
 @click.option(
-    '--district-heating-cost', '-dh', help='A number for the cost per each kWh of district '
-    'heating energy. This can be in any currency as long as it is coordinated with '
-    'the costs of other inputs to this method. (Default: 0.08 assuming average 2020 US '
-    'cost of natural gas in $/kWh with an efficiency of 0.75 with all burner '
+    '--district-heating-cost', '-dh', help='A number for the cost per each kWh of '
+    'district heating energy. This can be in any currency as long as it is coordinated '
+    'with the costs of other inputs to this method. (Default: 0.08 assuming average '
+    '2020 US cost of natural gas in $/kWh with an efficiency of 0.75 with all burner '
     'and distribution losses).', type=float, default=0.08, show_default=True)
 @click.option(
     '--electricity-emissions', '-ee', help='A number for the electric grid '
@@ -436,7 +433,7 @@ def compute_appendix_g_summary(
     '400 kg/MWh - for the US (energy mixed) grid around 2020\n'
     '100-200 kg/MWh - for grids with majority renewable/nuclear composition\n'
     '0-100 kg/MWh - for grids with renewables and storage',
-    type=float, default=0.15, show_default=True)
+    type=float, default=400, show_default=True)
 @click.option(
     '--output-file', '-f', help='Optional json file to output the JSON '
     'string of the summary report. By default this will be printed out '
@@ -445,21 +442,20 @@ def compute_leed_v4_summary(
         proposed_sql, baseline_sqls, climate_zone, building_type,
         electricity_cost, natural_gas_cost, district_cooling_cost, district_heating_cost,
         electricity_emissions, output_file):
-    """Get a JSON with a summary of ASHRAE-90.1 Appendix G performance.
+    """Get a JSON with a summary of LEED V4 (and 4.1) performance.
 
-    This includes Appendix G performance for versions 2016, 2019, and 2022.
+    This includes ASHRAE 90.1-2016 Appendix G performance for both cost and
+    carbon (GHG) emissions as well as the estimated number of LEED "Optimize
+    Energy Performance" points.
 
     \b
     Args:
         proposed_sql: The path of the SQL result file that has been generated from an
             energy simulation of a proposed building.
-        baseline_sqls: The path of the SQL result file that has been generated from an
-            energy simulation of a baseline building. This can also be a list of SQL
-            result files (eg. for several simulations of different orientations)
-            in which case the baseline performance will be computed as the average
-            across all files. Lastly, it can be a directory or list of directories
-            containing results, in which case, the average performance will be
-            calculated form all files ending in .sql.
+        baseline_sqls: The path of a directory with several SQL result files generated
+            from an energy simulation of a baseline building (eg. for several
+            simulations of different orientations). The baseline performance will
+            be computed as the average across all SQL files in the directory.
         climate_zone: Text indicating the ASHRAE climate zone. This can be a single
             integer (in which case it is interpreted as A) or it can include the
             A, B, or C qualifier (eg. 3C).

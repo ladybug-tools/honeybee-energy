@@ -245,10 +245,10 @@ def leed_v4_summary(
         -   carbon_target -- A fractional number for the target carbon index
             for ASHRAE 90.1-2016.
 
-        -   pci_carbon -- A fractional number for the performance improvement
+        -   carbon -- A fractional number for the performance improvement
             of the proposed building in terms of carbon emissions.
 
-        -   carbon_improvement_2016 -- A number less than 100 for the percentage better
+        -   carbon_improvement -- A number less than 100 for the percentage better
             that the proposed building is over the target carbon for ASHRAE 90.1-2016.
             Negative numbers indicate a proposed building that is worse than
             the 2016 target.
@@ -275,6 +275,7 @@ def leed_v4_summary(
     # rename certain keys to make them clearer
     result_dict['pci_target'] = result_dict.pop('pci_t_2016')
     result_dict['pci_improvement'] = result_dict.pop('pci_improvement_2016')
+    result_dict['carbon'] = result_dict.pop('pci_carbon')
     result_dict['carbon_target'] = result_dict.pop('carbon_t_2016')
     result_dict['carbon_improvement'] = result_dict.pop('carbon_improvement_2016')
     # compute the LEED points based on the other information
