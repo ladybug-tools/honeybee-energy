@@ -41,6 +41,8 @@ class _TemplateSystem(_HVACSystem):
         * vintage
         * equipment_type
         * schedules
+        * has_district_heating
+        * has_district_cooling
         * user_data
     """
     __slots__ = ('_vintage', '_equipment_type')
@@ -110,6 +112,16 @@ class _TemplateSystem(_HVACSystem):
             self._equipment_type = value
         else:
             self._equipment_type = self.EQUIPMENT_TYPES[0]
+
+    @property
+    def has_district_heating(self):
+        """Get a boolean for whether the HVAC system has district heating."""
+        return self._equipment_type is not None and 'DHW' in self._equipment_type
+
+    @property
+    def has_district_cooling(self):
+        """Get a boolean for whether the HVAC system has district cooling."""
+        return self._equipment_type is not None and 'DCW' in self._equipment_type
 
     @classmethod
     def from_dict(cls, data):

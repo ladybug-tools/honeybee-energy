@@ -39,6 +39,9 @@ class _HeatCoolBase(_TemplateSystem):
         * display_name
         * vintage
         * equipment_type
+        * has_district_heating
+        * has_district_cooling
+        * user_data
         * properties
     """
     __slots__ = ('_properties',)

@@ -71,6 +71,10 @@ class VRFwithDOAS(_DOASBase):
         * demand_controlled_ventilation
         * doas_availability_schedule
         * schedules
+        * has_district_heating
+        * has_district_cooling
+        * user_data
+        * properties
     """
     __slots__ = ()
 

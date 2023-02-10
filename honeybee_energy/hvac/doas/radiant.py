@@ -109,6 +109,10 @@ class RadiantwithDOAS(_DOASBase):
         * switch_over_time
         * radiant_type
         * schedules
+        * has_district_heating
+        * has_district_cooling
+        * user_data
+        * properties
     """
     __slots__ = ('_radiant_type', '_minimum_operation_time', '_switch_over_time')
 
