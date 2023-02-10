@@ -54,6 +54,10 @@ class EvaporativeCooler(_HeatCoolBase):
         * vintage
         * equipment_type
         * schedules
+        * has_district_heating
+        * has_district_cooling
+        * user_data
+        * properties
     """
     __slots__ = ()
 

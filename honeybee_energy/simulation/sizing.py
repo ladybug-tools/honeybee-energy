@@ -5,7 +5,7 @@ from __future__ import division
 from ..reader import parse_idf_string
 from ..writer import generate_idf_string
 
-from honeybee.typing import float_positive
+from honeybee.typing import float_positive, valid_ep_string
 
 from ladybug.ddy import DDY
 from ladybug.designday import DesignDay
@@ -17,26 +17,91 @@ class SizingParameter(object):
 
     Args:
         design_days: An array of Ladybug DesignDay objects that represent the
-            criteria for which the HVAC systems will be sized. Default: None.
+            criteria for which the HVAC systems will be sized. (Default: None).
         heating_factor: A number that will get multiplied by the peak heating load
             for each zone in the model in order to size the heating system for
-            the model. Must be greater than 0. Default: 1.25.
+            the model. Must be greater than 0. (Default: 1.25).
         cooling_factor: A number that will get multiplied by the peak cooling load
             for each zone in the model in order to size the cooling system for
-            the model. Must be greater than 0. Default: 1.15.
+            the model. Must be greater than 0. (Default: 1.15).
+        efficiency_standard: Text to set the efficiency standard, which will
+            automatically set the efficiencies of all HVAC equipment when provided.
+            Note that providing a standard here will cause the OpenStudio translation
+            process to perform an additional sizing calculation with EnergyPlus,
+            which is needed since the default efficiencies of equipment vary depending
+            on their size. THIS WILL SIGNIFICANTLY INCREASE TRANSLATION TIME.
+            However, it is often worthwhile when the goal is to match the
+            HVAC specification with a particular standard. (Default: None).
+            Choose from the following.
+
+            * DOE_Ref_Pre_1980
+            * DOE_Ref_1980_2004
+            * ASHRAE_2004
+            * ASHRAE_2007
+            * ASHRAE_2010
+            * ASHRAE_2013
+            * ASHRAE_2016
+            * ASHRAE_2019
+
+        climate_zone: Text indicating the ASHRAE climate zone to be used with the
+            efficiency_standard. When unspecified, the climate zone will be
+            inferred from the design days. This input can be a single
+            integer (in which case it is interpreted as A) or it can include the
+            A, B, or C qualifier (eg. 3C).
+        building_type: Text for the building type to be used in the efficiency_standard.
+            If the type is not recognized or is None, it will be assumed that the
+            building is a generic NonResidential. The following have meaning
+            for the standard.
+
+            * NonResidential
+            * Residential
+            * MidriseApartment
+            * HighriseApartment
+            * LargeOffice
+            * MediumOffice
+            * SmallOffice
+            * Retail
+            * StripMall
+            * PrimarySchool
+            * SecondarySchool
+            * SmallHotel
+            * LargeHotel
+            * Hospital
+            * Outpatient
+            * Warehouse
+            * SuperMarket
+            * FullServiceRestaurant
+            * QuickServiceRestaurant
+            * Laboratory
+            * Courthouse
 
     Properties:
         * design_days
         * heating_factor
         * cooling_factor
+        * efficiency_standard
+        * climate_zone
+        * building_type
     """
-    __slots__ = ('_design_days', '_heating_factor', '_cooling_factor')
+    __slots__ = ('_design_days', '_heating_factor', '_cooling_factor',
+                 '_efficiency_standard', '_climate_zone', '_building_type')
+    STANDARDS = ('DOE_Ref_Pre_1980', 'DOE_Ref_1980_2004', 'ASHRAE_2004', 'ASHRAE_2007',
+                 'ASHRAE_2010', 'ASHRAE_2013', 'ASHRAE_2016', 'ASHRAE_2019')
+    CLIMATE_ZONES = (
+        '0A', '1A', '2A', '3A', '4A', '5A', '6A',
+        '0B', '1B', '2B', '3B', '4B', '5B', '6B',
+        '3C', '4C', '5C', '7', '8'
+    )
 
-    def __init__(self, design_days=None, heating_factor=1.25, cooling_factor=1.15):
+    def __init__(self, design_days=None, heating_factor=1.25, cooling_factor=1.15,
+                 efficiency_standard=None, climate_zone=None, building_type=None):
         """Initialize SizingParameter."""
         self.design_days = design_days
         self.heating_factor = heating_factor
         self.cooling_factor = cooling_factor
+        self.efficiency_standard = efficiency_standard
+        self.climate_zone = climate_zone
+        self.building_type = building_type
 
     @property
     def design_days(self):
@@ -78,6 +143,80 @@ class SizingParameter(object):
     def cooling_factor(self, value):
         self._cooling_factor = float_positive(value, 'sizing parameter cooling factor')
         assert self._cooling_factor != 0, 'SizingParameter cooling factor cannot be 0.'
+
+    @property
+    def efficiency_standard(self):
+        """Get or set text for the efficiency standard.
+
+        When specified, this will automatically set the efficiencies of all HVAC
+        equipment. Note that setting this variable will cause the OpenStudio
+        translation process to perform an additional sizing calculation with EnergyPlus,
+        which is needed since the default efficiencies of equipment vary depending
+        on their size. So THIS WILL SIGNIFICANTLY INCREASE TRANSLATION TIME.
+        However, it is often worthwhile when the goal is to match the
+        HVAC specification with a particular standard. Choose from the following.
+
+        * DOE_Ref_Pre_1980
+        * DOE_Ref_1980_2004
+        * ASHRAE_2004
+        * ASHRAE_2007
+        * ASHRAE_2010
+        * ASHRAE_2013
+        * ASHRAE_2016
+        * ASHRAE_2019
+        """
+        return self._efficiency_standard
+
+    @efficiency_standard.setter
+    def efficiency_standard(self, value):
+        if value is not None:
+            clean_input = valid_ep_string(value, 'efficiency_standard').lower()
+            for key in self.STANDARDS:
+                if key.lower() == clean_input:
+                    value = key
+                    break
+            else:
+                raise ValueError(
+                    'Efficiency standard "{}" is not recognized.\nChoose from the '
+                    'following:\n{}'.format(value, self.STANDARDS))
+        self._efficiency_standard = value
+
+    @property
+    def climate_zone(self):
+        """Get or set text for the climate zone associated with the efficiency standard.
+
+        When unspecified, the climate zone will be inferred from the design days.
+        This input can be a single integer (in which case it is interpreted as A)
+        or it can include the A, B, or C qualifier (eg. 3C).
+        """
+        return self._climate_zone
+
+    @climate_zone.setter
+    def climate_zone(self, value):
+        if value is not None:
+            value = valid_ep_string(value, 'climate_zone').upper()
+            if len(value) == 1 and value not in ('7', '8'):
+                value = '{}A'.format(value)
+            if value not in self.CLIMATE_ZONES:
+                raise ValueError(
+                    'Efficiency climate zone "{}" is not recognized.\nChoose from the '
+                    'following:\n{}'.format(value, self.CLIMATE_ZONES))
+        self._climate_zone = value
+
+    @property
+    def building_type(self):
+        """Get or set text for the building type associated with the efficiency standard.
+
+        If the type is not recognized or is None, it will be assumed that the
+        building is a generic NonResidential.
+        """
+        return self._building_type
+
+    @building_type.setter
+    def building_type(self, value):
+        if value is not None:
+            value = valid_ep_string(value, 'building_type')
+        self._building_type = value
 
     def add_design_day(self, design_day):
         """Add a ladybug DesignDay to this object's design_days.
@@ -146,7 +285,7 @@ class SizingParameter(object):
         """Remove a single DesignDay from this object using an index.
 
         Args:
-            design_day_index: An interger for the index of the DesignDay to remove.
+            design_day_index: An integer for the index of the DesignDay to remove.
         """
         del self._design_days[design_day_index]
 
@@ -230,7 +369,10 @@ class SizingParameter(object):
             "type": "SizingParameter",
             "design_days": [],  # Array of Ladybug DesignDay dictionaries
             "heating_factor": 1.25,
-            "cooling_factor": 1.15
+            "cooling_factor": 1.15,
+            "efficiency_standard": "ASHRAE_2004",  # standard for HVAC efficiency
+            "climate_zone": "5A",  # climate zone for HVAC efficiency
+            "building_type": "LargeOffice"  # building type for HVAC efficiency
             }
         """
         assert data['type'] == 'SizingParameter', \
@@ -240,7 +382,10 @@ class SizingParameter(object):
             design_days = [DesignDay.from_dict(dday) for dday in data['design_days']]
         heating_factor = data['heating_factor'] if 'heating_factor' in data else 1.25
         cooling_factor = data['cooling_factor'] if 'cooling_factor' in data else 1.15
-        return cls(design_days, heating_factor, cooling_factor)
+        es = data['efficiency_standard'] if 'efficiency_standard' in data else None
+        cz = data['climate_zone'] if 'climate_zone' in data else None
+        bt = data['building_type'] if 'building_type' in data else None
+        return cls(design_days, heating_factor, cooling_factor, es, cz, bt)
 
     def to_idf(self):
         """Get an EnergyPlus string representation of the SizingParameters.
@@ -268,6 +413,12 @@ class SizingParameter(object):
             'heating_factor': self.heating_factor,
             'cooling_factor': self.cooling_factor
         }
+        if self.efficiency_standard is not None:
+            siz_par['efficiency_standard'] = self.efficiency_standard
+        if self.climate_zone is not None:
+            siz_par['climate_zone'] = self.climate_zone
+        if self.building_type is not None:
+            siz_par['building_type'] = self.building_type
         if len(self._design_days) != 0:
             siz_par['design_days'] = [dday.to_dict(False) for dday in self.design_days]
         return siz_par
@@ -290,13 +441,16 @@ class SizingParameter(object):
         return self.__repr__()
 
     def __copy__(self):
-        return SizingParameter([dday.duplicate() for dday in self._design_days],
-                               self.heating_factor, self.cooling_factor)
+        return SizingParameter(
+            [dday.duplicate() for dday in self._design_days],
+            self.heating_factor, self.cooling_factor, self.efficiency_standard,
+            self.climate_zone, self.building_type)
 
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""
         return tuple(hash(dday) for dday in self._design_days) + \
-            (self.heating_factor, self.cooling_factor)
+            (self.heating_factor, self.cooling_factor, self.efficiency_standard,
+             self.climate_zone, self.building_type)
 
     def __hash__(self):
         return hash(self.__key())

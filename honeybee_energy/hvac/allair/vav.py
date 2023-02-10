@@ -97,6 +97,10 @@ class VAV(_AllAirBase):
         * latent_heat_recovery
         * demand_controlled_ventilation
         * schedules
+        * has_district_heating
+        * has_district_cooling
+        * user_data
+        * properties
 
     Note:
         [1] American Society of Heating, Refrigerating and Air-Conditioning Engineers,

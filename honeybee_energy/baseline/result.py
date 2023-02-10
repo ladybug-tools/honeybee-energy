@@ -136,7 +136,7 @@ def appendix_g_summary(
 def leed_v4_summary(
         proposed_sql, baseline_sqls, climate_zone, building_type='NonResidential',
         electricity_cost=0.15, natural_gas_cost=0.06, district_cooling_cost=0.04,
-        district_heating_cost=0.08, electricity_emissions=400): 
+        district_heating_cost=0.08, electricity_emissions=400):
     """Get a dictionary with a summary of LEED v4 (and 4.1) performance.
 
     Args:

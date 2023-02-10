@@ -83,6 +83,10 @@ class Radiant(_HeatCoolBase):
         * minimum_operation_time
         * switch_over_time
         * schedules
+        * has_district_heating
+        * has_district_cooling
+        * user_data
+        * properties
     """
     __slots__ = ('_radiant_type', '_minimum_operation_time', '_switch_over_time')
 

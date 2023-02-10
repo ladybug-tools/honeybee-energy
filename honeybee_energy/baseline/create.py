@@ -9,12 +9,14 @@ from ..material.glazing import EnergyWindowMaterialSimpleGlazSys
 from ..construction.window import WindowConstruction
 from ..lib.constructionsets import construction_set_by_identifier
 from ..lib.programtypes import program_type_by_identifier
+from ..hvac._template import _TemplateSystem
 from ..hvac.heatcool._base import _HeatCoolBase
 from ..hvac.allair.vav import VAV
 from ..hvac.allair.pvav import PVAV
 from ..hvac.allair.psz import PSZ
 from ..hvac.allair.ptac import PTAC
 from ..hvac.allair.furnace import ForcedAirFurnace
+from ..hvac.doas.fcu import FCUwithDOAS
 from ..shw import SHWSystem
 
 
@@ -421,8 +423,8 @@ def model_hvac_to_baseline(model, climate_zone, building_type='NonResidential',
             if fuel else PTAC(hvac_id, std, 'PTHP')
     elif heat_only:
         hvac_id = 'Baseline Warm Air Furnace HVAC'
-        hvac_sys = ForcedAirFurnace(hvac_id, std, 'Furnace')
-        # TODO: Add the electric furnace here once it is exposed in HVAC templates
+        hvac_sys = ForcedAirFurnace(hvac_id, std, 'Furnace') \
+            if fuel else ForcedAirFurnace(hvac_id, std, 'Furnace_Electric')
     else:
         # determine the floor area if it is not input
         if floor_area == 0 or floor_area is None:
@@ -433,34 +435,101 @@ def model_hvac_to_baseline(model, climate_zone, building_type='NonResidential',
         if story_count == 0 or story_count is None:
             story_count = len(model.stories)
         # determine the HVAC from the floor area and stories
-        hvac_id = 'Baseline {} HVAC'
+        hvac_temp = 'Baseline {} HVAC'
         if building_type in ('Retail, StripMall') and story_count <= 2:
-            hvac_id = hvac_id.format('PSZ')
+            hvac_id = hvac_temp.format('PSZ')
             hvac_sys = PSZ(hvac_id, std, 'PSZAC_Boiler') \
                 if fuel else PSZ(hvac_id, std, 'PSZHP')
         elif story_count > 5 or floor_area > 13935.5:  # more than 150,000 ft2
-            hvac_id = hvac_id.format('VAV')
+            hvac_id = hvac_temp.format('VAV')
             hvac_sys = VAV(hvac_id, std, 'VAV_Chiller_Boiler') \
                 if fuel else VAV(hvac_id, std, 'VAV_Chiller_PFP')
         elif story_count > 3 or floor_area > 2322.6:  # more than 25,000 ft2
-            hvac_id = hvac_id.format('PVAV')
+            hvac_id = hvac_temp.format('PVAV')
             hvac_sys = PVAV(hvac_id, std, 'PVAV_Boiler') \
                 if fuel else PVAV(hvac_id, std, 'PVAV_PFP')
         elif building_type in ('Hospital', 'Laboratory'):
-            hvac_id = hvac_id.format('PVAV')
+            hvac_id = hvac_temp.format('PVAV')
             hvac_sys = PVAV(hvac_id, std, 'PVAV_Boiler') \
                 if fuel else PVAV(hvac_id, std, 'PVAV_PFP')
         else:
-            hvac_id = hvac_id.format('PSZ')
+            hvac_id = hvac_temp.format('PSZ')
             hvac_sys = PSZ(hvac_id, std, 'PSZAC_Boiler') \
                 if fuel else PSZ(hvac_id, std, 'PSZHP')
         if climate_zone not in ('0A', '0B', '1A', '1B', '2A', '3A', '4A'):
             hvac_sys.economizer_type = 'DifferentialDryBulb'
 
     # apply the HVAC template to all conditioned rooms in the model
+    dhw_only, dch_only, dhw_dcw = [], [], []
     for room in model.rooms:
-        if room.properties.energy.is_conditioned:
-            room.properties.energy.hvac = hvac_sys
+        r_hvac = room.properties.energy.hvac
+        if r_hvac is not None:
+            if isinstance(r_hvac, _TemplateSystem):
+                if not r_hvac.has_district_heating and not r_hvac.has_district_cooling:
+                    room.properties.energy.hvac = hvac_sys
+                elif r_hvac.has_district_heating and r_hvac.has_district_cooling:
+                    dhw_dcw.append(room)
+                elif r_hvac.has_district_heating:
+                    dhw_only.append(room)
+                else:
+                    dch_only.append(room)
+            else:
+                room.properties.energy.hvac = hvac_sys
+
+    # if there were any rooms with district heating or cooling, substitute the system
+    if len(dhw_dcw) != 0:
+        if isinstance(hvac_sys, (VAV, PVAV)):
+            hvac_id = hvac_temp.format('VAV') + ' DHW DCW'
+            new_hvac_sys = VAV(hvac_id, std, 'VAV_DCW_DHW')
+            new_hvac_sys.economizer_type = hvac_sys.economizer_type
+        elif isinstance(hvac_sys, PSZ):
+            hvac_id = hvac_temp.format('PSZ') + ' DHW DCW'
+            new_hvac_sys = PSZ(hvac_id, std, 'PSZAC_DCW_DHW')
+            new_hvac_sys.economizer_type = hvac_sys.economizer_type
+        elif isinstance(hvac_sys, PTAC):
+            hvac_id = 'Baseline FCU Residential HVAC DHW DCW'
+            new_hvac_sys = FCUwithDOAS(hvac_id, std, 'DOAS_FCU_DCW_DHW')
+        else:
+            new_hvac_sys = hvac_sys
+        for room in dhw_dcw:
+            room.properties.energy.hvac = new_hvac_sys
+    if len(dch_only) != 0:
+        if isinstance(hvac_sys, (VAV, PVAV)):
+            hvac_id = hvac_temp.format('VAV') + ' DCW'
+            new_hvac_sys = VAV(hvac_id, std, 'VAV_DCW_Boiler') \
+                if fuel else PVAV(hvac_id, std, 'VAV_DCW_PFP')
+            new_hvac_sys.economizer_type = hvac_sys.economizer_type
+        elif isinstance(hvac_sys, PSZ):
+            hvac_id = hvac_temp.format('PSZ') + ' DCW'
+            new_hvac_sys = PSZ(hvac_id, std, 'PSZAC_DCW_Boiler')
+            new_hvac_sys.economizer_type = hvac_sys.economizer_type
+        elif isinstance(hvac_sys, PTAC):
+            hvac_id = 'Baseline FCU Residential HVAC DCW'
+            new_hvac_sys = FCUwithDOAS(hvac_id, std, 'DOAS_FCU_DCW_Boiler')
+        else:
+            new_hvac_sys = hvac_sys
+        for room in dch_only:
+            room.properties.energy.hvac = new_hvac_sys
+    if len(dhw_only) != 0:
+        if isinstance(hvac_sys, VAV):
+            hvac_id = hvac_temp.format('VAV') + ' DHW'
+            new_hvac_sys = VAV(hvac_id, std, 'VAV_Chiller_DHW')
+            new_hvac_sys.economizer_type = hvac_sys.economizer_type
+        elif isinstance(hvac_sys, PVAV):
+            hvac_id = hvac_temp.format('PVAV') + ' DHW'
+            new_hvac_sys = PVAV(hvac_id, std, 'PVAV_DHW')
+            new_hvac_sys.economizer_type = hvac_sys.economizer_type
+        elif isinstance(hvac_sys, PSZ):
+            hvac_id = hvac_temp.format('PSZ') + ' DHW'
+            new_hvac_sys = PSZ(hvac_id, std, 'PSZAC_DHW')
+            new_hvac_sys.economizer_type = hvac_sys.economizer_type
+        elif isinstance(hvac_sys, PTAC):
+            hvac_id = 'Baseline PT Residential HVAC DHW'
+            hvac_sys = PTAC(hvac_id, std, 'PTAC_DHW')
+        else:
+            new_hvac_sys = hvac_sys
+        for room in dhw_only:
+            room.properties.energy.hvac = new_hvac_sys
 
 
 def model_shw_to_baseline(model, building_type='NonResidential'):

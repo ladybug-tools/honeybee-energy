@@ -56,6 +56,10 @@ class PTAC(_AllAirBase):
         * vintage
         * equipment_type
         * schedules
+        * has_district_heating
+        * has_district_cooling
+        * user_data
+        * properties
 
     Note:
         [1] American Society of Heating, Refrigerating and Air-Conditioning Engineers,

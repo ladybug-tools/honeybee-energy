@@ -152,7 +152,6 @@ def test_pvav_multi_room(userdatadict):
     model_dict = model.to_dict()
     assert len(model_dict['properties']['energy']['hvacs']) == 1
     assert model_dict['rooms'][0]['properties']['energy']['hvac'] == hvac_sys.identifier
-    
 
 
 def test_pvav_dict_methods(userdatadict):
@@ -302,7 +301,7 @@ def test_ptac_dict_methods(userdatadict):
     new_hvac_sys = PTAC.from_dict(hvac_dict)
     assert new_hvac_sys == hvac_sys
     assert hvac_dict == new_hvac_sys.to_dict()
-    
+
 
 def test_furnace_init(userdatadict):
     """Test the initialization of ForcedAirFurnace and basic properties."""
@@ -320,13 +319,7 @@ def test_furnace_init(userdatadict):
     hvac_sys.vintage = 'ASHRAE_2010'
     with pytest.raises(ValueError):
         hvac_sys.equipment_type = 'Air furnace'
-    hvac_sys.economizer_type = 'DifferentialDryBulb'
-    hvac_sys.sensible_heat_recovery = 0.8
-    hvac_sys.latent_heat_recovery = 0.65
     assert hvac_sys.vintage == 'ASHRAE_2010'
-    assert hvac_sys.economizer_type == 'DifferentialDryBulb'
-    assert hvac_sys.sensible_heat_recovery == 0.8
-    assert hvac_sys.latent_heat_recovery == 0.65
     assert hvac_sys.user_data == userdatadict
 
 
@@ -335,23 +328,20 @@ def test_furnace_equality(userdatadict):
     hvac_sys = ForcedAirFurnace('Test System')
     hvac_sys.user_data = userdatadict
     hvac_sys_dup = hvac_sys.duplicate()
-    hvac_sys_alt = ForcedAirFurnace(
-        'Test System', sensible_heat_recovery=0.75, latent_heat_recovery=0.6)
+    hvac_sys_alt = ForcedAirFurnace('Test System', vintage='ASHRAE_2010')
 
     assert hvac_sys is hvac_sys
     assert hvac_sys is not hvac_sys_dup
     assert hvac_sys == hvac_sys_dup
-    hvac_sys_dup.sensible_heat_recovery = 0.6
+    hvac_sys_dup.vintage = 'ASHRAE_2007'
     assert hvac_sys != hvac_sys_dup
     assert hvac_sys != hvac_sys_alt
-    
+
 
 def test_furnace_dict_methods(userdatadict):
     """Test the to/from dict methods."""
     hvac_sys = ForcedAirFurnace('High Efficiency HVAC System')
     hvac_sys.vintage = 'ASHRAE_2010'
-    hvac_sys.economizer_type = 'DifferentialDryBulb'
-    hvac_sys.sensible_heat_recovery = 0.8
     hvac_sys.user_data = userdatadict
 
     hvac_dict = hvac_sys.to_dict()

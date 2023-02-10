@@ -29,20 +29,51 @@ def settings():
 @settings.command('default-sim-par')
 @click.argument('ddy-file', type=click.Path(
     file_okay=True, dir_okay=False, resolve_path=True))
-@click.option('--run-period', '-rp', help='An AnalysisPeriod or RunPeriod string '
-              'to dictate the start and end of the simulation '
-              '(eg. "6/21 to 9/21 between 0 and 23 @1"). If unspecified, the '
-              'simulation will be for the whole year.', default=None, type=str)
-@click.option('--north', '-n', default=0, type=float, show_default=True,
-              help='Number from -360 to 360 for the counterclockwise difference between '
-              'North and the positive Y-axis in degrees. 90 is west; 270 is east')
-@click.option('--filter-des-days/--all-des-days', ' /-all', help='Flag to note whether '
-              'the design days in the ddy-file should be filtered to only include 99.6 '
-              'and 0.4 design days.', default=True, show_default=True)
-@click.option('--output-file', '-f', help='Optional file to output the JSON string of '
-              'the simulation parameters. By default, it will be printed to stdout.',
-              type=click.File('w'), default='-', show_default=True)
-def default_sim_par(ddy_file, run_period, north, filter_des_days, output_file):
+@click.option(
+    '--reporting-frequency', '-rf', help='Text for the frequency at which '
+    'the outputs are reported. (Default: Hourly). Choose from the following: '
+    'Annual, Monthly, Daily, Hourly Timestep', default='Hourly', type=str)
+@click.option(
+    '--run-period', '-rp', help='An AnalysisPeriod or RunPeriod string '
+    'to dictate the start and end of the simulation '
+    '(eg. "6/21 to 9/21 between 0 and 23 @1"). If unspecified, the '
+    'simulation will be for the whole year.', default=None, type=str)
+@click.option(
+    '--north', '-n', default=0, type=float, show_default=True,
+    help='Number from -360 to 360 for the counterclockwise difference between '
+    'North and the positive Y-axis in degrees. 90 is west; 270 is east')
+@click.option(
+    '--filter-des-days/--all-des-days', ' /-all', help='Flag to note whether '
+    'the design days in the ddy-file should be filtered to only include 99.6 '
+    'and 0.4 design days.', default=True, show_default=True)
+@click.option(
+    '--efficiency-standard', '-es', help='Text to set the efficiency standard, which '
+    'will automatically set the efficiencies of all HVAC equipment when provided. '
+    'Note that providing a standard here will cause the OpenStudio translation '
+    'process to perform an additional sizing calculation with EnergyPlus, '
+    'which is needed since the default efficiencies of equipment vary depending '
+    'on their size. THIS WILL SIGNIFICANTLY INCREASE TRANSLATION TIME. '
+    'However, it is often worthwhile when the goal is to match the '
+    'HVAC specification with a particular standard.Choose from the following: '
+    'DOE_Ref_Pre_1980, DOE_Ref_1980_2004, ASHRAE_2004, ASHRAE_2007, ASHRAE_2010, '
+    'ASHRAE_2013, ASHRAE_2016, ASHRAE_2019', default=None, type=str)
+@click.option(
+    '--climate-zone', '-cz', help='Text indicating the ASHRAE climate zone to be '
+    'used with the efficiency_standard. When unspecified, the climate zone will be '
+    'inferred from the design days. This input can be a single integer (in which '
+    'case it is interpreted as A) or it can include the A, B, or C qualifier '
+    '(eg. 3C).', default=None, type=str)
+@click.option(
+    '--building-type', '-bt', help='TText for the building type to be used in '
+    'the efficiency_standard. If the type is not recognized or is None, it will '
+    'be assumed that the building is a generic NonResidential.', default=None, type=str)
+@click.option(
+    '--output-file', '-f', help='Optional file to output the JSON string of '
+    'the simulation parameters. By default, it will be printed to stdout.',
+    type=click.File('w'), default='-', show_default=True)
+def default_sim_par(
+        ddy_file, reporting_frequency, run_period, north, filter_des_days,
+        efficiency_standard, climate_zone, building_type, output_file):
     """Get a SimulationParameter JSON with default outputs for energy use only.
 
     \b
@@ -54,10 +85,17 @@ def default_sim_par(ddy_file, run_period, north, filter_des_days, output_file):
         sim_par = SimulationParameter()
         sim_par.output.add_zone_energy_use()
         sim_par.output.add_hvac_energy_use()
+        sim_par.output.reporting_frequency = reporting_frequency
         _apply_run_period(run_period, sim_par)
         sim_par.north_angle = north
         if os.path.isfile(ddy_file):
             _apply_design_days(ddy_file, filter_des_days, sim_par)
+        if efficiency_standard is not None and efficiency_standard != '':
+            sim_par.sizing_parameter.efficiency_standard = efficiency_standard
+        if climate_zone is not None and climate_zone != '':
+            sim_par.sizing_parameter.climate_zone = climate_zone
+        if building_type is not None and building_type != '':
+            sim_par.sizing_parameter.building_type = building_type
         output_file.write(json.dumps(sim_par.to_dict()))
     except Exception as e:
         _logger.exception('Failed to generate simulation parameter.\n{}'.format(e))
@@ -75,6 +113,9 @@ def default_sim_par(ddy_file, run_period, north, filter_des_days, output_file):
               'zone (both sensible and latent)\nSensible - the sensible load added to '
               'the zone\nLatent - the latent load added to the zone.',
               type=str, default='Total', show_default=True)
+@click.option('--reporting-frequency', '-rf', help='Text for the frequency at which '
+              'the outputs are reported. (Default: Hourly). Choose from the following: '
+              'Annual, Monthly, Daily, Hourly Timestep', default='Hourly', type=str)
 @click.option('--run-period', '-rp', help='An AnalysisPeriod or RunPeriod string '
               'to dictate the start and end of the simulation '
               '(eg. "6/21 to 9/21 between 0 and 23 @1"). If unspecified, the '
@@ -88,8 +129,8 @@ def default_sim_par(ddy_file, run_period, north, filter_des_days, output_file):
 @click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the simulation parameters. By default, it will be printed to stdout.',
               type=click.File('w'), default='-', show_default=True)
-def load_balance_sim_par(ddy_file, load_type, run_period, north, filter_des_days,
-                         output_file):
+def load_balance_sim_par(ddy_file, load_type, reporting_frequency, run_period, north,
+                         filter_des_days, output_file):
     """Get a SimulationParameter JSON with outputs for thermal load balances.
 
     \b
@@ -103,6 +144,7 @@ def load_balance_sim_par(ddy_file, load_type, run_period, north, filter_des_days
         gl_load_type = load_type if load_type != 'All' else 'Total'
         sim_par.output.add_gains_and_losses(gl_load_type)
         sim_par.output.add_surface_energy_flow()
+        sim_par.output.reporting_frequency = reporting_frequency
         _apply_run_period(run_period, sim_par)
         sim_par.north_angle = north
         if os.path.isfile(ddy_file):
@@ -205,6 +247,9 @@ def sizing_sim_par(ddy_file, load_type, north, filter_des_days, output_file):
 @click.argument('ddy-file', type=click.Path(
     file_okay=True, dir_okay=False, resolve_path=True))
 @click.argument('output-names', nargs=-1)
+@click.option('--reporting-frequency', '-rf', help='Text for the frequency at which '
+              'the outputs are reported. (Default: Hourly). Choose from the following: '
+              'Annual, Monthly, Daily, Hourly Timestep', default='Hourly', type=str)
 @click.option('--run-period', '-rp', help='An AnalysisPeriod or RunPeriod string '
               'to dictate the start and end of the simulation '
               '(eg. "6/21 to 9/21 between 0 and 23 @1"). If unspecified, the '
@@ -218,8 +263,8 @@ def sizing_sim_par(ddy_file, load_type, north, filter_des_days, output_file):
 @click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the simulation parameters. By default, it will be printed to stdout.',
               type=click.File('w'), default='-', show_default=True)
-def custom_sim_par(ddy_file, output_names, run_period, north, filter_des_days,
-                   output_file):
+def custom_sim_par(ddy_file, output_names, reporting_frequency, run_period, north,
+                   filter_des_days, output_file):
     """Get a SimulationParameter JSON with an option for custom outputs.
 
     \b
@@ -234,6 +279,7 @@ def custom_sim_par(ddy_file, output_names, run_period, north, filter_des_days,
         sim_par = SimulationParameter()
         for output_name in output_names:
             sim_par.output.add_output(output_name)
+        sim_par.output.reporting_frequency = reporting_frequency
         _apply_run_period(run_period, sim_par)
         sim_par.north_angle = north
         if os.path.isfile(ddy_file):
@@ -250,10 +296,18 @@ def custom_sim_par(ddy_file, output_names, run_period, north, filter_des_days,
 @click.argument('ddy-file', type=click.Path(
     file_okay=True, dir_okay=False, resolve_path=True))
 @click.argument('north-angles', nargs=-1, type=float)
+@click.option('--default-outputs/--no-default-outputs', ' /-nd', help='Flag to note '
+              'whether the default outputs for energy usage should be included in '
+              'the simulation parameters or no outputs should be requested except '
+              'for those explicitly listed with --output-name.',
+              default=True, show_default=True)
 @click.option('--output-name', '-o', help='Any number of EnergyPlus output names as '
               'strings (eg. Surface Window System Solar Transmittance). These outputs '
               'will be requested from the simulation.',
               type=click.STRING, multiple=True, default=None, show_default=True)
+@click.option('--reporting-frequency', '-rf', help='Text for the frequency at which '
+              'the outputs are reported. (Default: Hourly). Choose from the following: '
+              'Annual, Monthly, Daily, Hourly Timestep', default='Hourly', type=str)
 @click.option('--run-period', '-rp', help='An AnalysisPeriod or RunPeriod string '
               'to dictate the start and end of the simulation '
               '(eg. "6/21 to 9/21 between 0 and 23 @1"). If unspecified, the '
@@ -264,14 +318,37 @@ def custom_sim_par(ddy_file, output_names, run_period, north, filter_des_days,
 @click.option('--filter-des-days/--all-des-days', ' /-all', help='Flag to note whether '
               'the design days in the ddy-file should be filtered to only include 99.6 '
               'and 0.4 design days.', default=True, show_default=True)
+@click.option(
+    '--efficiency-standard', '-es', help='Text to set the efficiency standard, which '
+    'will automatically set the efficiencies of all HVAC equipment when provided. '
+    'Note that providing a standard here will cause the OpenStudio translation '
+    'process to perform an additional sizing calculation with EnergyPlus, '
+    'which is needed since the default efficiencies of equipment vary depending '
+    'on their size. THIS WILL SIGNIFICANTLY INCREASE TRANSLATION TIME. '
+    'However, it is often worthwhile when the goal is to match the '
+    'HVAC specification with a particular standard.Choose from the following: '
+    'DOE_Ref_Pre_1980, DOE_Ref_1980_2004, ASHRAE_2004, ASHRAE_2007, ASHRAE_2010, '
+    'ASHRAE_2013, ASHRAE_2016, ASHRAE_2019', default=None, type=str)
+@click.option(
+    '--climate-zone', '-cz', help='Text indicating the ASHRAE climate zone to be '
+    'used with the efficiency_standard. When unspecified, the climate zone will be '
+    'inferred from the design days. This input can be a single integer (in which '
+    'case it is interpreted as A) or it can include the A, B, or C qualifier '
+    '(eg. 3C).', default=None, type=str)
+@click.option(
+    '--building-type', '-bt', help='TText for the building type to be used in '
+    'the efficiency_standard. If the type is not recognized or is None, it will '
+    'be assumed that the building is a generic NonResidential.', default=None, type=str)
 @click.option('--folder', '-f', help='Output folder for the simulation parameter JSONS.',
               default=None, show_default=True,
               type=click.Path(file_okay=False, dir_okay=True, resolve_path=True))
 @click.option('--log-file', '-log', help='Optional log file to output the paths of the '
               'simulation parameters. By default the list will be printed out to '
               'stdout.', type=click.File('w'), default='-')
-def orientation_sim_pars(ddy_file, north_angles, output_name, run_period, start_north,
-                         filter_des_days, folder, log_file):
+def orientation_sim_pars(
+        ddy_file, north_angles, default_outputs, output_name, reporting_frequency,
+        run_period, start_north, filter_des_days,
+        efficiency_standard, climate_zone, building_type, folder, log_file):
     """Get SimulationParameter JSONs with different north angles for orientation studies.
 
     \b
@@ -290,11 +367,23 @@ def orientation_sim_pars(ddy_file, north_angles, output_name, run_period, start_
 
         # create a base set of simulation parameters to be edited parametrically
         sim_par = SimulationParameter()
+        if default_outputs:
+            sim_par.output.add_zone_energy_use()
+            sim_par.output.add_hvac_energy_use()
         for out_name in output_name:
             sim_par.output.add_output(out_name)
+        sim_par.output.reporting_frequency = reporting_frequency
         _apply_run_period(run_period, sim_par)
         if os.path.isfile(ddy_file):
             _apply_design_days(ddy_file, filter_des_days, sim_par)
+
+        # set the sizing parameters if specified
+        if efficiency_standard is not None and efficiency_standard != '':
+            sim_par.sizing_parameter.efficiency_standard = efficiency_standard
+        if climate_zone is not None and climate_zone != '':
+            sim_par.sizing_parameter.climate_zone = climate_zone
+        if building_type is not None and building_type != '':
+            sim_par.sizing_parameter.building_type = building_type
 
         # shift all of the north angles by the start_north if specified
         if start_north != 0:
