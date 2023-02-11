@@ -64,7 +64,7 @@ def settings():
     'case it is interpreted as A) or it can include the A, B, or C qualifier '
     '(eg. 3C).', default=None, type=str)
 @click.option(
-    '--building-type', '-bt', help='TText for the building type to be used in '
+    '--building-type', '-bt', help='Text for the building type to be used in '
     'the efficiency_standard. If the type is not recognized or is None, it will '
     'be assumed that the building is a generic NonResidential.', default=None, type=str)
 @click.option(
@@ -336,7 +336,7 @@ def custom_sim_par(ddy_file, output_names, reporting_frequency, run_period, nort
     'case it is interpreted as A) or it can include the A, B, or C qualifier '
     '(eg. 3C).', default=None, type=str)
 @click.option(
-    '--building-type', '-bt', help='TText for the building type to be used in '
+    '--building-type', '-bt', help='Text for the building type to be used in '
     'the efficiency_standard. If the type is not recognized or is None, it will '
     'be assumed that the building is a generic NonResidential.', default=None, type=str)
 @click.option('--folder', '-f', help='Output folder for the simulation parameter JSONS.',

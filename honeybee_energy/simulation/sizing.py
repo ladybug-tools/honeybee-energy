@@ -24,7 +24,7 @@ class SizingParameter(object):
         cooling_factor: A number that will get multiplied by the peak cooling load
             for each zone in the model in order to size the cooling system for
             the model. Must be greater than 0. (Default: 1.15).
-        efficiency_standard: Text to set the efficiency standard, which will
+        efficiency_standard: Text to specify the efficiency standard, which will
             automatically set the efficiencies of all HVAC equipment when provided.
             Note that providing a standard here will cause the OpenStudio translation
             process to perform an additional sizing calculation with EnergyPlus,

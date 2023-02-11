@@ -318,11 +318,11 @@ def remove_ecms(model_file, output_file):
     '--building-type', '-b', help='Text for the building type that the Model represents.'
     ' This is used to determine the baseline window-to-wall ratio and HVAC system. If '
     'the type is not recognized or is "Unknown", it will be assumed that the building is'
-    ' a generic NonResidential. The following have specified systems per the standard: '
+    ' a generic NonResidential. The following have meaning per the standard: '
     'Residential, NonResidential, MidriseApartment, HighriseApartment, LargeOffice, '
     'MediumOffice, SmallOffice, Retail, StripMall, PrimarySchool, SecondarySchool, '
     'SmallHotel, LargeHotel, Hospital, Outpatient, Warehouse, SuperMarket, '
-    'FullServiceRestaurant, QuickServiceRestaurant, Laboratory',
+    'FullServiceRestaurant, QuickServiceRestaurant, Laboratory, Courthouse',
     type=str, default='NonResidential', show_default=True)
 @click.option(
     '--electricity-cost', '-e', help='A number for the cost per each kWh of electricity.'
@@ -395,11 +395,11 @@ def compute_appendix_g_summary(
     '--building-type', '-b', help='Text for the building type that the Model represents.'
     ' This is used to determine the baseline window-to-wall ratio and HVAC system. If '
     'the type is not recognized or is "Unknown", it will be assumed that the building is'
-    ' a generic NonResidential. The following have specified systems per the standard: '
+    ' a generic NonResidential. The following have meaning per the standard: '
     'Residential, NonResidential, MidriseApartment, HighriseApartment, LargeOffice, '
     'MediumOffice, SmallOffice, Retail, StripMall, PrimarySchool, SecondarySchool, '
     'SmallHotel, LargeHotel, Hospital, Outpatient, Warehouse, SuperMarket, '
-    'FullServiceRestaurant, QuickServiceRestaurant, Laboratory',
+    'FullServiceRestaurant, QuickServiceRestaurant, Laboratory, Courthouse',
     type=str, default='NonResidential', show_default=True)
 @click.option(
     '--electricity-cost', '-e', help='A number for the cost per each kWh of electricity.'
