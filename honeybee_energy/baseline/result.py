@@ -4,7 +4,7 @@ from .pci import comparison_from_sql
 
 def appendix_g_summary(
         proposed_sql, baseline_sqls, climate_zone, building_type='NonResidential',
-        electricity_cost=0.15, natural_gas_cost=0.06,
+        electricity_cost=0.12, natural_gas_cost=0.06,
         district_cooling_cost=0.04, district_heating_cost=0.08):
     """Get a dictionary with a summary of ASHRAE-90.1 Appendix G performance.
 
@@ -51,7 +51,7 @@ def appendix_g_summary(
 
         electricity_cost: A number for the cost per each kWh of electricity. This
             can be in any currency as long as it is coordinated with the costs of
-            other inputs to this method. (Default: 0.15 for the average 2020
+            other inputs to this method. (Default: 0.12 for the average 2020
             cost of electricity in the US in $/kWh).
         natural_gas_cost: A number for the cost per each kWh of natural gas. This
             can be in any currency as long as it is coordinated with the
@@ -135,7 +135,7 @@ def appendix_g_summary(
 
 def leed_v4_summary(
         proposed_sql, baseline_sqls, climate_zone, building_type='NonResidential',
-        electricity_cost=0.15, natural_gas_cost=0.06, district_cooling_cost=0.04,
+        electricity_cost=0.12, natural_gas_cost=0.06, district_cooling_cost=0.04,
         district_heating_cost=0.08, electricity_emissions=400):
     """Get a dictionary with a summary of LEED v4 (and 4.1) performance.
 
@@ -182,7 +182,7 @@ def leed_v4_summary(
 
         electricity_cost: A number for the cost per each kWh of electricity. This
             can be in any currency as long as it is coordinated with the costs of
-            other inputs to this method. (Default: 0.15 for the average 2020
+            other inputs to this method. (Default: 0.12 for the average 2020
             cost of electricity in the US in $/kWh).
         natural_gas_cost: A number for the cost per each kWh of natural gas. This
             can be in any currency as long as it is coordinated with the

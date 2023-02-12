@@ -32,7 +32,7 @@ def settings():
 @click.option(
     '--reporting-frequency', '-rf', help='Text for the frequency at which '
     'the outputs are reported. (Default: Hourly). Choose from the following: '
-    'Annual, Monthly, Daily, Hourly Timestep', default='Hourly', type=str)
+    'Annual, Monthly, Daily, Hourly, Timestep', default='Hourly', type=str)
 @click.option(
     '--run-period', '-rp', help='An AnalysisPeriod or RunPeriod string '
     'to dictate the start and end of the simulation '
@@ -66,7 +66,8 @@ def settings():
 @click.option(
     '--building-type', '-bt', help='Text for the building type to be used in '
     'the efficiency_standard. If the type is not recognized or is None, it will '
-    'be assumed that the building is a generic NonResidential.', default=None, type=str)
+    'be assumed that the building is a generic NonResidential.',
+    default=None, type=str)
 @click.option(
     '--output-file', '-f', help='Optional file to output the JSON string of '
     'the simulation parameters. By default, it will be printed to stdout.',
