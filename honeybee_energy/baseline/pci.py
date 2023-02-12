@@ -10,7 +10,7 @@ UNREGULATED_USES = ('Interior Equipment', 'Exterior Equipment', 'Generators')
 
 def comparison_from_sql(
         proposed_sql, baseline_sqls, climate_zone, building_type='NonResidential',
-        electricity_cost=0.15, natural_gas_cost=0.06, district_cooling_cost=0.04,
+        electricity_cost=0.12, natural_gas_cost=0.06, district_cooling_cost=0.04,
         district_heating_cost=0.08, electricity_emissions=400):
     """Get a dictionary comparing baseline and proposed simulations from EnergyPlus SQLs.
 
@@ -57,7 +57,7 @@ def comparison_from_sql(
 
         electricity_cost: A number for the cost per each kWh of electricity. This
             can be in any currency as long as it is coordinated with the costs of
-            other inputs to this method. (Default: 0.15 for the average 2020
+            other inputs to this method. (Default: 0.12 for the average 2020
             cost of electricity in the US in $/kWh).
         natural_gas_cost: A number for the cost per each kWh of natural gas. This
             can be in any currency as long as it is coordinated with the
@@ -200,7 +200,7 @@ def comparison_from_sql(
 
 def pci_target_from_baseline_sql(
         sql_results, climate_zone, building_type='NonResidential',
-        electricity_cost=0.15, natural_gas_cost=0.06,
+        electricity_cost=0.12, natural_gas_cost=0.06,
         district_cooling_cost=0.04, district_heating_cost=0.08,
         electricity_emissions=400):
     """Get a dictionary of target Performance Cost Indices from EnergyPlus SQLs.
@@ -246,7 +246,7 @@ def pci_target_from_baseline_sql(
 
         electricity_cost: A number for the cost per each kWh of electricity. This
             can be in any currency as long as it is coordinated with the costs of
-            other inputs to this method. (Default: 0.15 for the average 2020
+            other inputs to this method. (Default: 0.12 for the average 2020
             cost of electricity in the US in $/kWh).
         natural_gas_cost: A number for the cost per each kWh of natural gas. This
             can be in any currency as long as it is coordinated with the
@@ -419,7 +419,7 @@ def pci_target_from_baseline_sql(
 
 
 def energy_cost_from_proposed_sql(
-        sql_result, electricity_cost=0.15, natural_gas_cost=0.06,
+        sql_result, electricity_cost=0.12, natural_gas_cost=0.06,
         district_cooling_cost=0.04, district_heating_cost=0.08,
         electricity_emissions=400):
     """Get a dictionary of proposed energy cost from an EnergyPlus SQL.
@@ -429,7 +429,7 @@ def energy_cost_from_proposed_sql(
             energy simulation of a proposed building.
         electricity_cost: A number for the cost per each kWh of electricity. This
             can be in any currency as long as it is coordinated with the costs of
-            other inputs to this method. (Default: 0.15 for the average 2020
+            other inputs to this method. (Default: 0.12 for the average 2020
             cost of electricity in the US in $/kWh).
         natural_gas_cost: A number for the cost per each kWh of natural gas. This
             can be in any currency as long as it is coordinated with the

@@ -327,8 +327,8 @@ def remove_ecms(model_file, output_file):
 @click.option(
     '--electricity-cost', '-e', help='A number for the cost per each kWh of electricity.'
     ' This can be in any currency as long as it is coordinated with the costs of '
-    'other inputs to this method. (Default: 0.15 for the average 2020 cost of '
-    'electricity in the US in $/kWh).', type=float, default=0.15, show_default=True)
+    'other inputs to this method. (Default: 0.12 for the average 2020 cost of '
+    'electricity in the US in $/kWh).', type=float, default=0.12, show_default=True)
 @click.option(
     '--natural-gas-cost', '-g', help='A number for the cost per each kWh of natural gas.'
     ' This can be in any currency as long as it is coordinated with the costs of '
@@ -404,8 +404,8 @@ def compute_appendix_g_summary(
 @click.option(
     '--electricity-cost', '-e', help='A number for the cost per each kWh of electricity.'
     ' This can be in any currency as long as it is coordinated with the costs of '
-    'other inputs to this method. (Default: 0.15 for the average 2020 cost of '
-    'electricity in the US in $/kWh).', type=float, default=0.15, show_default=True)
+    'other inputs to this method. (Default: 0.12 for the average 2020 cost of '
+    'electricity in the US in $/kWh).', type=float, default=0.12, show_default=True)
 @click.option(
     '--natural-gas-cost', '-g', help='A number for the cost per each kWh of natural gas.'
     ' This can be in any currency as long as it is coordinated with the costs of '
@@ -415,7 +415,7 @@ def compute_appendix_g_summary(
     '--district-cooling-cost', '-dc', help='A number for the cost per each kWh of '
     'district cooling energy. This can be in any currency as long as it is coordinated '
     'with the costs of other inputs to this method. (Default: 0.04 assuming average '
-    '2020 US cost of electricity in $/kWh with a COP 3.5 chiller).',
+    '2020 US cost of electricity in $/kWh with a COP 3 chiller).',
     type=float, default=0.04, show_default=True)
 @click.option(
     '--district-heating-cost', '-dh', help='A number for the cost per each kWh of '
