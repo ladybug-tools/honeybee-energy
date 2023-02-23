@@ -340,7 +340,7 @@ def model_from_idf(idf_file, osw_folder, output_file):
                     print(json_file.read())
         else:
             # check the version of the IDF; most of the time, this is the issue
-            ver_regex = r'[V|v][E|e][R|r][S|s][I|i][O|o][N|n],\s*(\d*\.\d*);'
+            ver_regex = r'[V|v][E|e][R|r][S|s][I|i][O|o][N|n],\s*(\d*\.\d*)[;|.]'
             ver_pattern = re.compile(ver_regex)
             with open(idf_file, 'r') as mf:
                 ver_val = re.search(ver_pattern, mf.read())
