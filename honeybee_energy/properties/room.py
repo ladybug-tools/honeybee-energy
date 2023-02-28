@@ -1,8 +1,8 @@
 # coding=utf-8
 """Room Energy Properties."""
 # import honeybee-core and ladybug-geometry modules
-from ladybug_geometry.geometry2d.pointvector import Vector2D
-from ladybug_geometry.geometry3d.pointvector import Point3D
+from ladybug_geometry.geometry2d import Vector2D
+from ladybug_geometry.geometry3d import Vector3D, Point3D, Polyline3D, Face3D, Polyface3D
 from honeybee.checkdup import is_equivalent
 from honeybee.boundarycondition import Outdoors, Ground, Surface, boundary_conditions
 from honeybee.facetype import Wall, RoofCeiling, Floor, AirBoundary
@@ -717,12 +717,15 @@ class RoomEnergyProperties(object):
 
     def add_daylight_control_to_center(
             self, distance_from_floor, illuminance_setpoint=300, control_fraction=1,
-            min_power_input=0.3, min_light_output=0.2, off_at_minimum=False):
+            min_power_input=0.3, min_light_output=0.2, off_at_minimum=False,
+            tolerance=0.01):
         """Try to assign a DaylightingControl object to the center of the Room.
 
         If the Room is too concave and the center point does not lie within the
-        Room volume, this method wil return None and no daylighting control will
-        be assigned.
+        Room volume, the pole of inaccessibility across the floor geometry will
+        be used. If the concave Room has no floors or the pole of inaccessibility
+        does not exist inside the Room, this method wil return None and no
+        daylighting control will be assigned.
 
         Args:
             distance_from_floor: A number for the distance that the daylight sensor
@@ -745,20 +748,45 @@ class RoomEnergyProperties(object):
                 light output. (Default: 0.2).
             off_at_minimum: Boolean to note whether lights should switch off completely
                 when they get to the minimum power input. (Default: False).
+            tolerance: The maximum difference between x, y, and z values at which
+                vertices are considered equivalent. (Default: 0.01, suitable for
+                objects in meters).
 
         Returns:
             A DaylightingControl object if the sensor was successfully assigned
-            to the center of the Room. Will be None if the zone was so concave
-            that a sensor would not be assigned.
+            to the Room. Will be None if the Room was too short or so concave
+            that a sensor could not be assigned.
         """
-        cen_pt, min_pt = self.host.geometry.center, self.host.geometry.min
+        # first compute the Room center point and check the distance_from_floor
+        r_geo = self.host.geometry
+        cen_pt, min_pt, max_pt = r_geo.center, r_geo.min, r_geo.max
+        if max_pt.z - min_pt.z < distance_from_floor:
+            return None
         sensor_pt = Point3D(cen_pt.x, cen_pt.y, min_pt.z + distance_from_floor)
-        if self.host.geometry.is_point_inside(sensor_pt):
-            dl_control = DaylightingControl(
-                sensor_pt, illuminance_setpoint, control_fraction,
-                min_power_input, min_light_output, off_at_minimum)
-            self.daylighting_control = dl_control
-            return dl_control
+        # if the point is not inside the room, try checking the pole of inaccessibility
+        if not r_geo.is_point_inside(sensor_pt):
+            floor_faces = [face.geometry for face in self.host.faces
+                           if isinstance(face.type, Floor)]
+            if len(floor_faces) == 0:
+                return None
+            if len(floor_faces) == 1:
+                flr_geo = floor_faces[0]
+            else:
+                flr_pf = Polyface3D.from_faces(floor_faces, tolerance)
+                flr_outline = Polyline3D.join_segments(flr_pf.naked_edges, tolerance)[0]
+                flr_geo = Face3D(flr_outline.vertices[:-1])
+            min_dim = min((max_pt.x - min_pt.x, max_pt.y - min_pt.y))
+            p_tol = min_dim / 100
+            sensor_pt = flr_geo.pole_of_inaccessibility(p_tol)
+            sensor_pt = sensor_pt.move(Vector3D(0, 0, distance_from_floor))
+            if not r_geo.is_point_inside(sensor_pt):
+                return None
+        # create the daylight control sensor at the point
+        dl_control = DaylightingControl(
+            sensor_pt, illuminance_setpoint, control_fraction,
+            min_power_input, min_light_output, off_at_minimum)
+        self.daylighting_control = dl_control
+        return dl_control
 
     def assign_ventilation_opening(self, vent_opening):
         """Assign a VentilationOpening object to all operable Apertures on this Room.
