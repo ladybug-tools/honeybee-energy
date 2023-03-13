@@ -193,8 +193,13 @@ def to_gbxml_osw(model_path, output_path=None, osw_directory=None):
         if not os.path.isdir(osw_directory):
             os.mkdir(osw_directory)
     osw_json = os.path.join(osw_directory, 'translate_honeybee.osw')
-    with open(osw_json, writemode) as fp:
-        json.dump(osw_dict, fp, indent=4, ensure_ascii=False)
+    if (sys.version_info < (3, 0)):  # we need to manually encode it as UTF-8
+        with open(osw_json, writemode) as fp:
+            workflow_str = json.dumps(osw_dict, indent=4, ensure_ascii=False)
+            fp.write(workflow_str.encode('utf-8'))
+    else:
+        with open(osw_json, writemode, encoding='utf-8') as fp:
+            workflow_str = json.dump(osw_dict, fp, indent=4, ensure_ascii=False)
 
     return os.path.abspath(osw_json)
 
@@ -603,8 +608,13 @@ def _import_model_osw(model_path, extension, output_path=None, osw_directory=Non
         if not os.path.isdir(osw_directory):
             os.mkdir(osw_directory)
     osw_json = os.path.join(osw_directory, 'translate_{}.osw'.format(extension))
-    with open(osw_json, writemode) as fp:
-        json.dump(osw_dict, fp, indent=4, ensure_ascii=False)
+    if (sys.version_info < (3, 0)):  # we need to manually encode it as UTF-8
+        with open(osw_json, writemode) as fp:
+            workflow_str = json.dumps(osw_dict, indent=4, ensure_ascii=False)
+            fp.write(workflow_str.encode('utf-8'))
+    else:
+        with open(osw_json, writemode, encoding='utf-8') as fp:
+            workflow_str = json.dump(osw_dict, fp, indent=4, ensure_ascii=False)
 
     return os.path.abspath(osw_json)
 
