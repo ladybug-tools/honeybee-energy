@@ -11,11 +11,13 @@ from ..schedule.dictutil import dict_to_schedule
 from ..schedule.ruleset import ScheduleRuleset
 from ..schedule.fixedinterval import ScheduleFixedInterval
 from ..writer import generate_idf_string
+from ..properties.extension import WindowConstructionShadeProperties
+
 
 from honeybee._lockable import lockable
 from honeybee.typing import valid_ep_string
 
-
+"test"
 @lockable
 class WindowConstructionShade(object):
     """Window Construction with shades/blinds or a dynamically-controlled glass pane.
@@ -98,11 +100,13 @@ class WindowConstructionShade(object):
         * is_groupable
         * is_zone_groupable
         * user_data
+        * properties
     """
 
     __slots__ = ('_identifier', '_display_name', '_window_construction',
                  '_shade_material', '_shade_location', '_control_type',
-                 '_setpoint', '_schedule', '_between_gap', '_locked', '_user_data')
+                 '_setpoint', '_schedule', '_between_gap', '_locked', '_user_data',
+                 "_properties", )
     SHADE_LOCATIONS = ('Interior', 'Between', 'Exterior')
     CONTROL_TYPES = (
         'AlwaysOn', 'OnIfHighSolarOnWindow', 'OnIfHighHorizontalSolar',
@@ -174,6 +178,7 @@ class WindowConstructionShade(object):
         self._control_type = control_type
         self.setpoint = setpoint
         self.schedule = schedule
+        self._properties = WindowConstructionShadeProperties(self)
 
     @property
     def identifier(self):
@@ -554,7 +559,12 @@ class WindowConstructionShade(object):
             assert isinstance(value, dict), 'Expected dictionary for honeybee_energy' \
                 'object user_data. Got {}.'.format(type(value))
         self._user_data = value
-
+    
+    @property
+    def properties(self):
+        """Get properties for extensions."""
+        return self._properties
+    
     @classmethod
     def from_dict(cls, data):
         """Create a WindowConstructionShade from a dictionary.
@@ -598,6 +608,8 @@ class WindowConstructionShade(object):
             new_obj.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
             new_obj.user_data = data['user_data']
+        if 'properties' in data and data['properties'] is not None:
+            new_obj.properties._load_extension_attr_from_dict(data['properties'])
         return new_obj
 
     @classmethod
@@ -645,6 +657,8 @@ class WindowConstructionShade(object):
             new_obj.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
             new_obj.user_data = data['user_data']
+        if 'properties' in data and data['properties'] is not None:
+            new_obj.properties._load_extension_attr_from_dict(data['properties'])
         return new_obj
 
     def to_idf(self):
@@ -743,6 +757,7 @@ class WindowConstructionShade(object):
             base['display_name'] = self.display_name
         if self._user_data is not None:
             base['user_data'] = self.user_data
+        base['properties'] = self.properties.to_dict() if self._properties else None
         return base
 
     def lock(self):
@@ -778,6 +793,7 @@ class WindowConstructionShade(object):
         new_con._between_gap = self._between_gap
         new_con._display_name = self._display_name
         new_con._user_data = None if self._user_data is None else self._user_data.copy()
+        new_con._properties._duplicate_extension_attr(self._properties)
         return new_con
 
     def __key(self):
