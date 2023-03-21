@@ -17,7 +17,7 @@ from ..properties.extension import WindowConstructionShadeProperties
 from honeybee._lockable import lockable
 from honeybee.typing import valid_ep_string
 
-"test"
+
 @lockable
 class WindowConstructionShade(object):
     """Window Construction with shades/blinds or a dynamically-controlled glass pane.
