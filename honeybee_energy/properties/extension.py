@@ -128,6 +128,10 @@ class WindowConstructionProperties(_EnergyProperties):
     """WindowConstruction properties to be extended by extensions."""
 
 
+class WindowConstructionShadeProperties(_EnergyProperties):
+    """WindowConstructionShade properties to be extended by extensions."""
+
+
 class ElectricEquipmentProperties(_EnergyProperties):
     """ElectricEquipment properties to be extended by extensions."""
 
