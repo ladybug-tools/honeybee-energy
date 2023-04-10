@@ -169,7 +169,7 @@ class SizingParameter(object):
 
     @efficiency_standard.setter
     def efficiency_standard(self, value):
-        if value is not None:
+        if value:
             clean_input = valid_ep_string(value, 'efficiency_standard').lower()
             for key in self.STANDARDS:
                 if key.lower() == clean_input:
@@ -179,6 +179,8 @@ class SizingParameter(object):
                 raise ValueError(
                     'Efficiency standard "{}" is not recognized.\nChoose from the '
                     'following:\n{}'.format(value, self.STANDARDS))
+        else:
+            value = None
         self._efficiency_standard = value
 
     @property
@@ -193,7 +195,7 @@ class SizingParameter(object):
 
     @climate_zone.setter
     def climate_zone(self, value):
-        if value is not None:
+        if value:
             value = valid_ep_string(value, 'climate_zone').upper()
             if len(value) == 1 and value not in ('7', '8'):
                 value = '{}A'.format(value)
@@ -201,6 +203,8 @@ class SizingParameter(object):
                 raise ValueError(
                     'Efficiency climate zone "{}" is not recognized.\nChoose from the '
                     'following:\n{}'.format(value, self.CLIMATE_ZONES))
+        else:
+            value = None
         self._climate_zone = value
 
     @property
@@ -214,8 +218,10 @@ class SizingParameter(object):
 
     @building_type.setter
     def building_type(self, value):
-        if value is not None:
+        if value:
             value = valid_ep_string(value, 'building_type')
+        else:
+            value = None
         self._building_type = value
 
     def add_design_day(self, design_day):
