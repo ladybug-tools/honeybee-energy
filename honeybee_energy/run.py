@@ -128,14 +128,6 @@ def measure_compatible_model_json(
     original_model = parsed_model
     parsed_model.convert_to_units('Meters')
     try:
-        if parsed_model.tolerance < 0.01:
-            for room in parsed_model.rooms:
-                try:
-                    room.remove_colinear_vertices_envelope(
-                        tolerance=parsed_model.tolerance, delete_degenerate=True)
-                except AssertionError as e:  # room removed; likely wrong units
-                    error = 'Failed to remove degenerate rooms.\n{}'.format(e)
-                    raise ValueError(error)
         parsed_model.remove_degenerate_geometry(0.01)
     except ValueError:
         error = 'Failed to remove degenerate Rooms.\nYour Model units system is: {}. ' \
