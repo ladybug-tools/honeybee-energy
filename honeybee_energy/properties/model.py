@@ -94,9 +94,11 @@ class ModelEnergyProperties(object):
                 materials.extend(constr.materials)
                 if constr.has_frame:
                     materials.append(constr.frame)
-                if isinstance(constr, WindowConstructionShade) \
-                        and constr.is_switchable_glazing:
-                    materials.append(constr.switched_glass_material)
+                if isinstance(constr, WindowConstructionShade):
+                    if constr.is_switchable_glazing:
+                        materials.append(constr.switched_glass_material)
+                    if constr.shade_location == 'Between':
+                        materials.append(constr.window_construction.materials[-2])
             except AttributeError:
                 pass  # ShadeConstruction or AirBoundaryConstruction
         return list(set(materials))
@@ -403,7 +405,7 @@ class ModelEnergyProperties(object):
 
     def window_construction_by_orientation(
             self, construction, orientation=0, offset=45, north_vector=Vector2D(0, 1)):
-        """Set the construction of exterior Apertures in Walls facing a given orientation.
+        """Set the construction of exterior Apertures facing a given orientation.
 
         This is useful for testing orientation-specific energy conservation
         strategies or creating ASHRAE baseline buildings.
@@ -1410,6 +1412,8 @@ class ModelEnergyProperties(object):
                 if constr.has_shade:
                     if constr.is_switchable_glazing:
                         misc_c_mats.append(constr.switched_glass_material)
+                    if constr.shade_location == 'Between':
+                        materials.append(constr.window_construction.materials[-2])
             except AttributeError:  # not a construction with materials
                 pass
         all_mats = set(all_m + misc_c_mats)
@@ -1494,9 +1498,11 @@ class ModelEnergyProperties(object):
                 materials.extend(cnstr.materials)
                 if cnstr.has_frame:
                     materials.append(cnstr.frame)
-                if isinstance(cnstr, WindowConstructionShade) \
-                        and cnstr.is_switchable_glazing:
-                    materials.append(cnstr.switched_glass_material)
+                if isinstance(cnstr, WindowConstructionShade):
+                    if cnstr.is_switchable_glazing:
+                        materials.append(cnstr.switched_glass_material)
+                    if cnstr.shade_location == 'Between':
+                        materials.append(cnstr.window_construction.materials[-2])
             except AttributeError:
                 pass  # ShadeConstruction
         base['energy']['materials'] = [mat.to_dict() for mat in set(materials)]

@@ -367,7 +367,7 @@ class WindowConstructionShade(object):
 
     @property
     def r_factor(self):
-        """Bare window construction R-factor [m2-K/W] (with standard air film resistances).
+        """Bare window construction R-factor [m2-K/W] (with standard air resistances).
 
         Note that this excludes all effects of the shade layer.
         Formulas for film coefficients come from EN673 / ISO10292.
@@ -376,7 +376,7 @@ class WindowConstructionShade(object):
 
     @property
     def u_factor(self):
-        """Bare window construction U-factor [W/m2-K] (with standard air film resistances).
+        """Bare window construction U-factor [W/m2-K] (with standard air resistances).
 
         Note that this excludes all effects of the shade layer.
         Formulas for film coefficients come from EN673 / ISO10292.
@@ -559,12 +559,12 @@ class WindowConstructionShade(object):
             assert isinstance(value, dict), 'Expected dictionary for honeybee_energy' \
                 'object user_data. Got {}.'.format(type(value))
         self._user_data = value
-    
+
     @property
     def properties(self):
         """Get properties for extensions."""
         return self._properties
-    
+
     @classmethod
     def from_dict(cls, data):
         """Create a WindowConstructionShade from a dictionary.
