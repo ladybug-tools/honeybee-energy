@@ -42,6 +42,14 @@ def translate():
               default=None, show_default=True,
               type=click.Path(exists=True, file_okay=True, dir_okay=False,
                               resolve_path=True))
+@click.option('--epw-file', '-epw', help='Full path to an EPW file to be associated '
+              'with the exported OSM. This is typically not necessary but may be '
+              'used when a sim-par-json is specified that requests a HVAC sizing '
+              'calculation to be run as part of the translation process but no design '
+              'days are inside this simulation parameter.',
+              default=None, show_default=True,
+              type=click.Path(exists=True, file_okay=True, dir_okay=False,
+                              resolve_path=True))
 @click.option('--folder', '-f', help='Folder on this computer, into which the '
               'working files, OSM and IDF files will be written. If None, the '
               'files will be output in the same location as the model_json.',
@@ -63,7 +71,8 @@ def translate():
               'By default this will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
 def model_to_osm(
-        model_json, sim_par_json, folder, osm_file, idf_file, check_model, log_file):
+        model_json, sim_par_json, epw_file, folder, osm_file, idf_file,
+        check_model, log_file):
     """Translate a Model JSON file into an OpenStudio Model and corresponding IDF.
 
     \b
@@ -91,7 +100,7 @@ def model_to_osm(
             model_json = measure_compatible_model_json(model_json, folder)
 
         # Write the osw file to translate the model to osm
-        osw = to_openstudio_osw(folder, model_json, sim_par_json)
+        osw = to_openstudio_osw(folder, model_json, sim_par_json, epw_file=epw_file)
 
         # run the measure to translate the model JSON to an openstudio measure
         osm, idf = run_osw(osw)
