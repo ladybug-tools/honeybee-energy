@@ -1,10 +1,7 @@
 # coding=utf-8
-from honeybee_energy.measure import Measure, MeasureArgument
-
-from ladybug.futil import nukedir
-
 import os
-import pytest
+from ladybug.futil import nukedir
+from honeybee_energy.measure import Measure
 
 
 def test_measure_init_simple():
@@ -70,7 +67,8 @@ def test_measure_init_complex():
     assert not measure.arguments[0].model_dependent
     assert len(measure.arguments[0].valid_choices) == 6
 
-    assert measure.arguments[0].value == measure.arguments[0].default_value == '90.1-2010'
+    assert measure.arguments[0].value == measure.arguments[0].default_value \
+        == '90.1-2010'
 
 
 def test_measure_to_from_dict():
@@ -87,3 +85,13 @@ def test_measure_to_from_dict():
     assert measure_dict == new_measure.to_dict()
 
     nukedir(new_measure_path, True)
+
+
+def test_measure_default_boolean_args():
+    """Test the initialization of Measure with default boolean values."""
+    measure_path = './tests/measure/tbd'
+    measure = Measure(measure_path)
+
+    assert measure[0].value
+    assert not measure[2].value
+    assert not measure[4].value

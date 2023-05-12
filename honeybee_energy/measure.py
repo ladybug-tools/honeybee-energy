@@ -186,13 +186,13 @@ class Measure(object):
     def to_osw_dict(self, full_path=False):
         """Get a Python dictionary that can be written to an OSW JSON.
 
-        Specifcally, this dictionary can be appended to the "steps" key of the
+        Specifically, this dictionary can be appended to the "steps" key of the
         OpenStudio Workflow (.osw) JSON dictionary in order to include the measure
         in the workflow.
 
         Note that this method does not perform any checks to validate that the
         Measure has all required values and only arguments with values will be
-        included in the dictionary. Validation should be done seperately with
+        included in the dictionary. Validation should be done separately with
         the validate method.
 
         Args:
@@ -276,6 +276,15 @@ class Measure(object):
         with open(filepath, 'w') as output_file:
             output_file.write(value)
 
+    def __len__(self):
+        return len(self._arguments)
+
+    def __getitem__(self, key):
+        return self._arguments[key]
+
+    def __iter__(self):
+        return iter(self._arguments)
+
     def ToString(self):
         return self.__repr__()
 
@@ -325,9 +334,14 @@ class MeasureArgument(object):
 
         # set up the argument value and default value
         self._value = None  # will be set by user
-        self._default_value = self._type(xml_element.find('default_value').text) \
-            if xml_element.find('default_value') is not None and \
-            xml_element.find('default_value').text is not None else None
+        self._default_value = None  # will be overridden if it is present
+        if xml_element.find('default_value') is not None and \
+                xml_element.find('default_value').text is not None:
+            d_val = xml_element.find('default_value').text
+            if self._type_text == 'Boolean':
+                self._default_value = True if d_val.lower() == 'true' else False
+            else:  # just use the type to cast the text
+                self._default_value = self._type(d_val)
 
         # parse the optional properties of the argument
         self._display_name = xml_element.find('display_name').text \
@@ -422,7 +436,7 @@ class MeasureArgument(object):
 
     @property
     def model_dependent(self):
-        """Get a boolean for whether this argument is depdent on the model."""
+        """Get a boolean for whether this argument is dependent on the model."""
         return self._model_dependent
 
     @property

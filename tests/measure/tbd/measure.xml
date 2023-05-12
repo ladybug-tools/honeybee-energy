@@ -1,0 +1,469 @@
+<?xml version="1.0"?>
+<measure>
+  <schema_version>3.0</schema_version>
+  <name>tbd_measure</name>
+  <uid>8890787b-8c25-4dc8-8641-b6be1b6c2357</uid>
+  <version_id>ca5db4f4-8624-4699-a544-609690a03d14</version_id>
+  <version_modified>20230322T224647Z</version_modified>
+  <xml_checksum>99772807</xml_checksum>
+  <class_name>TBDMeasure</class_name>
+  <display_name>Thermal Bridging and Derating - TBD</display_name>
+  <description>Derates opaque constructions from major thermal bridges.</description>
+  <modeler_description>Check out rd2.github.io/tbd</modeler_description>
+  <arguments>
+    <argument>
+      <name>alter_model</name>
+      <display_name>Alter OpenStudio model (Apply Measures Now)</display_name>
+      <description>For EnergyPlus simulations, leave CHECKED. For iterative exploration with Apply Measures Now, UNCHECK to preserve original OpenStudio model.</description>
+      <type>Boolean</type>
+      <required>false</required>
+      <model_dependent>false</model_dependent>
+      <default_value>true</default_value>
+      <choices>
+        <choice>
+          <value>true</value>
+          <display_name>true</display_name>
+        </choice>
+        <choice>
+          <value>false</value>
+          <display_name>false</display_name>
+        </choice>
+      </choices>
+    </argument>
+    <argument>
+      <name>sub_tol</name>
+      <display_name>Proximity tolerance (m)</display_name>
+      <description>Proximity tolerance (e.g. 0.100 m) between subsurface edges, e.g. between near-adjacent window jambs.</description>
+      <type>Double</type>
+      <required>false</required>
+      <model_dependent>false</model_dependent>
+      <default_value>0.01</default_value>
+    </argument>
+    <argument>
+      <name>load_tbd_json</name>
+      <display_name>Load 'tbd.json'</display_name>
+      <description>Loads existing 'tbd.json' file (under '/files'), may override 'default thermal bridge' set.</description>
+      <type>Boolean</type>
+      <required>false</required>
+      <model_dependent>false</model_dependent>
+      <default_value>false</default_value>
+      <choices>
+        <choice>
+          <value>true</value>
+          <display_name>true</display_name>
+        </choice>
+        <choice>
+          <value>false</value>
+          <display_name>false</display_name>
+        </choice>
+      </choices>
+    </argument>
+    <argument>
+      <name>option</name>
+      <display_name>Default thermal bridge set</display_name>
+      <description>e.g. 'poor', 'regular', 'efficient', 'code' (may be overridden by 'tbd.json' file).</description>
+      <type>Choice</type>
+      <required>false</required>
+      <model_dependent>false</model_dependent>
+      <default_value>poor (BETBG)</default_value>
+      <choices>
+        <choice>
+          <value>poor (BETBG)</value>
+          <display_name>poor (BETBG)</display_name>
+        </choice>
+        <choice>
+          <value>regular (BETBG)</value>
+          <display_name>regular (BETBG)</display_name>
+        </choice>
+        <choice>
+          <value>efficient (BETBG)</value>
+          <display_name>efficient (BETBG)</display_name>
+        </choice>
+        <choice>
+          <value>spandrel (BETBG)</value>
+          <display_name>spandrel (BETBG)</display_name>
+        </choice>
+        <choice>
+          <value>spandrel HP (BETBG)</value>
+          <display_name>spandrel HP (BETBG)</display_name>
+        </choice>
+        <choice>
+          <value>code (Quebec)</value>
+          <display_name>code (Quebec)</display_name>
+        </choice>
+        <choice>
+          <value>uncompliant (Quebec)</value>
+          <display_name>uncompliant (Quebec)</display_name>
+        </choice>
+        <choice>
+          <value>(non thermal bridging)</value>
+          <display_name>(non thermal bridging)</display_name>
+        </choice>
+      </choices>
+    </argument>
+    <argument>
+      <name>write_tbd_json</name>
+      <display_name>Write 'tbd.out.json'</display_name>
+      <description>Write out 'tbd.out.json' file e.g., to customize for subsequent runs (edit, and place under '/files' as 'tbd.json').</description>
+      <type>Boolean</type>
+      <required>false</required>
+      <model_dependent>false</model_dependent>
+      <default_value>false</default_value>
+      <choices>
+        <choice>
+          <value>true</value>
+          <display_name>true</display_name>
+        </choice>
+        <choice>
+          <value>false</value>
+          <display_name>false</display_name>
+        </choice>
+      </choices>
+    </argument>
+    <argument>
+      <name>wall_option</name>
+      <display_name>Wall construction(s) to 'uprate'</display_name>
+      <description>Target 1x (or 'ALL') wall construction(s) to 'uprate', to achieve wall Ut target below.</description>
+      <type>Choice</type>
+      <required>false</required>
+      <model_dependent>false</model_dependent>
+      <default_value>NONE</default_value>
+      <choices>
+        <choice>
+          <value>ALL wall constructions</value>
+          <display_name>ALL wall constructions</display_name>
+        </choice>
+        <choice>
+          <value>NONE</value>
+          <display_name>NONE</display_name>
+        </choice>
+      </choices>
+    </argument>
+    <argument>
+      <name>roof_option</name>
+      <display_name>Roof construction(s) to 'uprate'</display_name>
+      <description>Target 1x (or 'ALL') roof construction(s) to 'uprate', to achieve roof Ut target below.</description>
+      <type>Choice</type>
+      <required>false</required>
+      <model_dependent>false</model_dependent>
+      <default_value>NONE</default_value>
+      <choices>
+        <choice>
+          <value>ALL roof constructions</value>
+          <display_name>ALL roof constructions</display_name>
+        </choice>
+        <choice>
+          <value>NONE</value>
+          <display_name>NONE</display_name>
+        </choice>
+      </choices>
+    </argument>
+    <argument>
+      <name>floor_option</name>
+      <display_name>Floor construction(s) to 'uprate'</display_name>
+      <description>Target 1x (or 'ALL') floor construction(s) to 'uprate', to achieve floor Ut target below.</description>
+      <type>Choice</type>
+      <required>false</required>
+      <model_dependent>false</model_dependent>
+      <default_value>NONE</default_value>
+      <choices>
+        <choice>
+          <value>ALL floor constructions</value>
+          <display_name>ALL floor constructions</display_name>
+        </choice>
+        <choice>
+          <value>NONE</value>
+          <display_name>NONE</display_name>
+        </choice>
+      </choices>
+    </argument>
+    <argument>
+      <name>wall_ut</name>
+      <display_name>Wall Ut target (W/m2•K)</display_name>
+      <description>Overall Ut target to meet for wall construction(s). Ignored if previous wall 'uprate' option is set to 'NONE'.</description>
+      <type>Double</type>
+      <required>false</required>
+      <model_dependent>false</model_dependent>
+      <default_value>0.21</default_value>
+    </argument>
+    <argument>
+      <name>roof_ut</name>
+      <display_name>Roof Ut target (W/m2•K)</display_name>
+      <description>Overall Ut target to meet for roof construction(s). Ignored if previous roof 'uprate' option is set to 'NONE'.</description>
+      <type>Double</type>
+      <required>false</required>
+      <model_dependent>false</model_dependent>
+      <default_value>0.138</default_value>
+    </argument>
+    <argument>
+      <name>floor_ut</name>
+      <display_name>Floor Ut target (W/m2•K)</display_name>
+      <description>Overall Ut target to meet for floor construction(s). Ignored if previous floor 'uprate' option is set to 'NONE'.</description>
+      <type>Double</type>
+      <required>false</required>
+      <model_dependent>false</model_dependent>
+      <default_value>0.162</default_value>
+    </argument>
+    <argument>
+      <name>gen_UA_report</name>
+      <display_name>Generate UA' report</display_name>
+      <description>Compare ∑U•A + ∑PSI•L + ∑KHI•n : 'Design' vs UA' reference (see pull-down option below).</description>
+      <type>Boolean</type>
+      <required>false</required>
+      <model_dependent>false</model_dependent>
+      <default_value>false</default_value>
+      <choices>
+        <choice>
+          <value>true</value>
+          <display_name>true</display_name>
+        </choice>
+        <choice>
+          <value>false</value>
+          <display_name>false</display_name>
+        </choice>
+      </choices>
+    </argument>
+    <argument>
+      <name>ua_reference</name>
+      <display_name>UA' reference</display_name>
+      <description>e.g. 'poor', 'regular', 'efficient', 'code'.</description>
+      <type>Choice</type>
+      <required>true</required>
+      <model_dependent>false</model_dependent>
+      <default_value>code (Quebec)</default_value>
+      <choices>
+        <choice>
+          <value>poor (BETBG)</value>
+          <display_name>poor (BETBG)</display_name>
+        </choice>
+        <choice>
+          <value>regular (BETBG)</value>
+          <display_name>regular (BETBG)</display_name>
+        </choice>
+        <choice>
+          <value>efficient (BETBG)</value>
+          <display_name>efficient (BETBG)</display_name>
+        </choice>
+        <choice>
+          <value>spandrel (BETBG)</value>
+          <display_name>spandrel (BETBG)</display_name>
+        </choice>
+        <choice>
+          <value>spandrel HP (BETBG)</value>
+          <display_name>spandrel HP (BETBG)</display_name>
+        </choice>
+        <choice>
+          <value>code (Quebec)</value>
+          <display_name>code (Quebec)</display_name>
+        </choice>
+        <choice>
+          <value>uncompliant (Quebec)</value>
+          <display_name>uncompliant (Quebec)</display_name>
+        </choice>
+        <choice>
+          <value>(non thermal bridging)</value>
+          <display_name>(non thermal bridging)</display_name>
+        </choice>
+      </choices>
+    </argument>
+    <argument>
+      <name>gen_kiva</name>
+      <display_name>Generate Kiva inputs</display_name>
+      <description>Generates Kiva settings &amp; objects for surfaces with 'foundation' boundary conditions (not 'ground').</description>
+      <type>Boolean</type>
+      <required>false</required>
+      <model_dependent>false</model_dependent>
+      <default_value>false</default_value>
+      <choices>
+        <choice>
+          <value>true</value>
+          <display_name>true</display_name>
+        </choice>
+        <choice>
+          <value>false</value>
+          <display_name>false</display_name>
+        </choice>
+      </choices>
+    </argument>
+    <argument>
+      <name>gen_kiva_force</name>
+      <display_name>Force-generate Kiva inputs</display_name>
+      <description>Overwrites 'ground' boundary conditions as 'foundation' before generating Kiva inputs (recommended).</description>
+      <type>Boolean</type>
+      <required>false</required>
+      <model_dependent>false</model_dependent>
+      <default_value>false</default_value>
+      <choices>
+        <choice>
+          <value>true</value>
+          <display_name>true</display_name>
+        </choice>
+        <choice>
+          <value>false</value>
+          <display_name>false</display_name>
+        </choice>
+      </choices>
+    </argument>
+  </arguments>
+  <outputs />
+  <provenances />
+  <tags>
+    <tag>Envelope.Opaque</tag>
+  </tags>
+  <attributes>
+    <attribute>
+      <name>Measure Type</name>
+      <value>ModelMeasure</value>
+      <datatype>string</datatype>
+    </attribute>
+    <attribute>
+      <name>Intended Software Tool</name>
+      <value>Apply Measure Now</value>
+      <datatype>string</datatype>
+    </attribute>
+    <attribute>
+      <name>Intended Software Tool</name>
+      <value>OpenStudio Application</value>
+      <datatype>string</datatype>
+    </attribute>
+    <attribute>
+      <name>Intended Software Tool</name>
+      <value>Parametric Analysis Tool</value>
+      <datatype>string</datatype>
+    </attribute>
+    <attribute>
+      <name>Intended Use Case</name>
+      <value>Model Articulation</value>
+      <datatype>string</datatype>
+    </attribute>
+    <attribute>
+      <name>Intended Use Case</name>
+      <value>Calibration</value>
+      <datatype>string</datatype>
+    </attribute>
+    <attribute>
+      <name>Intended Use Case</name>
+      <value>Sensitivity Analysis</value>
+      <datatype>string</datatype>
+    </attribute>
+    <attribute>
+      <name>Intended Use Case</name>
+      <value>New Construction EE</value>
+      <datatype>string</datatype>
+    </attribute>
+    <attribute>
+      <name>Intended Use Case</name>
+      <value>Retrofit EE</value>
+      <datatype>string</datatype>
+    </attribute>
+  </attributes>
+  <files>
+    <file>
+      <filename>README.md.erb</filename>
+      <filetype>erb</filetype>
+      <usage_type>readmeerb</usage_type>
+      <checksum>703C9964</checksum>
+    </file>
+    <file>
+      <filename>tbd_full_PSI.json</filename>
+      <filetype>json</filetype>
+      <usage_type>test</usage_type>
+      <checksum>0AAEA490</checksum>
+    </file>
+    <file>
+      <filename>transformation.rb</filename>
+      <filetype>rb</filetype>
+      <usage_type>resource</usage_type>
+      <checksum>8EC912F6</checksum>
+    </file>
+    <file>
+      <filename>.gitkeep</filename>
+      <filetype>gitkeep</filetype>
+      <usage_type>doc</usage_type>
+      <checksum>32D70693</checksum>
+    </file>
+    <file>
+      <filename>geometry.rb</filename>
+      <filetype>rb</filetype>
+      <usage_type>resource</usage_type>
+      <checksum>D80E9AE6</checksum>
+    </file>
+    <file>
+      <filename>LICENSE.md</filename>
+      <filetype>md</filetype>
+      <usage_type>license</usage_type>
+      <checksum>A91E64A0</checksum>
+    </file>
+    <file>
+      <filename>oslog.rb</filename>
+      <filetype>rb</filetype>
+      <usage_type>resource</usage_type>
+      <checksum>E97617E3</checksum>
+    </file>
+    <file>
+      <filename>tbd.rb</filename>
+      <filetype>rb</filetype>
+      <usage_type>resource</usage_type>
+      <checksum>A4E8433C</checksum>
+    </file>
+    <file>
+      <filename>utils.rb</filename>
+      <filetype>rb</filetype>
+      <usage_type>resource</usage_type>
+      <checksum>283C976C</checksum>
+    </file>
+    <file>
+      <version>
+        <software_program>OpenStudio</software_program>
+        <identifier>2.9.1</identifier>
+        <min_compatible>2.9.1</min_compatible>
+      </version>
+      <filename>measure.rb</filename>
+      <filetype>rb</filetype>
+      <usage_type>script</usage_type>
+      <checksum>44B11139</checksum>
+    </file>
+    <file>
+      <filename>tbd_tests.rb</filename>
+      <filetype>rb</filetype>
+      <usage_type>test</usage_type>
+      <checksum>58ED6635</checksum>
+    </file>
+    <file>
+      <filename>README.md</filename>
+      <filetype>md</filetype>
+      <usage_type>readme</usage_type>
+      <checksum>B836C43A</checksum>
+    </file>
+    <file>
+      <filename>psi.rb</filename>
+      <filetype>rb</filetype>
+      <usage_type>resource</usage_type>
+      <checksum>1045EF38</checksum>
+    </file>
+    <file>
+      <filename>model.rb</filename>
+      <filetype>rb</filetype>
+      <usage_type>resource</usage_type>
+      <checksum>8E9A76C7</checksum>
+    </file>
+    <file>
+      <filename>version.rb</filename>
+      <filetype>rb</filetype>
+      <usage_type>resource</usage_type>
+      <checksum>A3BB982A</checksum>
+    </file>
+    <file>
+      <filename>geo.rb</filename>
+      <filetype>rb</filetype>
+      <usage_type>resource</usage_type>
+      <checksum>8242FCEF</checksum>
+    </file>
+    <file>
+      <filename>ua.rb</filename>
+      <filetype>rb</filetype>
+      <usage_type>resource</usage_type>
+      <checksum>695F5AC2</checksum>
+    </file>
+  </files>
+</measure>
