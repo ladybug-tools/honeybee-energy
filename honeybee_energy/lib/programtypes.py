@@ -41,7 +41,7 @@ def building_program_type_by_identifier(building_type):
 
     Args:
         building_type: A text string for the type of building. This must appear
-            under the BUILDING_TYPES contant of this module.
+            under the BUILDING_TYPES constant of this module.
     """
     program_id = '{} Building'.format(building_type)
     try:
@@ -86,3 +86,40 @@ def _scheds_from_ptype_dict(p_type_dict):
     add_schedule(scheds, p_type_dict, 'setpoint', 'humidifying_schedule')
     add_schedule(scheds, p_type_dict, 'setpoint', 'dehumidifying_schedule')
     return scheds
+
+
+def lib_dict_abridged_to_program_type(program_dict, schedules):
+    """Get a Python object of a ProgramType from an abridged dictionary.
+
+    When the sub-objects needed to create the program type are not available
+    in the resources provided, the current standards library will be searched.
+
+    Args:
+        program_dict: An abridged dictionary of a Honeybee ProgramType.
+        schedules: Dictionary of all schedule objects that might be used in the
+            construction set with the schedule identifiers as the keys.
+
+    Returns:
+        A Python object derived from the input program_dict.
+    """
+    def add_schedule(scheds, p_type_dict, load_id, sch_id):
+        try:
+            sch_id = p_type_dict[load_id][sch_id]
+            if sch_id not in scheds:
+                scheds[sch_id] = _s.schedule_by_identifier(sch_id)
+        except KeyError:
+            pass  # key is not included
+
+    add_schedule(schedules, program_dict, 'people', 'occupancy_schedule')
+    add_schedule(schedules, program_dict, 'people', 'activity_schedule')
+    add_schedule(schedules, program_dict, 'lighting', 'schedule')
+    add_schedule(schedules, program_dict, 'electric_equipment', 'schedule')
+    add_schedule(schedules, program_dict, 'gas_equipment', 'schedule')
+    add_schedule(schedules, program_dict, 'service_hot_water', 'schedule')
+    add_schedule(schedules, program_dict, 'infiltration', 'schedule')
+    add_schedule(schedules, program_dict, 'ventilation', 'schedule')
+    add_schedule(schedules, program_dict, 'setpoint', 'heating_schedule')
+    add_schedule(schedules, program_dict, 'setpoint', 'cooling_schedule')
+    add_schedule(schedules, program_dict, 'setpoint', 'humidifying_schedule')
+    add_schedule(schedules, program_dict, 'setpoint', 'dehumidifying_schedule')
+    return ProgramType.from_dict_abridged(program_dict, schedules)

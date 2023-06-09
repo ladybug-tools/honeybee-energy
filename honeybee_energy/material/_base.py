@@ -30,7 +30,7 @@ class _EnergyMaterialBase(object):
         self._display_name = None
         self._user_data = None
         self._properties = None
-    
+
     @property
     def identifier(self):
         """Get or set the text string for material identifier."""
@@ -76,7 +76,7 @@ class _EnergyMaterialBase(object):
             assert isinstance(value, dict), 'Expected dictionary for honeybee_energy' \
                 'object user_data. Got {}.'.format(type(value))
         self._user_data = value
-    
+
     @property
     def properties(self):
         """Get properties for extensions."""

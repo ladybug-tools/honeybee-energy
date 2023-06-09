@@ -6,7 +6,7 @@ import os
 import json
 
 from honeybee.model import Model
-from honeybee.typing import clean_rad_string
+from honeybee.typing import clean_rad_string, clean_ep_string, clean_and_id_ep_string
 
 from honeybee_energy.schedule.fixedinterval import ScheduleFixedInterval
 from honeybee_energy.lib.scheduletypelimits import fractional
@@ -17,6 +17,175 @@ _logger = logging.getLogger(__name__)
 @click.group(help='Commands for editing model energy properties.')
 def edit():
     pass
+
+
+@edit.command('reset-resource-ids')
+@click.argument('model-file', type=click.Path(
+    exists=True, file_okay=True, dir_okay=False, resolve_path=True))
+@click.option(
+    '--by-name/--by-name-and-uuid', ' /-uuid', help='Flag to note whether '
+    'newly-generated resource object IDs should be derived only from a '
+    'cleaned display_name or whether this new ID should also have a unique '
+    'set of 8 characters appended to it to guarantee uniqueness.', default=True
+)
+@click.option(
+    '--keep-materials/--reset-materials', ' /-m', help='Flag to note whether '
+    'the IDs of all materials in the model should be reset.',
+    default=True, show_default=True
+)
+@click.option(
+    '--keep-constructions/--reset-constructions', ' /-c', help='Flag to note whether '
+    'the IDs of all constructions in the model should be reset.',
+    default=True, show_default=True
+)
+@click.option(
+    '--keep-construction-sets/--reset-construction-sets', ' /-cs', help='Flag to '
+    'note whether the IDs of all construction sets in the model should be reset.',
+    default=True, show_default=True
+)
+@click.option(
+    '--keep-schedules/--reset-schedules', ' /-s', help='Flag to note whether '
+    'the IDs of all schedules in the model should be reset.',
+    default=True, show_default=True
+)
+@click.option(
+    '--keep-programs/--reset-programs', ' /-p', help='Flag to note whether '
+    'the IDs of all programs in the model should be reset. This will also include '
+    'resetting the IDs of all load objects in the program.',
+    default=True, show_default=True
+)
+@click.option(
+    '--output-file', '-f', help='Optional hbjson file to output the JSON '
+    'string of the converted model. By default this will be printed out to '
+    'stdout', type=click.File('w'), default='-', show_default=True
+)
+def reset_resource_ids(
+    model_file, by_name,
+    keep_materials, keep_constructions, keep_construction_sets,
+    keep_schedules, keep_programs, output_file
+):
+    """Reset the identifiers of resource objects in a Model file.
+
+    This is useful when human-readable names are needed when the model is
+    exported to other formats like IDF and OSM and the uniqueness of the
+    identifiers is less of a concern.
+
+    \b
+    Args:
+        model_file: Full path to a Honeybee Model (HBJSON) file.
+    """
+    try:
+        # load the model file and separately load up the resource objects
+        if sys.version_info < (3, 0):
+            with open(model_file) as inf:
+                data = json.load(inf)
+        else:
+            with open(model_file, encoding='utf-8') as inf:
+                data = json.load(inf)
+        model = Model.from_dict(data)
+        materials, constructions, construction_sets, schedule_type_limits, \
+            schedules, program_types, hvacs, shws = \
+            model.properties.energy.load_properties_from_dict(data)
+        res_func = clean_ep_string if by_name else clean_and_id_ep_string
+
+        # change the identifiers of the materials
+        if not keep_materials:
+            model_mats = set()
+            for mat in model.properties.energy.materials:
+                mat.unlock()
+                old_id, new_id = mat.identifier, res_func(mat.display_name)
+                mat.identifier = new_id
+                materials[old_id].unlock()
+                materials[old_id].identifier = new_id
+                model_mats.add(old_id)
+            for old_id, mat in materials.items():
+                if old_id not in model_mats:
+                    mat.unlock()
+                    mat.identifier = res_func(mat.display_name)
+
+        # change the identifiers of the constructions
+        if not keep_constructions:
+            model_cons = set()
+            for con in model.properties.energy.constructions:
+                con.unlock()
+                old_id, new_id = con.identifier, res_func(con.display_name)
+                con.identifier = new_id
+                constructions[old_id].unlock()
+                constructions[old_id].identifier = new_id
+                model_cons.add(old_id)
+            for old_id, con in constructions.items():
+                if old_id not in model_cons:
+                    con.unlock()
+                    con.identifier = res_func(con.display_name)
+
+        # change the identifiers of the construction_sets
+        if not keep_construction_sets:
+            model_cs = set()
+            for cs in model.properties.energy.construction_sets:
+                cs.unlock()
+                old_id, new_id = cs.identifier, res_func(cs.display_name)
+                cs.identifier = new_id
+                construction_sets[old_id].unlock()
+                construction_sets[old_id].identifier = new_id
+                model_cs.add(old_id)
+            for old_id, cs in construction_sets.items():
+                if old_id not in model_cs:
+                    cs.unlock()
+                    cs.identifier = res_func(cs.display_name)
+
+        # change the identifiers of the schedules
+        if not keep_schedules:
+            model_sch = set()
+            for sch in model.properties.energy.schedules:
+                sch.unlock()
+                old_id, new_id = sch.identifier, res_func(sch.display_name)
+                sch.identifier = new_id
+                schedules[old_id].unlock()
+                schedules[old_id].identifier = new_id
+                model_sch.add(old_id)
+            for old_id, sch in schedules.items():
+                if old_id not in model_sch:
+                    sch.unlock()
+                    sch.identifier = res_func(sch.display_name)
+
+        # change the identifiers of the program
+        if not keep_programs:
+            model_prg = set()
+            for prg in model.properties.energy.program_types:
+                prg.unlock()
+                old_id, new_id = prg.identifier, res_func(prg.display_name)
+                prg.identifier = new_id
+                program_types[old_id].unlock()
+                program_types[old_id].identifier = new_id
+                model_prg.add(old_id)
+            for old_id, prg in program_types.items():
+                if old_id not in model_prg:
+                    prg.unlock()
+                    prg.identifier = res_func(prg.display_name)
+
+        # create the model dictionary and update any unreferenced resources
+        model_dict = model.to_dict()
+        me_props = model_dict['properties']['energy']
+        me_props['materials'] = [mat.to_dict() for mat in materials.values()]
+        me_props['constructions'] = []
+        for cnst in constructions.values():
+            try:
+                me_props['constructions'].append(cnst.to_dict(abridged=True))
+            except TypeError:  # ShadeConstruction
+                me_props['constructions'].append(cnst.to_dict())
+        me_props['construction_sets'] = \
+            [cs.to_dict(abridged=True) for cs in construction_sets.values()]
+        me_props['schedule_type_limits'] = \
+            [stl.to_dict() for stl in schedule_type_limits.values()]
+        me_props['schedules'] = [sc.to_dict(abridged=True) for sc in schedules.values()]
+        me_props['program_types'] = \
+            [p.to_dict(abridged=True) for p in program_types.values()]
+        output_file.write(json.dumps(model_dict))
+    except Exception as e:
+        _logger.exception('Resetting resource identifiers failed.\n{}'.format(e))
+        sys.exit(1)
+    else:
+        sys.exit(0)
 
 
 @edit.command('modifiers-from-constructions')

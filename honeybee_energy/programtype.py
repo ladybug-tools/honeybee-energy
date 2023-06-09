@@ -336,7 +336,7 @@ class ProgramType(object):
             'electric_equipment': {},  # A ElectricEquipmentAbridged dictionary
             'gas_equipment': {},  # A GasEquipmentAbridged dictionary
             'service_hot_water': {},  # A ServiceHotWaterAbridged dictionary
-            'infiltration': {},  # A InfliltrationAbridged dictionary
+            'infiltration': {},  # A InfiltrationAbridged dictionary
             'ventilation': {},  # A VentilationAbridged dictionary
             'setpoint': {}  # A SetpointAbridged dictionary
             }

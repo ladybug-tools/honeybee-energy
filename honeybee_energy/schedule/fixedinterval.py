@@ -38,7 +38,7 @@ class ScheduleFixedInterval(object):
         identifier: Text string for a unique Schedule ID. Must be < 100 characters
             and not contain any EnergyPlus special characters. This will be used to
             identify the object across a model and in the exported IDF.
-        values: A list of values occuring at a fixed interval over the simulation.
+        values: A list of values occurring at a fixed interval over the simulation.
             Typically, this should be a list of 8760 values for each hour of the
             year but it can be a shorter list if you don't plan on using it in
             an annual simulation. In this case, the start_date should probably be

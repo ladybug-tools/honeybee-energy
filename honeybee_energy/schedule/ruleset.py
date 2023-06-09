@@ -1290,7 +1290,7 @@ class ScheduleRuleset(object):
 
     @staticmethod
     def average_schedules(identifier, schedules, weights=None, timestep_resolution=1):
-        """Create a ScheduleRuleset that is a weighted average between other ScheduleRulesets.
+        """Create a ScheduleRuleset that is a weighted average between ScheduleRulesets.
 
         Args:
             identifier: Text string for a unique ID for the new unique ScheduleRuleset.
@@ -1643,7 +1643,7 @@ class ScheduleRuleset(object):
 
     def __bool__(self):
         return True
-    
+
     def __nonzero__(self):
         return True
 

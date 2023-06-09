@@ -40,3 +40,22 @@ def schedule_by_identifier(schedule_identifier):
         except KeyError:  # schedule is nowhere to be found; raise an error
             raise ValueError('"{}" was not found in the schedule library.'.format(
                 schedule_identifier))
+
+
+def lib_dict_abridged_to_schedule(sch_dict, schedule_type_limits):
+    """Get a Python object of any Schedule from an abridged dictionary.
+
+    Args:
+        sch_dict: A dictionary of any Honeybee energy schedules. Note
+            that this should be a non-abridged dictionary to be valid.
+        schedule_type_limits: Dictionary of all schedule type limit objects that
+            might be used in the schedule with the type limit identifiers as the keys.
+
+    Returns:
+        A Python object derived from the input sch_dict.
+    """
+    if 'schedule_type_limit' in sch_dict and sch_dict['schedule_type_limit'] is not None:
+        if sch_dict['schedule_type_limit'] not in schedule_type_limits:
+            schedule_type_limits[sch_dict['schedule_type_limit']] = \
+                _stl.schedule_type_limit_by_identifier(sch_dict['schedule_type_limit'])
+    return dict_abridged_to_schedule(sch_dict, schedule_type_limits)
