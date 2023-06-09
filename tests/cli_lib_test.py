@@ -7,7 +7,7 @@ from honeybee_energy.cli.lib import opaque_materials, window_materials, \
     shade_construction_by_id, construction_set_by_id, schedule_type_limit_by_id, \
     schedule_by_id, program_type_by_id, materials_by_id, constructions_by_id, \
     construction_sets_by_id, schedule_type_limits_by_id, schedules_by_id, \
-    program_types_by_id
+    program_types_by_id, purge_lib, add_to_lib
 
 from honeybee_energy.material.opaque import EnergyMaterial
 from honeybee_energy.material.glazing import EnergyWindowMaterialGlazing
@@ -157,3 +157,22 @@ def test_schedules_from_lib():
     assert result.exit_code == 0
     prog_dict = json.loads(result.output)
     assert isinstance(ProgramType.from_dict(prog_dict[0]), ProgramType)
+
+
+def test_add_to_lib():
+    """Test the add_to_lib command."""
+    runner = CliRunner()
+
+    resource_file = './tests/json/sample_energy_properties.json'
+    result = runner.invoke(add_to_lib, [resource_file])
+    assert result.exit_code == 0
+    assert 'AZ Construction Set' in result.output
+    assert 'Program: AZ LAB program' in result.output
+
+
+def test_purge_lib():
+    """Test the purge_lib command."""
+    runner = CliRunner()
+
+    result = runner.invoke(purge_lib)
+    assert result.exit_code == 0

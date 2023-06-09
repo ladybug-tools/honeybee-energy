@@ -4,19 +4,27 @@ import sys
 import os
 import logging
 import json
+import zipfile
+from datetime import datetime
 
 from honeybee_energy.config import folders
+from honeybee_energy.schedule.typelimit import ScheduleTypeLimit
+from honeybee_energy.material.dictutil import dict_to_material
+
 from honeybee_energy.lib.materials import opaque_material_by_identifier, \
     window_material_by_identifier, OPAQUE_MATERIALS, WINDOW_MATERIALS
 from honeybee_energy.lib.constructions import opaque_construction_by_identifier, \
     window_construction_by_identifier, shade_construction_by_identifier, \
-    OPAQUE_CONSTRUCTIONS, WINDOW_CONSTRUCTIONS, SHADE_CONSTRUCTIONS
+    OPAQUE_CONSTRUCTIONS, WINDOW_CONSTRUCTIONS, SHADE_CONSTRUCTIONS, \
+    lib_dict_abridged_to_construction
 from honeybee_energy.lib.constructionsets import construction_set_by_identifier, \
-    CONSTRUCTION_SETS
+    CONSTRUCTION_SETS, lib_dict_abridged_to_construction_set
 from honeybee_energy.lib.scheduletypelimits import schedule_type_limit_by_identifier, \
     SCHEDULE_TYPE_LIMITS
-from honeybee_energy.lib.schedules import schedule_by_identifier, SCHEDULES
-from honeybee_energy.lib.programtypes import program_type_by_identifier, PROGRAM_TYPES
+from honeybee_energy.lib.schedules import schedule_by_identifier, SCHEDULES, \
+    lib_dict_abridged_to_schedule
+from honeybee_energy.lib.programtypes import program_type_by_identifier, PROGRAM_TYPES, \
+    lib_dict_abridged_to_program_type
 
 from honeybee_energy.lib._loadtypelimits import load_type_limits_from_folder, \
     _schedule_type_limits
@@ -219,8 +227,8 @@ def window_material_by_id(material_id, output_file):
 
 @lib.command('opaque-construction-by-id')
 @click.argument('construction-id', type=str)
-@click.option('--complete/--abridged', ' /-a', help='Flag to note wether an abridged '
-              'defintion should be returned.', default=True)
+@click.option('--complete/--abridged', ' /-a', help='Flag to note whether an abridged '
+              'definition should be returned.', default=True)
 @click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the object. By default, it will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
@@ -245,8 +253,8 @@ def opaque_construction_by_id(construction_id, complete, output_file):
 
 @lib.command('window-construction-by-id')
 @click.argument('construction-id', type=str)
-@click.option('--complete/--abridged', ' /-a', help='Flag to note wether an abridged '
-              'defintion should be returned.', default=True)
+@click.option('--complete/--abridged', ' /-a', help='Flag to note whether an abridged '
+              'definition should be returned.', default=True)
 @click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the object. By default, it will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
@@ -297,7 +305,7 @@ def shade_construction_by_id(construction_id, output_file):
 @click.option('--none-defaults/--include-defaults', ' /-d', help='Flag to note whether '
               'default constructions in the set should be included in or should be '
               'None.', default=True, show_default=True)
-@click.option('--complete/--abridged', ' /-a', help='Flag to note wether an abridged '
+@click.option('--complete/--abridged', ' /-a', help='Flag to note whether an abridged '
               'definition should be returned.', default=True, show_default=True)
 @click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the object. By default, it will be printed out to stdout',
@@ -347,7 +355,7 @@ def schedule_type_limit_by_id(schedule_type_limit_id, output_file):
 
 @lib.command('schedule-by-id')
 @click.argument('schedule-id', type=str)
-@click.option('--complete/--abridged', ' /-a', help='Flag to note wether an abridged '
+@click.option('--complete/--abridged', ' /-a', help='Flag to note whether an abridged '
               'definition should be returned.', default=True, show_default=True)
 @click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the object. By default, it will be printed out to stdout',
@@ -372,7 +380,7 @@ def schedule_by_id(schedule_id, complete, output_file):
 
 @lib.command('program-type-by-id')
 @click.argument('program-type-id', type=str)
-@click.option('--complete/--abridged', ' /-a', help='Flag to note wether an abridged '
+@click.option('--complete/--abridged', ' /-a', help='Flag to note whether an abridged '
               'definition should be returned.', default=True, show_default=True)
 @click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the object. By default, it will be printed out to stdout',
@@ -426,7 +434,7 @@ def materials_by_id(material_ids, output_file):
 
 @lib.command('constructions-by-id')
 @click.argument('construction-ids', nargs=-1)
-@click.option('--complete/--abridged', ' /-a', help='Flag to note wether an abridged '
+@click.option('--complete/--abridged', ' /-a', help='Flag to note whether an abridged '
               'definition should be returned.', default=True, show_default=True)
 @click.option('--output-file', '-f', help='Optional file to output the JSON strings of '
               'the objects. By default, it will be printed out to stdout',
@@ -466,7 +474,7 @@ def constructions_by_id(construction_ids, complete, output_file):
 @click.option('--none-defaults/--include-defaults', ' /-d', help='Flag to note whether '
               'default constructions in the set should be included in detail or should '
               'be None.', default=True, show_default=True)
-@click.option('--complete/--abridged', ' /-a', help='Flag to note wether an abridged '
+@click.option('--complete/--abridged', ' /-a', help='Flag to note whether an abridged '
               'definition should be returned.',
               default=True, show_default=True)
 @click.option('--output-file', '-f', help='Optional file to output the JSON string of '
@@ -523,7 +531,7 @@ def schedule_type_limits_by_id(schedule_type_limit_ids, output_file):
 
 @lib.command('schedules-by-id')
 @click.argument('schedule-ids', nargs=-1)
-@click.option('--complete/--abridged', ' /-a', help='Flag to note wether an abridged '
+@click.option('--complete/--abridged', ' /-a', help='Flag to note whether an abridged '
               'definition should be returned.', default=True, show_default=True)
 @click.option('--output-file', '-f', help='Optional file to output the JSON strings of '
               'the objects. By default, it will be printed out to stdout',
@@ -551,7 +559,7 @@ def schedules_by_id(schedule_ids, complete, output_file):
 
 @lib.command('program-types-by-id')
 @click.argument('program-type-ids', nargs=-1)
-@click.option('--complete/--abridged', ' /-a', help='Flag to note wether an abridged '
+@click.option('--complete/--abridged', ' /-a', help='Flag to note whether an abridged '
               'definition should be returned.', default=True, show_default=True)
 @click.option('--output-file', '-f', help='Optional file to output the JSON strings of '
               'the objects. By default, it will be printed out to stdout',
@@ -579,12 +587,12 @@ def program_types_by_id(program_type_ids, complete, output_file):
 
 @lib.command('to-model-properties')
 @click.option(
-    '--standards-folder', '-s', default=None, help='A directory containing subfolders '
+    '--standards-folder', '-s', default=None, help='A directory containing sub-folders '
     'of resource objects (constructions, constructionsets, schedules, programtypes) '
     'to be loaded as ModelEnergyProperties. Note that this standards folder MUST '
-    'contain these subfolders. Each sub-folder can contain JSON files of objects '
-    'following honeybee schema or IDF files (if appropriate). If None, the honeybee '
-    'default standards folder will be used.', type=click.Path(
+    'contain these sub-folders. Each sub-folder can contain JSON files of objects '
+    'following honeybee schema or IDF files (if appropriate). If unspecified, the '
+    'current user honeybee default standards folder will be used.', type=click.Path(
         exists=True, file_okay=False, dir_okay=True, resolve_path=True)
 )
 @click.option(
@@ -676,3 +684,295 @@ def to_model_properties(standards_folder, output_file):
         sys.exit(1)
     else:
         sys.exit(0)
+
+
+@lib.command('purge')
+@click.option(
+    '--standards-folder', '-s', default=None, help='A directory containing sub-folders '
+    'of resource objects (constructions, constructionsets, schedules, programtypes) '
+    'to be purged of files. If unspecified, the current user honeybee '
+    'default standards folder will be used.', type=click.Path(
+        exists=True, file_okay=False, dir_okay=True, resolve_path=True)
+)
+@click.option(
+    '--json-only/--all', ' /-a', help='Flag to note whether only JSON files should '
+    'be purged from the library or all files should be purged, including IDF files. '
+    'Given that all objects added to the library through the `add` command will always '
+    'be JSON, only purging the JSONs is useful when one wishes to clear these objects '
+    'while preserving objects that originated from other sources.',
+    default=True, show_default=True
+)
+@click.option(
+    '--backup/--no-backup', ' /-xb', help='Flag to note whether a backup .zip file '
+    'of the user standards library should be made before the purging operation. '
+    'This is done by default in case the user ever wants to recover their old '
+    'standards but can be turned off if a backup is not desired.',
+    default=True, show_default=True
+)
+@click.option(
+    '--log-file', '-log', help='Optional file to output a log of the purging process. '
+    'By default this will be printed out to stdout',
+    type=click.File('w'), default='-', show_default=True
+)
+def purge_lib(standards_folder, json_only, backup, log_file):
+    """Purge the library of all user energy standards that it contains.
+
+    This is useful when a user's standard library has become filled with duplicated
+    objects or the user wishes to start fresh by re-exporting updated objects.
+    """
+    try:
+        # set the folder to the default standards_folder if unspecified
+        folder = standards_folder if standards_folder is not None else \
+            folders.standards_data_folder
+        resources = ('constructions', 'constructionsets', 'schedules', 'programtypes')
+        sub_folders = [os.path.join(folder, std) for std in resources]
+
+        # make a backup of the folder if requested
+        if backup:
+            r_names, s_files, s_paths = [], [], []
+            for sf, r_name in zip(sub_folders, resources):
+                for s_file in os.listdir(sf):
+                    s_path = os.path.join(sf, s_file)
+                    if os.path.isfile(s_path):
+                        r_names.append(r_name)
+                        s_files.append(s_file)
+                        s_paths.append(s_path)
+            if len(s_paths) != 0:  # there are resources to back up
+                backup_name = '.standards_backup_{}.zip'.format(
+                    str(datetime.now()).split('.')[0].replace(':', '-'))
+                backup_file = os.path.join(os.path.dirname(folder), backup_name)
+                with zipfile.ZipFile(backup_file, 'w') as zf:
+                    for r_name, s_file, s_path in zip(r_names, s_files, s_paths):
+                        zf.write(s_path, os.path.join(r_name, s_file))
+
+        # loop through the sub-folders and delete the files
+        rel_files = []
+        for sf in sub_folders:
+            for s_file in os.listdir(sf):
+                s_path = os.path.join(sf, s_file)
+                if os.path.isfile(s_path):
+                    if json_only:
+                        if s_file.lower().endswith('.json'):
+                            rel_files.append(s_path)
+                    else:
+                        rel_files.append(s_path)
+        purged_files, fail_files = [], []
+        for rf in rel_files:
+            try:
+                os.remove(rf)
+                purged_files.append(rf)
+            except Exception:
+                fail_files.append(rf)
+
+        # report all of the deleted files in the log file
+        if len(rel_files) == 0:
+            log_file.write('The standards folder is empty so no files were removed.')
+        if len(purged_files) != 0:
+            msg = 'The following files were removed in the purging ' \
+                'operations:\n{}\n'.format('  \n'.join(purged_files))
+            log_file.write(msg)
+        if len(fail_files) != 0:
+            msg = 'The following files could not be removed in the purging ' \
+                'operations:\n{}\n'.format('  \n'.join(fail_files))
+            log_file.write(msg)
+    except Exception as e:
+        _logger.exception('Purging user standards library failed.\n{}'.format(e))
+        sys.exit(1)
+    else:
+        sys.exit(0)
+
+
+@lib.command('add')
+@click.argument('properties-file', type=click.Path(
+    exists=True, file_okay=True, dir_okay=False, resolve_path=True))
+@click.option(
+    '--standards-folder', '-s', default=None, help='A directory containing sub-folders '
+    'of resource objects (constructions, constructionsets, schedules, programtypes) '
+    'to which the properties-file objects will be added. If unspecified, the current '
+    'user honeybee default standards folder will be used.', type=click.Path(
+        exists=True, file_okay=False, dir_okay=True, resolve_path=True)
+)
+@click.option(
+    '--log-file', '-log', help='Optional file to output a log of the purging process. '
+    'By default this will be printed out to stdout',
+    type=click.File('w'), default='-', show_default=True
+)
+def add_to_lib(properties_file, standards_folder, log_file):
+    """Add an object or set of objects to the user's standard library.
+
+    \b
+    Args:
+        properties_file: A JSON file of a ModelEnergyProperties object containing
+            the objects to be written into the user standards library. All sub-objects
+            within this ModelEnergyProperties object must be Abridged if the sub-object
+            has an abridged schema and these abridged schemas are allowed to
+            reference either other objects in the ModelEnergyProperties or existing
+            objects within the standards library.
+    """
+    try:
+        # set the folder to the default standards_folder if unspecified
+        folder = standards_folder if standards_folder is not None else \
+            folders.standards_data_folder
+
+        # load up the model energy properties from the JSON
+        with open(properties_file) as inf:
+            data = json.load(inf)
+        assert 'type' in data, 'Properties file lacks required type key.'
+        assert data['type'] == 'ModelEnergyProperties', 'Expected ' \
+            'ModelEnergyProperties JSON object. Got {}.'.format(data['type'])
+        success_objects, dup_id_objects, mis_dep_objects = [], [], []
+
+        # extract, check, and write the schedule type limits
+        sch_tl = {}
+        if 'schedule_type_limits' in data and data['schedule_type_limits'] is not None:
+            for stl_obj in data['schedule_type_limits']:
+                msg = _object_message('Schedule Type Limit', stl_obj)
+                if stl_obj['identifier'] in _schedule_type_limits:
+                    dup_id_objects.append(msg)
+                else:
+                    try:
+                        sch_tl[stl_obj['identifier']] = \
+                            ScheduleTypeLimit.from_dict(stl_obj)
+                        success_objects.append(msg)
+                    except (ValueError, KeyError, AssertionError):
+                        mis_dep_objects.append(msg)
+        if sch_tl:
+            sch_tl_dict = {tl.identifier: tl.to_dict() for tl in sch_tl.values()}
+            stl_json = os.path.join(folder, 'schedules', 'custom_type_limits.json')
+            _update_user_json(sch_tl_dict, stl_json)
+
+        # extract, check, and write the schedules
+        scheds = {}
+        if 'schedules' in data and data['schedules'] is not None:
+            for sch in data['schedules']:
+                msg = _object_message('Schedule', sch)
+                if sch['identifier'] in SCHEDULES:
+                    dup_id_objects.append(msg)
+                else:
+                    try:
+                        scheds[sch['identifier']] = \
+                            lib_dict_abridged_to_schedule(sch, sch_tl)
+                        success_objects.append(msg)
+                    except (ValueError, KeyError, AssertionError):
+                        mis_dep_objects.append(msg)
+        if scheds:
+            sch_dict = {s.identifier: s.to_dict(abridged=True) for s in scheds.values()}
+            sch_json = os.path.join(folder, 'schedules', 'custom_schedules.json')
+            _update_user_json(sch_dict, sch_json)
+
+        # extract, check, and write the program types
+        progs = {}
+        if 'program_types' in data and data['program_types'] is not None:
+            for prog in data['program_types']:
+                msg = _object_message('Program', prog)
+                if prog['identifier'] in PROGRAM_TYPES:
+                    dup_id_objects.append(msg)
+                else:
+                    try:
+                        progs[prog['identifier']] = \
+                            lib_dict_abridged_to_program_type(prog, scheds)
+                        success_objects.append(msg)
+                    except (ValueError, KeyError, AssertionError):
+                        mis_dep_objects.append(msg)
+        if progs:
+            prog_dict = {p.identifier: p.to_dict(abridged=True) for p in progs.values()}
+            program_json = os.path.join(folder, 'programtypes', 'custom_programs.json')
+            _update_user_json(prog_dict, program_json)
+
+        # extract, check, and write the materials
+        mats = {}
+        if 'materials' in data and data['materials'] is not None and \
+                len(data['materials']) != 0:
+            all_mats = OPAQUE_MATERIALS + WINDOW_MATERIALS
+            for mat_obj in data['materials']:
+                msg = _object_message('Material', mat_obj)
+                if mat_obj['identifier'] in all_mats:
+                    dup_id_objects.append(msg)
+                else:
+                    try:
+                        mats[mat_obj['identifier']] = dict_to_material(mat_obj)
+                        success_objects.append(msg)
+                    except (ValueError, KeyError, AssertionError):
+                        mis_dep_objects.append(msg)
+        if mats:
+            mat_dict = {m.identifier: m.to_dict() for m in mats.values()}
+            mat_json = os.path.join(folder, 'constructions', 'custom_materials.json')
+            _update_user_json(mat_dict, mat_json)
+
+        # extract, check, and write the constructions
+        cons = {}
+        if 'constructions' in data and data['constructions'] is not None and \
+                len(data['constructions']) != 0:
+            all_cons = OPAQUE_CONSTRUCTIONS + WINDOW_CONSTRUCTIONS + SHADE_CONSTRUCTIONS
+            for con in data['constructions']:
+                msg = _object_message('Construction', con)
+                if con['identifier'] in all_cons:
+                    dup_id_objects.append(msg)
+                else:
+                    try:
+                        cons[con['identifier']] = \
+                            lib_dict_abridged_to_construction(con, mats, scheds)
+                        success_objects.append(msg)
+                    except (ValueError, KeyError, AssertionError):
+                        mis_dep_objects.append(msg)
+        if cons:
+            con_dict = {c.identifier: c.to_dict(abridged=True) for c in cons.values()}
+            con_json = os.path.join(folder, 'constructions', 'custom_constructions.json')
+            _update_user_json(con_dict, con_json)
+
+        # extract, check, and write the construction sets
+        con_sets = {}
+        if 'construction_sets' in data and data['construction_sets'] is not None:
+            for cs in data['construction_sets']:
+                msg = _object_message('Construction Set', cs)
+                if cs['identifier'] in CONSTRUCTION_SETS:
+                    dup_id_objects.append(msg)
+                else:
+                    try:
+                        con_sets[cs['identifier']] = \
+                            lib_dict_abridged_to_construction_set(cs, cons)
+                        success_objects.append(msg)
+                    except (ValueError, KeyError, AssertionError):
+                        mis_dep_objects.append(msg)
+        if con_sets:
+            cs_dict = {c.identifier: c.to_dict(abridged=True) for c in con_sets.values()}
+            cs_json = os.path.join(folder, 'constructionsets', 'custom_sets.json')
+            _update_user_json(cs_dict, cs_json)
+
+        # write a report of the objects that were or were not added
+        success_objects, dup_id_objects, mis_dep_objects
+        m_start = 'THESE OBJECTS'
+        if len(success_objects) != 0:
+            msg = '{} WERE SUCCESSFULLY ADDED TO THE STANDARDS LIBRARY:\n{}\n'.format(
+                m_start, '  \n'.join(success_objects))
+            log_file.write(msg)
+        if len(dup_id_objects) != 0:
+            msg = '{} WERE NOT ADDED SINCE THEY ALREADY EXIST IN THE STANDARDS ' \
+                'LIBRARY:\n{}\n'.format(m_start, '  \n'.join(dup_id_objects))
+            log_file.write(msg)
+        if len(mis_dep_objects) != 0:
+            msg = '{} WERE NOT ADDED BECAUSE THEY ARE INVALID OR ARE MISSING ' \
+                'DEPENDENT OBJECTS:\n{}\n'.format(m_start, '  \n'.join(mis_dep_objects))
+            log_file.write(msg)
+    except Exception as e:
+        _logger.exception('Adding to user standards library failed.\n{}'.format(e))
+        sys.exit(1)
+    else:
+        sys.exit(0)
+
+
+def _object_message(obj_type, obj_dict):
+    """Get the reporting message of an object to add to the user library."""
+    obj_name = obj_dict['display_name'] if 'display_name' in obj_dict and \
+        obj_dict['display_name'] is not None else obj_dict['identifier']
+    return '{}: {}'.format(obj_type, obj_name)
+
+
+def _update_user_json(dict_to_add, user_json):
+    """Update a JSON file within a user standards folder."""
+    if os.path.isfile(user_json):
+        with open(user_json) as inf:
+            exist_data = json.load(inf)
+        dict_to_add.update(exist_data)
+    with open(user_json, 'w') as outf:
+        json.dump(dict_to_add, outf, indent=4)

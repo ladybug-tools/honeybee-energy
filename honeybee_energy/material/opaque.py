@@ -12,7 +12,7 @@ from ..writer import generate_idf_string
 from honeybee._lockable import lockable
 from honeybee.typing import float_in_range, float_positive, clean_rad_string
 from ..properties.extension import EnergyMaterialProperties, \
-            EnergyMaterialNoMassProperties, EnergyMaterialVegetationProperties
+    EnergyMaterialNoMassProperties, EnergyMaterialVegetationProperties
 
 
 @lockable
@@ -377,7 +377,7 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
         new_material._display_name = self._display_name
         new_material._user_data = None if self._user_data is None \
             else self._user_data.copy()
-        new_material._properties._duplicate_extension_attr(self._properties) 
+        new_material._properties._duplicate_extension_attr(self._properties)
         return new_material
 
 
@@ -674,7 +674,7 @@ class EnergyMaterialNoMass(_EnergyMaterialOpaqueBase):
         new_material._display_name = self._display_name
         new_material._user_data = None if self._user_data is None \
             else self._user_data.copy()
-        new_material._properties._duplicate_extension_attr(self._properties) 
+        new_material._properties._duplicate_extension_attr(self._properties)
         return new_material
 
 
@@ -801,7 +801,7 @@ class EnergyMaterialVegetation(_EnergyMaterialOpaqueBase):
         self._moist_diff_model = 'Simple'
         self._locked = False
         self._properties = EnergyMaterialVegetationProperties(self)
-    
+
     @property
     def roughness(self):
         """Get or set the text describing the roughness of the soil material layer."""
@@ -887,7 +887,7 @@ class EnergyMaterialVegetation(_EnergyMaterialOpaqueBase):
     @property
     def plant_height(self):
         """Get or set a number for the height of plants in the vegetation layer [m]."""
-        return(self._plant_height)
+        return self._plant_height
 
     @plant_height.setter
     def plant_height(self, p_h):
@@ -896,7 +896,7 @@ class EnergyMaterialVegetation(_EnergyMaterialOpaqueBase):
     @property
     def leaf_area_index(self):
         """Get or set a number for the leaf area per unit area of soil surface."""
-        return(self._leaf_area_index)
+        return self._leaf_area_index
 
     @leaf_area_index.setter
     def leaf_area_index(self, lai):
@@ -905,7 +905,7 @@ class EnergyMaterialVegetation(_EnergyMaterialOpaqueBase):
     @property
     def leaf_reflectivity(self):
         """Get or set a number for the solar reflectivity of the leaf surfaces."""
-        return(self._leaf_reflectivity)
+        return self._leaf_reflectivity
 
     @leaf_reflectivity.setter
     def leaf_reflectivity(self, l_r):
@@ -914,7 +914,7 @@ class EnergyMaterialVegetation(_EnergyMaterialOpaqueBase):
     @property
     def leaf_emissivity(self):
         """Get or set a number for the emissivity of the leaf surfaces."""
-        return(self._leaf_emissivity)
+        return self._leaf_emissivity
 
     @leaf_emissivity.setter
     def leaf_emissivity(self, l_e):
@@ -923,7 +923,7 @@ class EnergyMaterialVegetation(_EnergyMaterialOpaqueBase):
     @property
     def min_stomatal_resist(self):
         """Get or set a number for the resistance of the plants to moisture [s/m]."""
-        return(self._min_stomatal_resist)
+        return self._min_stomatal_resist
 
     @min_stomatal_resist.setter
     def min_stomatal_resist(self, msr):
@@ -936,7 +936,7 @@ class EnergyMaterialVegetation(_EnergyMaterialOpaqueBase):
 
         The number must be between 0.1 and 0.5. (Default: 0.3).
         """
-        return(self._sat_vol_moist_cont)
+        return self._sat_vol_moist_cont
 
     @sat_vol_moist_cont.setter
     def sat_vol_moist_cont(self, s_vmc):
@@ -949,7 +949,7 @@ class EnergyMaterialVegetation(_EnergyMaterialOpaqueBase):
 
         The number must be between 0.01 and 0.1. (Default: .01).
         """
-        return(self._residual_vol_moist_cont)
+        return self._residual_vol_moist_cont
 
     @residual_vol_moist_cont.setter
     def residual_vol_moist_cont(self, r_vmc):
@@ -962,7 +962,7 @@ class EnergyMaterialVegetation(_EnergyMaterialOpaqueBase):
 
         The number must be between 0.05 and 0.5. (Default: .01).
         """
-        return(self._init_vol_moist_cont)
+        return self._init_vol_moist_cont
 
     @init_vol_moist_cont.setter
     def init_vol_moist_cont(self, i_vmc):
@@ -979,7 +979,7 @@ class EnergyMaterialVegetation(_EnergyMaterialOpaqueBase):
             * Simple
             * Advanced
         """
-        return(self._moist_diff_model)
+        return self._moist_diff_model
 
     @moist_diff_model.setter
     def moist_diff_model(self, mdc):
@@ -1301,5 +1301,5 @@ class EnergyMaterialVegetation(_EnergyMaterialOpaqueBase):
         new_material._display_name = self._display_name
         new_material._user_data = None if self._user_data is None \
             else self._user_data.copy()
-        new_material._properties._duplicate_extension_attr(self._properties) 
+        new_material._properties._duplicate_extension_attr(self._properties)
         return new_material

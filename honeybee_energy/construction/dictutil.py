@@ -57,7 +57,7 @@ def dict_abridged_to_construction(constr_dict, materials, schedules,
             construction with the material identifiers as the keys.
         schedules: Dictionary of all schedule objects that might be used in the
             construction with the schedule identifiers as the keys.
-        raise_exception: Boolean to note whether an excpetion should be raised
+        raise_exception: Boolean to note whether an exception should be raised
             if the object is not identified as a construction. Default: True.
 
     Returns:
