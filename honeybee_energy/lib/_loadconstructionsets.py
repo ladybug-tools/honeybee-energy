@@ -47,7 +47,7 @@ def load_construction_set_object(cset_dict, load_cons, con_sets, misc_cons):
 
 def load_constructionsets_from_folder(constructionset_lib_folder, loaded_constructions):
     """Load all of the ConstructionSet objects from a constructionset standards folder.
-    
+
     Args:
         constructionset_lib_folder: Path to a constructionsets sub-folder within a
             honeybee standards folder.
@@ -68,6 +68,7 @@ def load_constructionsets_from_folder(constructionset_lib_folder, loaded_constru
                     load_construction_set_object(
                         c_dict[c_id], loaded_constructions, con_sets, misc_cons)
     return con_sets, misc_cons
+
 
 loaded_sets, misc_c = \
     load_constructionsets_from_folder(folders.constructionset_lib, _all_constructions)

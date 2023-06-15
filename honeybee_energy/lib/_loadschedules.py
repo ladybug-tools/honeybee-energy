@@ -41,13 +41,13 @@ def load_schedule_object(sch_dict, loaded_type_limits, scheds):
         if sch_obj is not None:
             lock_and_check_schedule(sch_obj)
             scheds[sch_dict['identifier']] = sch_obj
-    except (TypeError, KeyError):
+    except (TypeError, KeyError, ValueError):
         pass  # not a Honeybee Schedule JSON; possibly a comment
 
 
 def load_schedules_from_folder(schedule_lib_folder, loaded_type_limits):
     """Load all of the schedule objects from a schedule standards folder.
-    
+
     Args:
         schedule_lib_folder: Path to a schedules sub-folder within a honeybee
             standards folder.
@@ -71,6 +71,7 @@ def load_schedules_from_folder(schedule_lib_folder, loaded_type_limits):
                 for sch_id in data:  # a collection of several objects
                     load_schedule_object(data[sch_id], loaded_type_limits, scheds)
     return scheds
+
 
 u_scheds = load_schedules_from_folder(folders.schedule_lib, _schedule_type_limits)
 _schedules.update(u_scheds)
