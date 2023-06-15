@@ -91,7 +91,7 @@ def load_construction_object(
                 window_cons[con_dict['identifier']] = constr
             else:  # it's a shade construction
                 shade_cons[con_dict['identifier']] = constr
-    except (TypeError, KeyError):
+    except (TypeError, KeyError, ValueError):
         pass  # not a Honeybee Construction JSON; possibly a comment
 
 

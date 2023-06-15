@@ -628,12 +628,12 @@ class Folders(object):
         use_shell = True if os.name == 'nt' else False
         process = subprocess.Popen(cmds, stdout=subprocess.PIPE, shell=use_shell)
         stdout = process.communicate()
-        base_str = str(stdout[0]).replace("b'", '').replace(r"\r\n'", '')
-        self._openstudio_version_str = base_str
-        ver_nums = self._openstudio_version_str.split('+')[0].split('.')
-        ver_nums[-1] = ver_nums[-1].split('-')[0] \
-            if '-' in ver_nums[-1] else ver_nums[-1]
         try:
+            base_str = str(stdout[0]).replace("b'", '').replace(r"\r\n'", '')
+            self._openstudio_version_str = base_str
+            ver_nums = self._openstudio_version_str.split('+')[0].split('.')
+            ver_nums[-1] = ver_nums[-1].split('-')[0] \
+                if '-' in ver_nums[-1] else ver_nums[-1]
             self._openstudio_version = tuple(int(i) for i in ver_nums)
         except Exception:
             pass  # failed to parse the version into integers
@@ -644,10 +644,10 @@ class Folders(object):
         use_shell = True if os.name == 'nt' else False
         process = subprocess.Popen(cmds, stdout=subprocess.PIPE, shell=use_shell)
         stdout = process.communicate()
-        base_str = str(stdout[0]).replace("b'", '').replace(r"\r\n'", '')
-        self._energyplus_version_str = base_str.split(',')[1].split(' ')[-1]
-        ver_nums = self._energyplus_version_str.split('-')[0].split('.')
         try:
+            base_str = str(stdout[0]).replace("b'", '').replace(r"\r\n'", '')
+            self._energyplus_version_str = base_str.split(',')[1].split(' ')[-1]
+            ver_nums = self._energyplus_version_str.split('-')[0].split('.')
             self._energyplus_version = tuple(int(i) for i in ver_nums)
         except Exception:
             pass  # failed to parse the version into integers
@@ -661,10 +661,10 @@ class Folders(object):
         base_str = str(stdout[0]).replace("b'", '')
         base_str = base_str.replace("\r\n", '__').replace(r"\r\n", '__') \
             if os.name == 'nt' else base_str.replace("\n", '__').replace(r"\n", '__')
-        base_str = base_str.split('__')[-2]
-        self._ironbug_version_str = base_str
-        ver_nums = self._ironbug_version_str.split(' ')[0].replace('v', '').split('.')
         try:
+            base_str = base_str.split('__')[-2]
+            self._ironbug_version_str = base_str
+            ver_nums = base_str.split(' ')[0].replace('v', '').split('.')
             self._ironbug_version = tuple(int(i) for i in ver_nums)
         except Exception:
             pass  # failed to parse the version into integers
