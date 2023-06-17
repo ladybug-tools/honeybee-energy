@@ -10,7 +10,7 @@ def test_reset_resource_ids():
     runner = CliRunner()
     input_hb_model = './tests/json/ShoeBox.json'
 
-    c_args = [input_hb_model, '-uuid', '-m', '-c', '-cs', '-s', '-p']
+    c_args = [input_hb_model, '-uuid']
     result = runner.invoke(reset_resource_ids, c_args)
     assert result.exit_code == 0
     model_dict = json.loads(result.output)
