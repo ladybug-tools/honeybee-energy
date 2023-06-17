@@ -10,8 +10,9 @@ from honeybee.boundarycondition import Outdoors, Surface, boundary_conditions
 from honeybee.facetype import AirBoundary, face_types
 from honeybee.extensionutil import model_extension_dicts
 from honeybee.checkdup import check_duplicate_identifiers
-from honeybee.typing import invalid_dict_error
+from honeybee.typing import invalid_dict_error, clean_ep_string, clean_and_id_ep_string
 from honeybee.face import Face
+from honeybee.model import Model
 
 from ..material.dictutil import dict_to_material
 from ..construction.dictutil import CONSTRUCTION_TYPES, dict_to_construction, \
@@ -1434,6 +1435,140 @@ class ModelEnergyProperties(object):
         data['hvacs'] = [hv.to_dict(abridged=True) for hv in all_hvac]
         data['shws'] = [sw.to_dict(abridged=True) for sw in all_shw]
         return data
+
+    @staticmethod
+    def reset_resource_ids_in_dict(
+            data, add_uuid=False, reset_materials=True, reset_constructions=True,
+            reset_construction_sets=True, reset_schedules=True, reset_programs=True):
+        """Reset the identifiers of energy resource objects in a Model dictionary.
+
+        This is useful when human-readable names are needed when the model is
+        exported to other formats like IDF and OSM and the uniqueness of the
+        identifiers is less of a concern.
+
+        Args:
+            data: A dictionary representation of an entire honeybee-core Model.
+                Note that this dictionary must have ModelEnergyProperties in order
+                for this method to successfully edit the energy properties.
+            add_uuid: Boolean to note whether newly-generated resource object IDs
+                should be derived only from a cleaned display_name (False) or
+                whether this new ID should also have a unique set of 8 characters
+                appended to it to guarantee uniqueness. (Default: False).
+            reset_materials: Boolean to note whether the IDs of all materials in
+                the model should be reset or kept. (Default: True).
+            reset_constructions: Boolean to note whether the IDs of all constructions
+                in the model should be reset or kept. (Default: True).
+            reset_construction_sets: Boolean to note whether the IDs of all construction
+                sets in the model should be reset or kept. (Default: True).
+            reset_schedules: Boolean to note whether the IDs of all schedules
+                in the model should be reset or kept. (Default: True).
+            reset_programs: Boolean to note whether the IDs of all program
+                types in the model should be reset or kept. (Default: True).
+
+        Returns:
+            A new Model dictionary with the resource identifiers reset. All references
+            to the reset resources will be correct and valid in the resulting dictionary,
+            assuming that the input is valid.
+        """
+        model = Model.from_dict(data)
+        materials, constructions, construction_sets, schedule_type_limits, \
+            schedules, program_types, hvacs, shws = \
+            model.properties.energy.load_properties_from_dict(data)
+        res_func = clean_and_id_ep_string if add_uuid else clean_ep_string
+
+        # change the identifiers of the materials
+        if reset_materials:
+            model_mats = set()
+            for mat in model.properties.energy.materials:
+                mat.unlock()
+                old_id, new_id = mat.identifier, res_func(mat.display_name)
+                mat.identifier = new_id
+                materials[old_id].unlock()
+                materials[old_id].identifier = new_id
+                model_mats.add(old_id)
+            for old_id, mat in materials.items():
+                if old_id not in model_mats:
+                    mat.unlock()
+                    mat.identifier = res_func(mat.display_name)
+
+        # change the identifiers of the constructions
+        if reset_constructions:
+            model_cons = set()
+            for con in model.properties.energy.constructions:
+                con.unlock()
+                old_id, new_id = con.identifier, res_func(con.display_name)
+                con.identifier = new_id
+                constructions[old_id].unlock()
+                constructions[old_id].identifier = new_id
+                model_cons.add(old_id)
+            for old_id, con in constructions.items():
+                if old_id not in model_cons:
+                    con.unlock()
+                    con.identifier = res_func(con.display_name)
+
+        # change the identifiers of the construction_sets
+        if reset_construction_sets:
+            model_cs = set()
+            for cs in model.properties.energy.construction_sets:
+                cs.unlock()
+                old_id, new_id = cs.identifier, res_func(cs.display_name)
+                cs.identifier = new_id
+                construction_sets[old_id].unlock()
+                construction_sets[old_id].identifier = new_id
+                model_cs.add(old_id)
+            for old_id, cs in construction_sets.items():
+                if old_id not in model_cs:
+                    cs.unlock()
+                    cs.identifier = res_func(cs.display_name)
+
+        # change the identifiers of the schedules
+        if reset_schedules:
+            model_sch = set()
+            for sch in model.properties.energy.schedules:
+                sch.unlock()
+                old_id, new_id = sch.identifier, res_func(sch.display_name)
+                sch.identifier = new_id
+                schedules[old_id].unlock()
+                schedules[old_id].identifier = new_id
+                model_sch.add(old_id)
+            for old_id, sch in schedules.items():
+                if old_id not in model_sch:
+                    sch.unlock()
+                    sch.identifier = res_func(sch.display_name)
+
+        # change the identifiers of the program
+        if reset_programs:
+            model_prg = set()
+            for prg in model.properties.energy.program_types:
+                prg.unlock()
+                old_id, new_id = prg.identifier, res_func(prg.display_name)
+                prg.identifier = new_id
+                program_types[old_id].unlock()
+                program_types[old_id].identifier = new_id
+                model_prg.add(old_id)
+            for old_id, prg in program_types.items():
+                if old_id not in model_prg:
+                    prg.unlock()
+                    prg.identifier = res_func(prg.display_name)
+
+        # create the model dictionary and update any unreferenced resources
+        model_dict = model.to_dict()
+        me_props = model_dict['properties']['energy']
+        me_props['materials'] = [mat.to_dict() for mat in materials.values()]
+        me_props['constructions'] = []
+        for cnst in constructions.values():
+            try:
+                me_props['constructions'].append(cnst.to_dict(abridged=True))
+            except TypeError:  # ShadeConstruction
+                me_props['constructions'].append(cnst.to_dict())
+        me_props['construction_sets'] = \
+            [cs.to_dict(abridged=True) for cs in construction_sets.values()]
+        me_props['schedule_type_limits'] = \
+            [stl.to_dict() for stl in schedule_type_limits.values()]
+        me_props['schedules'] = [sc.to_dict(abridged=True) for sc in schedules.values()]
+        me_props['program_types'] = \
+            [p.to_dict(abridged=True) for p in program_types.values()]
+        return model_dict
 
     def _add_constr_type_objs_to_dict(self, base):
         """Add materials, constructions and construction sets to a base dictionary.
