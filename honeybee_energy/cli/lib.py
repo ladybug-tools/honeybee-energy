@@ -596,11 +596,21 @@ def program_types_by_id(program_type_ids, complete, output_file):
         exists=True, file_okay=False, dir_okay=True, resolve_path=True)
 )
 @click.option(
+    '--exclude-abridged/--include-abridged', ' /-a', help='Flag to note whether '
+    'fully abridged objects in the user standards library should be included in '
+    'the output file. This is useful when some of the sub-objects contained within '
+    'the user standards are referenced in another installed standards package that '
+    'is not a part of the user personal standards library (eg. honeybee-energy-'
+    'standards). When abridged objects are excluded, only objects that contain all '
+    'sub-objects within the user library will be in the output-file.',
+    default=True, show_default=True
+)
+@click.option(
     '--output-file', '-f', help='Optional JSON file to output the JSON string of '
     'the translation. By default this will be printed out to stdout',
     type=click.File('w'), default='-', show_default=True
 )
-def to_model_properties(standards_folder, output_file):
+def to_model_properties(standards_folder, exclude_abridged, output_file):
     """Translate a lib folder of standards to a JSON of honeybee ModelEnergyProperties.
 
     This is useful in workflows where one must import everything within a user's
@@ -677,13 +687,43 @@ def to_model_properties(standards_folder, output_file):
         base['construction_sets'] = \
             [cs.to_dict(abridged=True) for cs in all_con_sets.values()]
 
+        # if set to include abridged, add any of such objects to the dictionary
+        if not exclude_abridged:
+            _add_abridged_objects(base['schedules'], sch_folder)
+            _add_abridged_objects(base['program_types'], prog_folder)
+            _add_abridged_objects(base['constructions'], con_folder)
+            _add_abridged_objects(base['construction_sets'], con_set_folder)
+
         # write out the JSON file
-        output_file.write(json.dumps(base))
+        output_file.write(json.dumps(base, indent=4))
     except Exception as e:
         _logger.exception('Loading standards to properties failed.\n{}'.format(e))
         sys.exit(1)
     else:
         sys.exit(0)
+
+
+def _add_abridged_objects(model_prop_array, lib_folder):
+    """Add abridged resource objects to an existing model properties array.
+    
+    Args:
+        model_prop_array: An array of resource object dictionaries from a
+            ModelEnergyProperties dictionary.
+        lib_folder: A folder from which abridged objects will be loaded.
+    """
+    obj_ids = set(obj['identifier'] for obj in model_prop_array)
+    for f in os.listdir(lib_folder):
+        f_path = os.path.join(lib_folder, f)
+        if os.path.isfile(f_path) and f_path.endswith('.json'):
+            with open(f_path) as json_file:
+                data = json.load(json_file)
+            if 'type' in data:  # single object
+                if data['identifier'] not in obj_ids:
+                    model_prop_array.append(data)
+            else:  # a collection of several objects
+                for obj_identifier in data:
+                    if obj_identifier not in obj_ids:
+                        model_prop_array.append(data[obj_identifier])
 
 
 @lib.command('purge')
@@ -943,16 +983,16 @@ def add_to_lib(properties_file, standards_folder, log_file):
         success_objects, dup_id_objects, mis_dep_objects
         m_start = 'THESE OBJECTS'
         if len(success_objects) != 0:
-            msg = '{} WERE SUCCESSFULLY ADDED TO THE STANDARDS LIBRARY:\n{}\n'.format(
+            msg = '{} WERE SUCCESSFULLY ADDED TO THE STANDARDS LIBRARY:\n{}\n\n'.format(
                 m_start, '  \n'.join(success_objects))
             log_file.write(msg)
         if len(dup_id_objects) != 0:
             msg = '{} WERE NOT ADDED SINCE THEY ALREADY EXIST IN THE STANDARDS ' \
-                'LIBRARY:\n{}\n'.format(m_start, '  \n'.join(dup_id_objects))
+                'LIBRARY:\n{}\n\n'.format(m_start, '  \n'.join(dup_id_objects))
             log_file.write(msg)
         if len(mis_dep_objects) != 0:
             msg = '{} WERE NOT ADDED BECAUSE THEY ARE INVALID OR ARE MISSING ' \
-                'DEPENDENT OBJECTS:\n{}\n'.format(m_start, '  \n'.join(mis_dep_objects))
+                'DEPENDENT OBJECTS:\n{}\n\n'.format(m_start, '  \n'.join(mis_dep_objects))
             log_file.write(msg)
     except Exception as e:
         _logger.exception('Adding to user standards library failed.\n{}'.format(e))

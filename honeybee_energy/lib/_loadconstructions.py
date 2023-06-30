@@ -110,8 +110,8 @@ def load_constructions_from_folder(
     opaque_mats, window_mats = {}, {}
     opaque_cons, window_cons, shade_cons = {}, {}, {}
     misc_mats, misc_sch = [], []
-    for f in os.listdir(folders.construction_lib):
-        f_path = os.path.join(folders.construction_lib, f)
+    for f in os.listdir(construction_lib_folder):
+        f_path = os.path.join(construction_lib_folder, f)
         if os.path.isfile(f_path):
             if f_path.endswith('.idf'):
                 constructions, materials = \
