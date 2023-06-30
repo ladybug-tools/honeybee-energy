@@ -452,6 +452,9 @@ class ModelEnergyProperties(object):
                         if isinstance(face.type, AirBoundary):
                             face.type = face_types.wall
                         face.boundary_condition = boundary_conditions.adiabatic
+                elif isinstance(face.type, AirBoundary):  # assume it's Surface
+                    face.type = face_types.wall
+                    face.boundary_condition = boundary_conditions.adiabatic
 
     def assign_radiance_solar_interior(self):
         """Assign honeybee Radiance modifiers based on interior solar properties."""
