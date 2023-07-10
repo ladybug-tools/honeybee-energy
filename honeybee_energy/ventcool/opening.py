@@ -272,6 +272,7 @@ class VentilationOpening(object):
         sch = '' if cntrl.schedule is None else cntrl.schedule.identifier
         wind = 'autocalculate' if self.wind_cross_vent else 0
         angle = self.parent.horizontal_orientation() if self.parent.normal.z != 1 else 0
+        angle = angle % 360
         height = (self.parent.geometry.max.z - self.parent.geometry.min.z) * \
             self.fraction_height_operable
 
