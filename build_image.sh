@@ -27,7 +27,7 @@ tar zxvf ${LBT_MEASURES_TAR}
 mv lbt-measures-*/ ${LBT_MEASURES_FILENAME}
 
 # Get the honeybee-openstudio gem
-export HONEYBEE_OPENSTUDIO_GEM_VERSION="2.34.7"
+export HONEYBEE_OPENSTUDIO_GEM_VERSION="2.34.8"
 export HONEYBEE_OPENSTUDIO_GEM_URL="https://github.com/ladybug-tools/honeybee-openstudio-gem/archive/v${HONEYBEE_OPENSTUDIO_GEM_VERSION}.tar.gz"
 export HONEYBEE_OPENSTUDIO_GEM_TAR='honeybee-openstudio-gem.tar.gz'
 export HONEYBEE_GEM_FILENAME='honeybee-gem'

@@ -32,7 +32,7 @@ jobs:
           rm -r honeybee-openstudio-gem-$HONEYBEE_OPENSTUDIO_GEM_VERSION
           rm honeybee-openstudio-gem.tar.gz
         env:
-          HONEYBEE_OPENSTUDIO_GEM_VERSION: "2.34.7"
+          HONEYBEE_OPENSTUDIO_GEM_VERSION: "2.34.8"
       - name: install ironbug
         run: |
           mkdir -p ~/ladybug_tools/grasshopper
