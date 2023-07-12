@@ -675,6 +675,8 @@ def model_to_idf(
             if constr.has_frame:
                 materials.append(constr.frame)
             if constr.has_shade:
+                if constr.window_construction in all_constrs:
+                    construction_strs.pop(-1)  # avoid duplicate specification
                 if constr.is_switchable_glazing:
                     materials.append(constr.switched_glass_material)
                 construction_strs.append(constr.to_shaded_idf())

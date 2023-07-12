@@ -163,7 +163,7 @@ class WindowConstructionShade(object):
             # create the split gap material to be used on either side of the shade
             between_int_gap = int_gap.duplicate()
             between_int_gap.identifier = \
-                '{}_Split{}'.format(int_gap.identifier, round(gap_thick, 4))
+                '{}_Split{}'.format(int_gap.identifier, round(gap_thick, 3))
             between_int_gap.thickness = gap_thick
             self._between_gap = between_int_gap
         window_construction.lock()  # lock to avoid illegal shade/material combinations
