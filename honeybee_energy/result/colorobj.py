@@ -272,6 +272,10 @@ class ColorRoom(_ColorObject):
             This will be used to ensure the legend units display correctly when
             data is floor-normalized. Examples include 'm', 'mm', 'ft'.
             (Default: 'm' for meters).
+        space_based: Boolean to note whether the result is reported on the EnergyPlus
+            Space level instead of the Zone level. In this case, the matching to
+            the Room will account for the fact that the Space name is the Room
+            name with _Space added to it. (Default: False).
 
     Properties:
         * data_collections
@@ -280,6 +284,7 @@ class ColorRoom(_ColorObject):
         * simulation_step
         * normalize_by_floor
         * geo_unit
+        * space_based
         * matched_rooms
         * matched_data
         * matched_values
@@ -294,10 +299,11 @@ class ColorRoom(_ColorObject):
         * min_point
         * max_point
     """
-    __slots__ = ('_rooms',)
+    __slots__ = ('_rooms', '_space_based')
 
     def __init__(self, data_collections, rooms, legend_parameters=None,
-                 simulation_step=None, normalize_by_floor=True, geo_unit='m'):
+                 simulation_step=None, normalize_by_floor=True, geo_unit='m',
+                 space_based=False):
         """Initialize ColorRoom."""
         # initialize the base object
         _ColorObject.__init__(self, data_collections, legend_parameters,
@@ -318,7 +324,9 @@ class ColorRoom(_ColorObject):
         self._calculate_min_max(self._rooms)
 
         # match the rooms with the data collections
-        self._matched_objects = match_rooms_to_data(data_collections, rooms)
+        self._space_based = bool(space_based)
+        self._matched_objects = match_rooms_to_data(
+            data_collections, rooms, space_based=self._space_based)
         if len(self._matched_objects) == 0:
             raise ValueError('None of the ColorRoom data collections could be '
                              'matched to the input rooms')
@@ -340,6 +348,11 @@ class ColorRoom(_ColorObject):
     @normalize_by_floor.setter
     def normalize_by_floor(self, value):
         self._normalize = bool(value)
+
+    @property
+    def space_based(self):
+        """Get a boolean for whether results are set to be space-based."""
+        return self._space_based
 
     @property
     def matched_rooms(self):
