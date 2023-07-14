@@ -7,7 +7,8 @@ from honeybee.aperture import Aperture
 from honeybee.face import Face
 
 
-def match_rooms_to_data(data_collections, rooms, invert_multiplier=False):
+def match_rooms_to_data(
+        data_collections, rooms, invert_multiplier=False, space_based=False):
     """Match honeybee Rooms to the Zone-level data collections from SQLiteResult.
 
     This method ensures that Room multipliers are correctly output for a given
@@ -23,7 +24,11 @@ def match_rooms_to_data(data_collections, rooms, invert_multiplier=False):
             The length of these Rooms does not have to match the data_collections.
         invert_multiplier: Boolean to note whether the output room multiplier should be
             included when the data type values already account for the multiplier
-            (False) or when they do not (True).
+            (False) or when they do not (True). (Default: False).
+        space_based: Boolean to note whether the result is reported on the EnergyPlus
+            Space level instead of the Zone level. In this case, the matching to
+            the Room will account for the fact that the Space name is the Room
+            name with _Space added to it. (Default: False).
 
     Returns:
         An array of tuples that contain matched rooms and data collections. All
@@ -36,8 +41,6 @@ def match_rooms_to_data(data_collections, rooms, invert_multiplier=False):
         -   multiplier -- An integer for the Room multiplier, which may be useful
             for calculating total results.
     """
-    matched_tuples = []  # list of matched rooms and data collections
-
     # extract the zone identifier from each of the data collections
     zone_ids = []
     use_mult = False
@@ -59,8 +62,11 @@ def match_rooms_to_data(data_collections, rooms, invert_multiplier=False):
                 zone_ids.append(hvac_id)
     if invert_multiplier:
         use_mult = not use_mult
+    if space_based:
+        zone_ids = [zid.replace('_SPACE', '') for zid in zone_ids]
 
     # loop through the rooms and match the data to them
+    matched_tuples = []  # list of matched rooms and data collections
     for room in rooms:
         rm_id = room.identifier.upper()
         for i, data_id in enumerate(zone_ids):

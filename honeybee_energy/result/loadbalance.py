@@ -218,7 +218,7 @@ class LoadBalance(object):
         self._people = self._match_room_input(
             people_data, rooms, 'People')
         self._solar = self._match_room_input(
-            solar_data, rooms, 'Solar', use_all=use_all_solar)
+            solar_data, rooms, 'Solar', use_all=use_all_solar, space_based=True)
         self._infiltration = self._match_room_input(
             infiltration_data, rooms, 'Infiltration')
         self._mech_ventilation = self._match_room_input(
@@ -521,7 +521,7 @@ class LoadBalance(object):
 
     def _match_room_input(self, data_collections, rooms, data_type,
                           type_check_text=None, negate=False, use_all=False,
-                          mult_per_room=False):
+                          mult_per_room=False, space_based=False):
         """Match a an array of input data collections to input rooms.
 
         Args:
@@ -535,6 +535,10 @@ class LoadBalance(object):
                 of those matched to the rooms.
             mult_per_room: Boolean to note whether there are multiple data collections
                 for each room, which should be summed together.
+            space_based: Boolean to note whether the result is reported on the EnergyPlus
+                Space level instead of the Zone level. In this case, the matching to
+                the Room will account for the fact that the Space name is the Room
+                name with _Space added to it. (Default: False).
         """
         # don't match anything if there are no collections
         if data_collections is None or len(data_collections) == 0:
@@ -542,7 +546,8 @@ class LoadBalance(object):
 
         # match the data collections to the rooms
         if use_all:  # firs try to see if all objects can be matched
-            matched_objs = match_rooms_to_data(data_collections, rooms, True)
+            matched_objs = match_rooms_to_data(
+                data_collections, rooms, True, space_based)
             if len(matched_objs) != len(rooms):  # take them all
                 matched_objs = [(None, data, rm.multiplier)
                                 for data, rm in zip(data_collections, rooms)]
@@ -553,16 +558,17 @@ class LoadBalance(object):
                     coll_dict[coll.header.metadata['type']].append(coll)
                 except KeyError:
                     coll_dict[coll.header.metadata['type']] = [coll]
-            all_match = [match_rooms_to_data(val, rooms, True)
+            all_match = [match_rooms_to_data(val, rooms, True, space_based)
                          for val in coll_dict.values()]
             matched_objs = [list(tup) for tup in all_match[0]]
             for other_tups in all_match[1:]:
                 for i, tup in enumerate(other_tups):
                     matched_objs[i][1] += tup[1]
         else:
-            matched_objs = match_rooms_to_data(data_collections, rooms, True)
-        assert len(matched_objs) != 0, \
-            'None of the data collections could be matched to the input rooms.'
+            matched_objs = match_rooms_to_data(
+                data_collections, rooms, True, space_based)
+        assert len(matched_objs) != 0, 'None of the {} data collections could be ' \
+            'matched to the input rooms.'.format(data_type)
         self._rooms = tuple(obj[0] for obj in matched_objs) if not use_all else rooms
         base_data = matched_objs[0][1]
 
