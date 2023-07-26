@@ -622,7 +622,7 @@ class ModelEnergyProperties(object):
         # set up defaults to ensure the method runs correctly
         detailed = False if raise_exception else detailed
         msgs = []
-        # perform checks for key honeybee model schema rules
+        # perform checks for duplicate identifiers
         msgs.append(self.check_duplicate_material_identifiers(False, detailed))
         msgs.append(self.check_duplicate_construction_identifiers(False, detailed))
         msgs.append(self.check_duplicate_construction_set_identifiers(False, detailed))
@@ -632,6 +632,7 @@ class ModelEnergyProperties(object):
         msgs.append(self.check_duplicate_program_type_identifiers(False, detailed))
         msgs.append(self.check_duplicate_hvac_identifiers(False, detailed))
         msgs.append(self.check_duplicate_shw_identifiers(False, detailed))
+        # perform checks for specific energy simulation rules
         msgs.append(self.check_detailed_hvac_rooms(False, detailed))
         msgs.append(self.check_shw_rooms_in_model(False, detailed))
         msgs.append(self.check_one_vegetation_material(False, detailed))
@@ -817,8 +818,8 @@ class ModelEnergyProperties(object):
                         'error_type': 'DetailedHVAC Rooms Not In Model',
                         'extension_type': 'Energy',
                         'element_type': 'HVAC',
-                        'element_id': bad_hvac.identifier,
-                        'element_name': bad_hvac.display_name,
+                        'element_id': [bad_hvac.identifier],
+                        'element_name': [bad_hvac.display_name],
                         'message': msg
                     }
                     all_err.append(error_dict)
@@ -867,8 +868,8 @@ class ModelEnergyProperties(object):
                         'error_type': 'SHWSystem Room Not In Model',
                         'extension_type': 'Energy',
                         'element_type': 'SHW',
-                        'element_id': shw_sys.identifier,
-                        'element_name': shw_sys.display_name,
+                        'element_id': [shw_sys.identifier],
+                        'element_name': [shw_sys.display_name],
                         'message': msg
                     }
                     all_err.append(error_dict)
@@ -922,8 +923,8 @@ class ModelEnergyProperties(object):
                         'error_type': 'Multiple Vegetation Materials',
                         'extension_type': 'Energy',
                         'element_type': 'Material',
-                        'element_id': v_mat.identifier,
-                        'element_name': v_mat.display_name,
+                        'element_id': [v_mat.identifier],
+                        'element_name': [v_mat.display_name],
                         'message': msg
                     }
                     all_err.append(error_dict)
@@ -955,12 +956,13 @@ class ModelEnergyProperties(object):
         """
         detailed = False if raise_exception else detailed
         # first gather all interior faces in the model and their adjacent object
-        adj_constr, adj_ids = [], []
+        adj_constr, base_objs, adj_ids = [], [], []
         for face in self.host.faces:
             if isinstance(face.boundary_condition, Surface):
                 const = face.properties.energy.construction
                 if not isinstance(const, AirBoundaryConstruction):
                     adj_constr.append(face.properties.energy.construction)
+                    base_objs.append(face)
                     adj_ids.append(face.boundary_condition.boundary_condition_object)
         # next, get the adjacent objects
         try:
@@ -975,20 +977,42 @@ class ModelEnergyProperties(object):
                     raise ValueError(msg)
                 return msg
         # loop through the adjacent face pairs and report if materials are not matched
-        full_msgs = []
-        for adj_c, adj_f in zip(adj_constr, adj_faces):
+        full_msgs, reported_items = [], set()
+        for adj_c, base_f, adj_f in zip(adj_constr, base_objs, adj_faces):
+            if (base_f.identifier, adj_f.identifier) in reported_items:
+                continue
             try:
                 rev_mat = tuple(reversed(adj_f.properties.energy.construction.materials))
             except AttributeError:
                 rev_mat = None
             if not adj_c.materials == rev_mat:
                 f_msg = 'Face "{}" with construction "{}" does not have material ' \
-                    'layers matching in reversed order with its adjacent pair.'.format(
-                        adj_f.full_id, adj_f.properties.energy.construction.identifier)
+                    'layers matching in reversed order with its adjacent pair "{}" '\
+                    'with construction "{}".'.format(
+                            base_f.full_id,
+                            base_f.properties.energy.construction.identifier,
+                            adj_f.full_id,
+                            adj_f.properties.energy.construction.identifier
+                        )
                 f_msg = self.host._validation_message_child(
-                    f_msg, adj_f, detailed, '020201', 'Energy',
+                    f_msg, base_f, detailed, '020201', 'Energy',
                     error_type='Mismatched Adjacent Constructions')
+                if detailed:
+                    f_msg['element_id'].append(adj_f.identifier)
+                    f_msg['element_name'].append(adj_f.display_name)
+                    parents = []
+                    rel_obj = adj_f
+                    while getattr(rel_obj, '_parent', None) is not None:
+                        rel_obj = getattr(rel_obj, '_parent')
+                        par_dict = {
+                            'parent_type': rel_obj.__class__.__name__,
+                            'id': rel_obj.identifier,
+                            'name': rel_obj.display_name
+                        }
+                        parents.append(par_dict)
+                    f_msg['parents'].append(parents)
                 full_msgs.append(f_msg)
+                reported_items.add((adj_f.identifier, base_f.identifier))
         full_msg = full_msgs if detailed else '\n'.join(full_msgs)
         if raise_exception and len(full_msgs) != 0:
             raise ValueError(full_msg)
