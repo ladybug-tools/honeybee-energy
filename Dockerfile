@@ -56,7 +56,7 @@ COPY .git ${LIBRARY_PATH}/.git
 COPY setup.py ${LIBRARY_PATH}
 COPY setup.cfg ${LIBRARY_PATH}
 COPY requirements.txt ${LIBRARY_PATH}
-COPY standards-requirements.txt ${LIBRARYDIR}
+COPY standards-requirements.txt ${LIBRARY_PATH}
 COPY README.md ${LIBRARY_PATH}
 COPY LICENSE ${LIBRARY_PATH}
 
