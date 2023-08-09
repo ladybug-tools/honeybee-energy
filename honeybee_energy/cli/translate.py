@@ -20,7 +20,7 @@ from honeybee_energy.construction.window import WindowConstruction
 from honeybee_energy.schedule.dictutil import dict_to_schedule
 from honeybee_energy.schedule.ruleset import ScheduleRuleset
 from honeybee_energy.run import measure_compatible_model_json, to_openstudio_osw, \
-    to_gbxml_osw, run_osw, from_gbxml_osw, from_osm_osw, from_idf_osw, \
+    to_gbxml_osw, to_sdd_osw, run_osw, from_gbxml_osw, from_osm_osw, from_idf_osw, \
     add_gbxml_space_boundaries, _parse_os_cli_failure
 from honeybee_energy.writer import energyplus_idf_version
 from honeybee_energy.config import folders
@@ -28,13 +28,15 @@ from honeybee_energy.config import folders
 _logger = logging.getLogger(__name__)
 
 
-@click.group(help='Commands for translating Honeybee JSON files to/from OSM/IDF.')
+@click.group(
+    help='Commands for translating Honeybee Models files to/from OSM/IDF/gbXML.'
+)
 def translate():
     pass
 
 
 @translate.command('model-to-osm')
-@click.argument('model-json', type=click.Path(
+@click.argument('model-file', type=click.Path(
     exists=True, file_okay=True, dir_okay=False, resolve_path=True))
 @click.option('--sim-par-json', '-sp', help='Full path to a honeybee energy '
               'SimulationParameter JSON that describes all of the settings for '
@@ -71,18 +73,18 @@ def translate():
               'By default this will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
 def model_to_osm(
-        model_json, sim_par_json, epw_file, folder, osm_file, idf_file,
+        model_file, sim_par_json, epw_file, folder, osm_file, idf_file,
         check_model, log_file):
-    """Translate a Model JSON file into an OpenStudio Model and corresponding IDF.
+    """Translate a Honeybee Model file into an OpenStudio Model and corresponding IDF.
 
     \b
     Args:
-        model_json: Full path to a Honeybee Model JSON file (HBJSON).
+        model_file: Full path to a Honeybee Model file (HBJSON or HBpkl).
     """
     try:
         # set the default folder if it's not specified
         if folder is None:
-            folder = os.path.dirname(os.path.abspath(model_json))
+            folder = os.path.dirname(os.path.abspath(model_file))
         preparedir(folder, remove_content=False)
 
         # generate default simulation parameters
@@ -97,10 +99,10 @@ def model_to_osm(
 
         # run the Model re-serialization and check if specified
         if check_model:
-            model_json = measure_compatible_model_json(model_json, folder)
+            model_file = measure_compatible_model_json(model_file, folder)
 
         # Write the osw file to translate the model to osm
-        osw = to_openstudio_osw(folder, model_json, sim_par_json, epw_file=epw_file)
+        osw = to_openstudio_osw(folder, model_file, sim_par_json, epw_file=epw_file)
 
         # run the measure to translate the model JSON to an openstudio measure
         osm, idf = run_osw(osw)
@@ -125,7 +127,7 @@ def model_to_osm(
 
 
 @translate.command('model-to-idf')
-@click.argument('model-json', type=click.Path(
+@click.argument('model-file', type=click.Path(
     exists=True, file_okay=True, dir_okay=False, resolve_path=True))
 @click.option('--sim-par-json', '-sp', help='Full path to a honeybee energy '
               'SimulationParameter JSON that describes all of the settings for the '
@@ -148,13 +150,13 @@ def model_to_osm(
 @click.option('--output-file', '-f', help='Optional IDF file to output the IDF string '
               'of the translation. By default this will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
-def model_to_idf(model_json, sim_par_json, additional_str, compact_schedules,
+def model_to_idf(model_file, sim_par_json, additional_str, compact_schedules,
                  hvac_to_ideal_air, output_file):
-    """Translate a Model JSON file to a simplified IDF using direct-to-idf translators.
+    """Translate a Model (HBJSON) file to a simplified IDF using direct-to-idf methods.
 
     \b
     Args:
-        model_json: Full path to a Honeybee Model JSON file (HBJSON).
+        model_file: Full path to a Honeybee Model file (HBJSON or HBpkl).
     """
     try:
         # load simulation parameters or generate default ones
@@ -168,12 +170,12 @@ def model_to_idf(model_json, sim_par_json, additional_str, compact_schedules,
             sim_par.output.add_hvac_energy_use()
 
         # re-serialize the Model to Python
-        model = Model.from_file(model_json)
+        model = Model.from_file(model_file)
 
         # set the schedule directory in case it is needed
         sch_directory = None
         if not compact_schedules:
-            sch_path = os.path.abspath(model_json) if 'stdout' in str(output_file) \
+            sch_path = os.path.abspath(model_file) if 'stdout' in str(output_file) \
                 else os.path.abspath(str(output_file))
             sch_directory = os.path.join(os.path.split(sch_path)[0], 'schedules')
 
@@ -196,7 +198,7 @@ def model_to_idf(model_json, sim_par_json, additional_str, compact_schedules,
 
 
 @translate.command('model-to-gbxml')
-@click.argument('model-json', type=click.Path(
+@click.argument('model-file', type=click.Path(
     exists=True, file_okay=True, dir_okay=False, resolve_path=True))
 @click.option('--osw-folder', '-osw', help='Folder on this computer, into which the '
               'working files will be written. If None, it will be written into the a '
@@ -227,13 +229,13 @@ def model_to_idf(model_json, sim_par_json, additional_str, compact_schedules,
               'of the translation. By default it printed out to stdout', default='-',
               type=click.Path(file_okay=True, dir_okay=False, resolve_path=True))
 def model_to_gbxml(
-        model_json, osw_folder, default_subfaces, triangulate_non_planar,
+        model_file, osw_folder, default_subfaces, triangulate_non_planar,
         check_model, minimal, output_file):
     """Translate a Honeybee Model (HBJSON) to a gbXML file.
 
     \b
     Args:
-        model_json: Full path to a Honeybee Model JSON file (HBJSON).
+        model_file: Full path to a Honeybee Model file (HBJSON or HBpkl).
     """
     try:
         # set the default folder if it's not specified
@@ -241,33 +243,82 @@ def model_to_gbxml(
         out_directory = os.path.join(
             hb_folders.default_simulation_folder, 'temp_translate')
         if output_file.endswith('-'):
-            f_name = os.path.basename(model_json).lower()
+            f_name = os.path.basename(model_file).lower()
             f_name = f_name.replace('.hbjson', '.xml').replace('.json', '.xml')
             out_path = os.path.join(out_directory, f_name)
 
         # run the Model re-serialization and check if specified
         if check_model:
             tri_sub = not default_subfaces
-            model_json = measure_compatible_model_json(
-                model_json, out_directory, simplify_window_cons=True,
+            model_file = measure_compatible_model_json(
+                model_file, out_directory, simplify_window_cons=True,
                 triangulate_sub_faces=tri_sub,
                 triangulate_non_planar_orphaned=triangulate_non_planar)
 
         # Write the osw file and translate the model to gbXML
         out_f = out_path if output_file.endswith('-') else output_file
-        osw = to_gbxml_osw(model_json, out_f, osw_folder)
+        osw = to_gbxml_osw(model_file, out_f, osw_folder)
         if minimal:
             _run_translation_osw(osw, out_path)
         else:
             _, idf = run_osw(osw, silent=True)
             if idf is not None and os.path.isfile(idf):
-                hb_model = Model.from_hbjson(model_json)
+                hb_model = Model.from_hbjson(model_file)
                 add_gbxml_space_boundaries(out_f, hb_model)
                 if out_path is not None:  # load the JSON string to stdout
                     with open(out_path) as json_file:
                         print(json_file.read())
             else:
                 _parse_os_cli_failure(osw_folder)
+    except Exception as e:
+        _logger.exception('Model translation failed.\n{}'.format(e))
+        sys.exit(1)
+    else:
+        sys.exit(0)
+
+
+@translate.command('model-to-sdd')
+@click.argument('model-file', type=click.Path(
+    exists=True, file_okay=True, dir_okay=False, resolve_path=True))
+@click.option('--osw-folder', '-osw', help='Folder on this computer, into which the '
+              'working files will be written. If None, it will be written into the a '
+              'temp folder in the default simulation folder.', default=None,
+              type=click.Path(file_okay=False, dir_okay=True, resolve_path=True))
+@click.option('--check-model/--bypass-check', ' /-bc', help='Flag to note whether the '
+              'Model should be re-serialized to Python and checked before it is '
+              'translated to .osm. The check is not needed if the model-json was '
+              'exported directly from the honeybee-energy Python library.',
+              default=True, show_default=True)
+@click.option('--output-file', '-f', help='Optional SDD file to output the string '
+              'of the translation. By default it printed out to stdout', default='-',
+              type=click.Path(file_okay=True, dir_okay=False, resolve_path=True))
+def model_to_sdd(model_file, osw_folder, check_model, output_file):
+    """Translate a Honeybee Model (HBJSON) to a SDD file.
+
+    \b
+    Args:
+        model_file: Full path to a Honeybee Model file (HBJSON or HBpkl).
+    """
+    try:
+        # set the default folder if it's not specified
+        out_path = None
+        out_directory = os.path.join(
+            hb_folders.default_simulation_folder, 'temp_translate')
+        if output_file.endswith('-'):
+            f_name = os.path.basename(model_file).lower()
+            f_name = f_name.replace('.hbjson', '.xml').replace('.json', '.xml')
+            out_path = os.path.join(out_directory, f_name)
+
+        # run the Model re-serialization and check if specified
+        if check_model:
+            model_file = measure_compatible_model_json(
+                model_file, out_directory, simplify_window_cons=True,
+                triangulate_sub_faces=True)
+
+        # Write the osw file and translate the model to SDD
+        out_f = out_path if output_file.endswith('-') else output_file
+        osw = to_sdd_osw(model_file, out_f, osw_folder)
+        _run_translation_osw(osw, out_path)
     except Exception as e:
         _logger.exception('Model translation failed.\n{}'.format(e))
         sys.exit(1)

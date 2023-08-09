@@ -170,7 +170,7 @@ class People(_LoadBase):
                 equal to the input count, which will be used to set whether a given
                 schedule is behind (0), ahead (2), or the same (1). This can be
                 used to coordinate schedules across diversified programs. If None
-                a random list of integers will be genrated. (Default: None).
+                a random list of integers will be generated. (Default: None).
         """
         # generate shifted schedules and a gaussian distribution of people_per_area
         occ_schs = self._shift_schedule(
@@ -431,7 +431,8 @@ class People(_LoadBase):
         """Get the optional keys from a People dictionary."""
         rad_fract = data['radiant_fraction'] if 'radiant_fraction' in data else 0.3
         lat_fract = autocalculate if 'latent_fraction' not in data or \
-            data['latent_fraction'] == autocalculate.to_dict() else data['latent_fraction']
+            data['latent_fraction'] == autocalculate.to_dict() \
+            else data['latent_fraction']
         return rad_fract, lat_fract
 
     @staticmethod
@@ -447,7 +448,9 @@ class People(_LoadBase):
             try:
                 activity_sched = schedule_dict[act_sch_id]
             except KeyError as e:
-                raise ValueError('Failed to find {} in the People schedule_dict.'.format(e))
+                raise ValueError(
+                    'Failed to find {} in the People schedule_dict.'.format(e)
+                )
         return occ_sched, activity_sched
 
     def __key(self):

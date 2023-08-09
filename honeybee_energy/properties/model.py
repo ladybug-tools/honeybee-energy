@@ -780,56 +780,6 @@ class ModelEnergyProperties(object):
             self.shws, raise_exception, 'SHW', detailed, '020008', 'Energy',
             error_type='Duplicate SHW Identifier')
 
-    def check_detailed_hvac_rooms(self, raise_exception=True, detailed=False):
-        """Check that any rooms referenced within a DetailedHVAC exist in the model.
-
-        Args:
-            raise_exception: Boolean to note whether a ValueError should be raised if
-                DetailedHVAC reference Rooms that are not in the Model. (Default: True).
-            detailed: Boolean for whether the returned object is a detailed list of
-                dicts with error info or a string with a message. (Default: False).
-
-        Returns:
-            A string with the message or a list with a dictionary if detailed is True.
-        """
-        detailed = False if raise_exception else detailed
-        # gather a list of all the missing rooms
-        room_ids = set(room.identifier for room in self.host.rooms)
-        problem_hvacs = []
-        for hvac in self.hvacs:
-            if isinstance(hvac, DetailedHVAC):
-                missing_rooms = []
-                for zone in hvac.thermal_zones:
-                    if zone not in room_ids:
-                        missing_rooms.append(zone)
-                if len(missing_rooms) != 0:
-                    problem_hvacs.append((hvac, missing_rooms))
-        # if missing rooms were found, then report the issue
-        if len(problem_hvacs) != 0:
-            all_err = []
-            for bad_hvac, missing_rooms in problem_hvacs:
-                msg = 'DetailedHVAC "{}" is referencing the following Rooms that ' \
-                    'are not in the Model:\n{}'.format(
-                        bad_hvac.display_name, '\n'.join(missing_rooms))
-                if detailed:
-                    error_dict = {
-                        'type': 'ValidationError',
-                        'code': '020011',
-                        'error_type': 'DetailedHVAC Rooms Not In Model',
-                        'extension_type': 'Energy',
-                        'element_type': 'HVAC',
-                        'element_id': [bad_hvac.identifier],
-                        'element_name': [bad_hvac.display_name],
-                        'message': msg
-                    }
-                    all_err.append(error_dict)
-                else:
-                    all_err.append(msg)
-            if raise_exception:
-                raise ValueError('\n'.join(all_err))
-            return all_err if detailed else '\n'.join(all_err)
-        return [] if detailed else ''
-
     def check_shw_rooms_in_model(self, raise_exception=True, detailed=False):
         """Check that the room_identifiers of SHWSystems are in the model.
 
@@ -936,6 +886,117 @@ class ModelEnergyProperties(object):
                 if raise_exception:
                     raise ValueError(msg)
                 return msg
+        return [] if detailed else ''
+
+    def check_detailed_hvac_rooms(self, raise_exception=True, detailed=False):
+        """Check that any rooms referenced within a DetailedHVAC exist in the model.
+
+        This method will also check to make sure that two detailed HVACs do not
+        reference the same room and that all rooms referencing a detailed HVAC
+        have setpoints.
+
+        Args:
+            raise_exception: Boolean to note whether a ValueError should be raised if
+                DetailedHVAC reference Rooms that are not in the Model. (Default: True).
+            detailed: Boolean for whether the returned object is a detailed list of
+                dicts with error info or a string with a message. (Default: False).
+
+        Returns:
+            A string with the message or a list with a dictionary if detailed is True.
+        """
+        detailed = False if raise_exception else detailed
+        all_err = []
+
+        # get all of the HVACs and check Rooms for setpoints in the process
+        hvacs = []
+        for room in self.host.rooms:
+            hvac = room.properties.energy._hvac
+            if hvac is not None and isinstance(hvac, DetailedHVAC):
+                if not self._instance_in_array(hvac, hvacs):
+                    hvacs.append(hvac)
+                if room.properties.energy.setpoint is None:
+                    msg = 'Detailed HVAC "{}" is assigned to Room {}, which lacks a ' \
+                        'thermostat setpoint specification.\nThis makes the model ' \
+                        'un-simulate-able in EnergyPlus/OpenStudio.'.format(
+                            hvac.display_name, room.full_id)
+                    if detailed:
+                        error_dict = {
+                            'type': 'ValidationError',
+                            'code': '020011',
+                            'error_type': 'Room With HVAC Lacks Setpoint',
+                            'extension_type': 'Energy',
+                            'element_type': 'Room',
+                            'element_id': [room.identifier],
+                            'element_name': [room.display_name],
+                            'message': msg
+                        }
+                        all_err.append(error_dict)
+                    else:
+                        all_err.append(msg)
+
+        # gather a list of all the rooms and evaluate it against the HVACs
+        room_ids = set(room.identifier for room in self.host.rooms)
+        rooms_with_hvac = set()
+        problem_hvacs, problem_rooms = [], []
+        for hvac in hvacs:
+            missing_rooms = []
+            for zone in hvac.thermal_zones:
+                if zone not in room_ids:
+                    missing_rooms.append(zone)
+                if zone in rooms_with_hvac:
+                    problem_rooms.append(zone)
+                rooms_with_hvac.add(zone)
+            if len(missing_rooms) != 0:
+                problem_hvacs.append((hvac, missing_rooms))
+
+        # if missing room references were found, report them
+        if len(problem_hvacs) != 0:
+            for bad_hvac, missing_rooms in problem_hvacs:
+                msg = 'DetailedHVAC "{}" is referencing the following Rooms that ' \
+                    'are not in the Model:\n{}'.format(
+                        bad_hvac.display_name, '\n'.join(missing_rooms))
+                if detailed:
+                    error_dict = {
+                        'type': 'ValidationError',
+                        'code': '020012',
+                        'error_type': 'DetailedHVAC Rooms Not In Model',
+                        'extension_type': 'Energy',
+                        'element_type': 'HVAC',
+                        'element_id': [bad_hvac.identifier],
+                        'element_name': [bad_hvac.display_name],
+                        'message': msg
+                    }
+                    all_err.append(error_dict)
+                else:
+                    all_err.append(msg)
+
+        # if rooms were found with multiple HVAC references, report them
+        if len(problem_rooms) != 0:
+            room_objs = [room for room in self.host.rooms
+                         if room.identifier in problem_rooms]
+            for mult_hvac_room in room_objs:
+                msg = 'Room {} is referenced by more than one detailed HVAC.'.format(
+                        mult_hvac_room.full_id)
+                if detailed:
+                    error_dict = {
+                        'type': 'ValidationError',
+                        'code': '020013',
+                        'error_type': 'Room Referenced by Multiple Detailed HVAC',
+                        'extension_type': 'Energy',
+                        'element_type': 'Room',
+                        'element_id': [mult_hvac_room.identifier],
+                        'element_name': [mult_hvac_room.display_name],
+                        'message': msg
+                    }
+                    all_err.append(error_dict)
+                else:
+                    all_err.append(msg)
+
+        # return any of the errors that were discovered
+        if len(all_err) != 0:
+            if raise_exception:
+                raise ValueError('\n'.join(all_err))
+            return all_err if detailed else '\n'.join(all_err)
         return [] if detailed else ''
 
     def check_interior_constructions_reversed(
