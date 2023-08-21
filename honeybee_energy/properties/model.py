@@ -1611,8 +1611,13 @@ class ModelEnergyProperties(object):
 
         # change the identifiers of the schedules
         if reset_schedules:
+            sch_skip = ('Seated Adult Activity', 'HumidNoLimit', 'DeHumidNoLimit')
             model_sch = set()
             for sch in model.properties.energy.schedules:
+                if sch.identifier in sch_skip:
+                    schedules[sch.identifier] = sch
+                    model_sch.add(sch.identifier)
+                    continue
                 sch.unlock()
                 old_id, new_id = sch.identifier, res_func(sch.display_name)
                 sch.identifier = new_id
