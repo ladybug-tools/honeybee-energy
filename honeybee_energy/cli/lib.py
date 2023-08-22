@@ -9,7 +9,7 @@ from datetime import datetime
 
 from honeybee_energy.config import folders
 from honeybee_energy.schedule.typelimit import ScheduleTypeLimit
-from honeybee_energy.material.dictutil import dict_to_material
+from honeybee_energy.material.dictutil import dict_to_material, MATERIAL_TYPES
 
 from honeybee_energy.lib.materials import opaque_material_by_identifier, \
     window_material_by_identifier, OPAQUE_MATERIALS, WINDOW_MATERIALS
@@ -689,9 +689,9 @@ def to_model_properties(standards_folder, exclude_abridged, output_file):
 
         # if set to include abridged, add any of such objects to the dictionary
         if not exclude_abridged:
-            _add_abridged_objects(base['schedules'], sch_folder)
+            _add_abridged_objects(base['schedules'], sch_folder, ('ScheduleTypeLimit',))
             _add_abridged_objects(base['program_types'], prog_folder)
-            _add_abridged_objects(base['constructions'], con_folder)
+            _add_abridged_objects(base['constructions'], con_folder, MATERIAL_TYPES)
             _add_abridged_objects(base['construction_sets'], con_set_folder)
 
         # write out the JSON file
@@ -703,13 +703,15 @@ def to_model_properties(standards_folder, exclude_abridged, output_file):
         sys.exit(0)
 
 
-def _add_abridged_objects(model_prop_array, lib_folder):
+def _add_abridged_objects(model_prop_array, lib_folder, ex_types=()):
     """Add abridged resource objects to an existing model properties array.
     
     Args:
         model_prop_array: An array of resource object dictionaries from a
             ModelEnergyProperties dictionary.
         lib_folder: A folder from which abridged objects will be loaded.
+        exclude_types: An optional tuple of object types to be excluded
+            from the result.
     """
     obj_ids = set(obj['identifier'] for obj in model_prop_array)
     for f in os.listdir(lib_folder):
@@ -718,11 +720,12 @@ def _add_abridged_objects(model_prop_array, lib_folder):
             with open(f_path) as json_file:
                 data = json.load(json_file)
             if 'type' in data:  # single object
-                if data['identifier'] not in obj_ids:
+                if data['identifier'] not in obj_ids and data['type'] not in ex_types:
                     model_prop_array.append(data)
             else:  # a collection of several objects
                 for obj_identifier in data:
-                    if obj_identifier not in obj_ids:
+                    if obj_identifier not in obj_ids and \
+                            data[obj_identifier]['type'] not in ex_types:
                         model_prop_array.append(data[obj_identifier])
 
 
