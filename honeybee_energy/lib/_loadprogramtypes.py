@@ -22,6 +22,16 @@ for pro_dict in default_data:
 _default_programs = set(list(_program_types.keys()))
 
 
+def _add_schedule(scheds, p_type_dict, load_id, sch_id):
+    import honeybee_energy.lib.schedules as _s
+    try:
+        sch_id = p_type_dict[load_id][sch_id]
+        if sch_id not in scheds:
+            scheds[sch_id] = _s.schedule_by_identifier(sch_id)
+    except KeyError:
+        pass  # key is not included
+
+
 # then load program types from the user-supplied files
 def load_program_object(pro_dict, loaded_schedules, p_types, misc_scheds):
     """Load a program object from a dictionary and add it to the _program_types dict."""
@@ -35,8 +45,25 @@ def load_program_object(pro_dict, loaded_schedules, p_types, misc_scheds):
         assert pro_dict['identifier'] not in _default_programs, 'Cannot overwrite ' \
             'default program type "{}".'.format(pro_dict['identifier'])
         p_types[pro_dict['identifier']] = program
-    except (TypeError, KeyError, ValueError):
-        pass  # not a Honeybee ProgramType JSON; possibly a comment
+    except Exception:
+        try:
+            if pro_dict['type'] == 'ProgramTypeAbridged':
+                schedules = loaded_schedules
+                _add_schedule(schedules, pro_dict, 'people', 'occupancy_schedule')
+                _add_schedule(schedules, pro_dict, 'people', 'activity_schedule')
+                _add_schedule(schedules, pro_dict, 'lighting', 'schedule')
+                _add_schedule(schedules, pro_dict, 'electric_equipment', 'schedule')
+                _add_schedule(schedules, pro_dict, 'gas_equipment', 'schedule')
+                _add_schedule(schedules, pro_dict, 'service_hot_water', 'schedule')
+                _add_schedule(schedules, pro_dict, 'infiltration', 'schedule')
+                _add_schedule(schedules, pro_dict, 'ventilation', 'schedule')
+                _add_schedule(schedules, pro_dict, 'setpoint', 'heating_schedule')
+                _add_schedule(schedules, pro_dict, 'setpoint', 'cooling_schedule')
+                _add_schedule(schedules, pro_dict, 'setpoint', 'humidifying_schedule')
+                _add_schedule(schedules, pro_dict, 'setpoint', 'dehumidifying_schedule')
+            return ProgramType.from_dict_abridged(pro_dict, schedules)
+        except Exception:
+            pass  # not a Honeybee ProgramType JSON; possibly a comment
 
 
 def load_programtypes_from_folder(programtypes_lib_folder, loaded_schedules):
