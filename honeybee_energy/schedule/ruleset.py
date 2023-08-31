@@ -52,7 +52,7 @@ class ScheduleRuleset(object):
         * winter_designday_schedule
         * holiday_schedule
         * day_schedules
-        * annual_day_schedules
+        * typical_day_schedules
         * is_constant
         * is_single_week
         * user_data
