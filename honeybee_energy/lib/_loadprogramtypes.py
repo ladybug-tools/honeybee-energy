@@ -63,7 +63,7 @@ def load_program_object(pro_dict, loaded_schedules, p_types, misc_scheds):
                 _add_schedule(schedules, pro_dict, 'setpoint', 'dehumidifying_schedule')
             p_types[pro_dict['identifier']] = \
                 ProgramType.from_dict_abridged(pro_dict, schedules)
-        except Exception as e:
+        except Exception:
             pass  # not a Honeybee ProgramType JSON; possibly a comment
 
 

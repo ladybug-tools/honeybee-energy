@@ -41,8 +41,38 @@ def load_construction_set_object(cset_dict, load_cons, con_sets, misc_cons):
         assert cset_dict['identifier'] not in _default_sets, 'Cannot overwrite ' \
             'default construction set "{}".'.format(cset_dict['identifier'])
         con_sets[cset_dict['identifier']] = cset
-    except (TypeError, KeyError, ValueError):
-        pass  # not a Honeybee ConstructionSet JSON; possibly a comment
+    except Exception:
+        try:
+            import honeybee_energy.lib.constructions as _c
+            for key in cset_dict:
+                if isinstance(cset_dict[key], dict):
+                    sub_dict = cset_dict[key]
+                    for sub_key in sub_dict:
+                        if sub_key == 'type' or sub_key in load_cons:
+                            continue
+                        if sub_dict[sub_key] is not None and \
+                                sub_dict[sub_key] not in load_cons:
+                            try:
+                                load_cons[sub_dict[sub_key]] = \
+                                    _c.opaque_construction_by_identifier(
+                                    sub_dict[sub_key])
+                            except ValueError:
+                                load_cons[sub_dict[sub_key]] = \
+                                    _c.window_construction_by_identifier(
+                                    sub_dict[sub_key])
+                elif key == 'shade_construction' and cset_dict[key] is not None \
+                        and cset_dict[key] not in load_cons:
+                    load_cons[cset_dict[key]] = \
+                        _c.shade_construction_by_identifier(cset_dict[key])
+                elif key == 'air_boundary_construction' \
+                        and cset_dict[key] is not None \
+                        and cset_dict[key] not in load_cons:
+                    load_cons[cset_dict[key]] = \
+                        _c.opaque_construction_by_identifier(cset_dict[key])
+            con_sets[cset_dict['identifier']] = \
+                ConstructionSet.from_dict_abridged(cset_dict, load_cons)
+        except Exception:
+            pass  # not a Honeybee ConstructionSet JSON; possibly a comment
 
 
 def load_constructionsets_from_folder(constructionset_lib_folder, loaded_constructions):
