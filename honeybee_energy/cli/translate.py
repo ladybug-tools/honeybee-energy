@@ -28,9 +28,7 @@ from honeybee_energy.config import folders
 _logger = logging.getLogger(__name__)
 
 
-@click.group(
-    help='Commands for translating Honeybee Models files to/from OSM/IDF/gbXML.'
-)
+@click.group(help='Commands for translating Honeybee Models files.')
 def translate():
     pass
 
