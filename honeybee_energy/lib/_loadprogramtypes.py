@@ -32,6 +32,35 @@ def _add_schedule(scheds, p_type_dict, load_id, sch_id):
         pass  # key is not included
 
 
+# then load honeybee extension data into a dictionary but don't make the objects yet
+_program_types_standards_dict = {}
+_program_types_standards_registry = {}
+_building_programs_dict = {}
+
+for ext_folder in folders.standards_extension_folders:
+    _data_dir = os.path.join(ext_folder, 'programtypes')
+    for _p_type_json in os.listdir(_data_dir):
+        if _p_type_json.endswith('.json'):
+            _p_type_dir = os.path.join(_data_dir, _p_type_json)
+            with open(_p_type_dir, 'r') as f:
+                _program_types_standards_dict.update(json.load(f))
+    _data_dir = os.path.join(ext_folder, 'programtypes_registry')
+    if os.path.isdir(_data_dir):
+        for _p_type_json in os.listdir(_data_dir):
+            if _p_type_json.endswith('_registry.json'):
+                _p_type_dir = os.path.join(_data_dir, _p_type_json)
+                vintage = _p_type_json.split('_registry.json')[0]
+                try:
+                    with open(_p_type_dir, 'r') as f:
+                        _program_types_standards_registry[vintage] = json.load(f)
+                except FileNotFoundError:
+                    pass
+    _bld_file = os.path.join(ext_folder, 'building_mix.json')
+    if os.path.isfile(_bld_file):
+        with open(_bld_file, 'r') as f:
+            _building_programs_dict.update(json.load(f))
+
+
 # then load program types from the user-supplied files
 def load_program_object(pro_dict, loaded_schedules, p_types, misc_scheds):
     """Load a program object from a dictionary and add it to the _program_types dict."""
@@ -94,32 +123,3 @@ def load_programtypes_from_folder(programtypes_lib_folder, loaded_schedules):
 loaded_p_types, misc_s = \
     load_programtypes_from_folder(folders.programtype_lib, _schedules)
 _program_types.update(loaded_p_types)
-
-
-# then load honeybee extension data into a dictionary but don't make the objects yet
-_program_types_standards_dict = {}
-_program_types_standards_registry = {}
-_building_programs_dict = {}
-
-for ext_folder in folders.standards_extension_folders:
-    _data_dir = os.path.join(ext_folder, 'programtypes')
-    for _p_type_json in os.listdir(_data_dir):
-        if _p_type_json.endswith('.json'):
-            _p_type_dir = os.path.join(_data_dir, _p_type_json)
-            with open(_p_type_dir, 'r') as f:
-                _program_types_standards_dict.update(json.load(f))
-    _data_dir = os.path.join(ext_folder, 'programtypes_registry')
-    if os.path.isdir(_data_dir):
-        for _p_type_json in os.listdir(_data_dir):
-            if _p_type_json.endswith('_registry.json'):
-                _p_type_dir = os.path.join(_data_dir, _p_type_json)
-                vintage = _p_type_json.split('_registry.json')[0]
-                try:
-                    with open(_p_type_dir, 'r') as f:
-                        _program_types_standards_registry[vintage] = json.load(f)
-                except FileNotFoundError:
-                    pass
-    _bld_file = os.path.join(ext_folder, 'building_mix.json')
-    if os.path.isfile(_bld_file):
-        with open(_bld_file, 'r') as f:
-            _building_programs_dict.update(json.load(f))

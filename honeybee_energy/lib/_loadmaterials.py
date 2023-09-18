@@ -24,6 +24,22 @@ for mat_dict in default_data:
 _default_mats = set(list(_opaque_materials.keys()) + list(_window_materials.keys()))
 
 
+# then load honeybee extension data into a dictionary but don't make the objects yet
+_opaque_mat_standards_dict = {}
+_window_mat_standards_dict = {}
+
+for ext_folder in folders.standards_extension_folders:
+    _data_dir = os.path.join(ext_folder, 'constructions')
+    _opaque_dir = os.path.join(_data_dir, 'opaque_material.json')
+    if os.path.isfile(_opaque_dir):
+        with open(_opaque_dir, 'r') as f:
+            _opaque_mat_standards_dict.update(json.load(f))
+    _window_dir = os.path.join(_data_dir, 'window_material.json')
+    if os.path.isfile(_window_dir):
+        with open(_window_dir, 'r') as f:
+            _window_mat_standards_dict.update(json.load(f))
+
+
 # then load material JSONs from the default and user-supplied files
 def load_material_object(mat_dict, opaque_mats, window_mats):
     """Load a material object from a dictionary and add it to the library dict."""
@@ -65,18 +81,3 @@ def load_materials_from_folder(construction_lib_folder):
 opaque_m, window_m = load_materials_from_folder(folders.construction_lib)
 _opaque_materials.update(opaque_m)
 _window_materials.update(window_m)
-
-# then load honeybee extension data into a dictionary but don't make the objects yet
-_opaque_mat_standards_dict = {}
-_window_mat_standards_dict = {}
-
-for ext_folder in folders.standards_extension_folders:
-    _data_dir = os.path.join(ext_folder, 'constructions')
-    _opaque_dir = os.path.join(_data_dir, 'opaque_material.json')
-    if os.path.isfile(_opaque_dir):
-        with open(_opaque_dir, 'r') as f:
-            _opaque_mat_standards_dict.update(json.load(f))
-    _window_dir = os.path.join(_data_dir, 'window_material.json')
-    if os.path.isfile(_window_dir):
-        with open(_window_dir, 'r') as f:
-            _window_mat_standards_dict.update(json.load(f))

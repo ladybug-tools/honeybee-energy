@@ -47,6 +47,27 @@ _default_constrs = set(
     list(_shade_constructions.keys()))
 
 
+# then load honeybee extension data into a dictionary but don't make the objects yet
+_opaque_constr_standards_dict = {}
+_window_constr_standards_dict = {}
+_shade_constr_standards_dict = {}
+
+for ext_folder in folders.standards_extension_folders:
+    _data_dir = os.path.join(ext_folder, 'constructions')
+    _opaque_dir = os.path.join(_data_dir, 'opaque_construction.json')
+    if os.path.isfile(_opaque_dir):
+        with open(_opaque_dir, 'r') as f:
+            _opaque_constr_standards_dict.update(json.load(f))
+    _window_dir = os.path.join(_data_dir, 'window_construction.json')
+    if os.path.isfile(_window_dir):
+        with open(_window_dir, 'r') as f:
+            _window_constr_standards_dict.update(json.load(f))
+    _shade_dir = os.path.join(_data_dir, 'shade_construction.json')
+    if os.path.isfile(_shade_dir):
+        with open(_shade_dir, 'r') as f:
+            _shade_constr_standards_dict.update(json.load(f))
+
+
 # then load materials and constructions from the user-supplied files
 def lock_and_check_material(mat):
     """Lock a material and check that it's not overwriting a default."""
@@ -92,7 +113,23 @@ def load_construction_object(
             else:  # it's a shade construction
                 shade_cons[con_dict['identifier']] = constr
     except (TypeError, KeyError, ValueError):
-        pass  # not a Honeybee Construction JSON; possibly a comment
+        try:  # see if the construction set is built with constructions in standards
+            import honeybee_energy.lib.materials as _m
+            if 'materials' in con_dict:
+                if con_dict['type'] == 'OpaqueConstructionAbridged':
+                    for mat in con_dict['materials']:
+                        load_mats[mat] = _m.opaque_material_by_identifier(mat)
+                    constr = dict_abridged_to_construction(
+                        con_dict, load_mats, load_sch, False)
+                    opaque_cons[con_dict['identifier']] = constr
+                elif con_dict['type'] == 'WindowConstructionAbridged':
+                    for mat in con_dict['materials']:
+                        load_mats[mat] = _m.window_material_by_identifier(mat)
+                    constr = dict_abridged_to_construction(
+                        con_dict, load_mats, load_sch, False)
+                    window_cons[con_dict['identifier']] = constr
+        except Exception:
+            pass  # not a Honeybee Construction JSON; possibly a comment
 
 
 def load_constructions_from_folder(
@@ -153,23 +190,3 @@ _window_materials.update(window_m)
 _opaque_constructions.update(opaque_c)
 _window_constructions.update(window_c)
 _shade_constructions.update(shade_c)
-
-# then load honeybee extension data into a dictionary but don't make the objects yet
-_opaque_constr_standards_dict = {}
-_window_constr_standards_dict = {}
-_shade_constr_standards_dict = {}
-
-for ext_folder in folders.standards_extension_folders:
-    _data_dir = os.path.join(ext_folder, 'constructions')
-    _opaque_dir = os.path.join(_data_dir, 'opaque_construction.json')
-    if os.path.isfile(_opaque_dir):
-        with open(_opaque_dir, 'r') as f:
-            _opaque_constr_standards_dict.update(json.load(f))
-    _window_dir = os.path.join(_data_dir, 'window_construction.json')
-    if os.path.isfile(_window_dir):
-        with open(_window_dir, 'r') as f:
-            _window_constr_standards_dict.update(json.load(f))
-    _shade_dir = os.path.join(_data_dir, 'shade_construction.json')
-    if os.path.isfile(_shade_dir):
-        with open(_shade_dir, 'r') as f:
-            _shade_constr_standards_dict.update(json.load(f))
