@@ -57,7 +57,26 @@ def test_opaque_construction_init(userdatadict):
         constr_dup.outside_solar_reflectance == 0.25
     assert wall_constr.outside_visible_reflectance == \
         constr_dup.outside_visible_reflectance == pytest.approx(0.2, rel=1e-2)
-    
+
+
+def test_opaque_init_from_simple_parameters():
+    """Test the initialization of OpaqueConstruction.from_simple_parameters()."""
+    wall_constr = OpaqueConstruction.from_simple_parameters(
+        'NECB Wall Construction', 3.29356, 'MediumRough', 0.95, 0.6)
+
+    assert wall_constr.identifier == 'NECB Wall Construction'
+    assert len(wall_constr.materials) == 1
+    assert wall_constr.r_value == pytest.approx(3.29356, rel=1e-2)
+    assert wall_constr.u_value == pytest.approx(0.30362, rel=1e-2)
+    assert wall_constr.u_factor == pytest.approx(0.2894284, rel=1e-2)
+    assert wall_constr.r_factor == pytest.approx(3.4550859, rel=1e-2)
+    assert wall_constr.inside_emissivity == 0.95
+    assert wall_constr.inside_solar_reflectance == 0.4
+    assert wall_constr.inside_visible_reflectance == 0.4
+    assert wall_constr.outside_emissivity == 0.95
+    assert wall_constr.outside_solar_reflectance == 0.4
+    assert wall_constr.outside_visible_reflectance == 0.4
+
 
 def test_opaque_lockability(userdatadict):
     """Test the lockability of the construction."""
@@ -244,6 +263,20 @@ def test_window_construction_init(userdatadict):
     assert double_clear.u_factor == pytest.approx(2.72, rel=1e-2)
     assert double_low_e.u_factor == pytest.approx(1.698, rel=1e-2)
     assert triple_clear.u_factor == pytest.approx(1.757, rel=1e-2)
+
+
+def test_window_init_from_simple_parameters():
+    """Test the initialization of WindowConstruction.from_simple_parameters()."""
+    double_low_e = WindowConstruction.from_simple_parameters(
+        'NECB Window Construction', 1.7, 0.4)
+
+    assert double_low_e.identifier == 'NECB Window Construction'
+    assert len(double_low_e.materials) == 1
+    assert double_low_e.r_value == pytest.approx(0.41, rel=1e-2)
+    assert double_low_e.u_value == pytest.approx(2.4, rel=1e-2)
+    assert double_low_e.u_factor == pytest.approx(1.7, rel=1e-2)
+    assert double_low_e.r_factor == pytest.approx(0.58, rel=1e-2)
+    assert double_low_e.solar_transmittance < double_low_e.shgc
 
 
 def test_window_lockability(userdatadict):

@@ -58,6 +58,41 @@ class OpaqueConstruction(_ConstructionBase):
         _ConstructionBase.__init__(self, identifier, materials)
         self._properties = OpaqueConstructionProperties(self)
 
+    @classmethod
+    def from_simple_parameters(
+        cls, identifier, r_value, roughness='MediumRough',
+        thermal_absorptance=0.9, solar_absorptance=0.7, visible_absorptance=None
+    ):
+        """Create a no-mass OpaqueConstruction from a specification of simple parameters.
+
+        The result will have a single EnergyMaterialNoMass layer that is derived
+        from the input parameters.
+
+        Args:
+            identifier: Text string for a unique construction ID.
+                Must be <90 characters and not contain any EnergyPlus special
+                characters. This will be used to identify the object across a model
+                and in the exported IDF.
+            r_value: Number for the R-value of the construction [m2-K/W].
+            roughness: Text describing the relative roughness of the construction.
+                Must be one of the following: 'VeryRough', 'Rough', 'MediumRough',
+                'MediumSmooth', 'Smooth', 'VerySmooth'. Default: 'MediumRough'.
+            thermal_absorptance: A number between 0 and 1 for the fraction of
+                incident long wavelength radiation that is absorbed by the construction.
+                Default: 0.9.
+            solar_absorptance: A number between 0 and 1 for the fraction of incident
+                solar radiation absorbed by the construction. Default: 0.7.
+            visible_absorptance: A number between 0 and 1 for the fraction of incident
+                visible wavelength radiation absorbed by the construction.
+                Default value is None, which will use the same value as the
+                solar_absorptance.
+        """
+        mat_layer = EnergyMaterialNoMass(
+            '{} Material'.format(identifier), r_value, roughness,
+            thermal_absorptance, solar_absorptance, visible_absorptance
+        )
+        return cls(identifier, (mat_layer,))
+
     @property
     def materials(self):
         """Get or set the list of materials in the construction (outside to inside).

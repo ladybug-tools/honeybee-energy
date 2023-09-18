@@ -76,6 +76,32 @@ class WindowConstruction(_ConstructionBase):
         self.frame = frame
         self._properties = WindowConstructionProperties(self)
 
+    @classmethod
+    def from_simple_parameters(cls, identifier, u_factor, shgc, vt=0.6):
+        """Create a WindowConstruction from a specification of simple parameters.
+
+        The result will have a single EnergyWindowMaterialSimpleGlazSys layer that
+        is derived from the input parameters.
+
+        Args:
+            identifier: Text string for a unique construction ID.
+                Must be <90 characters and not contain any EnergyPlus special
+                characters. This will be used to identify the object across a model
+                and in the exported IDF.
+            u_factor: A number for the U-factor of the glazing system [W/m2-K]
+                including standard air gap resistances on either side of the system.
+            shgc: A number between 0 and 1 for the solar heat gain coefficient
+                of the glazing system. This includes both directly transmitted solar
+                heat as well as solar heat that is absorbed by the glazing system and
+                conducts towards the interior.
+            vt: A number between 0 and 1 for the visible transmittance of the
+                glazing system. Default: 0.6.
+        """
+        mat_layer = EnergyWindowMaterialSimpleGlazSys(
+            '{} Material'.format(identifier), u_factor, shgc, vt
+        )
+        return cls(identifier, (mat_layer,))
+
     @property
     def materials(self):
         """Get or set the list of materials in the construction (outside to inside).
