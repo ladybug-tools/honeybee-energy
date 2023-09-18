@@ -99,6 +99,8 @@ class WindowConstructionShade(object):
         * gap_count
         * is_groupable
         * is_zone_groupable
+        * inside_material
+        * outside_material
         * user_data
         * properties
     """
@@ -529,6 +531,22 @@ class WindowConstructionShade(object):
     def is_room_groupable(self):
         """Get a boolean for whether controls allow grouping by room."""
         return self.control_type in self.ROOM_GROUPABLE_TYPES
+
+    @property
+    def inside_material(self):
+        """The the inside material layer of the construction.
+
+        Useful for checking that an asymmetric construction is correctly assigned.
+        """
+        return self.materials[-1]
+
+    @property
+    def outside_material(self):
+        """The the outside material layer of the construction.
+
+        Useful for checking that an asymmetric construction is correctly assigned.
+        """
+        return self.materials[0]
 
     @property
     def _ep_shading_type(self):
