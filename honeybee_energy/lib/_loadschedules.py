@@ -24,6 +24,16 @@ for sch_dict in default_data:
 _default_schedules = set(list(_schedules.keys()))
 
 
+# then load honeybee extension data into a dictionary but don't make the objects yet
+_schedule_standards_dict = {}
+
+for ext_folder in folders.standards_extension_folders:
+    _data_dir = os.path.join(ext_folder, 'schedules', 'schedule.json')
+    if os.path.isfile(_data_dir):
+        with open(_data_dir, 'r') as f:
+            _schedule_standards_dict.update(json.load(f))
+
+
 # then load schedules from the user-supplied files
 def lock_and_check_schedule(sch):
     """Lock a schedule and check that it's not overwriting a default."""
@@ -75,13 +85,3 @@ def load_schedules_from_folder(schedule_lib_folder, loaded_type_limits):
 
 u_scheds = load_schedules_from_folder(folders.schedule_lib, _schedule_type_limits)
 _schedules.update(u_scheds)
-
-
-# then load honeybee extension data into a dictionary but don't make the objects yet
-_schedule_standards_dict = {}
-
-for ext_folder in folders.standards_extension_folders:
-    _data_dir = os.path.join(ext_folder, 'schedules', 'schedule.json')
-    if os.path.isfile(_data_dir):
-        with open(_data_dir, 'r') as f:
-            _schedule_standards_dict.update(json.load(f))
