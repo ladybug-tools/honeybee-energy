@@ -58,6 +58,9 @@ def test_opaque_construction_init(userdatadict):
     assert wall_constr.outside_visible_reflectance == \
         constr_dup.outside_visible_reflectance == pytest.approx(0.2, rel=1e-2)
 
+    assert wall_constr.inside_material == constr_dup.inside_material == gypsum
+    assert wall_constr.outside_material == constr_dup.outside_material == concrete
+
 
 def test_opaque_init_from_simple_parameters():
     """Test the initialization of OpaqueConstruction.from_simple_parameters()."""
@@ -263,6 +266,11 @@ def test_window_construction_init(userdatadict):
     assert double_clear.u_factor == pytest.approx(2.72, rel=1e-2)
     assert double_low_e.u_factor == pytest.approx(1.698, rel=1e-2)
     assert triple_clear.u_factor == pytest.approx(1.757, rel=1e-2)
+
+    assert double_low_e.inside_material == \
+        double_low_e_dup.inside_material == clear_glass
+    assert double_low_e.outside_material == \
+        double_low_e_dup.outside_material == lowe_glass
 
 
 def test_window_init_from_simple_parameters():

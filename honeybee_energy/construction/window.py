@@ -63,7 +63,10 @@ class WindowConstruction(_ConstructionBase):
         * glazing_count
         * gap_count
         * glazing_materials
+        * inside_material
+        * outside_material
         * user_data
+        * properties
     """
     __slots__ = ('_frame',)
 
@@ -363,6 +366,22 @@ class WindowConstruction(_ConstructionBase):
         """
         return [mat for mat in self.materials
                 if isinstance(mat, _EnergyWindowMaterialGlazingBase)]
+
+    @property
+    def inside_material(self):
+        """The the inside material layer of the construction.
+
+        Useful for checking that an asymmetric construction is correctly assigned.
+        """
+        return self.materials[-1]
+
+    @property
+    def outside_material(self):
+        """The the outside material layer of the construction.
+
+        Useful for checking that an asymmetric construction is correctly assigned.
+        """
+        return self.materials[0]
 
     def solar_optical_properties(self):
         """Get solar transmittance + reflectance, and absorptances for each glass pane.

@@ -293,6 +293,24 @@ class WindowConstructionDynamic(object):
         return self._constructions[0].gap_count
 
     @property
+    def inside_material(self):
+        """The the inside material layer of the first construction.
+
+        Useful for checking that an asymmetric construction is correctly assigned.
+        """
+        mats = self._constructions[0].materials
+        return mats[-1]
+
+    @property
+    def outside_material(self):
+        """The the outside material layer of the first construction.
+
+        Useful for checking that an asymmetric construction is correctly assigned.
+        """
+        mats = self._constructions[0].materials
+        return mats[0]
+
+    @property
     def user_data(self):
         """Get or set an optional dictionary for additional meta data for this object.
 

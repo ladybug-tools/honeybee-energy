@@ -49,7 +49,10 @@ class OpaqueConstruction(_ConstructionBase):
         * mass_area_density
         * area_heat_capacity
         * thickness
+        * inside_material
+        * outside_material
         * user_data
+        * properties
     """
     __slots__ = ()
 
@@ -156,6 +159,22 @@ class OpaqueConstruction(_ConstructionBase):
         for mat in self.materials:
             thickness += mat.thickness
         return thickness
+
+    @property
+    def inside_material(self):
+        """The the inside material layer of the construction.
+
+        Useful for checking that an asymmetric construction is correctly assigned.
+        """
+        return self.materials[-1]
+
+    @property
+    def outside_material(self):
+        """The the outside material layer of the construction.
+
+        Useful for checking that an asymmetric construction is correctly assigned.
+        """
+        return self.materials[0]
 
     def temperature_profile(self, outside_temperature=-18, inside_temperature=21,
                             outside_wind_speed=6.7, solar_irradiance=0,
