@@ -1560,7 +1560,7 @@ class ModelEnergyProperties(object):
         """
         model = Model.from_dict(data)
         materials, constructions, construction_sets, schedule_type_limits, \
-            schedules, program_types, hvacs, shws = \
+            schedules, program_types, _, _ = \
             model.properties.energy.load_properties_from_dict(data)
         res_func = clean_and_id_ep_string if add_uuid else clean_ep_string
 

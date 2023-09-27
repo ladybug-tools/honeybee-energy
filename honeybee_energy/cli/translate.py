@@ -10,7 +10,7 @@ import re
 from ladybug.futil import preparedir
 from ladybug.analysisperiod import AnalysisPeriod
 from honeybee.model import Model
-from honeybee.typing import clean_rad_string
+from honeybee.typing import clean_rad_string, clean_and_number_ep_string
 from honeybee.config import folders as hb_folders
 
 from honeybee_energy.simulation.parameter import SimulationParameter
@@ -61,6 +61,11 @@ def translate():
 @click.option('--idf-file', '-idf', help='Optional path where the IDF will be copied '
               'after it is translated in the folder. If None, the file will not '
               'be copied.', type=str, default=None, show_default=True)
+@click.option('--room-ids/--room-names', ' /-n', help='Flag to note whether a '
+              'cleaned version of the Room display names should be used when '
+              'translating the Model to OSM and IDF. Note that this means that the '
+              'EnergyPlus results will not be easily map-able back to the original '
+              'HBJSON Model.', default=True, show_default=True)
 @click.option('--check-model/--bypass-check', ' /-bc', help='Flag to note whether the '
               'Model should be re-serialized to Python and checked before it is '
               'translated to .osm. The check is not needed if the model-json was '
@@ -72,7 +77,7 @@ def translate():
               type=click.File('w'), default='-', show_default=True)
 def model_to_osm(
         model_file, sim_par_json, epw_file, folder, osm_file, idf_file,
-        check_model, log_file):
+        room_ids, check_model, log_file):
     """Translate a Honeybee Model file into an OpenStudio Model and corresponding IDF.
 
     \b
@@ -98,6 +103,27 @@ def model_to_osm(
         # run the Model re-serialization and check if specified
         if check_model:
             model_file = measure_compatible_model_json(model_file, folder)
+        
+        # use room display names if requested
+        if not room_ids:
+            if sys.version_info < (3, 0):
+                with open(model_file) as mf:
+                    model_dict = json.load(mf)
+            else:
+                with open(model_file, encoding='utf-8') as mf:
+                    model_dict = json.load(mf)
+            room_dict = {}
+            for room in model_dict['rooms']:
+                if 'display_name' in room:
+                    room['identifier'] = clean_and_number_ep_string(
+                        room['display_name'], room_dict, 'Room identifier')
+            if (sys.version_info < (3, 0)):  # we need to manually encode it as UTF-8
+                with open(model_file, 'w') as fp:
+                    model_str = json.dumps(model_dict, ensure_ascii=False)
+                    fp.write(workflow_str.encode('utf-8'))
+            else:
+                with open(model_file, 'w', encoding='utf-8') as fp:
+                    json.dump(model_dict, fp, ensure_ascii=False)
 
         # Write the osw file to translate the model to osm
         osw = to_openstudio_osw(folder, model_file, sim_par_json, epw_file=epw_file)
