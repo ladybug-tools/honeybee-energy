@@ -17,7 +17,7 @@ tar zxvf ${OPENSTUDIO_TAR_FILENAME}
 mv OpenStudio-*-Ubuntu-*/ ${OPENSTUDIO_FILENAME}
 
 # Get lbt-measures
-export LBT_MEASURES_VERSION="0.2.2"
+export LBT_MEASURES_VERSION="0.2.4"
 export LBT_MEASURES_URL="https://github.com/ladybug-tools/lbt-measures/archive/v${LBT_MEASURES_VERSION}.tar.gz"
 export LBT_MEASURES_TAR='lbt-measures.tar.gz'
 export LBT_MEASURES_FILENAME='measures-gem'
@@ -37,7 +37,7 @@ tar zxvf ${HONEYBEE_OPENSTUDIO_GEM_TAR}
 mv honeybee-openstudio-gem-*/ ${HONEYBEE_GEM_FILENAME}
 
 # Get ironbug
-export IRONBUG_VERSION="1.9.5"
+export IRONBUG_VERSION="1.9.6"
 export IRONBUG_URL="https://github.com/MingboPeng/Ironbug/releases/download/v${IRONBUG_VERSION}/ironbug.console.linux-${IRONBUG_VERSION}.zip"
 export IRONBUG_ZIP='ironbug.console.linux.zip'
 export IRONBUG_FILENAME='ironbug'
