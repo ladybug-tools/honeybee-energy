@@ -41,6 +41,7 @@ def test_energy_properties():
     assert isinstance(room.properties.energy.hvac, IdealAirSystem)
     assert room.properties.energy.program_type == office_program
     assert room.properties.energy.is_conditioned
+    assert not room.properties.energy.has_overridden_loads
     assert room.properties.energy.people == office_program.people
     assert room.properties.energy.lighting == office_program.lighting
     assert room.properties.energy.electric_equipment == office_program.electric_equipment
@@ -50,8 +51,8 @@ def test_energy_properties():
     assert room.properties.energy.setpoint == office_program.setpoint
 
 
-def test_floor_area_with_contructions():
-    """Test the floor_area_with_contructions method."""
+def test_floor_area_with_constructions():
+    """Test the floor_area_with_constructions method."""
     room = Room.from_box('ShoeBox', 5, 10, 3, 90, Point3D(0, 0, 3))
     assert room.properties.energy.floor_area_with_constructions('Meters') < \
         room.floor_area
@@ -121,6 +122,7 @@ def test_default_properties():
     assert room.properties.energy.program_type.identifier == 'Plenum'
     assert room.properties.energy.hvac is None
     assert not room.properties.energy.is_conditioned
+    assert not room.properties.energy.has_overridden_loads
     assert room.properties.energy.people is None
     assert room.properties.energy.lighting is None
     assert room.properties.energy.electric_equipment is None
@@ -201,6 +203,7 @@ def test_set_program_type():
     assert room.properties.energy.ventilation.flow_per_area == 0
     assert room.properties.energy.ventilation.air_changes_per_hour == 6
     assert room.properties.energy.ventilation.schedule == lab_ventilation
+    assert not room.properties.energy.has_overridden_loads
 
 
 def test_set_loads():
@@ -236,6 +239,7 @@ def test_set_loads():
     assert room.properties.energy.setpoint.heating_setback == 22
     assert room.properties.energy.setpoint.cooling_setpoint == 24
     assert room.properties.energy.setpoint.cooling_setback == 24
+    assert room.properties.energy.has_overridden_loads
 
 
 def test_loads_absolute():
@@ -259,6 +263,7 @@ def test_loads_absolute():
     room.properties.energy.absolute_ventilation(0.5)
     assert room.properties.energy.ventilation.flow_per_zone == \
         pytest.approx(0.5, abs=1e-3)
+    assert room.properties.energy.has_overridden_loads
 
 
 def test_make_plenum():
@@ -270,11 +275,13 @@ def test_make_plenum():
     assert room.properties.energy.people is not None
     assert room.properties.energy.infiltration is not None
     assert room.properties.energy.is_conditioned
+    assert not room.properties.energy.has_overridden_loads
 
     room.properties.energy.make_plenum()
     assert room.properties.energy.people is None
     assert room.properties.energy.infiltration is not None
     assert not room.properties.energy.is_conditioned
+    assert room.properties.energy.has_overridden_loads
 
 
 def test_make_ground():
@@ -286,12 +293,14 @@ def test_make_ground():
     assert room.properties.energy.people is not None
     assert room.properties.energy.infiltration is not None
     assert room.properties.energy.is_conditioned
+    assert not room.properties.energy.has_overridden_loads
 
     soil_constr = OpaqueConstruction('Conc_Pavement', [concrete_hw])
     room.properties.energy.make_ground(soil_constr)
     assert room.properties.energy.people is None
     assert room.properties.energy.infiltration is None
     assert not room.properties.energy.is_conditioned
+    assert not room.properties.energy.has_overridden_loads
 
 
 def test_duplicate():

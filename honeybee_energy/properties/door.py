@@ -226,13 +226,14 @@ class DoorEnergyProperties(object):
             total_irr = sol_irr * (glass_area + frame_area)
             return (glass_trans + glass_conduct + frame_conduct) / total_irr
 
-    def reset_to_default(self):
+    def reset_construction_to_set(self):
         """Reset a construction assigned at the level of this Door to the default.
 
         This means that the Door's construction will be assigned by a ConstructionSet.
         """
         self._construction = None
-        self._vent_opening = None
+        for shade in self.host.shades:
+            shade.properties.energy.reset_construction_to_set()
 
     @classmethod
     def from_dict(cls, data, host):

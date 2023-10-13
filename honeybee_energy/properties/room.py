@@ -78,6 +78,7 @@ class RoomEnergyProperties(object):
         * process_loads
         * internal_masses
         * is_conditioned
+        * has_overridden_loads
     """
 
     __slots__ = (
@@ -391,6 +392,20 @@ class RoomEnergyProperties(object):
     def is_conditioned(self):
         """Boolean to note whether the Room is conditioned."""
         return self._hvac is not None
+
+    @property
+    def has_overridden_loads(self):
+        """Boolean to note whether the Room has any loads that override the Program.
+
+        This will happen if any of the absolute methods are used or if any of the
+        individual Room load objects have been set.
+        """
+        load_attr = (
+            self._people, self._lighting, self._electric_equipment,
+            self._gas_equipment, self._service_hot_water, self._infiltration,
+            self._ventilation, self._setpoint
+        )
+        return not all(load is None for load in load_attr)
 
     def absolute_people(self, person_count, conversion=1):
         """Set the absolute number of people in the Room.
@@ -1138,13 +1153,11 @@ class RoomEnergyProperties(object):
                 face.boundary_condition = boundary_conditions.ground
                 face.properties.energy.construction = int_soil
 
-    def reset_to_default(self):
-        """Reset all of the properties assigned at the level of this Room to the default.
+    def reset_loads_to_program(self):
+        """Reset all loads on the Room to be assigned from the ProgramType.
+
+        This will erase any loads that have been overridden specifically for this Room.
         """
-        self._program_type = None
-        self._construction_set = None
-        self._hvac = None
-        self._shw = None
         self._people = None
         self._lighting = None
         self._electric_equipment = None
@@ -1153,6 +1166,30 @@ class RoomEnergyProperties(object):
         self._infiltration = None
         self._ventilation = None
         self._setpoint = None
+
+    def reset_constructions_to_set(self):
+        """Reset all constructions on the Room to be assigned from the ConstructionSet.
+
+        This will erase any constructions that have been assigned to individual Faces,
+        Apertures, Doors, and Shades.
+        """
+        for face in self.host.faces:
+            face.properties.energy.reset_construction_to_set()
+        for shade in self.host.shades:
+            shade.properties.energy.reset_construction_to_set()
+
+    def reset_to_default(self):
+        """Reset all of the energy properties assigned to this Room to the default.
+
+        This includes resetting all loads, the program, all constructions and the
+        constructions set, and all other energy properties.
+        """
+        self.reset_loads_to_program()
+        self.reset_constructions_to_set()
+        self._program_type = None
+        self._construction_set = None
+        self._hvac = None
+        self._shw = None
         self._daylighting_control = None
         self._window_vent_control = None
         self._process_loads = []
