@@ -100,8 +100,10 @@ class ShadeEnergyProperties(object):
         """
         return self._construction is not None
 
-    def reset_to_default(self):
+    def reset_construction_to_set(self):
         """Reset the construction and transmittance schedule of this Shade to default.
+
+        This means that the Shade's construction will be assigned by a ConstructionSet.
         """
         self._construction = None
         self._transmittance_schedule = None

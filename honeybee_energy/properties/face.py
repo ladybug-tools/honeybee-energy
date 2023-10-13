@@ -166,12 +166,17 @@ class FaceEnergyProperties(object):
         conducted = heat_gen * (1 - (sum(r_vals[1:]) / r_factor))
         return conducted / sol_irr
 
-    def reset_to_default(self):
-        """Reset a construction assigned at the level of this Face to the default.
+    def reset_construction_to_set(self):
+        """Reset the construction assigned to this Face and its children to the default.
 
-        This means that the Face's construction will be assigned by a ConstructionSet.
+        This means that the Face's construction and its child Aperture/Door
+        constructions will be assigned by a ConstructionSet.
         """
         self._construction = None
+        for sf in self.host.sub_faces:
+            sf.properties.energy.reset_construction_to_set()
+        for shade in self.host.shades:
+            shade.properties.energy.reset_construction_to_set()
 
     @classmethod
     def from_dict(cls, data, host):
