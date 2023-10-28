@@ -76,6 +76,7 @@ class RoomEnergyProperties(object):
         * daylighting_control
         * window_vent_control
         * process_loads
+        * total_process_load
         * internal_masses
         * is_conditioned
         * has_overridden_loads
