@@ -393,6 +393,38 @@ class ScheduleFixedInterval(object):
         values = self.values_at_timestep(timestep, start_date, end_date)
         return HourlyContinuousCollection(header, values)
 
+    def shift_by_step(self, step_count=1, timestep=1):
+        """Get a version of this object where the values are shifted.
+
+        This is useful when attempting to derive a set of diversified schedules
+        from a single average schedule.
+
+        Args:
+            step_count: An integer for the number of timesteps at which the schedule
+                will be shifted. Positive values indicate a shift of values forward
+                in time while negative values indicate a shift backwards in
+                time. (Default: 1).
+            timestep: An integer for the number of timesteps per hour at which the
+                shifting is occurring. This must be a value between 1 and 60, which
+                is evenly divisible by 60. 1 indicates that each step is an hour
+                while 60 indicates that each step is a minute. (Default: 1).
+        """
+        # figure out the number of values to be moved
+        val_count = step_count * int(self.timestep / timestep)
+        # shift by the number of values
+        if val_count >= 0:
+            new_values = self.values[-val_count:] + self.values[:-val_count]
+        else:
+            new_values = list(self.values)
+            for _ in range(abs(val_count)):
+                new_values.append(new_values.pop(0))
+        # return the shifted schedule
+        new_id = '{}_Shift_{}mins'.format(
+            self.identifier, int((60 / timestep) * step_count))
+        return ScheduleFixedInterval(
+            new_id, new_values, self.schedule_type_limit, self.timestep,
+            self.start_date, self.placeholder_value, self.interpolate)
+
     @classmethod
     def from_idf(cls, idf_string, type_idf_string=None):
         """Create a ScheduleFixedInterval from an EnergyPlus IDF text strings.

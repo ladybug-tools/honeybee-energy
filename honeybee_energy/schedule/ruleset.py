@@ -447,7 +447,7 @@ class ScheduleRuleset(object):
             new_rule = rule.duplicate()
             new_rule.schedule_day = shift_dict[rule.schedule_day.identifier]
             new_rules.append(new_rule)
-        # retrun the shifted schedule
+        # return the shifted schedule
         new_id = '{}_Shift_{}mins'.format(
             self.identifier, int((60 / timestep) * step_count))
         return ScheduleRuleset(

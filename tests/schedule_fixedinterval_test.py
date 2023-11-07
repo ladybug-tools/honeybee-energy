@@ -79,6 +79,23 @@ def test_schedule_fixedinterval_single_day_fine_timestep():
     assert increase_sched.start_date == Date(6, 21)
 
 
+def test_schedule_fixedinterval_shift_by_step():
+    """Test the ScheduleFixedInterval shift_by_step method."""
+    sch_day_vals = list(range(24)) * 365
+    repeating_sched = ScheduleFixedInterval('Repeating Daily Sch', sch_day_vals)
+
+    shift_ahead = repeating_sched.shift_by_step(2)
+    shift_behind = repeating_sched.shift_by_step(-2)
+    assert len(shift_ahead) == 8760
+    assert shift_ahead[0] == 22
+    assert shift_ahead[1] == 23
+    assert shift_ahead[2] == 0
+    assert len(shift_behind) == 8760
+    assert shift_behind[0] == 2
+    assert shift_behind[-1] == 1
+    assert shift_behind[-2] == 0
+
+
 def test_schedule_fixedinterval_equality():
     """Test the ScheduleFixedInterval to/from dict methods."""
     trans_sched = ScheduleFixedInterval(
