@@ -142,7 +142,7 @@ class _LoadBase(object):
     @staticmethod
     def _shift_schedule(schedule, schedule_offset, timestep):
         """Take a schedule and shift it behind and then ahead."""
-        if schedule_offset == 0 or not isinstance(schedule, ScheduleRuleset):
+        if schedule_offset == 0:
             return [schedule] * 3
         else:
             behind = schedule.shift_by_step(-schedule_offset, timestep)
