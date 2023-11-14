@@ -142,8 +142,13 @@ def measure_compatible_model_json(
 
     # write the dictionary into a file
     preparedir(dest_dir, remove_content=False)  # create the directory if it's not there
-    with open(dest_file_path, writemode) as fp:
-        json.dump(model_dict, fp, ensure_ascii=False)
+    if (sys.version_info < (3, 0)):  # we need to manually encode it as UTF-8
+        with open(dest_file_path, writemode) as fp:
+            model_str = json.dumps(model_dict, ensure_ascii=False)
+            fp.write(model_str.encode('utf-8'))
+    else:
+        with open(dest_file_path, writemode, encoding='utf-8') as fp:
+            json.dump(model_dict, fp, ensure_ascii=False)
 
     return os.path.abspath(dest_file_path)
 
