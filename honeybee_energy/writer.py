@@ -2,6 +2,7 @@
 """Methods to write to idf."""
 from .config import folders
 
+from ladybug_geometry.geometry3d import Face3D
 from honeybee.room import Room
 from honeybee.face import Face
 from honeybee.boundarycondition import Outdoors, Surface, Ground
@@ -48,6 +49,64 @@ def generate_idf_string(object_type, values, comments=None):
         else:  # include an extra line break
             ep_str = ''.join((ep_str, '\n {};'.format(values[-1])))
     return ep_str
+
+
+def shade_mesh_to_idf(shade_mesh):
+    """Generate an IDF string representation of a ShadeMesh.
+
+    Note that the resulting string will possess both the Shading object
+    as well as a ShadingProperty:Reflectance if the Shade's construction
+    is not in line with the EnergyPlus default of 0.2 reflectance.
+
+    Args:
+        shade_mesh: A honeybee ShadeMesh for which an IDF representation
+            will be returned.
+    """
+    trans_sched = shade_mesh.properties.energy.transmittance_schedule.identifier if \
+        shade_mesh.properties.energy.transmittance_schedule is not None else ''
+    all_shd_str = []
+    for i, shade in enumerate(shade_mesh.geometry.face_vertices):
+        # process the geometry to get upper-left vertices
+        shade_face = Face3D(shade)
+        ul_verts = shade_face.upper_left_counter_clockwise_vertices
+
+        # create the Shading:Detailed IDF string
+        values = (
+            '{}_{}'.format(shade_mesh.identifier, i),
+            trans_sched,
+            len(ul_verts),
+            ',\n '.join('%.3f, %.3f, %.3f' % (v.x, v.y, v.z) for v in ul_verts)
+        )
+        comments = (
+            'name',
+            'transmittance schedule',
+            'number of vertices',
+            ''
+        )
+        shade_str = generate_idf_string('Shading:Building:Detailed', values, comments)
+        all_shd_str.append(shade_str)
+
+        # create the ShadingProperty:Reflectance if construction is not default
+        construction = shade_mesh.properties.energy.construction
+        if not construction.is_default:
+            values = (
+                shade_mesh.identifier,
+                construction.solar_reflectance,
+                construction.visible_reflectance
+            )
+            comments = (
+                'shading surface name',
+                'diffuse solar reflectance',
+                'diffuse visible reflectance'
+            )
+            if construction.is_specular:
+                values = values + (1, construction.identifier)
+                comments = comments + ('glazed fraction', 'glazing construction')
+            constr_str = generate_idf_string(
+                'ShadingProperty:Reflectance', values, comments)
+            all_shd_str.append(constr_str)
+
+    return '\n\n'.join(all_shd_str)
 
 
 def shade_to_idf(shade):
@@ -769,6 +828,8 @@ def model_to_idf(
         model_str.append(ap.to.idf_shade(ap))
     for dr in model.orphaned_doors:
         model_str.append(dr.to.idf_shade(dr))
+    for shade_mesh in model.shade_meshes:
+        model_str.append(shade_mesh.to.idf(shade_mesh))
 
     # write any EMS programs for dynamic constructions
     if len(dynamic_cons) != 0:
