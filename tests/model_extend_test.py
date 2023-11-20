@@ -1,10 +1,14 @@
 """Tests the features that honeybee_energy adds to honeybee_core Model."""
+from ladybug_geometry.geometry3d import Point3D, Vector3D, Plane, Face3D, \
+    Polyface3D, Mesh3D
+
 from honeybee.model import Model
 from honeybee.room import Room
 from honeybee.face import Face
 from honeybee.shade import Shade
 from honeybee.aperture import Aperture
 from honeybee.door import Door
+from honeybee.shademesh import ShadeMesh
 from honeybee.boundarycondition import boundary_conditions, Ground, Outdoors
 from honeybee.facetype import face_types
 
@@ -33,11 +37,6 @@ from honeybee_energy.lib.constructions import generic_exterior_wall, \
     generic_interior_wall, generic_interior_floor, generic_interior_ceiling, \
     generic_double_pane, generic_single_pane
 
-from ladybug_geometry.geometry3d.pointvector import Point3D, Vector3D
-from ladybug_geometry.geometry3d.plane import Plane
-from ladybug_geometry.geometry3d.face import Face3D
-from ladybug_geometry.geometry3d.polyface import Polyface3D
-
 import random
 import pytest
 
@@ -56,7 +55,12 @@ def test_energy_properties():
         'Fritted Glass', 0.5, schedule_types.fractional)
     south_face.apertures[0].outdoor_shades[0].properties.energy.transmittance_schedule = \
         fritted_glass_trans
-    model = Model('Tiny_House', [room])
+    pts = (Point3D(0, 0, 4), Point3D(0, 2, 4), Point3D(2, 2, 4),
+           Point3D(2, 0, 4), Point3D(4, 0, 4))
+    mesh = Mesh3D(pts, [(0, 1, 2, 3), (2, 3, 4)])
+    awning_1 = ShadeMesh('Awning_1', mesh)
+
+    model = Model('Tiny_House', [room], shade_meshes=[awning_1])
 
     assert hasattr(model.properties, 'energy')
     assert isinstance(model.properties.energy, ModelEnergyProperties)
@@ -306,7 +310,14 @@ def test_to_from_dict():
         'Tree Transmittance', 0.75, schedule_types.fractional)
     tree_canopy.properties.energy.transmittance_schedule = tree_trans
 
-    model = Model('TinyHouse', [room], orphaned_shades=[tree_canopy])
+    pts = (Point3D(0, 0, 4), Point3D(0, 2, 4), Point3D(2, 2, 4),
+           Point3D(2, 0, 4), Point3D(4, 0, 4))
+    mesh = Mesh3D(pts, [(0, 1, 2, 3), (2, 3, 4)])
+    awning_1 = ShadeMesh('Awning_1', mesh)
+    bright_awning = ShadeConstruction('BrightAwning', 0.75, 0.75)
+    awning_1.properties.energy.construction = bright_awning
+
+    model = Model('TinyHouse', [room], orphaned_shades=[tree_canopy], shade_meshes=[awning_1])
     model_dict = model.to_dict()
     new_model = Model.from_dict(model_dict)
     assert model_dict == new_model.to_dict()
@@ -333,6 +344,7 @@ def test_to_from_dict():
     assert new_model.rooms[0].properties.energy.hvac == room.properties.energy.hvac
 
     assert new_model.orphaned_shades[0].properties.energy.transmittance_schedule == tree_trans
+    assert new_model.shade_meshes[0].properties.energy.construction == bright_awning
 
 
 def test_to_dict_single_zone():
@@ -813,7 +825,14 @@ def test_writer_to_idf():
     table = Shade('Table', table_geo)
     room.add_indoor_shade(table)
 
-    model = Model('TinyHouse', [room], orphaned_shades=[tree_canopy])
+    pts = (Point3D(0, 0, 4), Point3D(0, 2, 4), Point3D(2, 2, 4),
+           Point3D(2, 0, 4), Point3D(4, 0, 4))
+    mesh = Mesh3D(pts, [(0, 1, 2, 3), (2, 3, 4)])
+    awning_1 = ShadeMesh('Awning_1', mesh)
+    bright_awning = ShadeConstruction('BrightAwning', 0.75, 0.75)
+    awning_1.properties.energy.construction = bright_awning
+
+    model = Model('TinyHouse', [room], orphaned_shades=[tree_canopy], shade_meshes=[awning_1])
 
     assert hasattr(model.to, 'idf')
     idf_string = model.to.idf(model, schedule_directory='./tests/idf/')

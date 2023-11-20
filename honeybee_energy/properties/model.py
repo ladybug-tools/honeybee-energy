@@ -155,6 +155,8 @@ class ModelEnergyProperties(object):
         constructions = []
         for shade in self.host.shades:
             self._check_and_add_obj_construction(shade, constructions)
+        for sm in self.host.shade_meshes:  # check all ShadeMesh modifiers
+            self._check_and_add_obj_construction(sm, constructions)
         return list(set(constructions))
 
     @property
@@ -240,6 +242,8 @@ class ModelEnergyProperties(object):
                 for dr in face.doors:  # check all Door Shade schedules
                     for shade in dr.shades:
                         self._check_and_add_shade_schedule(shade, schedules)
+        for sm in self.host.shade_meshes:
+            self._check_and_add_shade_schedule(sm, schedules)
         return list(set(schedules))
 
     @property
@@ -536,7 +540,7 @@ class ModelEnergyProperties(object):
         for con in constructions:
             mods[con.identifier] = con.to_radiance_visible_exterior() \
                 if reflectance_type == 'Visible' else con.to_radiance_solar_exterior()
-        # loop thorugh the faces and create new offset exterior ones
+        # loop through the faces and create new offset exterior ones
         new_faces = []
         for room in self._host.rooms:
             for face in room.faces:
@@ -1105,10 +1109,6 @@ class ModelEnergyProperties(object):
         for face, f_dict in zip(self.host.faces, face_e_dicts):
             if f_dict is not None:
                 face.properties.energy.apply_properties_from_dict(f_dict, constructions)
-        for shade, s_dict in zip(self.host.shades, shd_e_dicts):
-            if s_dict is not None:
-                shade.properties.energy.apply_properties_from_dict(
-                    s_dict, constructions, schedules)
         for aperture, a_dict in zip(self.host.apertures, ap_e_dicts):
             if a_dict is not None:
                 aperture.properties.energy.apply_properties_from_dict(
@@ -1117,6 +1117,11 @@ class ModelEnergyProperties(object):
             if d_dict is not None:
                 door.properties.energy.apply_properties_from_dict(
                     d_dict, constructions)
+        all_shades = self.host.shades + self.host._shade_meshes
+        for shade, s_dict in zip(all_shades, shd_e_dicts):
+            if s_dict is not None:
+                shade.properties.energy.apply_properties_from_dict(
+                    s_dict, constructions, schedules)
 
         # re-serialize the ventilation_simulation_control
         energy_prop = data['properties']['energy']
@@ -1848,6 +1853,8 @@ class ModelEnergyProperties(object):
             self._assign_obj_modifier_shade(dr, unique_mods)
         for shade in self.host.orphaned_shades:
             self._assign_obj_modifier(shade, unique_mods)
+        for sm in self.host.shade_meshes:
+            self._assign_obj_modifier(sm, unique_mods)
 
     def _assign_obj_modifier_shade(self, obj, unique_mods):
         """Check if an object or child shades have a unique constr and assign a modifier.

@@ -7,7 +7,8 @@ setattr(haltn, 'autosize', Autosize())
 
 # import all of the other modules
 from honeybee.properties import ModelProperties, RoomProperties, FaceProperties, \
-    ShadeProperties, ApertureProperties, DoorProperties
+    ShadeProperties, ApertureProperties, DoorProperties, ShadeMeshProperties
+import honeybee.writer.shademesh as shade_mesh_writer
 import honeybee.writer.door as door_writer
 import honeybee.writer.aperture as aperture_writer
 import honeybee.writer.shade as shade_writer
@@ -22,9 +23,10 @@ from .properties.face import FaceEnergyProperties
 from .properties.shade import ShadeEnergyProperties
 from .properties.aperture import ApertureEnergyProperties
 from .properties.door import DoorEnergyProperties
+from .properties.shademesh import ShadeMeshEnergyProperties
 from .writer import model_to_idf, room_to_idf, face_to_idf, shade_to_idf, \
-    aperture_to_idf, door_to_idf, orphaned_face_to_idf, orphaned_aperture_to_idf, \
-    orphaned_door_to_idf
+    aperture_to_idf, door_to_idf, shade_mesh_to_idf, \
+    orphaned_face_to_idf, orphaned_aperture_to_idf, orphaned_door_to_idf
 from .boundarycondition import Adiabatic, OtherSideTemperature
 
 # set a hidden energy attribute on each core geometry Property class to None
@@ -35,6 +37,7 @@ FaceProperties._energy = None
 ShadeProperties._energy = None
 ApertureProperties._energy = None
 DoorProperties._energy = None
+ShadeMeshProperties._energy = None
 
 
 def model_energy_properties(self):
@@ -73,6 +76,12 @@ def door_energy_properties(self):
     return self._energy
 
 
+def shade_mesh_energy_properties(self):
+    if self._energy is None:
+        self._energy = ShadeMeshEnergyProperties(self.host)
+    return self._energy
+
+
 # add energy property methods to the Properties classes
 ModelProperties.energy = property(model_energy_properties)
 RoomProperties.energy = property(room_energy_properties)
@@ -80,6 +89,7 @@ FaceProperties.energy = property(face_energy_properties)
 ShadeProperties.energy = property(shade_energy_properties)
 ApertureProperties.energy = property(aperture_energy_properties)
 DoorProperties.energy = property(door_energy_properties)
+ShadeMeshProperties.energy = property(shade_mesh_energy_properties)
 
 # add energy writer to idf
 model_writer.idf = model_to_idf
@@ -91,6 +101,7 @@ door_writer.idf = door_to_idf
 face_writer.idf_shade = orphaned_face_to_idf
 aperture_writer.idf_shade = orphaned_aperture_to_idf
 door_writer.idf_shade = orphaned_door_to_idf
+shade_mesh_writer.idf = shade_mesh_to_idf
 
 # extend boundary conditions
 setattr(hbc, 'Adiabatic', Adiabatic)

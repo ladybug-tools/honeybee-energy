@@ -11,16 +11,16 @@ from ..lib.constructions import generic_context
 from ..lib.constructionsets import generic_construction_set
 
 
-class ShadeEnergyProperties(object):
-    """Energy Properties for Honeybee Shade.
+class ShadeMeshEnergyProperties(object):
+    """Energy Properties for Honeybee ShadeMesh.
 
     Args:
-        host: A honeybee_core Shade object that hosts these properties.
+        host: A honeybee_core ShadeMesh object that hosts these properties.
         construction: An optional ShadeConstruction object to set the reflectance
-            and specularity of the Shade. The default is set by a ConstructionSet
-            if the shade is the parent to an object. Otherwise, if it is an
-            orphaned shade, the default is a completely diffuse construction
-            with 0.2 visible and solar reflectance.
+            and specularity of the Shade. If None, it will be a generic context
+            construction that is completely diffuse with 0.2 visible and solar
+            reflectance. Unless it is building attached, in which case it will be
+            set by the default generic ConstructionSet.
         transmittance_schedule: An optional schedule to set the transmittance
             of the shade, which can vary throughout the day or year. Default
             is None for a completely opaque object.
@@ -35,36 +35,29 @@ class ShadeEnergyProperties(object):
     __slots__ = ('_host', '_construction', '_transmittance_schedule')
 
     def __init__(self, host, construction=None, transmittance_schedule=None):
-        """Initialize Shade energy properties."""
+        """Initialize ShadeMesh energy properties."""
         self._host = host
         self.construction = construction
         self.transmittance_schedule = transmittance_schedule
 
     @property
     def host(self):
-        """Get the Shade object hosting these properties."""
+        """Get the ShadeMesh object hosting these properties."""
         return self._host
 
     @property
     def construction(self):
-        """Get or set a ShadeConstruction for the shade.
+        """Get or set a ShadeConstruction for the shade mesh object.
 
-        If the construction is not set on the shade-level, then it will be assigned
-        based on the ConstructionSet assigned to the parent Room.  If the parent Room's
-        ConstructionSet has no construction for the Shade type, it will be assigned
-        using the honeybee default generic ConstructionSet. If there is no parent
-        Room, it will be the generic context construction.
+        If the construction is not set on the shade-level, then it will be the
+        generic context construction or the generic exterior shade construction
+        if it is not detached.
         """
         if self._construction:  # set by user
             return self._construction
-        elif not self._host.has_parent:
-            return generic_context if self._host.is_detached else \
-                generic_construction_set.shade_construction
-        else:
-            c_set = self._parent_construction_set(self._host.parent)
-            if c_set is None:
-                c_set = generic_construction_set
-        return c_set.shade_construction
+        return generic_context if self._host.is_detached else \
+            generic_construction_set.shade_construction
+
 
     @construction.setter
     def construction(self, value):
@@ -83,7 +76,7 @@ class ShadeEnergyProperties(object):
     def transmittance_schedule(self, value):
         if value is not None:
             assert isinstance(value, (ScheduleRuleset, ScheduleFixedInterval)), \
-                'Expected schedule for shade transmittance schedule. ' \
+                'Expected schedule for shade mesh transmittance schedule. ' \
                 'Got {}.'.format(type(value))
             if value.schedule_type_limit is not None:
                 assert value.schedule_type_limit.unit == 'fraction', 'Transmittance ' \
@@ -130,26 +123,26 @@ class ShadeEnergyProperties(object):
 
     @classmethod
     def from_dict(cls, data, host):
-        """Create ShadeEnergyProperties from a dictionary.
+        """Create ShadeMeshEnergyProperties from a dictionary.
 
         Note that the dictionary must be a non-abridged version for this
         classmethod to work.
 
         Args:
-            data: A dictionary representation of ShadeEnergyProperties with the
+            data: A dictionary representation of ShadeMeshEnergyProperties with the
                 format below.
             host: A Shade object that hosts these properties.
 
         .. code-block:: python
 
             {
-            "type": 'ShadeEnergyProperties',
+            "type": 'ShadeMeshEnergyProperties',
             "construction": {},  # A ShadeConstruction dictionary
             "transmittance_schedule": {}  # A transmittance schedule dictionary
             }
         """
-        assert data['type'] == 'ShadeEnergyProperties', \
-            'Expected ShadeEnergyProperties. Got {}.'.format(data['type'])
+        assert data['type'] == 'ShadeMeshEnergyProperties', \
+            'Expected ShadeMeshEnergyProperties. Got {}.'.format(data['type'])
 
         new_prop = cls(host)
         if 'construction' in data and data['construction'] is not None:
@@ -170,10 +163,10 @@ class ShadeEnergyProperties(object):
         return new_prop
 
     def apply_properties_from_dict(self, abridged_data, constructions, schedules):
-        """Apply properties from a ShadeEnergyPropertiesAbridged dictionary.
+        """Apply properties from a ShadeMeshEnergyPropertiesAbridged dictionary.
 
         Args:
-            abridged_data: A ShadeEnergyPropertiesAbridged dictionary (typically
+            abridged_data: A ShadeMeshEnergyPropertiesAbridged dictionary (typically
                 coming from a Model).
             constructions: A dictionary of constructions with constructions identifiers
                 as keys, which will be used to re-assign constructions.
@@ -200,8 +193,8 @@ class ShadeEnergyProperties(object):
                 Default: False.
         """
         base = {'energy': {}}
-        base['energy']['type'] = 'ShadeEnergyProperties' if not \
-            abridged else 'ShadeEnergyPropertiesAbridged'
+        base['energy']['type'] = 'ShadeMeshEnergyProperties' if not \
+            abridged else 'ShadeMeshEnergyPropertiesAbridged'
         if self._construction is not None:
             base['energy']['construction'] = \
                 self._construction.identifier if abridged else \
@@ -220,8 +213,8 @@ class ShadeEnergyProperties(object):
                 If None, the properties will be duplicated with the same host.
         """
         _host = new_host or self._host
-        return ShadeEnergyProperties(_host, self._construction,
-                                     self._transmittance_schedule)
+        return ShadeMeshEnergyProperties(
+            _host, self._construction, self._transmittance_schedule)
 
     def is_equivalent(self, other):
         """Check to see if these energy properties are equivalent to another object.
@@ -263,21 +256,8 @@ class ShadeEnergyProperties(object):
                 mod_id, average_reflectance=avg_ref, average_transmittance=trans,
                 is_specular=self.construction.is_specular, is_diffusing=False)
 
-    @staticmethod
-    def _parent_construction_set(host_parent):
-        """Recursively search through host parents to find a ConstructionSet."""
-        if hasattr(host_parent.properties.energy, 'construction_set'):
-            # we found the room with the construction set
-            return host_parent.properties.energy.construction_set
-        elif host_parent.has_parent:
-            # we found an aperture or face that could have a room with a construction set
-            return ShadeEnergyProperties._parent_construction_set(host_parent.parent)
-        else:
-            # there is no parent room
-            return None
-
     def ToString(self):
         return self.__repr__()
 
     def __repr__(self):
-        return 'Shade Energy Properties: [host: {}]'.format(self.host.display_name)
+        return 'ShadeMesh Energy Properties: [host: {}]'.format(self.host.display_name)
