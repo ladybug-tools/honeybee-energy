@@ -6,7 +6,7 @@ from ladybug_geometry.geometry3d import Face3D
 from honeybee.room import Room
 from honeybee.face import Face
 from honeybee.boundarycondition import Outdoors, Surface, Ground
-from honeybee.facetype import RoofCeiling, AirBoundary
+from honeybee.facetype import Floor, RoofCeiling, AirBoundary
 
 try:
     from itertools import izip as zip  # python 2
@@ -416,11 +416,17 @@ def face_to_idf(face):
         face: A honeybee Face for which an IDF representation will be returned.
     """
     # select the correct face type
-    if isinstance(face.type, RoofCeiling):
-        face_type = 'Roof' if isinstance(face.boundary_condition, (Outdoors, Ground)) \
-            else 'Ceiling'  # EnergyPlus distinguishes between Roof and Ceiling
-    elif isinstance(face.type, AirBoundary):
+    if isinstance(face.type, AirBoundary):
         face_type = 'Wall'  # air boundaries are not a Surface type in EnergyPlus
+    elif isinstance(face.type, RoofCeiling):
+        if face.altitude < 0:
+            face_type = 'Wall'  # ensure E+ does not try to flip the Face
+        elif isinstance(face.boundary_condition, (Outdoors, Ground)):
+            face_type = 'Roof'  # E+ distinguishes between Roof and Ceiling
+        else:
+            face_type = 'Ceiling'
+    elif isinstance(face.type, Floor) and face.altitude > 0:
+        face_type = 'Wall'  # ensure E+ does not try to flip the Face
     else:
         face_type = face.type.name
     # select the correct boundary condition
