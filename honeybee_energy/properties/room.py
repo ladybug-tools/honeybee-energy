@@ -22,6 +22,7 @@ from ..load.setpoint import Setpoint
 from ..load.daylight import DaylightingControl
 from ..load.process import Process
 from ..internalmass import InternalMass
+from ..ventcool.fan import VentilationFan
 from ..ventcool.control import VentilationControl
 from ..ventcool.crack import AFNCrack
 from ..ventcool.opening import VentilationOpening
@@ -75,6 +76,7 @@ class RoomEnergyProperties(object):
         * setpoint
         * daylighting_control
         * window_vent_control
+        * fans
         * process_loads
         * total_process_load
         * internal_masses
@@ -86,7 +88,7 @@ class RoomEnergyProperties(object):
         '_host', '_program_type', '_construction_set', '_hvac', '_shw',
         '_people', '_lighting', '_electric_equipment', '_gas_equipment',
         '_service_hot_water', '_infiltration', '_ventilation', '_setpoint',
-        '_daylighting_control', '_window_vent_control',
+        '_daylighting_control', '_window_vent_control', '_fans',
         '_internal_masses', '_process_loads'
     )
 
@@ -111,6 +113,7 @@ class RoomEnergyProperties(object):
         self._setpoint = None
         self._daylighting_control = None
         self._window_vent_control = None
+        self._fans = []
         self._internal_masses = []
         self._process_loads = []
 
@@ -288,7 +291,13 @@ class RoomEnergyProperties(object):
 
     @property
     def ventilation(self):
-        """Get or set a Ventilation object for the minimum outdoor air requirement."""
+        """Get or set a Ventilation object for the minimum outdoor air requirement.
+
+        Note that setting the ventilation here will only affect the conditioned
+        outdoor air that is brought through a HVAC system. For mechanical ventilation
+        of outdoor air that is not connected to any heating or cooling system the
+        Room.fans property should be used.
+        """
         if self._ventilation is not None:  # set by the user
             return self._ventilation
         else:
@@ -350,6 +359,34 @@ class RoomEnergyProperties(object):
                 ' object for Room window_vent_control. Got {}'.format(type(value))
             value.lock()   # lock because we don't duplicate the object
         self._window_vent_control = value
+
+    @property
+    def fans(self):
+        """Get or set an array of VentilationFan objects for fans within the room.
+
+        Note that these fans are not connected to the heating or cooling system
+        and are meant to represent the intentional circulation of unconditioned
+        outdoor air for the purposes of keeping a space cooler, drier or free
+        of indoor pollutants (as in the case of kitchen or bathroom exhaust fans).
+
+        For the specification of mechanical ventilation of conditioned outdoor air,
+        the Room.ventilation property should be used and the Room should be
+        given a HVAC that can meet this specification.
+        """
+        return tuple(self._fans)
+
+    @fans.setter
+    def fans(self, value):
+        for val in value:
+            assert isinstance(val, VentilationFan), 'Expected VentilationFan ' \
+                'object for Room fans. Got {}'.format(type(val))
+            val.lock()   # lock because we don't duplicate the object
+        self._fans = list(value)
+
+    @property
+    def total_fan_flow(self):
+        """Get a number for the total process load in m3/s within the room."""
+        return sum([fan.flow_rate for fan in self._fans])
 
     @property
     def process_loads(self):
@@ -576,6 +613,21 @@ class RoomEnergyProperties(object):
     def remove_process_loads(self):
         """Remove all Process loads from the Room."""
         self._process_loads = []
+
+    def add_fan(self, fan):
+        """Add a VentilationFan to this Room.
+
+        Args:
+            fan: A VentilationFan to add to this Room.
+        """
+        assert isinstance(fan, VentilationFan), \
+            'Expected VentilationFan object. Got {}.'.format(type(fan))
+        fan.lock()   # lock because we don't duplicate the object
+        self._fans.append(fan)
+
+    def remove_fans(self):
+        """Remove all VentilationFans from the Room."""
+        self._fans = []
 
     def add_internal_mass(self, internal_mass):
         """Add an InternalMass to this Room.
@@ -1096,6 +1148,7 @@ class RoomEnergyProperties(object):
         self._ventilation = None
         self._infiltration = infiltration
         self._setpoint = setpt
+        self._process_loads = []
 
     def make_ground(self, soil_construction, include_floor_area=False):
         """Change the properties of the host Room to reflect those of a ground surface.
@@ -1194,6 +1247,7 @@ class RoomEnergyProperties(object):
         self._daylighting_control = None
         self._window_vent_control = None
         self._process_loads = []
+        self._fans = []
         self._internal_masses = []
 
     @classmethod
@@ -1226,7 +1280,8 @@ class RoomEnergyProperties(object):
             "setpoint": {},  # A Setpoint dictionary
             "daylighting_control": {},  # A DaylightingControl dictionary
             "window_vent_control": {},  # A VentilationControl dictionary
-            "process_loads": []  # An array of Process dictionaries
+            "fans": [],  # An array of VentilationFan dictionaries
+            "process_loads": [],  # An array of Process dictionaries
             "internal_masses": []  # An array of InternalMass dictionaries
             }
         """
@@ -1269,6 +1324,8 @@ class RoomEnergyProperties(object):
         if 'window_vent_control' in data and data['window_vent_control'] is not None:
             new_prop.window_vent_control = \
                 VentilationControl.from_dict(data['window_vent_control'])
+        if 'fans' in data and data['fans'] is not None:
+            new_prop.fans = [VentilationFan.from_dict(dat) for dat in data['fans']]
         if 'process_loads' in data and data['process_loads'] is not None:
             new_prop.process_loads = \
                 [Process.from_dict(dat) for dat in data['process_loads']]
@@ -1360,6 +1417,12 @@ class RoomEnergyProperties(object):
                 abridged_data['window_vent_control'] is not None:
             self.window_vent_control = VentilationControl.from_dict_abridged(
                 abridged_data['window_vent_control'], schedules)
+        if 'fans' in abridged_data and abridged_data['fans'] is not None:
+            for dat in abridged_data['fans']:
+                if dat['type'] == 'VentilationFan':
+                    self._fans.append(VentilationFan.from_dict(dat))
+                else:
+                    self._fans.append(VentilationFan.from_dict_abridged(dat, schedules))
         if 'process_loads' in abridged_data and \
                 abridged_data['process_loads'] is not None:
             for dat in abridged_data['process_loads']:
@@ -1435,6 +1498,8 @@ class RoomEnergyProperties(object):
         if self._window_vent_control is not None:
             base['energy']['window_vent_control'] = \
                 self._window_vent_control.to_dict(abridged)
+        if len(self._fans) != 0:
+            base['energy']['fans'] = [f.to_dict(abridged) for f in self._fans]
         if len(self._process_loads) != 0:
             base['energy']['process_loads'] = \
                 [p.to_dict(abridged) for p in self._process_loads]
@@ -1466,6 +1531,7 @@ class RoomEnergyProperties(object):
             new_room._daylighting_control = self._daylighting_control.duplicate()
             new_room._daylighting_control._parent = _host
         new_room._window_vent_control = self._window_vent_control
+        new_room._fans = self._fans[:]  # copy fans list
         new_room._process_loads = self._process_loads[:]  # copy process load list
         new_room._internal_masses = self._internal_masses[:]  # copy internal masses list
         return new_room

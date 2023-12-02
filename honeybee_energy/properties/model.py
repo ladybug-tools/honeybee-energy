@@ -265,6 +265,7 @@ class ModelEnergyProperties(object):
             setpoint = room.properties.energy._setpoint
             window_vent = room.properties.energy._window_vent_control
             processes = room.properties.energy._process_loads
+            fans = room.properties.energy._fans
             if people is not None:
                 self._check_and_add_schedule(people.occupancy_schedule, scheds)
                 self._check_and_add_schedule(people.activity_schedule, scheds)
@@ -293,6 +294,9 @@ class ModelEnergyProperties(object):
             if len(processes) != 0:
                 for process in processes:
                     self._check_and_add_schedule(process.schedule, scheds)
+            if len(fans) != 0:
+                for fan in fans:
+                    self._check_and_add_schedule(fan.control.schedule, scheds)
         return list(set(scheds))
 
     @property

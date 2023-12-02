@@ -17,7 +17,7 @@ class VentilationOpening(object):
         fraction_height_operable: A number between 0.0 and 1.0 for the fraction
             of the distance from the bottom of the window to the top that is
             operable. (Default: 1.0, typical of windows that slide horizontally).
-        discharge_coefficient: A number between 0.0 and 1.0 that will be multipled
+        discharge_coefficient: A number between 0.0 and 1.0 that will be multiplied
             by the area of the window in the stack (buoyancy-driven) part of the
             equation to account for additional friction from window geometry,
             insect screens, etc. (Default: 0.45, for unobstructed windows with
