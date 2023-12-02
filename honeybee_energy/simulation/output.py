@@ -2,6 +2,8 @@
 """Object to hold EnergyPlus simulation outputs."""
 from __future__ import division
 
+from honeybee.typing import float_in_range
+
 from ..reader import parse_idf_string
 from ..writer import generate_idf_string
 
@@ -38,6 +40,11 @@ class SimulationOutput(object):
             section for a full list of all reports that can be requested.
             (https://bigladdersoftware.com/epx/docs/9-1/input-output-reference/\
 output-table-summaryreports.html#outputtablesummaryreports).
+        unmet_setpoint_tolerance: A number in degrees Celsius for the difference that
+            the zone conditions must be from the thermostat setpoint in order
+            for the setpoint to be considered unmet. This will affect how unmet
+            hours are reported in the output. ASHRAE 90.1 uses a tolerance of
+            1.11C, which is equivalent to 1.8F. (Default: 1.11C).
 
     Properties:
         * outputs
@@ -45,19 +52,22 @@ output-table-summaryreports.html#outputtablesummaryreports).
         * include_sqlite
         * include_html
         * summary_reports
+        * unmet_setpoint_tolerance
     """
     __slots__ = ('_outputs', '_reporting_frequency', '_include_sqlite',
-                 '_include_html', '_summary_reports')
+                 '_include_html', '_summary_reports', '_unmet_setpoint_tolerance')
     REPORTING_FREQUENCIES = ('Annual', 'Monthly', 'Daily', 'Hourly', 'Timestep')
 
     def __init__(self, outputs=None, reporting_frequency='Hourly', include_sqlite=True,
-                 include_html=True, summary_reports=('AllSummary',)):
+                 include_html=True, summary_reports=('AllSummary',),
+                 unmet_setpoint_tolerance=1.11):
         """Initialize SimulationOutput."""
         self.outputs = outputs
         self.reporting_frequency = reporting_frequency
         self.include_sqlite = include_sqlite
         self.include_html = include_html
         self.summary_reports = summary_reports
+        self.unmet_setpoint_tolerance = unmet_setpoint_tolerance
 
     @property
     def outputs(self):
@@ -142,6 +152,16 @@ output-table-summaryreports.html#outputtablesummaryreports).
         else:
             value = set(('AllSummary',))
         self._summary_reports = value
+
+    @property
+    def unmet_setpoint_tolerance(self):
+        """Get or set a number in Celsius for the tolerance of unmet conditions."""
+        return self._unmet_setpoint_tolerance
+    
+    @unmet_setpoint_tolerance.setter
+    def unmet_setpoint_tolerance(self, value):
+        self._unmet_setpoint_tolerance = \
+            float_in_range(value, 0, 10, 'unmet setpoint tolerance')
 
     def add_summary_report(self, report_name):
         """Add another summary report to the list of requested reports.
@@ -336,18 +356,10 @@ output-table-summaryreports.html#outputtablesummaryreports)
         for outp in outputs:
             self._outputs.add(outp)
 
-    def add_stratification_variables(self):
-        """Add outputs for estimating stratification across a zone.
-
-        This includes all air flow into the zone as well as all heat gain
-        to the air.
-        """
-        outputs = ['Zone Ventilation Standard Density Volume Flow Rate',
-                   'Zone Infiltration Standard Density Volume Flow Rate',
-                   'Zone Mechanical Ventilation Standard Density Volume Flow Rate',
-                   'Zone Air Heat Balance Internal Convective Heat Gain Rate',
-                   'Zone Air Heat Balance Surface Convection Rate',
-                   'Zone Air Heat Balance System Air Transfer Rate']
+    def add_unmet_hours(self):
+        """Add outputs for time that the heating/cooling setpoints are not met."""
+        outputs = ['Zone Heating Setpoint Not Met Time',
+                   'Zone Cooling Setpoint Not Met Time']
         for outp in outputs:
             self._outputs.add(outp)
 
@@ -374,6 +386,21 @@ output-table-summaryreports.html#outputtablesummaryreports)
         outputs = ['Surface Window Transmitted Beam Solar Radiation Energy',
                    'Surface Window Transmitted Diffuse Solar Radiation Energy',
                    'Surface Window Transmitted Solar Radiation Energy']
+        for outp in outputs:
+            self._outputs.add(outp)
+
+    def add_stratification_variables(self):
+        """Add outputs for estimating stratification across a zone.
+
+        This includes all air flow into the zone as well as all heat gain
+        to the air.
+        """
+        outputs = ['Zone Ventilation Standard Density Volume Flow Rate',
+                   'Zone Infiltration Standard Density Volume Flow Rate',
+                   'Zone Mechanical Ventilation Standard Density Volume Flow Rate',
+                   'Zone Air Heat Balance Internal Convective Heat Gain Rate',
+                   'Zone Air Heat Balance Surface Convection Rate',
+                   'Zone Air Heat Balance System Air Transfer Rate']
         for outp in outputs:
             self._outputs.add(outp)
 
@@ -413,7 +440,7 @@ output-table-summaryreports.html#outputtablesummaryreports)
 
     @classmethod
     def from_idf(cls, table_style=None, output_variables=None, summary_reports=None,
-                 include_sqlite=True):
+                 reporting_tolerance=None, include_sqlite=True):
         """Create a RunPeriod object from an EnergyPlus IDF text string.
 
         Args:
@@ -423,6 +450,7 @@ output-table-summaryreports.html#outputtablesummaryreports)
             summary_reports: An IDF Output:Table:SummaryReports string listing
                 the summary reports that are requested. If None, no summary
                 reports will be requested.
+            reporting_tolerance: An IDF OutputControl:ReportingTolerances string.
             include_sqlite: Boolean to note whether a SQLite report should be
                 generated from the simulation, which contains all of the outputs and
                 summary_reports. Default: True.
@@ -435,6 +463,16 @@ output-table-summaryreports.html#outputtablesummaryreports)
                 include_html = True if 'HTML' in style_strs[0].upper() else False
             except IndexError:
                 pass  # shorter Table:Style without separator
+
+        # extract the unmet hours reporting tolerance
+        unmet_tol = 1.11
+        if reporting_tolerance is not None:
+            tol_str = parse_idf_string(
+                reporting_tolerance, 'OutputControl:ReportingTolerances,')
+            try:
+                unmet_tol = float(tol_str[0])
+            except (IndexError, ValueError, TypeError):
+                unmet_tol = 0.2  # shorter ReportingTolerances with default value
 
         # extract the output_variables
         outputs = None
@@ -454,7 +492,7 @@ output-table-summaryreports.html#outputtablesummaryreports)
         if summary_reports is not None:
             reports = parse_idf_string(summary_reports, 'Output:Table:SummaryReports,')
 
-        return cls(outputs, frequency, include_sqlite, include_html, reports)
+        return cls(outputs, frequency, include_sqlite, include_html, reports, unmet_tol)
 
     @classmethod
     def from_dict(cls, data):
@@ -471,7 +509,8 @@ output-table-summaryreports.html#outputtablesummaryreports)
             "reporting_frequency": 'Annual',
             "include_sqlite": True,
             "include_html": True,
-            "summary_reports": ['AllSummary', 'AnnualBuildingUtilityPerformanceSummary']
+            "summary_reports": ['AllSummary', 'AnnualBuildingUtilityPerformanceSummary'],
+            "unmet_setpoint_tolerance": 0.2
             }
         """
         assert data['type'] == 'SimulationOutput', \
@@ -484,7 +523,9 @@ output-table-summaryreports.html#outputtablesummaryreports)
         html = data['include_html'] if 'include_html' in data and \
             data['include_html'] is not None else True
         reports = data['summary_reports'] if 'summary_reports' in data else None
-        return cls(outputs, frequency, sqlite, html, reports)
+        unmet_tol = data['unmet_setpoint_tolerance'] \
+            if 'unmet_setpoint_tolerance' in data else 1.11
+        return cls(outputs, frequency, sqlite, html, reports, unmet_tol)
 
     def to_idf(self):
         """Get EnergyPlus string representations of the SimulationOutput.
@@ -507,8 +548,8 @@ output-table-summaryreports.html#outputtablesummaryreports)
             -   variable_dictionary: An IDF Output:VariableDictionary string, which
                 will ensure that a .rdd file is generated from the simulation.
 
-            -   surfaces_list: An IDF Output:Surfaces:List string to ensure surface
-                information is written into the ultimate .eio file.
+            -   unmet_tolerance: An IDF OutputControl:ReportingTolerances string to
+                pass the unmet setpoint tolerance to the IDF file.
         """
         style = 'CommaAndHTML' if self.include_html else 'Comma'
         table_style = generate_idf_string(
@@ -526,10 +567,12 @@ output-table-summaryreports.html#outputtablesummaryreports)
         variable_dictionary = generate_idf_string(
             'Output:VariableDictionary', ('IDF', 'Unsorted'),
             ('key field', 'sort option'))
-        surfaces_list = generate_idf_string(
-            'Output:Surfaces:List', ('Details',), ('report type',))
+        unmet_tolerance = generate_idf_string(
+            'OutputControl:ReportingTolerances',
+            (self.unmet_setpoint_tolerance, self.unmet_setpoint_tolerance),
+            ('heating unmet setpoint tolerance', 'cooling unmet setpoint tolerance'))
         return table_style, output_variables, summary_reports, sqlite, \
-            variable_dictionary, surfaces_list
+            variable_dictionary, unmet_tolerance
 
     def to_dict(self):
         """DaylightSavingTime dictionary representation."""
@@ -543,6 +586,8 @@ output-table-summaryreports.html#outputtablesummaryreports)
             base['outputs'] = self.outputs
         if len(self._summary_reports) != 0:
             base['summary_reports'] = self.summary_reports
+        if self.unmet_setpoint_tolerance != 1.11:
+            base['unmet_setpoint_tolerance'] = self.unmet_setpoint_tolerance
         return base
 
     def duplicate(self):
@@ -562,12 +607,13 @@ output-table-summaryreports.html#outputtablesummaryreports)
     def __copy__(self):
         return SimulationOutput(
             self._outputs, self.reporting_frequency, self.include_sqlite,
-            self.include_html, self._summary_reports)
+            self.include_html, self._summary_reports, self.unmet_setpoint_tolerance)
 
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""
         return self.outputs + self.summary_reports + \
-            (self.reporting_frequency, self.include_sqlite, self.include_html)
+            (self.reporting_frequency, self.include_sqlite, self.include_html,
+             self.unmet_setpoint_tolerance)
 
     def __hash__(self):
         return hash(self.__key())

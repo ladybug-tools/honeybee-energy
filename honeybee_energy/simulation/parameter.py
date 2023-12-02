@@ -277,6 +277,7 @@ class SimulationParameter(object):
         """
         # Regex patterns for the various objects comprising the SimulationParameter
         out_style_pattern = re.compile(r"(?i)(OutputControl:Table:Style,[\s\S]*?;)")
+        unmet_pattern = re.compile(r"(?i)(OutputControl:ReportingTolerances,[\s\S]*?;)")
         out_var_pattern = re.compile(r"(?i)(Output:Variable,[\s\S]*?;)")
         out_report_pattern = re.compile(r"(?i)(Output:Table:SummaryReports,[\s\S]*?;)")
         sqlite_pattern = re.compile(r"(?i)(Output:SQLite,[\s\S]*?;)")
@@ -297,12 +298,17 @@ class SimulationParameter(object):
         except IndexError:  # No Table:Style in the file.
             out_style_str = None
         try:
+            out_unmet_str = unmet_pattern.findall(idf_string)[0]
+        except IndexError:  # No ReportingTolerances in the file.
+            out_unmet_str = None
+        try:
             out_report_str = out_report_pattern.findall(idf_string)[0]
         except IndexError:  # No SummaryReports in the file. Default to None.
             out_report_str = None
         sqlite = True if len(sqlite_pattern.findall(idf_string)) != 0 else False
         output = SimulationOutput.from_idf(
-            out_style_str, out_var_pattern.findall(idf_string), out_report_str, sqlite)
+            out_style_str, out_var_pattern.findall(idf_string), out_report_str,
+            out_unmet_str, sqlite)
 
         # process the RunPeriod within the idf_string
         try:
@@ -433,7 +439,7 @@ class SimulationParameter(object):
                          '!-   ==========================================\n']
 
         # add the outputs requested
-        table_style, output_vars, reports, sqlite, rdd, surfaces = self.output.to_idf()
+        table_style, output_vars, reports, sqlite, rdd, unmet_tol = self.output.to_idf()
         sim_param_str.append(table_style)
         if output_vars is not None:
             sim_param_str.append('\n\n'.join(output_vars))
@@ -442,7 +448,7 @@ class SimulationParameter(object):
         if sqlite is not None:
             sim_param_str.append(sqlite)
         sim_param_str.append(rdd)
-        sim_param_str.append(surfaces)
+        sim_param_str.append(unmet_tol)
 
         # add simulation settings
         sim_param_str.append(self.simulation_control.to_idf())
