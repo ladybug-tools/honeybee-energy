@@ -570,6 +570,10 @@ def room_to_idf(room):
             room.properties.energy.setpoint is not None:
         zone_str.append(room.properties.energy.setpoint.to_idf(room.identifier))
 
+    # write any ventilation fan definitions
+    for fan in room.properties.energy._fans:
+        zone_str.append(fan.to_idf(room.identifier))
+
     # write the daylighting control
     if room.properties.energy.daylighting_control is not None:
         zone_str.extend(room.properties.energy.daylighting_control.to_idf())
