@@ -63,7 +63,7 @@ class VentilationFan(object):
             efficiency and the fan impeller efficiency. Fans that have a higher blade
             diameter and operate at lower speeds with smaller pressure rises for
             their size tend to have higher efficiencies. Because motor efficiencies
-            are typically between 0.8 and 0.9, the best overall fan efficiencies 
+            are typically between 0.8 and 0.9, the best overall fan efficiencies
             tend to be around 0.7 with most typical fan efficiencies between 0.5 and
             0.7. The lowest efficiencies often happen for small fans in situations
             with high pressure rises for their size, which can result in efficiencies
@@ -85,12 +85,14 @@ class VentilationFan(object):
         * efficiency
         * control
     """
-    __slots__ = ('_flow_rate', '_ventilation_type', '_pressure_rise', '_efficiency'
-                 '_control', '_locked')
+    __slots__ = (
+        '_identifier', '_display_name', '_flow_rate', '_ventilation_type',
+        '_pressure_rise', '_efficiency', '_control', '_locked')
     # types of ventilation
     VENTILATION_TYPES = ('Exhaust', 'Intake', 'Balanced')
     # values relating flow rates to pressure rises
     PRESSURE_RISES = (
+        (0.01, 10),
         (0.05, 60),
         (0.25, 120),
         (0.5, 200),
@@ -385,10 +387,8 @@ class VentilationFan(object):
         base['identifier'] = self.identifier
         base['flow_rate'] = self.flow_rate
         base['ventilation_type'] = self.ventilation_type
-        if self._pressure_rise is not None:
-            base['pressure_rise'] = self._pressure_rise
-        if self._efficiency is not None:
-            base['efficiency'] = self._efficiency
+        base['pressure_rise'] = self.pressure_rise
+        base['efficiency'] = self.efficiency
         base['control'] = self.control.to_dict(abridged)
         if self._display_name is not None:
             base['display_name'] = self.display_name
@@ -416,12 +416,15 @@ class VentilationFan(object):
             return self.PRESSURE_RISES[-1][1]
         for i, (flow, pr) in enumerate(self.PRESSURE_RISES):
             if flow <= self._flow_rate <= self.PRESSURE_RISES[i + 1][0]:
-                return (pr + self.PRESSURE_RISES[i + 1][1]) / 2
+                f_num = self._flow_rate - flow
+                f_denom = self.PRESSURE_RISES[i + 1][0] - flow
+                f_dist = f_num / f_denom
+                return pr + (f_dist * (self.PRESSURE_RISES[i + 1][1] - pr))
 
     def _default_efficiency(self):
         """Calculate the efficiency from the assigned flow rate and pressure rise."""
         pr_rise_ratio = self.pressure_rise / self._default_pressure_rise()
-        eff_est = 0.7 - (pr_rise_ratio * 0.2)
+        eff_est = 0.8 - (pr_rise_ratio * 0.1)
         if eff_est > 0.7:
             return 0.7
         if eff_est < 0.15:
@@ -438,14 +441,16 @@ class VentilationFan(object):
         return vt, pr, eff
 
     def __copy__(self):
-        return VentilationFan(
-            self._flow_rate, self._ventilation_type, self._pressure_rise,
-            self._efficiency, self._control.duplicate())
+        new_obj = VentilationFan(
+            self._identifier, self._flow_rate, self._ventilation_type,
+            self._pressure_rise, self._efficiency, self._control.duplicate())
+        new_obj._display_name = self._display_name
+        return new_obj
 
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""
-        return (self._flow_rate, self._ventilation_type, self._pressure_rise,
-                self._efficiency, hash(self.control))
+        return (self.identifier, self.flow_rate, self.ventilation_type,
+                self.pressure_rise, self.efficiency, hash(self.control))
 
     def __hash__(self):
         return hash(self.__key())
@@ -461,7 +466,4 @@ class VentilationFan(object):
         return self.__repr__()
 
     def __repr__(self):
-        return 'VentilationFan, [flow: {} m3/s] [type: {}] [press rise: {} Pa] ' \
-            '[efficiency: {}]'.format(
-                self.flow_rate, self.ventilation_type,
-                self.pressure_rise, self.efficiency)
+        return 'VentilationFan: {}'.format(self.display_name)
