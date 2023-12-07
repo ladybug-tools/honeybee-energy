@@ -673,7 +673,7 @@ def test_to_dict_air_walls():
 
     model_idf_str = model.to.idf(model)
     assert model_idf_str.count('Construction:AirBoundary') == 1
-    assert model_idf_str.count('ZoneMixing') == 16
+    assert model_idf_str.count('ZoneCrossMixing') == 8
 
 
 def test_from_dict_non_abridged():
