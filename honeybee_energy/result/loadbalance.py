@@ -214,7 +214,7 @@ class LoadBalance(object):
             mult_per_room=True)
         self._service_hot_water = self._match_room_input(
             service_hot_water_data, rooms, 'Service Hot Water',
-            'Water Use Equipment Zone', mult_per_room=True)
+            'Water Use Equipment Zone', mult_per_room=True, use_mult=False)
         self._people = self._match_room_input(
             people_data, rooms, 'People')
         self._solar = self._match_room_input(
@@ -233,6 +233,8 @@ class LoadBalance(object):
             # compute just the conduction loss/gain from the windows
             self._window_conduction = _window_flow - self._solar
             self._window_conduction.header.metadata['type'] = 'Window Conduction'
+        if self._solar is not None:
+            self._solar = self._solar * 0.94  # account for sun reflected back out windows
 
     @classmethod
     def from_sql_file(cls, model, sql_path):
@@ -521,7 +523,7 @@ class LoadBalance(object):
 
     def _match_room_input(self, data_collections, rooms, data_type,
                           type_check_text=None, negate=False, use_all=False,
-                          mult_per_room=False, space_based=False):
+                          mult_per_room=False, space_based=False, use_mult=True):
         """Match a an array of input data collections to input rooms.
 
         Args:
@@ -539,6 +541,9 @@ class LoadBalance(object):
                 Space level instead of the Zone level. In this case, the matching to
                 the Room will account for the fact that the Space name is the Room
                 name with _Space added to it. (Default: False).
+            use_mult: Boolean to note whether the results should be multiplied by the
+                room multiplier (True) or whether the data type values already
+                account for the multiplier (False). (Default: True).
         """
         # don't match anything if there are no collections
         if data_collections is None or len(data_collections) == 0:
@@ -547,7 +552,7 @@ class LoadBalance(object):
         # match the data collections to the rooms
         if use_all:  # firs try to see if all objects can be matched
             matched_objs = match_rooms_to_data(
-                data_collections, rooms, True, space_based)
+                data_collections, rooms, use_mult, space_based)
             if len(matched_objs) != len(rooms):  # take them all
                 matched_objs = [(None, data, rm.multiplier)
                                 for data, rm in zip(data_collections, rooms)]
@@ -558,7 +563,7 @@ class LoadBalance(object):
                     coll_dict[coll.header.metadata['type']].append(coll)
                 except KeyError:
                     coll_dict[coll.header.metadata['type']] = [coll]
-            all_match = [match_rooms_to_data(val, rooms, True, space_based)
+            all_match = [match_rooms_to_data(val, rooms, use_mult, space_based)
                          for val in coll_dict.values()]
             matched_objs = [list(tup) for tup in all_match[0]]
             for other_tups in all_match[1:]:
@@ -566,7 +571,7 @@ class LoadBalance(object):
                     matched_objs[i][1] += tup[1]
         else:
             matched_objs = match_rooms_to_data(
-                data_collections, rooms, True, space_based)
+                data_collections, rooms, use_mult, space_based)
         assert len(matched_objs) != 0, 'None of the {} data collections could be ' \
             'matched to the input rooms.'.format(data_type)
         self._rooms = tuple(obj[0] for obj in matched_objs) if not use_all else rooms

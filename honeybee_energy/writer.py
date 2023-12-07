@@ -781,6 +781,7 @@ def model_to_idf(
     # write all of the zone geometry
     model_str.append('!-   ============ ZONE GEOMETRY ============\n')
     ap_objs = []
+    found_ab = []
     for room in model.rooms:
         model_str.append(room.to.idf(room))
         for face in room.faces:
@@ -788,11 +789,16 @@ def model_to_idf(
             if isinstance(face.type, AirBoundary):  # write the air mixing objects
                 air_constr = face.properties.energy.construction
                 try:
-                    adj_room = face.boundary_condition.boundary_condition_objects[-1]
-                    try:
-                        model_str.append(air_constr.to_air_mixing_idf(face, adj_room))
-                    except AttributeError:  # opaque construction for air boundary
-                        model_str.append(air_boundary.to_air_mixing_idf(face, adj_room))
+                    if face.identifier not in found_ab:
+                        adj_face = face.boundary_condition.boundary_condition_object
+                        adj_room = face.boundary_condition.boundary_condition_objects[-1]
+                        try:
+                            model_str.append(
+                                air_constr.to_cross_mixing_idf(face, adj_room))
+                        except AttributeError:  # opaque construction for air boundary
+                            model_str.append(
+                                air_boundary.to_cross_mixing_idf(face, adj_room))
+                        found_ab.append(adj_face)
                 except AttributeError as e:
                     raise ValueError(
                         'Face "{}" is an Air Boundary but lacks a Surface boundary '

@@ -219,6 +219,22 @@ class AirBoundaryConstruction(object):
                     'flow per floor area', 'flow per person', 'ach', 'source zone name')
         return generate_idf_string('ZoneMixing', values, comments)
 
+    def to_cross_mixing_idf(self, face, room_identifier):
+        """IDF string for the ZoneMixing of this object.
+
+        Args:
+            face: A Face object to which this construction is assigned. This
+                Face must have a parent Room.
+            room_identifier: A identifier for the Room to which the Face is adjacent.
+        """
+        flow_rate = face.area * self.air_mixing_per_area
+        values = ['{}_CrossMixing'.format(face.identifier), face.parent.identifier,
+                  self.air_mixing_schedule.identifier, 'Flow/Zone',
+                  flow_rate, '', '', '', room_identifier]
+        comments = ('name', 'zone name', 'schedule name', 'flow method', 'flow rate',
+                    'flow per floor area', 'flow per person', 'ach', 'source zone name')
+        return generate_idf_string('ZoneCrossMixing', values, comments)
+
     def to_dict(self, abridged=False):
         """Air boundary construction dictionary representation."""
         base = {'type': 'AirBoundaryConstruction'} if not \
