@@ -437,6 +437,17 @@ class ModelEnergyProperties(object):
             room.properties.energy.window_construction_by_orientation(
                 construction, orientation, offset, north_vector)
 
+    def remove_hvac_from_no_setpoints(self):
+        """Remove any HVAC systems assigned to Rooms that have no thermostat setpoints.
+
+        This will ensure that EnergyPlus does not fail when it tries to simulate
+        a HVAC for which there are no criteria to meet.
+        """
+        for room in self._host.rooms:
+            if room.properties.energy.hvac is not None \
+                    and room.properties.energy.setpoint is None:
+                room.properties.energy.hvac = None
+
     def missing_adjacencies_to_adiabatic(self):
         """Set any Faces with missing adjacencies in the model to adiabatic.
 

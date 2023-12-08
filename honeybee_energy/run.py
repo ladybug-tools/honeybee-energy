@@ -133,6 +133,9 @@ def measure_compatible_model_json(
         raise ValueError(error)
     if triangulate_non_planar_orphaned:
         parsed_model.triangulate_non_planar_quads(0.01)
+    
+    # remove the HVAC from any Rooms lacking setpoints
+    parsed_model.properties.energy.remove_hvac_from_no_setpoints()
 
     # get the dictionary representation of the Model and add auto-calculated properties
     model_dict = parsed_model.to_dict(triangulate_sub_faces=triangulate_sub_faces)
