@@ -381,6 +381,89 @@ class PVProperties(object):
             base['display_name'] = self.display_name
         return base
 
+    def duplicate(self):
+        """Get a copy of this object."""
+        return self.__copy__()
+
+    def ToString(self):
+        """Overwrite .NET ToString."""
+        return self.__repr__()
+
+    @staticmethod
+    def loss_fraction_from_components(
+            age=0.045, light_induced_degradation=0.015, soiling=0.02, snow=0.0,
+            manufacturer_nameplate_tolerance=0.01, cell_characteristic_mismatch=0.02,
+            wiring=0.02, electrical_connection=0.005, grid_availability=0.015):
+        """Compute an estimate for system_loss_fraction from individual factors.
+
+        This method is intended to help account for all of the factors outside of
+        those modeled by EnergyPlus (and PVWatts), which can influence the annual
+        energy harvested by photovoltaic arrays. It also gives a rough understanding
+        of where the default value of 0.14 could originate from given the default
+        values used for the various factors on this method.
+
+        Note that this loss term does not include the effects of the climate's
+        temperature/radiation, site shading, panel efficiency/type, active area,
+        mounting, or inverter conversion from DC to AC since all of these effects
+        are modeled explicitly by EnergyPlus.
+
+        Args:
+            age: A number between 0 and 1 for the fraction of output lost due to the
+                aging/weathering of the photovoltaic panels over time. This term is
+                intended to account for gradual degradation through exposure to
+                the elements including corrosion, thermal expansion/contraction,
+                erosion. Typical conservative estimates assume a degradation
+                of 0.01 (or 1%) per year such that, on the 20th year, the panels will
+                be performing at 19% less than their original output. (Default: 0.045
+                for the average aging expected in the first 10 years of operation).
+            light_induced_degradation: A number between 0 and 1 for the fraction
+                of output lost due to light-induced degradation of the photovoltaic
+                cells, which is common during the first few months of operation and
+                results in the cells having a different efficiency than the
+                nameplate rating. (Default: 0.02).
+            soiling: A number between 0 and 1 for the fraction of output lost due to
+                dust, dirt, leaves, wildlife droppings, and other foreign matter
+                on the surface of the PV module that prevent solar radiation from
+                reaching the cells. Soiling is highly dependent on climate,
+                installation conditions, and the frequency with which the panels
+                are cleaned. The greatest soiling losses typically occur in
+                high-traffic, high-pollution areas with infrequent rain and
+                infrequent cleaning. (Default: 0.02).
+            snow: A number between 0 and 1 for the fraction of output lost due to
+                snow covering the panels. This is common in cases where panels have
+                a low slope and are not immediately cleared of snow. (Default: 0.0
+                assuming installation in a climate without snow).
+            manufacturer_nameplate_tolerance: A number between 0 and 1 for the
+                fraction of of output lost due to tolerance that the manufacturer
+                follows in the performance of its product from the nameplate
+                rating. (Default: 0.01).
+            cell_characteristic_mismatch: A number between 0 and 1 for the fraction of
+                output lost due to manufacturing imperfections between modules in
+                the array, which cause the modules to have slightly different
+                current-voltage characteristics and result in a reduction of
+                performance from the nameplate rating. (Default: 0.02).
+            wiring: A number between 0 and 1 for the fraction of output lost due to
+                resistive losses in the wires connecting the various parts of the
+                photovoltaic system. Setups that require longer wires and bigger
+                distances between equipment will have higher losses for this
+                term. (Default: 0.02).
+            electrical_connection: A number between 0 and 1 for the fraction of output
+                lost due to resistive losses in the electrical connectors across the
+                photovoltaic system. (Default: 0.005).
+            grid_availability: A number between 0 and 1 for the fraction of output
+                lost due to maintenance shutdowns, grid outages, inability for the
+                grid to accept input, and other operational factors. (Default: 0.015).
+        """
+        all_factors = (
+            age, light_induced_degradation, soiling, snow,
+            manufacturer_nameplate_tolerance, cell_characteristic_mismatch,
+            wiring, electrical_connection, grid_availability
+        )
+        downrate_factor = 1
+        for factor in all_factors:
+            downrate_factor = downrate_factor * (1 - factor)
+        return 1 - downrate_factor
+
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""
         return (self.identifier, self.rated_efficiency, self.active_area_fraction,
