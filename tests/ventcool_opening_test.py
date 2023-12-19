@@ -126,7 +126,6 @@ def test_ventilation_dict_methods():
     ventilation = VentilationOpening(0.25, 0.5, 0.25, True)
 
     vent_dict = ventilation.to_dict()
-    print(vent_dict)
     new_ventilation = VentilationOpening.from_dict(vent_dict)
     assert new_ventilation == ventilation
     assert vent_dict == new_ventilation.to_dict()
