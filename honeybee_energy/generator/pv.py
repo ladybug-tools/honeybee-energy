@@ -161,6 +161,21 @@ class PVProperties(object):
             value, 0.0, 1.0, 'photovoltaic rated efficiency')
 
     @property
+    def active_area_fraction(self):
+        """Get or set a number for fraction of the parent covered in active solar cells.
+        
+        This fraction includes the difference between the PV panel (aka. PV module) area
+        and the active cells within the panel as well as any losses for how
+        the (typically rectangular) panels can be arranged on the Shade geometry.
+        """
+        return self._active_area_fraction
+
+    @active_area_fraction.setter
+    def active_area_fraction(self, value):
+        self._active_area_fraction = float_in_range(
+            value, 0.0, 1.0, 'photovoltaic active area fraction')
+
+    @property
     def module_type(self):
         """Get or set text to indicate the type of photovoltaic module.
 
@@ -280,7 +295,7 @@ class PVProperties(object):
                 ep_strs[9].upper(), shade.identifier.upper())
         # extract the properties from the string
         watts_per_area = float(ep_strs[2]) / shade.area 
-        eff = (watts_per_area / active_area_fraction) / 1000
+        eff = round((watts_per_area / active_area_fraction) / 1000, 3)
         loss = 0.14
         gcr = 0.4
         try:
