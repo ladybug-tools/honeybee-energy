@@ -832,8 +832,11 @@ def model_to_idf(
 
     # write all context shade geometry
     model_str.append('!-   ========== CONTEXT GEOMETRY ==========\n')
+    pv_objects = []
     for shade in model.orphaned_shades:
         model_str.append(shade.to.idf(shade))
+        if shade.properties.energy.pv_properties is not None:
+            pv_objects.append(shade)
     for face in model.orphaned_faces:
         model_str.append(face.to.idf_shade(face))
         for ap in face.apertures:
@@ -860,6 +863,13 @@ def model_to_idf(
         for con in dynamic_cons:
             model_str.append(con.to_program_idf(dyn_dict[con.identifier]))
         model_str.append(dynamic_cons[0].idf_program_manager(dynamic_cons))
+
+    # write any generator objects that were discovered in the model
+    if len(pv_objects) != 0:
+        model_str.append('!-   ========== PHOTOVOLTAIC GENERATORS ==========\n')
+        for shade in pv_objects:
+            model_str.append(shade.properties.energy.pv_properties.to_idf(shade))
+        model_str.extend(model.properties.energy.electric_load_center.to_idf(pv_objects))
 
     return '\n\n'.join(model_str)
 

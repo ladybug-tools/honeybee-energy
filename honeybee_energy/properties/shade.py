@@ -6,6 +6,7 @@ from honeybee.checkdup import is_equivalent
 from ..construction.shade import ShadeConstruction
 from ..schedule.ruleset import ScheduleRuleset
 from ..schedule.fixedinterval import ScheduleFixedInterval
+from ..generator.pv import PVProperties
 
 from ..lib.constructions import generic_context
 from ..lib.constructionsets import generic_construction_set
@@ -24,21 +25,28 @@ class ShadeEnergyProperties(object):
         transmittance_schedule: An optional schedule to set the transmittance
             of the shade, which can vary throughout the day or year. Default
             is None for a completely opaque object.
+        pv_properties: An optional PVProperties object to specify photovoltaic
+            behavior of the Shade. If None, the Shade will have no Photovoltaic
+            properties. Note that the normal of the Shade is important in
+            determining the performance of the shade as a PV geometry.
 
     Properties:
         * host
         * construction
         * transmittance_schedule
+        * pv_properties
         * is_construction_set_on_object
     """
 
-    __slots__ = ('_host', '_construction', '_transmittance_schedule')
+    __slots__ = ('_host', '_construction', '_transmittance_schedule', '_pv_properties')
 
-    def __init__(self, host, construction=None, transmittance_schedule=None):
+    def __init__(self, host, construction=None, transmittance_schedule=None,
+                 pv_properties=None):
         """Initialize Shade energy properties."""
         self._host = host
         self.construction = construction
         self.transmittance_schedule = transmittance_schedule
+        self.pv_properties = pv_properties
 
     @property
     def host(self):
@@ -93,6 +101,19 @@ class ShadeEnergyProperties(object):
         self._transmittance_schedule = value
 
     @property
+    def pv_properties(self):
+        """Get or set a PVProperties object for photovoltaic behavior of the Shade."""
+        return self._pv_properties
+
+    @pv_properties.setter
+    def pv_properties(self, value):
+        if value is not None:
+            assert isinstance(value, PVProperties), \
+                'Expected PVProperties. Got {}.'.format(type(value))
+            value.lock()  # lock editing in case construction has multiple references
+        self._pv_properties = value
+
+    @property
     def is_construction_set_on_object(self):
         """Boolean noting if construction is assigned on the level of this Shade.
 
@@ -145,7 +166,8 @@ class ShadeEnergyProperties(object):
             {
             "type": 'ShadeEnergyProperties',
             "construction": {},  # A ShadeConstruction dictionary
-            "transmittance_schedule": {}  # A transmittance schedule dictionary
+            "transmittance_schedule": {},  # A transmittance schedule dictionary
+            "pv_properties": {}  # A PVProperties dictionary
             }
         """
         assert data['type'] == 'ShadeEnergyProperties', \
@@ -167,6 +189,8 @@ class ShadeEnergyProperties(object):
                 raise ValueError(
                     'Expected non-abridged Schedule dictionary for Shade '
                     'transmittance_schedule. Got {}.'.format(sch_dict['type']))
+        if 'pv_properties' in data and data['pv_properties'] is not None:
+            new_prop.pv_properties = PVProperties.from_dict(data['pv_properties'])
         return new_prop
 
     def apply_properties_from_dict(self, abridged_data, constructions, schedules):
@@ -190,6 +214,9 @@ class ShadeEnergyProperties(object):
                 abridged_data['transmittance_schedule'] is not None:
             self.transmittance_schedule = \
                 schedules[abridged_data['transmittance_schedule']]
+        if 'pv_properties' in abridged_data and \
+                abridged_data['pv_properties'] is not None:
+            self.pv_properties = PVProperties.from_dict(abridged_data['pv_properties'])
 
     def to_dict(self, abridged=False):
         """Return energy properties as a dictionary.
@@ -210,6 +237,8 @@ class ShadeEnergyProperties(object):
             base['energy']['transmittance_schedule'] = \
                 self.transmittance_schedule.identifier if abridged else \
                 self.transmittance_schedule.to_dict()
+        if self.pv_properties is not None:
+            base['energy']['pv_properties'] = self.pv_properties.to_dict()
         return base
 
     def duplicate(self, new_host=None):
@@ -220,8 +249,8 @@ class ShadeEnergyProperties(object):
                 If None, the properties will be duplicated with the same host.
         """
         _host = new_host or self._host
-        return ShadeEnergyProperties(_host, self._construction,
-                                     self._transmittance_schedule)
+        return ShadeEnergyProperties(
+            _host, self._construction, self._transmittance_schedule, self._pv_properties)
 
     def is_equivalent(self, other):
         """Check to see if these energy properties are equivalent to another object.
@@ -233,6 +262,8 @@ class ShadeEnergyProperties(object):
             return False
         if not is_equivalent(
                 self._transmittance_schedule, other._transmittance_schedule):
+            return False
+        if not is_equivalent(self._pv_properties, other._pv_properties):
             return False
         return True
 

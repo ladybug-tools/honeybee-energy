@@ -33,6 +33,7 @@ from ..hvac.detailed import DetailedHVAC
 from ..hvac import HVAC_TYPES_DICT
 from ..shw import SHWSystem
 from ..ventcool.simulation import VentilationSimulationControl
+from ..generator.loadcenter import ElectricLoadCenter
 
 from ..config import folders
 from ..lib.constructions import generic_context
@@ -48,6 +49,8 @@ class ModelEnergyProperties(object):
         host: A honeybee_core Model object that hosts these properties.
         ventilation_simulation_control: A VentilationSimulationControl object that
             defines global parameters for ventilation simulation.
+        electric_load_center: A ElectricLoadCenter object that defines the properties
+            of the model's electric loads center.
 
     Properties:
         * host
@@ -69,12 +72,15 @@ class ModelEnergyProperties(object):
         * hvacs
         * shws
         * ventilation_simulation_control
+        * electric_load_center
     """
 
-    def __init__(self, host, ventilation_simulation_control=None):
+    def __init__(
+            self, host, ventilation_simulation_control=None, electric_load_center=None):
         """Initialize Model energy properties."""
         self._host = host
         self.ventilation_simulation_control = ventilation_simulation_control
+        self.electric_load_center = electric_load_center
 
     @property
     def host(self):
@@ -376,6 +382,21 @@ class ModelEnergyProperties(object):
                 if not self._instance_in_array(room.properties.energy._shw, shws):
                     shws.append(room.properties.energy._shw)
         return shws
+
+    @property
+    def electric_load_center(self):
+        """Get or set global parameters for ventilation cooling simulation."""
+        return self._electric_load_center
+
+    @electric_load_center.setter
+    def electric_load_center(self, value):
+        if value is None:
+            value = ElectricLoadCenter()
+        else:
+            assert isinstance(value, ElectricLoadCenter), \
+                'electric_load_center must be a ' \
+                'ElectricLoadCenter object. Got: {}.'.format(value)
+        self._electric_load_center = value
 
     @property
     def ventilation_simulation_control(self):
@@ -1138,13 +1159,18 @@ class ModelEnergyProperties(object):
                 shade.properties.energy.apply_properties_from_dict(
                     s_dict, constructions, schedules)
 
-        # re-serialize the ventilation_simulation_control
         energy_prop = data['properties']['energy']
+        # re-serialize the ventilation_simulation_control
         if 'ventilation_simulation_control' in energy_prop and \
                 energy_prop['ventilation_simulation_control'] is not None:
             self.ventilation_simulation_control = \
                 VentilationSimulationControl.from_dict(
                     energy_prop['ventilation_simulation_control'])
+        # re-serialize the electric_load_center
+        if 'electric_load_center' in energy_prop and \
+                energy_prop['electric_load_center'] is not None:
+            self.electric_load_center = \
+                ElectricLoadCenter.from_dict(energy_prop['electric_load_center'])
 
     def to_dict(self):
         """Return Model energy properties as a dictionary."""
@@ -1159,6 +1185,8 @@ class ModelEnergyProperties(object):
         # add ventilation_simulation_control
         base['energy']['ventilation_simulation_control'] = \
             self.ventilation_simulation_control.to_dict()
+        # add electric_load_center
+        base['energy']['electric_load_center'] = self.electric_load_center.to_dict()
 
         return base
 
@@ -1301,7 +1329,8 @@ class ModelEnergyProperties(object):
         """
         _host = new_host or self._host
         return ModelEnergyProperties(
-            _host, self._ventilation_simulation_control.duplicate())
+            _host, self._ventilation_simulation_control.duplicate(),
+            self.electric_load_center.duplicate())
 
     @staticmethod
     def load_properties_from_dict(data):
