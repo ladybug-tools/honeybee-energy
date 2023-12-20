@@ -343,6 +343,22 @@ output-table-summaryreports.html#outputtablesummaryreports)
         for outp in outputs:
             self._outputs.add(outp)
 
+    def add_electricity_generation(self):
+        """Add outputs related to on-site electricity generation."""
+        self._outputs.add('Electric Load Center Produced Electricity Energy')
+
+    def add_photovoltaic_detail(self):
+        """Add outputs specific to photovoltaic energy generation.
+
+        This includes the DC electricity produced by each PV surface, the incident
+        solar radiation, and the cell temperature.
+        """
+        outputs = ['Generator Produced DC Electricity Energy',
+                   'Generator PV Cell Temperature',
+                   'Plane of Array Irradiance']
+        for outp in outputs:
+            self._outputs.add(outp)
+
     def add_comfort_metrics(self):
         """Add outputs for zone thermal comfort analysis.
 

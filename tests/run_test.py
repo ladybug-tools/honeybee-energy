@@ -16,12 +16,16 @@ from honeybee_energy.ventcool.opening import VentilationOpening
 from honeybee_energy.ventcool.control import VentilationControl
 from honeybee_energy.simulation.parameter import SimulationParameter
 from honeybee_energy.measure import Measure
+from honeybee_energy.generator.pv import PVProperties
 
 from ladybug_geometry.geometry3d.pointvector import Vector3D
 from ladybug.dt import Date, Time
 from ladybug.futil import write_to_file
+from ladybug.epw import EPW
+from ladybug.sql import SQLiteResult
 from honeybee.model import Model
 from honeybee.room import Room
+from honeybee.shade import Shade
 from honeybee.config import folders
 
 import os
@@ -146,7 +150,7 @@ def test_run_idf_colinear():
     sim_par.sizing_parameter.add_from_ddy_996_004(ddy_file)
     sim_par.run_period.end_date = Date(1, 7)
 
-    # create the IDF string for simulation paramters and model
+    # create the IDF string for simulation parameters and model
     idf_str = '\n\n'.join((sim_par.to_idf(), model.to.idf(model)))
 
     # write the final string into an IDF
@@ -395,3 +399,51 @@ def test_run_idf_5vertex():
     assert os.path.isfile(err)
     err_obj = Err(err)
     assert 'EnergyPlus Completed Successfully' in err_obj.file_contents
+
+
+def test_pv_generation():
+    room = Room.from_box('Tiny_House_Zone', 5, 10, 3)
+    room.properties.energy.program_type = office_program
+    room.properties.energy.add_default_ideal_air()
+    shade = Shade.from_vertices(
+        'pv_shade_object', [[0, 0, 3], [5, 0, 3], [5, 1, 4], [0, 1, 4]])
+    pv_props = PVProperties('Standard PV Product')
+    shade.properties.energy.pv_properties = pv_props
+    model = Model('Tiny_House', [room], orphaned_shades=[shade])
+
+    # test to_idf
+    epw_file = './tests/epw/chicago.epw'
+    sim_par = SimulationParameter()
+    sim_par.shadow_calculation.solar_distribution = 'FullExterior'
+    sim_par.output.add_electricity_generation()
+    sim_par.output.reporting_frequency = 'Monthly'
+    sim_par.timestep = 1
+    epw_obj = EPW(epw_file)
+    des_days = [epw_obj.approximate_design_day('WinterDesignDay'),
+                epw_obj.approximate_design_day('SummerDesignDay')]
+    sim_par.sizing_parameter.design_days = des_days
+
+    # create the IDF string for simulation parameters and model
+    idf_str = '\n\n'.join((sim_par.to_idf(), model.to.idf(model)))
+
+    # write the final string into an IDF
+    idf = os.path.join(folders.default_simulation_folder, 'test_file_colinear', 'in.idf')
+    write_to_file(idf, idf_str, True)
+
+    # prepare the IDF for simulation
+    prepare_idf_for_simulation(idf, epw_file)
+
+    # run the IDF through EnergyPlus
+    sql, zsz, rdd, html, err = run_idf(idf, epw_file)
+
+    assert os.path.isfile(sql)
+    assert os.path.isfile(err)
+    err_obj = Err(err)
+    assert 'EnergyPlus Completed Successfully' in err_obj.file_contents
+
+    # create the strings for simulation paramters and model
+    sql_obj = SQLiteResult(sql)
+    gen_elec_data = sql_obj.data_collections_by_output_name(
+        'Electric Load Center Produced Electricity Energy')
+    assert len(gen_elec_data) == 1
+    assert sum(gen_elec_data[0].values) > 0

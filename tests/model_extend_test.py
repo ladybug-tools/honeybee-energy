@@ -28,6 +28,8 @@ from honeybee_energy.schedule.typelimit import ScheduleTypeLimit
 from honeybee_energy.load.people import People
 from honeybee_energy.ventcool.simulation import VentilationSimulationControl
 from honeybee_energy.hvac.allair.vav import VAV
+from honeybee_energy.generator.pv import PVProperties
+from honeybee_energy.generator.loadcenter import ElectricLoadCenter
 
 from honeybee_energy.lib.programtypes import office_program, plenum_program
 import honeybee_energy.lib.scheduletypelimits as schedule_types
@@ -879,3 +881,39 @@ def test_energy_ventilation_simulation_properties():
         VentilationSimulationControl('MultiZoneWithoutDistribution', 21, 101320, 0.5)
     vent = model.properties.energy.ventilation_simulation_control
     assert vent.vent_control_type == 'MultiZoneWithoutDistribution'
+
+
+def test_energy_electric_loads_center_properties():
+    """Test the existence of the ventilation simulation control properties."""
+    room = Room.from_box('Tiny_House_Zone', 5, 10, 3)
+    room.properties.energy.program_type = office_program
+    room.properties.energy.add_default_ideal_air()
+    shade = Shade.from_vertices(
+        'pv_shade_object', [[0, 0, 3], [5, 0, 3], [5, 1, 4], [0, 1, 4]])
+    pv_props = PVProperties('Standard PV Product')
+    shade.properties.energy.pv_properties = pv_props
+    model = Model('Tiny_House', [room], orphaned_shades=[shade])
+    assert hasattr(model.properties.energy, 'electric_load_center')
+
+    load_center = model.properties.energy.electric_load_center
+    assert isinstance(load_center, ElectricLoadCenter)
+    assert load_center.inverter_efficiency == 0.96
+    assert load_center.inverter_dc_to_ac_size_ratio == 1.1
+    load_center.inverter_efficiency == 0.95
+    load_center.inverter_dc_to_ac_size_ratio == 1.15
+
+    # test to_dict
+    data = model.to_dict()
+    assert 'electric_load_center' in data['properties']['energy']
+    center_dict = data['properties']['energy']['electric_load_center']
+    center_dict['inverter_efficiency'] == 0.95
+    center_dict['inverter_dc_to_ac_size_ratio'] == 1.15
+    new_model = Model.from_dict(data)
+    assert new_model.properties.energy.electric_load_center == \
+        model.properties.energy.electric_load_center
+    assert new_model.orphaned_shades[0].properties.energy.pv_properties == \
+        model.orphaned_shades[0].properties.energy.pv_properties
+
+    # test to idf
+    model_idf = model.to.idf(model)
+    assert 'ElectricLoadCenter:Distribution' in model_idf
