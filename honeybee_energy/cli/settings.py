@@ -86,6 +86,7 @@ def default_sim_par(
         sim_par = SimulationParameter()
         sim_par.output.add_zone_energy_use()
         sim_par.output.add_hvac_energy_use()
+        sim_par.output.add_electricity_generation()
         sim_par.output.reporting_frequency = reporting_frequency
         _apply_run_period(run_period, sim_par)
         sim_par.north_angle = north
@@ -371,6 +372,7 @@ def orientation_sim_pars(
         if default_outputs:
             sim_par.output.add_zone_energy_use()
             sim_par.output.add_hvac_energy_use()
+            sim_par.output.add_electricity_generation()
         for out_name in output_name:
             sim_par.output.add_output(out_name)
         sim_par.output.reporting_frequency = reporting_frequency

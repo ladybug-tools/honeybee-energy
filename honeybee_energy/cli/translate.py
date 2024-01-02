@@ -95,6 +95,7 @@ def model_to_osm(
             sim_par = SimulationParameter()
             sim_par.output.add_zone_energy_use()
             sim_par.output.add_hvac_energy_use()
+            sim_par.output.add_electricity_generation()
             sim_par_dict = sim_par.to_dict()
             sp_json = os.path.abspath(os.path.join(folder, 'simulation_parameter.json'))
             with open(sp_json, 'w') as fp:
@@ -192,6 +193,7 @@ def model_to_idf(model_file, sim_par_json, additional_str, compact_schedules,
             sim_par = SimulationParameter()
             sim_par.output.add_zone_energy_use()
             sim_par.output.add_hvac_energy_use()
+            sim_par.output.add_electricity_generation()
 
         # re-serialize the Model to Python
         model = Model.from_file(model_file)
