@@ -138,6 +138,7 @@ def simulate_model(
                 sim_par = SimulationParameter()
                 sim_par.output.add_zone_energy_use()
                 sim_par.output.add_hvac_energy_use()
+                sim_par.output.add_electricity_generation()
                 sim_par.output.reporting_frequency = 'Monthly'
             else:
                 with open(sim_par_json) as json_file:
