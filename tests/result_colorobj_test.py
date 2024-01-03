@@ -256,3 +256,22 @@ def test_load_balance():
 
     load_colls_norm_storage = load_bal_obj.load_balance_terms(True, True)
     assert len(load_colls_norm_storage) == len(load_colls) + 1
+
+
+def test_load_balance_rooms():
+    """Test the initialization of LoadBalance with a Rooms subset."""
+    model_json = './tests/result/triangulated/TriangleModel.json'
+    with open(model_json, 'r') as fp:
+        model_data = json.load(fp)
+    model = Model.from_dict(model_data)
+    sql_path = './tests/result/triangulated/eplusout.sql'
+
+    load_bal_obj = LoadBalance.from_sql_file_rooms(model.rooms, sql_path)
+
+    load_colls = load_bal_obj.load_balance_terms()
+    load_colls_storage = load_bal_obj.load_balance_terms(include_storage=True)
+    assert len(load_colls) >= 8
+    assert len(load_colls_storage) == len(load_colls) + 1
+
+    load_colls_norm_storage = load_bal_obj.load_balance_terms(True, True)
+    assert len(load_colls_norm_storage) == len(load_colls) + 1
