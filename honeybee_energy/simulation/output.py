@@ -345,7 +345,7 @@ output-table-summaryreports.html#outputtablesummaryreports)
 
     def add_electricity_generation(self):
         """Add outputs related to on-site electricity generation."""
-        outputs = ['Electric Load Center Produced Electricity Energy',
+        outputs = ['Facility Total Produced Electricity Energy',
                    'Facility Net Purchased Electricity Energy',
                    'Generator Produced DC Electricity Energy']
         for outp in outputs:

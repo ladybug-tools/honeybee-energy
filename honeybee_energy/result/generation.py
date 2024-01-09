@@ -120,7 +120,7 @@ def generation_data_from_sql(sql_results):
         # parse the SQL file
         sql_obj = SQLiteResult(sql_path)
         sql_prod = sql_obj.data_collections_by_output_name(
-            'Electric Load Center Produced Electricity Energy')
+            'Facility Total Produced Electricity Energy')
         prod_data.extend(sql_prod)
         sql_net = sql_obj.data_collections_by_output_name(
             'Facility Net Purchased Electricity Energy')

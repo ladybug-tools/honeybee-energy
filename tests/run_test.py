@@ -444,6 +444,6 @@ def test_pv_generation():
     # create the strings for simulation paramters and model
     sql_obj = SQLiteResult(sql)
     gen_elec_data = sql_obj.data_collections_by_output_name(
-        'Electric Load Center Produced Electricity Energy')
+        'Facility Total Produced Electricity Energy')
     assert len(gen_elec_data) == 1
     assert sum(gen_elec_data[0].values) > 0
