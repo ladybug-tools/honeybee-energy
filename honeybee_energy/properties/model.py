@@ -5,13 +5,16 @@ try:
 except ImportError:
     pass   # python 3
 
-from ladybug_geometry.geometry2d.pointvector import Vector2D
+from ladybug_geometry.geometry2d import Vector2D
+from ladybug_geometry.geometry3d import Point3D
 from honeybee.boundarycondition import Outdoors, Surface, boundary_conditions
 from honeybee.facetype import AirBoundary, face_types
 from honeybee.extensionutil import model_extension_dicts
 from honeybee.checkdup import check_duplicate_identifiers
+from honeybee.units import conversion_factor_to_meters
 from honeybee.typing import invalid_dict_error, clean_ep_string, clean_and_id_ep_string
 from honeybee.face import Face
+from honeybee.room import Room
 from honeybee.model import Model
 
 from ..material.dictutil import dict_to_material
@@ -644,6 +647,36 @@ class ModelEnergyProperties(object):
                 spec_state = RadianceSubFaceState(all_spec)
                 diff_state = RadianceSubFaceState(all_diff)
                 ap.properties.radiance.states = [spec_state, diff_state]
+
+    def generate_ground_room(self, soil_construction):
+        """Generate and add a Room to the Model that represents the ground.
+
+        The Room will be added such that it exists below all of the other geometry
+        of the model and covers the full XY extents of the model.
+
+        This is useful when it is desirable to track the ground surface temperature
+        or when the model needs a simple Room to be able to simulate in EnergyPlus.
+
+        Args:
+            soil_construction: An OpaqueConstruction that reflects the soil type of
+                the ground. If a multi-layered construction is input, the multiple
+                layers will only be used for the roof Face of the Room and all other
+                Faces will get a construction with the inner-most layer assigned.
+                If the outer-most material is an EnergyMaterialVegetation and there
+                are no other layers in the construction, the vegetation's soil
+                material will be used for all other Faces.
+        """
+        # create the room geometry from the min and max points
+        min_pt, max_pt = self.host.min, self.host.max
+        room_height = 1 / conversion_factor_to_meters(self.host.units)
+        rm_origin = Point3D(min_pt.x, min_pt.y, min_pt.z - room_height)
+        ground = Room.from_box(
+            'Ground_Room', max_pt.x - min_pt.x, max_pt.y - min_pt.y, room_height,
+            origin=rm_origin)
+        # turn the room into a ground with an appropriate construction
+        ground.properties.energy.make_ground(soil_construction)
+        self.host.add_room(ground)
+        return ground
 
     def check_all(self, raise_exception=True, detailed=False):
         """Check all of the aspects of the Model energy properties.
