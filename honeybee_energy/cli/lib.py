@@ -959,7 +959,12 @@ def add_to_lib(properties_file, standards_folder, log_file):
                     except (ValueError, KeyError, AssertionError):
                         mis_dep_objects.append(msg)
         if cons:
-            con_dict = {c.identifier: c.to_dict(abridged=True) for c in cons.values()}
+            con_dict = {}
+            for c in cons.values():
+                try:
+                    con_dict[c.identifier] = c.to_dict(abridged=True)
+                except TypeError:  # ShadeConstruction
+                    con_dict[c.identifier] = c.to_dict()
             con_json = os.path.join(folder, 'constructions', 'custom_constructions.json')
             _update_user_json(con_dict, con_json)
 
