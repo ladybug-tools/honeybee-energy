@@ -9,6 +9,7 @@ import re
 
 from ladybug.futil import preparedir
 from ladybug.analysisperiod import AnalysisPeriod
+from ladybug.epw import EPW
 from honeybee.model import Model
 from honeybee.typing import clean_rad_string, clean_and_number_ep_string
 from honeybee.config import folders as hb_folders
@@ -96,10 +97,49 @@ def model_to_osm(
             sim_par.output.add_zone_energy_use()
             sim_par.output.add_hvac_energy_use()
             sim_par.output.add_electricity_generation()
+            sim_par.output.reporting_frequency = 'Monthly'
+            
+        else:
+            with open(sim_par_json) as json_file:
+                data = json.load(json_file)
+            sim_par = SimulationParameter.from_dict(data)
+
+        # perform a check to be sure the EPW file is specified for sizing runs
+        def ddy_from_epw(epw_file, sim_par):
+            """Produce a DDY from an EPW file."""
+            epw_obj = EPW(epw_file)
+            des_days = [epw_obj.approximate_design_day('WinterDesignDay'),
+                        epw_obj.approximate_design_day('SummerDesignDay')]
+            sim_par.sizing_parameter.design_days = des_days
+
+        def write_sim_par(sim_par):
+            """Write simulation parameter object to a JSON."""
             sim_par_dict = sim_par.to_dict()
             sp_json = os.path.abspath(os.path.join(folder, 'simulation_parameter.json'))
             with open(sp_json, 'w') as fp:
                 json.dump(sim_par_dict, fp)
+            return sp_json    
+        
+        if sim_par.sizing_parameter.efficiency_standard is not None:
+            assert epw_file is not None, 'An epw_file must be specified for ' \
+                'translation to OSM whenever a Simulation Parameter ' \
+                'efficiency_standard is specified.\nNo EPW was specified yet the ' \
+                'Simulation Parameter efficiency_standard is "{}".'.format(
+                    sim_par.sizing_parameter.efficiency_standard
+                )
+            epw_folder, epw_file_name = os.path.split(epw_file)
+            ddy_file = os.path.join(epw_folder, epw_file_name.replace('.epw', '.ddy'))
+            if len(sim_par.sizing_parameter.design_days) == 0 and \
+                    os.path.isfile(ddy_file):
+                try:
+                    sim_par.sizing_parameter.add_from_ddy_996_004(ddy_file)
+                except AssertionError:  # no design days within the DDY file
+                    ddy_from_epw(epw_file, sim_par)
+            elif len(sim_par.sizing_parameter.design_days) == 0:
+                ddy_from_epw(epw_file, sim_par)
+            sim_par_json = write_sim_par(sim_par)
+        elif sim_par_json is None:
+            sim_par_json = write_sim_par(sim_par)
 
         # run the Model re-serialization and check if specified
         if check_model:
