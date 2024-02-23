@@ -74,6 +74,15 @@ class SizingParameter(object):
             * QuickServiceRestaurant
             * Laboratory
             * Courthouse
+        
+        bypass_efficiency_sizing: A boolean to indicate whether the efficiency
+            standard should trigger an sizing run that sets the efficiencies
+            of all HVAC equipment in the Model (False) or the standard should
+            only be written into the OSM and the sizing run should be
+            bypassed (True). Bypassing the sizing run is useful when you only
+            want to check that the overall HVAC system architecture is correct
+            and you do not want to wait the extra time that it takes to run the
+            sizing calculation. (Default: False).
 
     Properties:
         * design_days
@@ -82,9 +91,11 @@ class SizingParameter(object):
         * efficiency_standard
         * climate_zone
         * building_type
+        * bypass_efficiency_sizing
     """
     __slots__ = ('_design_days', '_heating_factor', '_cooling_factor',
-                 '_efficiency_standard', '_climate_zone', '_building_type')
+                 '_efficiency_standard', '_climate_zone', '_building_type',
+                 '_bypass_efficiency_sizing')
     STANDARDS = ('DOE_Ref_Pre_1980', 'DOE_Ref_1980_2004', 'ASHRAE_2004', 'ASHRAE_2007',
                  'ASHRAE_2010', 'ASHRAE_2013', 'ASHRAE_2016', 'ASHRAE_2019')
     CLIMATE_ZONES = (
@@ -94,7 +105,8 @@ class SizingParameter(object):
     )
 
     def __init__(self, design_days=None, heating_factor=1.25, cooling_factor=1.15,
-                 efficiency_standard=None, climate_zone=None, building_type=None):
+                 efficiency_standard=None, climate_zone=None, building_type=None,
+                 bypass_efficiency_sizing=False):
         """Initialize SizingParameter."""
         self.design_days = design_days
         self.heating_factor = heating_factor
@@ -102,6 +114,7 @@ class SizingParameter(object):
         self.efficiency_standard = efficiency_standard
         self.climate_zone = climate_zone
         self.building_type = building_type
+        self.bypass_efficiency_sizing = bypass_efficiency_sizing
 
     @property
     def design_days(self):
@@ -223,6 +236,15 @@ class SizingParameter(object):
         else:
             value = None
         self._building_type = value
+
+    @property
+    def bypass_efficiency_sizing(self):
+        """Get or set a boolean for whether efficiency standard triggers a sizing run."""
+        return self._bypass_efficiency_sizing
+
+    @bypass_efficiency_sizing.setter
+    def bypass_efficiency_sizing(self, value):
+        self._bypass_efficiency_sizing = bool(value)
 
     def add_design_day(self, design_day):
         """Add a ladybug DesignDay to this object's design_days.
@@ -378,7 +400,8 @@ class SizingParameter(object):
             "cooling_factor": 1.15,
             "efficiency_standard": "ASHRAE_2004",  # standard for HVAC efficiency
             "climate_zone": "5A",  # climate zone for HVAC efficiency
-            "building_type": "LargeOffice"  # building type for HVAC efficiency
+            "building_type": "LargeOffice",  # building type for HVAC efficiency
+            "bypass_efficiency_sizing": False  # bypass the efficiency sizing run
             }
         """
         assert data['type'] == 'SizingParameter', \
@@ -391,7 +414,9 @@ class SizingParameter(object):
         es = data['efficiency_standard'] if 'efficiency_standard' in data else None
         cz = data['climate_zone'] if 'climate_zone' in data else None
         bt = data['building_type'] if 'building_type' in data else None
-        return cls(design_days, heating_factor, cooling_factor, es, cz, bt)
+        bes = data['bypass_efficiency_sizing'] \
+            if 'bypass_efficiency_sizing' in data else False
+        return cls(design_days, heating_factor, cooling_factor, es, cz, bt, bes)
 
     def to_idf(self):
         """Get an EnergyPlus string representation of the SizingParameters.
@@ -427,6 +452,8 @@ class SizingParameter(object):
             siz_par['building_type'] = self.building_type
         if len(self._design_days) != 0:
             siz_par['design_days'] = [dday.to_dict(False) for dday in self.design_days]
+        if self.bypass_efficiency_sizing:
+            siz_par['bypass_efficiency_sizing'] = self.bypass_efficiency_sizing
         return siz_par
 
     def to_ddy(self):
@@ -450,13 +477,13 @@ class SizingParameter(object):
         return SizingParameter(
             [dday.duplicate() for dday in self._design_days],
             self.heating_factor, self.cooling_factor, self.efficiency_standard,
-            self.climate_zone, self.building_type)
+            self.climate_zone, self.building_type, self.bypass_efficiency_sizing)
 
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""
         return tuple(hash(dday) for dday in self._design_days) + \
             (self.heating_factor, self.cooling_factor, self.efficiency_standard,
-             self.climate_zone, self.building_type)
+             self.climate_zone, self.building_type, self.bypass_efficiency_sizing)
 
     def __hash__(self):
         return hash(self.__key())
