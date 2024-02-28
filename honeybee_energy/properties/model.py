@@ -466,11 +466,23 @@ class ModelEnergyProperties(object):
 
         This will ensure that EnergyPlus does not fail when it tries to simulate
         a HVAC for which there are no criteria to meet.
+
+        Returns:
+            A list of text strings for each room that had an HVAC removed because
+            of a lack of setpoints. This can be printed to logs or registered as
+            a warning in the interface.
         """
+        removed_msgs = []
         for room in self._host.rooms:
             if room.properties.energy.hvac is not None \
                     and room.properties.energy.setpoint is None:
+                hvac_name = room.properties.energy.hvac.display_name
                 room.properties.energy.hvac = None
+                msg = 'Room "{}" has an HVAC assigned to it but does not have any ' \
+                    'thermostat setpoints.\nThe HVAC "{}" will not be translated ' \
+                    'for this room.'.format(room.display_name, hvac_name)
+                removed_msgs.append(msg)
+        return removed_msgs
 
     def missing_adjacencies_to_adiabatic(self):
         """Set any Faces with missing adjacencies in the model to adiabatic.
