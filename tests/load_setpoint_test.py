@@ -33,6 +33,7 @@ def test_setpoint_init(userdatadict):
     assert setpoint.dehumidifying_schedule is None
     assert setpoint.dehumidifying_setpoint is None
     assert setpoint.dehumidifying_setback is None
+    assert setpoint.setpoint_cutout_difference == 0
     assert setpoint.user_data == userdatadict
 
 
@@ -109,6 +110,9 @@ def test_setpoint_setability(userdatadict):
     setpoint.dehumidifying_setpoint = 60
     assert setpoint.dehumidifying_setpoint == 60
     assert setpoint.dehumidifying_setback == 60
+    assert setpoint.setpoint_cutout_difference == 0
+    setpoint.setpoint_cutout_difference = 1.5
+    assert setpoint.setpoint_cutout_difference == 1.5
     assert setpoint.user_data == userdatadict
 
 
@@ -174,6 +178,11 @@ def test_setpoint_init_from_idf():
     rebuilt_setpoint = Setpoint.from_idf(idf_str, sched_dict)
     assert setpoint == rebuilt_setpoint
 
+    setpoint.setpoint_cutout_difference = 0.5
+    idf_str = setpoint.to_idf('Test Zone')
+    assert 'ZoneControl:Thermostat' in idf_str
+    assert 'cutout and setpoint' in idf_str
+
 
 def test_setpoint_init_from_idf_humidity(userdatadict):
     """Test the initialization of Setpoint from_idf with humidity setpoints."""
@@ -220,6 +229,7 @@ def test_setpoint_dict_methods(userdatadict):
         'Office Dehumid', 60, schedule_types.humidity)
     setpoint = Setpoint('Office Setpoint', heat_setpt, cool_setpt,
                         humid_setpt, dehumid_setpt)
+    setpoint.setpoint_cutout_difference = 0.5
     setpoint.user_data = userdatadict
     setp_dict = setpoint.to_dict()
     new_setpoint = Setpoint.from_dict(setp_dict)
