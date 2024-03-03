@@ -451,8 +451,8 @@ class IdealAirSystem(_HVACSystem):
                 are pulled from this Room.
         """
         # check that a setpoint object is assigned
-        assert room.properties.energy.setpoint is not None, \
-            'IdealAirSystem must be assigned to a Room ' \
+        r_set_p = room.properties.energy.setpoint
+        assert r_set_p is not None, 'IdealAirSystem must be assigned to a Room ' \
             'with a setpoint object to use IdealAirSystem.to_idf.'
 
         # extract all of the fields from this object and its room
@@ -477,16 +477,16 @@ class IdealAirSystem(_HVACSystem):
         cool_avail = self.cooling_availability.identifier if \
             self.cooling_availability is not None else ''
         # humidifying setpoint
-        if room.properties.energy.setpoint.humidifying_setpoint is not None:
+        if r_set_p.humidifying_setpoint is not None:
             humid_type = 'Humidistat'
-            humid_setpt = room.properties.energy.setpoint.humidifying_setpoint
+            humid_setpt = r_set_p.humidifying_setpoint
         else:
             humid_type = 'None'
             humid_setpt = ''
         # dehumidifying setpoint
-        if room.properties.energy.setpoint.dehumidifying_setpoint is not None:
+        if r_set_p.dehumidifying_setpoint is not None:
             dehumid_type = 'Humidistat'
-            dehumid_setpt = room.properties.energy.setpoint.dehumidifying_setpoint
+            dehumid_setpt = r_set_p.dehumidifying_setpoint
         else:
             dehumid_type = 'None'
             dehumid_setpt = ''
@@ -509,8 +509,8 @@ class IdealAirSystem(_HVACSystem):
             heat_recovery = 'Sensible'
 
         # return a full IDF string
-        thermostat = '{}..{}'.format(room.properties.energy.setpoint.identifier,
-                                     room.identifier)
+        thermostat = '{}..{}'.format(r_set_p.identifier, room.identifier) \
+            if r_set_p.setpoint_cutout_difference == 0 else ''
         values = (room.identifier, thermostat,
                   '', self.heating_air_temperature, self.cooling_air_temperature,
                   '', '', h_lim_type, '', heat_limit, c_lim_type, air_limit, cool_limit,

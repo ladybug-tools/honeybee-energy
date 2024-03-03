@@ -4,7 +4,7 @@ from __future__ import division
 import random
 
 from honeybee._lockable import lockable
-from honeybee.typing import float_in_range, clean_and_id_ep_string
+from honeybee.typing import float_positive, float_in_range, clean_and_id_ep_string
 
 from ._base import _LoadBase
 from ..schedule.ruleset import ScheduleRuleset
@@ -30,10 +30,25 @@ class Setpoint(_LoadBase):
             cooling setpoint.
         humidifying_schedule: A ScheduleRuleset or ScheduleFixedInterval for
             the humidification setpoint. If None, no additional humidification
-            will be applied by the HVAC system. Default: None.
+            will be applied by the HVAC system. (Default: None).
         dehumidifying_schedule: A ScheduleRuleset or ScheduleFixedInterval for
             the dehumidification setpoint. If None, no additional dehumidification
-            will be performed by the HVAC system. Default: None.
+            will be performed by the HVAC system. (Default: None).
+        setpoint_cutout_difference: An optional positive number for the temperature
+            difference between the cutout temperature and the setpoint temperature.
+            Specifying a non-zero number here is useful for modeling the throttling
+            range associated with a given setup of setpoint controls and HVAC equipment.
+            Throttling ranges describe the range where a zone is slightly over-cooled
+            or over-heated beyond the thermostat setpoint. They are used to avoid
+            situations where HVAC systems turn on only to turn off a few minutes later,
+            thereby wearing out the parts of mechanical systems faster. They can
+            have a minor impact on energy consumption and can often have significant
+            impacts on occupant thermal comfort, though using the default value
+            of zero will often yield results that are close enough when trying
+            to estimate the annual heating/cooling energy use. Specifying a value
+            of zero effectively assumes that the system will turn on whenever
+            conditions are outside the setpoint range and will cut out as soon
+            as the setpoint is reached. (Default: 0).
 
     Properties:
         * identifier
@@ -42,6 +57,7 @@ class Setpoint(_LoadBase):
         * cooling_schedule
         * humidifying_schedule
         * dehumidifying_schedule
+        * setpoint_cutout_difference
         * heating_setpoint
         * cooling_setpoint
         * humidifying_setpoint
@@ -53,14 +69,15 @@ class Setpoint(_LoadBase):
         * user_data
     """
     __slots__ = ('_heating_schedule', '_cooling_schedule', '_humidifying_schedule',
-                 '_dehumidifying_schedule')
+                 '_dehumidifying_schedule', '_setpoint_cutout_difference')
     _humidifying_schedule_no_limit = ScheduleRuleset.from_constant_value(
         'HumidNoLimit', 0, _type_lib.humidity)
     _dehumidifying_schedule_no_limit = ScheduleRuleset.from_constant_value(
         'DeHumidNoLimit', 100, _type_lib.humidity)
 
     def __init__(self, identifier, heating_schedule, cooling_schedule,
-                 humidifying_schedule=None, dehumidifying_schedule=None):
+                 humidifying_schedule=None, dehumidifying_schedule=None,
+                 setpoint_cutout_difference=0):
         """Initialize Setpoint."""
         _LoadBase.__init__(self, identifier)
         # defaults that might be overwritten
@@ -70,6 +87,7 @@ class Setpoint(_LoadBase):
         self.cooling_schedule = cooling_schedule
         self.humidifying_schedule = humidifying_schedule
         self.dehumidifying_schedule = dehumidifying_schedule
+        self.setpoint_cutout_difference = setpoint_cutout_difference
         self._properties = SetpointProperties(self)
 
     @property
@@ -131,6 +149,16 @@ class Setpoint(_LoadBase):
         else:
             self._dehumidifying_schedule = None if self._humidifying_schedule is None \
                 else self._dehumidifying_schedule_no_limit
+
+    @property
+    def setpoint_cutout_difference(self):
+        """Get or set the temperature difference between the cutout and the setpoint."""
+        return self._setpoint_cutout_difference
+
+    @setpoint_cutout_difference.setter
+    def setpoint_cutout_difference(self, value):
+        self._setpoint_cutout_difference = float_positive(
+            value, 'setpoint cutout difference')
 
     @property
     def heating_setpoint(self):
@@ -373,10 +401,11 @@ class Setpoint(_LoadBase):
             "type": 'Setpoint',
             "identifier": 'Hospital_Patient_Room_Setpoint_210_230',
             "display_name": 'Patient Room Setpoint',
-            "heating_schedule": {}, # ScheduleRuleset/ScheduleFixedInterval dictionary
-            "cooling_schedule": {}, # ScheduleRuleset/ScheduleFixedInterval dictionary
-            "humidifying_schedule": {}, # ScheduleRuleset/ScheduleFixedInterval dictionary
-            "dehumidifying_schedule": {} # ScheduleRuleset/ScheduleFixedInterval dictionary
+            "heating_schedule": {}, # ScheduleRuleset/FixedInterval dictionary
+            "cooling_schedule": {}, # ScheduleRuleset/FixedInterval dictionary
+            "humidifying_schedule": {}, # ScheduleRuleset/FixedInterval dictionary
+            "dehumidifying_schedule": {}, # ScheduleRuleset/FixedInterval dictionary
+            "setpoint_cutout_difference": 0.5  # number for cutout difference
             }
         """
         assert data['type'] == 'Setpoint', \
@@ -389,8 +418,11 @@ class Setpoint(_LoadBase):
         dehumid_sched = cls._get_schedule_from_dict(data['dehumidifying_schedule']) if \
             'dehumidifying_schedule' in data and \
             data['dehumidifying_schedule'] is not None else None
+        cut = data['setpoint_cutout_difference'] \
+            if 'setpoint_cutout_difference' in data and \
+            data['setpoint_cutout_difference'] is not None else 0
         new_obj = cls(data['identifier'], heat_sched, cool_sched,
-                      humid_sched, dehumid_sched)
+                      humid_sched, dehumid_sched, cut)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
@@ -419,7 +451,8 @@ class Setpoint(_LoadBase):
             "heating_schedule": "Hospital Pat Room Heating", # Schedule identifier
             "cooling_schedule": "Hospital Pat Room Cooling", # Schedule identifier
             "humidifying_schedule": "Hospital Pat Room Humidify", # Schedule identifier
-            "dehumidifying_schedule": "Hospital Pat Room Dehumidify" # Schedule identifier
+            "dehumidifying_schedule": "Hospital Pat Room Dehumidify", # Sched identifier
+            "setpoint_cutout_difference": 0.5  # number for cutout difference
             }
         """
         assert data['type'] == 'SetpointAbridged', \
@@ -442,8 +475,11 @@ class Setpoint(_LoadBase):
                 dehumid_sched = schedule_dict[data['dehumidifying_schedule']]
             except KeyError as e:
                 raise ValueError('Failed to find {} in the schedule_dict.'.format(e))
+        cut = data['setpoint_cutout_difference'] \
+            if 'setpoint_cutout_difference' in data and \
+            data['setpoint_cutout_difference'] is not None else 0
         new_obj = cls(data['identifier'], heat_sched, cool_sched,
-                      humid_sched, dehumid_sched)
+                      humid_sched, dehumid_sched, cut)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
@@ -465,12 +501,40 @@ class Setpoint(_LoadBase):
             zone_identifier: Text for the zone identifier that the Setpoint
                 object is assigned to.
         """
-        values = ('{}..{}'.format(self.identifier, zone_identifier),
-                  self.heating_schedule.identifier, '',
-                  self.cooling_schedule.identifier, '')
-        comments = ('name', 'heating setpoint schedule', 'heating setpoint {C}',
-                    'cooling setpoint schedule', 'cooling setpoint {C}')
-        return generate_idf_string('HVACTemplate:Thermostat', values, comments)
+        if self.setpoint_cutout_difference == 0:
+            values = ('{}..{}'.format(self.identifier, zone_identifier),
+                    self.heating_schedule.identifier, '',
+                    self.cooling_schedule.identifier, '')
+            comments = ('name', 'heating setpoint schedule', 'heating setpoint {C}',
+                        'cooling setpoint schedule', 'cooling setpoint {C}')
+            return generate_idf_string('HVACTemplate:Thermostat', values, comments)
+        else:  # write out detailed objects for the thermostat
+            # create the detailed thermostat object
+            t_stat_vals = values = (
+                '{}..{}'.format(self.identifier, zone_identifier),
+                self.heating_schedule.identifier, self.cooling_schedule.identifier)
+            ts_com = ('name', 'heating setpoint schedule', 'cooling setpoint schedule')
+            t_stat = generate_idf_string(
+                'ThermostatSetpoint:DualSetpoint', t_stat_vals, ts_com)
+            # create the schedule to indicate heating/cooling is always active
+            sch_tl_id = '{} Any Number'.format(zone_identifier)
+            sch_tl = generate_idf_string('ScheduleTypeLimits', (sch_tl_id,), ('name',))
+            sch_id = '{}-Always 4'.format(zone_identifier)
+            sch_vals = (sch_id, sch_tl_id, 'Through: 12/31', 'For: AllDays',
+                        'Until: 24:00', '4')
+            sch_com = ('name', 'type limits', '', '', '', '')
+            sch = generate_idf_string('Schedule:Compact', sch_vals, sch_com)
+            # create the zone control object
+            ctrl_vals = values = (
+                '{} Thermostat'.format(zone_identifier), zone_identifier, sch_id,
+                'ThermostatSetpoint:DualSetpoint',
+                '{}..{}'.format(self.identifier, zone_identifier),
+                '', '', '', '', '', '', self.setpoint_cutout_difference)
+            ctrl_com = ('name', 'zone name', 'control type schedule',
+                        'control object type', 'control name', '', '', '', '', '', '',
+                        'temperature difference between cutout and setpoint')
+            z_ctrl = generate_idf_string('ZoneControl:Thermostat', ctrl_vals, ctrl_com)
+            return '\n\n'.join((t_stat, sch_tl, sch, z_ctrl))
 
     def to_idf_humidistat(self, zone_identifier):
         """IDF string representation of Setpoint object's humidistat.
@@ -517,6 +581,8 @@ class Setpoint(_LoadBase):
             if self.humidifying_schedule is not None:
                 base['humidifying_schedule'] = self.humidifying_schedule.identifier
                 base['dehumidifying_schedule'] = self.dehumidifying_schedule.identifier
+        if self.setpoint_cutout_difference != 0:
+            base['setpoint_cutout_difference'] = self.setpoint_cutout_difference
         if self._display_name is not None:
             base['display_name'] = self.display_name
         if self._user_data is not None:
@@ -559,12 +625,12 @@ class Setpoint(_LoadBase):
             [setp.cooling_schedule for setp in setpoints], u_weights, timestep_resolution)
 
         # calculate the average humidistat schedules
-        humid_scheds = [vent.humidifying_schedule for vent in setpoints]
+        humid_scheds = [sp.humidifying_schedule for sp in setpoints]
         if all(val is None for val in humid_scheds):
             humid_sched = None
             dehumid_sched = None
         else:
-            dehumid_scheds = [vent.dehumidifying_schedule for vent in setpoints]
+            dehumid_scheds = [sp.dehumidifying_schedule for sp in setpoints]
             humid_sch_id = '{}_Humid Schedule'.format(identifier)
             dehumid_sch_id = '{}_Dehumid Schedule'.format(identifier)
             for i, sch in enumerate(humid_scheds):
@@ -575,9 +641,14 @@ class Setpoint(_LoadBase):
                 humid_sch_id, humid_scheds, u_weights, timestep_resolution)
             dehumid_sched = Setpoint._average_schedule(
                 dehumid_sch_id, dehumid_scheds, u_weights, timestep_resolution)
+        
+        # calculate the average setpoint_cutout_difference
+        cuts = [sp.setpoint_cutout_difference for sp in setpoints]
+        sp_cut = sum(cuts) / len(cuts)
 
         # return the averaged object
-        return Setpoint(identifier, heat_sched, cool_sched, humid_sched, dehumid_sched)
+        return Setpoint(identifier, heat_sched, cool_sched,
+                        humid_sched, dehumid_sched, sp_cut)
 
     def _check_temperature_schedule_type(self, schedule, obj_name=''):
         """Check that the type limit of an input schedule is temperature."""
@@ -628,7 +699,8 @@ class Setpoint(_LoadBase):
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""
         return (self.identifier, hash(self.heating_schedule), hash(self.cooling_schedule),
-                hash(self.humidifying_schedule), hash(self.dehumidifying_schedule))
+                hash(self.humidifying_schedule), hash(self.dehumidifying_schedule),
+                self.setpoint_cutout_difference)
 
     def __hash__(self):
         return hash(self.__key())
@@ -643,6 +715,7 @@ class Setpoint(_LoadBase):
         new_obj = Setpoint(
             self.identifier, self.heating_schedule, self.cooling_schedule,
             self.humidifying_schedule, self.dehumidifying_schedule)
+        new_obj._setpoint_cutout_difference = self._setpoint_cutout_difference
         new_obj._display_name = self._display_name
         new_obj._user_data = None if self._user_data is None else self._user_data.copy()
         new_obj._properties._duplicate_extension_attr(self._properties)
