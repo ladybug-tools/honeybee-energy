@@ -219,12 +219,12 @@ class LoadBalance(object):
             people_data, rooms, 'People')
         self._solar = self._match_room_input(
             solar_data, rooms, 'Solar', use_all=use_all_solar, space_based=True)
-        self._infiltration = self._match_room_input(
-            infiltration_data, rooms, 'Infiltration')
         self._mech_ventilation = self._match_room_input(
             mech_ventilation_data, rooms, 'Mechanical Ventilation', 'Ventilation')
         self._nat_ventilation = self._match_room_input(
             nat_ventilation_data, rooms, 'Natural Ventilation', 'Ventilation')
+        self._infiltration = self._match_room_input(
+            infiltration_data, rooms, 'Infiltration')
 
         # match the surface-level inputs
         _window_flow, self._wall_conduction, self._roof_conduction, \
@@ -235,6 +235,9 @@ class LoadBalance(object):
             self._window_conduction.header.metadata['type'] = 'Window Conduction'
         if self._solar is not None:
             self._solar = self._solar * 0.94  # account for sun reflected back out windows
+        # when using all of the rooms, reset the property
+        if use_all_solar:
+            self._rooms = rooms
 
     @classmethod
     def from_sql_file(cls, model, sql_path):
@@ -455,7 +458,8 @@ class LoadBalance(object):
         if self._floor_area is not None:
             return self._floor_area
         else:
-            base_area = sum([room.floor_area * room.multiplier for room in self._rooms])
+            base_area = sum([room.floor_area * room.multiplier for room in self._rooms
+                             if not room.exclude_floor_area])
             return self._area_as_meters_feet(base_area)
 
     @floor_area.setter
