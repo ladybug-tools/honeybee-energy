@@ -7,8 +7,8 @@ export CONTAINER_NAME="${1:?$error_help}"
 export TAG="${2:?$error_help}"
 
 # Get OpenStudio
-export OPENSTUDIO_VERSION='3.6.1'
-export OPENSTUDIO_DOWNLOAD_URL='https://github.com/NREL/OpenStudio/releases/download/v3.6.1/OpenStudio-3.6.1+bb9481519e-Ubuntu-20.04-x86_64.tar.gz'
+export OPENSTUDIO_VERSION='3.7.0'
+export OPENSTUDIO_DOWNLOAD_URL='https://github.com/NREL/OpenStudio/releases/download/v3.7.0/OpenStudio-3.7.0+d5269793f1-Ubuntu-20.04-x86_64.tar.gz'
 export OPENSTUDIO_TAR_FILENAME='openstudio.tar.gz'
 export OPENSTUDIO_FILENAME='openstudio'
 
@@ -37,7 +37,7 @@ tar zxvf ${HONEYBEE_OPENSTUDIO_GEM_TAR}
 mv honeybee-openstudio-gem-*/ ${HONEYBEE_GEM_FILENAME}
 
 # Get ironbug
-export IRONBUG_VERSION="1.13.0"
+export IRONBUG_VERSION="1.14.0"
 export IRONBUG_URL="https://github.com/MingboPeng/Ironbug/releases/download/v${IRONBUG_VERSION}/ironbug.console.linux-${IRONBUG_VERSION}.zip"
 export IRONBUG_ZIP='ironbug.console.linux.zip'
 export IRONBUG_FILENAME='ironbug'
