@@ -901,6 +901,65 @@ def _run_idf_unix(idf_file_path, epw_file_path=None, expand_objects=True):
     return directory
 
 
+def set_gbxml_floor_types(
+        base_gbxml, interior_type=None, ground_type=None, new_gbxml=None):
+    """Set certain Floor Faces of a base_gbxml to a single type.
+
+    This method helps account for the fact that the gbXML schema has several
+    different types of floors that mean effectively the same thing in energy
+    simulation but not all destination software interfaces are equipped to
+    treat them as such.
+
+    Args:
+        base_gbxml: A file path to a gbXML file that has been exported from the
+            OpenStudio Forward Translator.
+        interior_type: Text for the type to be used for all interior floor faces. If
+            None, the interior types will be left as they are. (Default: None).
+            Choose from the following.
+
+            * InteriorFloor
+            * Ceiling
+
+        ground_type: Text for the type to be used for all ground-contact floor faces.
+            If None, the ground floor types will be left as they are. (Default: None).
+            Choose from the following.
+
+            * UndergroundSlab
+            * SlabOnGrade
+            * RaisedFloor
+
+        new_gbxml: Optional path to where the new gbXML will be written. If None,
+            the original base_gbxml will be overwritten with a version that has
+            the floor types overridden. (Default: None).
+    """
+    # read the file content
+    with open(base_gbxml, 'r') as bxf:
+        content = bxf.read()
+    
+    # replace all interior floors with the specified type
+    if interior_type == 'InteriorFloor':
+        content = content.replace('="Ceiling"', '="InteriorFloor"')
+    elif interior_type == 'Ceiling':
+        content = content.replace('="InteriorFloor"', '="Ceiling"')
+    
+    # replace all ground floors with the specified type
+    if ground_type == 'UndergroundSlab':
+        content = content.replace('="SlabOnGrade"', '="UndergroundSlab"')
+        content = content.replace('="RaisedFloor"', '="UndergroundSlab"')
+    elif ground_type == 'SlabOnGrade':
+        content = content.replace('="UndergroundSlab"', '="SlabOnGrade"')
+        content = content.replace('="RaisedFloor"', '="SlabOnGrade"')
+    elif ground_type == 'RaisedFloor':
+        content = content.replace('="UndergroundSlab"', '="RaisedFloor"')
+        content = content.replace('="SlabOnGrade"', '="RaisedFloor"')
+
+    # write out the new XML
+    new_xml = base_gbxml if new_gbxml is None else new_gbxml
+    with open(new_xml, 'w') as nxf:
+        nxf.write(content)
+    return new_xml
+
+
 def add_gbxml_space_boundaries(base_gbxml, honeybee_model, new_gbxml=None):
     """Add the SpaceBoundary and ShellGeometry to a base_gbxml of a Honeybee model.
 
