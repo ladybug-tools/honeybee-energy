@@ -22,7 +22,7 @@ from honeybee_energy.schedule.dictutil import dict_to_schedule
 from honeybee_energy.schedule.ruleset import ScheduleRuleset
 from honeybee_energy.run import measure_compatible_model_json, to_openstudio_osw, \
     to_gbxml_osw, to_sdd_osw, run_osw, from_gbxml_osw, from_osm_osw, from_idf_osw, \
-    add_gbxml_space_boundaries, _parse_os_cli_failure
+    add_gbxml_space_boundaries, set_gbxml_floor_types, _parse_os_cli_failure
 from honeybee_energy.writer import energyplus_idf_version
 from honeybee_energy.config import folders
 
@@ -282,21 +282,29 @@ def model_to_idf(model_file, sim_par_json, additional_str, compact_schedules,
               'OpenStudio simply raises an error when it encounters non-planar '
               'geometry, which would hinder the ability to save gbXML files that are '
               'to be corrected in other software.', default=True, show_default=True)
+@click.option('--minimal/--full-geometry', ' /-fg', help='Flag to note whether space '
+              'boundaries and shell geometry should be included in the exported '
+              'gbXML vs. just the minimal required non-manifold geometry.',
+              default=True, show_default=True)
+@click.option('--interior-face-type', '-ift', help='Text string for the type to be '
+              'used for all interior floor faces. If unspecified, the interior types '
+              'will be left as they are. Choose from: InteriorFloor, Ceiling.',
+              type=str, default='', show_default=True)
+@click.option('--ground-face-type', '-gft', help='Text string for the type to be '
+              'used for all ground-contact floor faces. If unspecified, the ground '
+              'types will be left as they are. Choose from: UndergroundSlab, '
+              'SlabOnGrade, RaisedFloor.', type=str, default='', show_default=True)
 @click.option('--check-model/--bypass-check', ' /-bc', help='Flag to note whether the '
               'Model should be re-serialized to Python and checked before it is '
               'translated to .osm. The check is not needed if the model-json was '
               'exported directly from the honeybee-energy Python library.',
               default=True, show_default=True)
-@click.option('--minimal/--full-geometry', ' /-fg', help='Flag to note whether space '
-              'boundaries and shell geometry should be included in the exported '
-              'gbXML vs. just the minimal required non-manifold geometry.',
-              default=True, show_default=True)
 @click.option('--output-file', '-f', help='Optional gbXML file to output the string '
               'of the translation. By default it printed out to stdout', default='-',
               type=click.Path(file_okay=True, dir_okay=False, resolve_path=True))
 def model_to_gbxml(
-        model_file, osw_folder, default_subfaces, triangulate_non_planar,
-        check_model, minimal, output_file):
+        model_file, osw_folder, default_subfaces, triangulate_non_planar, minimal,
+        interior_face_type, ground_face_type, check_model, output_file):
     """Translate a Honeybee Model (HBJSON) to a gbXML file.
 
     \b
@@ -324,18 +332,24 @@ def model_to_gbxml(
         # Write the osw file and translate the model to gbXML
         out_f = out_path if output_file.endswith('-') else output_file
         osw = to_gbxml_osw(model_file, out_f, osw_folder)
-        if minimal:
+        if minimal and not (interior_face_type or ground_face_type):
             _run_translation_osw(osw, out_path)
         else:
             _, idf = run_osw(osw, silent=True)
             if idf is not None and os.path.isfile(idf):
-                hb_model = Model.from_hbjson(model_file)
-                add_gbxml_space_boundaries(out_f, hb_model)
+                if interior_face_type or ground_face_type:
+                    int_ft = interior_face_type if interior_face_type != '' else None
+                    gnd_ft = ground_face_type if ground_face_type != '' else None
+                    set_gbxml_floor_types(out_f, int_ft, gnd_ft)
+                if not minimal:
+                    hb_model = Model.from_hbjson(model_file)
+                    add_gbxml_space_boundaries(out_f, hb_model)
                 if out_path is not None:  # load the JSON string to stdout
                     with open(out_path) as json_file:
                         print(json_file.read())
             else:
                 _parse_os_cli_failure(osw_folder)
+
     except Exception as e:
         _logger.exception('Model translation failed.\n{}'.format(e))
         sys.exit(1)
