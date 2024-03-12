@@ -714,7 +714,7 @@ def _run_osw_windows(osw_json, measures_only=True, silent=False):
         # write a batch file to call OpenStudio CLI; useful for re-running the sim
         working_drive = directory[:2]
         measure_str = '-m ' if measures_only else ''
-        batch = '{}\n"{}" -I "{}" run {}-w "{}"'.format(
+        batch = '{}\n"{}" -I "{}" run --show-stdout {}-w "{}"'.format(
             working_drive, folders.openstudio_exe, folders.honeybee_openstudio_gem_path,
             measure_str, osw_json)
         if all(ord(c) < 128 for c in batch):  # just run the batch file as it is
@@ -754,7 +754,7 @@ def _run_osw_unix(osw_json, measures_only=True):
 
     # Write the shell script to call OpenStudio CLI
     measure_str = '-m ' if measures_only else ''
-    shell = '#!/usr/bin/env bash\n"{}" -I "{}" run {}-w "{}"'.format(
+    shell = '#!/usr/bin/env bash\n"{}" -I "{}" run --show-stdout {}-w "{}"'.format(
         folders.openstudio_exe, folders.honeybee_openstudio_gem_path,
         measure_str, osw_json)
     shell_file = os.path.join(directory, 'run_workflow.sh')
