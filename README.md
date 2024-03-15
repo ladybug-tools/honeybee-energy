@@ -16,6 +16,8 @@ SDK in order to add energy simulation properties and capabilities to
 uses the [honeybee-openstudio-gem](https://github.com/ladybug-tools/honeybee-openstudio-gem)
 to translate honeybee Models to OpenStudio format.
 
+All of these dependencies are contained within the [honeybee-energy Docker image](https://hub.docker.com/r/ladybugtools/honeybee-energy)
+
 ## Installation
 
 `pip install -U honeybee-energy`
