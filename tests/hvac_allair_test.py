@@ -8,7 +8,8 @@ from honeybee_energy.hvac.allair.furnace import ForcedAirFurnace
 from honeybee.model import Model
 from honeybee.room import Room
 
-from ladybug_geometry.geometry3d.pointvector import Point3D
+from ladybug_geometry.geometry3d.pointvector import Point3D, Vector3D
+from ladybug_geometry.geometry3d.plane import Plane
 
 import pytest
 from .fixtures.userdata_fixtures import userdatadict
@@ -92,6 +93,35 @@ def test_vav_dict_methods(userdatadict):
     assert hvac_dict == new_hvac_sys.to_dict()
 
 
+def test_vav_transforms(userdatadict):
+    """Test the Transform methods."""
+    hvac_sys = VAV('High Efficiency HVAC System')
+    hvac_sys.vintage = 'ASHRAE_2010'
+    hvac_sys.equipment_type = 'VAV_DCW_DHW'
+    hvac_sys.economizer_type = 'DifferentialDryBulb'
+    hvac_sys.sensible_heat_recovery = 0.8
+    hvac_sys.latent_heat_recovery = 0.65
+    hvac_sys.user_data = userdatadict
+
+    assert len(list(hvac_sys.properties._extension_attributes)) == 0
+
+    # Apply the transforms
+    hvac_sys.move(Vector3D(10, 10, 10))
+    hvac_sys.rotate(90, Point3D(0,0,0))
+    hvac_sys.rotate_xy(90, Point3D(0,0,0))
+    hvac_sys.reflect(Plane(Vector3D(0, 0, 1), Point3D(0,0,0), Vector3D(1, 0, 0)))
+    hvac_sys.scale(1.0)
+
+    # Nothing should happen to the base object, only to the extensions
+    assert len(list(hvac_sys.properties._extension_attributes)) == 0
+    assert hvac_sys.vintage == 'ASHRAE_2010'
+    assert hvac_sys.equipment_type == 'VAV_DCW_DHW'
+    assert hvac_sys.economizer_type == 'DifferentialDryBulb'
+    assert hvac_sys.sensible_heat_recovery == 0.8
+    assert hvac_sys.latent_heat_recovery == 0.65
+    assert hvac_sys.user_data == userdatadict
+
+
 def test_pvav_init(userdatadict):
     """Test the initialization of PVAV and basic properties."""
     hvac_sys = PVAV('Test System')
@@ -168,6 +198,35 @@ def test_pvav_dict_methods(userdatadict):
     new_hvac_sys = PVAV.from_dict(hvac_dict)
     assert new_hvac_sys == hvac_sys
     assert hvac_dict == new_hvac_sys.to_dict()
+
+
+def test_pvav_transforms(userdatadict):
+    """Test the Transform methods."""
+    hvac_sys = PVAV('High Efficiency HVAC System')
+    hvac_sys.vintage = 'ASHRAE_2010'
+    hvac_sys.equipment_type = 'PVAV_DHW'
+    hvac_sys.economizer_type = 'DifferentialDryBulb'
+    hvac_sys.sensible_heat_recovery = 0.8
+    hvac_sys.latent_heat_recovery = 0.65
+    hvac_sys.user_data = userdatadict
+
+    assert len(list(hvac_sys.properties._extension_attributes)) == 0
+
+    # Apply the transforms
+    hvac_sys.move(Vector3D(10, 10, 10))
+    hvac_sys.rotate(90, Point3D(0,0,0))
+    hvac_sys.rotate_xy(90, Point3D(0,0,0))
+    hvac_sys.reflect(Plane(Vector3D(0, 0, 1), Point3D(0,0,0), Vector3D(1, 0, 0)))
+    hvac_sys.scale(1.0)
+
+    # Nothing should happen to the base object, only to the extensions
+    assert len(list(hvac_sys.properties._extension_attributes)) == 0
+    assert hvac_sys.vintage == 'ASHRAE_2010'
+    assert hvac_sys.equipment_type == 'PVAV_DHW'
+    assert hvac_sys.economizer_type == 'DifferentialDryBulb'
+    assert hvac_sys.sensible_heat_recovery == 0.8
+    assert hvac_sys.latent_heat_recovery == 0.65
+    assert hvac_sys.user_data == userdatadict
 
 
 def test_psz_init(userdatadict):
@@ -248,6 +307,35 @@ def test_psz_dict_methods(userdatadict):
     assert hvac_dict == new_hvac_sys.to_dict()
 
 
+def test_psz_transforms(userdatadict):
+    """Test the Transform methods."""
+    hvac_sys = PSZ('High Efficiency HVAC System')
+    hvac_sys.vintage = 'ASHRAE_2010'
+    hvac_sys.equipment_type = 'PSZAC_DCW_DHW'
+    hvac_sys.economizer_type = 'DifferentialDryBulb'
+    hvac_sys.sensible_heat_recovery = 0.8
+    hvac_sys.latent_heat_recovery = 0.65
+    hvac_sys.user_data = userdatadict
+
+    assert len(list(hvac_sys.properties._extension_attributes)) == 0
+
+    # Apply the transforms
+    hvac_sys.move(Vector3D(10, 10, 10))
+    hvac_sys.rotate(90, Point3D(0,0,0))
+    hvac_sys.rotate_xy(90, Point3D(0,0,0))
+    hvac_sys.reflect(Plane(Vector3D(0, 0, 1), Point3D(0,0,0), Vector3D(1, 0, 0)))
+    hvac_sys.scale(1.0)
+
+    # Nothing should happen to the base object, only to the extensions
+    assert len(list(hvac_sys.properties._extension_attributes)) == 0
+    assert hvac_sys.vintage == 'ASHRAE_2010'
+    assert hvac_sys.equipment_type == 'PSZAC_DCW_DHW'
+    assert hvac_sys.economizer_type == 'DifferentialDryBulb'
+    assert hvac_sys.sensible_heat_recovery == 0.8
+    assert hvac_sys.latent_heat_recovery == 0.65
+    assert hvac_sys.user_data == userdatadict
+
+
 def test_ptac_init(userdatadict):
     """Test the initialization of PTAC and basic properties."""
     hvac_sys = PTAC('Test System')
@@ -303,6 +391,29 @@ def test_ptac_dict_methods(userdatadict):
     assert hvac_dict == new_hvac_sys.to_dict()
 
 
+def test_ptac_transforms(userdatadict):
+    """Test the Transform methods."""
+    hvac_sys = PTAC('High Efficiency HVAC System')
+    hvac_sys.vintage = 'ASHRAE_2010'
+    hvac_sys.equipment_type = 'PTAC_DHW'
+    hvac_sys.user_data = userdatadict
+
+    assert len(list(hvac_sys.properties._extension_attributes)) == 0
+
+    # Apply the transforms
+    hvac_sys.move(Vector3D(10, 10, 10))
+    hvac_sys.rotate(90, Point3D(0,0,0))
+    hvac_sys.rotate_xy(90, Point3D(0,0,0))
+    hvac_sys.reflect(Plane(Vector3D(0, 0, 1), Point3D(0,0,0), Vector3D(1, 0, 0)))
+    hvac_sys.scale(1.0)
+
+    # Nothing should happen to the base object, only to the extensions
+    assert len(list(hvac_sys.properties._extension_attributes)) == 0
+    assert hvac_sys.vintage == 'ASHRAE_2010'
+    assert hvac_sys.equipment_type == 'PTAC_DHW'
+    assert hvac_sys.user_data == userdatadict
+
+
 def test_furnace_init(userdatadict):
     """Test the initialization of ForcedAirFurnace and basic properties."""
     hvac_sys = ForcedAirFurnace('Test System')
@@ -348,3 +459,24 @@ def test_furnace_dict_methods(userdatadict):
     new_hvac_sys = ForcedAirFurnace.from_dict(hvac_dict)
     assert new_hvac_sys == hvac_sys
     assert hvac_dict == new_hvac_sys.to_dict()
+
+
+def test_furnace_transforms(userdatadict):
+    """Test the Transform methods."""
+    hvac_sys = ForcedAirFurnace('High Efficiency HVAC System')
+    hvac_sys.vintage = 'ASHRAE_2010'
+    hvac_sys.user_data = userdatadict
+
+    assert len(list(hvac_sys.properties._extension_attributes)) == 0
+
+    # Apply the transforms
+    hvac_sys.move(Vector3D(10, 10, 10))
+    hvac_sys.rotate(90, Point3D(0,0,0))
+    hvac_sys.rotate_xy(90, Point3D(0,0,0))
+    hvac_sys.reflect(Plane(Vector3D(0, 0, 1), Point3D(0,0,0), Vector3D(1, 0, 0)))
+    hvac_sys.scale(1.0)
+
+    # Nothing should happen to the base object, only to the extensions
+    assert len(list(hvac_sys.properties._extension_attributes)) == 0
+    assert hvac_sys.vintage == 'ASHRAE_2010'
+    assert hvac_sys.user_data == userdatadict
