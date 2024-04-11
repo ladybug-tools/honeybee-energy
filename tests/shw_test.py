@@ -3,6 +3,9 @@ from honeybee_energy.shw import SHWSystem
 
 from honeybee.altnumber import autocalculate
 
+from ladybug_geometry.geometry3d.pointvector import Point3D, Vector3D
+from ladybug_geometry.geometry3d.plane import Plane
+
 from .fixtures.userdata_fixtures import userdatadict
 
 
@@ -87,3 +90,28 @@ def test_default_shw_to_dict(userdatadict):
     new_default_shw = SHWSystem.from_dict(shw_dict)
     assert new_default_shw == default_shw
     assert shw_dict == new_default_shw.to_dict()
+
+
+def test_shw_transforms(userdatadict):
+    """Test the Transform methods."""
+    default_shw = SHWSystem('Passive House SHW System')
+    default_shw.equipment_type = 'Electric_WaterHeater'
+    default_shw.heater_efficiency = 0.98
+    default_shw.ambient_condition = 24
+    default_shw.ambient_loss_coefficient = 5
+
+    assert len(list(default_shw.properties._extension_attributes)) == 0
+
+    # Apply the transforms
+    default_shw.move(Vector3D(10, 10, 10))
+    default_shw.rotate(90, Point3D(0,0,0))
+    default_shw.rotate_xy(90, Point3D(0,0,0))
+    default_shw.reflect(Plane(Vector3D(0, 0, 1), Point3D(0,0,0), Vector3D(1, 0, 0)))
+    default_shw.scale(1.0)
+
+    assert len(list(default_shw.properties._extension_attributes)) == 0
+    assert default_shw.equipment_type == 'Electric_WaterHeater'
+    assert default_shw.heater_efficiency == 0.98
+    assert default_shw.ambient_condition == 24
+    assert default_shw.ambient_loss_coefficient == 5
+    
