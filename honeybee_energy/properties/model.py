@@ -1983,3 +1983,67 @@ class ModelEnergyProperties(object):
 
     def __repr__(self):
         return 'Model Energy Properties: [host: {}]'.format(self.host.display_name)
+
+    def move(self, moving_vec):
+        """Move the Model's HVAC and SHW along a vector.
+
+        Args:
+            moving_vec: A ladybug_geometry Vector3D with the direction and distance
+                to move the object.
+        """
+        for hvac in self.hvacs:
+            hvac.move(moving_vec)
+        for shw in self.shws:
+            shw.move(moving_vec)
+
+    def rotate(self, angle, axis, origin):
+        """Rotate the Model's HVAC and SHW by a certain angle around an axis and origin.
+
+        Args:
+            angle: An angle for rotation in degrees.
+            axis: Rotation axis as a Vector3D.
+            origin: A ladybug_geometry Point3D for the origin around which the
+                object will be rotated.
+        """
+        for hvac in self.hvacs:
+            hvac.rotate(angle, axis, origin)
+        for shw in self.shws:
+            shw.rotate(angle, axis, origin)
+
+    def rotate_xy(self, angle, origin):
+        """Rotate the Model's HVAC and SHW counterclockwise in the world XY plane by a certain angle.
+
+        Args:
+            angle: An angle in degrees.
+            origin: A ladybug_geometry Point3D for the origin around which the
+                object will be rotated.
+        """
+        for hvac in self.hvacs:
+            hvac.rotate_xy(angle, origin)
+        for shw in self.shws:
+            shw.rotate_xy(angle, origin)
+
+    def reflect(self, plane):
+        """Reflect the Model's HVAC and SHW objects across a plane.
+
+        Args:
+            plane: A ladybug_geometry Plane across which the object will
+                be reflected.
+        """
+        for hvac in self.hvacs:
+            hvac.reflect(plane)
+        for shw in self.shws:
+            shw.reflect(plane)
+
+    def scale(self, factor, origin=None):
+        """Scale the Model's HVAC and SHW by a factor from an origin point.
+
+        Args:
+            factor: A number representing how much the object should be scaled.
+            origin: A ladybug_geometry Point3D representing the origin from which
+                to scale. If None, it will be scaled from the World origin (0, 0, 0).
+        """
+        for hvac in self.hvacs:
+            hvac.scale(factor, origin)
+        for shw in self.shws:
+            shw.scale(factor, origin)
