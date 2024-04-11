@@ -126,7 +126,7 @@ class _EnergyProperties(object):
                 raise Exception("Failed to move {}: {}".format(extension, e))
 
     def rotate(self, angle, origin):
-        """Rotate the .properties by a certain angle around an axis and origin.
+        """Rotate the property's extensions by a certain angle around an axis and origin.
 
         Args:
             angle: An angle for rotation in degrees.
@@ -146,7 +146,7 @@ class _EnergyProperties(object):
                 raise Exception("Failed to rotate {}: {}".format(extension, e))
     
     def rotate_xy(self, angle, origin):
-        """Rotate the .properties counterclockwise in the world XY plane by a certain angle.
+        """Rotate the property's extensions counterclockwise in the world XY plane by a certain angle.
 
         Args:
             angle: An angle in degrees.
@@ -165,7 +165,7 @@ class _EnergyProperties(object):
                 raise Exception("Failed to rotate {}: {}".format(extension, e))
 
     def reflect(self, plane):
-        """Reflect the .properties across a plane.
+        """Reflect the property's extensions across a plane.
 
         Args:
             plane: A ladybug_geometry Plane across which the object will
@@ -183,7 +183,7 @@ class _EnergyProperties(object):
                 raise Exception("Failed to reflect {}: {}".format(extension, e))
 
     def scale(self, factor, origin=None):
-        """Scale the .properties by a factor from an origin point.
+        """Scale the property's extensions by a factor from an origin point.
 
         Args:
             factor: A number representing how much the object should be scaled.
