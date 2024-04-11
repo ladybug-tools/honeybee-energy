@@ -15,7 +15,8 @@ class _EnergyProperties(object):
         host: A honeybee-energy object that hosts these properties
             (ie. ScheduleRuleset, OpaqueConstruction, WindowConstruction).
     """
-    _exclude = {'host', 'to_dict', 'ToString'}
+    _exclude = {'host', 'to_dict', 'ToString', 
+                'move', 'rotate', 'rotate_xy', 'reflect', 'scale',}
 
     def __init__(self, host):
         """Initialize properties."""

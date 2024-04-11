@@ -10,7 +10,8 @@ from honeybee.altnumber import autosize
 
 from ladybug.dt import Time
 
-from ladybug_geometry.geometry3d.pointvector import Point3D
+from ladybug_geometry.geometry3d.pointvector import Point3D, Vector3D
+from ladybug_geometry.geometry3d.plane import Plane
 
 import pytest
 from .fixtures.userdata_fixtures import userdatadict
@@ -160,3 +161,44 @@ def test_ideal_air_dict_methods(userdatadict):
     new_ideal_air = IdealAirSystem.from_dict(hvac_dict)
     assert new_ideal_air == ideal_air
     assert hvac_dict == new_ideal_air.to_dict()
+
+
+def test_ideal_air_transforms(userdatadict):
+    ideal_air = IdealAirSystem('Passive House HVAC System')
+    ideal_air.economizer_type = 'DifferentialEnthalpy'
+    ideal_air.demand_controlled_ventilation = True
+    ideal_air.sensible_heat_recovery = 0.75
+    ideal_air.latent_heat_recovery = 0.6
+    ideal_air.heating_air_temperature = 40
+    ideal_air.cooling_air_temperature = 15
+    ideal_air.heating_limit = 2000
+    ideal_air.cooling_limit = 3500
+    sch_day = ScheduleDay('Day Control', [0, 1, 0], [Time(0, 0), Time(8, 0), Time(22, 0)])
+    schedule = ScheduleRuleset('HVAC Control', sch_day, None, schedule_types.on_off)
+    ideal_air.heating_availability = schedule
+    ideal_air.cooling_availability = schedule
+    ideal_air.user_data = userdatadict
+
+    assert len(list(ideal_air.properties._extension_attributes)) == 0
+
+    # Apply the transforms
+    ideal_air.move(Vector3D(10, 10, 10))
+    ideal_air.rotate(90, Point3D(0,0,0))
+    ideal_air.rotate_xy(90, Point3D(0,0,0))
+    ideal_air.reflect(Plane(Vector3D(0, 0, 1), Point3D(0,0,0), Vector3D(1, 0, 0)))
+    ideal_air.scale(1.0)
+
+    # Nothing should happen to the base object, only to the extensions
+    assert len(list(ideal_air.properties._extension_attributes)) == 0
+    assert ideal_air.economizer_type == 'DifferentialEnthalpy'
+    assert ideal_air.demand_controlled_ventilation is True
+    assert ideal_air.sensible_heat_recovery == 0.75
+    assert ideal_air.latent_heat_recovery == 0.6
+    assert ideal_air.heating_air_temperature == 40
+    assert ideal_air.cooling_air_temperature == 15
+    assert ideal_air.heating_limit == 2000
+    assert ideal_air.cooling_limit == 3500
+    assert ideal_air.heating_availability == schedule
+    assert ideal_air.cooling_availability == schedule
+    assert ideal_air.user_data == userdatadict
+
