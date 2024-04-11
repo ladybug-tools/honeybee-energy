@@ -74,7 +74,6 @@ class _EnergyProperties(object):
                 continue 
             setattr(self, '_' + atr, var.__class__.from_dict(atr_prop_dict, self.host)) 
 
-
     def _duplicate_extension_attr(self, original_properties):
         """Duplicate the attributes added by extensions.
 
@@ -106,6 +105,100 @@ class _EnergyProperties(object):
     def __repr__(self):
         """Properties representation."""
         return '{}: {}'.format(self.__class__.__name__, self.host.display_name)
+    
+    def move(self, move_vec):
+        """Move the property's extensions along a vector.
+
+        Args:
+            moving_vec: A ladybug_geometry Vector3D with the direction and distance
+                to move the object.
+        """
+        for extension_name in self._extension_attributes:
+            extension = getattr(self, extension_name)
+            if not hasattr(extension, "move"):
+                continue
+            try:
+                extension.move(move_vec)
+            except Exception as e:
+                import traceback
+                traceback.print_exc()
+                raise Exception("Failed to move {}: {}".format(extension, e))
+
+    def rotate(self, angle, origin):
+        """Rotate the .properties by a certain angle around an axis and origin.
+
+        Args:
+            angle: An angle for rotation in degrees.
+            axis: Rotation axis as a Vector3D.
+            origin: A ladybug_geometry Point3D for the origin around which the
+                object will be rotated.
+        """
+        for extension_name in self._extension_attributes:
+            extension = getattr(self, extension_name)
+            if not hasattr(extension, "rotate"):
+                continue
+            try:
+                extension.rotate(angle, origin)
+            except Exception as e:
+                import traceback
+                traceback.print_exc()
+                raise Exception("Failed to rotate {}: {}".format(extension, e))
+    
+    def rotate_xy(self, angle, origin):
+        """Rotate the .properties counterclockwise in the world XY plane by a certain angle.
+
+        Args:
+            angle: An angle in degrees.
+            origin: A ladybug_geometry Point3D for the origin around which the
+                object will be rotated.
+        """
+        for extension_name in self._extension_attributes:
+            extension = getattr(self, extension_name)
+            if not hasattr(extension, "rotate_xy"):
+                continue
+            try:
+                extension.rotate_xy(angle, origin)
+            except Exception as e:
+                import traceback
+                traceback.print_exc()
+                raise Exception("Failed to rotate {}: {}".format(extension, e))
+
+    def reflect(self, plane):
+        """Reflect the .properties across a plane.
+
+        Args:
+            plane: A ladybug_geometry Plane across which the object will
+                be reflected.
+        """
+        for extension_name in self._extension_attributes:
+            extension = getattr(self, extension_name)
+            if not hasattr(extension, "reflect"):
+                continue
+            try:
+                extension.reflect(plane)
+            except Exception as e:
+                import traceback
+                traceback.print_exc()
+                raise Exception("Failed to reflect {}: {}".format(extension, e))
+
+    def scale(self, factor, origin=None):
+        """Scale the .properties by a factor from an origin point.
+
+        Args:
+            factor: A number representing how much the object should be scaled.
+            origin: A ladybug_geometry Point3D representing the origin from which
+                to scale. If None, it will be scaled from the World origin (0, 0, 0).
+        """
+        for extension_name in self._extension_attributes:
+            extension = getattr(self, extension_name)
+            if not hasattr(extension, "scale"):
+                continue
+            try:
+                extension.scale(factor, origin)
+            except Exception as e:
+                import traceback
+                traceback.print_exc()
+                raise Exception("Failed to scale {}: {}".format(extension, e))
 
 
 class ScheduleRulesetProperties(_EnergyProperties):
