@@ -646,3 +646,52 @@ class IdealAirSystem(_HVACSystem):
 
     def __repr__(self):
         return 'IdealAirSystem: {}'.format(self.display_name)
+    
+    def move(self, move_vec):
+        """Move the .properties along a vector.
+
+        Args:
+            moving_vec: A ladybug_geometry Vector3D with the direction and distance
+                to move the object.
+        """
+        return self.properties.move(move_vec)
+
+    def rotate(self, angle, origin):
+        """Rotate the .properties by a certain angle around an axis and origin.
+
+        Args:
+            angle: An angle for rotation in degrees.
+            axis: Rotation axis as a Vector3D.
+            origin: A ladybug_geometry Point3D for the origin around which the
+                object will be rotated.
+        """
+        return self.properties.rotate(angle, origin)
+    
+    def rotate_xy(self, angle, origin):
+        """Rotate the .properties counterclockwise in the world XY plane by a certain angle.
+
+        Args:
+            angle: An angle in degrees.
+            origin: A ladybug_geometry Point3D for the origin around which the
+                object will be rotated.
+        """
+        self.properties.rotate_xy(angle, origin)
+
+    def reflect(self, plane):
+        """Reflect the .properties across a plane.
+
+        Args:
+            plane: A ladybug_geometry Plane across which the object will
+                be reflected.
+        """
+        self.properties.reflect(plane)
+
+    def scale(self, factor, origin=None):
+        """Scale the .properties by a factor from an origin point.
+
+        Args:
+            factor: A number representing how much the object should be scaled.
+            origin: A ladybug_geometry Point3D representing the origin from which
+                to scale. If None, it will be scaled from the World origin (0, 0, 0).
+        """
+        self.properties.scale(factor, origin)
