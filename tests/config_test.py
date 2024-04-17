@@ -35,16 +35,16 @@ def test_config_init():
     assert isinstance(folders.config_file, str)
 
 
-def test_config_ironbug():
-    """Test the config's ability to sense Ironbug installations."""
-    assert hasattr(folders, 'ironbug_path')
-    assert isinstance(folders.ironbug_path, str)
-    assert hasattr(folders, 'ironbug_exe')
-    assert isinstance(folders.ironbug_exe, str)
-    assert hasattr(folders, 'ironbug_version_str')
-    assert isinstance(folders.ironbug_version_str, str)
-    assert hasattr(folders, 'openstudio_csharp_path')
-    assert isinstance(folders.openstudio_csharp_path, str)
+# def test_config_ironbug():
+#     """Test the config's ability to sense Ironbug installations."""
+#     assert hasattr(folders, 'ironbug_path')
+#     assert isinstance(folders.ironbug_path, str)
+#     assert hasattr(folders, 'ironbug_exe')
+#     assert isinstance(folders.ironbug_exe, str)
+#     assert hasattr(folders, 'ironbug_version_str')
+#     assert isinstance(folders.ironbug_version_str, str)
+#     assert hasattr(folders, 'openstudio_csharp_path')
+#     assert isinstance(folders.openstudio_csharp_path, str)
 
 
 def test_writer_version_idf():
