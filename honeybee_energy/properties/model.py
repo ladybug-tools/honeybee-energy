@@ -416,6 +416,46 @@ class ModelEnergyProperties(object):
                 'VentilationSimulationControl object. Got: {}.'.format(value)
         self._ventilation_simulation_control = value
 
+    def aperture_constructions(self, room_assigned_only=True):
+        """Get only the constructions assigned to Apertures in the Model.
+        
+        Args:
+            room_assigned_only: Boolean to note whether only the constructions that
+                are a part of Room-assigned Apertures should be returned (True) or
+                constructions assigned to all Apertures should be included (False).
+        """
+        if room_assigned_only:
+            aps_to_search = []
+            for room in self.host.rooms:
+                for face in room.faces:
+                    aps_to_search.extend(face.apertures)
+        else:
+            aps_to_search = self.host.apertures
+        constructions = []
+        for ap in aps_to_search:
+            self._check_and_add_obj_construction(ap, constructions)
+        return list(set(constructions))
+
+    def door_constructions(self, room_assigned_only=True):
+        """Get only the constructions assigned to Doors in the Model.
+        
+        Args:
+            room_assigned_only: Boolean to note whether only the constructions that
+                are a part of Room-assigned Doors should be returned (True) or
+                constructions assigned to all Doors should be included (False).
+        """
+        if room_assigned_only:
+            doors_to_search = []
+            for room in self.host.rooms:
+                for face in room.faces:
+                    doors_to_search.extend(face.doors)
+        else:
+            doors_to_search = self.host.doors
+        constructions = []
+        for dr in doors_to_search:
+            self._check_and_add_obj_construction(dr, constructions)
+        return list(set(constructions))
+
     def autocalculate_ventilation_simulation_control(self):
         """Set geometry properties of ventilation_simulation_control with Model's rooms.
 
