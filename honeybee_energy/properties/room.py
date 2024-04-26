@@ -429,7 +429,7 @@ class RoomEnergyProperties(object):
     @property
     def is_conditioned(self):
         """Boolean to note whether the Room is conditioned."""
-        return self._hvac is not None
+        return self._hvac is not None and self.setpoint is not None
 
     @property
     def has_overridden_loads(self):
