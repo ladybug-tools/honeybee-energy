@@ -433,7 +433,7 @@ class ModelEnergyProperties(object):
             aps_to_search = self.host.apertures
         constructions = []
         for ap in aps_to_search:
-            self._check_and_add_obj_construction(ap, constructions)
+            self._check_and_add_obj_construction_inc_parent(ap, constructions)
         return list(set(constructions))
 
     def door_constructions(self, room_assigned_only=True):
@@ -453,7 +453,7 @@ class ModelEnergyProperties(object):
             doors_to_search = self.host.doors
         constructions = []
         for dr in doors_to_search:
-            self._check_and_add_obj_construction(dr, constructions)
+            self._check_and_add_obj_construction_inc_parent(dr, constructions)
         return list(set(constructions))
 
     def autocalculate_ventilation_simulation_control(self):
@@ -1935,6 +1935,12 @@ class ModelEnergyProperties(object):
         if constr is not None:
             if not self._instance_in_array(constr, constructions):
                 constructions.append(constr)
+
+    def _check_and_add_obj_construction_inc_parent(self, obj, constructions):
+        """Check if a construction is assigned to an object and add it to a list."""
+        constr = obj.properties.energy.construction
+        if not self._instance_in_array(constr, constructions):
+            constructions.append(constr)
 
     def _check_and_add_shade_schedule(self, obj, schedules):
         """Check if a schedule is assigned to a shade and add it to a list."""
