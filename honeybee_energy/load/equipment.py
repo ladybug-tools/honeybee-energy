@@ -153,7 +153,7 @@ class _EquipmentBase(_LoadBase):
                 equal to the input count, which will be used to set whether a given
                 schedule is behind (0), ahead (2), or the same (1). This can be
                 used to coordinate schedules across diversified programs. If None
-                a random list of integers will be genrated. (Default: None).
+                a random list of integers will be generated. (Default: None).
         """
         # generate shifted schedules and a gaussian distribution of watts_per_area
         usage_schs = self._shift_schedule(self.schedule, schedule_offset, timestep)

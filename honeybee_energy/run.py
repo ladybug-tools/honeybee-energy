@@ -158,52 +158,6 @@ def measure_compatible_model_json(
     return os.path.abspath(dest_file_path)
 
 
-def to_gbxml_osw(model_path, output_path=None, osw_directory=None):
-    """Create a .osw to translate HBJSON to a gbXML file.
-
-    Args:
-        model_path: File path to Honeybee Model (HBJSON).
-        output_path: File path to where the gbXML will be written. If None, it
-            will be output right next to the input file and given the same name.
-        osw_directory: The directory into which the .osw should be written. If None,
-            it will be written into the a temp folder in the default simulation folder.
-    """
-    # create the dictionary with the OSW steps
-    osw_dict = {'steps': []}
-    model_measure_dict = {
-        'arguments': {
-            'model_json': model_path
-        },
-        'measure_dir_name': 'from_honeybee_model_to_gbxml'
-    }
-    if output_path is not None:
-        model_measure_dict['arguments']['output_file_path'] = output_path
-    osw_dict['steps'].append(model_measure_dict)
-
-    # add measure paths
-    osw_dict['measure_paths'] = []
-    if folders.honeybee_openstudio_gem_path:  # include honeybee-openstudio measure path
-        measure_dir = os.path.join(folders.honeybee_openstudio_gem_path, 'measures')
-        osw_dict['measure_paths'].append(measure_dir)
-
-    # write the dictionary to a workflow.osw
-    if osw_directory is None:
-        osw_directory = os.path.join(
-            hb_folders.default_simulation_folder, 'temp_translate')
-        if not os.path.isdir(osw_directory):
-            os.mkdir(osw_directory)
-    osw_json = os.path.join(osw_directory, 'translate_honeybee.osw')
-    if (sys.version_info < (3, 0)):  # we need to manually encode it as UTF-8
-        with open(osw_json, writemode) as fp:
-            workflow_str = json.dumps(osw_dict, indent=4, ensure_ascii=False)
-            fp.write(workflow_str.encode('utf-8'))
-    else:
-        with open(osw_json, writemode, encoding='utf-8') as fp:
-            workflow_str = json.dump(osw_dict, fp, indent=4, ensure_ascii=False)
-
-    return os.path.abspath(osw_json)
-
-
 def to_openstudio_osw(osw_directory, model_path, sim_par_json_path=None,
                       additional_measures=None, base_osw=None, epw_file=None,
                       schedule_directory=None, strings_to_inject=None,
@@ -392,6 +346,52 @@ def to_openstudio_osw(osw_directory, model_path, sim_par_json_path=None,
     return os.path.abspath(osw_json)
 
 
+def to_gbxml_osw(model_path, output_path=None, osw_directory=None):
+    """Create a .osw to translate HBJSON to a gbXML file.
+
+    Args:
+        model_path: File path to Honeybee Model (HBJSON).
+        output_path: File path to where the gbXML will be written. If None, it
+            will be output right next to the input file and given the same name.
+        osw_directory: The directory into which the .osw should be written. If None,
+            it will be written into the a temp folder in the default simulation folder.
+    """
+    # create the dictionary with the OSW steps
+    osw_dict = {'steps': []}
+    model_measure_dict = {
+        'arguments': {
+            'model_json': model_path
+        },
+        'measure_dir_name': 'from_honeybee_model_to_gbxml'
+    }
+    if output_path is not None:
+        model_measure_dict['arguments']['output_file_path'] = output_path
+    osw_dict['steps'].append(model_measure_dict)
+
+    # add measure paths
+    osw_dict['measure_paths'] = []
+    if folders.honeybee_openstudio_gem_path:  # include honeybee-openstudio measure path
+        measure_dir = os.path.join(folders.honeybee_openstudio_gem_path, 'measures')
+        osw_dict['measure_paths'].append(measure_dir)
+
+    # write the dictionary to a workflow.osw
+    if osw_directory is None:
+        osw_directory = os.path.join(
+            hb_folders.default_simulation_folder, 'temp_translate')
+        if not os.path.isdir(osw_directory):
+            os.mkdir(osw_directory)
+    osw_json = os.path.join(osw_directory, 'translate_honeybee.osw')
+    if (sys.version_info < (3, 0)):  # we need to manually encode it as UTF-8
+        with open(osw_json, writemode) as fp:
+            workflow_str = json.dumps(osw_dict, indent=4, ensure_ascii=False)
+            fp.write(workflow_str.encode('utf-8'))
+    else:
+        with open(osw_json, writemode, encoding='utf-8') as fp:
+            workflow_str = json.dump(osw_dict, fp, indent=4, ensure_ascii=False)
+
+    return os.path.abspath(osw_json)
+
+
 def to_sdd_osw(model_path, output_path=None, osw_directory=None):
     """Create a .osw to translate HBJSON to a SDD file.
 
@@ -427,6 +427,60 @@ def to_sdd_osw(model_path, output_path=None, osw_directory=None):
         if not os.path.isdir(osw_directory):
             os.mkdir(osw_directory)
     osw_json = os.path.join(osw_directory, 'translate_honeybee.osw')
+    if (sys.version_info < (3, 0)):  # we need to manually encode it as UTF-8
+        with open(osw_json, writemode) as fp:
+            workflow_str = json.dumps(osw_dict, indent=4, ensure_ascii=False)
+            fp.write(workflow_str.encode('utf-8'))
+    else:
+        with open(osw_json, writemode, encoding='utf-8') as fp:
+            workflow_str = json.dump(osw_dict, fp, indent=4, ensure_ascii=False)
+
+    return os.path.abspath(osw_json)
+
+
+def to_empty_osm_osw(osw_directory, sim_par_json_path, epw_file=None):
+    """Create a .osw to produce an empty .osm file with no building geometry.
+
+    This is useful for creating OpenStudio models to which a detailed Ironbug
+    system will be added. Such models with only Ironbug components can simulate
+    in EnergyPlus if they use the LoadProfile:Plant object to represent the
+    building loads. They are useful for evaluating the performance of such heating
+    and cooling plants and, by setting the simulation parameters and EPW file
+    with the inputs to this method, any sizing criteria for the plant components
+    can be set.
+
+    Args:
+        osw_directory: The directory into which the .osw should be written and the
+            .osm will eventually be written into.
+        sim_par_json_path: File path to a SimulationParameter JSON.
+        epw_file: Optional file path to an EPW that should be associated with the
+            output energy model. If None, no EPW file will be written into the
+            OSW. (Default: None).
+
+    Returns:
+        The file path to the .osw written out by this method.
+    """
+    # create the OSW dictionary with the simulation parameter step written
+    sim_par_dict = {
+        'arguments': {
+            'simulation_parameter_json': sim_par_json_path
+        },
+        'measure_dir_name': 'from_honeybee_simulation_parameter'
+    }
+    osw_dict = {'steps': [sim_par_dict]}
+
+    # assign the measure_paths to the osw_dict
+    osw_dict['measure_paths'] = []
+    if folders.honeybee_openstudio_gem_path:  # include honeybee-openstudio measure path
+        measure_dir = os.path.join(folders.honeybee_openstudio_gem_path, 'measures')
+        osw_dict['measure_paths'].append(measure_dir)
+
+    # assign the epw_file to the osw if it is input
+    if epw_file is not None:
+        osw_dict['weather_file'] = epw_file
+
+    # write the dictionary to a workflow.osw
+    osw_json = os.path.join(osw_directory, 'workflow.osw')
     if (sys.version_info < (3, 0)):  # we need to manually encode it as UTF-8
         with open(osw_json, writemode) as fp:
             workflow_str = json.dumps(osw_dict, indent=4, ensure_ascii=False)
