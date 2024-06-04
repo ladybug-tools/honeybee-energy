@@ -1767,8 +1767,9 @@ class ModelEnergyProperties(object):
                 if old_id not in model_sch:
                     sch.unlock()
                     sch.identifier = res_func(sch.display_name)
-                    for day_sch in schedules[old_id].day_schedules:
-                        day_sch.identifier = res_func(day_sch.display_name)
+                    if isinstance(sch, ScheduleRuleset):
+                        for day_sch in schedules[old_id].day_schedules:
+                            day_sch.identifier = res_func(day_sch.display_name)
 
         # change the identifiers of the program
         if reset_programs:
