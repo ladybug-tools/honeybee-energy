@@ -11,7 +11,7 @@ from ladybug.futil import preparedir
 from ladybug.analysisperiod import AnalysisPeriod
 from ladybug.epw import EPW
 from honeybee.model import Model
-from honeybee.typing import clean_rad_string, clean_and_number_ep_string
+from honeybee.typing import clean_rad_string
 from honeybee.config import folders as hb_folders
 
 from honeybee_energy.simulation.parameter import SimulationParameter
@@ -62,11 +62,25 @@ def translate():
 @click.option('--idf-file', '-idf', help='Optional path where the IDF will be copied '
               'after it is translated in the folder. If None, the file will not '
               'be copied.', type=str, default=None, show_default=True)
-@click.option('--room-ids/--room-names', ' /-n', help='Flag to note whether a '
-              'cleaned version of the Room display names should be used when '
-              'translating the Model to OSM and IDF. Note that this means that the '
-              'EnergyPlus results will not be easily map-able back to the original '
-              'HBJSON Model.', default=True, show_default=True)
+@click.option('--geometry-ids/--geometry-names', ' /-gn', help='Flag to note whether a '
+              'cleaned version of all geometry display names should be used instead '
+              'of identifiers when translating the Model to OSM and IDF. '
+              'Using this flag will affect all Rooms, Faces, Apertures, '
+              'Doors, and Shades. It will generally result in more read-able names '
+              'in the OSM and IDF but this means that it will not be easy to map '
+              'the EnergyPlus results back to the original Honeybee Model. Cases '
+              'of duplicate IDs resulting from non-unique names will be resolved '
+              'by adding integers to the ends of the new IDs that are derived from '
+              'the name.', default=True, show_default=True)
+@click.option('--resource-ids/--resource-names', ' /-rn', help='Flag to note whether a '
+              'cleaned version of all resource display names should be used instead '
+              'of identifiers when translating the Model to OSM and IDF. '
+              'Using this flag will affect all Materials, Constructions, '
+              'ConstructionSets, Schedules, Loads, and ProgramTypes. It will generally '
+              'result in more read-able names for the resources in the OSM and IDF. '
+              'Cases of duplicate IDs resulting from non-unique names will be resolved '
+              'by adding integers to the ends of the new IDs that are derived from '
+              'the name.', default=True, show_default=True)
 @click.option('--check-model/--bypass-check', ' /-bc', help='Flag to note whether the '
               'Model should be re-serialized to Python and checked before it is '
               'translated to .osm. The check is not needed if the model-json was '
@@ -78,7 +92,7 @@ def translate():
               type=click.File('w'), default='-', show_default=True)
 def model_to_osm(
         model_file, sim_par_json, epw_file, folder, osm_file, idf_file,
-        room_ids, check_model, log_file):
+        geometry_ids, resource_ids, check_model, log_file):
     """Translate a Honeybee Model file into an OpenStudio Model and corresponding IDF.
 
     \b
@@ -143,28 +157,12 @@ def model_to_osm(
 
         # run the Model re-serialization and check if specified
         if check_model:
-            model_file = measure_compatible_model_json(model_file, folder)
-        
-        # use room display names if requested
-        if not room_ids:
-            if sys.version_info < (3, 0):
-                with open(model_file) as mf:
-                    model_dict = json.load(mf)
-            else:
-                with open(model_file, encoding='utf-8') as mf:
-                    model_dict = json.load(mf)
-            room_dict = {}
-            for room in model_dict['rooms']:
-                if 'display_name' in room:
-                    room['identifier'] = clean_and_number_ep_string(
-                        room['display_name'], room_dict, 'Room identifier')
-            if (sys.version_info < (3, 0)):  # we need to manually encode it as UTF-8
-                with open(model_file, 'w') as fp:
-                    model_str = json.dumps(model_dict, ensure_ascii=False)
-                    fp.write(workflow_str.encode('utf-8'))
-            else:
-                with open(model_file, 'w', encoding='utf-8') as fp:
-                    json.dump(model_dict, fp, ensure_ascii=False)
+            # use display names if requested
+            geo_names =  not geometry_ids
+            res_names = not resource_ids
+            model_file = measure_compatible_model_json(
+                model_file, folder, use_geometry_names=geo_names,
+                use_resource_names=res_names)
 
         # Write the osw file to translate the model to osm
         osw = to_openstudio_osw(folder, model_file, sim_par_json, epw_file=epw_file)
@@ -212,12 +210,34 @@ def model_to_osm(
               'an equivalent IdealAirSystem upon export. If hvac-check is used'
               'and the Model contains detailed systems, a ValueError will '
               'be raised.', default=True, show_default=True)
+@click.option('--geometry-ids/--geometry-names', ' /-gn', help='Flag to note whether a '
+              'cleaned version of all geometry display names should be used instead '
+              'of identifiers when translating the Model to IDF. Using this flag will '
+              'affect all Rooms, Faces, Apertures, Doors, and Shades. It will '
+              'generally result in more read-able names in the IDF but this means that '
+              'it will not be easy to map the EnergyPlus results back to the original '
+              'Honeybee Model. Cases of duplicate IDs resulting from non-unique names '
+              'will be resolved by adding integers to the ends of the new IDs that are '
+              'derived from the name.', default=True, show_default=True)
+@click.option('--resource-ids/--resource-names', ' /-rn', help='Flag to note whether a '
+              'cleaned version of all resource display names should be used instead '
+              'of identifiers when translating the Model to IDF. Using this flag will '
+              'affect all Materials, Constructions, ConstructionSets, Schedules, '
+              'Loads, and ProgramTypes. It will generally result in more read-able '
+              'names for the resources in the IDF. Cases of duplicate IDs resulting '
+              'from non-unique names will be resolved by adding integers to the ends '
+              'of the new IDs that are derived from the name.',
+              default=True, show_default=True)
 @click.option('--output-file', '-f', help='Optional IDF file to output the IDF string '
               'of the translation. By default this will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
 def model_to_idf(model_file, sim_par_json, additional_str, compact_schedules,
-                 hvac_to_ideal_air, output_file):
+                 hvac_to_ideal_air, geometry_ids, resource_ids, output_file):
     """Translate a Model (HBJSON) file to a simplified IDF using direct-to-idf methods.
+
+    The direct-to-idf methods are faster than those that translate the model
+    to OSM but certain features like detailed HVAC systems and the Airflow Network
+    are not supported.
 
     \b
     Args:
@@ -237,6 +257,12 @@ def model_to_idf(model_file, sim_par_json, additional_str, compact_schedules,
 
         # re-serialize the Model to Python
         model = Model.from_file(model_file)
+
+        # reset the IDs to be derived from the display_names if requested
+        if not geometry_ids:
+            model.reset_ids()
+        if not resource_ids:
+            model.properties.energy.reset_resource_ids()
 
         # set the schedule directory in case it is needed
         sch_directory = None

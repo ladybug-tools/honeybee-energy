@@ -67,7 +67,7 @@ def from_idf_osw(idf_path, model_path=None, osw_directory=None):
 def measure_compatible_model_json(
         model_file_path, destination_directory=None, simplify_window_cons=False,
         triangulate_sub_faces=True, triangulate_non_planar_orphaned=False,
-        enforce_rooms=False):
+        enforce_rooms=False, use_geometry_names=False, use_resource_names=False):
     """Convert a Model JSON to one that is compatible with the honeybee_openstudio_gem.
 
     This includes the re-serialization of the Model to Python, which will
@@ -103,6 +103,23 @@ def measure_compatible_model_json(
         enforce_rooms: Boolean to note whether this method should enforce the
             presence of Rooms in the Model, which is as necessary prerequisite
             for simulation in EnergyPlus. (Default: False).
+        use_geometry_names: Boolean to note whether a cleaned version of all
+            geometry display names should be used instead of identifiers when
+            translating the Model to OSM and IDF. Using this flag will affect
+            all Rooms, Faces, Apertures, Doors, and Shades. It will generally
+            result in more read-able names in the OSM and IDF but this means
+            that it will not be easy to map the EnergyPlus results back to the
+            input Honeybee Model. Cases of duplicate IDs resulting from
+            non-unique names will be resolved by adding integers to the ends
+            of the new IDs that are derived from the name. (Default: False).
+        use_resource_names: Boolean to note whether a cleaned version of all
+            resource display names should be used instead of identifiers when
+            translating the Model to OSM and IDF. Using this flag will affect
+            all Materials, Constructions, ConstructionSets, Schedules, Loads,
+            and ProgramTypes. It will generally result in more read-able names
+            for the resources in the OSM and IDF. Cases of duplicate IDs
+            resulting from non-unique names will be resolved by adding integers
+            to the ends of the new IDs that are derived from the name. (Default: False).
 
     Returns:
         The full file path to the new Model JSON written out by this method.
@@ -138,6 +155,12 @@ def measure_compatible_model_json(
     rem_msgs = parsed_model.properties.energy.remove_hvac_from_no_setpoints()
     if len(rem_msgs) != 0:
         print('\n'.join(rem_msgs))
+
+    # reset the IDs to be derived from the display_names if requested
+    if use_geometry_names:
+        parsed_model.reset_ids()
+    if use_resource_names:
+        parsed_model.properties.energy.reset_resource_ids()
 
     # get the dictionary representation of the Model and add auto-calculated properties
     model_dict = parsed_model.to_dict(triangulate_sub_faces=triangulate_sub_faces)

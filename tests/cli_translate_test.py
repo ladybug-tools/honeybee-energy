@@ -16,7 +16,7 @@ def test_model_to_osm():
     runner = CliRunner()
     input_hb_model = './tests/json/ShoeBox.json'
 
-    result = runner.invoke(model_to_osm, [input_hb_model, '--room-names'])
+    result = runner.invoke(model_to_osm, [input_hb_model, '--geometry-names'])
     assert result.exit_code == 0
 
 
