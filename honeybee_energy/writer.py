@@ -529,7 +529,8 @@ def room_to_idf(room):
         room: A honeybee Room for which an IDF representation will be returned.
     """
     # list of zone strings that will eventually be joined
-    zone_str = ['!-   ________ZONE:{}________\n'.format(room.display_name)]
+    clean_name = room.display_name.replace('\n', '')
+    zone_str = ['!-   ________ZONE:{}________\n'.format(clean_name)]
 
     # write the zone definition
     ceil_height = room.geometry.max.z - room.geometry.min.z
