@@ -12,7 +12,8 @@ from honeybee.facetype import AirBoundary, face_types
 from honeybee.extensionutil import model_extension_dicts
 from honeybee.checkdup import check_duplicate_identifiers
 from honeybee.units import conversion_factor_to_meters
-from honeybee.typing import invalid_dict_error, clean_ep_string, clean_and_id_ep_string
+from honeybee.typing import invalid_dict_error, clean_ep_string, \
+    clean_and_id_ep_string, clean_and_number_ep_string
 from honeybee.face import Face
 from honeybee.room import Room
 from honeybee.model import Model
@@ -1203,6 +1204,80 @@ class ModelEnergyProperties(object):
         if raise_exception and len(full_msgs) != 0:
             raise ValueError(full_msg)
         return full_msg
+
+    def reset_resource_ids(
+            self, reset_materials=True, reset_constructions=True,
+            reset_construction_sets=True, reset_schedules=True, reset_programs=True):
+        """Reset the identifiers of energy resource objects in this Model.
+
+        Note that this method may have unintended consequences if the resources
+        assigned to this Model instance are also being used by another Model
+        instance that exists in the current Python session. In this case,
+        running this method will result in the resource identifiers of the
+        other Model also being reset.
+
+        This method is useful when human-readable names are needed when the model
+        is exported to other formats like IDF and OSM. Cases of duplicate IDs
+        resulting from non-unique names will be resolved by adding integers
+        to the ends of the new IDs that are derived from the name.
+
+        Args:
+            reset_materials: Boolean to note whether the IDs of all materials in
+                the model should be reset or kept. (Default: True).
+            reset_constructions: Boolean to note whether the IDs of all constructions
+                in the model should be reset or kept. (Default: True).
+            reset_construction_sets: Boolean to note whether the IDs of all construction
+                sets in the model should be reset or kept. (Default: True).
+            reset_schedules: Boolean to note whether the IDs of all schedules
+                in the model should be reset or kept. (Default: True).
+            reset_programs: Boolean to note whether the IDs of all program
+                types in the model should be reset or kept. (Default: True).
+        """
+        # set up the dictionaries used to check for uniqueness
+        res_func = clean_and_number_ep_string
+        mat_dict, con_dict, con_set_dict = {}, {}, {}
+        sch_dict, sch_day_dict, prog_dict = {}, {}, {}
+
+        # change the identifiers of the materials
+        if reset_materials:
+            for mat in self.properties.energy.materials:
+                mat.unlock()
+                mat.identifier = res_func(mat.display_name, mat_dict)
+                mat.lock()
+
+        # change the identifiers of the constructions
+        if reset_constructions:
+            for con in self.properties.energy.constructions:
+                con.unlock()
+                con.identifier = res_func(con.display_name, con_dict)
+                con.lock()
+
+        # change the identifiers of the construction_sets
+        if reset_construction_sets:
+            for cs in self.properties.energy.construction_sets:
+                cs.unlock()
+                cs.identifier = res_func(cs.display_name, con_set_dict)
+                cs.lock()
+
+        # change the identifiers of the schedules
+        if reset_schedules:
+            sch_skip = ('Seated Adult Activity', 'HumidNoLimit', 'DeHumidNoLimit')
+            for sch in self.properties.energy.schedules:
+                if sch.identifier in sch_skip:
+                    continue
+                sch.unlock()
+                sch.identifier = res_func(sch.display_name, sch_dict)
+                if isinstance(sch, ScheduleRuleset):
+                    for day_sch in sch.day_schedules:
+                        day_sch.identifier = res_func(day_sch.display_name, sch_day_dict)
+                sch.lock()
+
+        # change the identifiers of the program
+        if reset_programs:
+            for prg in self.properties.energy.program_types:
+                prg.unlock()
+                prg.identifier = res_func(prg.display_name, prog_dict)
+                prg.lock()
 
     def apply_properties_from_dict(self, data):
         """Apply the energy properties of a dictionary to the host Model of this object.
