@@ -1240,21 +1240,21 @@ class ModelEnergyProperties(object):
 
         # change the identifiers of the materials
         if reset_materials:
-            for mat in self.properties.energy.materials:
+            for mat in self.materials:
                 mat.unlock()
                 mat.identifier = res_func(mat.display_name, mat_dict)
                 mat.lock()
 
         # change the identifiers of the constructions
         if reset_constructions:
-            for con in self.properties.energy.constructions:
+            for con in self.constructions:
                 con.unlock()
                 con.identifier = res_func(con.display_name, con_dict)
                 con.lock()
 
         # change the identifiers of the construction_sets
         if reset_construction_sets:
-            for cs in self.properties.energy.construction_sets:
+            for cs in self.construction_sets:
                 cs.unlock()
                 cs.identifier = res_func(cs.display_name, con_set_dict)
                 cs.lock()
@@ -1262,7 +1262,7 @@ class ModelEnergyProperties(object):
         # change the identifiers of the schedules
         if reset_schedules:
             sch_skip = ('Seated Adult Activity', 'HumidNoLimit', 'DeHumidNoLimit')
-            for sch in self.properties.energy.schedules:
+            for sch in self.schedules:
                 if sch.identifier in sch_skip:
                     continue
                 sch.unlock()
@@ -1274,7 +1274,7 @@ class ModelEnergyProperties(object):
 
         # change the identifiers of the program
         if reset_programs:
-            for prg in self.properties.energy.program_types:
+            for prg in self.program_types:
                 prg.unlock()
                 prg.identifier = res_func(prg.display_name, prog_dict)
                 prg.lock()

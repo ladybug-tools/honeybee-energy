@@ -643,7 +643,7 @@ class ScheduleRuleset(object):
 
     @classmethod
     def from_idf(cls, year_idf_string, week_idf_strings, day_idf_strings,
-                 type_idf_string=None):
+                 type_idf_string=None): 
         """Create a ScheduleRuleset from an EnergyPlus IDF text strings.
 
         Args:
