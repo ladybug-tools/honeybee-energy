@@ -112,7 +112,7 @@ def model_to_osm(
             sim_par.output.add_hvac_energy_use()
             sim_par.output.add_electricity_generation()
             sim_par.output.reporting_frequency = 'Monthly'
-            
+
         else:
             with open(sim_par_json) as json_file:
                 data = json.load(json_file)
@@ -132,8 +132,8 @@ def model_to_osm(
             sp_json = os.path.abspath(os.path.join(folder, 'simulation_parameter.json'))
             with open(sp_json, 'w') as fp:
                 json.dump(sim_par_dict, fp)
-            return sp_json    
-        
+            return sp_json
+
         if sim_par.sizing_parameter.efficiency_standard is not None:
             assert epw_file is not None, 'An epw_file must be specified for ' \
                 'translation to OSM whenever a Simulation Parameter ' \
@@ -158,7 +158,7 @@ def model_to_osm(
         # run the Model re-serialization and check if specified
         if check_model:
             # use display names if requested
-            geo_names =  not geometry_ids
+            geo_names = not geometry_ids
             res_names = not resource_ids
             model_file = measure_compatible_model_json(
                 model_file, folder, use_geometry_names=geo_names,
@@ -254,6 +254,7 @@ def model_to_idf(model_file, sim_par_json, additional_str, compact_schedules,
             sim_par.output.add_zone_energy_use()
             sim_par.output.add_hvac_energy_use()
             sim_par.output.add_electricity_generation()
+            sim_par.output.reporting_frequency = 'Monthly'
 
         # re-serialize the Model to Python
         model = Model.from_file(model_file)
