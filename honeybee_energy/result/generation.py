@@ -129,17 +129,20 @@ def generation_data_from_sql(sql_results):
     # sum the production data together
     if len(net_data) == 0:
         return None, None
-    elif len(prod_data) == 0:
-        production = net_data[0].duplicate()
-        production.values = [0] * len(production)
-    elif len(prod_data) == 1:
-        production = prod_data[0]
+    elif isinstance(net_data[0], (float, int)):  # annual total of data
+        production = sum(prod_data)
     else:
-        production = prod_data[0]
-        for data_i in prod_data[1:]:
-            production = production + data_i
-    production.header.metadata['System'] = 'Whole Building'
-    production.header.metadata['type'] = 'Electricity Production'
+        if len(prod_data) == 0:
+            production = net_data[0].duplicate()
+            production.values = [0] * len(production)
+        elif len(prod_data) == 1:
+            production = prod_data[0]
+        else:
+            production = prod_data[0]
+            for data_i in prod_data[1:]:
+                production = production + data_i
+        production.header.metadata['System'] = 'Whole Building'
+        production.header.metadata['type'] = 'Electricity Production'
 
     # compute the electricity consumption from the net data
     if len(net_data) == 1:
@@ -149,6 +152,9 @@ def generation_data_from_sql(sql_results):
         for data_i in net_data[1:]:
             consumption = consumption + data_i
         consumption = consumption + production
-    consumption.header.metadata['type'] = 'Electricity Consumption'
+    try:
+        consumption.header.metadata['type'] = 'Electricity Consumption'
+    except AttributeError:  # annual total of data
+        pass
 
     return production, consumption

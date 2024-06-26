@@ -317,6 +317,8 @@ def generation_data(result_paths, output_file):
         # write everything into the output file
         if consumption is None:
             output_file.write(json.dumps([], indent=4))
+        elif isinstance(consumption, (float, int)):
+            output_file.write(json.dumps([production, consumption], indent=4))
         else:
             output_file.write(json.dumps(
                 [production.to_dict(), consumption.to_dict()],
