@@ -419,7 +419,7 @@ class ModelEnergyProperties(object):
 
     def aperture_constructions(self, room_assigned_only=True):
         """Get only the constructions assigned to Apertures in the Model.
-        
+
         Args:
             room_assigned_only: Boolean to note whether only the constructions that
                 are a part of Room-assigned Apertures should be returned (True) or
@@ -439,7 +439,7 @@ class ModelEnergyProperties(object):
 
     def door_constructions(self, room_assigned_only=True):
         """Get only the constructions assigned to Doors in the Model.
-        
+
         Args:
             room_assigned_only: Boolean to note whether only the constructions that
                 are a part of Room-assigned Doors should be returned (True) or
@@ -1485,6 +1485,15 @@ class ModelEnergyProperties(object):
             for hvac_dict in data['properties']['energy']['hvacs']:
                 if hvac_dict['type'] == 'DetailedHVAC':
                     hvac_dict['ironbug_exe'] = folders.ironbug_exe
+        # CWM: there is a very weird bug in OpenStudio
+        # program types cannot have the same name as the model (Building) in OpenStudio
+        model_id = data['identifier']
+        for prog in data['properties']['energy']['program_types']:
+            if prog['identifier'] == model_id:
+                data['identifier'] = '{}1'.format(data['identifier'])
+                if 'display_name' in data and data['display_name'] is not None:
+                    data['display_name'] = '{}1'.format(data['display_name'])
+                break
 
     @staticmethod
     def _add_shade_vertices(obj, obj_dict):

@@ -503,8 +503,8 @@ class Setpoint(_LoadBase):
         """
         if self.setpoint_cutout_difference == 0:
             values = ('{}..{}'.format(self.identifier, zone_identifier),
-                    self.heating_schedule.identifier, '',
-                    self.cooling_schedule.identifier, '')
+                      self.heating_schedule.identifier, '',
+                      self.cooling_schedule.identifier, '')
             comments = ('name', 'heating setpoint schedule', 'heating setpoint {C}',
                         'cooling setpoint schedule', 'cooling setpoint {C}')
             return generate_idf_string('HVACTemplate:Thermostat', values, comments)
@@ -641,7 +641,7 @@ class Setpoint(_LoadBase):
                 humid_sch_id, humid_scheds, u_weights, timestep_resolution)
             dehumid_sched = Setpoint._average_schedule(
                 dehumid_sch_id, dehumid_scheds, u_weights, timestep_resolution)
-        
+
         # calculate the average setpoint_cutout_difference
         cuts = [sp.setpoint_cutout_difference for sp in setpoints]
         sp_cut = sum(cuts) / len(cuts)
