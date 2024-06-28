@@ -79,13 +79,22 @@ def eui_from_sql(sql_results):
                     end_uses[eu_cat] = total_use
 
     # assemble all of the results into a final dictionary
-    result_dict = {
-        'eui': round(total_energy / total_floor_area, 3),
-        'total_floor_area': total_floor_area,
-        'conditioned_floor_area': conditioned_floor_area,
-        'total_energy': round(total_energy, 3)
-    }
-    result_dict['end_uses'] = OrderedDict(
-        [(key, round(val / total_floor_area, 3)) for key, val in end_uses.items()]
-    )
+    if total_floor_area != 0:
+        result_dict = {
+            'eui': round(total_energy / total_floor_area, 3),
+            'total_floor_area': total_floor_area,
+            'conditioned_floor_area': conditioned_floor_area,
+            'total_energy': round(total_energy, 3)
+        }
+        result_dict['end_uses'] = OrderedDict(
+            [(key, round(val / total_floor_area, 3)) for key, val in end_uses.items()]
+        )
+    else:
+        result_dict = {
+            'eui': 0.0,
+            'total_floor_area': total_floor_area,
+            'conditioned_floor_area': conditioned_floor_area,
+            'total_energy': round(total_energy, 3)
+        }
+        result_dict['end_uses'] = OrderedDict([(key, 0.0) for key in end_uses.keys()])
     return result_dict

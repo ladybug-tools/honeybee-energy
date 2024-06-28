@@ -18,6 +18,9 @@ to translate honeybee Models to OpenStudio format.
 
 All of these dependencies are contained within the [honeybee-energy Docker image](https://hub.docker.com/r/ladybugtools/honeybee-energy)
 
+Honeybee-energy is also used by other honeybee extensions that translate honeybee
+models to building energy simulation engines, including [honeybee-doe2](https://github.com/ladybug-tools/honeybee-doe2).
+
 ## Installation
 
 `pip install -U honeybee-energy`
