@@ -262,17 +262,29 @@ def emissions_from_sql(sql_results, electricity_emissions):
     total_carbon = sum(sources.values())
 
     # assemble all of the results into a final dictionary
-    result_dict = {
-        'carbon_intensity': round(total_carbon / total_floor_area, 3),
-        'total_floor_area': total_floor_area,
-        'conditioned_floor_area': conditioned_floor_area,
-        'total_carbon': round(total_carbon, 3)
-    }
-    result_dict['end_uses'] = OrderedDict(
-        [(key, round(val / total_floor_area, 3)) for key, val in end_uses.items()]
-    )
-    result_dict['sources'] = OrderedDict(
-        [(key, round(val / total_floor_area, 3)) for key, val in sources.items()
-         if val != 0]
-    )
+    if total_floor_area != 0:
+        result_dict = {
+            'carbon_intensity': round(total_carbon / total_floor_area, 3),
+            'total_floor_area': total_floor_area,
+            'conditioned_floor_area': conditioned_floor_area,
+            'total_carbon': round(total_carbon, 3)
+        }
+        result_dict['end_uses'] = OrderedDict(
+            [(key, round(val / total_floor_area, 3)) for key, val in end_uses.items()]
+        )
+        result_dict['sources'] = OrderedDict(
+            [(key, round(val / total_floor_area, 3)) for key, val in sources.items()
+             if val != 0]
+        )
+    else:
+        result_dict = {
+            'carbon_intensity': 0.0,
+            'total_floor_area': total_floor_area,
+            'conditioned_floor_area': conditioned_floor_area,
+            'total_carbon': round(total_carbon, 3)
+        }
+        result_dict['end_uses'] = OrderedDict([(key, 0.0) for key in end_uses.keys()])
+        result_dict['sources'] = OrderedDict(
+            [(key, 0.0) for key, val in sources.items() if val != 0]
+        )
     return result_dict
