@@ -273,10 +273,10 @@ def model_lighting_to_baseline(model):
                 prog_2004 = program_type_by_identifier(new_prog_name)
             except ValueError:  # no equivalent program in ASHRAE 2004
                 pass
-        if prog_2004 is not None:  # if program was found, use it to assign the LPD
-            if prog_2004.lighting is not None:
-                dup_light = room.properties.energy.lighting.duplicate()
-                dup_light.watts_per_area = prog_2004.lighting.watts_per_area
+        # if program was found, use it to assign the LPD
+        if prog_2004 is not None and prog_2004.lighting is not None:
+            dup_light = room.properties.energy.lighting.duplicate()
+            dup_light.watts_per_area = prog_2004.lighting.watts_per_area
         elif room.properties.energy.program_type.lighting is not None:
             dup_light = room.properties.energy.program_type.lighting.duplicate()
             dup_light.watts_per_area = dup_light.baseline_watts_per_area
