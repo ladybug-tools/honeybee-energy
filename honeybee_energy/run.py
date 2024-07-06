@@ -801,7 +801,7 @@ def _run_osw_windows(osw_json, measures_only=True, silent=False):
             return directory
     # given .bat file restrictions with non-ASCII characters, run the sim with subprocess
     cmds = [folders.openstudio_exe, '-I', folders.honeybee_openstudio_gem_path,
-            'run', '-w', osw_json]
+            'run', '--show-stdout', '-w', osw_json]
     if measures_only:
         cmds.append('-m')
     process = subprocess.Popen(cmds, shell=silent)
