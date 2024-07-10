@@ -30,11 +30,16 @@ from honeybee_energy.lib.programtypes import program_type_by_identifier, PROGRAM
 
 from honeybee_energy.lib._loadtypelimits import load_type_limits_from_folder, \
     _schedule_type_limits
-from honeybee_energy.lib._loadschedules import load_schedules_from_folder
-from honeybee_energy.lib._loadprogramtypes import load_programtypes_from_folder
-from honeybee_energy.lib._loadmaterials import load_materials_from_folder
-from honeybee_energy.lib._loadconstructions import load_constructions_from_folder
-from honeybee_energy.lib._loadconstructionsets import load_constructionsets_from_folder
+from honeybee_energy.lib._loadschedules import load_schedules_from_folder, \
+    _default_schedules
+from honeybee_energy.lib._loadprogramtypes import load_programtypes_from_folder, \
+    _default_programs
+from honeybee_energy.lib._loadmaterials import load_materials_from_folder, \
+    _default_mats
+from honeybee_energy.lib._loadconstructions import load_constructions_from_folder, \
+    _default_constrs
+from honeybee_energy.lib._loadconstructionsets import \
+    load_constructionsets_from_folder, _default_sets
 
 _logger = logging.getLogger(__name__)
 
@@ -1072,46 +1077,52 @@ def add_osm_to_lib(osm_file, standards_folder, indent, osw_folder, log_file):
         mat_json = os.path.join(con_folder, '{}_materials.json'.format(base_name))
         mat_dict = {}
         for mat in model_dict['properties']['energy']['materials']:
-            added_objs.append(mat['identifier'])
-            mat_dict[mat['identifier']] = mat
+            if mat['identifier'] not in _default_mats:
+                added_objs.append(mat['identifier'])
+                mat_dict[mat['identifier']] = mat
         _update_user_json(mat_dict, mat_json, indent)
         # write the constructions
         con_json = os.path.join(con_folder, '{}_constructions.json'.format(base_name))
         con_dict = {}
         for con in model_dict['properties']['energy']['constructions']:
-            added_objs.append(con['identifier'])
-            con_dict[con['identifier']] = con
+            if con['identifier'] not in _default_constrs:
+                added_objs.append(con['identifier'])
+                con_dict[con['identifier']] = con
         _update_user_json(con_dict, con_json, indent)
         # write the construction sets
         c_set_folder = os.path.join(folder, 'constructionsets')
         c_set_json = os.path.join(c_set_folder, '{}.json'.format(base_name))
         c_set_dict = {}
         for c_set in model_dict['properties']['energy']['construction_sets']:
-            added_objs.append(c_set['identifier'])
-            c_set_dict[c_set['identifier']] = c_set
+            if c_set['identifier'] not in _default_sets:
+                added_objs.append(c_set['identifier'])
+                c_set_dict[c_set['identifier']] = c_set
         _update_user_json(c_set_dict, c_set_json, indent)
         # write the type limits
         sched_folder = os.path.join(folder, 'schedules')
         stl_json = os.path.join(sched_folder, '{}_type_limits.json'.format(base_name))
         sch_tl_dict = {}
         for stl in model_dict['properties']['energy']['schedule_type_limits']:
-            added_objs.append(stl['identifier'])
-            sch_tl_dict[stl['identifier']] = stl
+            if stl['identifier'] not in _schedule_type_limits:
+                added_objs.append(stl['identifier'])
+                sch_tl_dict[stl['identifier']] = stl
         _update_user_json(sch_tl_dict, stl_json, indent)
         # write the schedules
         sch_json = os.path.join(sched_folder, '{}_schedules.json'.format(base_name))
         sch_dict = {}
         for sch in model_dict['properties']['energy']['schedules']:
-            added_objs.append(sch['identifier'])
-            sch_dict[sch['identifier']] = sch
+            if sch['identifier'] not in _default_schedules:
+                added_objs.append(sch['identifier'])
+                sch_dict[sch['identifier']] = sch
         _update_user_json(sch_dict, sch_json, indent)
         # write the programs
         prog_folder = os.path.join(folder, 'programtypes')
         prog_json = os.path.join(prog_folder, '{}.json'.format(base_name))
         prog_dict = {}
         for prog in model_dict['properties']['energy']['program_types']:
-            added_objs.append(prog['identifier'])
-            prog_dict[prog['identifier']] = prog
+            if prog['identifier'] not in _default_programs:
+                added_objs.append(prog['identifier'])
+                prog_dict[prog['identifier']] = prog
         _update_user_json(prog_dict, prog_json, indent)
 
         # write a message into the log file

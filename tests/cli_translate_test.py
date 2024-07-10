@@ -9,7 +9,9 @@ from honeybee.model import Model
 from honeybee_energy.cli.translate import model_to_osm, model_to_idf, model_to_gbxml, \
     model_to_sdd, model_from_gbxml, model_from_osm, model_from_idf, \
     construction_from_idf, construction_to_idf, \
-    schedule_to_idf, schedule_from_idf, model_occ_schedules, model_trans_schedules
+    schedule_to_idf, schedule_from_idf, model_occ_schedules, model_trans_schedules, \
+    materials_from_osm, constructions_from_osm, construction_sets_from_osm, \
+    schedule_type_limits_from_osm, schedules_from_osm, programs_from_osm
 
 
 def test_model_to_osm():
@@ -101,6 +103,66 @@ def test_construction_to_from_idf():
     assert result.exit_code == 0
 
     os.remove(output_hb_json)
+
+
+def test_materials_from_osm():
+    runner = CliRunner()
+    input_osm_file = './tests/osm/MidriseApartment-90.1-2019_CZ5.osm'
+
+    result = runner.invoke(materials_from_osm, [input_osm_file])
+    assert result.exit_code == 0
+    result_dict = json.loads(result.output)
+    assert len(result_dict) > 40
+
+
+def test_constructions_from_osm():
+    runner = CliRunner()
+    input_osm_file = './tests/osm/MidriseApartment-90.1-2019_CZ5.osm'
+
+    result = runner.invoke(constructions_from_osm, [input_osm_file])
+    assert result.exit_code == 0
+    result_dict = json.loads(result.output)
+    assert len(result_dict) > 30
+
+
+def test_construction_sets_from_osm():
+    runner = CliRunner()
+    input_osm_file = './tests/osm/MidriseApartment-90.1-2019_CZ5.osm'
+
+    result = runner.invoke(construction_sets_from_osm, [input_osm_file])
+    assert result.exit_code == 0
+    result_dict = json.loads(result.output)
+    assert len(result_dict) == 2
+
+
+def test_schedule_type_limits_from_osm():
+    runner = CliRunner()
+    input_osm_file = './tests/osm/MidriseApartment-90.1-2019_CZ5.osm'
+
+    result = runner.invoke(schedule_type_limits_from_osm, [input_osm_file])
+    assert result.exit_code == 0
+    result_dict = json.loads(result.output)
+    assert len(result_dict) > 10
+
+
+def test_schedules_from_osm():
+    runner = CliRunner()
+    input_osm_file = './tests/osm/MidriseApartment-90.1-2019_CZ5.osm'
+
+    result = runner.invoke(schedules_from_osm, [input_osm_file])
+    assert result.exit_code == 0
+    result_dict = json.loads(result.output)
+    assert len(result_dict) > 100
+
+
+def test_programs_from_osm():
+    runner = CliRunner()
+    input_osm_file = './tests/osm/MidriseApartment-90.1-2019_CZ5.osm'
+
+    result = runner.invoke(programs_from_osm, [input_osm_file])
+    assert result.exit_code == 0
+    result_dict = json.loads(result.output)
+    assert len(result_dict) == 20
 
 
 def test_schedule_to_from_idf():
