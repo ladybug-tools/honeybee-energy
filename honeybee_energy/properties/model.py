@@ -1270,16 +1270,27 @@ class ModelEnergyProperties(object):
                 in the model should be reset or kept. (Default: True).
             reset_programs: Boolean to note whether the IDs of all program
                 types in the model should be reset or kept. (Default: True).
+
+        Returns:
+            A dictionary with the original identifiers of resources as keys and the
+            edited resource objects as values. This can be used to set the identifiers
+            of the objects back to the original value after this method has been
+            run and any other routines have been performed. This will help prevent
+            unintended consequences of changing the resource identifiers in the
+            global resource library or in other Models that may be using the same
+            resource object instances.
         """
         # set up the dictionaries used to check for uniqueness
         res_func = clean_and_number_ep_string
         mat_dict, con_dict, con_set_dict = {}, {}, {}
         sch_dict, sch_day_dict, prog_dict = {}, {}, {}
+        resource_map = {}
 
         # change the identifiers of the materials
         if reset_materials:
             for mat in self.materials:
                 mat.unlock()
+                resource_map[mat.identifier] = mat
                 mat.identifier = res_func(mat.display_name, mat_dict)
                 mat.lock()
 
@@ -1287,6 +1298,7 @@ class ModelEnergyProperties(object):
         if reset_constructions:
             for con in self.constructions:
                 con.unlock()
+                resource_map[con.identifier] = con
                 con.identifier = res_func(con.display_name, con_dict)
                 con.lock()
 
@@ -1294,6 +1306,7 @@ class ModelEnergyProperties(object):
         if reset_construction_sets:
             for cs in self.construction_sets:
                 cs.unlock()
+                resource_map[cs.identifier] = cs
                 cs.identifier = res_func(cs.display_name, con_set_dict)
                 cs.lock()
 
@@ -1305,17 +1318,44 @@ class ModelEnergyProperties(object):
                     continue
                 sch.unlock()
                 sch.identifier = res_func(sch.display_name, sch_dict)
+                resource_map[sch.identifier] = sch
                 if isinstance(sch, ScheduleRuleset):
                     for day_sch in sch.day_schedules:
+                        day_sch.unlock()
+                        resource_map[day_sch.identifier] = day_sch
                         day_sch.identifier = res_func(day_sch.display_name, sch_day_dict)
+                        day_sch.lock()
                 sch.lock()
 
         # change the identifiers of the program
         if reset_programs:
             for prg in self.program_types:
                 prg.unlock()
+                resource_map[prg.identifier] = prg
                 prg.identifier = res_func(prg.display_name, prog_dict)
                 prg.lock()
+
+        return resource_map
+
+    @staticmethod
+    def restore_resource_ids(resource_map):
+        """Restore the identifiers of resource objects after resetting them.
+
+        This can be used to set the identifiers of the objects back to the original
+        value after the reset_resource_ids() method was called. This will help prevent
+        unintended consequences of changing the resource identifiers in the
+        global resource library or in other Models that may be using the same
+        resource object instances.
+
+        Args:
+            resource_map: A dictionary with the original identifiers of resources
+                as keys and the edited resource objects as values. This type of
+                dictionary is output from the reset_resource_ids method.
+        """
+        for orignal_id, res_obj in resource_map.items():
+            res_obj.unlock()
+            res_obj.identifier = orignal_id
+            res_obj.lock()
 
     def apply_properties_from_dict(self, data):
         """Apply the energy properties of a dictionary to the host Model of this object.
@@ -1540,7 +1580,7 @@ class ModelEnergyProperties(object):
             self.electric_load_center.duplicate())
 
     @staticmethod
-    def load_properties_from_dict(data):
+    def load_properties_from_dict(data, skip_invalid=False):
         """Load model energy properties of a dictionary to Python objects.
 
         Loaded objects include Materials, Constructions, ConstructionSets,
@@ -1554,6 +1594,9 @@ class ModelEnergyProperties(object):
             data: A dictionary representation of an entire honeybee-core Model.
                 Note that this dictionary must have ModelEnergyProperties in order
                 for this method to successfully load the energy properties.
+            skip_invalid: A boolean to note whether objects that cannot be loaded
+                should be ignored (True) or whether an exception should be raised
+                about the invalid object (False). (Default: False).
 
         Returns:
             A tuple with eight elements
@@ -1594,7 +1637,8 @@ class ModelEnergyProperties(object):
                     schedule_type_limits[t_lim['identifier']] = \
                         ScheduleTypeLimit.from_dict(t_lim)
                 except Exception as e:
-                    invalid_dict_error(t_lim, e)
+                    if not skip_invalid:
+                        invalid_dict_error(t_lim, e)
 
         # process all schedules in the ModelEnergyProperties dictionary
         schedules = {}
@@ -1608,7 +1652,8 @@ class ModelEnergyProperties(object):
                         schedules[sched['identifier']] = dict_abridged_to_schedule(
                             sched, schedule_type_limits)
                 except Exception as e:
-                    invalid_dict_error(sched, e)
+                    if not skip_invalid:
+                        invalid_dict_error(sched, e)
 
         # process all materials in the ModelEnergyProperties dictionary
         materials = {}
@@ -1618,7 +1663,8 @@ class ModelEnergyProperties(object):
                 try:
                     materials[mat['identifier']] = dict_to_material(mat)
                 except Exception as e:
-                    invalid_dict_error(mat, e)
+                    if not skip_invalid:
+                        invalid_dict_error(mat, e)
 
         # process all constructions in the ModelEnergyProperties dictionary
         constructions = {}
@@ -1632,7 +1678,8 @@ class ModelEnergyProperties(object):
                         constructions[cnstr['identifier']] = \
                             dict_abridged_to_construction(cnstr, materials, schedules)
                 except Exception as e:
-                    invalid_dict_error(cnstr, e)
+                    if not skip_invalid:
+                        invalid_dict_error(cnstr, e)
 
         # process all construction sets in the ModelEnergyProperties dictionary
         construction_sets = {}
@@ -1647,7 +1694,8 @@ class ModelEnergyProperties(object):
                         construction_sets[c_set['identifier']] = \
                             ConstructionSet.from_dict_abridged(c_set, constructions)
                 except Exception as e:
-                    invalid_dict_error(c_set, e)
+                    if not skip_invalid:
+                        invalid_dict_error(c_set, e)
 
         # process all ProgramType in the ModelEnergyProperties dictionary
         program_types = {}
@@ -1661,7 +1709,8 @@ class ModelEnergyProperties(object):
                         program_types[p_typ['identifier']] = \
                             ProgramType.from_dict_abridged(p_typ, schedules)
                 except Exception as e:
-                    invalid_dict_error(p_typ, e)
+                    if not skip_invalid:
+                        invalid_dict_error(p_typ, e)
 
         # process all HVAC systems in the ModelEnergyProperties dictionary
         hvacs = {}
@@ -1673,7 +1722,8 @@ class ModelEnergyProperties(object):
                     hvacs[hvac['identifier']] = \
                         hvac_class.from_dict_abridged(hvac, schedules)
                 except Exception as e:
-                    invalid_dict_error(hvac, e)
+                    if not skip_invalid:
+                        invalid_dict_error(hvac, e)
 
         # process all SHW systems in the ModelEnergyProperties dictionary
         shws = {}
@@ -1683,7 +1733,8 @@ class ModelEnergyProperties(object):
                 try:
                     shws[shw['identifier']] = SHWSystem.from_dict(shw)
                 except Exception as e:
-                    invalid_dict_error(shw, e)
+                    if not skip_invalid:
+                        invalid_dict_error(shw, e)
 
         return materials, constructions, construction_sets, schedule_type_limits, \
             schedules, program_types, hvacs, shws

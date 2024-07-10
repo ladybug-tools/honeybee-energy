@@ -20,6 +20,7 @@ from honeybee_energy.construction.opaque import OpaqueConstruction
 from honeybee_energy.construction.window import WindowConstruction
 from honeybee_energy.schedule.dictutil import dict_to_schedule
 from honeybee_energy.schedule.ruleset import ScheduleRuleset
+from honeybee_energy.properties.model import ModelEnergyProperties
 from honeybee_energy.run import measure_compatible_model_json, to_openstudio_osw, \
     to_gbxml_osw, to_sdd_osw, run_osw, from_gbxml_osw, from_osm_osw, from_idf_osw, \
     add_gbxml_space_boundaries, set_gbxml_floor_types, _parse_os_cli_failure
@@ -621,10 +622,13 @@ def construction_to_idf(construction_json, output_file):
 @translate.command('constructions-from-idf')
 @click.argument('construction-idf', type=click.Path(
     exists=True, file_okay=True, dir_okay=False, resolve_path=True))
+@click.option('--indent', '-i', help='Optional integer to specify the indentation in '
+              'the output JSON file. Specifying an value here can produce more read-able'
+              ' JSONs.', type=int, default=None, show_default=True)
 @click.option('--output-file', '-f', help='Optional JSON file to output the JSON '
               'string of the translation. By default this will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
-def construction_from_idf(construction_idf, output_file):
+def construction_from_idf(construction_idf, indent, output_file):
     """Translate a Construction IDF file to a honeybee JSON as an array of constructions.
 
     \b
@@ -645,9 +649,153 @@ def construction_from_idf(construction_idf, output_file):
             hb_obj_list.append(constr.to_dict())
 
         # write out the JSON file
-        output_file.write(json.dumps(hb_obj_list))
+        output_file.write(json.dumps(hb_obj_list, indent=indent))
     except Exception as e:
         _logger.exception('Construction translation failed.\n{}'.format(e))
+        sys.exit(1)
+    else:
+        sys.exit(0)
+
+
+@translate.command('materials-from-osm')
+@click.argument('osm-file', type=click.Path(
+    exists=True, file_okay=True, dir_okay=False, resolve_path=True))
+@click.option('--indent', '-i', help='Optional integer to specify the indentation in '
+              'the output JSON file. Specifying an value here can produce more read-able'
+              ' JSONs.', type=int, default=None, show_default=True)
+@click.option('--osw-folder', '-osw', help='Folder on this computer, into which the '
+              'working files will be written. If None, it will be written into the a '
+              'temp folder in the default simulation folder.', default=None,
+              type=click.Path(file_okay=False, dir_okay=True, resolve_path=True))
+@click.option('--output-file', '-f', help='Optional JSON file to output the string '
+              'of the translation. By default it printed out to stdout',
+              type=click.File('w'), default='-', show_default=True)
+def materials_from_osm(osm_file, indent, osw_folder, output_file):
+    """Translate all Materials in an OpenStudio Model (OSM) to a Honeybee JSON.
+
+    The resulting JSON can be written into a user standards folder to add the
+    materials to a users standards library.
+
+    \b
+    Args:
+        osm_file: Path to a OpenStudio Model (OSM) file.
+    """
+    try:
+        # translate the OSM to a HBJSON
+        model_dict = _translate_osm_to_hbjson(osm_file, osw_folder)
+        # extract the material dictionaries from the model dictionary
+        out_dict = {}
+        for mat in model_dict['properties']['energy']['materials']:
+            out_dict[mat['identifier']] = mat
+        output_file.write(json.dumps(out_dict, indent=indent))
+    except Exception as e:
+        _logger.exception('Material translation failed.\n{}'.format(e))
+        sys.exit(1)
+    else:
+        sys.exit(0)
+
+
+@translate.command('constructions-from-osm')
+@click.argument('osm-file', type=click.Path(
+    exists=True, file_okay=True, dir_okay=False, resolve_path=True))
+@click.option('--full/--abridged', ' /-a', help='Flag to note whether the objects '
+              'should be translated as an abridged specification instead of a '
+              'specification that fully describes the object. This option should be '
+              'used when the materials-from-osm command will be used to separately '
+              'translate all of the materials from the OSM.',
+              default=True, show_default=True)
+@click.option('--indent', '-i', help='Optional integer to specify the indentation in '
+              'the output JSON file. Specifying an value here can produce more read-able'
+              ' JSONs.', type=int, default=None, show_default=True)
+@click.option('--osw-folder', '-osw', help='Folder on this computer, into which the '
+              'working files will be written. If None, it will be written into the a '
+              'temp folder in the default simulation folder.', default=None,
+              type=click.Path(file_okay=False, dir_okay=True, resolve_path=True))
+@click.option('--output-file', '-f', help='Optional JSON file to output the string '
+              'of the translation. By default it printed out to stdout',
+              type=click.File('w'), default='-', show_default=True)
+def constructions_from_osm(osm_file, full, indent, osw_folder, output_file):
+    """Translate all Constructions in an OpenStudio Model (OSM) to a Honeybee JSON.
+
+    The resulting JSON can be written into a user standards folder to add the
+    constructions to a users standards library.
+
+    \b
+    Args:
+        osm_file: Path to a OpenStudio Model (OSM) file.
+    """
+    try:
+        # translate the OSM to a HBJSON
+        model_dict = _translate_osm_to_hbjson(osm_file, osw_folder)
+        # extract the construction dictionaries from the model dictionary
+        out_dict = {}
+        if not full:  # objects are already abridged and good to go
+            for con in model_dict['properties']['energy']['constructions']:
+                out_dict[con['identifier']] = con
+            output_file.write(json.dumps(out_dict, indent=indent))
+        else:  # rebuild the full objects to write them as full
+            _, constructions, _, _, _, _, _, _ = \
+                ModelEnergyProperties.load_properties_from_dict(
+                    model_dict, skip_invalid=True)
+            for con in constructions.values():
+                out_dict[con.identifier] = con.to_dict()
+        # write the resulting JSON
+        output_file.write(json.dumps(out_dict, indent=indent))
+    except Exception as e:
+        _logger.exception('Construction translation failed.\n{}'.format(e))
+        sys.exit(1)
+    else:
+        sys.exit(0)
+
+
+@translate.command('construction-sets-from-osm')
+@click.argument('osm-file', type=click.Path(
+    exists=True, file_okay=True, dir_okay=False, resolve_path=True))
+@click.option('--full/--abridged', ' /-a', help='Flag to note whether the objects '
+              'should be translated as an abridged specification instead of a '
+              'specification that fully describes the object. This option should be '
+              'used when the constructions-from-osm command will be used to separately '
+              'translate all of the constructions from the OSM.',
+              default=True, show_default=True)
+@click.option('--indent', '-i', help='Optional integer to specify the indentation in '
+              'the output JSON file. Specifying an value here can produce more read-able'
+              ' JSONs.', type=int, default=None, show_default=True)
+@click.option('--osw-folder', '-osw', help='Folder on this computer, into which the '
+              'working files will be written. If None, it will be written into the a '
+              'temp folder in the default simulation folder.', default=None,
+              type=click.Path(file_okay=False, dir_okay=True, resolve_path=True))
+@click.option('--output-file', '-f', help='Optional JSON file to output the string '
+              'of the translation. By default it printed out to stdout',
+              type=click.File('w'), default='-', show_default=True)
+def construction_sets_from_osm(osm_file, full, indent, osw_folder, output_file):
+    """Translate all ConstructionSets in an OpenStudio Model (OSM) to a Honeybee JSON.
+
+    The resulting JSON can be written into a user standards folder to add the
+    constructions to a users standards library.
+
+    \b
+    Args:
+        osm_file: Path to a OpenStudio Model (OSM) file.
+    """
+    try:
+        # translate the OSM to a HBJSON
+        model_dict = _translate_osm_to_hbjson(osm_file, osw_folder)
+        # extract the construction set dictionaries from the model dictionary
+        out_dict = {}
+        if not full:  # objects are already abridged and good to go
+            for c_set in model_dict['properties']['energy']['construction_sets']:
+                out_dict[c_set['identifier']] = c_set
+            output_file.write(json.dumps(out_dict, indent=indent))
+        else:  # rebuild the full objects to write them as full
+            _, _, construction_sets, _, _, _, _, _ = \
+                ModelEnergyProperties.load_properties_from_dict(
+                    model_dict, skip_invalid=True)
+            for c_set in construction_sets.values():
+                out_dict[c_set.identifier] = c_set.to_dict()
+        # write the resulting JSON
+        output_file.write(json.dumps(out_dict, indent=indent))
+    except Exception as e:
+        _logger.exception('ConstructionSet translation failed.\n{}'.format(e))
         sys.exit(1)
     else:
         sys.exit(0)
@@ -720,10 +868,13 @@ def schedule_to_idf(schedule_json, output_file):
 @translate.command('schedules-from-idf')
 @click.argument('schedule-idf', type=click.Path(
     exists=True, file_okay=True, dir_okay=False, resolve_path=True))
+@click.option('--indent', '-i', help='Optional integer to specify the indentation in '
+              'the output JSON file. Specifying an value here can produce more read-able'
+              ' JSONs.', type=int, default=None, show_default=True)
 @click.option('--output-file', '-f', help='Optional JSON file to output the JSON '
               'string of the translation. By default this will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
-def schedule_from_idf(schedule_idf, output_file):
+def schedule_from_idf(schedule_idf, indent, output_file):
     """Translate a schedule IDF file to a honeybee JSON as an array of schedules.
 
     \b
@@ -734,14 +885,156 @@ def schedule_from_idf(schedule_idf, output_file):
     try:
         # re-serialize the schedules to Python
         schedules = ScheduleRuleset.extract_all_from_idf_file(schedule_idf)
-
         # create the honeybee dictionaries
         hb_obj_list = [sch.to_dict() for sch in schedules]
-
         # write out the JSON file
-        output_file.write(json.dumps(hb_obj_list))
+        output_file.write(json.dumps(hb_obj_list, indent=indent))
     except Exception as e:
         _logger.exception('Schedule translation failed.\n{}'.format(e))
+        sys.exit(1)
+    else:
+        sys.exit(0)
+
+
+@translate.command('schedule-type-limits-from-osm')
+@click.argument('osm-file', type=click.Path(
+    exists=True, file_okay=True, dir_okay=False, resolve_path=True))
+@click.option('--indent', '-i', help='Optional integer to specify the indentation in '
+              'the output JSON file. Specifying an value here can produce more read-able'
+              ' JSONs.', type=int, default=None, show_default=True)
+@click.option('--osw-folder', '-osw', help='Folder on this computer, into which the '
+              'working files will be written. If None, it will be written into the a '
+              'temp folder in the default simulation folder.', default=None,
+              type=click.Path(file_okay=False, dir_okay=True, resolve_path=True))
+@click.option('--output-file', '-f', help='Optional JSON file to output the string '
+              'of the translation. By default it printed out to stdout',
+              type=click.File('w'), default='-', show_default=True)
+def schedule_type_limits_from_osm(osm_file, indent, osw_folder, output_file):
+    """Translate all ScheduleTypeLimits in an OpenStudio Model (OSM) to a Honeybee JSON.
+
+    The resulting JSON can be written into a user standards folder to add the
+    type limits to a users standards library.
+
+    \b
+    Args:
+        osm_file: Path to a OpenStudio Model (OSM) file.
+    """
+    try:
+        # translate the OSM to a HBJSON
+        model_dict = _translate_osm_to_hbjson(osm_file, osw_folder)
+        # extract the material dictionaries from the model dictionary
+        out_dict = {}
+        for stl in model_dict['properties']['energy']['schedule_type_limits']:
+            out_dict[stl['identifier']] = stl
+        output_file.write(json.dumps(out_dict, indent=indent))
+    except Exception as e:
+        _logger.exception('ScheduleTypeLimit translation failed.\n{}'.format(e))
+        sys.exit(1)
+    else:
+        sys.exit(0)
+
+
+@translate.command('schedules-from-osm')
+@click.argument('osm-file', type=click.Path(
+    exists=True, file_okay=True, dir_okay=False, resolve_path=True))
+@click.option('--full/--abridged', ' /-a', help='Flag to note whether the objects '
+              'should be translated as an abridged specification instead of a '
+              'specification that fully describes the object. This option should be '
+              'used when the schedule-type-limits-from-osm command will be used to '
+              'separately translate all of the type limits from the OSM.',
+              default=True, show_default=True)
+@click.option('--indent', '-i', help='Optional integer to specify the indentation in '
+              'the output JSON file. Specifying an value here can produce more read-able'
+              ' JSONs.', type=int, default=None, show_default=True)
+@click.option('--osw-folder', '-osw', help='Folder on this computer, into which the '
+              'working files will be written. If None, it will be written into the a '
+              'temp folder in the default simulation folder.', default=None,
+              type=click.Path(file_okay=False, dir_okay=True, resolve_path=True))
+@click.option('--output-file', '-f', help='Optional JSON file to output the string '
+              'of the translation. By default it printed out to stdout',
+              type=click.File('w'), default='-', show_default=True)
+def schedules_from_osm(osm_file, full, indent, osw_folder, output_file):
+    """Translate all Schedules in an OpenStudio Model (OSM) to a Honeybee JSON.
+
+    The resulting JSON can be written into a user standards folder to add the
+    schedules to a users standards library.
+
+    \b
+    Args:
+        osm_file: Path to a OpenStudio Model (OSM) file.
+    """
+    try:
+        # translate the OSM to a HBJSON
+        model_dict = _translate_osm_to_hbjson(osm_file, osw_folder)
+        # extract the construction dictionaries from the model dictionary
+        out_dict = {}
+        if not full:  # objects are already abridged and good to go
+            for sch in model_dict['properties']['energy']['schedules']:
+                out_dict[sch['identifier']] = sch
+            output_file.write(json.dumps(out_dict, indent=indent))
+        else:  # rebuild the full objects to write them as full
+            _, _, _, _, schedules, _, _, _ = \
+                ModelEnergyProperties.load_properties_from_dict(
+                    model_dict, skip_invalid=True)
+            for sch in schedules.values():
+                out_dict[sch.identifier] = sch.to_dict()
+        # write the resulting JSON
+        output_file.write(json.dumps(out_dict, indent=indent))
+    except Exception as e:
+        _logger.exception('Schedule translation failed.\n{}'.format(e))
+        sys.exit(1)
+    else:
+        sys.exit(0)
+
+
+@translate.command('programs-from-osm')
+@click.argument('osm-file', type=click.Path(
+    exists=True, file_okay=True, dir_okay=False, resolve_path=True))
+@click.option('--full/--abridged', ' /-a', help='Flag to note whether the objects '
+              'should be translated as an abridged specification instead of a '
+              'specification that fully describes the object. This option should be '
+              'used when the schedules-from-osm command will be used to separately '
+              'translate all of the schedules from the OSM.',
+              default=True, show_default=True)
+@click.option('--indent', '-i', help='Optional integer to specify the indentation in '
+              'the output JSON file. Specifying an value here can produce more read-able'
+              ' JSONs.', type=int, default=None, show_default=True)
+@click.option('--osw-folder', '-osw', help='Folder on this computer, into which the '
+              'working files will be written. If None, it will be written into the a '
+              'temp folder in the default simulation folder.', default=None,
+              type=click.Path(file_okay=False, dir_okay=True, resolve_path=True))
+@click.option('--output-file', '-f', help='Optional JSON file to output the string '
+              'of the translation. By default it printed out to stdout',
+              type=click.File('w'), default='-', show_default=True)
+def programs_from_osm(osm_file, full, indent, osw_folder, output_file):
+    """Translate all ProgramTypes in an OpenStudio Model (OSM) to a Honeybee JSON.
+
+    The resulting JSON can be written into a user standards folder to add the
+    programs to a users standards library.
+
+    \b
+    Args:
+        osm_file: Path to a OpenStudio Model (OSM) file.
+    """
+    try:
+        # translate the OSM to a HBJSON
+        model_dict = _translate_osm_to_hbjson(osm_file, osw_folder)
+        # extract the construction dictionaries from the model dictionary
+        out_dict = {}
+        if not full:  # objects are already abridged and good to go
+            for prog in model_dict['properties']['energy']['program_types']:
+                out_dict[prog['identifier']] = prog
+            output_file.write(json.dumps(out_dict, indent=indent))
+        else:  # rebuild the full objects to write them as full
+            _, _, _, _, _, program_types, _, _ = \
+                ModelEnergyProperties.load_properties_from_dict(
+                    model_dict, skip_invalid=True)
+            for prog in program_types.values():
+                out_dict[prog.identifier] = prog.to_dict()
+        # write the resulting JSON
+        output_file.write(json.dumps(out_dict, indent=indent))
+    except Exception as e:
+        _logger.exception('Program translation failed.\n{}'.format(e))
         sys.exit(1)
     else:
         sys.exit(0)
@@ -873,5 +1166,23 @@ def _run_translation_osw(osw, out_path):
         if out_path is not None:  # load the JSON string to stdout
             with open(out_path) as json_file:
                 print(json_file.read())
+    else:
+        _parse_os_cli_failure(os.path.dirname(osw))
+
+
+def _translate_osm_to_hbjson(osm_file, osw_folder):
+    """Translate an OSM to a HBJSON for use in resource extraction commands."""
+    # come up with a temporary path to write the HBJSON
+    out_directory = os.path.join(
+        hb_folders.default_simulation_folder, 'temp_translate')
+    f_name = os.path.basename(osm_file).lower().replace('.osm', '.hbjson')
+    out_path = os.path.join(out_directory, f_name)
+    # run the OSW to translate the OSM to HBJSON
+    osw = from_osm_osw(osm_file, out_path, osw_folder)
+    # load the resulting HBJSON to a dictionary and return it
+    _, idf = run_osw(osw, silent=True)
+    if idf is not None and os.path.isfile(idf):
+        with open(out_path) as json_file:
+            return json.load(json_file)
     else:
         _parse_os_cli_failure(os.path.dirname(osw))

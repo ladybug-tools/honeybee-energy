@@ -7,9 +7,11 @@ import json
 import zipfile
 from datetime import datetime
 
+from honeybee.config import folders as hb_folders
 from honeybee_energy.config import folders
 from honeybee_energy.schedule.typelimit import ScheduleTypeLimit
 from honeybee_energy.material.dictutil import dict_to_material, MATERIAL_TYPES
+from honeybee_energy.run import run_osw, from_osm_osw, _parse_os_cli_failure
 
 from honeybee_energy.lib.materials import opaque_material_by_identifier, \
     window_material_by_identifier, OPAQUE_MATERIALS, WINDOW_MATERIALS
@@ -705,7 +707,7 @@ def to_model_properties(standards_folder, exclude_abridged, output_file):
 
 def _add_abridged_objects(model_prop_array, lib_folder, ex_types=()):
     """Add abridged resource objects to an existing model properties array.
-    
+
     Args:
         model_prop_array: An array of resource object dictionaries from a
             ModelEnergyProperties dictionary.
@@ -1016,11 +1018,126 @@ def _object_message(obj_type, obj_dict):
     return '{}: {}'.format(obj_type, obj_name)
 
 
-def _update_user_json(dict_to_add, user_json):
+def _update_user_json(dict_to_add, user_json, indent=4):
     """Update a JSON file within a user standards folder."""
     if os.path.isfile(user_json):
         with open(user_json) as inf:
             exist_data = json.load(inf)
         dict_to_add.update(exist_data)
     with open(user_json, 'w') as outf:
-        json.dump(dict_to_add, outf, indent=4)
+        json.dump(dict_to_add, outf, indent=indent)
+
+
+@lib.command('add-osm')
+@click.argument('osm-file', type=click.Path(
+    exists=True, file_okay=True, dir_okay=False, resolve_path=True))
+@click.option(
+    '--standards-folder', '-s', default=None, help='A directory containing sub-folders '
+    'of resource objects (constructions, constructionsets, schedules, programtypes) '
+    'to which the properties-file objects will be added. If unspecified, the current '
+    'user honeybee default standards folder will be used.', type=click.Path(
+        exists=True, file_okay=False, dir_okay=True, resolve_path=True))
+@click.option(
+    '--indent', '-i', help='Optional integer to specify the indentation in '
+    'the output JSON file. Specifying an value here can produce more read-able'
+    ' JSONs.', type=int, default=None, show_default=True)
+@click.option(
+    '--osw-folder', '-osw', help='Folder on this computer, into which the '
+    'working files will be written. If None, it will be written into the a '
+    'temp folder in the default simulation folder.', default=None,
+    type=click.Path(file_okay=False, dir_okay=True, resolve_path=True))
+@click.option(
+    '--log-file', '-log', help='Optional file to output a log of the addition process. '
+    'By default this will be printed out to stdout',
+    type=click.File('w'), default='-', show_default=True)
+def add_osm_to_lib(osm_file, standards_folder, indent, osw_folder, log_file):
+    """Add all objects within an OSM file to the user's standard library.
+
+    \b
+    Args:
+        osm_file: Path to a OpenStudio Model (OSM) file.
+    """
+    try:
+        # set the folder to the default standards_folder if unspecified
+        folder = standards_folder if standards_folder is not None else \
+            folders.standards_data_folder
+        # translate the OSM to a HBJSON
+        model_dict = _translate_osm_to_hbjson(osm_file, osw_folder)
+        base_name = os.path.basename(osm_file).lower().replace('.osm', '')
+
+        # write each of the objects from the dictionary into the standards folder
+        added_objs = []
+        # write the materials
+        con_folder = os.path.join(folder, 'constructions')
+        mat_json = os.path.join(con_folder, '{}_materials.json'.format(base_name))
+        mat_dict = {}
+        for mat in model_dict['properties']['energy']['materials']:
+            added_objs.append(mat['identifier'])
+            mat_dict[mat['identifier']] = mat
+        _update_user_json(mat_dict, mat_json, indent)
+        # write the constructions
+        con_json = os.path.join(con_folder, '{}_constructions.json'.format(base_name))
+        con_dict = {}
+        for con in model_dict['properties']['energy']['constructions']:
+            added_objs.append(con['identifier'])
+            con_dict[con['identifier']] = con
+        _update_user_json(con_dict, con_json, indent)
+        # write the construction sets
+        c_set_folder = os.path.join(folder, 'constructionsets')
+        c_set_json = os.path.join(c_set_folder, '{}.json'.format(base_name))
+        c_set_dict = {}
+        for c_set in model_dict['properties']['energy']['construction_sets']:
+            added_objs.append(c_set['identifier'])
+            c_set_dict[c_set['identifier']] = c_set
+        _update_user_json(c_set_dict, c_set_json, indent)
+        # write the type limits
+        sched_folder = os.path.join(folder, 'schedules')
+        stl_json = os.path.join(sched_folder, '{}_type_limits.json'.format(base_name))
+        sch_tl_dict = {}
+        for stl in model_dict['properties']['energy']['schedule_type_limits']:
+            added_objs.append(stl['identifier'])
+            sch_tl_dict[stl['identifier']] = stl
+        _update_user_json(sch_tl_dict, stl_json, indent)
+        # write the schedules
+        sch_json = os.path.join(sched_folder, '{}_schedules.json'.format(base_name))
+        sch_dict = {}
+        for sch in model_dict['properties']['energy']['schedules']:
+            added_objs.append(sch['identifier'])
+            sch_dict[sch['identifier']] = sch
+        _update_user_json(sch_dict, sch_json, indent)
+        # write the programs
+        prog_folder = os.path.join(folder, 'programtypes')
+        prog_json = os.path.join(prog_folder, '{}.json'.format(base_name))
+        prog_dict = {}
+        for prog in model_dict['properties']['energy']['program_types']:
+            added_objs.append(prog['identifier'])
+            prog_dict[prog['identifier']] = prog
+        _update_user_json(prog_dict, prog_json, indent)
+
+        # write a message into the log file
+        msg = 'The following objects were successfully added:\n{}'.format(
+            '\n'.join(added_objs))
+        log_file.write(msg)
+    except Exception as e:
+        _logger.exception('Adding to user standards library failed.\n{}'.format(e))
+        sys.exit(1)
+    else:
+        sys.exit(0)
+
+
+def _translate_osm_to_hbjson(osm_file, osw_folder):
+    """Translate an OSM to a HBJSON for use in resource extraction commands."""
+    # come up with a temporary path to write the HBJSON
+    out_directory = os.path.join(
+        hb_folders.default_simulation_folder, 'temp_translate')
+    f_name = os.path.basename(osm_file).lower().replace('.osm', '.hbjson')
+    out_path = os.path.join(out_directory, f_name)
+    # run the OSW to translate the OSM to HBJSON
+    osw = from_osm_osw(osm_file, out_path, osw_folder)
+    # load the resulting HBJSON to a dictionary and return it
+    _, idf = run_osw(osw, silent=True)
+    if idf is not None and os.path.isfile(idf):
+        with open(out_path) as json_file:
+            return json.load(json_file)
+    else:
+        _parse_os_cli_failure(os.path.dirname(osw))
