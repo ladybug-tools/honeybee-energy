@@ -29,7 +29,7 @@ def check_and_add_schedule_type_limit(stl, type_lms):
 
 def load_type_limits_from_folder(schedule_lib_folder):
     """Load all of the type limit objects from a schedule standards folder.
-    
+
     Args:
         schedule_lib_folder: Path to a schedules sub-folder within a honeybee
             standards folder.
@@ -58,6 +58,7 @@ def load_type_limits_from_folder(schedule_lib_folder):
                         except (TypeError, KeyError):
                             pass  # not a ScheduleTypeLimit JSON; possibly a comment
     return type_limits
+
 
 type_l = load_type_limits_from_folder(folders.schedule_lib)
 _schedule_type_limits.update(type_l)
