@@ -1,0 +1,7 @@
+honeybee\_energy.altnumber module
+=================================
+
+.. automodule:: honeybee_energy.altnumber
+   :members:
+   :undoc-members:
+   :show-inheritance:
