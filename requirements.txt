@@ -1,2 +1,2 @@
-honeybee-core==1.58.37
+honeybee-core==1.58.38
 honeybee-standards==2.0.6
