@@ -563,6 +563,10 @@ def model_to_gbxml(
 @translate.command('model-to-trace-gbxml')
 @click.argument('model-file', type=click.Path(
     exists=True, file_okay=True, dir_okay=False, resolve_path=True))
+@click.option('--single-window/--detailed-windows', ' /-fg', help='Flag to note '
+              'whether all windows within walls should be converted to a single '
+              'window with an area that matches the original geometry.',
+              default=True, show_default=True)
 @click.option('--rect-sub-distance', '-r', help='A number for the resolution at which '
               'non-rectangular Apertures will be subdivided into smaller rectangular '
               'units. This is required as TRACE 3D plus cannot model non-rectangular '
@@ -570,6 +574,14 @@ def model_to_gbxml(
               'if no units are provided, the value will assumed to be in Meters (the '
               'native units of TRACE 3D Plus and EnergyPlus).',
               type=str, default='0.15m', show_default=True)
+@click.option('--frame-merge-distance', '-m', help='A number for the maximum distance '
+              'between non-rectangular Apertures at which point the Apertures will be '
+              'merged into a single rectangular geometry. This is often helpful when '
+              'there are several triangular Apertures that together make a rectangle '
+              'when they are merged across their frames. This can include the units '
+              'of the distance (eg. 0.5ft) or, if no units are provided, the value '
+              'will assumed to be in Meters (the native units of TRACE 3D Plus and '
+              'EnergyPlus).', type=str, default='0.2m', show_default=True)
 @click.option('--osw-folder', '-osw', help='Folder on this computer, into which the '
               'working files will be written. If None, it will be written into a '
               'temp folder in the default simulation folder.', default=None,
@@ -577,7 +589,9 @@ def model_to_gbxml(
 @click.option('--output-file', '-f', help='Optional gbXML file to output the string '
               'of the translation. By default it printed out to stdout.', default='-',
               type=click.Path(file_okay=True, dir_okay=False, resolve_path=True))
-def model_to_trace_gbxml_cli(model_file, rect_sub_distance, osw_folder, output_file):
+def model_to_trace_gbxml_cli(
+        model_file, single_window, rect_sub_distance, frame_merge_distance,
+        osw_folder, output_file):
     """Translate a Honeybee Model (HBJSON) to a gbXML file.
 
     \b
@@ -585,7 +599,9 @@ def model_to_trace_gbxml_cli(model_file, rect_sub_distance, osw_folder, output_f
         model_file: Full path to a Honeybee Model file (HBJSON or HBpkl).
     """
     try:
-        model_to_trace_gbxml(model_file, rect_sub_distance, osw_folder, output_file)
+        detailed_windows = not single_window
+        model_to_trace_gbxml(model_file, detailed_windows, rect_sub_distance,
+                             frame_merge_distance, osw_folder, output_file)
     except Exception as e:
         _logger.exception('Model translation failed.\n{}'.format(e))
         sys.exit(1)
@@ -594,18 +610,31 @@ def model_to_trace_gbxml_cli(model_file, rect_sub_distance, osw_folder, output_f
 
 
 def model_to_trace_gbxml(
-    model_file, rect_sub_distance='0.15m', osw_folder=None, output_file=None
+    model_file, detailed_windows=False, rect_sub_distance='0.15m',
+    frame_merge_distance='0.2m', osw_folder=None, output_file=None,
+    single_window=True
 ):
     """Translate a Honeybee Model to a gbXML file that is compatible with TRACE 3D Plus.
 
     Args:
         model_file: Full path to a Honeybee Model file (HBJSON or HBpkl).
+        detailed_windows: A boolean for whether all windows within walls should be
+            left as they are (True) or converted to a single window with an area
+            that matches the original geometry (False). (Default: False).
         rect_sub_distance: A number for the resolution at which non-rectangular
             Apertures will be subdivided into smaller rectangular units. This is
             required as TRACE 3D plus cannot model non-rectangular geometries.
             This can include the units of the distance (eg. 0.5ft) or, if no units
             are provided, the value will assumed to be in Meters (the native units
             of TRACE 3D Plus and EnergyPlus). (Default: 0.15m).
+        frame_merge_distance: A number for the maximum distance between non-rectangular
+            Apertures at which point the Apertures will be merged into a single
+            rectangular geometry. This is often helpful when there are several
+            triangular Apertures that together make a rectangle when they are
+            merged across their frames. This can include the units of the
+            distance (eg. 0.5ft) or, if no units are provided, the value is
+            assumed to be in Meters (the native units of TRACE 3D Plus
+            and EnergyPlus). (Default: 0.15m).
         osw_folder: Folder on this computer, into which the working files will
             be written. If None, it will be written into a temp folder in the
             default simulation folder.
@@ -623,8 +652,11 @@ def model_to_trace_gbxml(
 
     # run the Model re-serialization and check if specified
     rect_sub_distance = parse_distance_string(rect_sub_distance, 'Meters')
+    frame_merge_distance = parse_distance_string(frame_merge_distance, 'Meters')
+    single_window = not detailed_windows
     model_file = trace_compatible_model_json(
-        model_file, out_directory, rect_sub_distance)
+        model_file, out_directory, single_window,
+        rect_sub_distance, frame_merge_distance)
 
     # Write the osw file and translate the model to gbXML
     out_f = out_path if output_file is None or output_file.endswith('-') else output_file

@@ -17,7 +17,8 @@ else:
 
 from ladybug.futil import write_to_file, preparedir
 from honeybee.model import Model
-from honeybee.boundarycondition import Surface
+from honeybee.facetype import Wall
+from honeybee.boundarycondition import Surface, boundary_conditions
 from honeybee.config import folders as hb_folders
 
 from .config import folders
@@ -181,14 +182,15 @@ def measure_compatible_model_json(
     return os.path.abspath(dest_file_path)
 
 
-def trace_compatible_model_json(model_file_path, destination_directory=None,
-                                rect_sub_distance=0.15):
+def trace_compatible_model_json(
+        model_file_path, destination_directory=None, single_window=True,
+        rect_sub_distance=0.15, frame_merge_distance=0.2):
     """Convert a Model to one that is compatible with exporting to TRANE TRACE 3D Plus.
 
     The resulting HBJSON is intended to be serialized to gbXML for import into
     TRACE 3D Plus. To handle TRACE's limitations, all rooms in the model will be
     converted to extrusions with flat roofs and all Apertures will be converted
-    to rectangles. In this process, priority is given to preserving the volume
+    to simple rectangles. In this process, priority is given to preserving the volume
     of the original detailed geometry and the original window area.
 
     Args:
@@ -196,10 +198,18 @@ def trace_compatible_model_json(model_file_path, destination_directory=None,
         destination_directory: The directory into which the Model JSON that is
             compatible with the honeybee_openstudio_gem should be written. If None,
             this will be the same location as the input model_json_path. (Default: None).
+        single_window: A boolean for whether all windows within walls should be
+            converted to a single window with an area that matches the original
+            geometry. (Default: True).
         rect_sub_distance: A number in meters for the resolution at which
             non-rectangular Apertures will be subdivided into smaller rectangular
             units. This is required as TRACE 3D plus cannot model non-rectangular
             geometries. (Default: 0.15 meters).
+        frame_merge_distance: A number in meters for the maximum distance between
+            non-rectangular Apertures at which point the Apertures will be merged
+            into a single rectangular geometry. This is often helpful when there
+            are several triangular Apertures that together make a rectangle when
+            they are merged across their frames. (Default: 0.2 meters).
 
     Returns:
         The full file path to the new Model JSON written out by this method.
@@ -215,8 +225,14 @@ def trace_compatible_model_json(model_file_path, destination_directory=None,
 
     # serialize the Model to Python
     parsed_model = Model.from_file(model_file_path)
+
+    # make sure there are rooms and remove all shades and orphaned objects
     assert len(parsed_model.rooms) != 0, \
         'Model contains no Rooms and therefore cannot be simulated in TRACE.'
+    parsed_model.remove_all_shades()
+    parsed_model.remove_faces()
+    parsed_model.remove_apertures()
+    parsed_model.remove_doors()
 
     # remove degenerate geometry within native E+ tolerance of 0.01 meters
     original_model = parsed_model
@@ -227,17 +243,39 @@ def trace_compatible_model_json(model_file_path, destination_directory=None,
         error = 'Failed to remove degenerate Rooms.\nYour Model units system is: {}. ' \
             'Is this correct?'.format(original_model.units)
         raise ValueError(error)
-    parsed_model.triangulate_non_planar_quads(0.01)
+
+    # remove all interior windows in the model
+    for room in parsed_model.rooms:
+        for face in room.faces:
+            if isinstance(face.boundary_condition, Surface):
+                face.remove_sub_faces()
 
     # convert all rooms to extrusions and patch the resulting missing adjacencies
     parsed_model.rooms_to_extrusions()
     parsed_model.properties.energy.missing_adjacencies_to_adiabatic()
 
+    # convert windows in walls to a single geometry
+    if single_window:
+        for room in parsed_model.rooms:
+            for face in room.faces:
+                if isinstance(face.type, Wall) and face.has_sub_faces:
+                    face.boundary_condition = boundary_conditions.outdoors
+                    face.apertures_by_ratio(face.aperture_ratio, 0.01, rect_split=False)
+
     # convert all of the Aperture geometries to rectangles so they can be translated
     parsed_model.rectangularize_apertures(
-        subdivision_distance=rect_sub_distance, max_separation=0.0,
+        subdivision_distance=rect_sub_distance, max_separation=frame_merge_distance,
         merge_all=True, resolve_adjacency=False
     )
+
+    # if there are still multiple windows in a given Face, ensure they do not touch
+    for room in parsed_model.rooms:
+        for face in room.faces:
+            if len(face.apertures) > 1:
+                face.offset_aperture_edges(-0.01, 0.01)
+
+    # re-solve adjacency given that all of the previous operations have messed with it
+    parsed_model.solve_adjacency(merge_coplanar=True, intersect=True, overwrite=True)
 
     # remove the HVAC from any Rooms lacking setpoints
     rem_msgs = parsed_model.properties.energy.remove_hvac_from_no_setpoints()
