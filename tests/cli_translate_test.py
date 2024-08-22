@@ -6,10 +6,11 @@ import json
 from ladybug.analysisperiod import AnalysisPeriod
 from honeybee.model import Model
 
-from honeybee_energy.cli.translate import model_to_osm, model_to_idf, model_to_gbxml, \
-    model_to_sdd, model_from_gbxml, model_from_osm, model_from_idf, \
-    construction_from_idf, construction_to_idf, \
-    schedule_to_idf, schedule_from_idf, model_occ_schedules, model_trans_schedules, \
+from honeybee_energy.cli.translate import model_to_osm_cli, model_to_idf_cli, \
+    model_to_gbxml_cli, model_to_trace_gbxml_cli, model_to_sdd_cli, \
+    model_from_gbxml, model_from_osm, model_from_idf, \
+    construction_from_idf, construction_to_idf, schedule_to_idf, schedule_from_idf, \
+    model_occ_schedules, model_trans_schedules, \
     materials_from_osm, constructions_from_osm, construction_sets_from_osm, \
     schedule_type_limits_from_osm, schedules_from_osm, programs_from_osm
 
@@ -18,7 +19,7 @@ def test_model_to_osm():
     runner = CliRunner()
     input_hb_model = './tests/json/ShoeBox.json'
 
-    result = runner.invoke(model_to_osm, [input_hb_model, '--geometry-names'])
+    result = runner.invoke(model_to_osm_cli, [input_hb_model, '--geometry-names'])
     assert result.exit_code == 0
 
 
@@ -26,12 +27,12 @@ def test_model_to_idf():
     runner = CliRunner()
     input_hb_model = './tests/json/ShoeBox.json'
 
-    result = runner.invoke(model_to_idf, [input_hb_model])
+    result = runner.invoke(model_to_idf_cli, [input_hb_model])
     assert result.exit_code == 0
 
     output_hb_model = './tests/json/ShoeBox.idf'
     result = runner.invoke(
-        model_to_idf, [input_hb_model, '--output-file', output_hb_model])
+        model_to_idf_cli, [input_hb_model, '--output-file', output_hb_model])
     assert result.exit_code == 0
     assert os.path.isfile(output_hb_model)
     os.remove(output_hb_model)
@@ -41,7 +42,15 @@ def test_model_to_gbxml():
     runner = CliRunner()
     input_hb_model = './tests/json/ShoeBox.json'
 
-    result = runner.invoke(model_to_gbxml, [input_hb_model])
+    result = runner.invoke(model_to_gbxml_cli, [input_hb_model])
+    assert result.exit_code == 0
+
+
+def test_model_to_trace_gbxml():
+    runner = CliRunner()
+    input_hb_model = './tests/json/ShoeBox.json'
+
+    result = runner.invoke(model_to_trace_gbxml_cli, [input_hb_model])
     assert result.exit_code == 0
 
 
@@ -49,7 +58,7 @@ def test_model_to_sdd():
     runner = CliRunner()
     input_hb_model = './tests/json/ShoeBox.json'
 
-    result = runner.invoke(model_to_sdd, [input_hb_model])
+    result = runner.invoke(model_to_sdd_cli, [input_hb_model])
     assert result.exit_code == 0
 
 
