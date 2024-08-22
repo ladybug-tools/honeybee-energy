@@ -68,7 +68,7 @@ def measure_compatible_model_json(
         model_file_path, destination_directory=None, simplify_window_cons=False,
         triangulate_sub_faces=True, triangulate_non_planar_orphaned=False,
         enforce_rooms=False, use_geometry_names=False, use_resource_names=False):
-    """Convert a Model JSON to one that is compatible with the honeybee_openstudio_gem.
+    """Convert a Model file to one that is compatible with the honeybee_openstudio_gem.
 
     This includes the re-serialization of the Model to Python, which will
     automatically ensure that all Apertures and Doors point in the same direction
@@ -167,6 +167,87 @@ def measure_compatible_model_json(
     parsed_model.properties.energy.add_autocal_properties_to_dict(model_dict)
     if simplify_window_cons:
         parsed_model.properties.energy.simplify_window_constructions_in_dict(model_dict)
+
+    # write the dictionary into a file
+    preparedir(dest_dir, remove_content=False)  # create the directory if it's not there
+    if (sys.version_info < (3, 0)):  # we need to manually encode it as UTF-8
+        with open(dest_file_path, writemode) as fp:
+            model_str = json.dumps(model_dict, ensure_ascii=False)
+            fp.write(model_str.encode('utf-8'))
+    else:
+        with open(dest_file_path, writemode, encoding='utf-8') as fp:
+            json.dump(model_dict, fp, ensure_ascii=False)
+
+    return os.path.abspath(dest_file_path)
+
+
+def trace_compatible_model_json(model_file_path, destination_directory=None,
+                                rect_sub_distance=0.15):
+    """Convert a Model to one that is compatible with exporting to TRANE TRACE 3D Plus.
+
+    The resulting HBJSON is intended to be serialized to gbXML for import into
+    TRACE 3D Plus. To handle TRACE's limitations, all rooms in the model will be
+    converted to extrusions with flat roofs and all Apertures will be converted
+    to rectangles. In this process, priority is given to preserving the volume
+    of the original detailed geometry and the original window area.
+
+    Args:
+        model_file_path: File path to a Honeybee Model as a HBJSON or HBpkl.
+        destination_directory: The directory into which the Model JSON that is
+            compatible with the honeybee_openstudio_gem should be written. If None,
+            this will be the same location as the input model_json_path. (Default: None).
+        rect_sub_distance: A number in meters for the resolution at which
+            non-rectangular Apertures will be subdivided into smaller rectangular
+            units. This is required as TRACE 3D plus cannot model non-rectangular
+            geometries. (Default: 0.15 meters).
+
+    Returns:
+        The full file path to the new Model JSON written out by this method.
+    """
+    # check that the file is there
+    assert os.path.isfile(model_file_path), \
+        'No file found at {}.'.format(model_file_path)
+
+    # get the directory and the file path for the new Model JSON
+    directory, _ = os.path.split(model_file_path)
+    dest_dir = directory if destination_directory is None else destination_directory
+    dest_file_path = os.path.join(dest_dir, 'in.hbjson')
+
+    # serialize the Model to Python
+    parsed_model = Model.from_file(model_file_path)
+    assert len(parsed_model.rooms) != 0, \
+        'Model contains no Rooms and therefore cannot be simulated in TRACE.'
+
+    # remove degenerate geometry within native E+ tolerance of 0.01 meters
+    original_model = parsed_model
+    parsed_model.convert_to_units('Meters')
+    try:
+        parsed_model.remove_degenerate_geometry(0.01)
+    except ValueError:
+        error = 'Failed to remove degenerate Rooms.\nYour Model units system is: {}. ' \
+            'Is this correct?'.format(original_model.units)
+        raise ValueError(error)
+    parsed_model.triangulate_non_planar_quads(0.01)
+
+    # convert all rooms to extrusions and patch the resulting missing adjacencies
+    parsed_model.rooms_to_extrusions()
+    parsed_model.properties.energy.missing_adjacencies_to_adiabatic()
+
+    # convert all of the Aperture geometries to rectangles so they can be translated
+    parsed_model.rectangularize_apertures(
+        subdivision_distance=rect_sub_distance, max_separation=0.0,
+        merge_all=True, resolve_adjacency=False
+    )
+
+    # remove the HVAC from any Rooms lacking setpoints
+    rem_msgs = parsed_model.properties.energy.remove_hvac_from_no_setpoints()
+    if len(rem_msgs) != 0:
+        print('\n'.join(rem_msgs))
+
+    # get the dictionary representation of the Model and add auto-calculated properties
+    model_dict = parsed_model.to_dict()
+    parsed_model.properties.energy.add_autocal_properties_to_dict(model_dict)
+    parsed_model.properties.energy.simplify_window_constructions_in_dict(model_dict)
 
     # write the dictionary into a file
     preparedir(dest_dir, remove_content=False)  # create the directory if it's not there
