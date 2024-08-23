@@ -277,6 +277,17 @@ def trace_compatible_model_json(
     # re-solve adjacency given that all of the previous operations have messed with it
     parsed_model.solve_adjacency(merge_coplanar=True, intersect=True, overwrite=True)
 
+    # reset all display_names so that they are unique (derived from reset identifiers)
+    parsed_model.reset_ids()  # sets the identifiers based on the display_name
+    for room in parsed_model.rooms:
+        room.display_name = None
+        for face in room.faces:
+            face.display_name = None
+            for ap in face.apertures:
+                ap.display_name = None
+            for dr in face.apertures:
+                dr.display_name = None
+
     # remove the HVAC from any Rooms lacking setpoints
     rem_msgs = parsed_model.properties.energy.remove_hvac_from_no_setpoints()
     if len(rem_msgs) != 0:
