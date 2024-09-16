@@ -12,7 +12,6 @@ from ladybug.analysisperiod import AnalysisPeriod
 from ladybug.epw import EPW
 from honeybee.model import Model
 from honeybee.typing import clean_rad_string
-from honeybee.units import parse_distance_string
 from honeybee.config import folders as hb_folders
 
 from honeybee_energy.simulation.parameter import SimulationParameter
@@ -571,8 +570,8 @@ def model_to_gbxml(
               'non-rectangular Apertures will be subdivided into smaller rectangular '
               'units. This is required as TRACE 3D plus cannot model non-rectangular '
               'geometries. This can include the units of the distance (eg. 0.5ft) or, '
-              'if no units are provided, the value will assumed to be in Meters (the '
-              'native units of TRACE 3D Plus and EnergyPlus).',
+              'if no units are provided, the value will be interpreted in the '
+              'honeybee model units.',
               type=str, default='0.15m', show_default=True)
 @click.option('--frame-merge-distance', '-m', help='A number for the maximum distance '
               'between non-rectangular Apertures at which point the Apertures will be '
@@ -580,8 +579,8 @@ def model_to_gbxml(
               'there are several triangular Apertures that together make a rectangle '
               'when they are merged across their frames. This can include the units '
               'of the distance (eg. 0.5ft) or, if no units are provided, the value '
-              'will assumed to be in Meters (the native units of TRACE 3D Plus and '
-              'EnergyPlus).', type=str, default='0.2m', show_default=True)
+              'will be interpreted in the honeybee model units',
+              type=str, default='0.2m', show_default=True)
 @click.option('--osw-folder', '-osw', help='Folder on this computer, into which the '
               'working files will be written. If None, it will be written into a '
               'temp folder in the default simulation folder.', default=None,
@@ -625,16 +624,15 @@ def model_to_trace_gbxml(
             Apertures will be subdivided into smaller rectangular units. This is
             required as TRACE 3D plus cannot model non-rectangular geometries.
             This can include the units of the distance (eg. 0.5ft) or, if no units
-            are provided, the value will assumed to be in Meters (the native units
-            of TRACE 3D Plus and EnergyPlus). (Default: 0.15m).
+            are provided, the value will be interpreted in the honeybee model
+            units. (Default: 0.15m).
         frame_merge_distance: A number for the maximum distance between non-rectangular
             Apertures at which point the Apertures will be merged into a single
             rectangular geometry. This is often helpful when there are several
             triangular Apertures that together make a rectangle when they are
             merged across their frames. This can include the units of the
-            distance (eg. 0.5ft) or, if no units are provided, the value is
-            assumed to be in Meters (the native units of TRACE 3D Plus
-            and EnergyPlus). (Default: 0.15m).
+            distance (eg. 0.5ft) or, if no units are provided, the value will
+            be interpreted in the honeybee model units. (Default: 0.2m).
         osw_folder: Folder on this computer, into which the working files will
             be written. If None, it will be written into a temp folder in the
             default simulation folder.
@@ -651,8 +649,6 @@ def model_to_trace_gbxml(
         out_path = os.path.join(out_directory, f_name)
 
     # run the Model re-serialization and check if specified
-    rect_sub_distance = parse_distance_string(rect_sub_distance, 'Meters')
-    frame_merge_distance = parse_distance_string(frame_merge_distance, 'Meters')
     single_window = not detailed_windows
     model_file = trace_compatible_model_json(
         model_file, out_directory, single_window,

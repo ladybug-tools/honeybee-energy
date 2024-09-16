@@ -19,6 +19,7 @@ from ladybug.futil import write_to_file, preparedir
 from honeybee.model import Model
 from honeybee.facetype import Wall
 from honeybee.boundarycondition import Surface, boundary_conditions
+from honeybee.units import parse_distance_string, conversion_factor_to_meters
 from honeybee.config import folders as hb_folders
 
 from .config import folders
@@ -184,7 +185,7 @@ def measure_compatible_model_json(
 
 def trace_compatible_model_json(
         model_file_path, destination_directory=None, single_window=True,
-        rect_sub_distance=0.15, frame_merge_distance=0.2):
+        rect_sub_distance='0.15m', frame_merge_distance='0.2m'):
     """Convert a Model to one that is compatible with exporting to TRANE TRACE 3D Plus.
 
     The resulting HBJSON is intended to be serialized to gbXML for import into
@@ -201,15 +202,19 @@ def trace_compatible_model_json(
         single_window: A boolean for whether all windows within walls should be
             converted to a single window with an area that matches the original
             geometry. (Default: True).
-        rect_sub_distance: A number in meters for the resolution at which
+        rect_sub_distance: Text string of a number for the resolution at which
             non-rectangular Apertures will be subdivided into smaller rectangular
             units. This is required as TRACE 3D plus cannot model non-rectangular
-            geometries. (Default: 0.15 meters).
-        frame_merge_distance: A number in meters for the maximum distance between
-            non-rectangular Apertures at which point the Apertures will be merged
-            into a single rectangular geometry. This is often helpful when there
-            are several triangular Apertures that together make a rectangle when
-            they are merged across their frames. (Default: 0.2 meters).
+            geometries. This can include the units of the distance (eg. 0.5ft) or,
+            if no units are provided, the value will be interpreted in the
+            honeybee model units. (Default: 0.15m).
+        frame_merge_distance: Text string of a number for the maximum distance
+            between non-rectangular Apertures at which point the Apertures will
+            be merged into a single rectangular geometry. This is often helpful
+            when there are several triangular Apertures that together make a
+            rectangle when they are merged across their frames. This can include
+            the units of the distance (eg. 0.5ft) or, if no units are provided,
+            the value will be interpreted in the honeybee model units. (Default: 0.2m).
 
     Returns:
         The full file path to the new Model JSON written out by this method.
@@ -235,14 +240,20 @@ def trace_compatible_model_json(
     parsed_model.remove_doors()
 
     # remove degenerate geometry within native E+ tolerance of 0.01 meters
-    original_model = parsed_model
+    original_units = parsed_model.units
     parsed_model.convert_to_units('Meters')
     try:
         parsed_model.remove_degenerate_geometry(0.01)
     except ValueError:
         error = 'Failed to remove degenerate Rooms.\nYour Model units system is: {}. ' \
-            'Is this correct?'.format(original_model.units)
+            'Is this correct?'.format(original_units)
         raise ValueError(error)
+    rect_sub_distance = parse_distance_string(rect_sub_distance, original_units)
+    frame_merge_distance = parse_distance_string(frame_merge_distance, original_units)
+    if original_units != 'Meters':
+        c_factor = conversion_factor_to_meters(original_units)
+        rect_sub_distance = rect_sub_distance * c_factor
+        frame_merge_distance = frame_merge_distance * c_factor
 
     # remove all interior windows in the model
     for room in parsed_model.rooms:
