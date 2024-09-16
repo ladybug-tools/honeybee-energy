@@ -163,6 +163,10 @@ def measure_compatible_model_json(
         parsed_model.reset_ids()
     if use_resource_names:
         parsed_model.properties.energy.reset_resource_ids()
+    if simplify_window_cons:  # simpler format that cannot handle certain identifiers
+        for room in parsed_model.rooms:
+            if room.story is not None and room.story.startswith('-'):
+                room.story = 'neg{}'.format(room.story[1:])
 
     # get the dictionary representation of the Model and add auto-calculated properties
     model_dict = parsed_model.to_dict(triangulate_sub_faces=triangulate_sub_faces)
@@ -298,6 +302,8 @@ def trace_compatible_model_json(
                 ap.display_name = None
             for dr in face.apertures:
                 dr.display_name = None
+        if room.story is not None and room.story.startswith('-'):
+            room.story = 'neg{}'.format(room.story[1:])
 
     # remove the HVAC from any Rooms lacking setpoints
     rem_msgs = parsed_model.properties.energy.remove_hvac_from_no_setpoints()
