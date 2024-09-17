@@ -9,6 +9,7 @@ from honeybee._lockable import lockable
 from honeybee.typing import float_in_range, float_in_range_excl_incl, float_positive
 
 from ._base import _EnergyMaterialBase
+from ..properties.extension import EnergyWindowFrameMixtureProperties
 from ..reader import parse_idf_string
 from ..writer import generate_idf_string
 
@@ -74,10 +75,8 @@ class EnergyWindowFrame(_EnergyMaterialBase):
         * u_value
         * r_value
         * user_data
+        * properties
     """
-    __slots__ = ('_identifier', '_display_name', '_width', '_conductance',
-                 '_edge_to_center_ratio', '_outside_projection', '_inside_projection',
-                 '_thermal_absorptance', '_solar_absorptance', '_visible_absorptance')
 
     def __init__(self, identifier, width, conductance, edge_to_center_ratio=1,
                  outside_projection=0, inside_projection=0, thermal_absorptance=0.9,
@@ -93,6 +92,7 @@ class EnergyWindowFrame(_EnergyMaterialBase):
         self.solar_absorptance = solar_absorptance
         self.visible_absorptance = visible_absorptance
         self._locked = False
+        self._properties = EnergyWindowFrameMixtureProperties(self)
 
     @property
     def width(self):
@@ -280,7 +280,8 @@ class EnergyWindowFrame(_EnergyMaterialBase):
             new_mat.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
             new_mat.user_data = data['user_data']
-
+        if 'properties' in data and data['properties'] is not None:
+            new_mat._properties._load_extension_attr_from_dict(data['properties'])
         return new_mat
 
     def to_idf(self):
@@ -311,8 +312,9 @@ class EnergyWindowFrame(_EnergyMaterialBase):
         }
         if self._display_name is not None:
             base['display_name'] = self.display_name
-        if self._user_data is not None:
-            base['user_data'] = self.user_data
+        prop_dict = self._properties.to_dict()
+        if prop_dict is not None:
+            base['properties'] = prop_dict
         return base
 
     def __key(self):
@@ -342,4 +344,5 @@ class EnergyWindowFrame(_EnergyMaterialBase):
         new_material._display_name = self._display_name
         new_material._user_data = None if self._user_data is None \
             else self._user_data.copy()
+        new_material._properties._duplicate_extension_attr(self._properties)
         return new_material
