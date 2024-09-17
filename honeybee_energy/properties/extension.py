@@ -198,3 +198,35 @@ class EnergyMaterialNoMassProperties(_EnergyProperties):
 
 class EnergyMaterialVegetationProperties(_EnergyProperties):
     """EnergyMaterialVegetation properties to be extended by extensions."""
+
+
+class EnergyWindowMaterialGlazingsProperties(_EnergyProperties):
+    """EnergyWindowMaterialGlazing properties to be extended by extensions."""
+
+
+class EnergyWindowMaterialSimpleGlazSysProperties(_EnergyProperties):
+    """EnergyWindowMaterialSimpleGlazSys properties to be extended by extensions."""
+
+
+class EnergyWindowMaterialGasProperties(_EnergyProperties):
+    """EnergyWindowMaterialGas properties to be extended by extensions."""
+
+
+class EnergyWindowMaterialGasMixtureProperties(_EnergyProperties):
+    """EnergyWindowMaterialGasMixture properties to be extended by extensions."""
+
+
+class EnergyWindowMaterialGasCustomMixtureProperties(_EnergyProperties):
+    """EnergyWindowMaterialGasCustom properties to be extended by extensions."""
+
+
+class EnergyWindowFrameMixtureProperties(_EnergyProperties):
+    """EnergyWindowFrameMixture properties to be extended by extensions."""
+
+
+class EnergyWindowMaterialShadeProperties(_EnergyProperties):
+    """EnergyWindowMaterialShade properties to be extended by extensions."""
+
+
+class EnergyWindowMaterialBlindProperties(_EnergyProperties):
+    """EnergyWindowMaterialBlind properties to be extended by extensions."""
