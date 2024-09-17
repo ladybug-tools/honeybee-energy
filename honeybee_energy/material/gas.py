@@ -7,6 +7,11 @@ They can only exist within window constructions bounded by glazing materials
 from __future__ import division
 
 from ._base import _EnergyMaterialWindowBase
+from ..properties.extension import (
+    EnergyWindowMaterialGasProperties,
+    EnergyWindowMaterialGasMixtureProperties,
+    EnergyWindowMaterialGasCustomMixtureProperties,
+)
 from ..reader import parse_idf_string
 from ..writer import generate_idf_string
 
@@ -333,6 +338,7 @@ class EnergyWindowMaterialGas(_EnergyWindowMaterialGasBase):
         * density
         * prandtl
         * user_data
+        * properties
     """
     __slots__ = ('_gas_type',)
 
@@ -340,6 +346,7 @@ class EnergyWindowMaterialGas(_EnergyWindowMaterialGasBase):
         """Initialize gas energy material."""
         _EnergyWindowMaterialGasBase.__init__(self, identifier, thickness)
         self.gas_type = gas_type
+        self._properties = EnergyWindowMaterialGasProperties(self)
 
     @property
     def gas_type(self):
@@ -408,6 +415,8 @@ class EnergyWindowMaterialGas(_EnergyWindowMaterialGasBase):
             new_obj.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
             new_obj.user_data = data['user_data']
+        if 'properties' in data and data['properties'] is not None:
+            new_obj._properties._load_extension_attr_from_dict(data['properties'])
         return new_obj
 
     def to_idf(self):
@@ -428,6 +437,9 @@ class EnergyWindowMaterialGas(_EnergyWindowMaterialGasBase):
             base['display_name'] = self.display_name
         if self._user_data is not None:
             base['user_data'] = self.user_data
+        prop_dict = self._properties.to_dict()
+        if prop_dict is not None:
+            base['properties'] = prop_dict
         return base
 
     def _coeff_property(self, dictionary, t_kelvin):
@@ -457,6 +469,7 @@ class EnergyWindowMaterialGas(_EnergyWindowMaterialGasBase):
         new_obj = EnergyWindowMaterialGas(self.identifier, self.thickness, self.gas_type)
         new_obj._display_name = self._display_name
         new_obj._user_data = None if self._user_data is None else self._user_data.copy()
+        new_obj._properties._duplicate_extension_attr(self._properties)
         return new_obj
 
 
@@ -489,6 +502,8 @@ class EnergyWindowMaterialGasMixture(_EnergyWindowMaterialGasBase):
         * specific_heat
         * density
         * prandtl
+        * user_data
+        * properties
     """
     __slots__ = ('_gas_count', '_gas_types', '_gas_fractions')
 
@@ -505,6 +520,7 @@ class EnergyWindowMaterialGasMixture(_EnergyWindowMaterialGasBase):
             'between 2 anf 4. Got {}.'.format(self._gas_count)
         self.gas_types = gas_types
         self.gas_fractions = gas_fractions
+        self._properties = EnergyWindowMaterialGasMixtureProperties(self)
 
     @property
     def gas_types(self):
@@ -600,6 +616,8 @@ class EnergyWindowMaterialGasMixture(_EnergyWindowMaterialGasBase):
             new_obj.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
             new_obj.user_data = data['user_data']
+        if 'properties' in data and data['properties'] is not None:
+            new_obj._properties._load_extension_attr_from_dict(data['properties'])
         return new_obj
 
     def to_idf(self):
@@ -626,6 +644,9 @@ class EnergyWindowMaterialGasMixture(_EnergyWindowMaterialGasBase):
             base['display_name'] = self.display_name
         if self._user_data is not None:
             base['user_data'] = self.user_data
+        prop_dict = self._properties.to_dict()
+        if prop_dict is not None:
+            base['properties'] = prop_dict
         return base
 
     def _weighted_avg_coeff_property(self, dictionary, t_kelvin):
@@ -658,6 +679,7 @@ class EnergyWindowMaterialGasMixture(_EnergyWindowMaterialGasBase):
             self.identifier, self.thickness, self.gas_types, self.gas_fractions)
         new_obj._display_name = self._display_name
         new_obj._user_data = None if self._user_data is None else self._user_data.copy()
+        new_obj._properties._duplicate_extension_attr(self._properties)
         return new_obj
 
 
@@ -722,6 +744,8 @@ class EnergyWindowMaterialGasCustom(_EnergyWindowMaterialGasBase):
         * specific_heat
         * density
         * prandtl
+        * user_data
+        * properties
 
     Usage:
 
@@ -756,6 +780,7 @@ class EnergyWindowMaterialGasCustom(_EnergyWindowMaterialGasBase):
         self.specific_heat_ratio = specific_heat_ratio
         self.molecular_weight = molecular_weight
         self._user_data = None
+        self._properties = EnergyWindowMaterialGasCustomMixtureProperties(self)
 
     @property
     def conductivity_coeff_a(self):
@@ -942,6 +967,8 @@ class EnergyWindowMaterialGasCustom(_EnergyWindowMaterialGasBase):
             new_obj.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
             new_obj.user_data = data['user_data']
+        if 'properties' in data and data['properties'] is not None:
+            new_obj._properties._load_extension_attr_from_dict(data['properties'])
         return new_obj
 
     def to_idf(self):
@@ -981,6 +1008,9 @@ class EnergyWindowMaterialGasCustom(_EnergyWindowMaterialGasBase):
             base['display_name'] = self.display_name
         if self._user_data is not None:
             base['user_data'] = self.user_data
+        prop_dict = self._properties.to_dict()
+        if prop_dict is not None:
+            base['properties'] = prop_dict
         return base
 
     def __key(self):
@@ -1015,4 +1045,5 @@ class EnergyWindowMaterialGasCustom(_EnergyWindowMaterialGasBase):
             self.specific_heat_ratio, self.molecular_weight)
         new_obj._display_name = self._display_name
         new_obj._user_data = None if self._user_data is None else self._user_data.copy()
+        new_obj._properties._duplicate_extension_attr(self._properties)
         return new_obj
