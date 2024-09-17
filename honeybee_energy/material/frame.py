@@ -77,7 +77,10 @@ class EnergyWindowFrame(_EnergyMaterialBase):
         * user_data
         * properties
     """
-
+    __slots__ = ('_identifier', '_display_name', '_width', '_conductance',
+                 '_edge_to_center_ratio', '_outside_projection', '_inside_projection',
+                 '_thermal_absorptance', '_solar_absorptance', '_visible_absorptance')
+    
     def __init__(self, identifier, width, conductance, edge_to_center_ratio=1,
                  outside_projection=0, inside_projection=0, thermal_absorptance=0.9,
                  solar_absorptance=0.7, visible_absorptance=None):
@@ -282,6 +285,7 @@ class EnergyWindowFrame(_EnergyMaterialBase):
             new_mat.user_data = data['user_data']
         if 'properties' in data and data['properties'] is not None:
             new_mat._properties._load_extension_attr_from_dict(data['properties'])
+        
         return new_mat
 
     def to_idf(self):
@@ -312,6 +316,8 @@ class EnergyWindowFrame(_EnergyMaterialBase):
         }
         if self._display_name is not None:
             base['display_name'] = self.display_name
+        if self._user_data is not None:
+            base['user_data'] = self.user_data
         prop_dict = self._properties.to_dict()
         if prop_dict is not None:
             base['properties'] = prop_dict
