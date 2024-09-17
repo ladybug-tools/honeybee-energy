@@ -80,7 +80,7 @@ class EnergyWindowFrame(_EnergyMaterialBase):
     __slots__ = ('_identifier', '_display_name', '_width', '_conductance',
                  '_edge_to_center_ratio', '_outside_projection', '_inside_projection',
                  '_thermal_absorptance', '_solar_absorptance', '_visible_absorptance')
-    
+
     def __init__(self, identifier, width, conductance, edge_to_center_ratio=1,
                  outside_projection=0, inside_projection=0, thermal_absorptance=0.9,
                  solar_absorptance=0.7, visible_absorptance=None):
