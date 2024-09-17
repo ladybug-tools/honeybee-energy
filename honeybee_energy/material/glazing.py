@@ -11,6 +11,10 @@ from __future__ import division
 import math
 
 from ._base import _EnergyMaterialWindowBase
+from ..properties.extension import (
+    EnergyWindowMaterialGlazingsProperties,
+    EnergyWindowMaterialSimpleGlazSysProperties,
+)
 from ..reader import parse_idf_string
 from ..writer import generate_idf_string
 
@@ -87,6 +91,7 @@ class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
         * solar_transmissivity
         * visible_transmissivity
         * user_data
+        * properties
     """
     __slots__ = ('_thickness', '_solar_transmittance', '_solar_reflectance',
                  '_solar_reflectance_back', '_visible_transmittance',
@@ -120,6 +125,7 @@ class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
         self.conductivity = conductivity
         self.dirt_correction = 1.0
         self.solar_diffusing = False
+        self._properties = EnergyWindowMaterialGlazingsProperties(self)
 
     @property
     def thickness(self):
@@ -428,6 +434,8 @@ class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
             new_mat.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
             new_mat.user_data = data['user_data']
+        if 'properties' in data and data['properties'] is not None:
+            new_mat._properties._load_extension_attr_from_dict(data['properties'])
         return new_mat
 
     def to_idf(self):
@@ -472,6 +480,9 @@ class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
             base['display_name'] = self.display_name
         if self._user_data is not None:
             base['user_data'] = self.user_data
+        prop_dict = self._properties.to_dict()
+        if prop_dict is not None:
+            base['properties'] = prop_dict
         return base
 
     @staticmethod
@@ -518,6 +529,7 @@ class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
         new_material._display_name = self._display_name
         new_material._user_data = None if self._user_data is None \
             else self._user_data.copy()
+        new_material._properties._duplicate_extension_attr(self._properties)
         return new_material
 
 
@@ -557,6 +569,7 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
         * visible_absorptance
         * thickness
         * user_data
+        * properties
     """
     __slots__ = ('_u_factor', '_shgc', '_vt')
 
@@ -566,6 +579,7 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
         self.u_factor = u_factor
         self.shgc = shgc
         self.vt = vt
+        self._properties = EnergyWindowMaterialSimpleGlazSysProperties(self)
 
     @property
     def u_factor(self):
@@ -755,6 +769,8 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
             new_obj.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
             new_obj.user_data = data['user_data']
+        if 'properties' in data and data['properties'] is not None:
+            new_obj._properties._load_extension_attr_from_dict(data['properties'])
         return new_obj
 
     def to_idf(self):
@@ -777,6 +793,9 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
             base['display_name'] = self.display_name
         if self._user_data is not None:
             base['user_data'] = self.user_data
+        prop_dict = self._properties.to_dict()
+        if prop_dict is not None:
+            base['properties'] = prop_dict
         return base
 
     def __key(self):
@@ -802,4 +821,5 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
         new_material._display_name = self._display_name
         new_material._user_data = None if self._user_data is None \
             else self._user_data.copy()
+        new_material._properties._duplicate_extension_attr(self._properties)
         return new_material
