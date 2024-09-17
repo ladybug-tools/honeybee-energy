@@ -15,6 +15,7 @@ from __future__ import division
 
 from ._base import _EnergyMaterialWindowBase
 from .gas import EnergyWindowMaterialGas
+from ..properties.extension import EnergyWindowMaterialShadeProperties, EnergyWindowMaterialBlindProperties
 from ..reader import parse_idf_string
 from ..writer import generate_idf_string
 
@@ -290,6 +291,7 @@ class EnergyWindowMaterialShade(_EnergyWindowMaterialShadeBase):
         * u_value
         * r_value
         * user_data
+        * properties
     """
     __slots__ = ('_thickness', '_solar_transmittance', '_solar_reflectance',
                  '_visible_transmittance', '_visible_reflectance',
@@ -318,6 +320,7 @@ class EnergyWindowMaterialShade(_EnergyWindowMaterialShadeBase):
         self.infrared_transmittance = infrared_transmittance
         self.conductivity = conductivity
         self.airflow_permeability = airflow_permeability
+        self._properties = EnergyWindowMaterialShadeProperties(self)
 
     @property
     def thickness(self):
@@ -510,6 +513,8 @@ class EnergyWindowMaterialShade(_EnergyWindowMaterialShadeBase):
             new_mat.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
             new_mat.user_data = data['user_data']
+        if 'properties' in data and data['properties'] is not None:
+            new_mat._properties._load_extension_attr_from_dict(data['properties'])
         return new_mat
 
     def to_idf(self):
@@ -552,6 +557,9 @@ class EnergyWindowMaterialShade(_EnergyWindowMaterialShadeBase):
             base['display_name'] = self.display_name
         if self._user_data is not None:
             base['user_data'] = self.user_data
+        prop_dict = self._properties.to_dict()
+        if prop_dict is not None:
+            base['properties'] = prop_dict
         return base
 
     def __key(self):
@@ -591,6 +599,7 @@ class EnergyWindowMaterialShade(_EnergyWindowMaterialShadeBase):
         new_material._display_name = self._display_name
         new_material._user_data = None if self._user_data is None \
             else self._user_data.copy()
+        new_material._properties._duplicate_extension_attr(self._properties)
         return new_material
 
 
@@ -671,6 +680,7 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
         * u_value
         * r_value
         * user_data
+        * properties
     """
     ORIENTATIONS = ('Horizontal', 'Vertical')
     __slots__ = ('_slat_orientation', '_slat_width', '_slat_separation',
@@ -716,6 +726,7 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
         self.set_all_visible_reflectance(visible_reflectance)
         self.infrared_transmittance = infrared_transmittance
         self.emissivity_back = None
+        self._properties = EnergyWindowMaterialBlindProperties(self)
 
     @property
     def slat_orientation(self):
@@ -1165,6 +1176,8 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
             new_mat.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
             new_mat.user_data = data['user_data']
+        if 'properties' in data and data['properties'] is not None:
+            new_mat._properties._load_extension_attr_from_dict(data['properties'])
         return new_mat
 
     def to_idf(self):
@@ -1233,6 +1246,9 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
             base['display_name'] = self.display_name
         if self._user_data is not None:
             base['user_data'] = self.user_data
+        prop_dict = self._properties.to_dict()
+        if prop_dict is not None:
+            base['properties'] = prop_dict
         return base
 
     def __key(self):
@@ -1286,4 +1302,5 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
         new_m._right_opening_multiplier = self._right_opening_multiplier
         new_m._display_name = self._display_name
         new_m._user_data = None if self._user_data is None else self._user_data.copy()
+        new_m._properties._duplicate_extension_attr(self._properties)
         return new_m
