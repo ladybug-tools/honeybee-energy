@@ -216,12 +216,12 @@ class EnergyWindowMaterialGasMixtureProperties(_EnergyProperties):
     """EnergyWindowMaterialGasMixture properties to be extended by extensions."""
 
 
-class EnergyWindowMaterialGasCustomMixtureProperties(_EnergyProperties):
+class EnergyWindowMaterialGasCustomProperties(_EnergyProperties):
     """EnergyWindowMaterialGasCustom properties to be extended by extensions."""
 
 
-class EnergyWindowFrameMixtureProperties(_EnergyProperties):
-    """EnergyWindowFrameMixture properties to be extended by extensions."""
+class EnergyWindowFrameProperties(_EnergyProperties):
+    """EnergyWindowFrame properties to be extended by extensions."""
 
 
 class EnergyWindowMaterialShadeProperties(_EnergyProperties):

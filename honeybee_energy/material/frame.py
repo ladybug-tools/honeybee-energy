@@ -9,7 +9,7 @@ from honeybee._lockable import lockable
 from honeybee.typing import float_in_range, float_in_range_excl_incl, float_positive
 
 from ._base import _EnergyMaterialBase
-from ..properties.extension import EnergyWindowFrameMixtureProperties
+from ..properties.extension import EnergyWindowFrameProperties
 from ..reader import parse_idf_string
 from ..writer import generate_idf_string
 
@@ -95,7 +95,7 @@ class EnergyWindowFrame(_EnergyMaterialBase):
         self.solar_absorptance = solar_absorptance
         self.visible_absorptance = visible_absorptance
         self._locked = False
-        self._properties = EnergyWindowFrameMixtureProperties(self)
+        self._properties = EnergyWindowFrameProperties(self)
 
     @property
     def width(self):

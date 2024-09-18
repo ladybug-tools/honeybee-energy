@@ -10,7 +10,7 @@ from ._base import _EnergyMaterialWindowBase
 from ..properties.extension import (
     EnergyWindowMaterialGasProperties,
     EnergyWindowMaterialGasMixtureProperties,
-    EnergyWindowMaterialGasCustomMixtureProperties,
+    EnergyWindowMaterialGasCustomProperties,
 )
 from ..reader import parse_idf_string
 from ..writer import generate_idf_string
@@ -780,7 +780,7 @@ class EnergyWindowMaterialGasCustom(_EnergyWindowMaterialGasBase):
         self.specific_heat_ratio = specific_heat_ratio
         self.molecular_weight = molecular_weight
         self._user_data = None
-        self._properties = EnergyWindowMaterialGasCustomMixtureProperties(self)
+        self._properties = EnergyWindowMaterialGasCustomProperties(self)
 
     @property
     def conductivity_coeff_a(self):
