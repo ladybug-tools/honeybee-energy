@@ -5,6 +5,7 @@ from __future__ import division
 from honeybee._lockable import lockable
 from honeybee.typing import float_in_range, float_positive
 
+from ..properties.extension import ElectricLoadCenterProperties
 from ..writer import generate_idf_string
 
 
@@ -38,13 +39,14 @@ class ElectricLoadCenter(object):
         * inverter_efficiency
         * inverter_dc_to_ac_size_ratio
     """
-    __slots__ = ('_inverter_efficiency', '_inverter_dc_to_ac_size_ratio', '_locked')
+    __slots__ = ('_inverter_efficiency', '_inverter_dc_to_ac_size_ratio', '_locked', '_properties')
 
     def __init__(self, inverter_efficiency=0.96, inverter_dc_to_ac_size_ratio=1.1):
         """Initialize ElectricLoadCenter."""
         self.inverter_efficiency = inverter_efficiency
         self.inverter_dc_to_ac_size_ratio = inverter_dc_to_ac_size_ratio
         # TODO: Add properties for battery storage to this object
+        self._properties = ElectricLoadCenterProperties(self)
 
     @property
     def inverter_efficiency(self):
@@ -65,6 +67,11 @@ class ElectricLoadCenter(object):
     def inverter_dc_to_ac_size_ratio(self, value):
         self._inverter_dc_to_ac_size_ratio = float_positive(
             value, 'inverter DC to AC size ratio')
+
+    @property
+    def properties(self):
+        """Get the properties of the ElectricLoadCenter."""
+        return self._properties
 
     @classmethod
     def from_dict(cls, data):
@@ -89,13 +96,19 @@ class ElectricLoadCenter(object):
         dc_to_ac = data['inverter_dc_to_ac_size_ratio'] \
             if 'inverter_dc_to_ac_size_ratio' in data \
             and data['inverter_dc_to_ac_size_ratio'] is not None else 1.1
-        return cls(eff, dc_to_ac)
+        new_obj = cls(eff, dc_to_ac)
+        if 'properties' in data and data['properties'] is not None:
+            new_obj.properties._load_extension_attr_from_dict(data['properties'])
+        return new_obj
 
     def to_dict(self):
         """ElectricLoadCenter dictionary representation."""
         base = {'type': 'ElectricLoadCenter'}
         base['inverter_efficiency'] = self.inverter_efficiency
         base['inverter_dc_to_ac_size_ratio'] = self.inverter_dc_to_ac_size_ratio
+        prop_dict = self.properties.to_dict()
+        if prop_dict is not None:
+            base['properties'] = prop_dict
         return base
 
     def to_idf(self, generator_objects):
@@ -163,8 +176,10 @@ class ElectricLoadCenter(object):
         return self.__copy__()
 
     def __copy__(self):
-        return ElectricLoadCenter(
+        new_obj = ElectricLoadCenter(
             self.inverter_efficiency, self.inverter_dc_to_ac_size_ratio)
+        new_obj._properties = self.properties.duplicate()
+        return new_obj
 
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""
