@@ -235,5 +235,6 @@ class EnergyWindowMaterialBlindProperties(_EnergyProperties):
 class ElectricLoadCenterProperties(_EnergyProperties):
     """ElectricLoadCenter properties to be extended by extensions."""
 
+
 class PVPropertiesProperties(_EnergyProperties):
     """PVProperties to be extended by extensions."""

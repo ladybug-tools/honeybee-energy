@@ -178,7 +178,7 @@ class ElectricLoadCenter(object):
     def __copy__(self):
         new_obj = ElectricLoadCenter(
             self.inverter_efficiency, self.inverter_dc_to_ac_size_ratio)
-        new_obj._properties = self.properties.duplicate()
+        new_obj._properties._duplicate_extension_attr(self._properties)
         return new_obj
 
     def __key(self):

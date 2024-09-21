@@ -512,7 +512,7 @@ class PVProperties(object):
                 self._module_type, self._mounting_type, self._system_loss_fraction,
                 self._tracking_ground_coverage_ratio)
         new_obj._display_name = self._display_name
-        new_obj._properties = self.properties.duplicate()
+        new_obj._properties._duplicate_extension_attr(self._properties)
         return new_obj
 
     def __repr__(self):
