@@ -5,6 +5,7 @@ from __future__ import division
 from honeybee._lockable import lockable
 from honeybee.typing import valid_ep_string, valid_string, float_in_range
 
+from ..properties.extension import PVPropertiesProperties
 from ..reader import parse_idf_string
 from ..writer import generate_idf_string
 
@@ -91,7 +92,7 @@ class PVProperties(object):
     __slots__ = (
         '_identifier', '_display_name', '_rated_efficiency', '_active_area_fraction',
         '_module_type', '_mounting_type', '_system_loss_fraction',
-        '_tracking_ground_coverage_ratio', '_locked')
+        '_tracking_ground_coverage_ratio', '_locked', '_properties')
     MODULE_TYPES = ('Standard', 'Premium', 'ThinFilm')
     MOUNTING_TYPES = ('FixedOpenRack', 'FixedRoofMounted', 'OneAxis',
                       'OneAxisBacktracking', 'TwoAxis')
@@ -111,6 +112,7 @@ class PVProperties(object):
         self.mounting_type = mounting_type
         self.system_loss_fraction = system_loss_fraction
         self.tracking_ground_coverage_ratio = tracking_ground_coverage_ratio
+        self._properties = PVPropertiesProperties(self)
 
     @property
     def identifier(self):
@@ -265,6 +267,11 @@ class PVProperties(object):
         self._tracking_ground_coverage_ratio = float_in_range(
             value, 0.0, 1.0, 'photovoltaic tracking ground coverage ratio')
 
+    @property
+    def properties(self):
+        """Get the properties of the PVProperties."""
+        return self._properties
+
     @classmethod
     def from_idf(cls, idf_string, shade, active_area_fraction=0.9):
         """Create a PVProperties object from a Generator:PVWatts IDF text string.
@@ -349,6 +356,8 @@ class PVProperties(object):
         new_obj = cls(data['identifier'], eff, act, mod_type, mount, loss, gcr)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
+        if 'properties' in data and data['properties'] is not None:
+            new_obj.properties._load_extension_attr_from_dict(data['properties'])
         return new_obj
 
     def to_idf(self, shade):
@@ -394,6 +403,9 @@ class PVProperties(object):
             base['tracking_ground_coverage_ratio'] = self.tracking_ground_coverage_ratio
         if self._display_name is not None:
             base['display_name'] = self.display_name
+        prop_dict = self.properties.to_dict()
+        if prop_dict is not None:
+            base['properties'] = prop_dict
         return base
 
     def duplicate(self):
@@ -500,6 +512,7 @@ class PVProperties(object):
                 self._module_type, self._mounting_type, self._system_loss_fraction,
                 self._tracking_ground_coverage_ratio)
         new_obj._display_name = self._display_name
+        new_obj._properties = self.properties.duplicate()
         return new_obj
 
     def __repr__(self):
