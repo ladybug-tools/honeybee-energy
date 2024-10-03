@@ -1284,6 +1284,8 @@ class ModelEnergyProperties(object):
         res_func = clean_and_number_ep_string
         mat_dict, con_dict, con_set_dict = {}, {}, {}
         sch_dict, sch_day_dict, prog_dict = {}, {}, {}
+        ppl_dict, lgt_dict, equip_dict, hw_dict, inf_dict, vent_dict, spt_dict = \
+            {}, {}, {}, {}, {}, {}, {}
         resource_map = {}
 
         # change the identifiers of the materials
@@ -1333,6 +1335,40 @@ class ModelEnergyProperties(object):
                 prg.unlock()
                 resource_map[prg.identifier] = prg
                 prg.identifier = res_func(prg.display_name, prog_dict)
+                if prg.people is not None:
+                    resource_map[prg.people.identifier] = prg.people
+                    prg.people.identifier = res_func(prg.people.display_name, ppl_dict)
+                if prg.lighting is not None:
+                    resource_map[prg.lighting.identifier] = prg.lighting
+                    prg.lighting.identifier = \
+                        res_func(prg.lighting.display_name, lgt_dict)
+                if prg.electric_equipment is not None:
+                    resource_map[prg.electric_equipment.identifier] = \
+                        prg.electric_equipment
+                    prg.electric_equipment.identifier = \
+                        res_func(prg.electric_equipment.display_name, equip_dict)
+                if prg.gas_equipment is not None:
+                    resource_map[prg.gas_equipment.identifier] = \
+                        prg.gas_equipment
+                    prg.gas_equipment.identifier = \
+                        res_func(prg.gas_equipment.display_name, equip_dict)
+                if prg.service_hot_water is not None:
+                    resource_map[prg.service_hot_water.identifier] = \
+                        prg.service_hot_water
+                    prg.service_hot_water.identifier = \
+                        res_func(prg.service_hot_water.display_name, hw_dict)
+                if prg.infiltration is not None:
+                    resource_map[prg.infiltration.identifier] = prg.infiltration
+                    prg.infiltration.identifier = \
+                        res_func(prg.infiltration.display_name, inf_dict)
+                if prg.ventilation is not None:
+                    resource_map[prg.ventilation.identifier] = prg.ventilation
+                    prg.ventilation.identifier = \
+                        res_func(prg.ventilation.display_name, vent_dict)
+                if prg.setpoint is not None:
+                    resource_map[prg.setpoint.identifier] = prg.setpoint
+                    prg.setpoint.identifier = \
+                        res_func(prg.setpoint.display_name, spt_dict)
                 prg.lock()
 
         return resource_map
