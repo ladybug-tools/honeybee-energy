@@ -85,6 +85,8 @@ exclude_patterns = []
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = None
 
+# hide the class names in the nav bar
+toc_object_entries_show_parents = 'hide'
 
 # -- Options for HTML output -------------------------------------------------
 
