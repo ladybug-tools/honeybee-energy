@@ -1243,6 +1243,21 @@ class ModelEnergyProperties(object):
             raise ValueError(full_msg)
         return full_msg
 
+    def sync_detailed_hvac_ids(self, room_map):
+        """Sync room identifiers in DetailedHVAC with rooms that had their IDs changed.
+
+        This is useful after running the Model.reset_ids() command to ensure that
+        the bi-directional Room references between DetailedHVAC and Honeybee Rooms
+        is correct.
+
+        Args:
+            room_map: A dictionary that relates the original Rooms identifiers (keys)
+                to the new identifiers (values) of the Rooms in the Model.
+        """
+        for hvac in self.hvacs:
+            if isinstance(hvac, DetailedHVAC):
+                hvac.sync_room_ids(room_map)
+
     def reset_resource_ids(
             self, reset_materials=True, reset_constructions=True,
             reset_construction_sets=True, reset_schedules=True, reset_programs=True):
