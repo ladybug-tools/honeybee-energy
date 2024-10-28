@@ -87,6 +87,46 @@ class DetailedHVAC(_HVACSystem):
         """Get a tuple of strings for the Rooms/Zones to which the HVAC is assigned."""
         return self._thermal_zones
 
+    def sync_room_ids(self, room_map):
+        """Sync this DetailedHVAC with Rooms that had their IDs changed.
+
+        This is useful after running the Model.reset_ids() command to ensure that
+        the bi-directional Room references between DetailedHVAC and Honeybee Rooms
+        is correct.
+
+        Args:
+            room_map: A dictionary that relates the original Rooms identifiers (keys)
+                to the new identifiers (values) of the Rooms in the Model.
+        """
+        thermal_zones, air_loop_count = [], 0
+        hvac_spec = self._specification
+        for a_loop in hvac_spec['AirLoops']:
+            if a_loop['$type'].startswith('Ironbug.HVAC.IB_NoAirLoop'):
+                for zone in a_loop['ThermalZones']:
+                    for z_attr in zone['CustomAttributes']:
+                        if z_attr['Field']['FullName'] == 'Name':
+                            z_attr['Value'] = room_map[z_attr['Value']]
+                            thermal_zones.append(z_attr['Value'])
+            elif a_loop['$type'].startswith('Ironbug.HVAC.IB_AirLoopHVAC'):
+                air_loop_count += 1
+                for comp in a_loop['DemandComponents']:
+                    if comp['$type'].startswith('Ironbug.HVAC.IB_AirLoopBranches'):
+                        for branch in comp['Branches']:
+                            for z_attr in branch[0]['CustomAttributes']:
+                                if z_attr['Field']['FullName'] == 'Name':
+                                    z_attr['Value'] = room_map[z_attr['Value']]
+                                    thermal_zones.append(z_attr['Value'])
+        # unlock object and set attributes
+        was_locked = False
+        if self._locked:
+            was_locked = True
+            self.unlock()
+        self._air_loop_count = air_loop_count
+        self._thermal_zones = tuple(thermal_zones)
+        self._specification = hvac_spec
+        if was_locked:  # set the object back to being locked
+            self.lock()
+
     def to_ideal_air_equivalent(self):
         """This method is NOT YET IMPLEMENTED."""
         # TODO: Consider supporting this method by analyzing the air loop
