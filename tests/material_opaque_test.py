@@ -36,10 +36,8 @@ def test_material_init(userdatadict):
     assert concrete.conductivity == pytest.approx(0.4, rel=1e-2)
     assert concrete.user_data == userdatadict
 
-    with pytest.raises(ValueError):
-        concrete.thickness = 0
     with pytest.raises(AssertionError):
-        concrete.thickness = 0.000000001
+        concrete.thickness = 0
 
 
 def test_material_equivalency(userdatadict):

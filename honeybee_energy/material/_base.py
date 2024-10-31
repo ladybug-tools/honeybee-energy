@@ -87,7 +87,11 @@ class _EnergyMaterialBase(object):
         return self.__copy__()
 
     def _compare_thickness_conductivity(self):
-        """Compare the thickness and conductivity to avoid CTF errors from EnergyPlus."""
+        """Compare the thickness and conductivity to avoid CTF errors from EnergyPlus.
+
+        These CTF errors were common in EnergyPlus 9.5 and below but they have
+        been completely eliminated in more recent versions.
+        """
         try:
             assert self._conductivity / self._thickness <= 200000, \
                 'Material layer "{}" does not have sufficient thermal resistance.\n'\
