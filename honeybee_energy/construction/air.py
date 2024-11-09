@@ -10,7 +10,7 @@ from ..lib.schedules import always_on
 
 from honeybee._lockable import lockable
 from honeybee.typing import valid_ep_string, float_positive
-
+from ..properties.extension import AirBoundaryConstructionProperties
 
 @lockable
 class AirBoundaryConstruction(object):
@@ -35,10 +35,11 @@ class AirBoundaryConstruction(object):
         * air_mixing_schedule
         * user_data
         * thickness
+        * properties
     """
 
     __slots__ = ('_identifier', '_display_name', '_air_mixing_per_area',
-                 '_air_mixing_schedule', '_locked', '_user_data')
+                 '_air_mixing_schedule', '_locked', '_user_data', '_properties')
 
     def __init__(self, identifier, air_mixing_per_area=0.1,
                  air_mixing_schedule=always_on):
@@ -49,6 +50,7 @@ class AirBoundaryConstruction(object):
         self.air_mixing_per_area = air_mixing_per_area
         self.air_mixing_schedule = air_mixing_schedule
         self._user_data = None
+        self._properties = AirBoundaryConstructionProperties(self)
 
     @property
     def identifier(self):
@@ -128,6 +130,11 @@ class AirBoundaryConstruction(object):
     def thickness(self):
         """Thickness of the construction, always zero for air boundary construction."""
         return 0
+    
+    @property
+    def properties(self):
+        """Get the properties object for this construction."""
+        return self._properties
 
     @classmethod
     def from_dict(cls, data):
@@ -158,6 +165,8 @@ class AirBoundaryConstruction(object):
             new_obj.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
             new_obj.user_data = data['user_data']
+        if 'properties' in data and data['properties'] is not None:
+            new_obj._properties._load_extension_attr_from_dict(data['properties'])
         return new_obj
 
     @classmethod
@@ -247,6 +256,9 @@ class AirBoundaryConstruction(object):
             base['display_name'] = self.display_name
         if self._user_data is not None:
             base['user_data'] = self._user_data
+        prop_dict = self.properties.to_dict()
+        if prop_dict is not None:
+            base['properties'] = prop_dict
         return base
 
     def to_radiance_solar(self):
@@ -276,6 +288,7 @@ class AirBoundaryConstruction(object):
             self.identifier, self._air_mixing_per_area, self._air_mixing_schedule)
         new_con._display_name = self._display_name
         new_con.user_data = None if self._user_data is None else self._user_data.copy()
+        new_con._properties._duplicate_extension_attr(self._properties)
         return new_con
 
     def __key(self):

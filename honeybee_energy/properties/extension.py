@@ -120,6 +120,10 @@ class OpaqueConstructionProperties(_EnergyProperties):
     """OpaqueConstruction properties to be extended by extensions."""
 
 
+class AirBoundaryConstructionProperties(_EnergyProperties):
+    """AirBoundaryConstruction properties to be extended by extensions."""
+
+
 class ShadeConstructionProperties(_EnergyProperties):
     """ShadeConstruction properties to be extended by extensions."""
 

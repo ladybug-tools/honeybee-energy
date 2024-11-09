@@ -106,7 +106,7 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
     @thickness.setter
     def thickness(self, thick):
         self._thickness = float_positive(thick, 'material thickness')
-        self._compare_thickness_conductivity()
+        assert self._thickness != 0, 'Material thickness must be greater than zero.'
 
     @property
     def conductivity(self):
@@ -116,7 +116,6 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
     @conductivity.setter
     def conductivity(self, cond):
         self._conductivity = float_positive(cond, 'material conductivity')
-        self._compare_thickness_conductivity()
 
     @property
     def density(self):
@@ -821,7 +820,7 @@ class EnergyMaterialVegetation(_EnergyMaterialOpaqueBase):
     @thickness.setter
     def thickness(self, thick):
         self._thickness = float_positive(thick, 'material thickness')
-        self._compare_thickness_conductivity()
+        assert self._thickness != 0, 'Material thickness must be greater than zero.'
 
     @property
     def conductivity(self):
@@ -831,7 +830,6 @@ class EnergyMaterialVegetation(_EnergyMaterialOpaqueBase):
     @conductivity.setter
     def conductivity(self, cond):
         self._conductivity = float_positive(cond, 'material conductivity')
-        self._compare_thickness_conductivity()
 
     @property
     def density(self):

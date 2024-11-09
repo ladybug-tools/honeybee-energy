@@ -380,7 +380,8 @@ def model_to_idf(
 
     # reset the IDs to be derived from the display_names if requested
     if geometry_names:
-        model.reset_ids()
+        id_map = model.reset_ids()
+        model.properties.energy.sync_detailed_hvac_ids(id_map['rooms'])
     if resource_names:
         model.properties.energy.reset_resource_ids()
 

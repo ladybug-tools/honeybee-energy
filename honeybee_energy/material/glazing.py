@@ -135,7 +135,7 @@ class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
     @thickness.setter
     def thickness(self, thick):
         self._thickness = float_positive(thick, 'glazing material thickness')
-        self._compare_thickness_conductivity()
+        assert self._thickness != 0, 'Material thickness must be greater than zero.'
 
     @property
     def solar_transmittance(self):
@@ -267,7 +267,6 @@ class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
     @conductivity.setter
     def conductivity(self, cond):
         self._conductivity = float_positive(cond, 'glazing material conductivity')
-        self._compare_thickness_conductivity()
 
     @property
     def dirt_correction(self):

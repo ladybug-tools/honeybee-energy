@@ -160,7 +160,8 @@ def measure_compatible_model_json(
 
     # reset the IDs to be derived from the display_names if requested
     if use_geometry_names:
-        parsed_model.reset_ids()
+        id_map = parsed_model.reset_ids()
+        parsed_model.properties.energy.sync_detailed_hvac_ids(id_map['rooms'])
     if use_resource_names:
         parsed_model.properties.energy.reset_resource_ids()
     if simplify_window_cons:  # simpler format that cannot handle certain identifiers
