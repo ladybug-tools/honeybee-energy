@@ -234,3 +234,11 @@ class EnergyWindowMaterialShadeProperties(_EnergyProperties):
 
 class EnergyWindowMaterialBlindProperties(_EnergyProperties):
     """EnergyWindowMaterialBlind properties to be extended by extensions."""
+
+
+class ElectricLoadCenterProperties(_EnergyProperties):
+    """ElectricLoadCenter properties to be extended by extensions."""
+
+
+class PVPropertiesProperties(_EnergyProperties):
+    """PVProperties to be extended by extensions."""
