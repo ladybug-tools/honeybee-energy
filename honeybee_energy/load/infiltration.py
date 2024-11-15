@@ -321,6 +321,22 @@ class Infiltration(_LoadBase):
         Args:
             zone_identifier: Text for the zone identifier that the ZoneInfiltration:
                 DesignFlowRate object is assigned to.
+                
+            .. code-block:: shell
+            
+                ZoneInfiltration:DesignFlowRate,
+                    Infiltration 1,              !- Name
+                    DORM ROOMS AND COMMON AREAS, !- Zone Name
+                    Infiltration Sch,            !- Schedule Name
+                    Flow/Zone,                   !- Design Flow Rate Calculation Method
+                    2.831685,                    !- Design Flow Rate {m3/s}
+                    ,                            !- Flow Rate per Floor Area {m3/s/m2}
+                    ,                            !- Flow Rate per Exterior Surface Area {m3/s/m2}
+                    ,                            !- Air Changes per Hour
+                    0.6060000    ,               !- Constant Term Coefficient
+                    3.6359996E-02,               !- Temperature Term Coefficient
+                    0.1177165    ,               !- Velocity Term Coefficient
+                    0.0000000E+00;               !- Velocity Squared Term Coefficient
         """
         values = ('{}..{}'.format(self.identifier, zone_identifier), zone_identifier,
                   self.schedule.identifier, 'Flow/ExteriorArea', '', '',

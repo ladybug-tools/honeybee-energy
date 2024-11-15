@@ -449,6 +449,40 @@ class IdealAirSystem(_HVACSystem):
                 This Room must have a Setpoint object for this method to work
                 correctly since all setpoints (and any ventilation requirements)
                 are pulled from this Room.
+                
+            .. code-block:: shell
+
+                HVACTemplate:Zone:IdealLoadsAirSystem,
+                    Zone 1,                  !- Zone Name
+                    All Zones,               !- Thermostat Name
+                    FanAvailSched,           !- System Availability Schedule Name
+                    50,                      !- Maximum Heating Supply Air Temperature {C}
+                    13,                      !- Minimum Cooling Supply Air Temperature {C}
+                    0.0156,         !- Maximum Heating Supply Air Humidity Ratio {kgWater/kgDryAir}
+                    0.0077,         !- Minimum Cooling Supply Air Humidity Ratio {kgWater/kgDryAir}
+                    NoLimit,                 !- Heating Limit
+                    ,                        !- Maximum Heating Air Flow Rate {m3/s}
+                    ,                        !- Maximum Sensible Heating Capacity {W}
+                    NoLimit,                 !- Cooling Limit
+                    ,                        !- Maximum Cooling Air Flow Rate {m3/s}
+                    ,                        !- Maximum Total Cooling Capacity {W}
+                    ,                        !- Heating Availability Schedule Name
+                    ,                        !- Cooling Availability Schedule Name
+                    ConstantSensibleHeatRatio,  !- Dehumidification Control Type
+                    0.7,                     !- Cooling Sensible Heat Ratio
+                    60,                      !- Dehumidification Setpoint {percent}
+                    None,                    !- Humidification Control Type
+                    30,                      !- Humidification Setpoint {percent}
+                    flow/person,             !- Outdoor Air Method
+                    0.00944,                 !- Outdoor Air Flow Rate per Person {m3/s}
+                    0.0,                     !- Outdoor Air Flow Rate per Zone Floor Area {m3/s-m2}
+                    0.0,                     !- Outdoor Air Flow Rate per Zone {m3/s}
+                    ,                        !- Design Specification Outdoor Air Object Name
+                    None,                    !- Demand Controlled Ventilation Type
+                    NoEconomizer,            !- Outdoor Air Economizer Type
+                    None,                    !- Heat Recovery Type
+                    0.70,                    !- Sensible Heat Recovery Effectiveness
+                    0.65;                    !- Latent Heat Recovery Effectiveness
         """
         # check that a setpoint object is assigned
         r_set_p = room.properties.energy.setpoint

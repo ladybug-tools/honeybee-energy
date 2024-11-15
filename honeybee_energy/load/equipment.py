@@ -459,6 +459,22 @@ class ElectricEquipment(_EquipmentBase):
         Args:
             zone_identifier: Text for the zone identifier that the ElectricEquipment
                 object is assigned to.
+            
+            .. code-block:: shell
+            
+                ElectricEquipment,
+                    test_equipment,             !- Name
+                    test_zone,                  !- Zone or ZoneList Name
+                    test_equip_schedule,        !- Schedule Name
+                    EquipmentLevel,             !- Design Level Calculation Method
+                    ,                           !- Design Level {W}
+                    5,                          !- Watts per Zone Floor Area {W/m2}
+                    ,                           !- Watts per Person {W/person}
+                    0,                          !- Fraction Latent
+                    0.3,                        !- Fraction Radiant
+                    0;                          !- Fraction Lost
+
+                
         """
         return generate_idf_string(
             'ElectricEquipment', self._get_idf_values(zone_identifier),
@@ -678,7 +694,22 @@ class GasEquipment(_EquipmentBase):
 
         Args:
             zone_identifier: Text for the zone identifier that the GasEquipment object
-                is assigned to.
+                is assigned to
+            
+            .. code-block
+
+                GasEquipment,
+                    DORM ROOMS AND COMMON AREAS GasEq 1,  !- Name
+                    DORM ROOMS AND COMMON AREAS,          !- Zone or ZoneList or Space or SpaceList Name
+                    Gas Eq Sch,                           !-Schedule Name
+                    EquipmentLevel,                       !- Design Level Calculation Method
+                    29287.51,                             !- Design Level {W}
+                    ,                                     !- Power per Zone Floor Area {W/m2}
+                    ,                                     !- Power per Person {W/Person}
+                    0,                                    !- Fraction Latent
+                    0.3,                                  !- Fraction Radiant
+                    0,                                    !- Fraction Lost
+                    0;                                    !- Carbon Dioxide Generation Rate {m3/s-W}
         """
         return generate_idf_string('GasEquipment', self._get_idf_values(zone_identifier),
                                    self._idf_comments)

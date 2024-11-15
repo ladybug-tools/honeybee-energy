@@ -222,6 +222,15 @@ class ShadeConstruction(object):
         Args:
             host_shade_identifier: Text string for the identifier of a Shade object that
                 possesses this ShadeConstruction.
+                
+            .. code-block:: shell
+            
+                ShadingProperty:Reflectance,
+                    Adjacent Glazed Facade, !- Name of Surface:Shading Object
+                    0.3,  !- Diffuse Solar Reflectance of Unglazed Part of Shading Surface
+                    0.3,  !- Diffuse Visible Reflectance of Unglazed Part of Shading Surface
+                    0.7,  !- Fraction of Shading Surface That Is Glazed
+                    GlassCon-1; !- Name of Glazing Construction
         """
         values = [host_shade_identifier, self.solar_reflectance,
                   self.visible_reflectance]

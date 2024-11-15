@@ -326,6 +326,18 @@ class People(_LoadBase):
         Args:
             zone_identifier: Text for the zone identifier that the People object
                 is assigned to.
+                
+            .. code-block:: shell
+            
+                People,
+                    Kitchen_ZN_1_FLR_1,   !- Name
+                    Kitchen_ZN_1_FLR_1,   !- Zone or ZoneList or Space or SpaceList Name
+                    BLDG_OCC_SCH,         !- Number of People Schedule Name
+                    People,               !- Number of People Calculation Method
+                    25.2000,,,            !- Number of People, People per Zone Floor Area, Zone Floor Area per Person
+                    0.3000,               !- Fraction Radiant
+                    AUTOCALCULATE,        !- Sensible Heat Fraction
+                    ACTIVITY_SCH;         !- Activity Level Schedule Name
         """
         sens_fract = 'autocalculate' if self.latent_fraction == autocalculate else \
             1 - float(self.latent_fraction)

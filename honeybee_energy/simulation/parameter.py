@@ -433,6 +433,262 @@ class SimulationParameter(object):
         Args:
             identifier: Text string for to be used as a unique identifier for the
                 IDF Building object.
+                
+            .. code-block:: shell
+
+                !-   ==========================================
+                !-   =========  SIMULATION PARAMETERS =========
+                !-   ==========================================
+
+
+                OutputControl:Table:Style,
+                    CommaAndHTML,             !- column separator
+                    None;                     !- unit conversion
+
+                Output:Variable,
+                    *,                        !- key value
+                    Baseboard Electricity Energy, !- name
+                    Hourly;                   !- frequency
+
+                Output:Variable,
+                    *,                        !- key value
+                    Boiler Electricity Energy, !- name
+                    Hourly;                   !- frequency
+
+                Output:Variable,
+                    *,                        !- key value
+                    Boiler NaturalGas Energy, !- name
+                    Hourly;                   !- frequency
+
+                Output:Variable,
+                    *,                        !- key value
+                    Chiller Electricity Energy, !- name
+                    Hourly;                   !- frequency
+
+                Output:Variable,
+                    *,                        !- key value
+                    Chiller Heater System Cooling Electricity Energy, !- name
+                    Hourly;                   !- frequency
+
+                Output:Variable,
+                    *,                        !- key value
+                    Chiller Heater System Heating Electricity Energy, !- name
+                    Hourly;                   !- frequency
+
+                Output:Variable,
+                    *,                        !- key value
+                    Cooling Coil Electricity Energy, !- name
+                    Hourly;                   !- frequency
+
+                Output:Variable,
+                    *,                        !- key value
+                    Cooling Coil Water Heating Electricity Energy, !- name
+                    Hourly;                   !- frequency
+
+                Output:Variable,
+                    *,                        !- key value
+                    Cooling Tower Fan Electricity Energy, !- name
+                    Hourly;                   !- frequency
+
+                Output:Variable,
+                    *,                        !- key value
+                    District Cooling Water Energy, !- name
+                    Hourly;                   !- frequency
+
+                Output:Variable,
+                    *,                        !- key value
+                    District Heating Water Energy, !- name
+                    Hourly;                   !- frequency
+
+                Output:Variable,
+                    *,                        !- key value
+                    Evaporative Cooler Electricity Energy, !- name
+                    Hourly;                   !- frequency
+
+                Output:Variable,
+                    *,                        !- key value
+                    Fan Electricity Energy,   !- name
+                    Hourly;                   !- frequency
+
+                Output:Variable,
+                    *,                        !- key value
+                    Heating Coil Electricity Energy, !- name
+                    Hourly;                   !- frequency
+
+                Output:Variable,
+                    *,                        !- key value
+                    Heating Coil NaturalGas Energy, !- name
+                    Hourly;                   !- frequency
+
+                Output:Variable,
+                    *,                        !- key value
+                    Heating Coil Total Heating Energy, !- name
+                    Hourly;                   !- frequency
+
+                Output:Variable,
+                    *,                        !- key value
+                    Hot_Water_Loop_Central_Air_Source_Heat_Pump Electricity Consumption, !- name
+                    Hourly;                   !- frequency
+
+                Output:Variable,
+                    *,                        !- key value
+                    Humidifier Electricity Energy, !- name
+                    Hourly;                   !- frequency
+
+                Output:Variable,
+                    *,                        !- key value
+                    Pump Electricity Energy,  !- name
+                    Hourly;                   !- frequency
+
+                Output:Variable,
+                    *,                        !- key value
+                    VRF Heat Pump Cooling Electricity Energy, !- name
+                    Hourly;                   !- frequency
+
+                Output:Variable,
+                    *,                        !- key value
+                    VRF Heat Pump Crankcase Heater Electricity Energy, !- name
+                    Hourly;                   !- frequency
+
+                Output:Variable,
+                    *,                        !- key value
+                    VRF Heat Pump Defrost Electricity Energy, !- name
+                    Hourly;                   !- frequency
+
+                Output:Variable,
+                    *,                        !- key value
+                    VRF Heat Pump Heating Electricity Energy, !- name
+                    Hourly;                   !- frequency
+
+                Output:Variable,
+                    *,                        !- key value
+                    Water Heater Electricity Energy, !- name
+                    Hourly;                   !- frequency
+
+                Output:Variable,
+                    *,                        !- key value
+                    Water Heater NaturalGas Energy, !- name
+                    Hourly;                   !- frequency
+
+                Output:Variable,
+                    *,                        !- key value
+                    Water Use Equipment Heating Energy, !- name
+                    Hourly;                   !- frequency
+
+                Output:Variable,
+                    *,                        !- key value
+                    Zone Electric Equipment Electricity Energy, !- name
+                    Hourly;                   !- frequency
+
+                Output:Variable,
+                    *,                        !- key value
+                    Zone Gas Equipment NaturalGas Energy, !- name
+                    Hourly;                   !- frequency
+
+                Output:Variable,
+                    *,                        !- key value
+                    Zone Ideal Loads Supply Air Total Cooling Energy, !- name
+                    Hourly;                   !- frequency
+
+                Output:Variable,
+                    *,                        !- key value
+                    Zone Ideal Loads Supply Air Total Heating Energy, !- name
+                    Hourly;                   !- frequency
+
+                Output:Variable,
+                    *,                        !- key value
+                    Zone Lights Electricity Energy, !- name
+                    Hourly;                   !- frequency
+
+                Output:Variable,
+                    *,                        !- key value
+                    Zone Other Equipment Lost Heat Energy, !- name
+                    Hourly;                   !- frequency
+
+                Output:Variable,
+                    *,                        !- key value
+                    Zone Other Equipment Total Heating Energy, !- name
+                    Hourly;                   !- frequency
+
+                Output:Variable,
+                    *,                        !- key value
+                    Zone VRF Air Terminal Cooling Electricity Energy, !- name
+                    Hourly;                   !- frequency
+
+                Output:Variable,
+                    *,                        !- key value
+                    Zone VRF Air Terminal Heating Electricity Energy, !- name
+                    Hourly;                   !- frequency
+
+                Output:Variable,
+                    *,                        !- key value
+                    Zone Ventilation Fan Electricity Energy, !- name
+                    Hourly;                   !- frequency
+
+                Output:Table:SummaryReports,
+                    AllSummary;               !- report 0
+
+                Output:SQLite,
+                    SimpleAndTabular;         !- option type
+
+                Output:VariableDictionary,
+                    IDF,                      !- key field
+                    Unsorted;                 !- sort option
+
+                OutputControl:ReportingTolerances,
+                    1.11,                     !- heating unmet setpoint tolerance
+                    1.11;                     !- cooling unmet setpoint tolerance
+
+                SimulationControl,
+                    Yes,                      !- do zone sizing
+                    Yes,                      !- do system sizing
+                    Yes,                      !- do plant sizing
+                    No,                       !- run for sizing periods
+                    Yes;                      !- run for run periods
+
+                ShadowCalculation,
+                    PolygonClipping,          !- calculation method
+                    Periodic,                 !- calculation update method
+                    30,                       !- calculation frequency
+                    15000;                    !- maximum figures
+
+                Timestep,
+                    6;                        !- timesteps per hour
+
+                RunPeriod,
+                    CustomRunPeriod,          !- name
+                    1,                        !- start month
+                    1,                        !- start day
+                    2017,                     !- start year
+                    12,                       !- end month
+                    31,                       !- end day
+                    2017,                     !- end year
+                    Sunday,                   !- start day of week
+                    No,                       !- use weather file holidays
+                    No,                       !- use weather file daylight savings
+                    No,                       !- apply weekend holiday
+                    Yes,                      !- use epw rain
+                    Yes;                      !- use epw snow
+
+                Sizing:Parameters,
+                    1.25,                     !- heating factor
+                    1.15;                     !- cooling factor
+
+                GlobalGeometryRules,
+                    UpperLeftCorner,          !- starting vertex position
+                    Counterclockwise,         !- vertex entry direction
+                    Relative;                 !- coordinate system
+
+                    Building,
+                    Building,                 !- name
+                    0.0,                      !- clockwise north axis
+                    City,                     !- terrain
+                    ,                         !- loads convergence tolerance
+                    ,                         !- temperature convergence tolerance
+                    FullExteriorWithReflections; !- solar distribution
+
+                Site:WaterMainsTemperature,
+                 CorrelationFromWeatherFile; !- calculation method
         """
         sim_param_str = ['!-   ==========================================\n'
                          '!-   =========  SIMULATION PARAMETERS =========\n'

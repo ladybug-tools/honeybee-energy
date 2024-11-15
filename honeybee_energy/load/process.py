@@ -365,6 +365,23 @@ class Process(_LoadBase):
         Args:
             zone_identifier: Text for the zone identifier that the Process
                 object is assigned to.
+                
+            .. code-block:: shell
+
+              OtherEquipment,
+                BASE-1 OthEq 1, !- Name
+                Propane,        !- Fuel Use Type
+                BASE-1,         !- Zone or ZoneList or Space or SpaceList Name
+                ALWAYSON,       !- SCHEDULE Name
+                EquipmentLevel, !- Design Level calculation method
+                6766.,          !- Design Level {W}
+                ,               !- Power per Zone Floor Area {watts/m2}
+                ,               !- Power per Person {watts/person}
+                0,              !- Fraction Latent
+                0.3,            !- Fraction Radiant
+                0,              !- Fraction Lost
+                1.2E-7,         !- Carbon Dioxide Generation Rate
+                SubCategory1;   !- End-Use Subcategory  
         """
         _idf_comments = (
             'name', 'fuel type', 'zone name', 'schedule name', 'level method',

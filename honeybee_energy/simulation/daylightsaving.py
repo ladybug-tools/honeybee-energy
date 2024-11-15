@@ -122,7 +122,15 @@ class DaylightSavingTime(object):
         return cls(start_date, end_date)
 
     def to_idf(self):
-        """Get an EnergyPlus string representation of the DaylightSavingTime."""
+        """Get an EnergyPlus string representation of the DaylightSavingTime.
+        
+            .. code-block:: shell
+            
+                RunPeriodControl:DaylightSavingTime,
+                    2nd Sunday in March,           !- Start Date
+                    1st Sunday in November;        !- End Date
+        
+        """
         values = ('{}/{}'.format(self.start_date.month, self.start_date.day),
                   '{}/{}'.format(self.end_date.month, self.end_date.day))
         comments = ('start date', 'end date')

@@ -250,6 +250,23 @@ class VentilationOpening(object):
         this method and that this method does not return full definitions of
         ventilation control schedules. So these schedules must also be translated
         into the final IDF file.
+        
+            .. code-block shell
+
+                ZoneVentilation:WindandStackOpenArea,
+                    ZONE 3 Ventl 1,          !- Name
+                    ZONE 3,                  !- Zone Name
+                    0.5,                     !- Opening Area {m2}
+                    Constant,                !- Opening Area Fraction Schedule Name
+                    AutoCalculate,           !- Opening Effectiveness
+                    0.0,                     !- Effective Angle {deg}
+                    1.0,                     !- Height Difference {m}
+                    AutoCalculate,           !- Discharge Coefficient for Opening
+                    18.0,                    !- Minimum Indoor Temperature {C}
+                    ,                        !- Minimum Indoor Temperature Schedule Name
+                    ,                        !- Maximum Indoor Temperature {C}
+                    ,                        !- Maximum Indoor Temperature Schedule Name
+                    1.0;                     !- Delta Temperature {deltaC}
         """
         # check that a parent is assigned
         assert self.parent is not None, \

@@ -693,6 +693,14 @@ class WindowConstructionShade(object):
 
         Returns:
             Text string representation of the bare (unshaded) construction.
+            
+                .. code-block:: shell
+
+                    Construction,
+                        Generic Double Pane,      !- name
+                        Generic Low-e Glass,      !- layer 1
+                        Generic Window Air Gap,   !- layer 2
+                        Generic Clear Glass;      !- layer 3
         """
         return self._window_construction.to_idf()
 
