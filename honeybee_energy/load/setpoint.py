@@ -500,19 +500,19 @@ class Setpoint(_LoadBase):
         Args:
             zone_identifier: Text for the zone identifier that the Setpoint
                 object is assigned to.
-                
-                .. code-block:: shell
-                    
-                    ZoneControl:Thermostat,
-                        AllControlledZones Thermostat,      !- Name
-                        AllControlledZones,                 !- Zone Name
-                        Zone Control Type Sched,            !- Control Type Schedule Name
-                        ThermostatSetpoint:SingleCooling,   !- Control 1 Object Type
-                        CoolingSetPoint,                    !- Control 1 Name
-                        ThermostatSetpoint:SingleHeating,   !- Control 2 Object Type
-                        HeatingSetpoint,                    !- Control 2 Name
-                        ThermostatSetpoint:DualSetpoint,    !- Control 3 Object Type
-                        DualSetPoint;                       !- Control 3 Name
+
+        .. code-block:: shell
+
+            ZoneControl:Thermostat,
+                AllControlledZones Thermostat,      !- Name
+                AllControlledZones,                 !- Zone Name
+                Zone Control Type Sched,            !- Control Type Schedule Name
+                ThermostatSetpoint:SingleCooling,   !- Control 1 Object Type
+                CoolingSetPoint,                    !- Control 1 Name
+                ThermostatSetpoint:SingleHeating,   !- Control 2 Object Type
+                HeatingSetpoint,                    !- Control 2 Name
+                ThermostatSetpoint:DualSetpoint,    !- Control 3 Object Type
+                DualSetPoint;                       !- Control 3 Name
         """
         if self.setpoint_cutout_difference == 0:
             values = ('{}..{}'.format(self.identifier, zone_identifier),
@@ -562,14 +562,14 @@ class Setpoint(_LoadBase):
         Args:
             zone_identifier: Text for the zone identifier that the Setpoint
                 object is assigned to.
-                
-            .. code-block:: shell
 
-                ZoneControl:Humidistat,
-                    Zone 2 Humidistat,   !- Humidistat Name
-                    EAST ZONE,           !- Zone Name
-                    Min Rel Hum Set Sch, !- Humidifying Relative Humidity Setpoint SCHEDULE Name
-                    Max Rel Hum Set Sch; !- Dehumidifying Relative Humidity Setpoint SCHEDULE Name
+        .. code-block:: shell
+
+            ZoneControl:Humidistat,
+                Zone 2 Humidistat,   !- Humidistat Name
+                EAST ZONE,           !- Zone Name
+                Min Rel Hum Set Sch, !- Humidifying Relative Humidity Setpoint SCHEDULE Name
+                Max Rel Hum Set Sch; !- Dehumidifying Relative Humidity Setpoint SCHEDULE Name
                 
         """
         if self.humidifying_schedule is not None:

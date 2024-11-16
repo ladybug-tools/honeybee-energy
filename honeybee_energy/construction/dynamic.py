@@ -415,20 +415,20 @@ class WindowConstructionDynamic(object):
             -   The EMS Construction Index Variable object for each state
 
             -   The EMS Sensor linked to the schedule
-        
-            .. code-block:: shell
-            
-                Construction,
-                    TCwindow_25,   !- Name
-                    Clear3PPG,     !- Outside Layer
-                    AIR 3MM,       !- Layer 2
-                    WO18RT25,      !- Layer 3
-                    AIR 8MM,       !- Layer 4
-                    SB60Clear3PPG; !- Layer 5
 
-                    EnergyManagementSystem:ConstructionIndexVariable,
-                    TCwindow_25_obj,
-                    TCwindow_25;
+        .. code-block:: shell
+
+            Construction,
+                TCwindow_25,   !- Name
+                Clear3PPG,     !- Outside Layer
+                AIR 3MM,       !- Layer 2
+                WO18RT25,      !- Layer 3
+                AIR 8MM,       !- Layer 4
+                SB60Clear3PPG; !- Layer 5
+
+                EnergyManagementSystem:ConstructionIndexVariable,
+                TCwindow_25_obj,
+                TCwindow_25;
         """
         idf_strs = []
         # add all of the construction definitions and EMS states

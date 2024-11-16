@@ -208,8 +208,8 @@ class AirBoundaryConstruction(object):
         mixing objects into the IDF for each Face that has the construction
         assigned to it.
         
-            .. code-block:: shell 
-            
+        .. code-block:: shell 
+
             Construction:AirBoundary,
                 Air Wall,                !- Name
                 SimpleMixing,            !- Air Exchange Method

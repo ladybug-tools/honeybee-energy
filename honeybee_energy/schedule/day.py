@@ -450,15 +450,15 @@ class ScheduleDay(object):
             schedule_type_limits: Optional ScheduleTypeLimit object, which will
                 be written into the IDF string in order to validate the values
                 within the schedule during the EnergyPlus run.
-            
-            .. code-block:: shell
 
-                Schedule:Day:Interval,
-                    dd winter rel humidity, !- Name
-                    Percent,                !- Schedule Type Limits Name
-                    No,                     !- Interpolate to Timestep
-                    until: 24:00,           !- Time 1
-                    74;                     !- Value Until Time 1
+        .. code-block:: shell
+
+            Schedule:Day:Interval,
+                dd winter rel humidity, !- Name
+                Percent,                !- Schedule Type Limits Name
+                No,                     !- Interpolate to Timestep
+                until: 24:00,           !- Time 1
+                74;                     !- Value Until Time 1
         """
         fields = [self.identifier, ''] if schedule_type_limit is None else \
             [self.identifier, schedule_type_limit.identifier]

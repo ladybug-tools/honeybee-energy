@@ -373,20 +373,20 @@ class ServiceHotWater(_LoadBase):
             -   schedules: A list of Schedule:Constant strings for the schedules
                 needed to describe the target temperatures as well as the sensible
                 and latent fractions.
-                
-            .. code-block:: shell
-            
-                WaterUse:Equipment,
-                    Showers,   !- Name
-                    Domestic Hot Water,     !- End-Use Subcategory
-                    0.0002,                 !- Peak Flow Rate {m3/s}
-                    Shower Schedule,        !- Flow Rate Fraction Schedule Name
-                    Shower Target Temp,     !- Target Temperature Schedule Name
-                    Hot Water Temp,         !- Hot Water Supply Temperature Schedule Name
-                    ,                       !- Cold Water Supply Temperature Schedule Name
-                    Shower Room,            !- Zone Name
-                    Sensible Frac Schedule, !- Sensible Fraction Schedule Name
-                    Latent Frac Schedule;   !- Latent Fraction Schedule Name  
+
+        .. code-block:: shell
+
+            WaterUse:Equipment,
+                Showers,   !- Name
+                Domestic Hot Water,     !- End-Use Subcategory
+                0.0002,                 !- Peak Flow Rate {m3/s}
+                Shower Schedule,        !- Flow Rate Fraction Schedule Name
+                Shower Target Temp,     !- Target Temperature Schedule Name
+                Hot Water Temp,         !- Hot Water Supply Temperature Schedule Name
+                ,                       !- Cold Water Supply Temperature Schedule Name
+                Shower Room,            !- Zone Name
+                Sensible Frac Schedule, !- Sensible Fraction Schedule Name
+                Latent Frac Schedule;   !- Latent Fraction Schedule Name  
         """
         # create the Schedule:Constant strings
         u_id = '{}..{}'.format(self.identifier, room.identifier)

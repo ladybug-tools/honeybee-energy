@@ -572,18 +572,17 @@ class ScheduleFixedInterval(object):
         Returns:
             schedule_file --
             Text string representation of the Schedule:File describing this schedule.
-            
-        
-            .. code-block:: shell
 
-                Schedule:File,
-                    elecTDVfromCZ01res, !- Name
-                    Any Number,         !- ScheduleType
-                    TDV_kBtu_CTZ01.csv, !- Name of File
-                    2,                  !- Column Number
-                    4,                  !- Rows to Skip at Top
-                    8760,               !- Number of Hours of Data
-                    Comma;              !- Column Separator
+        .. code-block:: shell
+
+            Schedule:File,
+                elecTDVfromCZ01res, !- Name
+                Any Number,         !- ScheduleType
+                TDV_kBtu_CTZ01.csv, !- Name of File
+                2,                  !- Column Number
+                4,                  !- Rows to Skip at Top
+                8760,               !- Number of Hours of Data
+                Comma;              !- Column Separator
         """
         # gather all of the data to be written into the CSV
         sched_data = [str(val) for val in self.values_at_timestep(self.timestep)]
@@ -622,23 +621,23 @@ class ScheduleFixedInterval(object):
         IDFEditor and it can increase the overall size of the schedule in the
         resulting files by an order of magnitude.
 
-            .. code-block shell
+        .. code-block shell
 
-                Schedule:Compact,
-                    POFF,       !- Name
-                    Fraction,   !- Schedule Type Limits Name
-                    Through: 4/30,
-                    For: AllDays,
-                    Until: 24:00, 1.0,
-                    Through: 12/31,
-                    For: Weekdays,
-                        Until: 7:00,   .1,
-                        Until: 17:00, 1.0,
-                        Until: 24:00,  .1,
-                    For: Weekends Holidays,
-                        Until: 24:00,  .1,
-                    For: AllOtherDays,
-                        Until: 24:00,  .1;
+            Schedule:Compact,
+                POFF,       !- Name
+                Fraction,   !- Schedule Type Limits Name
+                Through: 4/30,
+                For: AllDays,
+                Until: 24:00, 1.0,
+                Through: 12/31,
+                For: Weekdays,
+                    Until: 7:00,   .1,
+                    Until: 17:00, 1.0,
+                    Until: 24:00,  .1,
+                For: Weekends Holidays,
+                    Until: 24:00,  .1,
+                For: AllOtherDays,
+                    Until: 24:00,  .1;
         """
         # initialize the list of IDF properties
         shc_typ = self._schedule_type_limit.identifier if \

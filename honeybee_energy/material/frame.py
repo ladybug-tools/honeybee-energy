@@ -290,8 +290,9 @@ class EnergyWindowFrame(_EnergyMaterialBase):
 
     def to_idf(self):
         """Get an EnergyPlus string representation of the window frame.
+
         .. code-block:: shell
-                
+
             WindowProperty:FrameAndDivider,
                 TestFrameAndDivider, ! Frame/Divider Name
                 0.05, ! Frame Width

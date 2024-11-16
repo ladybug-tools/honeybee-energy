@@ -150,15 +150,15 @@ class SimulationControl(object):
 
     def to_idf(self):
         """Get an EnergyPlus string representation of the SimulationControl.
-        
-            .. code-block:: shell 
 
-                SimulationControl,
-                    Yes,                      !- do zone sizing
-                    Yes,                      !- do system sizing
-                    Yes,                      !- do plant sizing
-                    No,                       !- run for sizing periods
-                    Yes;                      !- run for run periods
+        .. code-block:: shell 
+
+            SimulationControl,
+                Yes,                      !- do zone sizing
+                Yes,                      !- do system sizing
+                Yes,                      !- do plant sizing
+                No,                       !- run for sizing periods
+                Yes;                      !- run for run periods
         """
         do_zone_sizing = 'Yes' if self.do_zone_sizing else 'No'
         do_system_sizing = 'Yes' if self.do_system_sizing else 'No'

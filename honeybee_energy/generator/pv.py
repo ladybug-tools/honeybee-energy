@@ -367,21 +367,21 @@ class PVProperties(object):
             shade: A Honeybee Shade for which the specific IDF string will
                 be generated. Note that the geometry of this shade must be in
                 meters in order for the returned IDF string to have correct values.
-                
-            .. code-block:: shell
 
-                Generator:PVWatts,
-                    Photovoltaic Array 1..Shade_d5d1b861, !- PV generator name
-                    ,                         !- PVWatts version
-                    4050,                     !- DC system capacity {W}
-                    Standard,                 !- module type
-                    FixedOpenRack,            !- array type
-                    0.14,                     !- system losses
-                    Surface,                  !- array geometry type
-                    ,                         !- tilt angle {deg}
-                    ,                         !- azimuth angle {deg}
-                    Shade_d5d1b861,           !- surface name
-                    0.4;                      !- ground coverage ratio
+        .. code-block:: shell
+
+            Generator:PVWatts,
+                Photovoltaic Array 1..Shade_d5d1b861, !- PV generator name
+                ,                         !- PVWatts version
+                4050,                     !- DC system capacity {W}
+                Standard,                 !- module type
+                FixedOpenRack,            !- array type
+                0.14,                     !- system losses
+                Surface,                  !- array geometry type
+                ,                         !- tilt angle {deg}
+                ,                         !- azimuth angle {deg}
+                Shade_d5d1b861,           !- surface name
+                0.4;                      !- ground coverage ratio
         """
         # compte the system capacity and other factors from the shade
         idf_id = '{}..{}'.format(self.identifier, shade.identifier)

@@ -236,14 +236,14 @@ class InternalMass(object):
         Args:
             zone_identifier: Text for the zone identifier that the InternalMass
                 object is assigned to.
-                
-            .. code-block:: shell
 
-                InternalMass,
-                    Zn002:IntM001,                !- Surface Name
-                    INTERIOR,                     !- Construction Name
-                    DORM ROOMS AND COMMON AREAS,  !- Zone or ZoneList Name
-                    408.7734;                     !- Total area exposed to Zone {m2}
+        .. code-block:: shell
+
+            InternalMass,
+                Zn002:IntM001,                !- Surface Name
+                INTERIOR,                     !- Construction Name
+                DORM ROOMS AND COMMON AREAS,  !- Zone or ZoneList Name
+                408.7734;                     !- Total area exposed to Zone {m2}
         """
         values = ('{}..{}'.format(self.identifier, zone_identifier),
                   self.construction.identifier, zone_identifier, '', self.area)

@@ -236,14 +236,14 @@ class ShadowCalculation(object):
 
     def to_idf(self):
         """Get an EnergyPlus string representation of the ShadowCalculation.
-        
-            .. code-block:: shell
 
-                ShadowCalculation,
-                    PolygonClipping,          !- calculation method
-                    Periodic,                 !- calculation update method
-                    30,                       !- calculation frequency
-                    15000;                    !- maximum figures
+        .. code-block:: shell
+
+            ShadowCalculation,
+                PolygonClipping,          !- calculation method
+                Periodic,                 !- calculation update method
+                30,                       !- calculation frequency
+                15000;                    !- maximum figures
         """
         values = (self.calculation_method, self.calculation_update_method,
                   self.calculation_frequency, self.maximum_figures)

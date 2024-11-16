@@ -298,17 +298,17 @@ class Ventilation(_LoadBase):
         Args:
             zone_identifier: Text for the zone identifier that the Ventilation
                 object is assigned to.
-                
-                .. code-block:: shell
-                
-                    DesignSpecification:OutdoorAir
-                        ZoneOAData,            !- Name
-                        Sum,                   !- Outdoor Air Method
-                        0.00944,               !- Outdoor Air Flow per Person {m3/s}
-                        0.00305,               !- Outdoor Air Flow per Zone Floor Area {m3/s-m2}
-                        ,                      !- Outdoor Air Flow per Zone {m3/s}
-                        ,                      !- Outdoor Air Flow Air Changes per Hour
-                        OARequirements Sched;  !- Outdoor Air Schedule Name
+
+        .. code-block:: shell
+
+            DesignSpecification:OutdoorAir
+                ZoneOAData,            !- Name
+                Sum,                   !- Outdoor Air Method
+                0.00944,               !- Outdoor Air Flow per Person {m3/s}
+                0.00305,               !- Outdoor Air Flow per Zone Floor Area {m3/s-m2}
+                ,                      !- Outdoor Air Flow per Zone {m3/s}
+                ,                      !- Outdoor Air Flow Air Changes per Hour
+                OARequirements Sched;  !- Outdoor Air Schedule Name
         """
         sched = self.schedule.identifier if self.schedule is not None else ''
         vent_obj_identifier = '{}..{}'.format(self.identifier, zone_identifier)

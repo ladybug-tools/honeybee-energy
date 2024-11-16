@@ -335,17 +335,17 @@ class Lighting(_LoadBase):
             zone_identifier: Text for the zone identifier that the Lights object
                 is assigned to.
         
-            .. code-block:: shell
+        .. code-block:: shell
 
-                Lights,
-                    RIGHT FORK Lights 1,  !- Name
-                    RIGHT FORK,           !- Zone Name
-                    Office Lighting,      !- SCHEDULE Name
-                    LightingLevel,        !- Design Level calculation method
-                    1039.706,             !- Lighting Level {W}
-                    0.0000000E+00,        !- Return Air Fraction
-                    0.4000000,            !- Fraction Radiant
-                    0.2000000;            !- Fraction Visible        
+            Lights,
+                RIGHT FORK Lights 1,  !- Name
+                RIGHT FORK,           !- Zone Name
+                Office Lighting,      !- SCHEDULE Name
+                LightingLevel,        !- Design Level calculation method
+                1039.706,             !- Lighting Level {W}
+                0.0000000E+00,        !- Return Air Fraction
+                0.4000000,            !- Fraction Radiant
+                0.2000000;            !- Fraction Visible        
         """
         values = ('{}..{}'.format(self.identifier, zone_identifier), zone_identifier,
                   self.schedule.identifier, 'Watts/Area', '', self.watts_per_area, '',

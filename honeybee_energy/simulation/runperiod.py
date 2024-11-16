@@ -329,23 +329,23 @@ class RunPeriod(object):
             -   daylight_saving_time: An IDF RunPeriodControl:DaylightSavingTime string
                 that notes the start and ends dates of Daylight Savings time. Will be
                 None if no daylight_saving_time is applied to this RunPeriod.
-                
-            .. code-block:: shell
-            
-                RunPeriod,  ! Winter Simulation
-                    Winter Simulation,  !- Name
-                    12,  !- Begin Month
-                    1,   !- Begin Day of Month
-                    ,    !- Begin Year
-                    3,   !- End Month
-                    31,  !- End Day of Month
-                    ,    !- End Year
-                    UseWeatherFile,  !- Day of Week for Start Day
-                    Yes,  !- Use Weather File Holidays and Special Days
-                    Yes,  !- Use Weather File Daylight Saving Period
-                    No,   !- Apply Weekend Holiday Rule
-                    Yes,  !- Use Weather File Rain Indicators
-                    Yes;  !- Use Weather File Snow Indicators
+
+        .. code-block:: shell
+
+            RunPeriod,  ! Winter Simulation
+                Winter Simulation,  !- Name
+                12,  !- Begin Month
+                1,   !- Begin Day of Month
+                ,    !- Begin Year
+                3,   !- End Month
+                31,  !- End Day of Month
+                ,    !- End Year
+                UseWeatherFile,  !- Day of Week for Start Day
+                Yes,  !- Use Weather File Holidays and Special Days
+                Yes,  !- Use Weather File Daylight Saving Period
+                No,   !- Apply Weekend Holiday Rule
+                Yes,  !- Use Weather File Rain Indicators
+                Yes;  !- Use Weather File Snow Indicators
                    
             
         """
