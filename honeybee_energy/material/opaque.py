@@ -302,13 +302,13 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
 
             Material,A2 - 4 IN DENSE FACE BRICK,  ! Material Name
                 Rough,  ! Roughness
-                    0.1014984,  ! Thickness {m}
-                    1.245296,   ! Conductivity {W/M*K}
-                    2082.400,   ! Density {Kg/M**3}
-                    920.4800,   ! Specific Heat {J/Kg*K}
-                    0.9000000,  ! Thermal Absorptance
-                    0.9300000,  ! Solar Absorptance
-                    0.9300000;  ! Visible Absorptance
+                0.1014984,  ! Thickness {m}
+                1.245296,   ! Conductivity {W/M*K}
+                2082.400,   ! Density {Kg/M**3}
+                920.4800,   ! Specific Heat {J/Kg*K}
+                0.9000000,  ! Thermal Absorptance
+                0.9300000,  ! Solar Absorptance
+                0.9300000;  ! Visible Absorptance
         """
         values = (self.identifier, self.roughness, self.thickness, self.conductivity,
                   self.density, self.specific_heat, self.thermal_absorptance,
@@ -621,7 +621,7 @@ class EnergyMaterialNoMass(_EnergyMaterialOpaqueBase):
                 2.290965,  ! Resistance {M**2K/W}
                 0.9000000, ! Thermal Absorptance
                 0.7500000, ! Solar Absorptance
-                0.7500000; ! Visible Absorptance 
+                0.7500000; ! Visible Absorptance
         """
         values = (
             self.identifier, self.roughness, self.r_value, self.thermal_absorptance,

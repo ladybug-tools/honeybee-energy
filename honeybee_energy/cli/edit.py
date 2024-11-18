@@ -223,7 +223,7 @@ def modifiers_from_constructions(
     'dim down to, expressed as a fraction of maximum light output. Note that setting '
     'this to 1 means lights are not dimmed at all until the illuminance setpoint is '
     'reached. This can be used to approximate manual light-switching behavior when '
-    'used in conjunction with the off_at_min_ output below.', default=0.2,
+    'used in conjunction with the --off_at_min output below.', default=0.2,
     type=float, show_default=True
 )
 @click.option(
