@@ -433,6 +433,94 @@ class SimulationParameter(object):
         Args:
             identifier: Text string for to be used as a unique identifier for the
                 IDF Building object.
+
+        .. code-block:: shell
+
+            !-   ==========================================
+            !-   =========  SIMULATION PARAMETERS =========
+            !-   ==========================================
+
+
+            OutputControl:Table:Style,
+                CommaAndHTML,             !- column separator
+                None;                     !- unit conversion
+
+            Output:Variable,
+                *,                        !- key value
+                Zone Ideal Loads Supply Air Total Cooling Energy, !- name
+                Hourly;                   !- frequency
+
+            Output:Variable,
+                *,                        !- key value
+                Zone Ideal Loads Supply Air Total Heating Energy, !- name
+                Hourly;                   !- frequency
+
+            Output:Table:SummaryReports,
+                AllSummary;               !- report 0
+
+            Output:SQLite,
+                SimpleAndTabular;         !- option type
+
+                Output:VariableDictionary,
+                IDF,                      !- key field
+                Unsorted;                 !- sort option
+
+            OutputControl:ReportingTolerances,
+                1.11,                     !- heating unmet setpoint tolerance
+                1.11;                     !- cooling unmet setpoint tolerance
+
+            SimulationControl,
+                Yes,                      !- do zone sizing
+                Yes,                      !- do system sizing
+                Yes,                      !- do plant sizing
+                No,                       !- run for sizing periods
+                Yes;                      !- run for run periods
+
+            ShadowCalculation,
+                PolygonClipping,          !- calculation method
+                Periodic,                 !- calculation update method
+                30,                       !- calculation frequency
+                15000;                    !- maximum figures
+
+            Timestep,
+            6;                        !- timesteps per hour
+
+            RunPeriod,
+                CustomRunPeriod,          !- name
+                1,                        !- start month
+                1,                        !- start day
+                2017,                     !- start year
+                12,                       !- end month
+                31,                       !- end day
+                2017,                     !- end year
+                Sunday,                   !- start day of week
+                No,                       !- use weather file holidays
+                No,                       !- use weather file daylight savings
+                No,                       !- apply weekend holiday
+                Yes,                      !- use epw rain
+                Yes;                      !- use epw snow
+
+            Sizing:Parameters,
+                1.25,                     !- heating factor
+                1.15;                     !- cooling factor
+
+            GlobalGeometryRules,
+                UpperLeftCorner,          !- starting vertex position
+                Counterclockwise,         !- vertex entry direction
+                Relative;                 !- coordinate system
+
+            Building,
+                Building,                 !- name
+                0.0,                      !- clockwise north axis
+                City,                     !- terrain
+                ,                         !- loads convergence tolerance
+                ,                         !- temperature convergence tolerance
+                FullExteriorWithReflections; !- solar distribution
+
+            Site:WaterMainsTemperature,
+                CorrelationFromWeatherFile; !- calculation method
+
+
         """
         sim_param_str = ['!-   ==========================================\n'
                          '!-   =========  SIMULATION PARAMETERS =========\n'

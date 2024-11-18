@@ -428,6 +428,36 @@ class SizingParameter(object):
 
             -   sizing_parameter: A text string for an EnergyPlus Sizing:Parameters
                 definition.
+
+        .. code-block:: shell
+
+            SizingPeriod:DesignDay,
+                NAS.Jacksonville-Towers.Field Ann Htg 99.6% Condns DB,       !- Name
+                1,                                                           !- Month
+                21,                                                          !- Day of Month
+                WinterDesignDay,                                             !- Day Type
+                1.3,                                                         !- Max Dry-Bulb Temp {C}
+                0.0,                                                         !- Daily Dry-Bulb Temp Range {C}
+                DefaultMultipliers,                                          !- Dry-Bulb Temp Range Modifier Type
+                ,                                                            !- Dry-Bulb Temp Range Modifier Schedule Name
+                Wetbulb,                                                     !- Humidity Condition Type
+                1.3,                                                         !- Wetbulb/Dewpoint at Max Dry-Bulb {C}
+                ,                                                            !- Humidity Indicating Day Schedule Name
+                ,                                                            !- Humidity Ratio at Maximum Dry-Bulb {kgWater/kgDryAir}
+                ,                                                            !- Enthalpy at Maximum Dry-Bulb {J/kg}
+                ,                                                            !- Daily Wet-Bulb Temperature Range {deltaC}
+                101252.0,                                                    !- Barometric Pressure {Pa}
+                4.3,                                                         !- Wind Speed {m/s}
+                320.0,                                                       !- Wind Direction {Degrees; N=0, S=180}
+                No,                                                          !- Rain {Yes/No}
+                No,                                                          !- Snow on ground {Yes/No}
+                No,                                                          !- Daylight Savings Time Indicator {Yes/No}
+                ASHRAEClearSky,                                              !- Solar Model Indicator
+                ,                                                            !- Beam Solar Day Schedule Name
+                ,                                                            !- Diffuse Solar Day Schedule Name
+                ,                                                            !- ASHRAE Clear Sky Beam Optical Depth (taub)
+                ,                                                            !- ASHRAE Clear Sky Diffuse Optical Depth (taud)
+                0.0;                                                         !- Clearness (0.0 to 1.2)   
         """
         # process the design_days
         design_days = [dday.to_idf() for dday in self.design_days]

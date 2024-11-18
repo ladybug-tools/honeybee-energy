@@ -207,6 +207,14 @@ class AirBoundaryConstruction(object):
         Note that the to_air_mixing_idf method must also be used to write air
         mixing objects into the IDF for each Face that has the construction
         assigned to it.
+        
+        .. code-block:: shell 
+
+            Construction:AirBoundary,
+                Air Wall,                !- Name
+                SimpleMixing,            !- Air Exchange Method
+                0.5,                     !- Simple Mixing Air Changes per Hour {1/hr}
+                ;                        !- Simple Mixing Schedule Name
         """
         values = [self.identifier, 'None']
         comments = ('construction name', 'air exchange method')

@@ -289,7 +289,20 @@ class EnergyWindowFrame(_EnergyMaterialBase):
         return new_mat
 
     def to_idf(self):
-        """Get an EnergyPlus string representation of the window frame."""
+        """Get an EnergyPlus string representation of the window frame.
+
+        .. code-block:: shell
+
+            WindowProperty:FrameAndDivider,
+                TestFrameAndDivider, ! Frame/Divider Name
+                0.05, ! Frame Width
+                0.04, ! Frame Outside Projection
+                0.03, ! Frame Inside Projection
+                5.0,  ! Frame Conductance
+                1.3,  ! Ratio of Frame-Edge Glass Conductance to Center-Of-Glass Conductance
+                0.8,  ! Frame Solar Absorptance
+                0.8,  ! Frame Visible Absorptance
+        """
         values = (
             self.identifier, self.width, self.outside_projection, self.inside_projection,
             self.conductance, self.edge_to_center_ratio, self.solar_absorptance,

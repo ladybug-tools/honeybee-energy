@@ -296,7 +296,20 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
         return new_mat
 
     def to_idf(self):
-        """Get an EnergyPlus string representation of the material."""
+        """Get an EnergyPlus string representation of the material.
+
+        .. code-block:: shell
+
+            Material,A2 - 4 IN DENSE FACE BRICK,  ! Material Name
+                Rough,  ! Roughness
+                    0.1014984,  ! Thickness {m}
+                    1.245296,   ! Conductivity {W/M*K}
+                    2082.400,   ! Density {Kg/M**3}
+                    920.4800,   ! Specific Heat {J/Kg*K}
+                    0.9000000,  ! Thermal Absorptance
+                    0.9300000,  ! Solar Absorptance
+                    0.9300000;  ! Visible Absorptance
+        """
         values = (self.identifier, self.roughness, self.thickness, self.conductivity,
                   self.density, self.specific_heat, self.thermal_absorptance,
                   self.solar_absorptance, self.visible_absorptance)
@@ -598,7 +611,18 @@ class EnergyMaterialNoMass(_EnergyMaterialOpaqueBase):
         return new_mat
 
     def to_idf(self):
-        """Get an EnergyPlus string representation of the material."""
+        """Get an EnergyPlus string representation of the material.
+
+        ..code-block:: shell
+
+            Material:NoMass,
+                R13LAYER,  ! Material Name
+                Rough,     ! Roughness
+                2.290965,  ! Resistance {M**2K/W}
+                0.9000000, ! Thermal Absorptance
+                0.7500000, ! Solar Absorptance
+                0.7500000; ! Visible Absorptance 
+        """
         values = (
             self.identifier, self.roughness, self.r_value, self.thermal_absorptance,
             self.solar_absorptance, self.visible_absorptance
@@ -1207,7 +1231,31 @@ class EnergyMaterialVegetation(_EnergyMaterialOpaqueBase):
             self.RADIANCEROUGHTYPES[self.roughness])
 
     def to_idf(self):
-        """Get an EnergyPlus string representation of the material."""
+        """Get an EnergyPlus string representation of the material.
+
+        .. code-block:: shell
+
+            Material:RoofVegetation,
+                BaseEco,        !- Name
+                0.5,            !- Height of Plants {m}
+                5,              !- Leaf Area Index {dimensionless}
+                0.2,            !- Leaf Reflectivity {dimensionless}
+                0.95,           !- Leaf Emissivity
+                180,            !- Minimum Stomatal Resistance {s/m}
+                EcoRoofSoil,    !- Soil Layer Name
+                MediumSmooth,   !- Roughness
+                0.18,           !- Thickness {m}
+                0.4,            !- Conductivity of Dry Soil {W/m-K}
+                641,            !- Density of Dry Soil {kg/m3}
+                1100,           !- Specific Heat of Dry Soil {J/kg-K}
+                0.95,           !- Thermal Absorptance
+                0.8,            !- Solar Absorptance
+                0.7,            !- Visible Absorptance
+                0.4,            !- Saturation Volumetric Moisture Content of the Soil Layer
+                0.01,           !- Residual Volumetric Moisture Content of the Soil Layer
+                0.2,            !- Initial Volumetric Moisture Content of the Soil Layer
+                Simple;         !- Moisture Diffusion Calculation Method
+        """
         soil_name = '{}_SoilLayer'.format(self.identifier)
         values = (
             self.identifier, self.plant_height, self.leaf_area_index,

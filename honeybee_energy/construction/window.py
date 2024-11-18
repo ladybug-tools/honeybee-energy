@@ -736,6 +736,14 @@ class WindowConstruction(_ConstructionBase):
 
         Returns:
             construction_idf -- Text string representation of the construction.
+
+        .. code-block:: 
+
+            Construction,
+                Generic Double Pane,      !- name
+                Generic Low-e Glass,      !- layer 1
+                Generic Window Air Gap,   !- layer 2
+                Generic Clear Glass;      !- layer 3
         """
         return self._generate_idf_string('window', self.identifier, self.materials)
 

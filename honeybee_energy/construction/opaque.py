@@ -329,6 +329,13 @@ class OpaqueConstruction(_ConstructionBase):
 
         Returns:
             construction_idf -- Text string representation of the construction.
+
+        .. code-block:: shell
+
+            Construction, FLOOR38,  ! Material layer names follow:
+                E5 - ACOUSTIC TILE,
+                E4 - CEILING AIRSPACE,
+                C12 - 2 IN HW CONCRETE;
         """
         return self._generate_idf_string('opaque', self.identifier, self.materials)
 

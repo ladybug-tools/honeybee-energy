@@ -420,7 +420,15 @@ class EnergyWindowMaterialGas(_EnergyWindowMaterialGasBase):
         return new_obj
 
     def to_idf(self):
-        """Get an EnergyPlus string representation of the material."""
+        """Get an EnergyPlus string representation of the material.
+
+        .. code-block:: shell
+
+            WindowMaterial:Gas,
+                Gas_1_W_0_0100, !- gap name - Air
+                Air,            !- type
+                0.0100;         !- thickness
+        """
         values = (self.identifier, self.gas_type, self.thickness)
         comments = ('name', 'gas type', 'thickness {m}')
         return generate_idf_string('WindowMaterial:Gas', values, comments)
@@ -621,7 +629,18 @@ class EnergyWindowMaterialGasMixture(_EnergyWindowMaterialGasBase):
         return new_obj
 
     def to_idf(self):
-        """Get an EnergyPlus string representation of the material."""
+        """Get an EnergyPlus string representation of the material.
+
+        .. code-block:: shell
+
+            WindowMaterial:GasMixture,ArgonKryptonMix,
+                0.0125,   ! Thickness {m} 1/2 inch
+                2,        ! Number of Gases in Mixture
+                Argon,    ! Gas 1 Type
+                0.6,      ! Gas 1 Fraction
+                Krypton,  ! Gas 2 Type
+                0.4;      ! Gas 2 Fraction
+        """
         values = [self.identifier, self.thickness, len(self.gas_types)]
         comments = ['name', 'thickness {m}', 'number of gases']
         for i in range(len(self.gas_types)):
@@ -972,7 +991,26 @@ class EnergyWindowMaterialGasCustom(_EnergyWindowMaterialGasBase):
         return new_obj
 
     def to_idf(self):
-        """Get an EnergyPlus string representation of the material."""
+        """Get an EnergyPlus string representation of the material.
+
+        .. code-block:: shell
+
+            WindowMaterial:Gas,
+                Gas_16_W_0_0003,    !- gap name
+                Custom,             !- type
+                0.0003,             !- thickness
+                2.873000e-003,      !- Conductivity Coefficient A
+                7.760000e-005,      !- Conductivity Coefficient B
+                0.000000e+000,      !- Conductivity Coefficient C
+                3.723000e-006,      !- Conductivity Viscosity A
+                4.940000e-008,      !- Conductivity Viscosity B
+                0.000000e+000,      !- Conductivity Viscosity C
+                1002.737000,        !- Specific Heat Coefficient A
+                0.012324,           !- Specific Heat Coefficient B
+                0.000000,           !- Specific Heat Coefficient C
+                28.969999,          !- Molecular Weight
+                1.400000;           !- Specific Heat Ratio
+        """
         values = (self.identifier, 'Custom', self.thickness, self.conductivity_coeff_a,
                   self.conductivity_coeff_b, self.conductivity_coeff_c,
                   self.viscosity_coeff_a, self.viscosity_coeff_b,

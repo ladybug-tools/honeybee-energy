@@ -438,7 +438,28 @@ class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
         return new_mat
 
     def to_idf(self):
-        """Get an EnergyPlus string representation of the material."""
+        """Get an EnergyPlus string representation of the material.
+
+        .. code-block:: shell
+
+            WindowMaterial:Glazing,
+                CLEAR 3MM,       !- Name
+                SpectralAverage, !- Optical Data Type
+                ,                !- Window Glass Spectral Data Set Name
+                0.003,           !- Thickness {m}
+                0.837,           !- Solar Transmittance at Normal Incidence
+                0.075,           !- Front Side Solar Reflectance at Normal Incidence
+                0.075,           !- Back Side Solar Reflectance at Normal Incidence
+                0.898,           !- Visible Transmittance at Normal Incidence
+                0.081,           !- Front Side Visible Reflectance at Normal Incidence
+                0.081,           !- Back Side Visible Reflectance at Normal Incidence
+                0.0,             !- Infrared Transmittance at Normal Incidence
+                0.84,            !- Front Side Infrared Hemispherical Emissivity
+                0.84,            !- Back Side Infrared Hemispherical Emissivity
+                0.9,             !- Conductivity {W/m-K}
+                0.54,            !- Dirt Correction Factor
+                0.09;            !- Solar Diffusing 
+        """
         solar_diffusing = 'Yes' if self.solar_diffusing is True else 'No'
         values = (self.identifier, 'SpectralAverage', '',
                   self.thickness, self.solar_transmittance,
@@ -773,7 +794,16 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
         return new_obj
 
     def to_idf(self):
-        """Get an EnergyPlus string representation of the material."""
+        """Get an EnergyPlus string representation of the material.
+
+        .. code-block:: shell
+
+            WindowMaterial:SimpleGlazingSystem,
+                SimpleWindow:DOUBLE PANE WINDOW , !- Name
+                2.716 , !-  U-Factor
+                0.763 , !-  Solar Heat Gain Coefficient
+                0.812 ; !-  Visible Transmittance
+        """
         values = (self.identifier, self.u_factor, self.shgc, self.vt)
         comments = ('name', 'u-factor {W/m2-K}', 'shgc', 'vt')
         return generate_idf_string(

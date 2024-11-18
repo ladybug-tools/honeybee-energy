@@ -220,7 +220,17 @@ class ScheduleTypeLimit(object):
         return new_obj
 
     def to_idf(self):
-        """IDF string for the ScheduleTypeLimits of this object."""
+        """IDF string for the ScheduleTypeLimits of this object.
+
+        .. code-block:: shell
+
+            ScheduleTypeLimits,
+                my type limit,            !- name
+                ,                         !- lower limit value
+                ,                         !- upper limit value
+                Continuous,               !- numeric type
+                Percent;                  !- unit type
+        """
         values = [self.identifier, self.lower_limit, self.upper_limit,
                   self.numeric_type, self.unit_type]
         if values[1] == no_limit:

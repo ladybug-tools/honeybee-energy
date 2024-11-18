@@ -95,6 +95,19 @@ class OtherSideTemperature(_BoundaryCondition):
 
         Args:
             identifier: Text for unique identifier to be given to the boundary condition.
+
+        .. code-block:: shell
+
+            SurfaceProperty:OtherSideCoefficients,
+                OSCCoef:Zn005:Wall003,   !- Name
+                0,                       !- Combined Convective/Radiative Film Coefficient {W/m2-K}
+                0.000000,                !- Constant Temperature {C}
+                1.000000,                !- Constant Temperature Coefficient
+                0.000000,                !- External Dry-Bulb Temperature Coefficient
+                0.000000,                !- Ground Temperature Coefficient
+                0.000000,                !- Wind Speed Coefficient
+                0.000000,                !- Zone Air Temperature Coefficient
+                Zn005Wall003OtherSideTempSched;  !- Constant Temperature Schedule Name
         """
         comments = (
             'name', 'heat transfer coefficient', 'temperature',

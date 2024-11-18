@@ -518,7 +518,27 @@ class EnergyWindowMaterialShade(_EnergyWindowMaterialShadeBase):
         return new_mat
 
     def to_idf(self):
-        """Get an EnergyPlus string representation of the material."""
+        """Get an EnergyPlus string representation of the material.
+
+        .. code-block:: shell
+
+            WindowMaterial:Shade,
+                DRAPES - CLOSE WEAVE MEDIUM,  !- Name
+                0.05,                         !- Solar transmittance
+                0.3000000,                    !- Solar Reflectance
+                .05,                          !- Visible transmittance
+                0.3000000,                    !- Visible reflectance
+                0.9000000,                    !- Infrared Hemispherical Emissivity
+                0.0,                          !- Infrared Transmittance
+                0.003,                        !- Thickness {m}
+                0.1,                          !- Conductivity {W/m-K}
+                0.050,                        !- Shade to glass distance {m}
+                1.0,                          !- Top opening multiplier
+                1.0,                          !- Bottom opening multiplier
+                0.0,                          !- Left-side opening multiplier
+                0.0,                          !- Right-side opening multiplier
+                0.0;                          !- Air flow permeability
+        """
         values = (self.identifier, self.solar_transmittance, self.solar_reflectance,
                   self.visible_transmittance, self.visible_reflectance,
                   self.emissivity, self.infrared_transmittance, self.thickness,
@@ -1181,7 +1201,41 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
         return new_mat
 
     def to_idf(self):
-        """Get an EnergyPlus string representation of the material."""
+        """Get an EnergyPlus string representation of the material.
+        
+        .. code-block:: shell
+
+            WindowMaterial:Blind,
+                White Painted Metal Blind,   !- Name
+                HORIZONTAL, !- Slat orientation
+                0.025   , !- Slat width (m)
+                0.01875 , !- Slat separation (m)
+                0.001   , !- Slat thickness (m)
+                45.0    , !- Slat angle (deg)
+                44.9    , !- Slat conductivity (W/m-K)
+                0.0     , !- Slat beam solar transmittance
+                0.8     , !- Front Side Slat beam solar reflectance
+                0.8     , !- Back Side Slat beam solar reflectance
+                0.0     , !- Slat diffuse solar transmittance
+                0.8     , !- Front Side Slat diffuse solar reflectance
+                0.8     , !- Back Side Slat diffuse solar reflectance
+                0.0     , !- Slat beam visible transmittance
+                0.7     , !- Front Side Slat beam visible reflectance
+                0.7     , !- Back Side Slat beam visible reflectance
+                0.0     , !- Slat diffuse visible transmittance
+                0.7     , !- Front Side Slat diffuse visible reflectance
+                0.7     , !- Back Side Slat diffuse visible reflectance
+                0.0     , !- Slat Infrared hemispherical transmittance
+                0.9     , !- Front Side Slat Infrared hemispherical emissivity
+                0.9     , !- Back Side Slat Infrared hemispherical emissivity
+                0.050   , !- Blind-to-glass distance
+                0.0     , !- Blind top opening multiplier
+                0.0     , !- Blind bottom opening multiplier
+                0.5     , !- Blind left-side opening multiplier
+                0.5     , !- Blind right-side opening multiplier
+                ,         !- Minimum slat angle (deg)
+                ;         !- Maximum slat angle (deg)
+        """
         values = (self.identifier, self.slat_orientation, self.slat_width,
                   self.slat_separation, self.slat_thickness, self.slat_angle,
                   self.slat_conductivity, self.beam_solar_transmittance,

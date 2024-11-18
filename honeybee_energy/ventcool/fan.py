@@ -355,6 +355,30 @@ class VentilationFan(object):
         Args:
             zone_identifier: Text for the zone identifier that the VentilationFan
                 object is assigned to.
+ 
+        .. code-block::
+
+            ZoneVentilation:DesignFlowRate,
+                Ventilation 1,  !- Name
+                ZONE 2,         !- Zone Name
+                Simple Vent,    !- Schedule Name
+                Flow/Zone,      !- Design Volume Flow Rate calculation method
+                6.131944,       !- Design Volume Flow Rate {m3/s}
+                ,               !- Flow Rate per Floor Area {m3/s-m2}
+                ,               !- Flow Rate per Person {m3/s-person}
+                ,               !- Air Changes per Hour
+                INTAKE,         !- Ventilation Type
+                400.0,          !- Fan Pressure Rise{Pa}
+                0.9,            !- Fan Total Efficiency
+                0.6060000    ,  !- Constant Term Coefficient
+                2.0199999E-02,  !- Temperature Term Coefficient
+                5.9800001E-04,  !- Velocity Term Coefficient
+                0.0000000E+00!- Velocity Squared Term Coefficient
+                18.0,           !- Minimum Indoor Temperature {C}
+                ,               !- Minimum Indoor Temperature Schedule Name
+                ,               !- Maximum Indoor Temperature {C}
+                ,               !- Maximum Indoor Temperature Schedule Name
+                1.0;            !- Delta temperature {C}          
         """
 
         # process the properties on this object into IDF format

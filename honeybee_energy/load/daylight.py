@@ -289,6 +289,33 @@ class DaylightingControl(object):
             -   idf_control -- IDF string for the Daylighting:Controls object.
 
             -   idf_point -- IDF string for the Daylighting:ReferencePoint object.
+
+        .. code-block:: shell
+
+            Daylighting:Controls,
+                West Zone_DaylCtrl,      !- Name
+                West Zone,               !- Zone or Space Name
+                SplitFlux,               !- Daylighting Method
+                ,                        !- Availability Schedule Name
+                Continuous,              !- Lighting Control Type
+                0.3,                     !- Minimum Input Power Fraction for Continuous or ContinuousOff Dimming Control
+                0.2,                     !- Minimum Light Output Fraction for Continuous or ContinuousOff Dimming Control
+                ,                        !- Number of Stepped Control Steps
+                1.0,                     !- Probability Lighting will be Reset When Needed in Manual Stepped Control
+                West Zone_DaylRefPt1,    !- Glare Calculation Daylighting Reference Point Name
+                180.0,                   !- Glare Calculation Azimuth Angle of View Direction Clockwise from Zone y-Axis {deg}
+                20.0,                    !- Maximum Allowable Discomfort Glare Index
+                ,                        !- DElight Gridding Resolution {m2}
+                West Zone_DaylRefPt1,    !- Daylighting Reference Point 1 Name
+                1.0,                     !- Fraction of Lights Controlled by Reference Point 1
+                500.;                    !- Illuminance Setpoint at Reference Point 1 {lux}
+
+            Daylighting:ReferencePoint,
+                West Zone_DaylRefPt1,    !- Name
+                West Zone,               !- Zone or Space Name
+                3.048,                   !- X-Coordinate of Reference Point {m}
+                3.048,                   !- Y-Coordinate of Reference Point {m}
+                0.9;                     !- Z-Coordinate of Reference Point {m}
         """
         # create the identifiers
         zone_id = self.parent.identifier if self.has_parent else 'Unknown_Room'

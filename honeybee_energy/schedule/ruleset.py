@@ -888,6 +888,17 @@ class ScheduleRuleset(object):
             -   week_schedules: A list of Schedule:Week:Daily test strings that are
                 referenced in the year_schedule. Will be None when year_schedule is
                 a Schedule:Constant.
+
+        .. code-block:: shell
+
+                Schedule:Year,
+                    test_name,               !- Name
+                    'Availability',          !- Schedule Type Limits Name
+                    avail_schedge1,          !- Schedule:Week Name 1
+                    1,                       !- Start Month 1
+                    1,                       !- Start Day 1
+                    12,                      !- End Month 1
+                    31;                      !- End Day 1
         """
         # beginning fields used for all schedules
         year_fields = [self.identifier]

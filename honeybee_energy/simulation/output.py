@@ -603,7 +603,15 @@ output-table-summaryreports.html#outputtablesummaryreports)
         return self.__copy__()
 
     def _output_to_idf(self, output_name):
-        """Convert an output name to an IDF Output:Variable string."""
+        """Convert an output name to an IDF Output:Variable string.
+
+        .. code-block:: shell
+
+            Output:Variable,
+                *,                           !- Key Value
+                Zone Mean Air Temperature,   !- Variable Name
+                hourly;                      !- Timestep
+        """
         values = ('*', output_name, self.reporting_frequency)
         comments = ('key value', 'name', 'frequency')
         return generate_idf_string('Output:Variable', values, comments)
