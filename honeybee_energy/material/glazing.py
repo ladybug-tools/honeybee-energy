@@ -129,7 +129,7 @@ class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
 
     @property
     def thickness(self):
-        """Get or set the thickess of the glass material layer [m]."""
+        """Get or set the thickness of the glass material layer [m]."""
         return self._thickness
 
     @thickness.setter

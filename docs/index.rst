@@ -9,7 +9,7 @@ Honeybee-energy adds EnergyPlus/OpenStudio functionalities to honeybee for energ
 
 
 Installation
-============
+===========================================
 
 ``pip install -U honeybee-energy``
 
@@ -22,7 +22,7 @@ To check if the command line interface is installed correctly use ``honeybee-ene
 
 
 CLI Docs
-=============
+===========================================
 
 For command line interface documentation and API documentation see the pages below.
 
@@ -34,7 +34,7 @@ For command line interface documentation and API documentation see the pages bel
 
 
 honeybee_energy
-=============
+===========================================
 
 .. toctree::
    :maxdepth: 4

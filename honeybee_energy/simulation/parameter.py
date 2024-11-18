@@ -164,12 +164,12 @@ class SimulationParameter(object):
         Specifically, these are counter-clockwise vertices starting from the
         upper left corner of the surface. The output string is the following:
 
-        .. code-block:: python
+        .. code-block:: shell
 
             GlobalGeometryRules,
-             UpperLeftCorner,          !- starting vertex position
-             Counterclockwise,         !- vertex entry direction
-             Relative;                 !- coordinate system
+                UpperLeftCorner,          !- starting vertex position
+                Counterclockwise,         !- vertex entry direction
+                Relative;                 !- coordinate system
         """
         values = ('UpperLeftCorner', 'Counterclockwise', 'Relative')
         comments = ('starting vertex position', 'vertex entry direction',
