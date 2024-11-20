@@ -752,9 +752,9 @@ def model_to_sdd(model_file, osw_folder=None, bypass_check=False, output_file=No
               'temp folder in the default simulation folder.', default=None,
               type=click.Path(file_okay=False, dir_okay=True, resolve_path=True))
 @click.option('--output-file', '-f', help='Optional HBJSON file to output the string '
-              'of the translation. By default it printed out to stdout', default='-',
+              'of the translation. By default it printed out to stdout.', default='-',
               type=click.Path(file_okay=True, dir_okay=False, resolve_path=True))
-def model_from_osm(osm_file, osw_folder, output_file):
+def model_from_osm_cli(osm_file, osw_folder, output_file):
     """Translate a OpenStudio Model (OSM) to a Honeybee Model (HBJSON).
 
     \b
@@ -762,30 +762,45 @@ def model_from_osm(osm_file, osw_folder, output_file):
         osm_file: Path to a OpenStudio Model (OSM) file.
     """
     try:
-        # set the default folder if it's not specified
-        out_path = None
-        if output_file.endswith('-'):
-            out_directory = os.path.join(
-                hb_folders.default_simulation_folder, 'temp_translate')
-            f_name = os.path.basename(osm_file).lower().replace('.osm', '.hbjson')
-            out_path = os.path.join(out_directory, f_name)
-
-        # Write the osw file and translate the model to HBJSON
-        out_f = out_path if output_file.endswith('-') else output_file
-        osw = from_osm_osw(osm_file, out_f, osw_folder)
-        file_contents = _run_translation_osw(osw, out_path)
-
-        # return the file contents if requested
-        if file_contents is not None:
-            if output_file is None:
-                return file_contents
-            else:
-                print(file_contents)
+        model_from_osm(osm_file, osw_folder, output_file)
     except Exception as e:
         _logger.exception('Model translation failed.\n{}'.format(e))
         sys.exit(1)
     else:
         sys.exit(0)
+
+
+def model_from_osm(osm_file, osw_folder=None, output_file=None):
+    """Translate a OpenStudio Model (OSM) to a Honeybee Model (HBJSON).
+
+    Args:
+        osm_file: Path to a OpenStudio Model (OSM) file.
+        osw_folder: Folder on this computer, into which the working files will
+            be written. If None, it will be written into the a temp folder in
+            the default simulation folder. (Default: None).
+        output_file: Optional HBJSON file to output the string of the translation.
+            If None, it will be returned from this method. (Default: None).
+    """
+    # set the default folder if it's not specified
+    out_path = None
+    if output_file is None or output_file.endswith('-'):
+        out_directory = os.path.join(
+            hb_folders.default_simulation_folder, 'temp_translate')
+        f_name = os.path.basename(osm_file).lower().replace('.osm', '.hbjson')
+        out_path = os.path.join(out_directory, f_name)
+
+    # Write the osw file and translate the model to HBJSON
+    out_f = out_path if output_file is None or output_file.endswith('-') \
+        else output_file
+    osw = from_osm_osw(osm_file, out_f, osw_folder)
+    file_contents = _run_translation_osw(osw, out_path)
+
+    # return the file contents if requested
+    if file_contents is not None:
+        if output_file is None:
+            return file_contents
+        else:
+            print(file_contents)
 
 
 @translate.command('model-from-idf')
@@ -798,7 +813,7 @@ def model_from_osm(osm_file, osw_folder, output_file):
 @click.option('--output-file', '-f', help='Optional HBJSON file to output the string '
               'of the translation. By default it printed out to stdout', default='-',
               type=click.Path(file_okay=True, dir_okay=False, resolve_path=True))
-def model_from_idf(idf_file, osw_folder, output_file):
+def model_from_idf_cli(idf_file, osw_folder, output_file):
     """Translate an EnergyPlus Model (IDF) to a Honeybee Model (HBJSON).
 
     \b
@@ -806,45 +821,63 @@ def model_from_idf(idf_file, osw_folder, output_file):
         idf_file: Path to an EnergyPlus Model (IDF) file.
     """
     try:
-        # set the default folder if it's not specified
-        out_path = None
-        if output_file.endswith('-'):
-            out_directory = os.path.join(
-                hb_folders.default_simulation_folder, 'temp_translate')
-            f_name = os.path.basename(idf_file).lower().replace('.idf', '.hbjson')
-            out_path = os.path.join(out_directory, f_name)
-
-        # Write the osw file and translate the model to HBJSON
-        out_f = out_path if output_file.endswith('-') else output_file
-        osw = from_idf_osw(idf_file, out_f, osw_folder)
-        # run the measure to translate the model JSON to an openstudio measure
-        _, idf = run_osw(osw, silent=True)
-        if idf is not None and os.path.isfile(idf):
-            if out_path is not None:  # load the JSON string to stdout
-                with open(out_path) as json_file:
-                    print(json_file.read())
-        else:
-            # check the version of the IDF; most of the time, this is the issue
-            ver_regex = r'[V|v][E|e][R|r][S|s][I|i][O|o][N|n],\s*(\d*\.\d*)[;|.]'
-            ver_pattern = re.compile(ver_regex)
-            with open(idf_file, 'r') as mf:
-                ver_val = re.search(ver_pattern, mf.read())
-            if ver_val is not None:
-                ver_tup = tuple(int(v) for v in ver_val.groups()[0].split('.'))
-                if folders.energyplus_version[:2] != ver_tup:
-                    msg = 'The IDF is from EnergyPlus version {}.\nThis must be ' \
-                        'changed to {} with the IDFVersionUpdater\nin order to import ' \
-                        'it with this Ladybug Tools installation.'.format(
-                            '.'.join((str(v) for v in ver_tup)),
-                            '.'.join((str(v) for v in folders.energyplus_version[:2]))
-                        )
-                    raise ValueError(msg)
-            _parse_os_cli_failure(os.path.dirname(osw))
+        model_from_idf(idf_file, osw_folder, output_file)
     except Exception as e:
         _logger.exception('Model translation failed.\n{}'.format(e))
         sys.exit(1)
     else:
         sys.exit(0)
+
+
+def model_from_idf(idf_file, osw_folder=None, output_file=None):
+    """Translate an EnergyPlus Model (IDF) to a Honeybee Model (HBJSON).
+
+    Args:
+        idf_file: Path to an EnergyPlus Model (IDF) file.
+        osw_folder: Folder on this computer, into which the working files will
+            be written. If None, it will be written into the a temp folder in
+            the default simulation folder. (Default: None).
+        output_file: Optional HBJSON file to output the string of the translation.
+            If None, it will be returned from this method. (Default: None).
+    """
+    # set the default folder if it's not specified
+    out_path = None
+    if output_file is None or output_file.endswith('-'):
+        out_directory = os.path.join(
+            hb_folders.default_simulation_folder, 'temp_translate')
+        f_name = os.path.basename(idf_file).lower().replace('.idf', '.hbjson')
+        out_path = os.path.join(out_directory, f_name)
+
+    # Write the osw file and translate the model to HBJSON
+    out_f = out_path if output_file is None or output_file.endswith('-') else output_file
+    osw = from_idf_osw(idf_file, out_f, osw_folder)
+    # run the measure to translate the model JSON to an openstudio measure
+    _, idf = run_osw(osw, silent=True)
+    if idf is not None and os.path.isfile(idf):
+        if out_path is not None:  # load the JSON string to stdout
+            with open(out_path) as json_file:
+                file_contents = json_file.read()
+            if output_file is None:
+                return file_contents
+            else:
+                print(file_contents)
+    else:
+        # check the version of the IDF; most of the time, this is the issue
+        ver_regex = r'[V|v][E|e][R|r][S|s][I|i][O|o][N|n],\s*(\d*\.\d*)[;|.]'
+        ver_pattern = re.compile(ver_regex)
+        with open(idf_file, 'r') as mf:
+            ver_val = re.search(ver_pattern, mf.read())
+        if ver_val is not None:
+            ver_tup = tuple(int(v) for v in ver_val.groups()[0].split('.'))
+            if folders.energyplus_version[:2] != ver_tup:
+                msg = 'The IDF is from EnergyPlus version {}.\nThis must be ' \
+                    'changed to {} with the IDFVersionUpdater\nin order to import ' \
+                    'it with this Ladybug Tools installation.'.format(
+                        '.'.join((str(v) for v in ver_tup)),
+                        '.'.join((str(v) for v in folders.energyplus_version[:2]))
+                    )
+                raise ValueError(msg)
+        _parse_os_cli_failure(os.path.dirname(osw))
 
 
 @translate.command('model-from-gbxml')
@@ -857,7 +890,7 @@ def model_from_idf(idf_file, osw_folder, output_file):
 @click.option('--output-file', '-f', help='Optional HBJSON file to output the string '
               'of the translation. By default it printed out to stdout', default='-',
               type=click.Path(file_okay=True, dir_okay=False, resolve_path=True))
-def model_from_gbxml(gbxml_file, osw_folder, output_file):
+def model_from_gbxml_cli(gbxml_file, osw_folder, output_file):
     """Translate a gbXML to a Honeybee Model (HBJSON).
 
     \b
@@ -865,31 +898,45 @@ def model_from_gbxml(gbxml_file, osw_folder, output_file):
         gbxml_file: Path to a gbXML file.
     """
     try:
-        # set the default folder if it's not specified
-        out_path = None
-        if output_file.endswith('-'):
-            out_directory = os.path.join(
-                hb_folders.default_simulation_folder, 'temp_translate')
-            f_name = os.path.basename(gbxml_file).lower()
-            f_name = f_name.replace('.gbxml', '.hbjson').replace('.xml', '.hbjson')
-            out_path = os.path.join(out_directory, f_name)
-
-        # Write the osw file and translate the model to HBJSON
-        out_f = out_path if output_file.endswith('-') else output_file
-        osw = from_gbxml_osw(gbxml_file, out_f, osw_folder)
-        file_contents = _run_translation_osw(osw, out_path)
-
-        # return the file contents if requested
-        if file_contents is not None:
-            if output_file is None:
-                return file_contents
-            else:
-                print(file_contents)
+        model_from_gbxml(gbxml_file, osw_folder, output_file)
     except Exception as e:
         _logger.exception('Model translation failed.\n{}'.format(e))
         sys.exit(1)
     else:
         sys.exit(0)
+
+
+def model_from_gbxml(gbxml_file, osw_folder=None, output_file=None):
+    """Translate a gbXML to a Honeybee Model (HBJSON).
+
+    Args:
+        gbxml_file: Path to a gbXML file.
+        osw_folder: Folder on this computer, into which the working files will
+            be written. If None, it will be written into the a temp folder in
+            the default simulation folder. (Default: None).
+        output_file: Optional HBJSON file to output the string of the translation.
+            If None, it will be returned from this method. (Default: None).
+    """
+    # set the default folder if it's not specified
+    out_path = None
+    if output_file is None or output_file.endswith('-'):
+        out_directory = os.path.join(
+            hb_folders.default_simulation_folder, 'temp_translate')
+        f_name = os.path.basename(gbxml_file).lower()
+        f_name = f_name.replace('.gbxml', '.hbjson').replace('.xml', '.hbjson')
+        out_path = os.path.join(out_directory, f_name)
+
+    # Write the osw file and translate the model to HBJSON
+    out_f = out_path if output_file is None or output_file.endswith('-') else output_file
+    osw = from_gbxml_osw(gbxml_file, out_f, osw_folder)
+    file_contents = _run_translation_osw(osw, out_path)
+
+    # return the file contents if requested
+    if file_contents is not None:
+        if output_file is None:
+            return file_contents
+        else:
+            print(file_contents)
 
 
 @translate.command('constructions-to-idf')
