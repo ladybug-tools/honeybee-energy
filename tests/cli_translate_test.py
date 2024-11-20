@@ -8,7 +8,7 @@ from honeybee.model import Model
 
 from honeybee_energy.cli.translate import model_to_osm_cli, model_to_idf_cli, \
     model_to_gbxml_cli, model_to_trace_gbxml_cli, model_to_sdd_cli, \
-    model_from_gbxml, model_from_osm, model_from_idf, \
+    model_from_gbxml_cli, model_from_osm_cli, model_from_idf_cli, \
     construction_from_idf, construction_to_idf, schedule_to_idf, schedule_from_idf, \
     model_occ_schedules, model_trans_schedules, \
     materials_from_osm, constructions_from_osm, construction_sets_from_osm, \
@@ -66,7 +66,7 @@ def test_model_from_gbxml():
     runner = CliRunner()
     input_gbxml_model = os.path.abspath('./tests/gbxml/SampleGBXMLfromRevit.xml')
 
-    result = runner.invoke(model_from_gbxml, [input_gbxml_model])
+    result = runner.invoke(model_from_gbxml_cli, [input_gbxml_model])
     assert result.exit_code == 0
     result_dict = json.loads(result.output)
     model = Model.from_dict(result_dict)
@@ -77,7 +77,7 @@ def test_model_from_osm():
     runner = CliRunner()
     input_osm_model = os.path.abspath('./tests/osm/shoe_box.osm')
 
-    result = runner.invoke(model_from_osm, [input_osm_model])
+    result = runner.invoke(model_from_osm_cli, [input_osm_model])
     assert result.exit_code == 0
     result_dict = json.loads(result.output)
     model = Model.from_dict(result_dict)
@@ -88,7 +88,7 @@ def test_model_from_idf():
     runner = CliRunner()
     input_idf_model = os.path.abspath('./tests/idf/test_shoe_box.idf')
 
-    result = runner.invoke(model_from_idf, [input_idf_model])
+    result = runner.invoke(model_from_idf_cli, [input_idf_model])
     assert result.exit_code == 0
     result_dict = json.loads(result.output)
     model = Model.from_dict(result_dict)
