@@ -766,13 +766,13 @@ class ModelEnergyProperties(object):
         msgs.append(self.host.check_sub_faces_valid(tol, ang_tol, False, detailed))
         msgs.append(self.host.check_sub_faces_overlapping(tol, False, detailed))
         msgs.append(self.host.check_rooms_solid(tol, ang_tol, False, detailed))
-        msgs.append(self.check_upside_down_faces(ang_tol, False, detailed))
+        msgs.append(self.host.check_upside_down_faces(ang_tol, False, detailed))
 
         # perform checks related to adjacency relationships
-        msgs.append(self.check_room_volume_collisions(tol, False, detailed))
-        msgs.append(self.check_missing_adjacencies(False, detailed))
-        msgs.append(self.check_matching_adjacent_areas(tol, False, detailed))
-        msgs.append(self.check_all_air_boundaries_adjacent(False, detailed))
+        msgs.append(self.host.check_room_volume_collisions(tol, False, detailed))
+        msgs.append(self.host.check_missing_adjacencies(False, detailed))
+        msgs.append(self.host.check_matching_adjacent_areas(tol, False, detailed))
+        msgs.append(self.host.check_all_air_boundaries_adjacent(False, detailed))
 
         # perform checks that are specific to EnergyPlus
         # perform checks for duplicate identifiers
