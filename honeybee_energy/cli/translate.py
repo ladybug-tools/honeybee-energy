@@ -406,7 +406,15 @@ def model_to_idf(
     # write out the IDF file
     if output_file is None:
         return idf_str
+    elif isinstance(output_file, str):
+        if not os.path.isdir(os.path.dirname(output_file)):
+            os.makedirs(os.path.dirname(output_file))
+        with open(output_file, 'w') as of:
+            of.write(idf_str)
     else:
+        if 'stdout' not in str(output_file):
+            if not os.path.isdir(os.path.dirname(output_file.name)):
+                os.makedirs(os.path.dirname(output_file.name))
         output_file.write(idf_str)
 
 
