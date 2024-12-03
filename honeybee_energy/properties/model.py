@@ -731,6 +731,76 @@ class ModelEnergyProperties(object):
         self.host.add_room(ground)
         return ground
 
+    def check_for_extension(self, raise_exception=True, detailed=False):
+        """Check that the Model is valid for EnergyPlus simulation.
+
+        This process includes all relevant honeybee-core checks as well as checks
+        that apply only for EnergyPlus.
+
+        Args:
+            raise_exception: Boolean to note whether a ValueError should be raised
+                if any errors are found. If False, this method will simply
+                return a text string with all errors that were found. (Default: True).
+            detailed: Boolean for whether the returned object is a detailed list of
+                dicts with error info or a string with a message. (Default: False).
+
+        Returns:
+            A text string with all errors that were found or a list if detailed is True.
+            This string (or list) will be empty if no errors were found.
+        """
+        # set up defaults to ensure the method runs correctly
+        detailed = False if raise_exception else detailed
+        msgs = []
+        tol = self.host.tolerance
+        ang_tol = self.host.angle_tolerance
+
+        # perform checks for duplicate identifiers, which might mess with other checks
+        msgs.append(self.host.check_all_duplicate_identifiers(False, detailed))
+
+        # perform several checks for the Honeybee schema geometry rules
+        msgs.append(self.host.check_planar(tol, False, detailed))
+        msgs.append(self.host.check_self_intersecting(tol, False, detailed))
+        msgs.append(self.host.check_degenerate_rooms(tol, False, detailed))
+
+        # perform geometry checks related to parent-child relationships
+        msgs.append(self.host.check_sub_faces_valid(tol, ang_tol, False, detailed))
+        msgs.append(self.host.check_sub_faces_overlapping(tol, False, detailed))
+        msgs.append(self.host.check_rooms_solid(tol, ang_tol, False, detailed))
+        msgs.append(self.check_upside_down_faces(ang_tol, False, detailed))
+
+        # perform checks related to adjacency relationships
+        msgs.append(self.check_room_volume_collisions(tol, False, detailed))
+        msgs.append(self.check_missing_adjacencies(False, detailed))
+        msgs.append(self.check_matching_adjacent_areas(tol, False, detailed))
+        msgs.append(self.check_all_air_boundaries_adjacent(False, detailed))
+
+        # perform checks that are specific to EnergyPlus
+        # perform checks for duplicate identifiers
+        msgs.append(self.check_duplicate_material_identifiers(False, detailed))
+        msgs.append(self.check_duplicate_construction_identifiers(False, detailed))
+        msgs.append(self.check_duplicate_construction_set_identifiers(False, detailed))
+        msgs.append(
+            self.check_duplicate_schedule_type_limit_identifiers(False, detailed))
+        msgs.append(self.check_duplicate_schedule_identifiers(False, detailed))
+        msgs.append(self.check_duplicate_program_type_identifiers(False, detailed))
+        msgs.append(self.check_duplicate_hvac_identifiers(False, detailed))
+        msgs.append(self.check_duplicate_shw_identifiers(False, detailed))
+        # perform checks for specific energy simulation rules
+        msgs.append(self.check_detailed_hvac_rooms(False, detailed))
+        msgs.append(self.check_shw_rooms_in_model(False, detailed))
+        msgs.append(self.check_all_air_boundaries_with_window(False, detailed))
+        msgs.append(self.check_one_vegetation_material(False, detailed))
+        msgs.append(self.check_interior_constructions_reversed(False, detailed))
+
+        # output a final report of errors or raise an exception
+        full_msgs = [msg for msg in msgs if msg]
+        if detailed:
+            return [m for msg in full_msgs for m in msg]
+        full_msg = '\n'.join(full_msgs)
+        if raise_exception and len(full_msgs) != 0:
+            raise ValueError(full_msg)
+        return full_msg
+
     def check_all(self, raise_exception=True, detailed=False):
         """Check all of the aspects of the Model energy properties.
 
