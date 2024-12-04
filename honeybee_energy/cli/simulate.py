@@ -206,6 +206,7 @@ def simulate_model(
             gen_files = [osw]
 
         # run the simulation
+        sql = None
         if file_type == 'idf':
             idf = os.path.join(folder, 'in.idf')
             shutil.copy(model_file, idf)
@@ -242,11 +243,17 @@ def simulate_model(
                 gen_files.extend([sql, eio, rdd, html, err])
             else:
                 raise Exception('Running EnergyPlus failed.')
+
         # parse the error log and report any warnings
         err_obj = Err(err)
         for error in err_obj.fatal_errors:
             log_file.write(err_obj.file_contents)  # log before raising the error
             raise Exception(error)
+        if sql is not None and os.path.isfile('{}-journal'.format(sql)):
+            try:  # try to finish E+'s cleanup
+                os.remove('{}-journal'.format(sql))
+            except Exception:  # maybe the file is inaccessible
+                pass
         log_file.write(json.dumps(gen_files))
     except Exception as e:
         _logger.exception('Model simulation failed.\n{}'.format(e))
@@ -300,6 +307,7 @@ def simulate_osm(osm_file, epw_file, folder, log_file):
         osm, idf = run_osw(osw)
 
         # run the file through EnergyPlus
+        sql = None
         if idf is not None and os.path.isfile(idf):
             gen_files = [osw, osm, idf]
             sql, eio, rdd, html, err = run_idf(idf, epw_file)
@@ -313,6 +321,13 @@ def simulate_osm(osm_file, epw_file, folder, log_file):
                 raise Exception('Running EnergyPlus failed.')
         else:
             _parse_os_cli_failure(folder)
+
+        # parse the error log and report any warnings
+        if sql is not None and os.path.isfile('{}-journal'.format(sql)):
+            try:  # try to finish E+'s cleanup
+                os.remove('{}-journal'.format(sql))
+            except Exception:  # maybe the file is inaccessible
+                pass
         log_file.write(json.dumps(gen_files))
     except Exception as e:
         _logger.exception('OSM simulation failed.\n{}'.format(e))
@@ -364,6 +379,13 @@ def simulate_idf(idf_file, epw_file, folder, log_file):
                 raise Exception(error)
         else:
             raise Exception('Running EnergyPlus failed.')
+
+        # parse the error log and report any warnings
+        if sql is not None and os.path.isfile('{}-journal'.format(sql)):
+            try:  # try to finish E+'s cleanup
+                os.remove('{}-journal'.format(sql))
+            except Exception:  # maybe the file is inaccessible
+                pass
         log_file.write(json.dumps(gen_files))
     except Exception as e:
         _logger.exception('IDF simulation failed.\n{}'.format(e))
