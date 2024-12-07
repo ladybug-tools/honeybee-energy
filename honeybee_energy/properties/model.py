@@ -1549,7 +1549,7 @@ class ModelEnergyProperties(object):
 
         return base
 
-    def add_autocal_properties_to_dict(self, data):
+    def add_autocal_properties_to_dict(self, data, exclude_hole_verts=False):
         """Add auto-calculated energy properties to a Model dictionary.
 
         This includes Room volumes, ceiling heights, and (in the case of Faces
@@ -1562,6 +1562,10 @@ class ModelEnergyProperties(object):
 
         Args:
             data: A dictionary representation of an entire honeybee-core Model.
+            exclude_hole_verts: A boolean to note whether hole vertices should
+                be excluded from the translation. This is useful only for
+                very particular interfaces that do not support holes like
+                TRACE. (Default: False).
         """
         # check that the host model is in meters and add geometry properties
         assert self.host.units == 'Meters', 'Host model units must be Meters to use ' \
@@ -1574,7 +1578,7 @@ class ModelEnergyProperties(object):
                 self._add_shade_vertices(room, room_dict)
                 for face, face_dict in zip(room._faces, room_dict['faces']):
                     self._add_shade_vertices(face, face_dict)
-                    if face.geometry.has_holes:
+                    if face.geometry.has_holes and not exclude_hole_verts:
                         ul_verts = face.upper_left_vertices
                         if isinstance(face.boundary_condition, Surface):
                             # check if the first vertex is the upper-left vertex

@@ -313,7 +313,8 @@ def trace_compatible_model_json(
 
     # get the dictionary representation of the Model and add auto-calculated properties
     model_dict = parsed_model.to_dict()
-    parsed_model.properties.energy.add_autocal_properties_to_dict(model_dict)
+    parsed_model.properties.energy.add_autocal_properties_to_dict(
+        model_dict, exclude_hole_verts=True)
     parsed_model.properties.energy.simplify_window_constructions_in_dict(model_dict)
 
     # write the dictionary into a file
