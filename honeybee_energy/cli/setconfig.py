@@ -45,6 +45,21 @@ def openstudio_path(folder_path):
     _set_config_variable(folder_path, 'openstudio_path')
 
 
+@set_config.command('ironbug-path')
+@click.argument('folder-path', required=False, type=click.Path(
+    exists=True, file_okay=False, dir_okay=True, resolve_path=True))
+def ironbug_path(folder_path):
+    """Set the ironbug-path configuration variable.
+
+    \b
+    Args:
+        folder_path: Path to a folder to be set as the ironbug-path. This is
+            the "ironbug" directory that contains the dlls and the executable. '
+            'If unspecified, the ironbug-path will be set back to the default.
+    """
+    _set_config_variable(folder_path, 'ironbug_path')
+
+
 @set_config.command('lbt-measures-path')
 @click.argument('folder-path', required=False, type=click.Path(
     exists=True, file_okay=False, dir_okay=True, resolve_path=True))

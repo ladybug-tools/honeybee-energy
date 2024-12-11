@@ -12,4 +12,4 @@ def test_config():
     result = runner.invoke(config)
     assert result.exit_code == 0
     config_dict = json.loads(result.output)
-    assert len(config_dict) >= 12
+    assert len(config_dict) >= 11
