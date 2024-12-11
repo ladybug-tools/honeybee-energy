@@ -35,17 +35,14 @@ def config(output_file):
     try:
         config_dict = {
             'openstudio_path': folders.openstudio_path,
-            'openstudio_exe': folders.openstudio_exe,
             'openstudio_version': folders.openstudio_version_str,
             'energyplus_path': folders.energyplus_path,
-            'energyplus_exe': folders.energyplus_exe,
             'energyplus_version': folders.energyplus_version_str,
+            'ironbug_path': folders.ironbug_path,
+            'ironbug_version': folders.ironbug_version_str,
+            'lbt_measures_path': folders.lbt_measures_path,
             'honeybee_openstudio_gem_path': folders.honeybee_openstudio_gem_path,
             'standards_data_folder': folders.standards_data_folder,
-            'construction_lib': folders.construction_lib,
-            'constructionset_lib': folders.constructionset_lib,
-            'schedule_lib': folders.schedule_lib,
-            'programtype_lib': folders.programtype_lib,
             'defaults_file': folders.defaults_file,
             'standards_extension_folders': folders.standards_extension_folders
         }

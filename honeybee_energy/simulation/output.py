@@ -303,11 +303,13 @@ output-table-summaryreports.html#outputtablesummaryreports)
                 * Latent - the latent load added to the zone
         """
         load_type = load_type.title()
-        always_sensible = ['Zone Windows Total Transmitted Solar Radiation Energy',
-                           'AFN Zone Infiltration Sensible Heat Gain Energy',
-                           'AFN Zone Infiltration Sensible Heat Loss Energy',
-                           'AFN Zone Ventilation Sensible Heat Gain Energy',
-                           'AFN Zone Ventilation Sensible Heat Loss Energy']
+        always_sensible = [
+            'Zone Windows Total Transmitted Solar Radiation Energy'  # remove after E+ 24.2
+            'Enclosure Windows Total Transmitted Solar Radiation Energy',
+            'AFN Zone Infiltration Sensible Heat Gain Energy',
+            'AFN Zone Infiltration Sensible Heat Loss Energy',
+            'AFN Zone Ventilation Sensible Heat Gain Energy',
+            'AFN Zone Ventilation Sensible Heat Loss Energy']
         if load_type == 'Total':
             outputs = ['Zone People Total Heating Energy',
                        'Zone Ideal Loads Zone Total Heating Energy',

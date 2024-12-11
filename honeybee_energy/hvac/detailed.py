@@ -5,6 +5,7 @@ from __future__ import division
 from honeybee._lockable import lockable
 
 from ._base import _HVACSystem
+from .idealair import IdealAirSystem
 
 
 @lockable
@@ -132,9 +133,9 @@ class DetailedHVAC(_HVACSystem):
         # TODO: Consider supporting this method by analyzing the air loop
         # sensing economizers, DCV, and heat recovery seems doable
         # but sensing heating-only and cooling-only systems seems more challenging
-        msg = 'DetailedHVAC "{}" cannot be translated to an ideal air ' \
-            'equivalent.'.format(self.display_name)
-        raise NotImplementedError(msg)
+        i_sys = IdealAirSystem(self.identifier, economizer_type='NoEconomizer')
+        i_sys._display_name = self._display_name
+        return i_sys
 
     @classmethod
     def from_dict(cls, data):

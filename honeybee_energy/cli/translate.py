@@ -8,6 +8,7 @@ import shutil
 import re
 
 from ladybug.futil import preparedir
+from ladybug.commandutil import process_content_to_output
 from ladybug.analysisperiod import AnalysisPeriod
 from ladybug.epw import EPW
 from honeybee.model import Model
@@ -404,18 +405,7 @@ def model_to_idf(
     idf_str = '\n\n'.join([ver_str, sim_par_str, model_str, additional_str])
 
     # write out the IDF file
-    if output_file is None:
-        return idf_str
-    elif isinstance(output_file, str):
-        if not os.path.isdir(os.path.dirname(output_file)):
-            os.makedirs(os.path.dirname(output_file))
-        with open(output_file, 'w') as of:
-            of.write(idf_str)
-    else:
-        if 'stdout' not in str(output_file):
-            if not os.path.isdir(os.path.dirname(output_file.name)):
-                os.makedirs(os.path.dirname(output_file.name))
-        output_file.write(idf_str)
+    return process_content_to_output(idf_str, output_file)
 
 
 @translate.command('model-to-gbxml')
