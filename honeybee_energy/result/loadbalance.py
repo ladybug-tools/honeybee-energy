@@ -2,19 +2,19 @@
 """Module for constructing thermal load balances from energy result data collections."""
 from __future__ import division
 
-from .match import match_rooms_to_data, match_faces_to_data
-
-from honeybee.model import Model as hb_model
-from honeybee.aperture import Aperture
-from honeybee.door import Door
-from honeybee.facetype import Wall, RoofCeiling, Floor
-from honeybee.boundarycondition import Surface, Adiabatic
-from honeybee.typing import float_positive
-
 from ladybug.sql import SQLiteResult
 from ladybug.datacollection import HourlyContinuousCollection
 from ladybug.header import Header
 from ladybug.datatype.energyintensity import EnergyIntensity
+from honeybee.model import Model as hb_model
+from honeybee.aperture import Aperture
+from honeybee.door import Door
+from honeybee.facetype import Wall, RoofCeiling, Floor
+from honeybee.typing import float_positive
+from honeybee.boundarycondition import Outdoors, Ground, Surface
+
+from ..boundarycondition import Adiabatic, OtherSideTemperature
+from .match import match_rooms_to_data, match_faces_to_data
 
 
 class LoadBalance(object):
@@ -101,6 +101,10 @@ class LoadBalance(object):
         * roof_conduction
         * floor_conduction
         * storage
+        * interior_floor_storage
+        * interior_wall_storage
+        * interior_window_storage
+        * air_storage
         * units
     """
     __slots__ = \
@@ -108,9 +112,14 @@ class LoadBalance(object):
          '_electric_equip', '_gas_equip', '_process', '_service_hot_water', '_people',
          '_solar', '_infiltration', '_mech_ventilation', '_nat_ventilation',
          '_conduction', '_window_conduction', '_opaque_conduction',
-         '_wall_conduction', '_roof_conduction', '_floor_conduction', '_storage')
+         '_wall_conduction', '_roof_conduction', '_floor_conduction',
+         '_interior_floor_storage', '_interior_wall_storage',
+         '_interior_window_storage', '_air_storage', '_storage')
 
+    # global constants used throughout the class
     UNITS = hb_model.UNITS
+    EXTERIOR_BCS = (Outdoors, Ground, OtherSideTemperature)
+    INTERIOR_BCS = (Surface, Adiabatic)
 
     # List of all EnergyPlus output strings relevant for thermal load balances
     COOLING = (
@@ -197,6 +206,7 @@ class LoadBalance(object):
         self._window_conduction = None
         self._opaque_conduction = None
         self._storage = None
+        self._air_storage = None
         self.units = units
         self._floor_area = None
 
@@ -229,11 +239,13 @@ class LoadBalance(object):
             infiltration_data, rooms, 'Infiltration')
 
         # match the surface-level inputs
-        _window_flow, self._wall_conduction, self._roof_conduction, \
-            self._floor_conduction = self._match_face_input(surface_flow_data, rooms)
-        if _window_flow is not None and self._solar is not None:
+        _win_f, self._wall_conduction, self._roof_conduction, self._floor_conduction, \
+            self._interior_window_storage, self._interior_wall_storage, \
+            self._interior_floor_storage = \
+            self._match_face_input(surface_flow_data, rooms)
+        if _win_f is not None and self._solar is not None:
             # compute just the conduction loss/gain from the windows
-            self._window_conduction = _window_flow - self._solar
+            self._window_conduction = _win_f - self._solar
             self._window_conduction.header.metadata['type'] = 'Window Conduction'
         # when using all of the rooms, reset the property
         if use_all_solar:
@@ -705,11 +717,12 @@ class LoadBalance(object):
 
         # compute the total values of the load
         window_vals, wall_vals, roof_vals, floor_vals = (values[:] for i in range(4))
+        int_win_vals, int_wall_vals, int_floor_vals = (values[:] for i in range(3))
         for room in rooms:
             mult = room.multiplier
             match_objs = match_faces_to_data(surface_flow_data, room.faces)
             for obj in match_objs:
-                if not isinstance(obj[0].boundary_condition, (Surface, Adiabatic)):
+                if isinstance(obj[0].boundary_condition, self.EXTERIOR_BCS):
                     if isinstance(obj[0], (Aperture, Door)):
                         for i, val in enumerate(obj[1].values):
                             window_vals[i] += val * mult
@@ -722,19 +735,35 @@ class LoadBalance(object):
                     elif isinstance(obj[0].type, Floor):
                         for i, val in enumerate(obj[1].values):
                             floor_vals[i] += val * mult
+                elif isinstance(obj[0].boundary_condition, self.EXTERIOR_BCS):
+                    if isinstance(obj[0], (Aperture, Door)):
+                        for i, val in enumerate(obj[1].values):
+                            int_win_vals[i] += val * mult
+                    elif isinstance(obj[0].type, Wall):
+                        for i, val in enumerate(obj[1].values):
+                            int_wall_vals[i] += val * mult
+                    elif isinstance(obj[0].type, (Floor, RoofCeiling)):
+                        for i, val in enumerate(obj[1].values):
+                            int_floor_vals[i] += val * mult
 
         # create the new totalled data collection
         new_header = base_data.header.duplicate()
         if 'Surface' in new_header.metadata:
             del new_header.metadata['Surface']
-        window_head, wall_head, roof_head, floor_head = \
-            (new_header.duplicate() for i in range(4))
-        window_head.metadata['type'] = 'Window Energy Flow'
+        window_head, wall_head, roof_head, floor_head, \
+            i_win_head, i_wall_head, i_floor_head = \
+            (new_header.duplicate() for _ in range(7))
+        window_head.metadata['type'] = 'Window Flow'
         wall_head.metadata['type'] = 'Wall Conduction'
         roof_head.metadata['type'] = 'Roof Conduction'
         floor_head.metadata['type'] = 'Floor Conduction'
-        all_headers = [window_head, wall_head, roof_head, floor_head]
-        all_values = [window_vals, wall_vals, roof_vals, floor_vals]
+        i_win_head.metadata['type'] = 'Interior Window Storage'
+        i_wall_head.metadata['type'] = 'Interior Wall Storage'
+        i_floor_head.metadata['type'] = 'Interior Floor Storage'
+        all_headers = [window_head, wall_head, roof_head, floor_head] + \
+            [i_win_head, i_wall_head, i_floor_head]
+        all_values = [window_vals, wall_vals, roof_vals, floor_vals] + \
+            [int_win_vals, int_wall_vals, int_floor_vals]
         all_data = []
         for head, vals in zip(all_headers, all_values):
             if isinstance(base_data, HourlyContinuousCollection):
