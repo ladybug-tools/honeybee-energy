@@ -9,7 +9,7 @@ from ladybug.datatype.energyintensity import EnergyIntensity
 from honeybee.model import Model as hb_model
 from honeybee.aperture import Aperture
 from honeybee.door import Door
-from honeybee.facetype import Wall, RoofCeiling, Floor
+from honeybee.facetype import Wall, RoofCeiling, Floor, AirBoundary
 from honeybee.typing import float_positive
 from honeybee.boundarycondition import Outdoors, Ground, Surface
 
@@ -101,9 +101,9 @@ class LoadBalance(object):
         * roof_conduction
         * floor_conduction
         * storage
-        * interior_floor_storage
-        * interior_wall_storage
-        * interior_window_storage
+        * floor_storage
+        * wall_storage
+        * window_storage
         * air_storage
         * units
     """
@@ -113,8 +113,8 @@ class LoadBalance(object):
          '_solar', '_infiltration', '_mech_ventilation', '_nat_ventilation',
          '_conduction', '_window_conduction', '_opaque_conduction',
          '_wall_conduction', '_roof_conduction', '_floor_conduction',
-         '_interior_floor_storage', '_interior_wall_storage',
-         '_interior_window_storage', '_air_storage', '_storage')
+         '_floor_storage', '_wall_storage', '_window_storage',
+         '_air_storage', '_storage')
 
     # global constants used throughout the class
     UNITS = hb_model.UNITS
@@ -240,8 +240,7 @@ class LoadBalance(object):
 
         # match the surface-level inputs
         _win_f, self._wall_conduction, self._roof_conduction, self._floor_conduction, \
-            self._interior_window_storage, self._interior_wall_storage, \
-            self._interior_floor_storage = \
+            self._window_storage, self._wall_storage, self._floor_storage = \
             self._match_face_input(surface_flow_data, rooms)
         if _win_f is not None and self._solar is not None:
             # compute just the conduction loss/gain from the windows
@@ -435,7 +434,8 @@ class LoadBalance(object):
 
     @property
     def storage(self):
-        """Get a data collection for the remainder of the load balance."""
+        """Get a data collection for the remainder of the load balance, indicating storage.
+        """
         if self._storage is None:
             other_terms = self.load_balance_terms()
             if len(other_terms) != 0:
@@ -445,6 +445,55 @@ class LoadBalance(object):
                 self._storage = -_storage.duplicate()  # dup to avoid editing header
                 self._storage.header.metadata['type'] = 'Storage'
         return self._storage
+
+    @property
+    def wall_storage(self):
+        """Get a data collection for heat loss/gain from storage within interior walls.
+
+        When the model is for a single room or subset of a whole building, this
+        term will indicate heat loss to adjacent Rooms through interior Walls.
+        It also includes all heat exchange that happens across AirBoundaries.
+        """
+        return self._wall_storage
+
+    @property
+    def floor_storage(self):
+        """Get a data collection for heat loss/gain from storage within interior floors.
+
+        When the model is for a single room or subset of a whole building, this
+        term will indicate heat loss to adjacent Rooms through interior Floors.
+        It also includes all heat exchange that happens across Ceilings.
+        """
+        return self._floor_storage
+
+    @property
+    def window_storage(self):
+        """Get a data collection for heat loss/gain from storage within interior windows.
+
+        This will also include any heat transfer from doors. For full building
+        models, this term should typically be very close to zero given that
+        EnergyPlus Fenestration surfaces don't typically have thermal mass. However,
+        when the model is for a single room or subset of a whole building, this
+        term will indicate heat loss to adjacent Rooms through interior windows.
+        """
+        return self._window_storage
+
+    @property
+    def air_storage(self):
+        """Get a data collection for heat loss/gain from storage within Room air.
+
+        This term is computed as the remainder of the load balance after storage
+        within walls, floors and windows is removed.
+        """
+        if self._air_storage is None:
+            air_storage = self.storage
+            if air_storage is not None:
+                others = [self.wall_storage, self.floor_storage, self.window_storage]
+                for coll in others:
+                    air_storage = air_storage - coll
+                self._air_storage = air_storage.duplicate()  # dup to avoid editing header
+                self._air_storage.header.metadata['type'] = 'Air Storage'
+        return self._air_storage
 
     @property
     def units(self):
@@ -735,11 +784,11 @@ class LoadBalance(object):
                     elif isinstance(obj[0].type, Floor):
                         for i, val in enumerate(obj[1].values):
                             floor_vals[i] += val * mult
-                elif isinstance(obj[0].boundary_condition, self.EXTERIOR_BCS):
+                elif isinstance(obj[0].boundary_condition, self.INTERIOR_BCS):
                     if isinstance(obj[0], (Aperture, Door)):
                         for i, val in enumerate(obj[1].values):
                             int_win_vals[i] += val * mult
-                    elif isinstance(obj[0].type, Wall):
+                    elif isinstance(obj[0].type, (Wall, AirBoundary)):
                         for i, val in enumerate(obj[1].values):
                             int_wall_vals[i] += val * mult
                     elif isinstance(obj[0].type, (Floor, RoofCeiling)):
