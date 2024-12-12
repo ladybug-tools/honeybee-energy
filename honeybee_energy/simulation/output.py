@@ -304,7 +304,7 @@ output-table-summaryreports.html#outputtablesummaryreports)
         """
         load_type = load_type.title()
         always_sensible = [
-            'Zone Windows Total Transmitted Solar Radiation Energy'  # remove after E+ 24.2
+            'Zone Windows Total Transmitted Solar Radiation Energy',  # remove after E+ 24.2
             'Enclosure Windows Total Transmitted Solar Radiation Energy',
             'AFN Zone Infiltration Sensible Heat Gain Energy',
             'AFN Zone Infiltration Sensible Heat Loss Energy',
