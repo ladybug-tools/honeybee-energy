@@ -246,6 +246,8 @@ class LoadBalance(object):
             # compute just the conduction loss/gain from the windows
             self._window_conduction = _win_f - self._solar
             self._window_conduction.header.metadata['type'] = 'Window Conduction'
+        if self._solar is not None:
+            self._solar = self._solar * 0.99  # account for sun reflected back out windows
         # when using all of the rooms, reset the property
         if use_all_solar:
             self._rooms = rooms
@@ -527,7 +529,8 @@ class LoadBalance(object):
     def floor_area(self, value):
         self._floor_area = float_positive(value)
 
-    def load_balance_terms(self, floor_normalized=False, include_storage=False):
+    def load_balance_terms(
+            self, floor_normalized=False, include_storage=False, detailed_faces=False):
         """Get a list of data collections with one for each term in the load balance.
 
         Terms of the load balance that are None will be excluded from this list.
@@ -539,15 +542,37 @@ class LoadBalance(object):
                 floor area.
             include_storage: Boolean to note whether the storage term should
                 be included in the list.
+            detailed_faces: Boolean to note whether the opaque conduction losses
+                should be broken down into walls, roofs, and floors. Setting
+                this to True will also cause storage to be broken down into
+                storage in walls, floors, windows, and air. (Default: False).
         """
-        all_terms = [self.heating, self.solar, self.service_hot_water, self.gas_equip,
-                     self.process, self.electric_equip, self.lighting, self.people,
-                     self.infiltration, self.mech_ventilation, self.nat_ventilation,
-                     self.opaque_conduction, self.window_conduction, self.cooling]
+        if detailed_faces:
+            all_terms = [
+                self.heating, self.solar, self.service_hot_water, self.gas_equip,
+                self.process, self.electric_equip, self.lighting, self.people,
+                self.infiltration, self.mech_ventilation, self.nat_ventilation,
+                self.wall_conduction, self.roof_conduction, self.floor_conduction,
+                self.window_conduction, self.cooling
+            ]
+        else:
+            all_terms = [
+                self.heating, self.solar, self.service_hot_water, self.gas_equip,
+                self.process, self.electric_equip, self.lighting, self.people,
+                self.infiltration, self.mech_ventilation, self.nat_ventilation,
+                self.opaque_conduction, self.window_conduction, self.cooling
+            ]
         bal_terms = [term for term in all_terms if term is not None and term != []]
 
         if include_storage:
-            bal_terms.append(self.storage)
+            if detailed_faces:
+                storages = [
+                    self.floor_storage, self.wall_storage,
+                    self.window_storage, self.air_storage
+                ]
+                bal_terms.extend(storages)
+            else:
+                bal_terms.append(self.storage)
 
         if floor_normalized:
             flr_area = self.floor_area
