@@ -157,7 +157,7 @@ output-table-summaryreports.html#outputtablesummaryreports).
     def unmet_setpoint_tolerance(self):
         """Get or set a number in Celsius for the tolerance of unmet conditions."""
         return self._unmet_setpoint_tolerance
-    
+
     @unmet_setpoint_tolerance.setter
     def unmet_setpoint_tolerance(self, value):
         self._unmet_setpoint_tolerance = \
