@@ -26,12 +26,35 @@ class DetailedHVAC(_HVACSystem):
     Properties:
         * identifier
         * specification
-        * air_loop_count
         * thermal_zones
+        * design_type
+        * air_loop_count
+        * economizer_type
+        * sensible_heat_recovery
+        * latent_heat_recovery
         * display_name
         * user_data
     """
-    __slots__ = ('_specification', '_air_loop_count', '_thermal_zones')
+    NO_AIR_LOOP = 'Ironbug.HVAC.IB_NoAirLoop'
+    AIR_LOOP = 'Ironbug.HVAC.IB_AirLoopHVAC'
+    BRANCHES = 'Ironbug.HVAC.IB_AirLoopBranches'
+    OA_SYSTEM = 'Ironbug.HVAC.IB_OutdoorAirSystem'
+    OA_CONTROLLER = 'Ironbug.HVAC.IB_ControllerOutdoorAir'
+    HEAT_RECOVERY = 'Ironbug.HVAC.IB_HeatExchangerAirToAirSensibleAndLatent'
+    HR_SENSIBLE = (
+        'SensibleEffectivenessat75CoolingAirFlow',
+        'SensibleEffectivenessat75HeatingAirFlow'
+    )
+    HR_LATENT = (
+        'LatentEffectivenessat75CoolingAirFlow',
+        'LatentEffectivenessat75HeatingAirFlow'
+    )
+    ECONOMIZER_TYPES = ('NoEconomizer', 'DifferentialDryBulb', 'DifferentialEnthalpy',
+                        'DifferentialDryBulbAndEnthalpy', 'FixedDryBulb',
+                        'FixedEnthalpy', 'ElectronicEnthalpy')
+
+    __slots__ = ('_specification', '_thermal_zones', '_design_type', '_air_loop_count',
+                 '_economizer_type', '_sensible_heat_recovery', '_latent_heat_recovery')
 
     def __init__(self, identifier, specification):
         """Initialize DetailedHVAC."""
@@ -53,18 +76,50 @@ class DetailedHVAC(_HVACSystem):
     def specification(self, value):
         assert isinstance(value, dict), 'Expected dictionary for DetailedHVAC' \
             'object specification. Got {}.'.format(type(value))
-        thermal_zones, air_loop_count = [], 0
+        thermal_zones, design_type, air_loop_count = [], 'HeatCool', 0
+        econ_type, sensible_hr, latent_hr = 'NoEconomizer', 0, 0
         try:
             for a_loop in value['AirLoops']:
-                if a_loop['$type'].startswith('Ironbug.HVAC.IB_NoAirLoop'):
+                if a_loop['$type'].startswith(self.NO_AIR_LOOP):
+                    # get all of the zones on the demand side
                     for zone in a_loop['ThermalZones']:
                         for z_attr in zone['CustomAttributes']:
                             if z_attr['Field']['FullName'] == 'Name':
                                 thermal_zones.append(z_attr['Value'])
-                elif a_loop['$type'].startswith('Ironbug.HVAC.IB_AirLoopHVAC'):
+                elif a_loop['$type'].startswith(self.AIR_LOOP):
+                    # determine whether it's an AllAir system or DOAS system
                     air_loop_count += 1
+                    design_type = 'AllAir'
+                    if 'SizingSystem' in a_loop and \
+                            'CustomAttributes' in a_loop['SizingSystem']:
+                        for sz_attr in a_loop['SizingSystem']['CustomAttributes']:
+                            if sz_attr['Field']['FullName'] == 'TypeofLoadtoSizeOn':
+                                if sz_attr['Value'] == 'VentilationRequirement':
+                                    design_type = 'DOAS'
+                    # determine the type of economizer or heat recovery
+                    for comp in a_loop['SupplyComponents']:
+                        if comp['$type'].startswith(self.OA_SYSTEM):
+                            for child in comp['Children']:
+                                if child['$type'].startswith(self.OA_CONTROLLER):
+                                    if 'CustomAttributes' in child:
+                                        for attr in child['CustomAttributes']:
+                                            f_name = attr['Field']['FullName']
+                                            if f_name == 'EconomizerControlType':
+                                                econ_type = self._f_econ(attr['Value'])
+                            if 'IBProperties' in comp and \
+                                    'OAStreamObjs' in comp['IBProperties']:
+                                for oa_comp in comp['IBProperties']['OAStreamObjs']:
+                                    if oa_comp['$type'].startswith(self.HEAT_RECOVERY):
+                                        if 'CustomAttributes' in oa_comp:
+                                            for oa_attr in oa_comp['CustomAttributes']:
+                                                f_name = oa_attr['Field']['FullName']
+                                                if f_name in self.HR_SENSIBLE:
+                                                    sensible_hr = oa_attr['Value']
+                                                if f_name in self.HR_LATENT:
+                                                    latent_hr = oa_attr['Value']
+                    # get all of the zones on the demand side
                     for comp in a_loop['DemandComponents']:
-                        if comp['$type'].startswith('Ironbug.HVAC.IB_AirLoopBranches'):
+                        if comp['$type'].startswith(self.BRANCHES):
                             for branch in comp['Branches']:
                                 for z_attr in branch[0]['CustomAttributes']:
                                     if z_attr['Field']['FullName'] == 'Name':
@@ -74,9 +129,28 @@ class DetailedHVAC(_HVACSystem):
                                      'any ThermalZones that can be matched to Rooms.')
         except KeyError as e:
             raise ValueError('DetailedHVAC specification is not valid:\n{}'.format(e))
-        self._air_loop_count = air_loop_count
         self._thermal_zones = tuple(thermal_zones)
+        self._design_type = design_type
+        self._air_loop_count = air_loop_count
+        self._economizer_type = econ_type
+        self._sensible_heat_recovery = sensible_hr
+        self._latent_heat_recovery = latent_hr
         self._specification = value
+
+    @property
+    def thermal_zones(self):
+        """Get a tuple of strings for the Rooms/Zones to which the HVAC is assigned."""
+        return self._thermal_zones
+
+    @property
+    def design_type(self):
+        """Text for the structure of the system. It will be one of the following.
+
+        * AllAir
+        * DOAS
+        * HeatCool
+        """
+        return self._design_type
 
     @property
     def air_loop_count(self):
@@ -84,9 +158,30 @@ class DetailedHVAC(_HVACSystem):
         return self._air_loop_count
 
     @property
-    def thermal_zones(self):
-        """Get a tuple of strings for the Rooms/Zones to which the HVAC is assigned."""
-        return self._thermal_zones
+    def economizer_type(self):
+        """Get text to indicate the type of air-side economizer.
+
+        Choose from the following options.
+
+        * NoEconomizer
+        * DifferentialDryBulb
+        * DifferentialEnthalpy
+        * DifferentialDryBulbAndEnthalpy
+        * FixedDryBulb
+        * FixedEnthalpy
+        * ElectronicEnthalpy
+        """
+        return self._economizer_type
+
+    @property
+    def sensible_heat_recovery(self):
+        """Get a number for the effectiveness of sensible heat recovery."""
+        return self._sensible_heat_recovery
+
+    @property
+    def latent_heat_recovery(self):
+        """Get a number for the effectiveness of latent heat recovery."""
+        return self._latent_heat_recovery
 
     def sync_room_ids(self, room_map):
         """Sync this DetailedHVAC with Rooms that had their IDs changed.
@@ -102,16 +197,16 @@ class DetailedHVAC(_HVACSystem):
         thermal_zones, air_loop_count = [], 0
         hvac_spec = self._specification
         for a_loop in hvac_spec['AirLoops']:
-            if a_loop['$type'].startswith('Ironbug.HVAC.IB_NoAirLoop'):
+            if a_loop['$type'].startswith(self.NO_AIR_LOOP):
                 for zone in a_loop['ThermalZones']:
                     for z_attr in zone['CustomAttributes']:
                         if z_attr['Field']['FullName'] == 'Name':
                             z_attr['Value'] = room_map[z_attr['Value']]
                             thermal_zones.append(z_attr['Value'])
-            elif a_loop['$type'].startswith('Ironbug.HVAC.IB_AirLoopHVAC'):
+            elif a_loop['$type'].startswith(self.AIR_LOOP):
                 air_loop_count += 1
                 for comp in a_loop['DemandComponents']:
-                    if comp['$type'].startswith('Ironbug.HVAC.IB_AirLoopBranches'):
+                    if comp['$type'].startswith(self.BRANCHES):
                         for branch in comp['Branches']:
                             for z_attr in branch[0]['CustomAttributes']:
                                 if z_attr['Field']['FullName'] == 'Name':
@@ -130,10 +225,15 @@ class DetailedHVAC(_HVACSystem):
 
     def to_ideal_air_equivalent(self):
         """This method is NOT YET IMPLEMENTED."""
-        # TODO: Consider supporting this method by analyzing the air loop
-        # sensing economizers, DCV, and heat recovery seems doable
-        # but sensing heating-only and cooling-only systems seems more challenging
-        i_sys = IdealAirSystem(self.identifier, economizer_type='NoEconomizer')
+        econ_typ = self.economizer_type
+        if econ_typ not in self.ECONOMIZER_TYPES[:3]:
+            enth_types = ('FixedEnthalpy', 'ElectronicEnthalpy')
+            econ_typ = 'DifferentialEnthalpy' if econ_typ in enth_types \
+                else 'DifferentialDryBulb'
+        i_sys = IdealAirSystem(
+            self.identifier, economizer_type=econ_typ,
+            sensible_heat_recovery=self.sensible_heat_recovery,
+            latent_heat_recovery=self.latent_heat_recovery)
         i_sys._display_name = self._display_name
         return i_sys
 
@@ -200,6 +300,18 @@ class DetailedHVAC(_HVACSystem):
         if self._user_data is not None:
             base['user_data'] = self.user_data
         return base
+
+    def _f_econ(self, value):
+        clean_input = value.lower()
+        for key in self.ECONOMIZER_TYPES:
+            if key.lower() == clean_input:
+                value = key
+                break
+        else:
+            raise ValueError(
+                'economizer_type {} is not recognized.\nChoose from the '
+                'following:\n{}'.format(value, self.ECONOMIZER_TYPES))
+        return value
 
     def __copy__(self):
         new_obj = self.__class__(self.identifier, self.specification.copy())
