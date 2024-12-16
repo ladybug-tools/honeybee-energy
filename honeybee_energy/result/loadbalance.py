@@ -416,6 +416,7 @@ class LoadBalance(object):
                     and self.floor_conduction is not None:
                 self._opaque_conduction = self.wall_conduction + \
                     self.roof_conduction + self.floor_conduction
+                self._opaque_conduction = self._opaque_conduction.duplicate()
                 self._opaque_conduction.header.metadata['type'] = 'Opaque Conduction'
         return self._opaque_conduction
 

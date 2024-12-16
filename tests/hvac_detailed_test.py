@@ -16,7 +16,11 @@ def test_detailed_hvac_init():
 
     assert hvac_sys.identifier == 'Test PTAC System'
     assert hvac_sys.air_loop_count == 0
+    assert hvac_sys.design_type == 'HeatCool'
     assert len(hvac_sys.thermal_zones) == 7
+    assert hvac_sys.economizer_type == 'NoEconomizer'
+    assert hvac_sys.sensible_heat_recovery == 0
+    assert hvac_sys.latent_heat_recovery == 0
 
     vav_hvac_file = './tests/ironbug/ironbug_vav_hvac.json'
     with open(vav_hvac_file, 'r') as fp:
@@ -25,6 +29,22 @@ def test_detailed_hvac_init():
 
     assert hvac_sys.identifier == 'Test VAV System'
     assert hvac_sys.air_loop_count == 1
+    assert hvac_sys.design_type == 'AllAir'
+    assert hvac_sys.economizer_type == 'DifferentialDryBulb'
+    assert hvac_sys.sensible_heat_recovery == 0
+    assert hvac_sys.latent_heat_recovery == 0
+
+    doas_hvac_file = './tests/ironbug/ironbug_fcu_doas.json'
+    with open(doas_hvac_file, 'r') as fp:
+        doas_spec = json.load(fp)
+    hvac_sys = DetailedHVAC('Test FCU DOAS System', doas_spec)
+
+    assert hvac_sys.identifier == 'Test FCU DOAS System'
+    assert hvac_sys.air_loop_count == 1
+    assert hvac_sys.design_type == 'DOAS'
+    assert hvac_sys.economizer_type == 'NoEconomizer'
+    assert hvac_sys.sensible_heat_recovery == 0.81
+    assert hvac_sys.latent_heat_recovery == 0.73
 
 
 def test_apply_detailed_hvac():
@@ -89,3 +109,33 @@ def test_detailed_hvac_dict_methods():
     new_hvac_sys = DetailedHVAC.from_dict(hvac_dict)
     assert new_hvac_sys == hvac_sys
     assert hvac_dict == new_hvac_sys.to_dict()
+
+
+def test_to_ideal_air_equivalent():
+    """Test the to_ideal_air_equivalent method"""
+    ptac_hvac_file = './tests/ironbug/ironbug_ptac_hvac.json'
+    with open(ptac_hvac_file, 'r') as fp:
+        ptac_spec = json.load(fp)
+    hvac_sys = DetailedHVAC('Test PTAC System', ptac_spec)
+    ideal_sys = hvac_sys.to_ideal_air_equivalent()
+    assert ideal_sys.economizer_type == 'NoEconomizer'
+    assert ideal_sys.sensible_heat_recovery == 0
+    assert ideal_sys.latent_heat_recovery == 0
+
+    vav_hvac_file = './tests/ironbug/ironbug_vav_hvac.json'
+    with open(vav_hvac_file, 'r') as fp:
+        vav_spec = json.load(fp)
+    hvac_sys = DetailedHVAC('Test VAV System', vav_spec)
+    ideal_sys = hvac_sys.to_ideal_air_equivalent()
+    assert ideal_sys.economizer_type == 'DifferentialDryBulb'
+    assert ideal_sys.sensible_heat_recovery == 0
+    assert ideal_sys.latent_heat_recovery == 0
+
+    doas_hvac_file = './tests/ironbug/ironbug_fcu_doas.json'
+    with open(doas_hvac_file, 'r') as fp:
+        doas_spec = json.load(fp)
+    hvac_sys = DetailedHVAC('Test FCU DOAS System', doas_spec)
+    ideal_sys = hvac_sys.to_ideal_air_equivalent()
+    assert ideal_sys.economizer_type == 'NoEconomizer'
+    assert ideal_sys.sensible_heat_recovery == 0.81
+    assert ideal_sys.latent_heat_recovery == 0.73
