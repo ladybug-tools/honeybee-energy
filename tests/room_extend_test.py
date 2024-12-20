@@ -396,7 +396,8 @@ def test_writer_to_idf():
     room.properties.energy.add_default_ideal_air()
 
     assert hasattr(room.to, 'idf')
-    idf_string = room.to.idf(room)
+    assert hasattr(room, 'to_idf')
+    idf_string = room.to_idf()
     assert 'ClosedOffice,' in idf_string
     assert 'Zone,' in idf_string
     assert 'People' in idf_string

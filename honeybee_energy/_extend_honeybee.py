@@ -8,6 +8,13 @@ setattr(haltn, 'autosize', Autosize())
 # import all of the other modules
 from honeybee.properties import ModelProperties, RoomProperties, FaceProperties, \
     ShadeProperties, ApertureProperties, DoorProperties, ShadeMeshProperties
+from honeybee.shademesh import ShadeMesh
+from honeybee.shade import Shade
+from honeybee.door import Door
+from honeybee.aperture import Aperture
+from honeybee.face import Face
+from honeybee.room import Room
+from honeybee.model import Model
 import honeybee.writer.shademesh as shade_mesh_writer
 import honeybee.writer.door as door_writer
 import honeybee.writer.aperture as aperture_writer
@@ -25,8 +32,7 @@ from .properties.aperture import ApertureEnergyProperties
 from .properties.door import DoorEnergyProperties
 from .properties.shademesh import ShadeMeshEnergyProperties
 from .writer import model_to_idf, room_to_idf, face_to_idf, shade_to_idf, \
-    aperture_to_idf, door_to_idf, shade_mesh_to_idf, \
-    orphaned_face_to_idf, orphaned_aperture_to_idf, orphaned_door_to_idf
+    aperture_to_idf, door_to_idf, shade_mesh_to_idf
 from .boundarycondition import Adiabatic, OtherSideTemperature
 
 # set a hidden energy attribute on each core geometry Property class to None
@@ -98,10 +104,16 @@ face_writer.idf = face_to_idf
 shade_writer.idf = shade_to_idf
 aperture_writer.idf = aperture_to_idf
 door_writer.idf = door_to_idf
-face_writer.idf_shade = orphaned_face_to_idf
-aperture_writer.idf_shade = orphaned_aperture_to_idf
-door_writer.idf_shade = orphaned_door_to_idf
 shade_mesh_writer.idf = shade_mesh_to_idf
+
+# add energy writer to core objects
+Model.to_idf = model_to_idf
+Room.to_idf = room_to_idf
+Face.to_idf = face_to_idf
+Aperture.to_idf = aperture_to_idf
+Door.to_idf = door_to_idf
+Shade.to_idf = shade_to_idf
+ShadeMesh.to_idf = shade_mesh_to_idf
 
 # extend boundary conditions
 setattr(hbc, 'Adiabatic', Adiabatic)
