@@ -508,7 +508,7 @@ def test_to_dict_single_zone_detailed_loads():
     room.properties.energy.infiltration = office_program.infiltration
     room.properties.energy.ventilation = office_program.ventilation
     room.properties.energy.setpoint = office_program.setpoint
-    
+
     fireplace = Process('Wood Burning Fireplace', 300,
                         office_program.people.occupancy_schedule, 'OtherFuel1')
     room.properties.energy.process_loads = [fireplace]
@@ -837,13 +837,14 @@ def test_writer_to_idf():
     model = Model('TinyHouse', [room], orphaned_shades=[tree_canopy], shade_meshes=[awning_1])
 
     assert hasattr(model.to, 'idf')
-    idf_string = model.to.idf(model, schedule_directory='./tests/idf/')
+    assert hasattr(model, 'to_idf')
+    idf_string = model.to_idf(schedule_directory='./tests/idf/')
     assert len(idf_string) != 0
 
     room.properties.energy.hvac = VAV('Test VAV System')
     with pytest.raises(TypeError):
-        idf_string = model.to.idf(
-            model, schedule_directory='./tests/idf/', use_ideal_air_equivalent=False)
+        idf_string = model.to_idf(
+            schedule_directory='./tests/idf/', use_ideal_air_equivalent=False)
 
 
 def test_energy_ventilation_simulation_properties():

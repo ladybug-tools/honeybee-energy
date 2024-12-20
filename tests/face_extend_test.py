@@ -1,5 +1,6 @@
 """Tests the features that honeybee_energy adds to honeybee_core Face."""
 from honeybee.face import Face
+from honeybee.room import Room
 from honeybee.boundarycondition import boundary_conditions
 
 from honeybee_energy.properties.face import FaceEnergyProperties
@@ -30,6 +31,7 @@ def test_energy_properties():
         pytest.approx(1e-5, abs=1e-10)
     assert face.properties.energy.vent_crack.flow_exponent == \
         pytest.approx(0.65, abs=1e-10)
+
 
 def test_default_constructions():
     """Test the auto-assigning of constructions by face type and boundary condition."""
@@ -149,10 +151,17 @@ def test_from_dict():
 
 def test_writer_to_idf():
     """Test the Face to_idf method."""
-    face = Face.from_vertices(
+    wf = Face.from_vertices(
         'wall_face', [[0, 0, 0], [10, 0, 0], [10, 0, 10], [0, 0, 10]])
-    assert hasattr(face.to, 'idf')
-    idf_string = face.to.idf(face)
+    Room('Test_Room_1', [wf])
+
+    assert hasattr(wf.to, 'idf')
+    idf_string = wf.to.idf(wf)
+    assert 'wall_face,' in idf_string
+    assert 'BuildingSurface:Detailed,' in idf_string
+
+    assert hasattr(wf, 'to_idf')
+    idf_string = wf.to_idf()
     assert 'wall_face,' in idf_string
     assert 'BuildingSurface:Detailed,' in idf_string
 

@@ -12,6 +12,7 @@ from ladybug_geometry.geometry3d.face import Face3D
 
 import pytest
 
+
 def test_energy_properties():
     """Test the existence of the Door energy properties."""
     door = Door.from_vertices(
@@ -134,15 +135,26 @@ def test_from_dict():
 
 def test_writer_to_idf():
     """Test the Door to_idf method."""
-    door = Door.from_vertices(
-        'front_door', [[0, 0, 0], [10, 0, 0], [10, 0, 10], [0, 0, 10]])
+    vertices_parent_wall = [[0, 0, 0], [0, 10, 0], [0, 10, 3], [0, 0, 3]]
+    vertices_wall = [[0, 1, 0.1], [0, 2, 0.1], [0, 2, 2.8], [0, 1, 2.8]]
+
+    wf = Face.from_vertices('wall_face', vertices_parent_wall)
+    wd = Door.from_vertices('wall_door', vertices_wall)
+    wf.add_door(wd)
+
     concrete5 = EnergyMaterial('5cm Concrete', 0.05, 2.31, 2322, 832,
                                'MediumRough', 0.95, 0.75, 0.8)
     mass_constr = OpaqueConstruction('ConcreteDoor', [concrete5])
-    door.properties.energy.construction = mass_constr
+    wd.properties.energy.construction = mass_constr
 
-    assert hasattr(door.to, 'idf')
-    idf_string = door.to.idf(door)
-    assert 'front_door,' in idf_string
+    assert hasattr(wd.to, 'idf')
+    idf_string = wd.to.idf(wd)
+    assert 'wall_door,' in idf_string
+    assert 'FenestrationSurface:Detailed,' in idf_string
+    assert 'ConcreteDoor' in idf_string
+
+    assert hasattr(wd, 'to_idf')
+    idf_string = wd.to_idf()
+    assert 'wall_door,' in idf_string
     assert 'FenestrationSurface:Detailed,' in idf_string
     assert 'ConcreteDoor' in idf_string

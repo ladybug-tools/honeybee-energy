@@ -11,8 +11,6 @@ import honeybee_energy.lib.scheduletypelimits as schedule_types
 from ladybug_geometry.geometry3d.pointvector import Point3D
 from ladybug_geometry.geometry3d.face import Face3D
 
-import pytest
-
 
 def test_energy_properties():
     """Test the existence of the Shade energy properties."""
@@ -179,8 +177,8 @@ def test_writer_to_idf():
         'FrittedGlass', 0.5, schedule_types.fractional)
     shade.properties.energy.transmittance_schedule = fritted_glass_trans
 
-    assert hasattr(shade.to, 'idf')
-    idf_string = shade.to.idf(shade)
+    assert hasattr(shade, 'to_idf')
+    idf_string = shade.to_idf()
     assert 'overhang,' in idf_string
     assert 'Shading:Building:Detailed,' in idf_string
     assert 'ShadingProperty:Reflectance' in idf_string

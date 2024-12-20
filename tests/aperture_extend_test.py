@@ -148,18 +148,28 @@ def test_from_dict():
 
 def test_writer_to_idf():
     """Test the Aperture to_idf method."""
-    aperture = Aperture.from_vertices(
-        'wall_window', [[0, 0, 0], [10, 0, 0], [10, 0, 10], [0, 0, 10]])
+    vertices_parent_wall = [[0, 0, 0], [0, 10, 0], [0, 10, 3], [0, 0, 3]]
+    vertices_wall = [[0, 1, 1], [0, 3, 1], [0, 3, 2.5], [0, 1, 2.5]]
+    wf = Face.from_vertices('wall_face', vertices_parent_wall)
+    wa = Aperture.from_vertices('wall_window', vertices_wall)
+    wf.add_aperture(wa)
+
     clear_glass = EnergyWindowMaterialGlazing(
         'Clear Glass', 0.005715, 0.770675, 0.07, 0.8836, 0.0804,
         0, 0.84, 0.84, 1.0)
     gap = EnergyWindowMaterialGas('air gap', thickness=0.0127)
     triple_pane = WindowConstruction(
         'TriplePane', [clear_glass, gap, clear_glass, gap, clear_glass])
-    aperture.properties.energy.construction = triple_pane
+    wa.properties.energy.construction = triple_pane
 
-    assert hasattr(aperture.to, 'idf')
-    idf_string = aperture.to.idf(aperture)
+    assert hasattr(wa.to, 'idf')
+    idf_string = wa.to.idf(wa)
+    assert 'wall_window,' in idf_string
+    assert 'FenestrationSurface:Detailed,' in idf_string
+    assert 'TriplePane' in idf_string
+
+    assert hasattr(wa, 'to_idf')
+    idf_string = wa.to_idf()
     assert 'wall_window,' in idf_string
     assert 'FenestrationSurface:Detailed,' in idf_string
     assert 'TriplePane' in idf_string
