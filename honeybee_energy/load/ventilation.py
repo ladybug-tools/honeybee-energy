@@ -352,7 +352,7 @@ class Ventilation(_LoadBase):
 
     @staticmethod
     def average(identifier, ventilations, weights=None, timestep_resolution=1):
-        """Get an Ventilation object that's an average between other Ventilations.
+        """Get a Ventilation object that's an average between other Ventilations.
 
         Args:
             identifier: Text string for a unique ID for the new averaged Ventilation.
@@ -396,6 +396,70 @@ class Ventilation(_LoadBase):
                     scheds[i] = full_vent
             sched = Ventilation._average_schedule(
                 '{} Schedule'.format(identifier), scheds, u_weights, timestep_resolution)
+
+        # return the averaged object
+        return Ventilation(identifier, person, area, zone, ach, sched)
+
+    @staticmethod
+    def combine_room_ventilations(identifier, rooms, timestep_resolution=1):
+        """Get a Ventilation object that represents the sum across rooms.
+
+        In this process of combining ventilation requirements, the following
+        rules hold: 1. Total flow rates in m3/s are simply added together. 2. Flow per
+        floor area gets recomputed using the floor areas of each room. 3. ACH flow
+        gets recomputed using the volumes of each room in the inputs. 4. Flow per
+        person gets set based on whichever room has the highest ventilation
+        requirement per person.
+
+        In the case of ventilation schedules, the strictest schedule governs and
+        note that the absence of a ventilation schedule means the schedule is
+        Always On. So, if one room has a ventilation schedule and the other
+        does not, then the schedule essentially gets removed. If each room has
+        a different ventilation schedule, then a new schedule will be created
+        using the maximum value across the two schedules at each timestep.
+
+        Args:
+            identifier: Text string for a unique ID for the new Ventilation object.
+                Must be < 100 characters and not contain any EnergyPlus special
+                characters. This will be used to identify the object across a model
+                and in the exported IDF.
+            rooms: A list of Rooms that will have their Ventilation objects
+                combined to make a new Ventilation.
+            timestep_resolution: An optional integer for the timestep resolution at
+                which conflicting ventilation schedules will be resolved. (Default: 1).
+        """
+        # compute weights based on floor areas and volumes
+        ventilations, floor_areas, volumes = [], [], []
+        for room in rooms:
+            vent = Ventilation() if room.properties.ventilation is None else \
+                room.properties.energy.ventilation
+            ventilations.append(vent)
+            floor_areas.append(room.floor_area)
+            volumes.append(room.volume)
+        total_floor = sum(floor_areas)
+        total_volume = sum(volumes)
+        floor_weights = [ar / total_floor for ar in floor_areas]
+        vol_weights = [vol / total_volume for vol in volumes]
+
+        # calculate the average values
+        person = max(vent.flow_per_person for vent in ventilations)
+        area = sum([vent.flow_per_area * w
+                    for vent, w in zip(ventilations, floor_weights)])
+        zone = sum(vent.flow_per_zone for vent in ventilations)
+        ach = sum([vent.air_changes_per_hour * w
+                   for vent, w in zip(ventilations, vol_weights)])
+
+        # calculate the average schedules
+        scheds = [vent.schedule for vent in ventilations]
+        if any(val is None for val in scheds):
+            sched = None
+        else:
+            base_sch = scheds[0]
+            if all(sch is base_sch for sch in scheds) or len(set(scheds)) == 1:
+                sched = scheds[0]
+            else:
+                sched = Ventilation._max_schedule(
+                    '{} Schedule'.format(identifier), scheds, timestep_resolution)
 
         # return the averaged object
         return Ventilation(identifier, person, area, zone, ach, sched)

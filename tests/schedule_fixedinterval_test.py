@@ -392,3 +392,33 @@ def test_schedule_fixedinterval_average_schedules_ruleset():
         'Transmittance Avg', [trans_sched_1, trans_sched_2], [0.75, 0.25])
     assert len(avg_trans.values) == 8760
     assert list(avg_trans.values) == [0.75] * 8760
+
+
+def test_schedule_fixedinterval_max_schedules():
+    """Test the max_schedules method."""
+    trans_sched_1 = ScheduleFixedInterval('Transmittance 1', [1 for i in range(8760)],
+                                          schedule_types.fractional)
+    trans_sched_2 = ScheduleFixedInterval('Transmittance 2', [0 for i in range(8760)],
+                                          schedule_types.fractional)
+
+    max_trans = ScheduleFixedInterval.max_schedules(
+        'Transmittance Max', [trans_sched_1, trans_sched_2])
+    assert max_trans.identifier == 'Transmittance Max'
+    assert max_trans.schedule_type_limit == schedule_types.fractional
+    assert len(max_trans.values) == 8760
+    assert list(max_trans.values) == [1] * 8760
+
+
+def test_schedule_fixedinterval_min_schedules():
+    """Test the min_schedules method."""
+    trans_sched_1 = ScheduleFixedInterval('Transmittance 1', [1 for i in range(8760)],
+                                          schedule_types.fractional)
+    trans_sched_2 = ScheduleFixedInterval('Transmittance 2', [0 for i in range(8760)],
+                                          schedule_types.fractional)
+
+    max_trans = ScheduleFixedInterval.min_schedules(
+        'Transmittance Min', [trans_sched_1, trans_sched_2])
+    assert max_trans.identifier == 'Transmittance Min'
+    assert max_trans.schedule_type_limit == schedule_types.fractional
+    assert len(max_trans.values) == 8760
+    assert list(max_trans.values) == [0] * 8760

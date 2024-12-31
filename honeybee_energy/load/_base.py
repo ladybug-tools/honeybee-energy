@@ -129,6 +129,22 @@ class _LoadBase(object):
             return ScheduleFixedInterval.average_schedules(identifier, scheds, weights)
 
     @staticmethod
+    def _max_schedule(identifier, scheds, timestep=1):
+        """Create a schedule that uses the maximum value between schedules."""
+        try:
+            return ScheduleRuleset.max_schedules(identifier, scheds, timestep)
+        except AttributeError:
+            return ScheduleFixedInterval.max_schedules(identifier, scheds)
+
+    @staticmethod
+    def _min_schedule(identifier, scheds, timestep=1):
+        """Create a schedule that uses the minimum value between schedules."""
+        try:
+            return ScheduleRuleset.min_schedules(identifier, scheds, timestep)
+        except AttributeError:
+            return ScheduleFixedInterval.min_schedules(identifier, scheds)
+
+    @staticmethod
     def _get_schedule_from_dict(sch_dict):
         """Get a schedule object from a schedule dictionary."""
         if sch_dict['type'] == 'ScheduleRuleset':
