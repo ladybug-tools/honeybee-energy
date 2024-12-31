@@ -570,7 +570,6 @@ class Setpoint(_LoadBase):
                 EAST ZONE,           !- Zone Name
                 Min Rel Hum Set Sch, !- Humidifying Relative Humidity Setpoint SCHEDULE Name
                 Max Rel Hum Set Sch; !- Dehumidifying Relative Humidity Setpoint SCHEDULE Name
-                
         """
         if self.humidifying_schedule is not None:
             values = ('{}_{}'.format(self.identifier, zone_identifier), zone_identifier,
@@ -616,7 +615,7 @@ class Setpoint(_LoadBase):
 
     @staticmethod
     def average(identifier, setpoints, weights=None, timestep_resolution=1):
-        """Get an Setpoint object that's an average between other Setpoints.
+        """Get a Setpoint object that's an average between other Setpoints.
 
         Args:
             identifier: Text string for a unique ID for the new averaged Setpoint.
@@ -635,6 +634,10 @@ class Setpoint(_LoadBase):
                 at which the schedules will be averaged. Any schedule details
                 smaller than this timestep will be lost in the averaging process.
                 Default: 1.
+
+        Returns:
+            A Setpoint object that represents the (weighted) average between
+            the input setpoints.
         """
         weights, u_weights = Setpoint._check_avg_weights(setpoints, weights, 'Setpoint')
 
@@ -667,6 +670,70 @@ class Setpoint(_LoadBase):
         # calculate the average setpoint_cutout_difference
         cuts = [sp.setpoint_cutout_difference for sp in setpoints]
         sp_cut = sum(cuts) / len(cuts)
+
+        # return the averaged object
+        return Setpoint(identifier, heat_sched, cool_sched,
+                        humid_sched, dehumid_sched, sp_cut)
+
+    @staticmethod
+    def strictest(identifier, setpoints, timestep_resolution=1):
+        """Get a Setpoint object that represents the strictest between several Setpoints.
+
+        For each timestep of the heating setpoint schedule, the highest setpoint
+        will govern the result. For each timestep of the cooling setpoint, the
+        lowest setpoint will govern. Humidifying and dehumidifying schedules
+        will similarly be adjusted. The lowest setpoint_cutout_difference will
+        govern because a smaller throttling range tends to be associated
+        with tighter/stricter setpoint controls. Also, a lower cutout difference
+        helps avoid putting the heating and cooling setpoints in conflict with
+        one another when taking the strictest values.
+
+        This method is useful when trying to resolve a set of rooms with different
+        setpoint criteria that are placed within the same thermal zone.
+
+        Args:
+            identifier: Text string for a unique ID for the new strictest Setpoint.
+                Must be < 100 characters and not contain any EnergyPlus special
+                characters. This will be used to identify the object across a model
+                and in the exported IDF.
+            setpoints: A list of Setpoint objects that will be evaluated into a
+                new Setpoint that represents the strictest across the input.
+            timestep_resolution: An optional integer for the timestep resolution
+                at which the schedules will be resolved. Any schedule details smaller
+                than this timestep will be lost in the process. (Default: 1).
+
+        Returns:
+            A Setpoint object that represents the strictest values between
+            the input setpoints.
+        """
+        # calculate the strictest thermostat schedules
+        heat_sched = Setpoint._max_schedule(
+            '{}_HtgSetp Schedule'.format(identifier),
+            [setp.heating_schedule for setp in setpoints], timestep_resolution)
+        cool_sched = Setpoint._min_schedule(
+            '{}_ClgSetp Schedule'.format(identifier),
+            [setp.cooling_schedule for setp in setpoints], timestep_resolution)
+
+        # calculate the strictest humidistat schedules
+        humid_scheds = [sp.humidifying_schedule for sp in setpoints]
+        if all(val is None for val in humid_scheds):
+            humid_sched = None
+            dehumid_sched = None
+        else:
+            dehumid_scheds = [sp.dehumidifying_schedule for sp in setpoints]
+            humid_sch_id = '{}_Humid Schedule'.format(identifier)
+            dehumid_sch_id = '{}_Dehumid Schedule'.format(identifier)
+            for i, sch in enumerate(humid_scheds):
+                if sch is None:
+                    humid_scheds[i] = Setpoint._humidifying_schedule_no_limit
+                    dehumid_scheds[i] = Setpoint._dehumidifying_schedule_no_limit
+            humid_sched = Setpoint._max_schedule(
+                humid_sch_id, humid_scheds, timestep_resolution)
+            dehumid_sched = Setpoint._min_schedule(
+                dehumid_sch_id, dehumid_scheds, timestep_resolution)
+
+        # calculate the minimum setpoint_cutout_difference
+        sp_cut = min(sp.setpoint_cutout_difference for sp in setpoints)
 
         # return the averaged object
         return Setpoint(identifier, heat_sched, cool_sched,

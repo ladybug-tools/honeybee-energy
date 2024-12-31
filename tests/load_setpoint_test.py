@@ -10,6 +10,7 @@ from ladybug.dt import Time
 import pytest
 from .fixtures.userdata_fixtures import userdatadict
 
+
 def test_setpoint_init(userdatadict):
     """Test the initialization of Setpoint and basic properties."""
     heat_setpt = ScheduleRuleset.from_constant_value(
@@ -86,6 +87,7 @@ def test_setpoint_init_humidity(userdatadict):
     assert setpoint.dehumidifying_setpoint == 60
     assert setpoint.dehumidifying_setback == 60
     assert setpoint.user_data == userdatadict
+
 
 def test_setpoint_setability(userdatadict):
     """Test the setting of properties of Setpoint."""
@@ -237,6 +239,7 @@ def test_setpoint_dict_methods(userdatadict):
     assert setp_dict == new_setpoint.to_dict()
     assert new_setpoint.user_data == userdatadict
 
+
 def test_setpoint_average():
     """Test the Setpoint.average method."""
     heat_setpt = ScheduleRuleset.from_constant_value(
@@ -256,6 +259,31 @@ def test_setpoint_average():
     assert office_avg.heating_setback == pytest.approx(20, rel=1e-3)
     assert office_avg.cooling_setpoint == pytest.approx(26, rel=1e-3)
     assert office_avg.cooling_setback == pytest.approx(26, rel=1e-3)
+    assert office_avg.humidifying_setpoint is None
+    assert office_avg.humidifying_setback is None
+    assert office_avg.dehumidifying_setpoint is None
+    assert office_avg.dehumidifying_setback is None
+
+
+def test_setpoint_strictest():
+    """Test the Setpoint.strictest method."""
+    heat_setpt = ScheduleRuleset.from_constant_value(
+        'Office Heating', 22, schedule_types.temperature)
+    cool_setpt = ScheduleRuleset.from_constant_value(
+        'Office Cooling', 24, schedule_types.temperature)
+    office_setpoint = Setpoint('Office Setpoint', heat_setpt, cool_setpt)
+    lobby_setpoint = office_setpoint.duplicate()
+    lobby_setpoint.identifier = 'Lobby Setpoint'
+    lobby_setpoint.heating_setpoint = 18
+    lobby_setpoint.cooling_setpoint = 28
+
+    office_avg = Setpoint.strictest(
+        'Office Strictest Setpoint', [office_setpoint, lobby_setpoint])
+
+    assert office_avg.heating_setpoint == pytest.approx(22, rel=1e-3)
+    assert office_avg.heating_setback == pytest.approx(22, rel=1e-3)
+    assert office_avg.cooling_setpoint == pytest.approx(24, rel=1e-3)
+    assert office_avg.cooling_setback == pytest.approx(24, rel=1e-3)
     assert office_avg.humidifying_setpoint is None
     assert office_avg.humidifying_setback is None
     assert office_avg.dehumidifying_setpoint is None

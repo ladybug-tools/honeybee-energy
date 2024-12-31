@@ -1320,8 +1320,9 @@ class ScheduleRuleset(object):
                 Default: 1.
         """
         # check the inputs
-        assert isinstance(schedules, (list, tuple)), 'Expected a list of ScheduleDay ' \
-            'objects for average_schedules. Got {}.'.format(type(schedules))
+        assert isinstance(schedules, (list, tuple)), 'Expected a list of ' \
+            'ScheduleRuleset objects for average_schedules. ' \
+            'Got {}.'.format(type(schedules))
         if weights is None:
             weight = 1 / len(schedules)
             weights = [weight for i in schedules]
@@ -1355,36 +1356,128 @@ class ScheduleRuleset(object):
                     timestep_resolution, rule_indices
                 )
                 week_schedules.append(week_sched)
-            # create a dictionary mapping unique rule indices to average week schedules
-            rule_set_map = {}
-            for rule_i, week_sched in zip(unique_rule_sets, week_schedules):
-                rule_set_map[rule_i] = week_sched
-            # loop through all 365 days of the year to find when rules change
-            yr_wk_scheds = []
-            yr_wk_dt_range = []
-            prev_week_rules = None
-            for doy in range(1, 366):
-                week_rules = rules_each_day[doy - 1]
-                if week_rules != prev_week_rules:  # change to a new rule set
-                    yr_wk_scheds.append(rule_set_map[week_rules])
-                    if doy != 1:
-                        yr_wk_dt_range[-1].append(Date.from_doy(doy - 1))
-                        yr_wk_dt_range.append([Date.from_doy(doy)])
-                    else:
-                        yr_wk_dt_range.append([Date(1, 1)])
-                    prev_week_rules = week_rules
-            yr_wk_dt_range[-1].append(Date(12, 31))
-
-            # convert week ScheduleRulesets to_rules and assign start + end dates
-            final_rules = []
-            for wk_sch, dt_range in zip(yr_wk_scheds, yr_wk_dt_range):
-                final_rules.extend(wk_sch.to_rules(dt_range[0], dt_range[1]))
-
-            # add all rules to a final average ScheduleRuleset
+            # combine the week schedules into rules
+            final_rules, holiday_sch, summer_dd_sch, winter_dd_sch = \
+                ScheduleRuleset._combine_week_schedules(
+                    unique_rule_sets, week_schedules, rules_each_day)
+            # add all rules to a final ScheduleRuleset
             default_day_schedule = final_rules[0].schedule_day
-            holiday_sch = yr_wk_scheds[0].holiday_schedule.duplicate()
-            summer_dd_sch = yr_wk_scheds[0].summer_designday_schedule.duplicate()
-            winter_dd_sch = yr_wk_scheds[0].winter_designday_schedule.duplicate()
+            schedule_type = schedules[0].schedule_type_limit
+            return ScheduleRuleset(
+                identifier, default_day_schedule, final_rules[1:], schedule_type,
+                holiday_sch, summer_dd_sch, winter_dd_sch)
+
+    @staticmethod
+    def max_schedules(identifier, schedules, timestep_resolution=1):
+        """Create a ScheduleRuleset that uses the maximum value between ScheduleRulesets.
+
+        This is useful for resolving a set of schedules where the highest value
+        should govern, like when several ventilation schedules must be merged
+        into one.
+
+        Args:
+            identifier: Text string for a unique ID for the new unique ScheduleRuleset.
+                Must be < 100 characters and not contain any EnergyPlus special
+                characters. This will be used to identify the object across a
+                model and in the exported IDF.
+            schedules: A list of ScheduleRuleset objects that will have the maximum
+                value taken at each timestep to make a new ScheduleRuleset.
+            timestep_resolution: An optional integer for the timestep resolution
+                at which the schedules will be combined. Any schedule details
+                smaller than this timestep will be lost in the process. (Default: 1).
+        """
+        # check the inputs
+        assert isinstance(schedules, (list, tuple)), 'Expected a list of ' \
+            'ScheduleRuleset objects for max_schedules. Got {}.'.format(type(schedules))
+
+        # if all input schedules are single week, the process is a lot simpler
+        if all([sched.is_single_week for sched in schedules]):
+            rule_indices = [range(len(sched)) for sched in schedules]
+            return ScheduleRuleset._get_ext_week(
+                identifier, schedules, max, timestep_resolution, rule_indices)
+        else:
+            # loop through 365 days of the year to find unique combinations of rules
+            rules_each_day = []
+            for doy in range(1, 366):
+                rules_on_doy = tuple(tuple(
+                    i for i, rule in enumerate(sched._schedule_rules)
+                    if rule._start_doy <= doy <= rule._end_doy)
+                    for sched in schedules)
+                rules_each_day.append(rules_on_doy)
+            unique_rule_sets = set(rules_each_day)
+            # create the combined week schedules from the unique combinations of rules
+            week_schedules = []
+            for i, rule_indices in enumerate(unique_rule_sets):
+                week_identifier = '{}_{}'.format(identifier, i)
+                week_sched = ScheduleRuleset._get_ext_week(
+                    week_identifier, schedules, max,
+                    timestep_resolution, rule_indices
+                )
+                week_schedules.append(week_sched)
+            # combine the week schedules into rules
+            final_rules, holiday_sch, summer_dd_sch, winter_dd_sch = \
+                ScheduleRuleset._combine_week_schedules(
+                    unique_rule_sets, week_schedules, rules_each_day)
+            # add all rules to a final ScheduleRuleset
+            default_day_schedule = final_rules[0].schedule_day
+            schedule_type = schedules[0].schedule_type_limit
+            return ScheduleRuleset(
+                identifier, default_day_schedule, final_rules[1:], schedule_type,
+                holiday_sch, summer_dd_sch, winter_dd_sch)
+
+    @staticmethod
+    def min_schedules(identifier, schedules, timestep_resolution=1):
+        """Create a ScheduleRuleset that uses the minimum value between ScheduleRulesets.
+
+        This is useful for resolving a set of schedules where the lowest value
+        should govern, like when several cooling setpoint schedules must be merged
+        into one.
+
+        Args:
+            identifier: Text string for a unique ID for the new unique ScheduleRuleset.
+                Must be < 100 characters and not contain any EnergyPlus special
+                characters. This will be used to identify the object across a
+                model and in the exported IDF.
+            schedules: A list of ScheduleRuleset objects that will have the minimum
+                value taken at each timestep to make a new ScheduleRuleset.
+            timestep_resolution: An optional integer for the timestep resolution
+                at which the schedules will be combined. Any schedule details
+                smaller than this timestep will be lost in the process. (Default: 1).
+        """
+        # check the inputs
+        assert isinstance(schedules, (list, tuple)), 'Expected a list of ' \
+            'ScheduleRuleset objects for min_schedules. Got {}.'.format(type(schedules))
+
+        # if all input schedules are single week, the process is a lot simpler
+        if all([sched.is_single_week for sched in schedules]):
+            rule_indices = [range(len(sched)) for sched in schedules]
+            return ScheduleRuleset._get_ext_week(
+                identifier, schedules, min, timestep_resolution, rule_indices)
+        else:
+            # loop through 365 days of the year to find unique combinations of rules
+            rules_each_day = []
+            for doy in range(1, 366):
+                rules_on_doy = tuple(tuple(
+                    i for i, rule in enumerate(sched._schedule_rules)
+                    if rule._start_doy <= doy <= rule._end_doy)
+                    for sched in schedules)
+                rules_each_day.append(rules_on_doy)
+            unique_rule_sets = set(rules_each_day)
+            # create the combined week schedules from the unique combinations of rules
+            week_schedules = []
+            for i, rule_indices in enumerate(unique_rule_sets):
+                week_identifier = '{}_{}'.format(identifier, i)
+                week_sched = ScheduleRuleset._get_ext_week(
+                    week_identifier, schedules, min,
+                    timestep_resolution, rule_indices
+                )
+                week_schedules.append(week_sched)
+            # combine the week schedules into rules
+            final_rules, holiday_sch, summer_dd_sch, winter_dd_sch = \
+                ScheduleRuleset._combine_week_schedules(
+                    unique_rule_sets, week_schedules, rules_each_day)
+            # add all rules to a final ScheduleRuleset
+            default_day_schedule = final_rules[0].schedule_day
             schedule_type = schedules[0].schedule_type_limit
             return ScheduleRuleset(
                 identifier, default_day_schedule, final_rules[1:], schedule_type,
@@ -1599,8 +1692,83 @@ class ScheduleRuleset(object):
         return sch_type_dict
 
     @staticmethod
+    def _combine_week_schedules(unique_rule_sets, week_schedules, rules_each_day):
+        """Create the average week schedules from the unique combinations of rules."""
+        # create a dictionary mapping unique rule indices to average week schedules
+        rule_set_map = {}
+        for rule_i, week_sched in zip(unique_rule_sets, week_schedules):
+            rule_set_map[rule_i] = week_sched
+        # loop through all 365 days of the year to find when rules change
+        yr_wk_scheds = []
+        yr_wk_dt_range = []
+        prev_week_rules = None
+        for doy in range(1, 366):
+            week_rules = rules_each_day[doy - 1]
+            if week_rules != prev_week_rules:  # change to a new rule set
+                yr_wk_scheds.append(rule_set_map[week_rules])
+                if doy != 1:
+                    yr_wk_dt_range[-1].append(Date.from_doy(doy - 1))
+                    yr_wk_dt_range.append([Date.from_doy(doy)])
+                else:
+                    yr_wk_dt_range.append([Date(1, 1)])
+                prev_week_rules = week_rules
+        yr_wk_dt_range[-1].append(Date(12, 31))
+
+        # convert week ScheduleRulesets to_rules and assign start + end dates
+        final_rules = []
+        for wk_sch, dt_range in zip(yr_wk_scheds, yr_wk_dt_range):
+            final_rules.extend(wk_sch.to_rules(dt_range[0], dt_range[1]))
+
+        # add all rules to a final average ScheduleRuleset
+        holiday_sch = yr_wk_scheds[0].holiday_schedule.duplicate()
+        summer_dd_sch = yr_wk_scheds[0].summer_designday_schedule.duplicate()
+        winter_dd_sch = yr_wk_scheds[0].winter_designday_schedule.duplicate()
+        return final_rules, holiday_sch, summer_dd_sch, winter_dd_sch
+
+    @staticmethod
     def _get_avg_week(identifier, schedules, weights, timestep_resolution, rule_indices):
         """Get an average week schedule across several schedules and rule_indices."""
+        # get matrix with each ruleset schedule in rows and each day of week in cols
+        val_mtx = ScheduleRuleset._sch_value_mtx(
+            schedules, timestep_resolution, rule_indices)
+        # transpose the matrix and compute weighted average values for each dow
+        avg_mtx = []
+        for dow_list in zip(*val_mtx):
+            sch_vals = [sum([val * weights[i] for i, val in enumerate(values)])
+                        for values in zip(*dow_list)]
+            avg_mtx.append(sch_vals)
+        # create the final ScheduleRuleset from the values
+        return ScheduleRuleset.from_week_daily_values(
+            identifier, avg_mtx[0], avg_mtx[1], avg_mtx[2], avg_mtx[3], avg_mtx[4],
+            avg_mtx[5], avg_mtx[6], avg_mtx[7], timestep_resolution,
+            schedules[0].schedule_type_limit, avg_mtx[8], avg_mtx[9])
+
+    @staticmethod
+    def _get_ext_week(identifier, schedules, operator, timestep_resolution, rule_indices):
+        """Get a max or min week schedule across several schedules and rule_indices.
+
+        Note that the operator is expected to be either the native Python max
+        operator or the native Python min operator depending on the type of extreme
+        being requested.
+        """
+        # get matrix with each ruleset schedule in rows and each day of week in cols
+        val_mtx = ScheduleRuleset._sch_value_mtx(
+            schedules, timestep_resolution, rule_indices)
+        # transpose the matrix and compute weighted average values for each dow
+        ext_mtx = []
+        for dow_list in zip(*val_mtx):
+            sch_vals = [operator(values) for values in zip(*dow_list)]
+            ext_mtx.append(sch_vals)
+        # create the final ScheduleRuleset from the values
+        return ScheduleRuleset.from_week_daily_values(
+            identifier, ext_mtx[0], ext_mtx[1], ext_mtx[2], ext_mtx[3], ext_mtx[4],
+            ext_mtx[5], ext_mtx[6], ext_mtx[7], timestep_resolution,
+            schedules[0].schedule_type_limit, ext_mtx[8], ext_mtx[9])
+
+    @staticmethod
+    def _sch_value_mtx(schedules, timestep_resolution, rule_indices):
+        """Get a matrix with each ruleset schedule in rows and each day of week in cols.
+        """
         # get matrix with each ruleset schedule in rows and each day of week in cols
         val_mtx = []
         for s_i, sched in enumerate(schedules):
@@ -1626,17 +1794,7 @@ class ScheduleRuleset(object):
             # add all values to the matrix
             val_mtx.append([day_sch.values_at_timestep(timestep_resolution)
                             for day_sch in week_list])
-        # transpose the matrix and compute weighted average values for each dow
-        avg_mtx = []
-        for dow_list in zip(*val_mtx):
-            sch_vals = [sum([val * weights[i] for i, val in enumerate(values)])
-                        for values in zip(*dow_list)]
-            avg_mtx.append(sch_vals)
-        # create the final ScheduleRuleset from the values
-        return ScheduleRuleset.from_week_daily_values(
-            identifier, avg_mtx[0], avg_mtx[1], avg_mtx[2], avg_mtx[3], avg_mtx[4],
-            avg_mtx[5], avg_mtx[6], avg_mtx[7], timestep_resolution,
-            schedules[0].schedule_type_limit, avg_mtx[8], avg_mtx[9])
+        return val_mtx
 
     @staticmethod
     def _instance_in_array(object_instance, object_array):

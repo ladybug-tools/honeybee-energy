@@ -827,38 +827,67 @@ class ScheduleFixedInterval(object):
                                         'average schedules weights')
             assert abs(sum(weights) - 1.0) <= 1e-9, 'Average schedule weights must ' \
                 'sum to 1.  Got {}.'.format(sum(weights))
-
-        # determine the max timestep and leap year for the resulting schedule
-        t_steps = [1]
-        lp_yrs = []
-        for sched in schedules:
-            try:
-                t_steps.append(sched.timestep)
-                lp_yrs.append(sched.is_leap_year)
-            except AttributeError:
-                pass  # ScheduleRuleset
-        timestep = max(t_steps)
-        lp_yr = lp_yrs[0] if len(lp_yrs) != 0 else False
-        for lp in lp_yrs:
-            assert lp is lp_yr, \
-                'All is_leap_year properties must match to make an average schedule.'
-
         # collect all of the values at the timestep
-        all_values = []
-        for sched in schedules:
-            if isinstance(sched, ScheduleFixedInterval):
-                all_values.append(sched.values_at_timestep(timestep))
-            else:
-                try:
-                    all_values.append(sched.values(timestep, leap_year=lp_yr))
-                except AttributeError:
-                    raise TypeError('"{}" is not an acceptable input type for '
-                                    'ScheduleFixedInterval.average_schedules.'.format(
-                                        type(sched)))
-
+        all_values, timestep, lp_yr = \
+            ScheduleFixedInterval._all_schedule_values(schedules)
         sch_vals = [sum([val * weights[i] for i, val in enumerate(values)])
                     for values in zip(*all_values)]
+        # return the final schedule
+        return ScheduleFixedInterval(
+            identifier, sch_vals, schedules[0].schedule_type_limit,
+            timestep, start_date=Date(1, 1, lp_yr)
+        )
 
+    @staticmethod
+    def max_schedules(identifier, schedules):
+        """Get a ScheduleFixedInterval that uses the maximum value between schedules.
+
+        Args:
+            identifier: A unique ID text string for the new unique ScheduleFixedInterval.
+                Must be < 100 characters and not contain any EnergyPlus special
+                characters. This will be used to identify the object across a
+                model and in the exported IDF.
+            schedules: A list of ScheduleFixedInterval objects that will have the
+                maximum value taken at each timestep to make a new ScheduleFixedInterval.
+                This list may also contain ScheduleRulesets but it is recommend there
+                be at least one ScheduleFixedInterval. Otherwise, the
+                ScheduleRuleset.max_schedules method should be used.
+        """
+        # check the inputs
+        assert isinstance(schedules, (list, tuple)), 'Expected a list of ScheduleDay ' \
+            'objects for max_schedules. Got {}.'.format(type(schedules))
+        # collect all of the values at the timestep
+        all_values, timestep, lp_yr = \
+            ScheduleFixedInterval._all_schedule_values(schedules)
+        sch_vals = [max(values) for values in zip(*all_values)]
+        # return the final schedule
+        return ScheduleFixedInterval(
+            identifier, sch_vals, schedules[0].schedule_type_limit,
+            timestep, start_date=Date(1, 1, lp_yr)
+        )
+
+    @staticmethod
+    def min_schedules(identifier, schedules):
+        """Get a ScheduleFixedInterval that uses the minimum value between schedules.
+
+        Args:
+            identifier: A unique ID text string for the new unique ScheduleFixedInterval.
+                Must be < 100 characters and not contain any EnergyPlus special
+                characters. This will be used to identify the object across a
+                model and in the exported IDF.
+            schedules: A list of ScheduleFixedInterval objects that will have the
+                minimum value taken at each timestep to make a new ScheduleFixedInterval.
+                This list may also contain ScheduleRulesets but it is recommend there
+                be at least one ScheduleFixedInterval. Otherwise, the
+                ScheduleRuleset.min_schedules method should be used.
+        """
+        # check the inputs
+        assert isinstance(schedules, (list, tuple)), 'Expected a list of ScheduleDay ' \
+            'objects for min_schedules. Got {}.'.format(type(schedules))
+        # collect all of the values at the timestep
+        all_values, timestep, lp_yr = \
+            ScheduleFixedInterval._all_schedule_values(schedules)
+        sch_vals = [min(values) for values in zip(*all_values)]
         # return the final schedule
         return ScheduleFixedInterval(
             identifier, sch_vals, schedules[0].schedule_type_limit,
@@ -897,6 +926,37 @@ class ScheduleFixedInterval(object):
         """Generate n values between start and end."""
         _step = (end - start) / float(step_count)
         return (start + (i * _step) for i in xrange(int(step_count)))
+
+    @staticmethod
+    def _all_schedule_values(schedules):
+        """Get all of the values across a list of input schedules."""
+        # determine the max timestep and leap year for the resulting schedule
+        t_steps = [1]
+        lp_yrs = []
+        for sched in schedules:
+            try:
+                t_steps.append(sched.timestep)
+                lp_yrs.append(sched.is_leap_year)
+            except AttributeError:
+                pass  # ScheduleRuleset
+        timestep = max(t_steps)
+        lp_yr = lp_yrs[0] if len(lp_yrs) != 0 else False
+        for lp in lp_yrs:
+            assert lp is lp_yr, \
+                'All is_leap_year properties must match to make an average schedule.'
+
+        # collect all of the values at the timestep
+        all_values = []
+        for sched in schedules:
+            if isinstance(sched, ScheduleFixedInterval):
+                all_values.append(sched.values_at_timestep(timestep))
+            else:
+                try:
+                    all_values.append(sched.values(timestep, leap_year=lp_yr))
+                except AttributeError:
+                    raise TypeError('"{}" is not an acceptable input type for '
+                                    'ScheduleFixedInterval.'.format(type(sched)))
+        return all_values, timestep, lp_yr
 
     @staticmethod
     def _idf_schedule_type_dictionary(type_idf_strings):

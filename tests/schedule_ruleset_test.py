@@ -13,6 +13,7 @@ import pytest
 import json
 from .fixtures.userdata_fixtures import userdatadict
 
+
 def test_schedule_ruleset_init(userdatadict):
     """Test the ScheduleRuleset initialization and basic properties."""
     weekday_office = ScheduleDay('Weekday Office Occupancy', [0, 1, 0],
@@ -509,6 +510,60 @@ def test_schedule_ruleset_average_schedules_date_range():
                 0.3, 0.3, 0.3, 0.3, 0.3, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05]
     assert week_vals[:24] == [0.05] * 24
     assert week_vals[24:48] == avg_vals
+
+
+def test_schedule_ruleset_max_schedules():
+    """Test the max_schedules method."""
+    weekday_office = ScheduleDay('Weekday Office Occupancy', [0, 1, 0.5, 0],
+                                 [Time(0, 0), Time(9, 0), Time(17, 0), Time(19, 0)])
+    weekday_lobby = ScheduleDay('Weekday Lobby Occupancy', [0.1, 1, 0.1],
+                                [Time(0, 0), Time(8, 0), Time(20, 0)])
+    weekend_office = ScheduleDay('Weekend Office Occupancy', [0])
+    weekend_lobby = ScheduleDay('Weekend Office Occupancy', [0.1])
+    wknd_office_rule = ScheduleRule(weekend_office, apply_saturday=True, apply_sunday=True)
+    wknd_lobby_rule = ScheduleRule(weekend_lobby, apply_saturday=True, apply_sunday=True)
+    office_schedule = ScheduleRuleset('Office Occupancy', weekday_office,
+                                      [wknd_office_rule], schedule_types.fractional)
+    lobby_schedule = ScheduleRuleset('Lobby Occupancy', weekday_lobby,
+                                     [wknd_lobby_rule], schedule_types.fractional)
+
+    office_max = ScheduleRuleset.max_schedules(
+        'Office Max', [office_schedule, lobby_schedule])
+    week_vals = office_max.values(end_date=Date(1, 7))
+
+    max_vals = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 1.0,
+                1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+                1.0, 0.1, 0.1, 0.1, 0.1]
+    assert week_vals[:24] == [0.1] * 24
+    assert week_vals[24:48] == max_vals
+    assert (len(office_max.schedule_rules)) == 1
+
+
+def test_schedule_ruleset_min_schedules():
+    """Test the min_schedules method."""
+    weekday_office = ScheduleDay('Weekday Office Occupancy', [0, 1, 0.5, 0],
+                                 [Time(0, 0), Time(9, 0), Time(17, 0), Time(19, 0)])
+    weekday_lobby = ScheduleDay('Weekday Lobby Occupancy', [0.1, 1, 0.1],
+                                [Time(0, 0), Time(8, 0), Time(20, 0)])
+    weekend_office = ScheduleDay('Weekend Office Occupancy', [0])
+    weekend_lobby = ScheduleDay('Weekend Office Occupancy', [0.1])
+    wknd_office_rule = ScheduleRule(weekend_office, apply_saturday=True, apply_sunday=True)
+    wknd_lobby_rule = ScheduleRule(weekend_lobby, apply_saturday=True, apply_sunday=True)
+    office_schedule = ScheduleRuleset('Office Occupancy', weekday_office,
+                                      [wknd_office_rule], schedule_types.fractional)
+    lobby_schedule = ScheduleRuleset('Lobby Occupancy', weekday_lobby,
+                                     [wknd_lobby_rule], schedule_types.fractional)
+
+    office_max = ScheduleRuleset.min_schedules(
+        'Office Max', [office_schedule, lobby_schedule])
+    week_vals = office_max.values(end_date=Date(1, 7))
+
+    min_vals = [0, 0, 0, 0, 0, 0, 0, 0, 0,
+                1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.5, 0.5,
+                0, 0, 0, 0, 0]
+    assert week_vals[:24] == [0] * 24
+    assert week_vals[24:48] == min_vals
+    assert (len(office_max.schedule_rules)) == 1
 
 
 def test_schedule_ruleset_reversed():
