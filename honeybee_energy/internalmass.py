@@ -226,7 +226,7 @@ class InternalMass(object):
             new_obj.user_data = data['user_data']
         return new_obj
 
-    def to_idf(self, zone_identifier):
+    def to_idf(self, room_identifier, is_zone=True):
         """IDF string representation of InternalMass object.
 
         Note that this method only outputs a single string for the InternalMass
@@ -234,8 +234,10 @@ class InternalMass(object):
         this object's construction must also be written.
 
         Args:
-            zone_identifier: Text for the zone identifier that the InternalMass
+            room_identifier: Text for the Room identifier that the InternalMass
                 object is assigned to.
+            is_zone: Boolean for whether the room_identifier refers to a Zone
+                object or a Space object. (Default: True).
 
         .. code-block:: shell
 
@@ -243,10 +245,15 @@ class InternalMass(object):
                 Zn002:IntM001,                !- Surface Name
                 INTERIOR,                     !- Construction Name
                 DORM ROOMS AND COMMON AREAS,  !- Zone or ZoneList Name
+                ,                             !- Space or SpaceList Name
                 408.7734;                     !- Total area exposed to Zone {m2}
         """
-        values = ('{}..{}'.format(self.identifier, zone_identifier),
-                  self.construction.identifier, zone_identifier, '', self.area)
+        int_m_id = '{}..{}'.format(self.identifier, room_identifier)
+        values = [int_m_id, self.construction.identifier]
+        if is_zone:
+            values.extend([room_identifier, '', self.area])
+        else:
+            values.extend(['', room_identifier, self.area])
         comments = ('name', 'construction name', 'zone name', 'space name',
                     'surface area')
         return generate_idf_string('InternalMass', values, comments)

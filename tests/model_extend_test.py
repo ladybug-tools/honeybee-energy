@@ -27,6 +27,7 @@ from honeybee_energy.schedule.fixedinterval import ScheduleFixedInterval
 from honeybee_energy.schedule.typelimit import ScheduleTypeLimit
 from honeybee_energy.load.people import People
 from honeybee_energy.ventcool.simulation import VentilationSimulationControl
+from honeybee_energy.hvac.idealair import IdealAirSystem
 from honeybee_energy.hvac.allair.vav import VAV
 from honeybee_energy.generator.pv import PVProperties
 from honeybee_energy.generator.loadcenter import ElectricLoadCenter
@@ -267,6 +268,48 @@ def test_check_duplicate_schedule_type_limit_identifiers():
     assert model.properties.energy.check_duplicate_schedule_type_limit_identifiers(False) != ''
     with pytest.raises(ValueError):
         model.properties.energy.check_duplicate_schedule_type_limit_identifiers(True)
+
+
+def test_check_all_zones_have_one_hvac():
+    """Test check_all_zones_have_one_hvac method."""
+    first_floor = Room.from_box('FirstFloor', 10, 10, 3, origin=Point3D(0, 0, 0))
+    second_floor = Room.from_box('SecondFloor', 10, 10, 3, origin=Point3D(0, 0, 3))
+    first_floor.properties.energy.program_type = office_program
+    second_floor.properties.energy.program_type = office_program
+    first_floor.properties.energy.add_default_ideal_air()
+    second_floor.properties.energy.add_default_ideal_air()
+    for face in first_floor[1:5]:
+        face.apertures_by_ratio(0.2, 0.01)
+    for face in second_floor[1:5]:
+        face.apertures_by_ratio(0.2, 0.01)
+
+    pts_1 = [Point3D(0, 0, 6), Point3D(0, 10, 6), Point3D(10, 10, 6), Point3D(10, 0, 6)]
+    pts_2 = [Point3D(0, 0, 6), Point3D(5, 0, 9), Point3D(5, 10, 9), Point3D(0, 10, 6)]
+    pts_3 = [Point3D(10, 0, 6), Point3D(10, 10, 6), Point3D(5, 10, 9), Point3D(5, 0, 9)]
+    pts_4 = [Point3D(0, 0, 6), Point3D(10, 0, 6), Point3D(5, 0, 9)]
+    pts_5 = [Point3D(10, 10, 6), Point3D(0, 10, 6), Point3D(5, 10, 9)]
+    face_1 = Face('AtticFace1', Face3D(pts_1))
+    face_2 = Face('AtticFace2', Face3D(pts_2))
+    face_3 = Face('AtticFace3', Face3D(pts_3))
+    face_4 = Face('AtticFace4', Face3D(pts_4))
+    face_5 = Face('AtticFace5', Face3D(pts_5))
+    attic = Room('Attic', [face_1, face_2, face_3, face_4, face_5], 0.01, 1)
+
+    Room.solve_adjacency([first_floor, second_floor, attic], 0.01)
+
+    model = Model('MultiZoneSingleFamilyHouse', [first_floor, second_floor, attic])
+
+    assert model.properties.energy.check_all_zones_have_one_hvac(False) == ''
+    first_floor.zone = second_floor.zone = 'Main House'
+    assert model.properties.energy.check_all_zones_have_one_hvac(False) != ''
+    with pytest.raises(ValueError):
+        model.properties.energy.check_all_zones_have_one_hvac(True)
+    model.properties.energy.check_all_zones_have_one_hvac(False, True)
+
+    second_floor.zone = 'Main House2'
+    assert model.properties.energy.check_all_zones_have_one_hvac(False) == ''
+    attic.zone = 'Main House2'
+    assert model.properties.energy.check_all_zones_have_one_hvac(False) == ''
 
 
 def test_to_from_dict():
@@ -845,6 +888,56 @@ def test_writer_to_idf():
     with pytest.raises(TypeError):
         idf_string = model.to_idf(
             schedule_directory='./tests/idf/', use_ideal_air_equivalent=False)
+
+
+def test_writer_to_idf_space_vs_zone():
+    """Test that the to_idf method works when there are multiple rooms in a zone."""
+    first_floor = Room.from_box('FirstFloor', 10, 10, 3, origin=Point3D(0, 0, 0))
+    second_floor = Room.from_box('SecondFloor', 10, 10, 3, origin=Point3D(0, 0, 3))
+    first_floor.properties.energy.program_type = office_program
+    second_floor.properties.energy.program_type = office_program
+    for face in first_floor[1:5]:
+        face.apertures_by_ratio(0.2, 0.01)
+    for face in second_floor[1:5]:
+        face.apertures_by_ratio(0.2, 0.01)
+
+    pts_1 = [Point3D(0, 0, 6), Point3D(0, 10, 6), Point3D(10, 10, 6), Point3D(10, 0, 6)]
+    pts_2 = [Point3D(0, 0, 6), Point3D(5, 0, 9), Point3D(5, 10, 9), Point3D(0, 10, 6)]
+    pts_3 = [Point3D(10, 0, 6), Point3D(10, 10, 6), Point3D(5, 10, 9), Point3D(5, 0, 9)]
+    pts_4 = [Point3D(0, 0, 6), Point3D(10, 0, 6), Point3D(5, 0, 9)]
+    pts_5 = [Point3D(10, 10, 6), Point3D(0, 10, 6), Point3D(5, 10, 9)]
+    face_1 = Face('AtticFace1', Face3D(pts_1))
+    face_2 = Face('AtticFace2', Face3D(pts_2))
+    face_3 = Face('AtticFace3', Face3D(pts_3))
+    face_4 = Face('AtticFace4', Face3D(pts_4))
+    face_5 = Face('AtticFace5', Face3D(pts_5))
+    attic = Room('Attic', [face_1, face_2, face_3, face_4, face_5], 0.01, 1)
+    attic.exclude_floor_area = True
+
+    Room.solve_adjacency([first_floor, second_floor, attic], 0.01)
+
+    first_floor.zone = second_floor.zone = attic.zone = 'Main House'
+    house_hvac = IdealAirSystem('House HVAC')
+    first_floor.properties.energy.hvac = house_hvac
+    first_floor.properties.energy.hvac = house_hvac
+
+    model = Model('MultiZoneSingleFamilyHouse', [first_floor, second_floor, attic])
+    idf_string = model.to_idf()
+
+    assert 'Generic Office Ventilation..Main House' in idf_string
+    assert 'Generic Office Setpoints..Main House' in idf_string
+
+    """
+    from honeybee_energy.simulation.parameter import SimulationParameter
+    sim_par = SimulationParameter()
+    sim_par.output.add_zone_energy_use()
+    ddy_file = 'C:/EnergyPlusV24-2-0/WeatherData/USA_CO_Golden-NREL.724666_TMY3.ddy'
+    sim_par.sizing_parameter.add_from_ddy_996_004(ddy_file)
+    idf_str = '\n\n'.join((sim_par.to_idf(), idf_string))
+    test_file = './tests/idf/model_space_vs_zone.idf'
+    with open(test_file, 'w') as of:
+        of.write(idf_str)
+    """
 
 
 def test_energy_ventilation_simulation_properties():
