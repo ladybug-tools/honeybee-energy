@@ -7,6 +7,7 @@ from honeybee.room import Room
 from honeybee.face import Face
 from honeybee.boundarycondition import Outdoors, Surface, Ground
 from honeybee.facetype import Floor, RoofCeiling, AirBoundary
+from honeybee.typing import clean_and_number_ep_string
 
 try:
     from itertools import izip as zip  # python 2
@@ -427,7 +428,7 @@ def face_to_idf(face):
         comments = (
             'shade surface name', 'diffuse solar reflectance', 'diffuse visible reflectance')
         constr_str = generate_idf_string('ShadingProperty:Reflectance', values, comments)
-        
+
         # translate any child apertures or doors
         face_str = [shade_str, constr_str]
         for ap in face.apertures:
@@ -477,12 +478,19 @@ def face_to_idf(face):
         if found_i:  # reorder the vertices to have boundary first
             ul_verts = reversed(ul_verts)
     # assemble the values and the comments
+    if face.has_parent:
+        if face.parent.identifier == face.parent.zone:
+            zone_name, space_name = face.parent.zone, ''
+        else:
+            zone_name, space_name = face.parent.zone, face.parent.identifier
+    else:
+        zone_name, space_name = 'unknown', ''
     values = (
         face.identifier,
         face_type,
         face.properties.energy.construction.identifier,
-        face.parent.identifier if face.has_parent else 'unknown',
-        '',
+        zone_name,
+        space_name,
         bc_name,
         face_bc_obj,
         face.boundary_condition.sun_exposure_idf,
@@ -513,9 +521,19 @@ def room_to_idf(room):
     """Generate an IDF string representation of a Room.
 
     The resulting string will include all internal gain definitions for the Room
-    (people, lights, equipment), infiltration definitions, ventilation requirements,
-    and thermostat objects. However, complete schedule definitions assigned to
-    these objects are excluded and the Room's hvac is also excluded.
+    (people, lights, equipment, process) and the infiltration definition. It will
+    also include internal masses, ventilation fans, and daylight controls. However,
+    complete schedule definitions assigned to these load objects are excluded.
+
+    If the room's zone name is the same as the room identifier, the resulting IDF
+    string will be for an EnergyPlus Zone and it will include ventilation
+    requirements and thermostat objects. Otherwise, the IDF string will be for
+    a Space with ventilation and thermostats excluded (with the assumption
+    that these objects are to be written separately with the parent Zone).
+
+    The Room's HVAC is always excluded in the string returned from this method
+    regardless of whether the room represents an entire zone or an individual
+    space within a larger zone.
 
     Also note that this method does not write any of the geometry of the Room
     into the resulting string. To represent the Room geometry, you must loop
@@ -527,19 +545,28 @@ def room_to_idf(room):
     Args:
         room: A honeybee Room for which an IDF representation will be returned.
     """
-    # list of zone strings that will eventually be joined
+    # clean the room name so that it can be written into a comment
     clean_name = room.display_name.replace('\n', '')
-    zone_str = ['!-   ________ZONE:{}________\n'.format(clean_name)]
 
-    # write the zone definition
-    ceil_height = room.geometry.max.z - room.geometry.min.z
-    include_floor = 'No' if room.exclude_floor_area else 'Yes'
-    zone_values = (room.identifier, '', '', '', '', '', room.multiplier,
-                   ceil_height, room.volume, room.floor_area, '', '', include_floor)
-    zone_comments = ('name', 'north', 'x', 'y', 'z', 'type', 'multiplier',
-                     'ceiling height', 'volume', 'floor area', 'inside convection',
-                     'outside convection', 'include floor area')
-    zone_str.append(generate_idf_string('Zone', zone_values, zone_comments))
+    if room.identifier == room.zone:  # write the zone definition
+        is_zone = True
+        room_str = ['!-   ________ZONE:{}________\n'.format(clean_name)]
+        ceil_height = room.geometry.max.z - room.geometry.min.z
+        include_floor = 'No' if room.exclude_floor_area else 'Yes'
+        zone_values = (room.identifier, '', '', '', '', '', room.multiplier,
+                       ceil_height, room.volume, room.floor_area, '', '', include_floor)
+        zone_comments = ('name', 'north', 'x', 'y', 'z', 'type', 'multiplier',
+                         'ceiling height', 'volume', 'floor area', 'inside convection',
+                         'outside convection', 'include floor area')
+        room_str.append(generate_idf_string('Zone', zone_values, zone_comments))
+    else:  # write the space definition
+        is_zone = False
+        room_str = ['!-   ________SPACE:{}________\n'.format(clean_name)]
+        ceil_height = room.geometry.max.z - room.geometry.min.z
+        space_values = (room.identifier, room.zone,
+                        ceil_height, room.volume, room.floor_area)
+        space_comments = ('name', 'zone name', 'ceiling height', 'volume', 'floor area')
+        room_str.append(generate_idf_string('Space', space_values, space_comments))
 
     # write the load definitions
     people = room.properties.energy.people
@@ -551,44 +578,45 @@ def room_to_idf(room):
     ventilation = room.properties.energy.ventilation
 
     if people is not None:
-        zone_str.append(people.to_idf(room.identifier))
+        room_str.append(people.to_idf(room.identifier))
     if lighting is not None:
-        zone_str.append(lighting.to_idf(room.identifier))
+        room_str.append(lighting.to_idf(room.identifier))
     if electric_equipment is not None:
-        zone_str.append(electric_equipment.to_idf(room.identifier))
+        room_str.append(electric_equipment.to_idf(room.identifier))
     if gas_equipment is not None:
-        zone_str.append(gas_equipment.to_idf(room.identifier))
+        room_str.append(gas_equipment.to_idf(room.identifier))
     if shw is not None:
         shw_str, shw_sch = shw.to_idf(room)
-        zone_str.append(shw_str)
-        zone_str.extend(shw_sch)
+        room_str.append(shw_str)
+        room_str.extend(shw_sch)
     if infiltration is not None:
-        zone_str.append(infiltration.to_idf(room.identifier))
+        room_str.append(infiltration.to_idf(room.identifier))
 
     # write the ventilation and thermostat
-    if ventilation is not None:
-        zone_str.append(ventilation.to_idf(room.identifier))
-    if room.properties.energy.is_conditioned and \
-            room.properties.energy.setpoint is not None:
-        zone_str.append(room.properties.energy.setpoint.to_idf(room.identifier))
+    if is_zone:
+        if ventilation is not None:
+            room_str.append(ventilation.to_idf(room.identifier))
+        if room.properties.energy.is_conditioned and \
+                room.properties.energy.setpoint is not None:
+            room_str.append(room.properties.energy.setpoint.to_idf(room.identifier))
 
     # write any ventilation fan definitions
     for fan in room.properties.energy._fans:
-        zone_str.append(fan.to_idf(room.identifier))
+        room_str.append(fan.to_idf(room.identifier))
 
     # write the daylighting control
     if room.properties.energy.daylighting_control is not None:
-        zone_str.extend(room.properties.energy.daylighting_control.to_idf())
+        room_str.extend(room.properties.energy.daylighting_control.to_idf())
 
     # write any process load definitions
     for p_load in room.properties.energy._process_loads:
-        zone_str.append(p_load.to_idf(room.identifier))
+        room_str.append(p_load.to_idf(room.identifier))
 
     # write any internal mass definitions
     for int_mass in room.properties.energy._internal_masses:
-        zone_str.append(int_mass.to_idf(room.identifier))
+        room_str.append(int_mass.to_idf(room.identifier, is_zone))
 
-    return '\n\n'.join(zone_str)
+    return '\n\n'.join(room_str)
 
 
 def model_to_idf(
@@ -678,6 +706,78 @@ def model_to_idf(
     if patch_missing_adjacencies:
         model.properties.energy.missing_adjacencies_to_adiabatic()
 
+    # resolve the properties across zones
+    # adjust setpoints, ventilation, multipliers and exclude_floor_area
+    single_zones = []
+    zone_dict, zone_ids = {}, {}
+    for zone_name, rooms in model.zone_dict.items():
+        if len(rooms) == 1:  # simple case of one room in the zone
+            if rooms[0].identifier == zone_name:
+                single_zones.append(rooms[0])
+                continue  # the room can be written without the need for space vs. zone
+            zone_id = clean_and_number_ep_string(zone_name, zone_ids)
+            ceil_hgt = room.geometry.max.z - room.geometry.min.z
+            inc_flr = 'No' if room.exclude_floor_area else 'Yes'
+            z_prop = (room.multiplier, ceil_hgt, room.volume, room.floor_area, inc_flr)
+            set_pt = room.properties.energy.setpoint
+            vent = room.properties.energy.ventilation
+        else:  # resolve properties across the rooms of the zone
+            zone_id = clean_and_number_ep_string(zone_name, zone_ids)
+            # first determine whether zone must be split for excluded floor areas
+            if all(not r.exclude_floor_area for r in rooms):
+                inc_flr = 'Yes'
+            elif all(r.exclude_floor_area for r in rooms):
+                inc_flr = 'No'
+            else:  # split off excluded rooms into separate zones
+                inc_flr, ex_r_i = 'Yes', []
+                for i, r in enumerate(rooms):
+                    if r.exclude_floor_area:
+                        ex_r_i.append(i)
+                        r.zone = None  # remove the room from the zone
+                        single_zones.append(r)
+                for ex_i in reversed(ex_r_i):
+                    rooms.pop(ex_i)
+            # determine the other zone geometry properties
+            min_z = min(r.min.z for r in rooms)
+            max_z = max(r.max.z for r in rooms)
+            ceil_hgt = max_z - min_z
+            mult = max(r.multiplier for r in rooms)
+            vol = sum(r.volume for r in rooms)
+            flr_area = sum(r.floor_area for r in rooms)
+            z_prop = (mult, ceil_hgt, vol, flr_area, inc_flr)
+            # determine the setpoint
+            setpoints = [r.properties.energy.setpoint for r in rooms]
+            setpoints = [s for s in setpoints if s is not None]
+            if len(setpoints) == 0:
+                set_pt = None  # no setpoint object to be created
+            elif len(setpoints) == 1:
+                set_pt = setpoints[0]  # no need to create a new setpoint object
+            else:
+                setpoints = list(set(setpoints))
+                if len(setpoints) == 1:
+                    set_pt = setpoints[0]  # no need to create a new setpoint object
+                else:
+                    set_pt = setpoints[0].strictest(
+                        '{}_SetPt'.format(zone_id), setpoints)
+            # determine the ventilation
+            vents = [r.properties.energy.ventilation for r in rooms]
+            if all(v is None for v in vents):
+                vent = None
+            elif len(set(vents)) == 1 and vents[0].flow_per_zone == 0.0:
+                vent = vents[0]  # no need to make a new custom ventilation object
+            else:
+                v_obj = [v for v in vents if v is not None][0]
+                vent = v_obj.combine_room_ventilations('Ventilation', rooms)
+
+        # add to the dictionary of zone objects to be created
+        for i, room in enumerate(rooms):
+            room.zone = zone_id
+            room.properties.energy.setpoint = set_pt
+            room.properties.energy.ventilation = vent
+            if room.identifier == zone_id:
+                room.identifier = '{}_Space{}'.format(room.identifier, i)
+        zone_dict[zone_id] = (rooms, z_prop, set_pt, vent)
+
     # write the building object into the string
     model_str = ['!-   =======================================\n'
                  '!-   ================ MODEL ================\n'
@@ -763,9 +863,33 @@ def model_to_idf(
     model_str.append('!-   ============ CONSTRUCTIONS ============\n')
     model_str.extend(construction_strs)
 
-    # write all of the HVAC systems
+    # write all of the HVAC systems for zones
     model_str.append('!-   ============ HVAC SYSTEMS ============\n')
-    for room in model.rooms:
+    for zone_id, zone_data in zone_dict.items():
+        rooms, z_prop, set_pt, vent = zone_data
+        mult, ceil_hgt, vol, flr_area, inc_flr = z_prop
+        model_str.append('!-   ________ZONE:{}________\n'.format(zone_id))
+        zone_values = (zone_id, '', '', '', '', '', mult,
+                       ceil_hgt, vol, flr_area, '', '', inc_flr)
+        zone_comments = ('name', 'north', 'x', 'y', 'z', 'type', 'multiplier',
+                         'ceiling height', 'volume', 'floor area', 'inside convection',
+                         'outside convection', 'include floor area')
+        model_str.append(generate_idf_string('Zone', zone_values, zone_comments))
+        if vent is not None:
+            model_str.append(vent.to_idf(zone_id))
+        hvacs = [r.properties.energy.hvac for r in rooms
+                 if r.properties.energy.hvac is not None]
+        if set_pt is not None and len(hvacs) != 0:
+            model_str.append(set_pt.to_idf(zone_id))
+            try:
+                model_str.append(hvacs[0].to_idf_zone(zone_id, set_pt, vent))
+            except AttributeError:
+                raise TypeError(
+                    'HVAC system type "{}" does not support direct translation to IDF.\n'
+                    'Use the export to OpenStudio workflow instead.'.format(
+                        room.properties.energy.hvac.__class__.__name__))
+    # write all of the HVAC systems for individual rooms not using zones
+    for room in single_zones:
         if room.properties.energy.hvac is not None \
                 and room.properties.energy.setpoint is not None:
             try:
@@ -781,7 +905,7 @@ def model_to_idf(
     from .lib.constructions import air_boundary
 
     # write all of the zone geometry
-    model_str.append('!-   ============ ZONE GEOMETRY ============\n')
+    model_str.append('!-   ============ ROOM GEOMETRY ============\n')
     ap_objs = []
     found_ab = []
     for room in model.rooms:

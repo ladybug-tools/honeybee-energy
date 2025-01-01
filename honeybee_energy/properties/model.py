@@ -786,6 +786,7 @@ class ModelEnergyProperties(object):
         msgs.append(self.check_duplicate_hvac_identifiers(False, detailed))
         msgs.append(self.check_duplicate_shw_identifiers(False, detailed))
         # perform checks for specific energy simulation rules
+        msgs.append(self.check_all_zones_have_one_hvac(False, detailed))
         msgs.append(self.check_detailed_hvac_rooms(False, detailed))
         msgs.append(self.check_shw_rooms_in_model(False, detailed))
         msgs.append(self.check_all_air_boundaries_with_window(False, detailed))
@@ -829,6 +830,7 @@ class ModelEnergyProperties(object):
         msgs.append(self.check_duplicate_hvac_identifiers(False, detailed))
         msgs.append(self.check_duplicate_shw_identifiers(False, detailed))
         # perform checks for specific energy simulation rules
+        msgs.append(self.check_all_zones_have_one_hvac(False, detailed))
         msgs.append(self.check_detailed_hvac_rooms(False, detailed))
         msgs.append(self.check_shw_rooms_in_model(False, detailed))
         msgs.append(self.check_all_air_boundaries_with_window(False, detailed))
@@ -976,6 +978,74 @@ class ModelEnergyProperties(object):
         return check_duplicate_identifiers(
             self.shws, raise_exception, 'SHW', detailed, '020008', 'Energy',
             error_type='Duplicate SHW Identifier')
+
+    def check_all_zones_have_one_hvac(self, raise_exception=True, detailed=False):
+        """Check that all rooms within each zone have only ony HVAC assigned to them.
+
+        Multiple HVAC systems serving one zone typically causes EnergyPlus simulation
+        failures and is often a mistake that results from changing zoning strategies
+        without changing the HVAC to be coordinated with the new zones.
+
+        Note that having some Rooms in the zone referencing the HVAC and others
+        with no HVAC is considered permissible since this just implies that the
+        thermostat or zone equipment may be in one of the rooms but the whole
+        zone is conditioned by this equipment.
+
+        Args:
+            raise_exception: Boolean to note whether a ValueError should be raised if
+                there are rooms within zones that have different HVAC systems
+                assigned to them. (Default: True).
+            detailed: Boolean for whether the returned object is a detailed list of
+                dicts with error info or a string with a message. (Default: False).
+
+        Returns:
+            A string with the message or a list with a dictionary if detailed is True.
+        """
+        detailed = False if raise_exception else detailed
+        # gather a list of all the missing rooms
+        invalid_zones = {}
+        for zone, rooms in self.host.zone_dict.items():
+            if len(rooms) == 1:
+                continue
+            hvacs = [r.properties.energy.hvac for r in rooms
+                     if r.properties.energy.hvac is not None]
+            if len(hvacs) > 1:
+                invalid_zones[zone] = [rooms, hvacs]
+
+        # if missing rooms were found, then report the issue
+        if len(invalid_zones) != 0:
+            if detailed:
+                all_err = []
+                for zone, data in invalid_zones.items():
+                    rooms, hvacs = data
+                    hvac_names = [h.display_name for h in hvacs]
+                    msg = 'Zone "{}" is served by the following different HVAC ' \
+                        'systems:\n{}'.format(zone, '\n'.join(hvac_names))
+                    error_dict = {
+                        'type': 'ValidationError',
+                        'code': '020014',
+                        'error_type': 'Zone with Different Room HVACs',
+                        'extension_type': 'Energy',
+                        'element_type': 'Room',
+                        'element_id': [r.identifier for r in rooms],
+                        'element_name': [r.display_name for r in rooms],
+                        'message': msg
+                    }
+                    all_err.append(error_dict)
+                return all_err
+            else:
+                err_zones = []
+                for zone, data in invalid_zones.items():
+                    rooms, hvacs = data
+                    hvac_names = [h.display_name for h in hvacs]
+                    err_zn = '  {} - [HVACS: {}]'.format(zone, ', '.join(hvac_names))
+                    err_zones.append(err_zn)
+                msg = 'The model has the following invalid zones served by different ' \
+                    'HVAC systems:\n{}'.format('\n'.join(err_zones))
+                if raise_exception:
+                    raise ValueError(msg)
+                return msg
+        return [] if detailed else ''
 
     def check_shw_rooms_in_model(self, raise_exception=True, detailed=False):
         """Check that the room_identifiers of SHWSystems are in the model.

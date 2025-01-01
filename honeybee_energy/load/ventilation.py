@@ -431,7 +431,7 @@ class Ventilation(_LoadBase):
         # compute weights based on floor areas and volumes
         ventilations, floor_areas, volumes = [], [], []
         for room in rooms:
-            vent = Ventilation() if room.properties.ventilation is None else \
+            vent = Ventilation() if room.properties.energy.ventilation is None else \
                 room.properties.energy.ventilation
             ventilations.append(vent)
             floor_areas.append(room.floor_area)

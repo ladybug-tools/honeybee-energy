@@ -486,9 +486,27 @@ class IdealAirSystem(_HVACSystem):
         """
         # check that a setpoint object is assigned
         r_set_p = room.properties.energy.setpoint
+        r_vent = room.properties.energy.ventilation
         assert r_set_p is not None, 'IdealAirSystem must be assigned to a Room ' \
             'with a setpoint object to use IdealAirSystem.to_idf.'
+        return self.to_idf_zone(room.identifier, r_set_p, r_vent)
 
+    def to_idf_zone(self, zone_identifier, setpoint, ventilation=None):
+        """IDF string representation of IdealAirSystem using custom zone inputs.
+
+        This method is identical to the to_idf() method but it is intended to work
+        with the case that the ideal air system is assigned to multiple Rooms that
+        together form a single thermal Zone. As such, there are custom inputs for
+        the name of the zone as well as the setpoint and ventilation.
+
+        Args:
+            zone_identifier: Text for the identifier of the zone to which the
+                ideal air system is assigned.
+            setpoint: A Setpoint object representing the thermostat setpoints
+                of the Zone.
+            ventilation: An optional Ventilation object that represents the minimum
+                outdoor air requirements of the Zone. (Default: None).
+        """
         # extract all of the fields from this object and its room
         # heating limit
         if self.heating_limit != no_limit:
@@ -511,24 +529,23 @@ class IdealAirSystem(_HVACSystem):
         cool_avail = self.cooling_availability.identifier if \
             self.cooling_availability is not None else ''
         # humidifying setpoint
-        if r_set_p.humidifying_setpoint is not None:
+        if setpoint.humidifying_setpoint is not None:
             humid_type = 'Humidistat'
-            humid_setpt = r_set_p.humidifying_setpoint
+            humid_setpt = setpoint.humidifying_setpoint
         else:
             humid_type = 'None'
             humid_setpt = ''
         # dehumidifying setpoint
-        if r_set_p.dehumidifying_setpoint is not None:
+        if setpoint.dehumidifying_setpoint is not None:
             dehumid_type = 'Humidistat'
-            dehumid_setpt = r_set_p.dehumidifying_setpoint
+            dehumid_setpt = setpoint.dehumidifying_setpoint
         else:
             dehumid_type = 'None'
             dehumid_setpt = ''
         # ventilation requirements
-        if room.properties.energy.ventilation is not None:
+        if ventilation is not None:
             oa_method = 'DetailedSpecification'
-            oa_id = '{}..{}'.format(room.properties.energy.ventilation.identifier,
-                                    room.identifier)
+            oa_id = '{}..{}'.format(ventilation.identifier, zone_identifier)
         else:
             oa_method = 'None'
             oa_id = ''
@@ -543,9 +560,9 @@ class IdealAirSystem(_HVACSystem):
             heat_recovery = 'Sensible'
 
         # return a full IDF string
-        thermostat = '{}..{}'.format(r_set_p.identifier, room.identifier) \
-            if r_set_p.setpoint_cutout_difference == 0 else ''
-        values = (room.identifier, thermostat,
+        thermostat = '{}..{}'.format(setpoint.identifier, zone_identifier) \
+            if setpoint.setpoint_cutout_difference == 0 else ''
+        values = (zone_identifier, thermostat,
                   '', self.heating_air_temperature, self.cooling_air_temperature,
                   '', '', h_lim_type, '', heat_limit, c_lim_type, air_limit, cool_limit,
                   heat_avail, cool_avail, dehumid_type, '', dehumid_setpt,
