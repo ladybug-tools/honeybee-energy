@@ -226,7 +226,8 @@ class LoadBalance(object):
             mult_per_room=True)
         self._service_hot_water = self._match_room_input(
             service_hot_water_data, rooms, 'Service Hot Water',
-            'Water Use Equipment Zone', mult_per_room=True, use_mult=False)
+            'Water Use Equipment Zone', mult_per_room=True,
+            use_mult=False, space_based=True)
         self._people = self._match_room_input(
             people_data, rooms, 'People')
         self._solar = self._match_room_input(

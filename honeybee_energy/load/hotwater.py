@@ -407,7 +407,7 @@ class ServiceHotWater(_LoadBase):
         # create the Water Use string
         total_flow = (self.flow_per_area / 3600000.) * room.floor_area
         values = (u_id, 'General', total_flow, self.schedule.identifier, hot_fields[0],
-                  hot_fields[0], '', room.identifier, sens_sch, lat_sch)
+                  hot_fields[0], '', room.zone, sens_sch, lat_sch)
         comments = ('name', 'end use subcategory', 'peak flow rate {m/s}',
                     'schedule name', 'target temp schedule', 'hot water temp schedule',
                     'cold water temp schedule', 'zone name',
