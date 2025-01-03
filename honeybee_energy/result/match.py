@@ -55,8 +55,6 @@ def match_rooms_to_data(
             elif '..' in hvac_id:  # convention used for service hot water
                 zone_ids.append(hvac_id.split('..')[-1])
                 use_mult = False if 'Gain' in data.header.metadata['type'] else True
-            elif '_IDEALAIR' in hvac_id:  # TODO: Remove once test files are updated
-                zone_ids.append(hvac_id.split('_IDEALAIR')[0])
             else:
                 use_mult = False
                 zone_ids.append(hvac_id)
