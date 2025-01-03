@@ -1,5 +1,7 @@
 # coding=utf-8
 """Utilities for matching Model geometry with energy simulation results."""
+from __future__ import division
+
 import re
 
 from honeybee.door import Door
@@ -8,7 +10,8 @@ from honeybee.face import Face
 
 
 def match_rooms_to_data(
-        data_collections, rooms, invert_multiplier=False, space_based=False):
+        data_collections, rooms, invert_multiplier=False, space_based=False,
+        zone_correct_mult=True):
     """Match honeybee Rooms to the Zone-level data collections from SQLiteResult.
 
     This method ensures that Room multipliers are correctly output for a given
@@ -29,6 +32,17 @@ def match_rooms_to_data(
             Space level instead of the Zone level. In this case, the matching to
             the Room will account for the fact that the Space name is the Room
             name with _Space added to it. (Default: False).
+        zone_correct_mult: Boolean to note whether the multiplier in the returned result
+            should be divided by the number of Rooms within each zone when
+            space_based is False. This is useful for ensuring that, overall,
+            values reported on the zone level and matched to Rooms are not counted
+            more than once for zones with multiple Rooms. Essentially, multiplying
+            each Room data collection by the multiplier before summing results
+            together ensures that the final summed result is accurate. Setting
+            this to False will make the multiplier in the result equal to the
+            Room.multiplier property, which may be useful for certain visualizations
+            where rooms are to be colored with the total result for their parent
+            zone. (Default: True).
 
     Returns:
         An array of tuples that contain matched rooms and data collections. All
@@ -63,15 +77,29 @@ def match_rooms_to_data(
     if space_based:
         zone_ids = [zid.replace('_SPACE', '') for zid in zone_ids]
 
+    # count the number of rooms in each zone to zone-correct the multiplier
+    if not space_based and zone_correct_mult:
+        zone_counter = {}
+        for room in rooms:
+            try:
+                zone_counter[room.zone] += 1
+            except KeyError:  # first room found in the zone
+                zone_counter[room.zone] = 1
+
     # loop through the rooms and match the data to them
     matched_tuples = []  # list of matched rooms and data collections
     for room in rooms:
-        rm_id = room.identifier.upper()
+        if space_based:
+            rm_id, zc = room.identifier.upper(), 1
+        else:
+            rm_id = room.zone.upper()
+            zc = zone_counter[room.zone] if zone_correct_mult else 1
         for i, data_id in enumerate(zone_ids):
             if data_id == rm_id:
                 mult = 1 if not use_mult else room.multiplier
-                matched_tuples.append((room, data_collections[i], mult))
+                matched_tuples.append((room, data_collections[i], mult / zc))
                 break
+
     return matched_tuples
 
 
