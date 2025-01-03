@@ -246,8 +246,6 @@ class LoadBalance(object):
             # compute just the conduction loss/gain from the windows
             self._window_conduction = _win_f - self._solar
             self._window_conduction.header.metadata['type'] = 'Window Conduction'
-        if self._solar is not None:
-            self._solar = self._solar * 0.99  # account for sun reflected back out windows
         # when using all of the rooms, reset the property
         if use_all_solar:
             self._rooms = rooms

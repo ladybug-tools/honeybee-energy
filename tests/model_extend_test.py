@@ -931,6 +931,8 @@ def test_writer_to_idf_space_vs_zone():
     from honeybee_energy.simulation.parameter import SimulationParameter
     sim_par = SimulationParameter()
     sim_par.output.add_zone_energy_use()
+    sim_par.output.add_gains_and_losses()
+    sim_par.output.add_surface_energy_flow()
     ddy_file = 'C:/EnergyPlusV24-2-0/WeatherData/USA_CO_Golden-NREL.724666_TMY3.ddy'
     sim_par.sizing_parameter.add_from_ddy_996_004(ddy_file)
     idf_str = '\n\n'.join((sim_par.to_idf(), idf_string))

@@ -234,7 +234,7 @@ def test_colorfaces_triangulated():
     assert len(color_obj.matched_values) == 1
 
     data_colls = sql_obj.data_collections_by_output_name(
-        'Surface Average Face Conduction Heat Transfer Energy')
+        'Surface Inside Face Conduction Heat Transfer Energy')
     color_obj = ColorFace(data_colls, model.rooms[0].faces)
     assert len(color_obj.matched_values) == 7
 
