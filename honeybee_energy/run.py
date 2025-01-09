@@ -1161,13 +1161,13 @@ def set_gbxml_floor_types(
     # read the file content
     with open(base_gbxml, 'r') as bxf:
         content = bxf.read()
-    
+
     # replace all interior floors with the specified type
     if interior_type == 'InteriorFloor':
         content = content.replace('="Ceiling"', '="InteriorFloor"')
     elif interior_type == 'Ceiling':
         content = content.replace('="InteriorFloor"', '="Ceiling"')
-    
+
     # replace all ground floors with the specified type
     if ground_type == 'UndergroundSlab':
         content = content.replace('="SlabOnGrade"', '="UndergroundSlab"')

@@ -1383,6 +1383,132 @@ class ModelEnergyProperties(object):
             raise ValueError(full_msg)
         return full_msg
 
+    def resolve_zones(self):
+        """Resolve properties of Rooms across each zone such that E+ can simulate them.
+
+        This method is intended as a pre-step before translating the model to EnergyPlus
+        or OpenStudio but it will mutate the Rooms of the model. So it is often
+        best to duplicate() the model before running this method such that existing
+        room and zone information is not lost. After running this method, the
+        following will be true.
+
+        1. All Zone names in the model will use only ASCII characters that are
+        accepted by EnergyPlus.
+
+        2. If not all Rooms of a zone have the same thermostat setpoint, these will
+        be edited such that the strictest setpoint of the rooms at each timestep
+        governs the thermostat setpoint of the whole zone. So all Rooms in each
+        zone will have their setpoint property re-assigned.
+
+        3. If not all Rooms of a zone have the same ventilation requirements, these
+        will be edited such that the ventilation requirement of the zone is equal
+        to the sum of the individual room ventilation requirements. To total outdoor
+        flow rates are added across the Rooms, flow-per-floor area gets recomputed using
+        the floor area of each Room, ACH flow rates get recomputed using the volume
+        of each Room, and the flow-per-person is set to the highest value of
+        the Rooms in the zone. If all Rooms have ventilation schedules, then these
+        are recomputed such that the highest value governs at each timestep.
+
+        4. If not all of the Rooms of the zone have the same multiplier, then the
+        highest multiplier of the rooms in the zone sets the multiplier of the zone.
+
+        5. If not all Rooms of the zone have the same exclude_floor_area value,
+        then the rooms with excluded floor area will be pulled out into separate
+        zones from the ones that have included floor area, which will retain the
+        original zone name.
+
+        Returns:
+            A tuple with two elements.
+
+            -   single_zones -- A list of all rooms in the model that have their
+                room identifier equal to their zone identifier, in which case
+                they can be translated without the need to distinguish spaces
+                from zones.
+
+            -   zone_dict -- A dictionary with (clean ASCII) identifiers of zones
+                as keys a list of properties defining the zone as values, including
+                the Room objects, zone setpoints, and zone ventilation. These
+                can be used to write zones into the destination format.
+        """
+        # set up variables to be returned from this method
+        single_zones, zone_dict = [], {}
+        zone_ids = {}
+
+        # adjust setpoints, ventilation, multipliers and exclude_floor_area
+        for zone_name, rooms in self.host.zone_dict.items():
+            if len(rooms) == 1:  # simple case of one room in the zone
+                room = rooms[0]
+                if rooms[0].identifier == zone_name:
+                    single_zones.append(rooms[0])
+                    continue  # room can be written without the need for space vs. zone
+                zone_id = clean_and_number_ep_string(zone_name, zone_ids)
+                room.zone = zone_id
+                ceil_hgt = room.geometry.max.z - room.geometry.min.z
+                inc_flr = 'No' if room.exclude_floor_area else 'Yes'
+                z_prop = (room.multiplier, ceil_hgt, room.volume, room.floor_area, inc_flr)
+                set_pt = room.properties.energy.setpoint
+                vent = room.properties.energy.ventilation
+            else:  # resolve properties across the rooms of the zone
+                zone_id = clean_and_number_ep_string(zone_name, zone_ids)
+                # first determine whether zone must be split for excluded floor areas
+                if all(not r.exclude_floor_area for r in rooms):
+                    inc_flr = 'Yes'
+                elif all(r.exclude_floor_area for r in rooms):
+                    inc_flr = 'No'
+                else:  # split off excluded rooms into separate zones
+                    inc_flr, ex_r_i = 'Yes', []
+                    for i, r in enumerate(rooms):
+                        if r.exclude_floor_area:
+                            ex_r_i.append(i)
+                            r.zone = None  # remove the room from the zone
+                            single_zones.append(r)
+                    for ex_i in reversed(ex_r_i):
+                        rooms.pop(ex_i)
+                # determine the other zone geometry properties
+                min_z = min(r.min.z for r in rooms)
+                max_z = max(r.max.z for r in rooms)
+                ceil_hgt = max_z - min_z
+                mult = max(r.multiplier for r in rooms)
+                vol = sum(r.volume for r in rooms)
+                flr_area = sum(r.floor_area for r in rooms)
+                z_prop = (mult, ceil_hgt, vol, flr_area, inc_flr)
+                # determine the setpoint
+                setpoints = [r.properties.energy.setpoint for r in rooms]
+                setpoints = [s for s in setpoints if s is not None]
+                if len(setpoints) == 0:
+                    set_pt = None  # no setpoint object to be created
+                elif len(setpoints) == 1:
+                    set_pt = setpoints[0]  # no need to create a new setpoint object
+                else:
+                    setpoints = list(set(setpoints))
+                    if len(setpoints) == 1:
+                        set_pt = setpoints[0]  # no need to create a new setpoint object
+                    else:
+                        set_pt = setpoints[0].strictest(
+                            '{}_SetPt'.format(zone_id), setpoints)
+                # determine the ventilation
+                vents = [r.properties.energy.ventilation for r in rooms]
+                if all(v is None for v in vents):
+                    vent = None
+                elif len(set(vents)) == 1 and vents[0].flow_per_zone == 0.0:
+                    vent = vents[0]  # no need to make a new custom ventilation object
+                else:
+                    v_obj = [v for v in vents if v is not None][0]
+                    vent = v_obj.combine_room_ventilations('Ventilation', rooms)
+                # edit the rooms so that the setpoint and ventilation are consistent
+                for i, room in enumerate(rooms):
+                    room.zone = zone_id
+                    room.properties.energy.setpoint = set_pt
+                    room.properties.energy.ventilation = vent
+                    if room.identifier == zone_id:
+                        room.identifier = '{}_Space{}'.format(room.identifier, i)
+
+            # add to the dictionary of zone objects to be created
+            zone_dict[zone_id] = (rooms, z_prop, set_pt, vent)
+
+        # return the list of single zones and the zone_dict
+        return single_zones, zone_dict
+
     def sync_detailed_hvac_ids(self, room_map):
         """Sync room identifiers in DetailedHVAC with rooms that had their IDs changed.
 
