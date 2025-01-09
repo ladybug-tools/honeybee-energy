@@ -7,7 +7,6 @@ from honeybee.room import Room
 from honeybee.face import Face
 from honeybee.boundarycondition import Outdoors, Surface, Ground
 from honeybee.facetype import Floor, RoofCeiling, AirBoundary
-from honeybee.typing import clean_and_number_ep_string
 
 try:
     from itertools import izip as zip  # python 2
@@ -707,76 +706,7 @@ def model_to_idf(
         model.properties.energy.missing_adjacencies_to_adiabatic()
 
     # resolve the properties across zones
-    # adjust setpoints, ventilation, multipliers and exclude_floor_area
-    single_zones = []
-    zone_dict, zone_ids = {}, {}
-    for zone_name, rooms in model.zone_dict.items():
-        if len(rooms) == 1:  # simple case of one room in the zone
-            if rooms[0].identifier == zone_name:
-                single_zones.append(rooms[0])
-                continue  # the room can be written without the need for space vs. zone
-            zone_id = clean_and_number_ep_string(zone_name, zone_ids)
-            ceil_hgt = room.geometry.max.z - room.geometry.min.z
-            inc_flr = 'No' if room.exclude_floor_area else 'Yes'
-            z_prop = (room.multiplier, ceil_hgt, room.volume, room.floor_area, inc_flr)
-            set_pt = room.properties.energy.setpoint
-            vent = room.properties.energy.ventilation
-        else:  # resolve properties across the rooms of the zone
-            zone_id = clean_and_number_ep_string(zone_name, zone_ids)
-            # first determine whether zone must be split for excluded floor areas
-            if all(not r.exclude_floor_area for r in rooms):
-                inc_flr = 'Yes'
-            elif all(r.exclude_floor_area for r in rooms):
-                inc_flr = 'No'
-            else:  # split off excluded rooms into separate zones
-                inc_flr, ex_r_i = 'Yes', []
-                for i, r in enumerate(rooms):
-                    if r.exclude_floor_area:
-                        ex_r_i.append(i)
-                        r.zone = None  # remove the room from the zone
-                        single_zones.append(r)
-                for ex_i in reversed(ex_r_i):
-                    rooms.pop(ex_i)
-            # determine the other zone geometry properties
-            min_z = min(r.min.z for r in rooms)
-            max_z = max(r.max.z for r in rooms)
-            ceil_hgt = max_z - min_z
-            mult = max(r.multiplier for r in rooms)
-            vol = sum(r.volume for r in rooms)
-            flr_area = sum(r.floor_area for r in rooms)
-            z_prop = (mult, ceil_hgt, vol, flr_area, inc_flr)
-            # determine the setpoint
-            setpoints = [r.properties.energy.setpoint for r in rooms]
-            setpoints = [s for s in setpoints if s is not None]
-            if len(setpoints) == 0:
-                set_pt = None  # no setpoint object to be created
-            elif len(setpoints) == 1:
-                set_pt = setpoints[0]  # no need to create a new setpoint object
-            else:
-                setpoints = list(set(setpoints))
-                if len(setpoints) == 1:
-                    set_pt = setpoints[0]  # no need to create a new setpoint object
-                else:
-                    set_pt = setpoints[0].strictest(
-                        '{}_SetPt'.format(zone_id), setpoints)
-            # determine the ventilation
-            vents = [r.properties.energy.ventilation for r in rooms]
-            if all(v is None for v in vents):
-                vent = None
-            elif len(set(vents)) == 1 and vents[0].flow_per_zone == 0.0:
-                vent = vents[0]  # no need to make a new custom ventilation object
-            else:
-                v_obj = [v for v in vents if v is not None][0]
-                vent = v_obj.combine_room_ventilations('Ventilation', rooms)
-
-        # add to the dictionary of zone objects to be created
-        for i, room in enumerate(rooms):
-            room.zone = zone_id
-            room.properties.energy.setpoint = set_pt
-            room.properties.energy.ventilation = vent
-            if room.identifier == zone_id:
-                room.identifier = '{}_Space{}'.format(room.identifier, i)
-        zone_dict[zone_id] = (rooms, z_prop, set_pt, vent)
+    single_zones, zone_dict = model.properties.energy.resolve_zones()
 
     # write the building object into the string
     model_str = ['!-   =======================================\n'
