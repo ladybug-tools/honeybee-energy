@@ -1202,7 +1202,7 @@ class EnergyWindowMaterialBlind(_EnergyWindowMaterialShadeBase):
 
     def to_idf(self):
         """Get an EnergyPlus string representation of the material.
-        
+
         .. code-block:: shell
 
             WindowMaterial:Blind,

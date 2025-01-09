@@ -887,7 +887,7 @@ def model_to_idf(
     for tri_drs in tri_doors:
         for i, dr in enumerate(tri_drs):
             if i != 0:
-                ap.properties.energy.vent_opening = None
+                dr.properties.energy.vent_opening = None
             model_str.append(dr.to.idf(dr))
 
     # write all context shade geometry
