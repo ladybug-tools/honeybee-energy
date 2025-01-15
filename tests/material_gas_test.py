@@ -5,6 +5,7 @@ from honeybee_energy.material.gas import EnergyWindowMaterialGas, \
 import pytest
 from .fixtures.userdata_fixtures import userdatadict
 
+
 def test_gas_init(userdatadict):
     """Test the initalization of gas material objects and basic properties."""
     air = EnergyWindowMaterialGas('Air Gap', 0.0125, 'Air')

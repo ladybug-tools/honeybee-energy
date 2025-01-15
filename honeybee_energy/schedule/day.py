@@ -447,7 +447,7 @@ class ScheduleDay(object):
         """IDF string representation of ScheduleDay object.
 
         Args:
-            schedule_type_limits: Optional ScheduleTypeLimit object, which will
+            schedule_type_limit: Optional ScheduleTypeLimit object, which will
                 be written into the IDF string in order to validate the values
                 within the schedule during the EnergyPlus run.
 

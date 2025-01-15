@@ -922,7 +922,7 @@ class _FaceSetBase(object):
         new_obj = self.__class__(
             self._exterior_construction, self._interior_construction,
             self._ground_construction)
-        return(new_obj)
+        return new_obj
 
     def __repr__(self):
         return 'Base Face Set'
@@ -1326,7 +1326,7 @@ class ApertureConstructionSet(object):
             self._window_construction, self._interior_construction,
             self._skylight_construction, self._operable_construction
         )
-        return(new_obj)
+        return new_obj
 
     def __repr__(self):
         return 'Aperture Construction Set: [Window: {}] [Interior: {}]' \
@@ -1596,7 +1596,7 @@ class DoorConstructionSet(object):
             self._exterior_construction, self._interior_construction,
             self._exterior_glass_construction, self._interior_glass_construction,
             self._overhead_construction)
-        return(new_obj)
+        return new_obj
 
     def __repr__(self):
         return 'Door Construction Set: [Exterior: {}] [Interior: {}]' \

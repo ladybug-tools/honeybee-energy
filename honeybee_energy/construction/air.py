@@ -12,6 +12,7 @@ from honeybee._lockable import lockable
 from honeybee.typing import valid_ep_string, float_positive
 from ..properties.extension import AirBoundaryConstructionProperties
 
+
 @lockable
 class AirBoundaryConstruction(object):
     """Construction for Faces with an AirBoundary face type.
@@ -130,7 +131,7 @@ class AirBoundaryConstruction(object):
     def thickness(self):
         """Thickness of the construction, always zero for air boundary construction."""
         return 0
-    
+
     @property
     def properties(self):
         """Get the properties object for this construction."""
@@ -207,8 +208,8 @@ class AirBoundaryConstruction(object):
         Note that the to_air_mixing_idf method must also be used to write air
         mixing objects into the IDF for each Face that has the construction
         assigned to it.
-        
-        .. code-block:: shell 
+
+        .. code-block:: shell
 
             Construction:AirBoundary,
                 Air Wall,                !- Name
