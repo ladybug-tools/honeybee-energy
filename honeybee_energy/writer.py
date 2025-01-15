@@ -834,7 +834,7 @@ def model_to_idf(
     # must be imported here to avoid circular imports
     from .lib.constructions import air_boundary
 
-    # write all of the zone geometry
+    # write all of the room geometry
     model_str.append('!-   ============ ROOM GEOMETRY ============\n')
     ap_objs = []
     found_ab = []

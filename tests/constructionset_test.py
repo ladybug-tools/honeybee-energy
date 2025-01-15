@@ -224,7 +224,6 @@ def test_constructionset_dict_methods(userdatadict):
     insulated_set.aperture_set.window_construction = triple_clear
     insulated_set.user_data = userdatadict
     constr_dict = insulated_set.to_dict()
-    
 
     assert constr_dict['wall_set']['exterior_construction'] is None
     assert constr_dict['wall_set']['interior_construction'] is None
