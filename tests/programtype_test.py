@@ -17,6 +17,7 @@ from ladybug.dt import Time
 import pytest
 from .fixtures.userdata_fixtures import userdatadict
 
+
 def test_program_type_init(userdatadict):
     """Test the initialization of ProgramType and basic properties."""
     simple_office = ScheduleDay('Simple Weekday Occupancy', [0, 1, 0],

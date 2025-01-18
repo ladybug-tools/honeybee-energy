@@ -10,7 +10,7 @@ from .properties.extension import SHWSystemProperties
 
 @lockable
 class SHWSystem(object):
-    """Detailed Service Hot Water (SHW) system template used to meet hot water demand.
+    """Detailed Service Hot Water (SHW) system template used to meet hot water demand. 
 
     Args:
         identifier: Text string for the system identifier. Must be < 100 characters

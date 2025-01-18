@@ -234,9 +234,13 @@ def door_to_idf(door):
     door_bc_obj = door.boundary_condition.boundary_condition_object if \
         isinstance(door.boundary_condition, Surface) else ''
     construction = door.properties.energy.construction
-    constr_name = construction.identifier if not construction.has_shade \
-        else construction.window_construction.identifier
     frame_name = construction.frame.identifier if construction.has_frame else ''
+    if construction.has_shade:
+        constr_name = construction.window_construction.identifier
+    elif construction.is_dynamic:
+        constr_name = '{}State0'.format(construction.constructions[0].identifier)
+    else:
+        constr_name = construction.identifier
     if door.has_parent:
         parent_face = door.parent.identifier
         parent_room = door.parent.parent.identifier if door.parent.has_parent \
@@ -836,7 +840,7 @@ def model_to_idf(
 
     # write all of the room geometry
     model_str.append('!-   ============ ROOM GEOMETRY ============\n')
-    ap_objs = []
+    sf_objs = []
     found_ab = []
     for room in model.rooms:
         model_str.append(room.to.idf(room))
@@ -862,12 +866,13 @@ def model_to_idf(
             for ap in face.apertures:
                 if len(ap.geometry) <= 4:  # ignore apertures to be triangulated
                     model_str.append(ap.to.idf(ap))
-                    ap_objs.append(ap)
+                    sf_objs.append(ap)
                 for shade in ap.outdoor_shades:
                     model_str.append(shade.to.idf(shade))
             for dr in face.doors:
                 if len(dr.geometry) <= 4:  # ignore doors to be triangulated
                     model_str.append(dr.to.idf(dr))
+                    sf_objs.append(dr)
                 for shade in dr.outdoor_shades:
                     model_str.append(shade.to.idf(shade))
             for shade in face.outdoor_shades:
@@ -882,13 +887,14 @@ def model_to_idf(
             if i != 0:
                 ap.properties.energy.vent_opening = None
             model_str.append(ap.to.idf(ap))
-            ap_objs.append(ap)
+            sf_objs.append(ap)
     tri_doors, _ = model.triangulated_doors()
     for tri_drs in tri_doors:
         for i, dr in enumerate(tri_drs):
             if i != 0:
                 dr.properties.energy.vent_opening = None
             model_str.append(dr.to.idf(dr))
+            sf_objs.append(dr)
 
     # write all context shade geometry
     model_str.append('!-   ========== CONTEXT GEOMETRY ==========\n')
@@ -910,12 +916,12 @@ def model_to_idf(
     if len(dynamic_cons) != 0:
         model_str.append('!-   ========== EMS PROGRAMS ==========\n')
         dyn_dict = {}
-        for ap in ap_objs:
-            con = ap.properties.energy.construction
+        for sf in sf_objs:
+            con = sf.properties.energy.construction
             try:
-                dyn_dict[con.identifier].append(ap.identifier)
+                dyn_dict[con.identifier].append(sf.identifier)
             except KeyError:
-                dyn_dict[con.identifier] = [ap.identifier]
+                dyn_dict[con.identifier] = [sf.identifier]
         for con in dynamic_cons:
             model_str.append(con.to_program_idf(dyn_dict[con.identifier]))
         model_str.append(dynamic_cons[0].idf_program_manager(dynamic_cons))

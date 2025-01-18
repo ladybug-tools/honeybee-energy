@@ -329,9 +329,9 @@ class Infiltration(_LoadBase):
                 DORM ROOMS AND COMMON AREAS, !- Zone Name
                 Infiltration Sch,            !- Schedule Name
                 Flow/Zone,                   !- Design Flow Rate Calculation Method
-                2.831685,                    !- Design Flow Rate {m3/s}
+                ,                            !- Design Flow Rate {m3/s}
                 ,                            !- Flow Rate per Floor Area {m3/s/m2}
-                ,                            !- Flow Rate per Exterior Surface Area {m3/s/m2}
+                0.0003,                      !- Flow Rate per Exterior Surface Area {m3/s/m2}
                 ,                            !- Air Changes per Hour
                 0.6060000    ,               !- Constant Term Coefficient
                 3.6359996E-02,               !- Temperature Term Coefficient
