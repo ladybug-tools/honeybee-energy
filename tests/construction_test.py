@@ -784,7 +784,7 @@ def test_window_construction_dynamic_init():
                       0, 0, 0, 0, 0, 1, 1, 1])
     double_low_e_ec = WindowConstructionDynamic(
         'Double Low-E EC', [window_constr_on, window_constr_off], sched)
-    
+
     assert double_low_e_ec.identifier == 'Double Low-E EC'
     assert len(double_low_e_ec.constructions) == len(double_low_e_ec) == 2
     assert double_low_e_ec[0] == window_constr_on

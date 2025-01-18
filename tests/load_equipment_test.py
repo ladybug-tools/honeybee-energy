@@ -11,6 +11,7 @@ from ladybug.dt import Time, Date
 import pytest
 from .fixtures.userdata_fixtures import userdatadict
 
+
 def test_equipment_init(userdatadict):
     """Test the initialization of ElectricEquipment and basic properties."""
     simple_office = ScheduleDay('Simple Weekday', [0, 1, 0],

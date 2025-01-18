@@ -445,6 +445,20 @@ class RoomEnergyProperties(object):
         )
         return not all(load is None for load in load_attr)
 
+    @property
+    def has_overridden_space_loads(self):
+        """Boolean for whether the Room has SpaceType loads that override the Program.
+
+        This property is the same as has_overridden_loads except that overridden
+        service_hot_water and setpoint are ignored given that they are not attributes
+        that can be assigned with OpenStudio SpaceTypes.
+        """
+        load_attr = (
+            self._people, self._lighting, self._electric_equipment,
+            self._gas_equipment, self._infiltration, self._ventilation
+        )
+        return not all(load is None for load in load_attr)
+
     def absolute_people(self, person_count, conversion=1):
         """Set the absolute number of people in the Room.
 

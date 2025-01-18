@@ -58,7 +58,6 @@ class ShadeMeshEnergyProperties(object):
         return generic_context if self._host.is_detached else \
             generic_construction_set.shade_construction
 
-
     @construction.setter
     def construction(self, value):
         if value is not None:

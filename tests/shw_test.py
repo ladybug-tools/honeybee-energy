@@ -75,8 +75,6 @@ def test_default_shw_to_dict(userdatadict):
     assert default_shw_dict['ambient_condition'] == 24
     assert default_shw_dict['ambient_loss_coefficient'] == 5
 
-
-    """Test the to/from dict methods."""
     default_shw = SHWSystem('Passive House SHW System')
     default_shw.equipment_type = 'Electric_WaterHeater'
     default_shw.heater_efficiency = 0.98
