@@ -450,12 +450,13 @@ class RoomEnergyProperties(object):
         """Boolean for whether the Room has SpaceType loads that override the Program.
 
         This property is the same as has_overridden_loads except that overridden
-        service_hot_water and setpoint are ignored given that they are not attributes
-        that can be assigned with OpenStudio SpaceTypes.
+        service_hot_water, ventilation, and setpoint are ignored given that they
+        replace the attributes assigned by OpenStudio SpaceTypes rather than being
+        added to them.
         """
         load_attr = (
             self._people, self._lighting, self._electric_equipment,
-            self._gas_equipment, self._infiltration, self._ventilation
+            self._gas_equipment, self._infiltration
         )
         return not all(load is None for load in load_attr)
 
