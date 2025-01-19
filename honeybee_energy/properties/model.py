@@ -1487,19 +1487,23 @@ class ModelEnergyProperties(object):
                         set_pt = setpoints[0].strictest(
                             '{}_SetPt'.format(zone_id), setpoints)
                 # determine the ventilation
+                new_vent = False
                 vents = [r.properties.energy.ventilation for r in rooms]
                 if all(v is None for v in vents):
                     vent = None
                 elif len(set(vents)) == 1 and vents[0].flow_per_zone == 0.0:
                     vent = vents[0]  # no need to make a new custom ventilation object
                 else:
+                    new_vent = True
                     v_obj = [v for v in vents if v is not None][0]
-                    vent = v_obj.combine_room_ventilations('Ventilation', rooms)
+                    vent = v_obj.combine_room_ventilations(
+                        '{}_Vent'.format(zone_id), rooms)
                 # edit the rooms so that the setpoint and ventilation are consistent
                 for i, room in enumerate(rooms):
                     room.zone = zone_id
                     room.properties.energy.setpoint = set_pt
-                    room.properties.energy.ventilation = vent
+                    if new_vent:
+                        room.properties.energy.ventilation = vent
                     if room.identifier == zone_id:
                         room.identifier = '{}_Space{}'.format(room.identifier, i)
 
