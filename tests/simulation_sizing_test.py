@@ -4,10 +4,8 @@ from honeybee_energy.simulation.sizing import SizingParameter
 from ladybug.ddy import DDY
 from ladybug.designday import DesignDay
 
-import pytest
 
-
-def test_sizing_parameter_init():
+def test_sizing_parameter_init(): 
     """Test the initialization of SizingParameter and basic properties."""
     sizing = SizingParameter()
     str(sizing)  # test the string representation

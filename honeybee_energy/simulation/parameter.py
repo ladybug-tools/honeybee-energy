@@ -249,18 +249,9 @@ class SimulationParameter(object):
 
     def water_mains_idf(self):
         """Get an IDF string for the water mains object."""
-        # TODO: Remove generation of mains temps from des days if bug is fixed in E+ 9.7
-        if len(self.sizing_parameter.design_days) > 0:
-            db_temps = [dday.dry_bulb_condition.dry_bulb_max
-                        for dday in self.sizing_parameter.design_days]
-            avg_temp = (max(db_temps) + min(db_temps)) / 2
-            return generate_idf_string(
-                'Site:WaterMainsTemperature', ('Correlation', '', str(avg_temp), '4'),
-                ('calculation method', 'schedule', 'average temp', 'delta temp'))
-        else:
-            return generate_idf_string(
-                'Site:WaterMainsTemperature', ('CorrelationFromWeatherFile',),
-                ('calculation method',))
+        return generate_idf_string(
+            'Site:WaterMainsTemperature', ('CorrelationFromWeatherFile',),
+            ('calculation method',))
 
     @classmethod
     def from_idf(cls, idf_string):
