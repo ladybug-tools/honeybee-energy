@@ -1,8 +1,6 @@
 # coding=utf-8
 from honeybee_energy.simulation.shadowcalculation import ShadowCalculation
 
-import pytest
-
 
 def test_shadow_calculation_init():
     """Test the initialization of ShadowCalculation and basic properties."""

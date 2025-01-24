@@ -10,8 +10,6 @@ from honeybee_energy.simulation.sizing import SizingParameter
 from ladybug_geometry.geometry2d.pointvector import Vector2D
 from ladybug.dt import Date
 
-import pytest
-
 
 def test_simulation_parameter_init():
     """Test the initialization of SimulationParameter and basic properties."""
