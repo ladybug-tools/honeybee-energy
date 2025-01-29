@@ -1117,13 +1117,12 @@ class RoomEnergyProperties(object):
         """Turn the host Room into a plenum with no internal loads.
 
         This includes removing all people, lighting, equipment, hot water, and
-        mechanical ventilation. By
-        default, the heating/cooling system and setpoints will also be removed but they
-        can optionally be kept. Infiltration is kept by default but can optionally be
-        removed as well.
+        mechanical ventilation. By default, the heating/cooling system and
+        setpoints will also be removed but they can optionally be kept. Infiltration
+        is kept by default but can optionally be removed as well.
 
-        This is useful to appropriately assign properties for closets, underfloor spaces,
-        and drop ceilings.
+        This is useful to appropriately assign properties for closets,
+        underfloor spaces, and drop ceilings.
 
         Args:
             conditioned: Boolean to indicate whether the plenum is conditioned with a

@@ -30,7 +30,13 @@ generic_interior_door = _opaque_constructions['Generic Interior Door']
 air_boundary = _opaque_constructions['Generic Air Boundary']
 generic_context = _shade_constructions['Generic Context']
 generic_shade = _shade_constructions['Generic Shade']
-
+try:
+    ceiling_plenum_bottom = _opaque_constructions['Ceiling Plenum Bottom']
+    floor_plenum_top = _opaque_constructions['Floor Plenum Top']
+except KeyError:  # older version of honeybee-standards
+    ceiling_plenum_bottom = \
+        OpaqueConstruction('Ceiling Plenum Bottom', [_m.acoustic_tile])
+    floor_plenum_top = OpaqueConstruction('Floor Plenum Top', [_m.wood])
 
 # make lists of construction identifiers to look up items in the library
 OPAQUE_CONSTRUCTIONS = tuple(_opaque_constructions.keys()) + \
