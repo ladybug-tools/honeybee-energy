@@ -561,7 +561,7 @@ def model_to_gbxml(
 @translate.command('model-to-trace-gbxml')
 @click.argument('model-file', type=click.Path(
     exists=True, file_okay=True, dir_okay=False, resolve_path=True))
-@click.option('--single-window/--detailed-windows', ' /-fg', help='Flag to note '
+@click.option('--single-window/--detailed-windows', ' /-dw', help='Flag to note '
               'whether all windows within walls should be converted to a single '
               'window with an area that matches the original geometry.',
               default=True, show_default=True)
