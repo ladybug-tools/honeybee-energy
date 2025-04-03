@@ -1,7 +1,5 @@
 # coding=utf-8
 from honeybee.room import Room
-from ladybug_geometry.geometry3d.pointvector import Point3D
-from ladybug_geometry.geometry3d.face import Face3D
 
 from honeybee_energy.schedule.ruleset import ScheduleRuleset
 from honeybee_energy.ventcool.control import VentilationControl
