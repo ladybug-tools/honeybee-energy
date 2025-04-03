@@ -298,16 +298,16 @@ class DaylightingControl(object):
                 SplitFlux,               !- Daylighting Method
                 ,                        !- Availability Schedule Name
                 Continuous,              !- Lighting Control Type
-                0.3,                     !- Minimum Input Power Fraction for Continuous or ContinuousOff Dimming Control
-                0.2,                     !- Minimum Light Output Fraction for Continuous or ContinuousOff Dimming Control
+                0.3,                     !- Minimum Input Power Fraction for Dimming
+                0.2,                     !- Minimum Light Output Fraction for Dimming
                 ,                        !- Number of Stepped Control Steps
-                1.0,                     !- Probability Lighting will be Reset When Needed in Manual Stepped Control
-                West Zone_DaylRefPt1,    !- Glare Calculation Daylighting Reference Point Name
-                180.0,                   !- Glare Calculation Azimuth Angle of View Direction Clockwise from Zone y-Axis {deg}
+                1.0,                     !- Probability Lighting Needs Reset
+                West Zone_DaylRefPt1,    !- Glare Daylighting Reference Point Name
+                180.0,                   !- Glare Azimuth Angle of View Direction {deg}
                 20.0,                    !- Maximum Allowable Discomfort Glare Index
                 ,                        !- DElight Gridding Resolution {m2}
                 West Zone_DaylRefPt1,    !- Daylighting Reference Point 1 Name
-                1.0,                     !- Fraction of Lights Controlled by Reference Point 1
+                1.0,                     !- Fraction of Lights Controlled by Point 1
                 500.;                    !- Illuminance Setpoint at Reference Point 1 {lux}
 
             Daylighting:ReferencePoint,

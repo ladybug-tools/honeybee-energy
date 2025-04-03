@@ -34,7 +34,7 @@ class VentilationFan(object):
             and an exhaust fan are assumed to co-exist, both having the same
             flow rate and power consumption (using the entered values for fan
             pressure rise and fan total efficiency). Thus, the fan electric
-            consumption for Balanced ventilation is twice that for the Exhaust or 
+            consumption for Balanced ventilation is twice that for the Exhaust or
             Intake ventilation types which employ only a single fan. (Default: Balanced).
 
             * Exhaust
@@ -355,7 +355,7 @@ class VentilationFan(object):
         Args:
             zone_identifier: Text for the zone identifier that the VentilationFan
                 object is assigned to.
- 
+
         .. code-block::
 
             ZoneVentilation:DesignFlowRate,
@@ -378,7 +378,7 @@ class VentilationFan(object):
                 ,               !- Minimum Indoor Temperature Schedule Name
                 ,               !- Maximum Indoor Temperature {C}
                 ,               !- Maximum Indoor Temperature Schedule Name
-                1.0;            !- Delta temperature {C}          
+                1.0;            !- Delta temperature {C}
         """
 
         # process the properties on this object into IDF format

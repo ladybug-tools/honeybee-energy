@@ -1,6 +1,4 @@
 # coding=utf-8
-import pytest
-
 from ladybug_geometry.geometry3d.pointvector import Point3D
 
 from honeybee_energy.load.daylight import DaylightingControl

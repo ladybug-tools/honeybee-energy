@@ -60,7 +60,7 @@ class PVProperties(object):
             tracking_ground_coverage_ratio property on this object. Choose from
             the following. (Default: FixedOpenRack).
 
-            * FixedOpenRack - ground or roof mounting where the air flows freely 
+            * FixedOpenRack - ground or roof mounting where the air flows freely
             * FixedRoofMounted - mounting flush with the roof with limited air flow
             * OneAxis - a fixed tilt and azimuth, which define an axis of rotation
             * OneAxisBacktracking - same as OneAxis but with controls to reduce self-shade
@@ -165,7 +165,7 @@ class PVProperties(object):
     @property
     def active_area_fraction(self):
         """Get or set a number for fraction of the parent covered in active solar cells.
-        
+
         This fraction includes the difference between the PV panel (aka. PV module) area
         and the active cells within the panel as well as any losses for how
         the (typically rectangular) panels can be arranged on the Shade geometry.
@@ -239,7 +239,7 @@ class PVProperties(object):
     @property
     def system_loss_fraction(self):
         """Get or set a number for the fraction of the output lost due to other factors.
-        
+
         Factors that should be accounted for in this input include soiling, snow,
         wiring losses, electrical connection losses, manufacturer defects/tolerances/
         mismatch in cell characteristics, losses from power grid availability,
@@ -255,7 +255,7 @@ class PVProperties(object):
     @property
     def tracking_ground_coverage_ratio(self):
         """Get or set a number between 0 and 1 for the ground coverage ratio.
-        
+
         This value only applies to systems using single-axis tracking and is
         used to account for self shading of single-axis panels as they move
         to track the sun.
@@ -301,7 +301,7 @@ class PVProperties(object):
             'surface "{}" is different from the assigned Shade "{}".'.format(
                 ep_strs[9].upper(), shade.identifier.upper())
         # extract the properties from the string
-        watts_per_area = float(ep_strs[2]) / shade.area 
+        watts_per_area = float(ep_strs[2]) / shade.area
         eff = round((watts_per_area / active_area_fraction) / 1000, 3)
         loss = 0.14
         gcr = 0.4
@@ -524,8 +524,8 @@ class PVProperties(object):
     def __copy__(self):
         new_obj = PVProperties(
             self.identifier, self._rated_efficiency, self._active_area_fraction,
-                self._module_type, self._mounting_type, self._system_loss_fraction,
-                self._tracking_ground_coverage_ratio)
+            self._module_type, self._mounting_type, self._system_loss_fraction,
+            self._tracking_ground_coverage_ratio)
         new_obj._display_name = self._display_name
         new_obj._properties._duplicate_extension_attr(self._properties)
         return new_obj

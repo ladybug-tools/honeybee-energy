@@ -26,7 +26,7 @@ class ElectricLoadCenter(object):
             inverters are not sized to convert the full DC output under standard
             test conditions (STC) as such conditions rarely occur in reality and
             therefore unnecessarily add to the size/cost of the inverter. For a
-            system with a high DC to AC size ratio, during times when the 
+            system with a high DC to AC size ratio, during times when the
             DC power output exceeds the inverter's rated DC input size, the inverter
             limits the array's power output by increasing the DC operating voltage,
             which moves the arrays operating point down its current-voltage (I-V)
@@ -57,7 +57,7 @@ class ElectricLoadCenter(object):
     def inverter_efficiency(self, value):
         self._inverter_efficiency = float_in_range(
             value, 0.0, 1.0, 'inverter rated efficiency')
-    
+
     @property
     def inverter_dc_to_ac_size_ratio(self):
         """Get or set a number for the nominal rated efficiency of the inverter."""
@@ -135,26 +135,6 @@ class ElectricLoadCenter(object):
 
             -   distribution: Text string representation of the ElectricLoadCenter:
                 Distribution specification.
-
-        .. code-block:: shell
-
-        ElectricLoadCenter:Generators,
-            Backup Generators,                    !- Name
-            Cat Diesel,                           !- Generator 1 Name
-            Generator:InternalCombustionEngine,   !- Generator 1 Object Type
-            50000,                                !- Generator 1 Rated Electric Power Output
-            ON PEAK GENERATOR SCHEDULE,           !- Generator 1 Availability Schedule Name
-            ,                                     !- Generator 1 Rated Thermal to Electrical Power Ratio
-            Solar Turbine,                        !- Generator 2 Name
-            Generator:CombustionTurbine,          !- Generator 2 Object Type
-            30000,                                !- Generator 2 Rated Electric Power Output
-            OFF PEAK GENERATOR SCHEDULE,          !- Generator 2 Availability Schedule Name
-            ,                                     !- Generator 2 Rated Thermal to Electrical Power Ratio
-            Capstone C65,                         !- Generator 3 Name
-            Generator:Microturbine,               !- Generator 3 Object Type
-            65000,                                !- Generator 3 Rated Electric Power Output
-            MID PEAK GENERATOR SCHEDULE,          !- Generator 3 Availability Schedule Name
-            ;                                     !- Generator 3 Rated Thermal to Electrical Power Ratio
         """
         # create the ElectricLoadCenter:Generators list
         generators_vals = ['Model Load Center Generators']
