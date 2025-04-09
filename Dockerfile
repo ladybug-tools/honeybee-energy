@@ -77,7 +77,7 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
     && pip3 install --no-cache-dir setuptools wheel \
-    && pip3 install --no-cache-dir ${LIBRARY_PATH}[standards][openstudio] \
+    && pip3 install --no-cache-dir ${LIBRARY_PATH}[standards,openstudio] \
     && apt-get -y --purge remove git \
     && apt-get -y clean \
     && apt-get -y autoremove \
