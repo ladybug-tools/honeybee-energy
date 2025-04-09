@@ -57,6 +57,7 @@ COPY setup.py ${LIBRARY_PATH}
 COPY setup.cfg ${LIBRARY_PATH}
 COPY requirements.txt ${LIBRARY_PATH}
 COPY standards-requirements.txt ${LIBRARY_PATH}
+COPY openstudio-requirements.txt ${LIBRARY_PATH}
 COPY README.md ${LIBRARY_PATH}
 COPY LICENSE ${LIBRARY_PATH}
 
@@ -76,7 +77,7 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
     && pip3 install --no-cache-dir setuptools wheel \
-    && pip3 install --no-cache-dir ${LIBRARY_PATH}[standards] \
+    && pip3 install --no-cache-dir ${LIBRARY_PATH}[standards][openstudio] \
     && apt-get -y --purge remove git \
     && apt-get -y clean \
     && apt-get -y autoremove \
