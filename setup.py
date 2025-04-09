@@ -10,6 +10,9 @@ with open('requirements.txt') as f:
 with open('standards-requirements.txt') as f:
     standards_requirements = f.read().splitlines()
 
+with open('openstudio-requirements.txt') as f:
+    openstudio_requirements = f.read().splitlines()
+
 setuptools.setup(
     name="honeybee-energy",
     use_scm_version=True,
@@ -24,7 +27,8 @@ setuptools.setup(
     include_package_data=True,
     install_requires=requirements,
     extras_require={
-        'standards': standards_requirements
+        'standards': standards_requirements,
+        'openstudio': openstudio_requirements
     },
     entry_points={
         "console_scripts": ["honeybee-energy = honeybee_energy.cli:energy"]

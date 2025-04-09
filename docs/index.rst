@@ -18,6 +18,11 @@ ConstructionSets use.
 
 ``pip install -U honeybee-energy[standards]``
 
+If you want to also include the honeybee-openstudio library to perform translations
+to OpenStudio use.
+
+``pip install -U honeybee-energy[openstudio]``
+
 To check if the command line interface is installed correctly use ``honeybee-energy --help``
 
 
