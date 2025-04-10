@@ -26,6 +26,266 @@ from .config import folders
 from .measure import Measure
 from .result.osw import OSW
 
+HB_OS_MSG = 'Honeybee-openstudio is not installed. Translation to OpenStudio cannot ' \
+    'be performed.\nRun pip install honeybee-energy[openstudio] to get all ' \
+    'dependencies needed for OpenStudio translation.'
+
+
+def to_openstudio_sim_folder(
+        model, directory, epw_file=None, sim_par=None, schedule_directory=None,
+        enforce_rooms=False, use_geometry_names=False, use_resource_names=False,
+        additional_measures=None, base_osw=None, strings_to_inject=None,
+        report_units=None, viz_variables=None, print_progress=False):
+    """Create a .osw to translate honeybee JSONs to an .osm file.
+
+    Args:
+        model: The Honeybee Model to be converted into an OpenStudio Model. This
+            can also be the path to an .osm file that is already written into
+            the directory, in which case the process of translating the model
+            will be skipped and this function will only evaluate whether an OSW
+            is needed to run the simulation or a directly-translated IDF is suitable.
+        directory: The directory into which the output files will be written to.
+        epw_file: Optional file path to an EPW that should be associated with the
+            output energy model. If None, no EPW file will be assigned to the
+            resulting OpenStudio Model and the OSM will not have everything it
+            needs to be simulate-able in EnergyPlus. (Default: None).
+        sim_par: Optional SimulationParameter object that describes all of the
+            settings for the simulation. If None, the resulting OSM will not have
+            everything it needs to be simulate-able in EnergyPlus. (Default: None).
+        schedule_directory: An optional file directory to which all file-based
+            schedules should be written to. If None, all ScheduleFixedIntervals
+            will be translated to Schedule:Compact and written fully into the
+            IDF string instead of to Schedule:File. (Default: None).
+        enforce_rooms: Boolean to note whether this method should enforce the
+            presence of Rooms in the Model, which is as necessary prerequisite
+            for simulation in EnergyPlus. (Default: False).
+        use_geometry_names: Boolean to note whether a cleaned version of all
+            geometry display names should be used instead of identifiers when
+            translating the Model to OSM and IDF. Using this flag will affect
+            all Rooms, Faces, Apertures, Doors, and Shades. It will generally
+            result in more read-able names in the OSM and IDF but this means
+            that it will not be easy to map the EnergyPlus results back to the
+            input Honeybee Model. Cases of duplicate IDs resulting from
+            non-unique names will be resolved by adding integers to the ends
+            of the new IDs that are derived from the name. (Default: False).
+        use_resource_names: Boolean to note whether a cleaned version of all
+            resource display names should be used instead of identifiers when
+            translating the Model to OSM and IDF. Using this flag will affect
+            all Materials, Constructions, ConstructionSets, Schedules, Loads,
+            and ProgramTypes. It will generally result in more read-able names
+            for the resources in the OSM and IDF. Cases of duplicate IDs
+            resulting from non-unique names will be resolved by adding integers
+            to the ends of the new IDs that are derived from the name. (Default: False).
+        additional_measures: An optional array of honeybee-energy Measure objects
+            to be included in the output osw. These Measure objects must have
+            values for all required input arguments or an exception will be
+            raised while running this function. (Default: None).
+        base_osw: Optional file path to an existing OSW JSON be used as the base
+            for the output .osw. This is another way that outside measures
+            can be incorporated into the workflow. (Default: None).
+        strings_to_inject: An additional text string to get appended to the IDF
+            before simulation. The input should include complete EnergyPlus objects
+            as a single string following the IDF format.
+        report_units: A text value to set the units of the OpenStudio Results report
+            that can optionally be included in the OSW. If set to None, no report
+            will be produced. (Default: None). Choose from the following.
+
+            * si - all units will be in SI
+            * ip - all units will be in IP
+
+        viz_variables: An optional list of EnergyPlus output variable names to
+            be visualized on the geometry in an output view_data HTML report.
+            If None or an empty list, no view_data report is produced. See below
+            for an example.
+        print_progress: Set to True to have the progress of the translation
+            printed as it is completed.
+
+    .. code-block:: python
+
+        viz_variables = [
+            "Zone Air System Sensible Heating Rate",
+            "Zone Air System Sensible Cooling Rate"
+        ]
+
+    Returns:
+        A series of file paths to the simulation input files.
+
+        -   osm -- Path to an OpenStudio Model (.osm) file containing the direct
+            translation of the Honeybee Model to OpenStudio. None of the
+            additional_measures will be applied to this OSM if they are specified
+            and any efficiency standards in the simulation parameters won't be
+            applied until the OSW is run.
+
+        -   osw -- Path to an OpenStudio Workflow (.osw) JSON file that can be run
+            with the OpenStudio CLI. Will be None if the OpenStudio CLI is not
+            needed for simulation. This can happen if there is no base_osw,
+            no additional_measures, no report_units or viz_variables, and no
+            efficiency standard specified in the simulation parameters (which
+            requires openstudio-standards).
+
+        -   idf -- Path to an EnergyPlus Input Data File (.idf) that is ready to
+            be simulated in EnergyPlus. Will be None if there is an OSW that must
+            be run to create the IDF for simulation.
+    """
+    # check that honeybee-openstudio is installed
+    try:
+        from honeybee_openstudio.openstudio import openstudio, OSModel
+        from honeybee_openstudio.simulation import simulation_parameter_to_openstudio, \
+            assign_epw_to_model
+        from honeybee_openstudio.writer import model_to_openstudio
+    except ImportError as e:  # honeybee-openstudio is not installed
+        raise ImportError('{}\n{}'.format(HB_OS_MSG, e))
+
+    if isinstance(model, str):
+        assert os.path.isfile(model), \
+            'No file path for an OSM was found at "{}"'.format(model)
+        osm, os_model = model, None
+    else:  # translate the Honeybee SimPar and Model to OpenStudio
+        os_model = OSModel()
+        set_cz = True
+        if sim_par is not None and sim_par.sizing_parameter.climate_zone is not None:
+            set_cz = False
+        if epw_file is not None:
+            assign_epw_to_model(epw_file, os_model, set_cz)
+        if sim_par is not None:
+            simulation_parameter_to_openstudio(sim_par, os_model)
+        model_to_openstudio(
+            model, os_model, schedule_directory=schedule_directory,
+            use_geometry_names=use_geometry_names, use_resource_names=use_resource_names,
+            enforce_rooms=enforce_rooms, print_progress=print_progress)
+        # write the OpenStudio model into the directory
+        if not os.path.isdir(directory):
+            os.makedirs(directory)
+        osm = os.path.abspath(os.path.join(directory, 'in.osm'))
+        os_model.save(osm, overwrite=True)
+
+    # load the OpenStudio Efficiency Standards measure if one is specified
+    if sim_par is not None and sim_par.sizing_parameter.efficiency_standard is not None:
+        assert folders.efficiency_standard_measure_path is not None, \
+            'Efficiency standard was specified in the simulation parameters ' \
+            'but the efficiency_standard measure is not installed.'
+        eff_measure = Measure(folders.efficiency_standard_measure_path)
+        units_arg = eff_measure.arguments[0]
+        units_arg.value = sim_par.sizing_parameter.efficiency_standard
+        if additional_measures is None:
+            additional_measures = [eff_measure]
+        else:
+            additional_measures = list(additional_measures)
+            additional_measures.append(eff_measure)
+
+    # load the OpenStudio Results measure if report_units have bee specified
+    if report_units is not None and report_units.lower() != 'none':
+        assert folders.openstudio_results_measure_path is not None, 'OpenStudio report' \
+            ' requested but the openstudio_results measure is not installed.'
+        report_measure = Measure(folders.openstudio_results_measure_path)
+        units_arg = report_measure.arguments[0]
+        units_arg.value = report_units.upper()
+        if additional_measures is None:
+            additional_measures = [report_measure]
+        else:
+            additional_measures = list(additional_measures)
+            additional_measures.append(report_measure)
+
+    # load the OpenStudio view_data measure if outputs have been requested
+    if viz_variables is not None and len(viz_variables) != 0:
+        assert folders.view_data_measure_path is not None, 'A visualization variable' \
+            'has been requested but the view_data measure is not installed.'
+        viz_measure = Measure(folders.view_data_measure_path)
+        if len(viz_variables) > 3:
+            viz_variables = viz_variables[:3]
+        for i, var in enumerate(viz_variables):
+            var_arg = viz_measure.arguments[i + 2]
+            var_arg.value = var
+        if additional_measures is None:
+            additional_measures = [viz_measure]
+        else:
+            additional_measures = list(additional_measures)
+            additional_measures.append(viz_measure)
+
+    osw, idf = None, None
+    if additional_measures or base_osw:  # prepare an OSW with all of the measures to run
+        # load the inject IDF measure if strings_to_inject have bee specified
+        if strings_to_inject is not None and strings_to_inject != '':
+            assert folders.inject_idf_measure_path is not None, \
+                'Additional IDF strings input but the inject_idf measure is not installed.'
+            idf_measure = Measure(folders.inject_idf_measure_path)
+            inject_idf = os.path.join(directory, 'inject.idf')
+            with open(inject_idf, "w") as idf_file:
+                idf_file.write(strings_to_inject)
+            units_arg = idf_measure.arguments[0]
+            units_arg.value = inject_idf
+            if additional_measures is None:
+                additional_measures = [idf_measure]
+            else:
+                additional_measures = list(additional_measures)
+                additional_measures.append(idf_measure)
+        # create a dictionary representation of the .osw
+        if base_osw is None:
+            osw_dict = {'steps': []}
+        else:
+            assert os.path.isfile(base_osw), \
+                'No base OSW file found at {}.'.format(base_osw)
+            with open(base_osw, readmode) as base_file:
+                osw_dict = json.load(base_file)
+        osw_dict['seed_file'] = osm
+        if schedule_directory is not None:
+            if 'file_paths' not in osw_dict:
+                osw_dict['file_paths'] = [schedule_directory]
+            else:
+                osw_dict['file_paths'].append(schedule_directory)
+        if epw_file is not None:
+            osw_dict['weather_file'] = epw_file
+        if 'measure_paths' not in osw_dict:
+            osw_dict['measure_paths'] = []
+        measure_paths = set()  # set of all unique measure paths
+        # ensure measures are correctly ordered
+        m_dict = {'ModelMeasure': [], 'EnergyPlusMeasure': [], 'ReportingMeasure': []}
+        for measure in additional_measures:
+            m_dict[measure.type].append(measure)
+        sorted_measures = m_dict['ModelMeasure'] + m_dict['EnergyPlusMeasure'] + \
+            m_dict['ReportingMeasure']
+        # add the measures and the measure paths to the OSW
+        for measure in sorted_measures:
+            measure.validate()  # ensure that all required arguments have values
+            measure_paths.add(os.path.dirname(measure.folder))
+            osw_dict['steps'].append(measure.to_osw_dict())  # add measure to workflow
+        for m_path in measure_paths:
+            osw_dict['measure_paths'].append(m_path)
+        # if there were reporting measures, add the ladybug adapter to get sim progress
+        adapter = folders.honeybee_adapter_path
+        if adapter is not None:
+            if 'run_options' not in osw_dict:
+                osw_dict['run_options'] = {}
+            osw_dict['run_options']['output_adapter'] = {
+                'custom_file_name': adapter,
+                'class_name': 'HoneybeeAdapter',
+                'options': {}
+            }
+        # write the dictionary to a workflow.osw
+        osw = os.path.abspath(os.path.join(directory, 'workflow.osw'))
+        if (sys.version_info < (3, 0)):  # we need to manually encode it as UTF-8
+            with open(osw, writemode) as fp:
+                workflow_str = json.dumps(osw_dict, indent=4, ensure_ascii=False)
+                fp.write(workflow_str.encode('utf-8'))
+        else:
+            with open(osw, writemode, encoding='utf-8') as fp:
+                workflow_str = json.dump(osw_dict, fp, indent=4, ensure_ascii=False)
+    else:  # the OSM is ready for simulation; translate it to IDF
+        run_directory = os.path.join(directory, 'run')
+        if not os.path.isdir(run_directory):
+            os.mkdir(run_directory)
+        idf = os.path.abspath(os.path.join(run_directory, 'in.idf'))
+        if not os.path.isfile(idf):
+            if os_model is None:  # load the model from the file
+                exist_os_model = OSModel.load(osm)
+                if exist_os_model.is_initialized():
+                    os_model = exist_os_model.get()
+            idf_translator = openstudio.energyplus.ForwardTranslator()
+            workspace = idf_translator.translateModel(os_model)
+            workspace.save(idf, overwrite=True)
+
+    return osm, osw, idf
+
 
 def from_gbxml_osw(gbxml_path, model_path=None, osw_directory=None):
     """Create a .osw to translate gbXML to a HBJSON file.

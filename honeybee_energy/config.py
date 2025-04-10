@@ -48,6 +48,7 @@ class Folders(object):
         * openstudio_results_measure_path
         * view_data_measure_path
         * inject_idf_measure_path
+        * efficiency_standard_measure_path
         * honeybee_openstudio_gem_path
         * honeybee_adapter_path
         * ironbug_path
@@ -229,16 +230,20 @@ class Folders(object):
         self._openstudio_results_measure_path = None
         self._view_data_measure_path = None
         self._inject_idf_measure_path = None
+        self._efficiency_standard_measure_path = None
         if path:
             result_mea = os.path.join(path, 'openstudio_results')
             view_mea = os.path.join(path, 'view_data')
             idf_mea = os.path.join(path, 'inject_idf')
+            eff_mea = os.path.join(path, 'efficiency_standard')
             if os.path.isdir(result_mea):
                 self._openstudio_results_measure_path = result_mea
             if os.path.isdir(view_mea):
                 self._view_data_measure_path = view_mea
             if os.path.isdir(idf_mea):
                 self._inject_idf_measure_path = idf_mea
+            if os.path.isdir(eff_mea):
+                self._efficiency_standard_measure_path = eff_mea
 
         # set the lbt_measures_path
         self._lbt_measures_path = path
