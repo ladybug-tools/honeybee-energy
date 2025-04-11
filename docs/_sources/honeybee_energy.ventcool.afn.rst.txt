@@ -1,0 +1,7 @@
+honeybee\_energy.ventcool.afn module
+====================================
+
+.. automodule:: honeybee_energy.ventcool.afn
+   :members:
+   :undoc-members:
+   :show-inheritance:
