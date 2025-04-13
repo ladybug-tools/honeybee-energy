@@ -30,7 +30,7 @@ def test_simulate_osm():
     assert result.exit_code == 0
 
     folder = os.path.join(folders.default_simulation_folder, 'shoe_box')
-    output_sql = os.path.join(folder, 'run', 'eplusout.sql')
+    output_sql = os.path.join(folder, 'eplusout.sql')
     assert os.path.isfile(output_sql)
     nukedir(folder)
 
@@ -52,6 +52,28 @@ def test_simulate_model():
     assert result.exit_code == 0
 
     folder = os.path.join(folders.default_simulation_folder, 'shoebox')
+    output_sql = os.path.join(folder, 'openstudio', 'run', 'eplusout.sql')
+    assert os.path.isfile(output_sql)
+    nukedir(folder)
+
+
+def test_simulate_model_with_osm():
+    runner = CliRunner()
+    input_model = './tests/osm/shoe_box.osm'
+    input_epw = './tests/epw/chicago.epw'
+    input_ground = './tests/idf/monthly_ground.idf'
+
+    in_args = [
+        input_model, input_epw, '--additional-string',
+        'Output:Variable, *, Surface Window System Solar Transmittance, Timestep;',
+        '--additional-idf', input_ground
+    ]
+
+    result = runner.invoke(simulate_model, in_args)
+    print(result.output)
+    assert result.exit_code == 0
+
+    folder = os.path.join(folders.default_simulation_folder, 'shoe_box')
     output_sql = os.path.join(folder, 'openstudio', 'run', 'eplusout.sql')
     assert os.path.isfile(output_sql)
     nukedir(folder)

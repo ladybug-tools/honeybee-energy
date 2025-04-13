@@ -5,6 +5,7 @@ from __future__ import division
 import os
 import sys
 import json
+import shutil
 import subprocess
 import xml.etree.ElementTree as ET
 
@@ -136,9 +137,16 @@ def to_openstudio_sim_folder(
     except ImportError as e:  # honeybee-openstudio is not installed
         raise ImportError('{}\n{}'.format(HB_OS_MSG, e))
 
+    # write the OpenStudio model into the directory
+    if not os.path.isdir(directory):
+        os.makedirs(directory)
+    osm = os.path.abspath(os.path.join(directory, 'in.osm'))
     if isinstance(model, str):
         assert os.path.isfile(model), \
             'No file path for an OSM was found at "{}"'.format(model)
+        model = os.path.abspath(model)
+        if os.path.normcase(model) == os.path.normcase(osm):
+            shutil.copy(model, osm)
         osm, os_model = model, None
     else:  # translate the Honeybee SimPar and Model to OpenStudio
         os_model = OSModel()
@@ -153,10 +161,6 @@ def to_openstudio_sim_folder(
             model, os_model, schedule_directory=schedule_directory,
             use_geometry_names=use_geometry_names, use_resource_names=use_resource_names,
             enforce_rooms=enforce_rooms, print_progress=print_progress)
-        # write the OpenStudio model into the directory
-        if not os.path.isdir(directory):
-            os.makedirs(directory)
-        osm = os.path.abspath(os.path.join(directory, 'in.osm'))
         os_model.save(osm, overwrite=True)
 
     # load the OpenStudio Efficiency Standards measure if one is specified
@@ -280,7 +284,10 @@ def to_openstudio_sim_folder(
                 exist_os_model = OSModel.load(osm)
                 if exist_os_model.is_initialized():
                     os_model = exist_os_model.get()
-            idf_translator = openstudio.energyplus.ForwardTranslator()
+            if (sys.version_info < (3, 0)):
+                idf_translator = openstudio.EnergyPlusForwardTranslator()
+            else:
+                idf_translator = openstudio.energyplus.ForwardTranslator()
             workspace = idf_translator.translateModel(os_model)
             workspace.save(idf, overwrite=True)
 

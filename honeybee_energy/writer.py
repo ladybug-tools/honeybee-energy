@@ -5,8 +5,9 @@ from .config import folders
 from ladybug_geometry.geometry3d import Face3D
 from honeybee.room import Room
 from honeybee.face import Face
-from honeybee.boundarycondition import Outdoors, Surface, Ground
-from honeybee.facetype import Floor, RoofCeiling, AirBoundary
+from honeybee.boundarycondition import Outdoors, Surface, Ground, boundary_conditions
+from honeybee.facetype import Wall, Floor, RoofCeiling, AirBoundary
+from honeybee.units import parse_distance_string, conversion_factor_to_meters
 
 try:
     from itertools import izip as zip  # python 2
@@ -968,3 +969,109 @@ def _instance_in_array(object_instance, object_array):
         if val is object_instance:
             return True
     return False
+
+
+def _preprocess_model_for_trace(
+        model, single_window=True, rect_sub_distance='0.15m',
+        frame_merge_distance='0.2m'):
+    """Pre-process a Honeybee Model to be written to TRANE TRACE as a gbXML.
+
+    Args:
+        model: A Honeybee Model to be converted to a TRACE-compatible gbXML.
+        single_window: A boolean for whether all windows within walls should be
+            converted to a single window with an area that matches the original
+            geometry. (Default: True).
+        rect_sub_distance: Text string of a number for the resolution at which
+            non-rectangular Apertures will be subdivided into smaller rectangular
+            units. This is required as TRACE 3D plus cannot model non-rectangular
+            geometries. This can include the units of the distance (eg. 0.5ft) or,
+            if no units are provided, the value will be interpreted in the
+            honeybee model units. (Default: 0.15m).
+        frame_merge_distance: Text string of a number for the maximum distance
+            between non-rectangular Apertures at which point the Apertures will
+            be merged into a single rectangular geometry. This is often helpful
+            when there are several triangular Apertures that together make a
+            rectangle when they are merged across their frames. This can include
+            the units of the distance (eg. 0.5ft) or, if no units are provided,
+            the value will be interpreted in the honeybee model units. (Default: 0.2m).
+
+    Returns:
+        The input Model modified such that it can import to TRACE as a gbXML
+        without issues.
+    """
+    # make sure there are rooms and remove all shades and orphaned objects
+    assert len(model.rooms) != 0, \
+        'Model contains no Rooms and therefore cannot be simulated in TRACE.'
+    model.remove_all_shades()
+    model.remove_faces()
+    model.remove_apertures()
+    model.remove_doors()
+
+    # remove degenerate geometry within native E+ tolerance of 0.01 meters
+    original_units = model.units
+    model.convert_to_units('Meters')
+    try:
+        model.remove_degenerate_geometry(0.01)
+    except ValueError:
+        error = 'Failed to remove degenerate Rooms.\nYour Model units system is: {}. ' \
+            'Is this correct?'.format(original_units)
+        raise ValueError(error)
+    rect_sub_distance = parse_distance_string(rect_sub_distance, original_units)
+    frame_merge_distance = parse_distance_string(frame_merge_distance, original_units)
+    if original_units != 'Meters':
+        c_factor = conversion_factor_to_meters(original_units)
+        rect_sub_distance = rect_sub_distance * c_factor
+        frame_merge_distance = frame_merge_distance * c_factor
+
+    # remove all interior windows in the model
+    for room in model.rooms:
+        for face in room.faces:
+            if isinstance(face.boundary_condition, Surface):
+                face.remove_sub_faces()
+
+    # convert all rooms to extrusions and patch the resulting missing adjacencies
+    model.rooms_to_extrusions()
+    model.properties.energy.missing_adjacencies_to_adiabatic()
+
+    # convert windows in walls to a single geometry
+    if single_window:
+        for room in model.rooms:
+            for face in room.faces:
+                if isinstance(face.type, Wall) and face.has_sub_faces:
+                    face.boundary_condition = boundary_conditions.outdoors
+                    face.apertures_by_ratio(face.aperture_ratio, 0.01, rect_split=False)
+
+    # convert all of the Aperture geometries to rectangles so they can be translated
+    model.rectangularize_apertures(
+        subdivision_distance=rect_sub_distance, max_separation=frame_merge_distance,
+        merge_all=True, resolve_adjacency=False
+    )
+
+    # if there are still multiple windows in a given Face, ensure they do not touch
+    for room in model.rooms:
+        for face in room.faces:
+            if len(face.apertures) > 1:
+                face.offset_aperture_edges(-0.01, 0.01)
+
+    # re-solve adjacency given that all of the previous operations have messed with it
+    model.solve_adjacency(merge_coplanar=True, intersect=True, overwrite=True)
+
+    # reset all display_names so that they are unique (derived from reset identifiers)
+    model.reset_ids()  # sets the identifiers based on the display_name
+    for room in model.rooms:
+        room.display_name = None
+        for face in room.faces:
+            face.display_name = None
+            for ap in face.apertures:
+                ap.display_name = None
+            for dr in face.apertures:
+                dr.display_name = None
+        if room.story is not None and room.story.startswith('-'):
+            room.story = 'neg{}'.format(room.story[1:])
+
+    # remove the HVAC from any Rooms lacking setpoints
+    rem_msgs = model.properties.energy.remove_hvac_from_no_setpoints()
+    if len(rem_msgs) != 0:
+        print('\n'.join(rem_msgs))
+
+    return model

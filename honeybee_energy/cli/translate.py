@@ -4,13 +4,13 @@ import sys
 import os
 import logging
 import json
-import shutil
 import re
+import tempfile
 
-from ladybug.futil import preparedir
 from ladybug.commandutil import process_content_to_output
 from ladybug.analysisperiod import AnalysisPeriod
 from ladybug.epw import EPW
+from ladybug.stat import STAT
 from honeybee.model import Model
 from honeybee.typing import clean_rad_string
 from honeybee.config import folders as hb_folders
@@ -22,11 +22,9 @@ from honeybee_energy.construction.window import WindowConstruction
 from honeybee_energy.schedule.dictutil import dict_to_schedule
 from honeybee_energy.schedule.ruleset import ScheduleRuleset
 from honeybee_energy.properties.model import ModelEnergyProperties
-from honeybee_energy.run import measure_compatible_model_json, to_openstudio_osw, \
-    to_gbxml_osw, to_sdd_osw, run_osw, from_gbxml_osw, from_osm_osw, from_idf_osw, \
-    add_gbxml_space_boundaries, set_gbxml_floor_types, trace_compatible_model_json, \
-    _parse_os_cli_failure
-from honeybee_energy.writer import energyplus_idf_version
+from honeybee_energy.run import run_osw, from_gbxml_osw, from_osm_osw, from_idf_osw, \
+    _parse_os_cli_failure, HB_OS_MSG
+from honeybee_energy.writer import energyplus_idf_version, _preprocess_model_for_trace
 from honeybee_energy.config import folders
 
 _logger = logging.getLogger(__name__)
@@ -54,9 +52,7 @@ def translate():
               default=None, show_default=True,
               type=click.Path(exists=True, file_okay=True, dir_okay=False,
                               resolve_path=True))
-@click.option('--folder', '-f', help='Folder on this computer, into which the '
-              'working files, OSM and IDF files will be written. If None, the '
-              'files will be output in the same location as the model_file.',
+@click.option('--folder', '-f', help='Deprecated input that is no longer used.',
               default=None, show_default=True,
               type=click.Path(file_okay=False, dir_okay=True, resolve_path=True))
 @click.option('--osm-file', '-osm', help='Optional path where the OSM will be copied '
@@ -84,18 +80,13 @@ def translate():
               'Cases of duplicate IDs resulting from non-unique names will be resolved '
               'by adding integers to the ends of the new IDs that are derived from '
               'the name.', default=True, show_default=True)
-@click.option('--check-model/--bypass-check', ' /-bc', help='Flag to note whether the '
-              'Model should be re-serialized to Python and checked before it is '
-              'translated to .osm. The check is not needed if the model-json was '
-              'exported directly from the honeybee-energy Python library.',
-              default=True, show_default=True)
 @click.option('--log-file', '-log', help='Optional log file to output the paths to the '
               'generated OSM and IDF files if they were successfully created. '
               'By default this will be printed out to stdout.',
               type=click.File('w'), default='-', show_default=True)
 def model_to_osm_cli(
         model_file, sim_par_json, epw_file, folder, osm_file, idf_file,
-        geometry_ids, resource_ids, check_model, log_file):
+        geometry_ids, resource_ids, log_file):
     """Translate a Honeybee Model file into an OpenStudio Model and corresponding IDF.
 
     \b
@@ -105,10 +96,9 @@ def model_to_osm_cli(
     try:
         geo_names = not geometry_ids
         res_names = not resource_ids
-        bypass_check = not check_model
         model_to_osm(
             model_file, sim_par_json, epw_file, folder, osm_file, idf_file,
-            geo_names, res_names, bypass_check, log_file)
+            geo_names, res_names, log_file)
     except Exception as e:
         _logger.exception('Model translation failed.\n{}'.format(e))
         sys.exit(1)
@@ -119,8 +109,7 @@ def model_to_osm_cli(
 def model_to_osm(
     model_file, sim_par_json=None, epw_file=None, folder=None,
     osm_file=None, idf_file=None, geometry_names=False, resource_names=False,
-    bypass_check=False, log_file=None,
-    geometry_ids=True, resource_ids=True, check_model=True
+    log_file=None, geometry_ids=True, resource_ids=True
 ):
     """Translate a Honeybee Model file into an OpenStudio Model and corresponding IDF.
 
@@ -134,13 +123,9 @@ def model_to_osm(
             specified that requests a HVAC sizing calculation to be run as part
             of the translation process but no design days are inside this
             simulation parameter.
-        folder: Folder on this computer, into which the working files, OSM and IDF
-            files will be written. If None, the files will be output in the
-            same location as the model_file.
-        osm_file: Optional path where the OSM will be copied after it is translated
-            in the folder. If None, the file will not be copied.
-        idf_file: Optional path where the IDF will be copied after it is translated
-            in the folder. If None, the file will not be copied.
+        folder: Deprecated input that is no longer used.
+        osm_file: Optional path where the OSM will be output.
+        idf_file: Optional path where the IDF will be output.
         geometry_names: Boolean to note whether a cleaned version of all geometry
             display names should be used instead of identifiers when translating
             the Model to OSM and IDF. Using this flag will affect all Rooms, Faces,
@@ -158,19 +143,23 @@ def model_to_osm(
             in the OSM and IDF. Cases of duplicate IDs resulting from non-unique
             names will be resolved by adding integers to the ends of the new IDs
             that are derived from the name. (Default: False).
-        bypass_check: Boolean to note whether the Model should be re-serialized
-            to Python and checked before it is translated to .osm. The check is
-            not needed if the model-json was exported directly from the
-            honeybee-energy Python library. (Default: False).
         log_file: Optional log file to output the paths to the generated OSM and]
             IDF files if they were successfully created. By default this string
             will be returned from this method.
     """
-    # set the default folder if it's not specified
-    if folder is None:
-        folder = os.path.dirname(os.path.abspath(model_file))
-    preparedir(folder, remove_content=False)
+    # check that honeybee-openstudio is installed
+    try:
+        from honeybee_openstudio.openstudio import openstudio, OSModel
+        from honeybee_openstudio.simulation import simulation_parameter_to_openstudio, \
+            assign_epw_to_model
+        from honeybee_openstudio.writer import model_to_openstudio
+    except ImportError as e:  # honeybee-openstudio is not installed
+        raise ImportError('{}\n{}'.format(HB_OS_MSG, e))
+    if folder is not None:
+        print('--folder is deprecated and no longer used.')
 
+    # initialize the OpenStudio model that will hold everything
+    os_model = OSModel()
     # generate default simulation parameters
     if sim_par_json is None:
         sim_par = SimulationParameter()
@@ -178,13 +167,12 @@ def model_to_osm(
         sim_par.output.add_hvac_energy_use()
         sim_par.output.add_electricity_generation()
         sim_par.output.reporting_frequency = 'Monthly'
-
     else:
         with open(sim_par_json) as json_file:
             data = json.load(json_file)
         sim_par = SimulationParameter.from_dict(data)
 
-    # perform a check to be sure the EPW file is specified for sizing runs
+    # use any specified EPW files to assign design days and the climate zone
     def ddy_from_epw(epw_file, sim_par):
         """Produce a DDY from an EPW file."""
         epw_obj = EPW(epw_file)
@@ -192,23 +180,10 @@ def model_to_osm(
                     epw_obj.approximate_design_day('SummerDesignDay')]
         sim_par.sizing_parameter.design_days = des_days
 
-    def write_sim_par(sim_par):
-        """Write simulation parameter object to a JSON."""
-        sim_par_dict = sim_par.to_dict()
-        sp_json = os.path.abspath(os.path.join(folder, 'simulation_parameter.json'))
-        with open(sp_json, 'w') as fp:
-            json.dump(sim_par_dict, fp)
-        return sp_json
-
-    if sim_par.sizing_parameter.efficiency_standard is not None:
-        assert epw_file is not None, 'An epw_file must be specified for ' \
-            'translation to OSM whenever a Simulation Parameter ' \
-            'efficiency_standard is specified.\nNo EPW was specified yet the ' \
-            'Simulation Parameter efficiency_standard is "{}".'.format(
-                sim_par.sizing_parameter.efficiency_standard
-            )
+    if epw_file is not None:
         epw_folder, epw_file_name = os.path.split(epw_file)
         ddy_file = os.path.join(epw_folder, epw_file_name.replace('.epw', '.ddy'))
+        stat_file = os.path.join(epw_folder, epw_file_name.replace('.epw', '.stat'))
         if len(sim_par.sizing_parameter.design_days) == 0 and \
                 os.path.isfile(ddy_file):
             try:
@@ -217,37 +192,35 @@ def model_to_osm(
                 ddy_from_epw(epw_file, sim_par)
         elif len(sim_par.sizing_parameter.design_days) == 0:
             ddy_from_epw(epw_file, sim_par)
-        sim_par_json = write_sim_par(sim_par)
-    elif sim_par_json is None:
-        sim_par_json = write_sim_par(sim_par)
+        if sim_par.sizing_parameter.climate_zone is None and os.path.isfile(stat_file):
+            stat_obj = STAT(stat_file)
+            sim_par.sizing_parameter.climate_zone = stat_obj.ashrae_climate_zone
+        set_cz = True if sim_par.sizing_parameter.climate_zone is None else False
+        assign_epw_to_model(epw_file, os_model, set_cz)
 
-    # run the Model re-serialization and check if specified
-    if not bypass_check:  # use display names if requested
-        model_file = measure_compatible_model_json(
-            model_file, folder, use_geometry_names=geometry_names,
-            use_resource_names=resource_names)
+    # translate the simulation parameter and model to an OpenStudio Model
+    simulation_parameter_to_openstudio(sim_par, os_model)
+    model = Model.from_file(model_file)
+    model_to_openstudio(
+        model, os_model, use_geometry_names=geometry_names,
+        use_resource_names=resource_names, print_progress=True)
+    gen_files = []
 
-    # Write the osw file to translate the model to osm
-    osw = to_openstudio_osw(folder, model_file, sim_par_json, epw_file=epw_file)
+    # write the OpenStudio Model if specified
+    if osm_file is not None:
+        osm = os.path.abspath(osm_file)
+        os_model.save(osm, overwrite=True)
+        gen_files.append(osm)
 
-    # run the measure to translate the model JSON to an openstudio measure
-    osm, idf = run_osw(osw)
-    # run the resulting idf through EnergyPlus
-    if idf is not None and os.path.isfile(idf):
-        if osm_file is not None:
-            if not osm_file.lower().endswith('.osm'):
-                osm_file = osm_file + '.osm'
-            shutil.copyfile(osm, osm_file)
-        if idf_file is not None:
-            if not idf_file.lower().endswith('.idf'):
-                idf_file = idf_file + '.idf'
-            shutil.copyfile(idf, idf_file)
-        if log_file is None:
-            return json.dumps([osm, idf], indent=4)
-        else:
-            log_file.write(json.dumps([osm, idf], indent=4))
-    else:
-        _parse_os_cli_failure(folder)
+    # write the IDF if specified
+    if idf_file is not None:
+        idf = os.path.abspath(idf_file)
+        idf_translator = openstudio.energyplus.ForwardTranslator()
+        workspace = idf_translator.translateModel(os_model)
+        workspace.save(idf, overwrite=True)
+        gen_files.append(idf)
+
+    log_file.write(json.dumps(gen_files, indent=4))
 
 
 @translate.command('model-to-idf')
@@ -411,9 +384,8 @@ def model_to_idf(
 @translate.command('model-to-gbxml')
 @click.argument('model-file', type=click.Path(
     exists=True, file_okay=True, dir_okay=False, resolve_path=True))
-@click.option('--osw-folder', '-osw', help='Folder on this computer, into which the '
-              'working files will be written. If None, it will be written into a '
-              'temp folder in the default simulation folder.', default=None,
+@click.option('--osw-folder', '-osw',
+              help='Deprecated input that is no longer used.', default=None,
               type=click.Path(file_okay=False, dir_okay=True, resolve_path=True))
 @click.option('--default-subfaces/--triangulate-subfaces', ' /-t',
               help='Flag to note whether sub-faces (including Apertures and Doors) '
@@ -439,17 +411,12 @@ def model_to_idf(
               'used for all ground-contact floor faces. If unspecified, the ground '
               'types will be left as they are. Choose from: UndergroundSlab, '
               'SlabOnGrade, RaisedFloor.', type=str, default='', show_default=True)
-@click.option('--check-model/--bypass-check', ' /-bc', help='Flag to note whether the '
-              'Model should be re-serialized to Python and checked before it is '
-              'translated to .osm. The check is not needed if the model-json was '
-              'exported directly from the honeybee-energy Python library.',
-              default=True, show_default=True)
 @click.option('--output-file', '-f', help='Optional gbXML file to output the string '
               'of the translation. By default it printed out to stdout', default='-',
               type=click.Path(file_okay=True, dir_okay=False, resolve_path=True))
 def model_to_gbxml_cli(
         model_file, osw_folder, default_subfaces, triangulate_non_planar, minimal,
-        interior_face_type, ground_face_type, check_model, output_file):
+        interior_face_type, ground_face_type, output_file):
     """Translate a Honeybee Model (HBJSON) to a gbXML file.
 
     \b
@@ -460,11 +427,9 @@ def model_to_gbxml_cli(
         triangulate_subfaces = not default_subfaces
         permit_non_planar = not triangulate_non_planar
         full_geometry = not minimal
-        bypass_check = not check_model
         model_to_gbxml(
             model_file, osw_folder, triangulate_subfaces, permit_non_planar,
-            full_geometry, interior_face_type, ground_face_type, bypass_check,
-            output_file)
+            full_geometry, interior_face_type, ground_face_type, output_file)
     except Exception as e:
         _logger.exception('Model translation failed.\n{}'.format(e))
         sys.exit(1)
@@ -475,16 +440,14 @@ def model_to_gbxml_cli(
 def model_to_gbxml(
     model_file, osw_folder=None, triangulate_subfaces=False,
     permit_non_planar=False, full_geometry=False,
-    interior_face_type='', ground_face_type='', bypass_check=False, output_file=None,
-    default_subfaces=True, triangulate_non_planar=True, minimal=True, check_model=True
+    interior_face_type='', ground_face_type='', output_file=None,
+    default_subfaces=True, triangulate_non_planar=True, minimal=True
 ):
     """Translate a Honeybee Model file to a gbXML file.
 
     Args:
         model_file: Full path to a Honeybee Model file (HBJSON or HBpkl).
-        osw_folder: Folder on this computer, into which the working files will
-            be written. If None, it will be written into a temp folder in the
-            default simulation folder.
+        osw_folder: Deprecated input that is no longer used.
         triangulate_subfaces: Boolean to note whether sub-faces (including
             Apertures and Doors) should be triangulated if they have more
             than 4 sides (True) or whether they should be left as they are (False).
@@ -504,58 +467,28 @@ def model_to_gbxml(
         ground_face_type: Text string for the type to be used for all ground-contact
             floor faces. If unspecified, the ground types will be left as they are.
             Choose from: UndergroundSlab, SlabOnGrade, RaisedFloor.
-        bypass_check: Boolean to note whether the Model should be re-serialized
-            to Python and checked before it is translated to .osm. The check is
-            not needed if the model-json was exported directly from the
-            honeybee-energy Python library. (Default: False).
         output_file: Optional gbXML file to output the string of the translation.
             By default it will be returned from this method.
     """
-    # set the default folder if it's not specified
-    out_path = None
-    out_directory = os.path.join(
-        hb_folders.default_simulation_folder, 'temp_translate')
-    if output_file is None or output_file.endswith('-'):
-        f_name = os.path.basename(model_file).lower()
-        f_name = f_name.replace('.hbjson', '.xml').replace('.json', '.xml')
-        out_path = os.path.join(out_directory, f_name)
+    # check that honeybee-openstudio is installed
+    try:
+        from honeybee_openstudio.writer import model_to_gbxml
+    except ImportError as e:  # honeybee-openstudio is not installed
+        raise ImportError('{}\n{}'.format(HB_OS_MSG, e))
+    if osw_folder is not None:
+        print('--osw-folder is deprecated and no longer used.')
 
-    # run the Model re-serialization and check if specified
-    if not bypass_check:
-        tri_non_planar = not permit_non_planar
-        model_file = measure_compatible_model_json(
-            model_file, out_directory, simplify_window_cons=True,
-            triangulate_sub_faces=triangulate_subfaces,
-            triangulate_non_planar_orphaned=tri_non_planar)
+    # load the model and translate it to a gbXML string
+    triangulate_non_planar = not permit_non_planar
+    model = Model.from_file(model_file)
+    gbxml_str = model_to_gbxml(
+        model, triangulate_non_planar_orphaned=triangulate_non_planar,
+        triangulate_subfaces=triangulate_subfaces, full_geometry=full_geometry,
+        interior_face_type=interior_face_type, ground_face_type=ground_face_type
+    )
 
-    # Write the osw file and translate the model to gbXML
-    file_contents = None
-    out_f = out_path if output_file is None or output_file.endswith('-') else output_file
-    osw = to_gbxml_osw(model_file, out_f, osw_folder)
-    if not full_geometry and not (interior_face_type or ground_face_type):
-        file_contents = _run_translation_osw(osw, out_path)
-    else:
-        _, idf = run_osw(osw, silent=True)
-        if idf is not None and os.path.isfile(idf):
-            if interior_face_type or ground_face_type:
-                int_ft = interior_face_type if interior_face_type != '' else None
-                gnd_ft = ground_face_type if ground_face_type != '' else None
-                set_gbxml_floor_types(out_f, int_ft, gnd_ft)
-            if full_geometry:
-                hb_model = Model.from_hbjson(model_file)
-                add_gbxml_space_boundaries(out_f, hb_model)
-            if out_path is not None:  # load the JSON string to stdout
-                with open(out_path) as json_file:
-                    file_contents = json_file.read()
-        else:
-            _parse_os_cli_failure(osw_folder)
-
-    # return the file contents if requested
-    if file_contents is not None:
-        if output_file is None:
-            return file_contents
-        else:
-            print(file_contents)
+    # write out the gbXML file
+    return process_content_to_output(gbxml_str, output_file)
 
 
 @translate.command('model-to-trace-gbxml')
@@ -580,9 +513,8 @@ def model_to_gbxml(
               'of the distance (eg. 0.5ft) or, if no units are provided, the value '
               'will be interpreted in the honeybee model units',
               type=str, default='0.2m', show_default=True)
-@click.option('--osw-folder', '-osw', help='Folder on this computer, into which the '
-              'working files will be written. If None, it will be written into a '
-              'temp folder in the default simulation folder.', default=None,
+@click.option('--osw-folder', '-osw', help='Deprecated input that is no longer used.',
+              default=None,
               type=click.Path(file_okay=False, dir_okay=True, resolve_path=True))
 @click.option('--output-file', '-f', help='Optional gbXML file to output the string '
               'of the translation. By default it printed out to stdout.', default='-',
@@ -632,56 +564,40 @@ def model_to_trace_gbxml(
             merged across their frames. This can include the units of the
             distance (eg. 0.5ft) or, if no units are provided, the value will
             be interpreted in the honeybee model units. (Default: 0.2m).
-        osw_folder: Folder on this computer, into which the working files will
-            be written. If None, it will be written into a temp folder in the
-            default simulation folder.
+        osw_folder: Deprecated input that is no longer used.
         output_file: Optional gbXML file to output the string of the translation.
             By default it will be returned from this method.
     """
-    # set the default folder if it's not specified
-    out_path = None
-    out_directory = os.path.join(
-        hb_folders.default_simulation_folder, 'temp_translate')
-    if output_file is None or output_file.endswith('-'):
-        f_name = os.path.basename(model_file).lower()
-        f_name = f_name.replace('.hbjson', '.xml').replace('.json', '.xml')
-        out_path = os.path.join(out_directory, f_name)
+    # check that honeybee-openstudio is installed
+    try:
+        from honeybee_openstudio.writer import model_to_gbxml
+    except ImportError as e:  # honeybee-openstudio is not installed
+        raise ImportError('{}\n{}'.format(HB_OS_MSG, e))
+    if osw_folder is not None:
+        print('--osw-folder is deprecated and no longer used.')
 
-    # run the Model re-serialization and check if specified
+    # load the model and translate it to a gbXML string
     single_window = not detailed_windows
-    model_file = trace_compatible_model_json(
-        model_file, out_directory, single_window,
-        rect_sub_distance, frame_merge_distance)
+    model = Model.from_file(model_file)
+    model = _preprocess_model_for_trace(
+        model, single_window=single_window, rect_sub_distance=rect_sub_distance,
+        frame_merge_distance=frame_merge_distance)
+    gbxml_str = model_to_gbxml(model)
 
-    # Write the osw file and translate the model to gbXML
-    out_f = out_path if output_file is None or output_file.endswith('-') else output_file
-    osw = to_gbxml_osw(model_file, out_f, osw_folder)
-    file_contents = _run_translation_osw(osw, out_path)
-
-    # return the file contents if requested
-    if file_contents is not None:
-        if output_file is None:
-            return file_contents
-        else:
-            print(file_contents)
+    # write out the gbXML file
+    return process_content_to_output(gbxml_str, output_file)
 
 
 @translate.command('model-to-sdd')
 @click.argument('model-file', type=click.Path(
     exists=True, file_okay=True, dir_okay=False, resolve_path=True))
-@click.option('--osw-folder', '-osw', help='Folder on this computer, into which the '
-              'working files will be written. If None, it will be written into a '
-              'temp folder in the default simulation folder.', default=None,
+@click.option('--osw-folder', '-osw', help='Deprecated input that is no longer used.',
+              default=None,
               type=click.Path(file_okay=False, dir_okay=True, resolve_path=True))
-@click.option('--check-model/--bypass-check', ' /-bc', help='Flag to note whether the '
-              'Model should be re-serialized to Python and checked before it is '
-              'translated to .osm. The check is not needed if the model-json was '
-              'exported directly from the honeybee-energy Python library.',
-              default=True, show_default=True)
 @click.option('--output-file', '-f', help='Optional SDD file to output the string '
               'of the translation. By default it printed out to stdout.', default='-',
               type=click.Path(file_okay=True, dir_okay=False, resolve_path=True))
-def model_to_sdd_cli(model_file, osw_folder, check_model, output_file):
+def model_to_sdd_cli(model_file, osw_folder, output_file):
     """Translate a Honeybee Model file to a SDD file.
 
     \b
@@ -689,8 +605,7 @@ def model_to_sdd_cli(model_file, osw_folder, check_model, output_file):
         model_file: Full path to a Honeybee Model file (HBJSON or HBpkl).
     """
     try:
-        bypass_check = not check_model
-        model_to_sdd(model_file, osw_folder, bypass_check, output_file)
+        model_to_sdd(model_file, osw_folder, output_file)
     except Exception as e:
         _logger.exception('Model translation failed.\n{}'.format(e))
         sys.exit(1)
@@ -698,44 +613,43 @@ def model_to_sdd_cli(model_file, osw_folder, check_model, output_file):
         sys.exit(0)
 
 
-def model_to_sdd(model_file, osw_folder=None, bypass_check=False, output_file=None):
+def model_to_sdd(model_file, osw_folder=None, output_file=None):
     """Translate a Honeybee Model file to a SDD file.
 
     Args:
         model_file: Full path to a Honeybee Model file (HBJSON or HBpkl).
-        osw_folder: Folder on this computer, into which the working files will
-            be written. If None, it will be written into a temp folder in the
-            default simulation folder.
-        bypass_check: Boolean to note whether the Model should be re-serialized
-            to Python and checked before it is translated to .osm. The check is
-            not needed if the model-json was exported directly from the
-            honeybee-energy Python library. (Default: False).
+        osw_folder: Deprecated input that is no longer used.
         output_file: Optional SDD file to output the string of the translation.
             By default it will be returned from this method.
     """
-    # set the default folder if it's not specified
+    # check that honeybee-openstudio is installed
+    try:
+        from honeybee_openstudio.openstudio import openstudio
+        from honeybee_openstudio.writer import model_to_openstudio
+    except ImportError as e:  # honeybee-openstudio is not installed
+        raise ImportError('{}\n{}'.format(HB_OS_MSG, e))
+    if osw_folder is not None:
+        print('--folder is deprecated and no longer used.')
+
+    # translate the model to an OpenStudio Model
+    model = Model.from_file(model_file)
+    os_model = model_to_openstudio(model, use_simple_window_constructions=True)
+
+    # write the SDD
     out_path = None
-    out_directory = os.path.join(
-        hb_folders.default_simulation_folder, 'temp_translate')
     if output_file is None or output_file.endswith('-'):
+        out_directory = tempfile.gettempdir()
         f_name = os.path.basename(model_file).lower()
         f_name = f_name.replace('.hbjson', '.xml').replace('.json', '.xml')
         out_path = os.path.join(out_directory, f_name)
-
-    # run the Model re-serialization and check if specified
-    if not bypass_check:
-        model_file = measure_compatible_model_json(
-            model_file, out_directory, simplify_window_cons=True,
-            triangulate_sub_faces=True)
-
-    # Write the osw file and translate the model to SDD
-    out_f = out_path if output_file is None or output_file.endswith('-') \
-        else output_file
-    osw = to_sdd_osw(model_file, out_f, osw_folder)
-    file_contents = _run_translation_osw(osw, out_path)
+    sdd = os.path.abspath(output_file) if out_path is None else out_path
+    sdd_translator = openstudio.sdd.SddForwardTranslator()
+    sdd_translator.modelToSDD(os_model, sdd)
 
     # return the file contents if requested
-    if file_contents is not None:
+    if out_path is not None:
+        with open(sdd, 'r') as sdf:
+            file_contents = sdf.read()
         if output_file is None:
             return file_contents
         else:

@@ -1887,7 +1887,7 @@ class ModelEnergyProperties(object):
             elif isinstance(con, WindowConstructionShade):
                 new_con = con.window_construction.to_simple_construction()
             elif isinstance(con, WindowConstructionDynamic):
-                new_con = con.window_construction.to_simple_construction()
+                new_con = con.constructions[0].to_simple_construction()
             if isinstance(con, w_cons):
                 con_dicts[i] = new_con.to_dict(abridged=True)
                 mat_dicts.append(new_con.materials[0].to_dict())

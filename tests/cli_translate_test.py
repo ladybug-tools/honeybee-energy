@@ -18,9 +18,18 @@ from honeybee_energy.cli.translate import model_to_osm_cli, model_to_idf_cli, \
 def test_model_to_osm():
     runner = CliRunner()
     input_hb_model = './tests/json/ShoeBox.json'
+    output_osm = './tests/json/ShoeBox.osm'
+    output_idf = './tests/json/ShoeBox.idf'
 
-    result = runner.invoke(model_to_osm_cli, [input_hb_model, '--geometry-names'])
+    in_args = [input_hb_model, '--geometry-names',
+               '--osm-file', output_osm, '--idf-file', output_idf]
+    result = runner.invoke(model_to_osm_cli, in_args)
     assert result.exit_code == 0
+
+    assert os.path.isfile(output_osm)
+    assert os.path.isfile(output_idf)
+    os.remove(output_osm)
+    os.remove(output_idf)
 
 
 def test_model_to_idf():
