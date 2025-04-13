@@ -8,11 +8,13 @@ import json
 
 from ladybug.futil import preparedir
 from ladybug.epw import EPW
+from ladybug.stat import STAT
+from honeybee.model import Model
 from honeybee.config import folders
 
 from honeybee_energy.simulation.parameter import SimulationParameter
-from honeybee_energy.run import measure_compatible_model_json, to_openstudio_osw, \
-    run_osw, run_idf, output_energyplus_files, _parse_os_cli_failure
+from honeybee_energy.run import to_openstudio_sim_folder, \
+    run_osw, run_idf, output_energyplus_files, _parse_os_cli_failure, HB_OS_MSG
 from honeybee_energy.result.err import Err
 
 _logger = logging.getLogger(__name__)
@@ -96,6 +98,7 @@ def simulate_model(
         # get a ddy variable that might get used later
         epw_folder, epw_file_name = os.path.split(epw_file)
         ddy_file = os.path.join(epw_folder, epw_file_name.replace('.epw', '.ddy'))
+        stat_file = os.path.join(epw_folder, epw_file_name.replace('.epw', '.stat'))
 
         # sense what type of file has been input
         file_type = _sense_input_file_type(model_file)
@@ -120,14 +123,7 @@ def simulate_model(
                         epw_obj.approximate_design_day('SummerDesignDay')]
             sim_par.sizing_parameter.design_days = des_days
 
-        def write_sim_par(sim_par):
-            """Write simulation parameter object to a JSON."""
-            sim_par_dict = sim_par.to_dict()
-            sp_json = os.path.abspath(os.path.join(folder, 'simulation_parameter.json'))
-            with open(sp_json, 'w') as fp:
-                json.dump(sim_par_dict, fp)
-            return sp_json
-
+        sim_par = None
         if file_type == 'hbjson':
             if sim_par_json is None or not os.path.isfile(sim_par_json):
                 sim_par = SimulationParameter()
@@ -147,9 +143,10 @@ def simulate_model(
                     ddy_from_epw(epw_file, sim_par)
             elif len(sim_par.sizing_parameter.design_days) == 0:
                 ddy_from_epw(epw_file, sim_par)
-            sim_par_json = write_sim_par(sim_par)
-        else:
-            sim_par_json = None
+            if sim_par.sizing_parameter.climate_zone is None and \
+                    os.path.isfile(stat_file):
+                stat_obj = STAT(stat_file)
+                sim_par.sizing_parameter.climate_zone = stat_obj.ashrae_climate_zone
 
         # process the measures input if it is specified
         base_osw = None
@@ -165,68 +162,43 @@ def simulate_model(
                         json.dump(osw_dict, fp)
                     break
 
-        # run the Model re-serialization and check if specified
-        if file_type == 'hbjson':
-            try:
-                model_file = measure_compatible_model_json(
-                    model_file, folder, enforce_rooms=True)
-            except AssertionError as e:
-                if not enforce_rooms and 'Model contains no Rooms' in str(e):
-                    sys.exit(0)
-                    return None
-                else:
-                    raise AssertionError(e)
-
         # Write the osw file to translate the model to osm
-        no_report = True if base_osw is None and report_units.lower() == 'none' and \
-            (len(viz_variable) == 0 or viz_variable[0] == '') else False
         strings_to_inject = additional_string if additional_string is not None else ''
         if additional_idf is not None and os.path.isfile(additional_idf):
             with open(additional_idf, "r") as add_idf_file:
                 strings_to_inject = strings_to_inject + '\n' + add_idf_file.read()
-        after_str_to_inject = None
-        if no_report and strings_to_inject != '':
-            after_str_to_inject = strings_to_inject
-            strings_to_inject = ''
-        if file_type != 'idf':
-            if file_type == 'osm' and not proj_name.endswith('.osm'):
-                new_model = os.path.join(folder, 'in.osm')
-                shutil.copy(model_file, new_model)
-                model_file = new_model
-            osw = to_openstudio_osw(
-                folder, model_file, sim_par_json, base_osw=base_osw, epw_file=epw_file,
-                strings_to_inject=strings_to_inject, report_units=report_units,
-                viz_variables=viz_variable)
-            gen_files = [osw]
+
+        # run the Model re-serialization and convert to OSM, OSW, and IDF
+        osm, osw, idf = None, None, None
+        if file_type in ('hbjson', 'osm'):
+            if file_type == 'hbjson':
+                model = Model.from_hbjson(model_file)
+                if not enforce_rooms and len(model.rooms) == 0:
+                    sys.exit(0)
+                    return None
+            else:
+                model = model_file
+            osm, osw, idf = to_openstudio_sim_folder(
+                model, folder, epw_file=epw_file, sim_par=sim_par, enforce_rooms=True,
+                base_osw=base_osw, strings_to_inject=strings_to_inject,
+                report_units=report_units, viz_variables=viz_variable,
+                print_progress=True)
+        else:
+            idf = os.path.join(folder, 'in.idf')
+            if os.path.normcase(model_file) == os.path.normcase(idf):
+                shutil.copy(model_file, idf)
 
         # run the simulation
         sql = None
-        if file_type == 'idf':
-            idf = os.path.join(folder, 'in.idf')
-            shutil.copy(model_file, idf)
-            gen_files = [idf]
+        if idf is not None:  # run the IDF directly through E+
+            gen_files = [idf] if osm is None else [osm, idf]
             sql, eio, rdd, html, err = run_idf(idf, epw_file)
             if err is not None and os.path.isfile(err):
                 gen_files.extend([sql, eio, rdd, html, err])
             else:
                 raise Exception('Running EnergyPlus failed.')
-        elif no_report:  # separate the OS CLI run from the E+ run
-            osm, idf = run_osw(osw)
-            # run the resulting idf through EnergyPlus
-            if idf is not None and os.path.isfile(idf):
-                # process the additional string if specified
-                if after_str_to_inject is not None:
-                    with open(idf, "a") as idf_file:
-                        idf_file.write(after_str_to_inject)
-                gen_files.extend([osm, idf])
-                sql, eio, rdd, html, err = run_idf(idf, epw_file)
-                if err is not None and os.path.isfile(err):
-                    gen_files.extend([sql, eio, rdd, html, err])
-                else:
-                    raise Exception('Running EnergyPlus failed.')
-            else:
-                _parse_os_cli_failure(folder)
         else:  # run the whole simulation with the OpenStudio CLI
+            gen_files = [osw]
             osm, idf = run_osw(osw, measures_only=False)
             if idf is not None and os.path.isfile(idf):
                 gen_files.extend([osm, idf])
@@ -248,7 +220,7 @@ def simulate_model(
                 os.remove('{}-journal'.format(sql))
             except Exception:  # maybe the file is inaccessible
                 pass
-        log_file.write(json.dumps(gen_files))
+        log_file.write(json.dumps(gen_files, indent=4))
     except Exception as e:
         _logger.exception('Model simulation failed.\n{}'.format(e))
         sys.exit(1)
@@ -280,41 +252,40 @@ def simulate_osm(osm_file, epw_file, folder, log_file):
         epw_file: Full path to an .epw file.
     """
     try:
-        # set the default folder to the default if it's not specified and copy the IDF
+        # check that honeybee-openstudio is installed
+        try:
+            from honeybee_openstudio.openstudio import openstudio, OSModel
+            from honeybee_openstudio.simulation import assign_epw_to_model
+        except ImportError as e:  # honeybee-openstudio is not installed
+            raise ImportError('{}\n{}'.format(HB_OS_MSG, e))
+
+        # set the default folder to the default if it's not specified and copy the OSM
         if folder is None:
             proj_name = os.path.basename(osm_file).replace('.osm', '')
             folder = os.path.join(folders.default_simulation_folder, proj_name)
         preparedir(folder, remove_content=False)
-        base_osm = os.path.join(folder, 'in.osm')
-        shutil.copy(osm_file, base_osm)
+        idf = os.path.abspath(os.path.join(folder, 'in.idf'))
 
-        # create a blank osw for the translation
-        osw_dict = {
-            'seed_file': osm_file,
-            'weather_file': epw_file
-        }
-        osw = os.path.join(folder, 'workflow.osw')
-        with open(osw, 'w') as fp:
-            json.dump(osw_dict, fp, indent=4)
-
-        # run the OSW through OpenStudio CLI
-        osm, idf = run_osw(osw)
+        # load the OSM and translate it to IDF
+        exist_os_model = OSModel.load(osm_file)
+        if exist_os_model.is_initialized():
+            os_model = exist_os_model.get()
+        assign_epw_to_model(epw_file, os_model)
+        idf_translator = openstudio.energyplus.ForwardTranslator()
+        workspace = idf_translator.translateModel(os_model)
+        workspace.save(idf, overwrite=True)
 
         # run the file through EnergyPlus
-        sql = None
-        if idf is not None and os.path.isfile(idf):
-            gen_files = [osw, osm, idf]
-            sql, eio, rdd, html, err = run_idf(idf, epw_file)
-            if err is not None and os.path.isfile(err):
-                gen_files.extend([sql, eio, rdd, html, err])
-                err_obj = Err(err)
-                for error in err_obj.fatal_errors:
-                    log_file.write(err_obj.file_contents)  # log before raising the error
-                    raise Exception(error)
-            else:
-                raise Exception('Running EnergyPlus failed.')
+        gen_files = [idf]
+        sql, eio, rdd, html, err = run_idf(idf, epw_file)
+        if err is not None and os.path.isfile(err):
+            gen_files.extend([sql, eio, rdd, html, err])
+            err_obj = Err(err)
+            for error in err_obj.fatal_errors:
+                log_file.write(err_obj.file_contents)  # log before raising the error
+                raise Exception(error)
         else:
-            _parse_os_cli_failure(folder)
+            raise Exception('Running EnergyPlus failed.')
 
         # parse the error log and report any warnings
         if sql is not None and os.path.isfile('{}-journal'.format(sql)):
@@ -322,7 +293,7 @@ def simulate_osm(osm_file, epw_file, folder, log_file):
                 os.remove('{}-journal'.format(sql))
             except Exception:  # maybe the file is inaccessible
                 pass
-        log_file.write(json.dumps(gen_files))
+        log_file.write(json.dumps(gen_files, indent=4))
     except Exception as e:
         _logger.exception('OSM simulation failed.\n{}'.format(e))
         sys.exit(1)
@@ -380,7 +351,7 @@ def simulate_idf(idf_file, epw_file, folder, log_file):
                 os.remove('{}-journal'.format(sql))
             except Exception:  # maybe the file is inaccessible
                 pass
-        log_file.write(json.dumps(gen_files))
+        log_file.write(json.dumps(gen_files, indent=4))
     except Exception as e:
         _logger.exception('IDF simulation failed.\n{}'.format(e))
         sys.exit(1)
