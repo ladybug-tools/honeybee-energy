@@ -192,9 +192,9 @@ def simulate_model(
         sql = None
         if idf is not None:  # run the IDF directly through E+
             gen_files = [idf] if osm is None else [osm, idf]
-            sql, eio, rdd, html, err = run_idf(idf, epw_file)
+            sql, zsz, rdd, html, err = run_idf(idf, epw_file)
             if err is not None and os.path.isfile(err):
-                gen_files.extend([sql, eio, rdd, html, err])
+                gen_files.extend([sql, zsz, rdd, html, err])
             else:
                 raise Exception('Running EnergyPlus failed.')
         else:  # run the whole simulation with the OpenStudio CLI
@@ -204,9 +204,9 @@ def simulate_model(
                 gen_files.extend([osm, idf])
             else:
                 _parse_os_cli_failure(folder)
-            sql, eio, rdd, html, err = output_energyplus_files(os.path.dirname(idf))
+            sql, zsz, rdd, html, err = output_energyplus_files(os.path.dirname(idf))
             if os.path.isfile(err):
-                gen_files.extend([sql, eio, rdd, html, err])
+                gen_files.extend([sql, zsz, rdd, html, err])
             else:
                 raise Exception('Running EnergyPlus failed.')
 

@@ -252,6 +252,11 @@ class Folders(object):
                   '{}'.format(self._lbt_measures_path))
 
     @property
+    def efficiency_standard_measure_path(self):
+        """Get the path to the measure that sets efficiencies of all HVAC equipment."""
+        return self._efficiency_standard_measure_path
+
+    @property
     def openstudio_results_measure_path(self):
         """Get the path to the measure that displays a clean energy use HTML report."""
         return self._openstudio_results_measure_path
