@@ -130,7 +130,7 @@ def to_openstudio_sim_folder(
     """
     # check that honeybee-openstudio is installed
     try:
-        from honeybee_openstudio.openstudio import openstudio, OSModel
+        from honeybee_openstudio.openstudio import openstudio, OSModel, os_path
         from honeybee_openstudio.simulation import simulation_parameter_to_openstudio, \
             assign_epw_to_model
         from honeybee_openstudio.writer import model_to_openstudio
@@ -161,7 +161,7 @@ def to_openstudio_sim_folder(
             model, os_model, schedule_directory=schedule_directory,
             use_geometry_names=use_geometry_names, use_resource_names=use_resource_names,
             enforce_rooms=enforce_rooms, print_progress=print_progress)
-        os_model.save(osm, overwrite=True)
+        os_model.save(os_path(osm), overwrite=True)
 
     # load the OpenStudio Efficiency Standards measure if one is specified
     if sim_par is not None and sim_par.sizing_parameter.efficiency_standard is not None:
@@ -289,7 +289,10 @@ def to_openstudio_sim_folder(
             else:
                 idf_translator = openstudio.energyplus.ForwardTranslator()
             workspace = idf_translator.translateModel(os_model)
-            workspace.save(idf, overwrite=True)
+            workspace.save(os_path(idf), overwrite=True)
+            if strings_to_inject is not None and strings_to_inject != '':
+                with open(idf, 'a') as idf_file:
+                    idf_file.write(strings_to_inject)
 
     return osm, osw, idf
 
