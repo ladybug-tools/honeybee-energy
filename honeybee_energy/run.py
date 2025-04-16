@@ -282,7 +282,7 @@ def to_openstudio_sim_folder(
         idf = os.path.abspath(os.path.join(run_directory, 'in.idf'))
         if not os.path.isfile(idf):
             if os_model is None:  # load the model from the file
-                exist_os_model = OSModel.load(osm)
+                exist_os_model = OSModel.load(os_path(osm))
                 if exist_os_model.is_initialized():
                     os_model = exist_os_model.get()
             if (sys.version_info < (3, 0)):
