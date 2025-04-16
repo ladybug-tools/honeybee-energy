@@ -157,7 +157,7 @@ def to_openstudio_sim_folder(
             assign_epw_to_model(epw_file, os_model, set_cz)
         if sim_par is not None:
             simulation_parameter_to_openstudio(sim_par, os_model)
-        model_to_openstudio(
+        os_model = model_to_openstudio(
             model, os_model, schedule_directory=schedule_directory,
             use_geometry_names=use_geometry_names, use_resource_names=use_resource_names,
             enforce_rooms=enforce_rooms, print_progress=print_progress)
