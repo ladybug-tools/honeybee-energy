@@ -239,32 +239,33 @@ def to_openstudio_sim_folder(
                 osw_dict['file_paths'].append(schedule_directory)
         if epw_file is not None:
             osw_dict['weather_file'] = epw_file
-        if 'measure_paths' not in osw_dict:
-            osw_dict['measure_paths'] = []
-        measure_paths = set()  # set of all unique measure paths
-        # ensure measures are correctly ordered
-        m_dict = {'ModelMeasure': [], 'EnergyPlusMeasure': [], 'ReportingMeasure': []}
-        for measure in additional_measures:
-            m_dict[measure.type].append(measure)
-        sorted_measures = m_dict['ModelMeasure'] + m_dict['EnergyPlusMeasure'] + \
-            m_dict['ReportingMeasure']
-        # add the measures and the measure paths to the OSW
-        for measure in sorted_measures:
-            measure.validate()  # ensure that all required arguments have values
-            measure_paths.add(os.path.dirname(measure.folder))
-            osw_dict['steps'].append(measure.to_osw_dict())  # add measure to workflow
-        for m_path in measure_paths:
-            osw_dict['measure_paths'].append(m_path)
-        # if there were reporting measures, add the ladybug adapter to get sim progress
-        adapter = folders.honeybee_adapter_path
-        if adapter is not None:
-            if 'run_options' not in osw_dict:
-                osw_dict['run_options'] = {}
-            osw_dict['run_options']['output_adapter'] = {
-                'custom_file_name': adapter,
-                'class_name': 'HoneybeeAdapter',
-                'options': {}
-            }
+        if additional_measures is not None:
+            if 'measure_paths' not in osw_dict:
+                osw_dict['measure_paths'] = []
+            measure_paths = set()  # set of all unique measure paths
+            # ensure measures are correctly ordered
+            m_dict = {'ModelMeasure': [], 'EnergyPlusMeasure': [], 'ReportingMeasure': []}
+            for measure in additional_measures:
+                m_dict[measure.type].append(measure)
+            sorted_measures = m_dict['ModelMeasure'] + m_dict['EnergyPlusMeasure'] + \
+                m_dict['ReportingMeasure']
+            # add the measures and the measure paths to the OSW
+            for measure in sorted_measures:
+                measure.validate()  # ensure that all required arguments have values
+                measure_paths.add(os.path.dirname(measure.folder))
+                osw_dict['steps'].append(measure.to_osw_dict())  # add measure to workflow
+            for m_path in measure_paths:
+                osw_dict['measure_paths'].append(m_path)
+            # if there were reporting measures, add the ladybug adapter to get sim progress
+            adapter = folders.honeybee_adapter_path
+            if adapter is not None:
+                if 'run_options' not in osw_dict:
+                    osw_dict['run_options'] = {}
+                osw_dict['run_options']['output_adapter'] = {
+                    'custom_file_name': adapter,
+                    'class_name': 'HoneybeeAdapter',
+                    'options': {}
+                }
         # write the dictionary to a workflow.osw
         osw = os.path.abspath(os.path.join(directory, 'workflow.osw'))
         if (sys.version_info < (3, 0)):  # we need to manually encode it as UTF-8

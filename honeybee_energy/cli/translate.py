@@ -11,6 +11,7 @@ from ladybug.commandutil import process_content_to_output
 from ladybug.analysisperiod import AnalysisPeriod
 from ladybug.epw import EPW
 from ladybug.stat import STAT
+from ladybug.futil import preparedir
 from honeybee.model import Model
 from honeybee.typing import clean_rad_string
 from honeybee.config import folders as hb_folders
@@ -22,7 +23,8 @@ from honeybee_energy.construction.window import WindowConstruction
 from honeybee_energy.schedule.dictutil import dict_to_schedule
 from honeybee_energy.schedule.ruleset import ScheduleRuleset
 from honeybee_energy.properties.model import ModelEnergyProperties
-from honeybee_energy.run import run_osw, from_gbxml_osw, from_osm_osw, from_idf_osw, \
+from honeybee_energy.run import to_openstudio_sim_folder, run_osw, \
+    from_gbxml_osw, from_osm_osw, from_idf_osw, \
     _parse_os_cli_failure, HB_OS_MSG
 from honeybee_energy.writer import energyplus_idf_version, _preprocess_model_for_trace
 from honeybee_energy.config import folders
@@ -33,6 +35,146 @@ _logger = logging.getLogger(__name__)
 @click.group(help='Commands for translating Honeybee Models files.')
 def translate():
     pass
+
+
+@translate.command('model-to-sim-folder')
+@click.argument('model-file', type=click.Path(
+    exists=True, file_okay=True, dir_okay=False, resolve_path=True))
+@click.argument('epw-file', type=click.Path(
+    exists=True, file_okay=True, dir_okay=False, resolve_path=True))
+@click.option('--sim-par-json', '-sp', help='Full path to a honeybee energy '
+              'SimulationParameter JSON that describes all of the settings for '
+              'the simulation. This will be ignored if the input model-file is '
+              'an OSM or IDF.', default=None, show_default=True,
+              type=click.Path(exists=False, file_okay=True, dir_okay=False,
+                              resolve_path=True))
+@click.option('--measures', '-m', help='Full path to a folder containing an OSW JSON '
+              'be used as the base for the execution of the OpenStudio CLI. While this '
+              'OSW can contain paths to measures that exist anywhere on the machine, '
+              'the best practice is to copy the measures into this measures '
+              'folder and use relative paths within the OSW. '
+              'This makes it easier to move the inputs for this command from one '
+              'machine to another.', default=None, show_default=True,
+              type=click.Path(file_okay=False, dir_okay=True, resolve_path=True))
+@click.option('--additional-string', '-as', help='An additional IDF text string to get '
+              'appended to the IDF before simulation. The input should include '
+              'complete EnergyPlus objects as a single string following the IDF '
+              'format. This input can be used to include small EnergyPlus objects that '
+              'are not currently supported by honeybee.', default=None, type=str)
+@click.option('--additional-idf', '-ai', help='An IDF file with text to be '
+              'appended before simulation. This input can be used to include '
+              'large EnergyPlus objects that are not currently supported by honeybee.',
+              default=None, show_default=True,
+              type=click.Path(exists=False, file_okay=True, dir_okay=False,
+                              resolve_path=True))
+@click.option('--folder', '-f', help='Folder on this computer, into which the IDF '
+              'and result files will be written. If None, the files will be output '
+              'to the honeybee default simulation folder and placed in a project '
+              'folder with the same name as the model-file.',
+              default=None, show_default=True,
+              type=click.Path(file_okay=False, dir_okay=True, resolve_path=True))
+@click.option('--log-file', '-log', help='Optional log file to output the paths of the '
+              'generated files (osw, osm, idf) if successfully'
+              ' created. By default the list will be printed out to stdout',
+              type=click.File('w'), default='-', show_default=True)
+def simulate_model(
+    model_file, epw_file, sim_par_json, measures, additional_string, additional_idf,
+    folder, log_file
+):
+    """Simulate a Model in EnergyPlus.
+
+    \b
+    Args:
+        model_file: Full path to a Model file as a HBJSON or HBPkl.
+        epw_file: Full path to an .epw file.
+    """
+    try:
+        # get a ddy variable that might get used later
+        epw_folder, epw_file_name = os.path.split(epw_file)
+        ddy_file = os.path.join(epw_folder, epw_file_name.replace('.epw', '.ddy'))
+        stat_file = os.path.join(epw_folder, epw_file_name.replace('.epw', '.stat'))
+
+        # sense what type of file has been input
+        proj_name = os.path.basename(model_file).lower()
+
+        # set the default folder to the default if it's not specified
+        if folder is None:
+            for ext in ('.hbjson', '.json', '.hbpkl', '.pkl'):
+                proj_name = proj_name.replace(ext, '')
+            folder = os.path.join(folders.default_simulation_folder, proj_name)
+            folder = os.path.join(folder, 'openstudio')
+        preparedir(folder, remove_content=False)
+
+        # process the simulation parameters and write new ones if necessary
+        def ddy_from_epw(epw_file, sim_par):
+            """Produce a DDY from an EPW file."""
+            epw_obj = EPW(epw_file)
+            des_days = [epw_obj.approximate_design_day('WinterDesignDay'),
+                        epw_obj.approximate_design_day('SummerDesignDay')]
+            sim_par.sizing_parameter.design_days = des_days
+
+        if sim_par_json is None or not os.path.isfile(sim_par_json):
+            sim_par = SimulationParameter()
+            sim_par.output.add_zone_energy_use()
+            sim_par.output.add_hvac_energy_use()
+            sim_par.output.add_electricity_generation()
+            sim_par.output.reporting_frequency = 'Monthly'
+        else:
+            with open(sim_par_json) as json_file:
+                data = json.load(json_file)
+            sim_par = SimulationParameter.from_dict(data)
+        if len(sim_par.sizing_parameter.design_days) == 0 and \
+                os.path.isfile(ddy_file):
+            try:
+                sim_par.sizing_parameter.add_from_ddy_996_004(ddy_file)
+            except AssertionError:  # no design days within the DDY file
+                ddy_from_epw(epw_file, sim_par)
+        elif len(sim_par.sizing_parameter.design_days) == 0:
+            ddy_from_epw(epw_file, sim_par)
+        if sim_par.sizing_parameter.climate_zone is None and \
+                os.path.isfile(stat_file):
+            stat_obj = STAT(stat_file)
+            sim_par.sizing_parameter.climate_zone = stat_obj.ashrae_climate_zone
+
+        # process the measures input if it is specified
+        base_osw = None
+        if measures is not None and measures != '' and os.path.isdir(measures):
+            for f_name in os.listdir(measures):
+                if f_name.lower().endswith('.osw'):
+                    base_osw = os.path.join(measures, f_name)
+                    # write the path of the measures folder into the OSW
+                    with open(base_osw) as json_file:
+                        osw_dict = json.load(json_file)
+                    osw_dict['measure_paths'] = [os.path.abspath(measures)]
+                    with open(base_osw, 'w') as fp:
+                        json.dump(osw_dict, fp)
+                    break
+
+        # Write the osw file to translate the model to osm
+        strings_to_inject = additional_string if additional_string is not None else ''
+        if additional_idf is not None and os.path.isfile(additional_idf):
+            with open(additional_idf, "r") as add_idf_file:
+                strings_to_inject = strings_to_inject + '\n' + add_idf_file.read()
+
+        # run the Model re-serialization and convert to OSM, OSW, and IDF
+        osm, osw, idf = None, None, None
+        model = Model.from_file(model_file)
+        osm, osw, idf = to_openstudio_sim_folder(
+            model, folder, epw_file=epw_file, sim_par=sim_par, enforce_rooms=True,
+            base_osw=base_osw, strings_to_inject=strings_to_inject,
+            print_progress=True)
+        gen_files = [osm]
+        if osw is not None:
+            gen_files.append(osw)
+        if idf is not None:
+            gen_files.append(idf)
+
+        log_file.write(json.dumps(gen_files, indent=4))
+    except Exception as e:
+        _logger.exception('Model simulation failed.\n{}'.format(e))
+        sys.exit(1)
+    else:
+        sys.exit(0)
 
 
 @translate.command('model-to-osm')
