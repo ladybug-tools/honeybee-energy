@@ -1,0 +1,7 @@
+honeybee\_energy.reader module
+==============================
+
+.. automodule:: honeybee_energy.reader
+   :members:
+   :undoc-members:
+   :show-inheritance:
