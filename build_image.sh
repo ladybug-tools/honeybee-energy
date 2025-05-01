@@ -17,7 +17,7 @@ tar zxvf ${OPENSTUDIO_TAR_FILENAME}
 mv OpenStudio-*-Ubuntu-*/ ${OPENSTUDIO_FILENAME}
 
 # Get lbt-measures
-export LBT_MEASURES_VERSION="0.2.4"
+export LBT_MEASURES_VERSION="0.3.0"
 export LBT_MEASURES_URL="https://github.com/ladybug-tools/lbt-measures/archive/v${LBT_MEASURES_VERSION}.tar.gz"
 export LBT_MEASURES_TAR='lbt-measures.tar.gz'
 export LBT_MEASURES_FILENAME='measures-gem'
@@ -26,18 +26,8 @@ curl -SL -o ${LBT_MEASURES_TAR} ${LBT_MEASURES_URL}
 tar zxvf ${LBT_MEASURES_TAR}
 mv lbt-measures-*/ ${LBT_MEASURES_FILENAME}
 
-# Get the honeybee-openstudio gem
-export HONEYBEE_OPENSTUDIO_GEM_VERSION="2.38.20"
-export HONEYBEE_OPENSTUDIO_GEM_URL="https://github.com/ladybug-tools/honeybee-openstudio-gem/archive/v${HONEYBEE_OPENSTUDIO_GEM_VERSION}.tar.gz"
-export HONEYBEE_OPENSTUDIO_GEM_TAR='honeybee-openstudio-gem.tar.gz'
-export HONEYBEE_GEM_FILENAME='honeybee-gem'
-
-curl -SL -o ${HONEYBEE_OPENSTUDIO_GEM_TAR} ${HONEYBEE_OPENSTUDIO_GEM_URL}
-tar zxvf ${HONEYBEE_OPENSTUDIO_GEM_TAR}
-mv honeybee-openstudio-gem-*/ ${HONEYBEE_GEM_FILENAME}
-
 # Get ironbug
-export IRONBUG_VERSION="1.14.0"
+export IRONBUG_VERSION="1.19.0"
 export IRONBUG_URL="https://github.com/MingboPeng/Ironbug/releases/download/v${IRONBUG_VERSION}/ironbug.console.linux-${IRONBUG_VERSION}.zip"
 export IRONBUG_ZIP='ironbug.console.linux.zip'
 export IRONBUG_FILENAME='ironbug'
@@ -53,7 +43,6 @@ docker build . \
   --build-arg OPENSTUDIO_VERSION=${OPENSTUDIO_VERSION} \
   --build-arg OPENSTUDIO_FILENAME=${OPENSTUDIO_FILENAME} \
   --build-arg LBT_MEASURES_FILENAME=${LBT_MEASURES_FILENAME} \
-  --build-arg HONEYBEE_GEM_FILENAME=${HONEYBEE_GEM_FILENAME} \
   --build-arg IRONBUG_FILENAME=${IRONBUG_FILENAME}
 
 if [[ "${3}" == 'true' ]]; then

@@ -12,9 +12,9 @@ Honeybee extension for energy simulation.
 Honeybee-energy leverages the [EnergyPlus](https://github.com/NREL/EnergyPlus)
 simulation engine and the [OpenStudio](https://github.com/NREL/OpenStudio)
 SDK in order to add energy simulation properties and capabilities to
-[honeybee-core](https://github.com/ladybug-tools/honeybee-core). The package also
-uses the [honeybee-openstudio-gem](https://github.com/ladybug-tools/honeybee-openstudio-gem)
-to translate honeybee Models to OpenStudio format.
+[honeybee-core](https://github.com/ladybug-tools/honeybee-core). The package can also
+use the [honeybee-openstudio](https://github.com/ladybug-tools/honeybee-openstudio)
+Python package to translate honeybee Models to OpenStudio format.
 
 All of these dependencies are contained within the [honeybee-energy Docker image](https://hub.docker.com/r/ladybugtools/honeybee-energy)
 
