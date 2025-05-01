@@ -222,7 +222,7 @@ class ShadeConstruction(object):
         Args:
             host_shade_identifier: Text string for the identifier of a Shade object that
                 possesses this ShadeConstruction.
- 
+
         .. code-block:: shell
 
             ShadingProperty:Reflectance,
