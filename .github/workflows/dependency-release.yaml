@@ -111,31 +111,3 @@ jobs:
         git add .
         git commit -m "fix(deps): Bump honeybee-openstudio to $VERSION"
         git push
-
-  bump_honeybee_openstudio_gem:
-    name: "Check Event"
-    runs-on: ubuntu-latest
-    if: github.event.action == 'honeybee_openstudio_gem_release'
-    steps:
-    - name: "Checkout Master Branch"
-      uses: actions/checkout@v2
-      with:
-        ref: refs/heads/master
-        token: ${{ secrets.DEPS_UPDATING }}
-    - name: "Run Update Script"
-      env:
-        VERSION: ${{ github.event.client_payload.version }}
-      run: |
-        export CLEAN_VERSION=$(echo $VERSION | sed 's/v//g')
-         sed -i --regexp-extended 's/(export HONEYBEE_OPENSTUDIO_GEM_VERSION=").*"/export HONEYBEE_OPENSTUDIO_GEM_VERSION="'"$CLEAN_VERSION"'"/' build_image.sh
-         sed -i --regexp-extended 's/(HONEYBEE_OPENSTUDIO_GEM_VERSION: ").*"/HONEYBEE_OPENSTUDIO_GEM_VERSION: "'"$CLEAN_VERSION"'"/' .github/workflows/ci.yaml
-    - name: "Commit and Push Changes"
-      id: push
-      env:
-        VERSION: ${{ github.event.client_payload.version }}
-      run: |
-        git config --global user.name 'ladybugbot'
-        git config --global user.email 'ladybugbot@users.noreply.github.com'
-        git add .
-        git commit -m "build(deps): Bump honeybee-openstudio-gem to $VERSION"
-        git push

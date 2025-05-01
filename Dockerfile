@@ -5,7 +5,6 @@ LABEL maintainer="Ladybug Tools" email="info@ladybug.tools"
 ARG OPENSTUDIO_VERSION
 ARG OPENSTUDIO_FILENAME
 ARG LBT_MEASURES_FILENAME
-ARG HONEYBEE_GEM_FILENAME
 ARG IRONBUG_FILENAME
 
 ENV HOME_PATH='/home/ladybugbot'
@@ -38,12 +37,6 @@ COPY ${OPENSTUDIO_FILENAME}/usr/local/openstudio-${OPENSTUDIO_VERSION}/lib \
 # https://github.com/ladybug-tools/lbt-measures
 COPY ${LBT_MEASURES_FILENAME}/lib \
     ${LBT_PATH}/resources/measures
-
-# Add honeybee-openstudio-gem lib to ladybug_tools folder
-# Expects an untarred honeybee-openstudio-gem in the build context
-# https://github.com/ladybug-tools/honeybee-openstudio-gem
-COPY ${HONEYBEE_GEM_FILENAME}/lib \
-    ${LBT_PATH}/resources/measures/honeybee_openstudio_gem/lib
 
 # Add ironbug to the ladybug_tools folder
 # https://github.com/MingboPeng/Ironbug
