@@ -7,8 +7,8 @@ export CONTAINER_NAME="${1:?$error_help}"
 export TAG="${2:?$error_help}"
 
 # Get OpenStudio
-export OPENSTUDIO_VERSION='3.7.0'
-export OPENSTUDIO_DOWNLOAD_URL='https://github.com/NREL/OpenStudio/releases/download/v3.7.0/OpenStudio-3.7.0+d5269793f1-Ubuntu-20.04-x86_64.tar.gz'
+export OPENSTUDIO_VERSION='3.9.0'
+export OPENSTUDIO_DOWNLOAD_URL='https://github.com/NREL/OpenStudio/releases/download/v3.9.0/OpenStudio-3.9.0+c77fbb9569-Ubuntu-22.04-x86_64.tar.gz'
 export OPENSTUDIO_TAR_FILENAME='openstudio.tar.gz'
 export OPENSTUDIO_FILENAME='openstudio'
 

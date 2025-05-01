@@ -21,8 +21,8 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: install openstudio
         run: |
-          wget https://github.com/NREL/OpenStudio/releases/download/v3.7.0/OpenStudio-3.7.0+d5269793f1-Ubuntu-20.04-x86_64.deb
-          sudo dpkg -i ./OpenStudio-3.7.0+d5269793f1-Ubuntu-20.04-x86_64.deb
+          wget https://github.com/NREL/OpenStudio/releases/download/v3.9.0/OpenStudio-3.9.0+c77fbb9569-Ubuntu-22.04-x86_64.deb
+          sudo dpkg -i ./OpenStudio-3.9.0+c77fbb9569-Ubuntu-22.04-x86_64.deb
       - name: install ironbug
         run: |
           mkdir -p ~/ladybug_tools/grasshopper
