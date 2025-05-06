@@ -326,7 +326,8 @@ class ColorRoom(_ColorObject):
         # match the rooms with the data collections
         self._space_based = bool(space_based)
         self._matched_objects = match_rooms_to_data(
-            data_collections, rooms, space_based=self._space_based)
+            data_collections, rooms, space_based=self._space_based,
+            zone_correct_mult=False)
         if len(self._matched_objects) == 0:
             raise ValueError('None of the ColorRoom data collections could be '
                              'matched to the input rooms')
@@ -424,14 +425,26 @@ class ColorRoom(_ColorObject):
         These floor areas will always be in either square meters or square feet
         depending on whether the geo_unit is either SI or IP.
         """
+        # correct for more than one room in a zone
+        if not self.space_based:
+            zones = {}
+            for room in self.matched_rooms:
+                try:
+                    zones[room.zone] += room.floor_area
+                except KeyError:  # first room to be found in the zone
+                    zones[room.zone] = room.floor_area
+            floor_areas = [zones[room.zone] for room in self.matched_rooms]
+        else:
+            floor_areas = [room.floor_area for room in self.matched_rooms]
+        # convert units if they are not conventional
         if self._geo_unit in ('m', 'ft'):  # no need to do unit conversions
-            return [room.floor_area for room in self.matched_rooms]
+            return floor_areas
         elif self._geo_unit == 'mm':  # convert to meters
-            return [room.floor_area / 1000000.0 for room in self.matched_rooms]
+            return [ar / 1000000.0 for ar in floor_areas]
         elif self._geo_unit == 'in':  # convert to feet
-            return [room.floor_area / 144.0 for room in self.matched_rooms]
+            return [ar / 144.0 for ar in floor_areas]
         else:  # assume it's cm; convert to meters
-            return [room.floor_area / 10000.0 for room in self.matched_rooms]
+            return [ar / 10000.0 for ar in floor_areas]
 
     @property
     def graphic_container(self):
