@@ -17,7 +17,7 @@ tar zxvf ${OPENSTUDIO_TAR_FILENAME}
 mv OpenStudio-*-Ubuntu-*/ ${OPENSTUDIO_FILENAME}
 
 # Get lbt-measures
-export LBT_MEASURES_VERSION="0.3.0"
+export LBT_MEASURES_VERSION="0.3.1"
 export LBT_MEASURES_URL="https://github.com/ladybug-tools/lbt-measures/archive/v${LBT_MEASURES_VERSION}.tar.gz"
 export LBT_MEASURES_TAR='lbt-measures.tar.gz'
 export LBT_MEASURES_FILENAME='measures-gem'
@@ -27,7 +27,7 @@ tar zxvf ${LBT_MEASURES_TAR}
 mv lbt-measures-*/ ${LBT_MEASURES_FILENAME}
 
 # Get ironbug
-export IRONBUG_VERSION="1.19.0"
+export IRONBUG_VERSION="1.19.1"
 export IRONBUG_URL="https://github.com/MingboPeng/Ironbug/releases/download/v${IRONBUG_VERSION}/ironbug.console.linux-${IRONBUG_VERSION}.zip"
 export IRONBUG_ZIP='ironbug.console.linux.zip'
 export IRONBUG_FILENAME='ironbug'
