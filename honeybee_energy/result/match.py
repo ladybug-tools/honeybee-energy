@@ -4,6 +4,7 @@ from __future__ import division
 
 import re
 
+from honeybee.typing import clean_ep_string
 from honeybee.door import Door
 from honeybee.aperture import Aperture
 from honeybee.face import Face
@@ -81,10 +82,11 @@ def match_rooms_to_data(
     if not space_based and zone_correct_mult:
         zone_counter = {}
         for room in rooms:
+            z_id = clean_ep_string(room.zone)
             try:
-                zone_counter[room.zone] += 1
+                zone_counter[z_id] += 1
             except KeyError:  # first room found in the zone
-                zone_counter[room.zone] = 1
+                zone_counter[z_id] = 1
 
     # loop through the rooms and match the data to them
     matched_tuples = []  # list of matched rooms and data collections
@@ -92,8 +94,9 @@ def match_rooms_to_data(
         if space_based:
             rm_id, zc = room.identifier.upper(), 1
         else:
-            rm_id = room.zone.upper()
-            zc = zone_counter[room.zone] if zone_correct_mult else 1
+            z_id = clean_ep_string(room.zone)
+            rm_id = z_id.upper()
+            zc = zone_counter[z_id] if zone_correct_mult else 1
         for i, data_id in enumerate(zone_ids):
             if data_id == rm_id:
                 mult = 1 if not use_mult else room.multiplier
