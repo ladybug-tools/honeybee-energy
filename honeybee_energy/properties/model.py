@@ -789,7 +789,7 @@ class ModelEnergyProperties(object):
         msgs.append(self.check_all_zones_have_one_hvac(False, detailed))
         msgs.append(self.check_detailed_hvac_rooms(False, detailed))
         msgs.append(self.check_shw_rooms_in_model(False, detailed))
-        msgs.append(self.check_all_air_boundaries_with_window(False, detailed))
+        msgs.append(self.check_maximum_elevation(1000, False, detailed))
         msgs.append(self.check_one_vegetation_material(False, detailed))
         msgs.append(self.check_interior_constructions_reversed(False, detailed))
 
@@ -833,7 +833,7 @@ class ModelEnergyProperties(object):
         msgs.append(self.check_all_zones_have_one_hvac(False, detailed))
         msgs.append(self.check_detailed_hvac_rooms(False, detailed))
         msgs.append(self.check_shw_rooms_in_model(False, detailed))
-        msgs.append(self.check_all_air_boundaries_with_window(False, detailed))
+        msgs.append(self.check_maximum_elevation(1000, False, detailed))
         msgs.append(self.check_one_vegetation_material(False, detailed))
         msgs.append(self.check_interior_constructions_reversed(False, detailed))
         # output a final report of errors or raise an exception
@@ -980,7 +980,7 @@ class ModelEnergyProperties(object):
             error_type='Duplicate SHW Identifier')
 
     def check_all_zones_have_one_hvac(self, raise_exception=True, detailed=False):
-        """Check that all rooms within each zone have only ony HVAC assigned to them.
+        """Check that all rooms within each zone have only one HVAC assigned to them.
 
         Multiple HVAC systems serving one zone typically causes EnergyPlus simulation
         failures and is often a mistake that results from changing zoning strategies
@@ -1099,99 +1099,6 @@ class ModelEnergyProperties(object):
                 return msg
         return [] if detailed else ''
 
-    def check_one_vegetation_material(self, raise_exception=True, detailed=False):
-        """Check that there no more than one EnergyMaterialVegetation in the model.
-
-        It is a limitation of EnergyPlus that it can only simulate a single
-        eco roof per model. This should probably be addressed at some point
-        so that we don't always have to check for it.
-
-        Args:
-            raise_exception: Boolean for whether a ValueError should be raised if there's
-                more than one EnergyMaterialVegetation in the Model. (Default: True).
-            detailed: Boolean for whether the returned object is a detailed list of
-                dicts with error info or a string with a message. (Default: False).
-
-        Returns:
-            A string with the message or a list with a dictionary if detailed is True.
-        """
-        # first see if there's more than one vegetation material
-        all_constrs = self.room_constructions + self.face_constructions
-        materials = []
-        for constr in all_constrs:
-            try:
-                materials.extend(constr.materials)
-            except AttributeError:
-                pass  # ShadeConstruction
-        all_mats = list(set(materials))
-        veg_mats = [m for m in all_mats if isinstance(m, EnergyMaterialVegetation)]
-
-        # if more than one vegetation material was found, then report the issue
-        if len(veg_mats) > 1:
-            if detailed:
-                all_err = []
-                for v_mat in veg_mats:
-                    msg = 'EnergyMaterialVegetation "{}" is one of several vegetation ' \
-                        'materials in the model.\nThis is not allowed by ' \
-                        'EnergyPlus.'.format(v_mat.identifier)
-                    error_dict = {
-                        'type': 'ValidationError',
-                        'code': '020010',
-                        'error_type': 'Multiple Vegetation Materials',
-                        'extension_type': 'Energy',
-                        'element_type': 'Material',
-                        'element_id': [v_mat.identifier],
-                        'element_name': [v_mat.display_name],
-                        'message': msg
-                    }
-                    all_err.append(error_dict)
-                return all_err
-            else:
-                veg_mats_ids = [v_mat.identifier for v_mat in veg_mats]
-                msg = 'The model has multiple vegetation materials. This is not ' \
-                    'allowed by EnergyPlus:\n{}'.format('\n'.join(veg_mats_ids))
-                if raise_exception:
-                    raise ValueError(msg)
-                return msg
-        return [] if detailed else ''
-
-    def check_all_air_boundaries_with_window(self, raise_exception=True, detailed=False):
-        """Check there are no Rooms with windows and otherwise composed of AirBoundaries.
-
-        This is a requirement for energy simulation since EnergyPlus will throw
-        an error if it encounters a Room composed entirely of AirBoundaries except
-        for one Face with a window.
-
-        Args:
-            raise_exception: Boolean to note whether a ValueError should be raised
-                if a Room composed entirely of AirBoundaries is found. (Default: True).
-            detailed: Boolean for whether the returned object is a detailed list of
-                dicts with error info or a string with a message. (Default: False).
-
-        Returns:
-            A string with the message or a list with a dictionary if detailed is True.
-        """
-        detailed = False if raise_exception else detailed
-        msgs = []
-        for room in self.host._rooms:
-            non_ab = [f for f in room._faces if not isinstance(f.type, AirBoundary)]
-            if all(len(f.apertures) > 0 for f in non_ab):
-                if len(non_ab) != 0:
-                    st_msg = 'is almost entirely composed of AirBoundary Faces with ' \
-                        'the other {} Faces having Apertures'.format(len(non_ab))
-                    msg = 'Room "{}" {}.\nIt should be merged with adjacent ' \
-                        'rooms.'.format(room.full_id, st_msg)
-                    msg = self.host._validation_message_child(
-                        msg, room, detailed, '000207',
-                        error_type='Room Composed Entirely of AirBoundaries')
-                    msgs.append(msg)
-        if detailed:
-            return msgs
-        full_msg = '\n'.join(msgs)
-        if raise_exception and len(msgs) != 0:
-            raise ValueError(full_msg)
-        return full_msg
-
     def check_detailed_hvac_rooms(self, raise_exception=True, detailed=False):
         """Check that any rooms referenced within a DetailedHVAC exist in the model.
 
@@ -1301,6 +1208,122 @@ class ModelEnergyProperties(object):
             if raise_exception:
                 raise ValueError('\n'.join(all_err))
             return all_err if detailed else '\n'.join(all_err)
+        return [] if detailed else ''
+
+    def check_one_vegetation_material(self, raise_exception=True, detailed=False):
+        """Check that there no more than one EnergyMaterialVegetation in the model.
+
+        It is a limitation of EnergyPlus that it can only simulate a single
+        eco roof per model. This should probably be addressed at some point
+        so that we don't always have to check for it.
+
+        Args:
+            raise_exception: Boolean for whether a ValueError should be raised if there's
+                more than one EnergyMaterialVegetation in the Model. (Default: True).
+            detailed: Boolean for whether the returned object is a detailed list of
+                dicts with error info or a string with a message. (Default: False).
+
+        Returns:
+            A string with the message or a list with a dictionary if detailed is True.
+        """
+        # first see if there's more than one vegetation material
+        all_constrs = self.room_constructions + self.face_constructions
+        materials = []
+        for constr in all_constrs:
+            try:
+                materials.extend(constr.materials)
+            except AttributeError:
+                pass  # ShadeConstruction
+        all_mats = list(set(materials))
+        veg_mats = [m for m in all_mats if isinstance(m, EnergyMaterialVegetation)]
+
+        # if more than one vegetation material was found, then report the issue
+        if len(veg_mats) > 1:
+            if detailed:
+                all_err = []
+                for v_mat in veg_mats:
+                    msg = 'EnergyMaterialVegetation "{}" is one of several vegetation ' \
+                        'materials in the model.\nThis is not allowed by ' \
+                        'EnergyPlus.'.format(v_mat.identifier)
+                    error_dict = {
+                        'type': 'ValidationError',
+                        'code': '020010',
+                        'error_type': 'Multiple Vegetation Materials',
+                        'extension_type': 'Energy',
+                        'element_type': 'Material',
+                        'element_id': [v_mat.identifier],
+                        'element_name': [v_mat.display_name],
+                        'message': msg
+                    }
+                    all_err.append(error_dict)
+                return all_err
+            else:
+                veg_mats_ids = [v_mat.identifier for v_mat in veg_mats]
+                msg = 'The model has multiple vegetation materials. This is not ' \
+                    'allowed by EnergyPlus:\n{}'.format('\n'.join(veg_mats_ids))
+                if raise_exception:
+                    raise ValueError(msg)
+                return msg
+        return [] if detailed else ''
+
+    def check_maximum_elevation(self, max_elevation=1000, raise_exception=True,
+                                detailed=False):
+        """Check that no Rooms of the model are above a certain elevation.
+
+        EnergyPlus computes wind speeds, air pressures, and adjusts outdoor
+        temperatures to account for the height above the ground using the Z values 
+        of the geometry coordinates. This is an important consideration when modeling
+        skyscrapers but it can be detrimental when a building has been modeled
+        with its coordinates at the height above sea level and the location
+        is significantly above sea level (eg. Denver, Colorado).
+
+        This validation check is intended to catch such cases and make the user
+        aware of the repercussions.
+
+        Args:
+            max_elevation: A number for the maximum elevation in Meters that the
+                model's rooms are permitted to be at before a ValidationError is
+                reported. While EnergyPlus technically still simulates with models that
+                are 12 kilometers above the origin, better practice is to set this
+                value at the maximum height above the ground that any human-made
+                structure can reasonably obtain. For this reason, the default is
+                set to 1000 meters or roughly the height of the Burj tower.
+            raise_exception: Boolean to note whether a ValueError should be raised
+                if a Room composed entirely of AirBoundaries is found. (Default: True).
+            detailed: Boolean for whether the returned object is a detailed list of
+                dicts with error info or a string with a message. (Default: False).
+
+        Returns:
+            A string with the message or a list with a dictionary if detailed is True.
+        """
+        # get the maximum elevation of all the rooms
+        conv_fac = conversion_factor_to_meters(self.host.units)
+        max_elev_model = max_elevation / conv_fac
+        room_elevations = tuple(room.max.z for room in self.host.rooms)
+        max_bldg_elev = max(room_elevations)
+
+        # if the maximum elevation was exceeded, then report the issue
+        if max_bldg_elev > max_elev_model:
+            msg = 'The building height is currently {} meters above the ground ' \
+                'given the Z values of the coordinates.\nThis is above the ' \
+                'maximum recommended height of {} meters.'.format(
+                    int(max_bldg_elev * conv_fac), max_elevation)
+            if detailed:
+                error_dict = {
+                    'type': 'ValidationError',
+                    'code': '020101',
+                    'error_type': 'Building Height Exceeds Max Elevation',
+                    'extension_type': 'Energy',
+                    'element_type': 'Building',
+                    'element_id': [self.host.identifier],
+                    'element_name': [self.host.display_name],
+                    'message': msg
+                }
+                return [error_dict]
+            else:
+                if raise_exception:
+                    raise ValueError(msg)
+                return msg
         return [] if detailed else ''
 
     def check_interior_constructions_reversed(

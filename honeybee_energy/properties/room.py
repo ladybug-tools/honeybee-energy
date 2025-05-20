@@ -757,11 +757,11 @@ class RoomEnergyProperties(object):
     def add_default_ideal_air(self):
         """Add a default IdealAirSystem to this Room.
 
-        The identifier of this system will be derived from the room identifier
+        The identifier of this system will be derived from the room zone name
         and will align with the naming convention that EnergyPlus uses for
         templates Ideal Air systems.
         """
-        hvac_id = '{} Ideal Loads Air System'.format(self.host.identifier)
+        hvac_id = '{} Ideal Loads Air System'.format(self.host.zone)
         self.hvac = IdealAirSystem(hvac_id)
 
     def assign_ideal_air_equivalent(self):
