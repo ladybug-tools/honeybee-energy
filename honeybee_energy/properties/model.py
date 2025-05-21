@@ -820,15 +820,7 @@ class ModelEnergyProperties(object):
         detailed = False if raise_exception else detailed
         msgs = []
         # perform checks for duplicate identifiers
-        msgs.append(self.check_duplicate_material_identifiers(False, detailed))
-        msgs.append(self.check_duplicate_construction_identifiers(False, detailed))
-        msgs.append(self.check_duplicate_construction_set_identifiers(False, detailed))
-        msgs.append(
-            self.check_duplicate_schedule_type_limit_identifiers(False, detailed))
-        msgs.append(self.check_duplicate_schedule_identifiers(False, detailed))
-        msgs.append(self.check_duplicate_program_type_identifiers(False, detailed))
-        msgs.append(self.check_duplicate_hvac_identifiers(False, detailed))
-        msgs.append(self.check_duplicate_shw_identifiers(False, detailed))
+        msgs.append(self.check_all_duplicate_identifiers(False, detailed))
         # perform checks for specific energy simulation rules
         msgs.append(self.check_all_zones_have_one_hvac(False, detailed))
         msgs.append(self.check_detailed_hvac_rooms(False, detailed))
@@ -836,6 +828,44 @@ class ModelEnergyProperties(object):
         msgs.append(self.check_maximum_elevation(1000, False, detailed))
         msgs.append(self.check_one_vegetation_material(False, detailed))
         msgs.append(self.check_interior_constructions_reversed(False, detailed))
+        # output a final report of errors or raise an exception
+        full_msgs = [msg for msg in msgs if msg]
+        if detailed:
+            return [m for msg in full_msgs for m in msg]
+        full_msg = '\n'.join(full_msgs)
+        if raise_exception and len(full_msgs) != 0:
+            raise ValueError(full_msg)
+        return full_msg
+
+    def check_all_duplicate_identifiers(self, raise_exception=True, detailed=False):
+        """Check that there are no duplicate identifiers for any geometry objects.
+
+        This includes Rooms, Faces, Apertures, Doors, Shades, and ShadeMeshes.
+
+        Args:
+            raise_exception: Boolean to note whether a ValueError should be raised
+                if any Model errors are found. If False, this method will simply
+                return a text string with all errors that were found. (Default: True).
+            detailed: Boolean for whether the returned object is a detailed list of
+                dicts with error info or a string with a message. (Default: False).
+
+        Returns:
+            A text string with all errors that were found or a list if detailed is True.
+            This string (or list) will be empty if no errors were found.
+        """
+        # set up defaults to ensure the method runs correctly
+        detailed = False if raise_exception else detailed
+        msgs = []
+        # perform checks for duplicate identifiers
+        msgs.append(self.check_duplicate_material_identifiers(False, detailed))
+        msgs.append(self.check_duplicate_construction_identifiers(False, detailed))
+        msgs.append(self.check_duplicate_construction_set_identifiers(False, detailed))
+        stl_msgs = self.check_duplicate_schedule_type_limit_identifiers(False, detailed)
+        msgs.append(stl_msgs)
+        msgs.append(self.check_duplicate_schedule_identifiers(False, detailed))
+        msgs.append(self.check_duplicate_program_type_identifiers(False, detailed))
+        msgs.append(self.check_duplicate_hvac_identifiers(False, detailed))
+        msgs.append(self.check_duplicate_shw_identifiers(False, detailed))
         # output a final report of errors or raise an exception
         full_msgs = [msg for msg in msgs if msg]
         if detailed:
@@ -1002,7 +1032,7 @@ class ModelEnergyProperties(object):
             A string with the message or a list with a dictionary if detailed is True.
         """
         detailed = False if raise_exception else detailed
-        # gather a list of all the missing rooms
+        # gather a list of all the zones with multiple HVACs
         invalid_zones = {}
         for zone, rooms in self.host.zone_dict.items():
             if len(rooms) == 1:
@@ -1012,7 +1042,7 @@ class ModelEnergyProperties(object):
             if len(hvacs) > 1:
                 invalid_zones[zone] = [rooms, hvacs]
 
-        # if missing rooms were found, then report the issue
+        # if multiple HVACs in the same zone were found, then report the issue
         if len(invalid_zones) != 0:
             if detailed:
                 all_err = []
@@ -1226,6 +1256,7 @@ class ModelEnergyProperties(object):
         Returns:
             A string with the message or a list with a dictionary if detailed is True.
         """
+        detailed = False if raise_exception else detailed
         # first see if there's more than one vegetation material
         all_constrs = self.room_constructions + self.face_constructions
         materials = []
@@ -1296,6 +1327,7 @@ class ModelEnergyProperties(object):
         Returns:
             A string with the message or a list with a dictionary if detailed is True.
         """
+        detailed = False if raise_exception else detailed
         # get the maximum elevation of all the rooms
         conv_fac = conversion_factor_to_meters(self.host.units)
         max_elev_model = max_elevation / conv_fac
