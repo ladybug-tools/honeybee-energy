@@ -11,10 +11,9 @@ import pytest
 from .fixtures.userdata_fixtures import userdatadict
 
 
-def test_constructionset_init(userdatadict):
+def test_constructionset_init():
     """Test the initialization of ConstructionSet and basic properties."""
     default_set = ConstructionSet('Default Set')
-    default_set.user_data = userdatadict
     str(default_set)  # test the string representation of the construction
 
     assert default_set.identifier == 'Default Set'
@@ -23,6 +22,8 @@ def test_constructionset_init(userdatadict):
     assert len(default_set.materials_unique) == 15
     assert len(default_set.modified_constructions_unique) == 0
     assert len(default_set.modified_materials_unique) == 0
+    assert default_set.is_interior_defaulted
+    assert default_set.is_interior_symmetric
 
     assert isinstance(default_set.wall_set, WallConstructionSet)
     assert isinstance(default_set.floor_set, FloorConstructionSet)
@@ -161,6 +162,41 @@ def test_setting_window_construction():
 
     assert len(default_set.modified_constructions_unique) == 2
     assert len(default_set.modified_materials_unique) == 2
+
+
+def test_is_interior_symmetric():
+    """Test the ConstructionSet is_interior_symmetric property."""
+    default_set = ConstructionSet('Thermal Mass Construction Set')
+    concrete20 = EnergyMaterial('20cm Concrete', 0.2, 2.31, 2322, 832,
+                                'MediumRough', 0.95, 0.75, 0.8)
+    concrete10 = EnergyMaterial('10cm Concrete', 0.1, 2.31, 2322, 832,
+                                'MediumRough', 0.95, 0.75, 0.8)
+    stone_door = EnergyMaterial('Stone Door', 0.05, 2.31, 2322, 832,
+                                'MediumRough', 0.95, 0.75, 0.8)
+    thick_constr = OpaqueConstruction(
+        'Thick Concrete Construction', [concrete20])
+    thin_constr = OpaqueConstruction(
+        'Thin Concrete Construction', [concrete10])
+    door_constr = OpaqueConstruction(
+        'Stone Door', [stone_door])
+    assert default_set.is_interior_defaulted
+    assert default_set.is_interior_symmetric
+
+    default_set.wall_set.interior_construction = thick_constr
+    assert not default_set.is_interior_defaulted
+    assert default_set.is_interior_symmetric
+
+    default_set.floor_set.interior_construction = thin_constr
+    assert not default_set.is_interior_defaulted
+    assert not default_set.is_interior_symmetric
+
+    default_set.roof_ceiling_set.interior_construction = thin_constr
+    assert not default_set.is_interior_defaulted
+    assert default_set.is_interior_symmetric
+
+    default_set.door_set.interior_construction = door_constr
+    assert not default_set.is_interior_defaulted
+    assert default_set.is_interior_symmetric
 
 
 def test_constructionset_equality(userdatadict):
