@@ -59,6 +59,8 @@ class ConstructionSet(object):
         * modified_constructions_unique
         * materials_unique
         * modified_materials_unique
+        * is_interior_defaulted
+        * is_interior_symmetric
         * user_data
     """
     __slots__ = ('_identifier', '_display_name', '_wall_set', '_floor_set',
@@ -270,6 +272,51 @@ class ConstructionSet(object):
             except AttributeError:
                 pass  # ShadeConstruction or AirBoundaryConstruction
         return list(set(materials))
+
+    @property
+    def is_interior_defaulted(self):
+        """Get a boolean for whether all interior constructions of the set are defaulted.
+
+        If all construction sets in a model use the same default interior constructions,
+        it meas that the construction sets won't create any conflicts between adjacent
+        interior Faces.
+        """
+        return self.wall_set._interior_construction is None and \
+            self.aperture_set._interior_construction is None and \
+            self.door_set._interior_construction is None and \
+            self.floor_set._interior_construction is None and \
+            self.roof_ceiling_set._interior_construction is None
+
+    @property
+    def is_interior_symmetric(self):
+        """Get a boolean for whether all interior constructions of the set are symmetric.
+
+        This will only be true if the interior wall, window and door constructions
+        are symmetric and the material layers of the interior floor construction
+        is a reversed version of the ceiling construction. When these criteria
+        are met, it meas that the construction set can be applied to all rooms
+        of a Model without concern for it creating conflicts between adjacent
+        interior Faces.
+        """
+        # check the constructions that are supposed to be symmetric
+        wall_con = self.wall_set._interior_construction
+        if wall_con is not None and not wall_con.is_symmetric:
+            return False
+        win_con = self.aperture_set._interior_construction
+        if win_con is not None and not win_con.is_symmetric:
+            return False
+        door_con = self.door_set._interior_construction
+        if door_con is not None and not door_con.is_symmetric:
+            return False
+        glz_dr_con = self.door_set._interior_glass_construction
+        if glz_dr_con is not None and not glz_dr_con.is_symmetric:
+            return False
+        # check that the floor is the reverse of the floor
+        floor_con = self.floor_set.interior_construction
+        ceil_con = self.roof_ceiling_set.interior_construction
+        if floor_con.materials != tuple(reversed(ceil_con.materials)):
+            return False
+        return True
 
     @property
     def user_data(self):
