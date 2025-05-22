@@ -359,7 +359,7 @@ def model_to_osm(
         workspace.save(idf, overwrite=True)
         gen_files.append(idf)
 
-    log_file.write(json.dumps(gen_files, indent=4))
+    return process_content_to_output(json.dumps(gen_files, indent=4), log_file)
 
 
 @translate.command('model-to-idf')
