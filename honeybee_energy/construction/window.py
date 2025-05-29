@@ -878,8 +878,11 @@ class WindowConstruction(_ConstructionBase):
         frame_strings = frame_pattern.findall(file_contents)
         frame_materials = []
         for fr_str in frame_strings:
-            frame_obj = EnergyWindowFrame.from_idf(fr_str.strip())
-            frame_materials.append(frame_obj)
+            try:
+                frame_obj = EnergyWindowFrame.from_idf(fr_str.strip())
+                frame_materials.append(frame_obj)
+            except AssertionError:  # invalid window frame material, continue
+                pass
         # if there's only one frame in the file, assume it applies to all constructions
         # this is the convention used by LBNL WINDOW
         if len(frame_materials) == 1:
