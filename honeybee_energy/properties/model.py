@@ -11,7 +11,7 @@ from honeybee.boundarycondition import Outdoors, Surface, boundary_conditions
 from honeybee.facetype import AirBoundary, face_types
 from honeybee.extensionutil import model_extension_dicts
 from honeybee.checkdup import check_duplicate_identifiers
-from honeybee.units import conversion_factor_to_meters
+from honeybee.units import conversion_factor_to_meters, parse_distance_string
 from honeybee.typing import invalid_dict_error, clean_ep_string, \
     clean_and_id_ep_string, clean_and_number_ep_string
 from honeybee.face import Face
@@ -753,6 +753,7 @@ class ModelEnergyProperties(object):
         msgs = []
         tol = self.host.tolerance
         ang_tol = self.host.angle_tolerance
+        e_tol = parse_distance_string('1cm', self.units)
 
         # perform checks for duplicate identifiers, which might mess with other checks
         msgs.append(self.host.check_all_duplicate_identifiers(False, detailed))
@@ -760,7 +761,7 @@ class ModelEnergyProperties(object):
         # perform several checks for the Honeybee schema geometry rules
         msgs.append(self.host.check_planar(tol, False, detailed))
         msgs.append(self.host.check_self_intersecting(tol, False, detailed))
-        msgs.append(self.host.check_degenerate_rooms(tol, False, detailed))
+        msgs.append(self.host.check_degenerate_rooms(e_tol, False, detailed))
 
         # perform geometry checks related to parent-child relationships
         msgs.append(self.host.check_sub_faces_valid(tol, ang_tol, False, detailed))
@@ -819,8 +820,6 @@ class ModelEnergyProperties(object):
         # set up defaults to ensure the method runs correctly
         detailed = False if raise_exception else detailed
         msgs = []
-        # perform checks for duplicate identifiers
-        msgs.append(self.check_all_duplicate_identifiers(False, detailed))
         # perform checks for specific energy simulation rules
         msgs.append(self.check_all_zones_have_one_hvac(False, detailed))
         msgs.append(self.check_detailed_hvac_rooms(False, detailed))
