@@ -1331,7 +1331,7 @@ class ModelEnergyProperties(object):
         conv_fac = conversion_factor_to_meters(self.host.units)
         max_elev_model = max_elevation / conv_fac
         room_elevations = tuple(room.max.z for room in self.host.rooms)
-        max_bldg_elev = max(room_elevations)
+        max_bldg_elev = max(room_elevations) if len(room_elevations) != 0 else 0
 
         # if the maximum elevation was exceeded, then report the issue
         if max_bldg_elev > max_elev_model:
