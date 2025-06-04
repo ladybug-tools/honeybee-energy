@@ -1,0 +1,7 @@
+honeybee\_energy.ventcool.opening module
+========================================
+
+.. automodule:: honeybee_energy.ventcool.opening
+   :members:
+   :undoc-members:
+   :show-inheritance:
