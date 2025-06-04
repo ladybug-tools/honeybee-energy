@@ -753,7 +753,7 @@ class ModelEnergyProperties(object):
         msgs = []
         tol = self.host.tolerance
         ang_tol = self.host.angle_tolerance
-        e_tol = parse_distance_string('1cm', self.units)
+        e_tol = parse_distance_string('1cm', self.host.units)
 
         # perform checks for duplicate identifiers, which might mess with other checks
         msgs.append(self.host.check_all_duplicate_identifiers(False, detailed))
