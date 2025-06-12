@@ -1,0 +1,7 @@
+honeybee\_energy.cli.baseline module
+====================================
+
+.. automodule:: honeybee_energy.cli.baseline
+   :members:
+   :undoc-members:
+   :show-inheritance:
