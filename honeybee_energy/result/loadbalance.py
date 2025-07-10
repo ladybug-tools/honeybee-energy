@@ -785,9 +785,9 @@ class LoadBalance(object):
         """
         # match the data collections to the rooms
         if surface_flow_data is None or len(surface_flow_data) == 0:
-            return None, None, None, None
+            return [None] * 7
         base_data = surface_flow_data[0]
-        values = [0 for val in range(len(base_data))]
+        values = [0] * len(base_data)
 
         # compute the total values of the load
         window_vals, wall_vals, roof_vals, floor_vals = (values[:] for i in range(4))
