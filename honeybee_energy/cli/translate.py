@@ -340,7 +340,7 @@ def model_to_osm(
     # translate the simulation parameter and model to an OpenStudio Model
     simulation_parameter_to_openstudio(sim_par, os_model)
     model = Model.from_file(model_file)
-    model_to_openstudio(
+    os_model = model_to_openstudio(
         model, os_model, use_geometry_names=geometry_names,
         use_resource_names=resource_names, print_progress=True)
     gen_files = []
