@@ -1,1 +1,1 @@
-honeybee-openstudio==0.3.11
+honeybee-openstudio==0.3.12
