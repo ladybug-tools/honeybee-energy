@@ -1074,4 +1074,11 @@ def _preprocess_model_for_trace(
     if len(rem_msgs) != 0:
         print('\n'.join(rem_msgs))
 
+    # rename all face geometry so that it is easy to identify in TRACE 700
+    for room in model.rooms:
+        room.rename_faces_by_attribute()
+        room.rename_apertures_by_attribute()
+        room.rename_doors_by_attribute()
+    model.reset_ids()
+
     return model
