@@ -1,4 +1,4 @@
-FROM python:3.10-slim
+FROM python:3.10-slim-bullseye
 
 LABEL maintainer="Ladybug Tools" email="info@ladybug.tools"
 
@@ -66,7 +66,7 @@ RUN apt-get update \
 RUN apt-get update \
     && apt-get -y install --no-install-recommends git \
     # EnergyPlus dynamically links to libx11
-    && apt-get -y install libx11-6 libgomp1 aspnetcore-runtime-9.0 \
+    && apt-get -y install libx11-6 libgomp1 aspnetcore-runtime-8.0 \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
     && pip3 install --no-cache-dir setuptools wheel \
