@@ -47,7 +47,6 @@ COPY ${IRONBUG_FILENAME} \
 COPY honeybee_energy ${LIBRARY_PATH}/honeybee_energy
 COPY .git ${LIBRARY_PATH}/.git
 COPY setup.py ${LIBRARY_PATH}
-COPY setup.cfg ${LIBRARY_PATH}
 COPY requirements.txt ${LIBRARY_PATH}
 COPY standards-requirements.txt ${LIBRARY_PATH}
 COPY openstudio-requirements.txt ${LIBRARY_PATH}
