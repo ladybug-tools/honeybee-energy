@@ -78,6 +78,25 @@ class ModelEnergyProperties(object):
         * ventilation_simulation_control
         * electric_load_center
     """
+    # dictionary mapping validation error codes to a corresponding check function
+    ERROR_MAP = {
+        '020001': 'check_duplicate_material_identifiers',
+        '020002': 'check_duplicate_construction_identifiers',
+        '020003': 'check_duplicate_construction_set_identifiers',
+        '020004': 'check_duplicate_schedule_type_limit_identifiers',
+        '020005': 'check_duplicate_schedule_identifiers',
+        '020006': 'check_duplicate_program_type_identifiers',
+        '020007': 'check_duplicate_hvac_identifiers',
+        '020008': 'check_duplicate_shw_identifiers',
+        '020009': 'check_shw_rooms_in_model',
+        '020010': 'check_one_vegetation_material',
+        '020011': 'check_detailed_hvac_rooms',
+        '020012': 'check_detailed_hvac_rooms',
+        '020013': 'check_detailed_hvac_rooms',
+        '020014': 'check_all_zones_have_one_hvac',
+        '020101': 'check_maximum_elevation',
+        '020201': 'check_interior_constructions_reversed'
+    }
 
     def __init__(
             self, host, ventilation_simulation_control=None, electric_load_center=None):
