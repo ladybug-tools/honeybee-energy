@@ -550,12 +550,24 @@ def model_to_idf(
               'used for all ground-contact floor faces. If unspecified, the ground '
               'types will be left as they are. Choose from: UndergroundSlab, '
               'SlabOnGrade, RaisedFloor.', type=str, default='', show_default=True)
+@click.option('--program-name', '-p', help='Optional text to set the name of the '
+              'software that will appear under the programId and ProductName tags '
+              'of the DocumentHistory section. This can be set things like "Ladybug '
+              'Tools" or "Pollination" or some other software in which this gbXML '
+              'export capability is being run. If None, "OpenStudio" will be used.',
+              type=str, default=None, show_default=True)
+@click.option('--program-version', '-v', help='Optional text to set the version of '
+              'the software that will appear under the DocumentHistory section. '
+              'If None, and the program_name is also unspecified, only the version '
+              'of OpenStudio will appear. Otherwise, this will default to "0.0.0" '
+              'given that the version field is required.',
+              type=str, default=None, show_default=True)
 @click.option('--output-file', '-f', help='Optional gbXML file to output the string '
               'of the translation. By default it printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
 def model_to_gbxml_cli(
         model_file, osw_folder, default_subfaces, triangulate_non_planar, minimal,
-        interior_face_type, ground_face_type, output_file):
+        interior_face_type, ground_face_type, program_name, program_version, output_file):
     """Translate a Honeybee Model (HBJSON) to a gbXML file.
 
     \b
@@ -568,7 +580,8 @@ def model_to_gbxml_cli(
         full_geometry = not minimal
         model_to_gbxml(
             model_file, osw_folder, triangulate_subfaces, permit_non_planar,
-            full_geometry, interior_face_type, ground_face_type, output_file)
+            full_geometry, interior_face_type, ground_face_type,
+            program_name, program_version, output_file)
     except Exception as e:
         _logger.exception('Model translation failed.\n{}'.format(e))
         sys.exit(1)
@@ -579,7 +592,8 @@ def model_to_gbxml_cli(
 def model_to_gbxml(
     model_file, osw_folder=None, triangulate_subfaces=False,
     permit_non_planar=False, full_geometry=False,
-    interior_face_type='', ground_face_type='', output_file=None,
+    interior_face_type='', ground_face_type='',
+    program_name=None, program_version=None, output_file=None,
     default_subfaces=True, triangulate_non_planar=True, minimal=True
 ):
     """Translate a Honeybee Model file to a gbXML file.
@@ -606,6 +620,16 @@ def model_to_gbxml(
         ground_face_type: Text string for the type to be used for all ground-contact
             floor faces. If unspecified, the ground types will be left as they are.
             Choose from: UndergroundSlab, SlabOnGrade, RaisedFloor.
+        program_name: Optional text to set the name of the software that will
+            appear under the programId and ProductName tags of the DocumentHistory
+            section. This can be set things like "Ladybug Tools" or "Pollination"
+            or some other software in which this gbXML export capability is being
+            run. If None, the "OpenStudio" will be used. (Default: None).
+        program_version: Optional text to set the version of the software that
+            will appear under the DocumentHistory section. If None, and the
+            program_name is also unspecified, only the version of OpenStudio will
+            appear. Otherwise, this will default to "0.0.0" given that the version
+            field is required. (Default: None).
         output_file: Optional gbXML file to output the string of the translation.
             By default it will be returned from this method.
     """
@@ -623,7 +647,8 @@ def model_to_gbxml(
     gbxml_str = model_to_gbxml(
         model, triangulate_non_planar_orphaned=triangulate_non_planar,
         triangulate_subfaces=triangulate_subfaces, full_geometry=full_geometry,
-        interior_face_type=interior_face_type, ground_face_type=ground_face_type
+        interior_face_type=interior_face_type, ground_face_type=ground_face_type,
+        program_name=program_name, program_version=program_version
     )
 
     # write out the gbXML file
@@ -652,6 +677,18 @@ def model_to_gbxml(
               'of the distance (eg. 0.5ft) or, if no units are provided, the value '
               'will be interpreted in the honeybee model units',
               type=str, default='0.2m', show_default=True)
+@click.option('--program-name', '-p', help='Optional text to set the name of the '
+              'software that will appear under the programId and ProductName tags '
+              'of the DocumentHistory section. This can be set things like "Ladybug '
+              'Tools" or "Pollination" or some other software in which this gbXML '
+              'export capability is being run. If None, "OpenStudio" will be used.',
+              type=str, default=None, show_default=True)
+@click.option('--program-version', '-v', help='Optional text to set the version of '
+              'the software that will appear under the DocumentHistory section. '
+              'If None, and the program_name is also unspecified, only the version '
+              'of OpenStudio will appear. Otherwise, this will default to "0.0.0" '
+              'given that the version field is required.',
+              type=str, default=None, show_default=True)
 @click.option('--osw-folder', '-osw', help='Deprecated input that is no longer used.',
               default=None,
               type=click.Path(file_okay=False, dir_okay=True, resolve_path=True))
@@ -660,7 +697,7 @@ def model_to_gbxml(
               type=click.File('w'), default='-', show_default=True)
 def model_to_trace_gbxml_cli(
         model_file, single_window, rect_sub_distance, frame_merge_distance,
-        osw_folder, output_file):
+        program_name, program_version, osw_folder, output_file):
     """Translate a Honeybee Model (HBJSON) to a gbXML file.
 
     \b
@@ -669,8 +706,10 @@ def model_to_trace_gbxml_cli(
     """
     try:
         detailed_windows = not single_window
-        model_to_trace_gbxml(model_file, detailed_windows, rect_sub_distance,
-                             frame_merge_distance, osw_folder, output_file)
+        model_to_trace_gbxml(
+            model_file, detailed_windows, rect_sub_distance,
+            frame_merge_distance, osw_folder,
+            program_name, program_version, output_file)
     except Exception as e:
         _logger.exception('Model translation failed.\n{}'.format(e))
         sys.exit(1)
@@ -680,8 +719,8 @@ def model_to_trace_gbxml_cli(
 
 def model_to_trace_gbxml(
     model_file, detailed_windows=False, rect_sub_distance='0.15m',
-    frame_merge_distance='0.2m', osw_folder=None, output_file=None,
-    single_window=True
+    frame_merge_distance='0.2m', program_name=None, program_version=None,
+    osw_folder=None, output_file=None, single_window=True
 ):
     """Translate a Honeybee Model to a gbXML file that is compatible with TRACE 3D Plus.
 
@@ -703,6 +742,16 @@ def model_to_trace_gbxml(
             merged across their frames. This can include the units of the
             distance (eg. 0.5ft) or, if no units are provided, the value will
             be interpreted in the honeybee model units. (Default: 0.2m).
+        program_name: Optional text to set the name of the software that will
+            appear under the programId and ProductName tags of the DocumentHistory
+            section. This can be set things like "Ladybug Tools" or "Pollination"
+            or some other software in which this gbXML export capability is being
+            run. If None, the "OpenStudio" will be used. (Default: None).
+        program_version: Optional text to set the version of the software that
+            will appear under the DocumentHistory section. If None, and the
+            program_name is also unspecified, only the version of OpenStudio will
+            appear. Otherwise, this will default to "0.0.0" given that the version
+            field is required. (Default: None).
         osw_folder: Deprecated input that is no longer used.
         output_file: Optional gbXML file to output the string of the translation.
             By default it will be returned from this method.
@@ -720,8 +769,11 @@ def model_to_trace_gbxml(
     model = Model.from_file(model_file)
     model = _preprocess_model_for_trace(
         model, single_window=single_window, rect_sub_distance=rect_sub_distance,
-        frame_merge_distance=frame_merge_distance)
-    gbxml_str = model_to_gbxml(model)
+        frame_merge_distance=frame_merge_distance
+    )
+    gbxml_str = model_to_gbxml(
+        model, program_name=program_name, program_version=program_version
+    )
 
     # write out the gbXML file
     return process_content_to_output(gbxml_str, output_file)
