@@ -51,7 +51,9 @@ def test_model_to_gbxml():
     runner = CliRunner()
     input_hb_model = './tests/json/ShoeBox.json'
 
-    result = runner.invoke(model_to_gbxml_cli, [input_hb_model])
+    in_args = [input_hb_model, '--program-name', 'Ladybug Tools',
+               '--program-version', '1.9']
+    result = runner.invoke(model_to_gbxml_cli, in_args)
     assert result.exit_code == 0
 
 
@@ -59,7 +61,9 @@ def test_model_to_trace_gbxml():
     runner = CliRunner()
     input_hb_model = './tests/json/ShoeBox.json'
 
-    result = runner.invoke(model_to_trace_gbxml_cli, [input_hb_model])
+    in_args = [input_hb_model, '--program-name', 'Ladybug Tools',
+               '--program-version', '1.9']
+    result = runner.invoke(model_to_trace_gbxml_cli, in_args)
     assert result.exit_code == 0
 
 
