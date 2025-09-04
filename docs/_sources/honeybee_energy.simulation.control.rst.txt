@@ -1,0 +1,7 @@
+honeybee\_energy.simulation.control module
+==========================================
+
+.. automodule:: honeybee_energy.simulation.control
+   :members:
+   :undoc-members:
+   :show-inheritance:
