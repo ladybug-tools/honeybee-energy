@@ -782,13 +782,31 @@ def model_to_trace_gbxml(
 @translate.command('model-to-sdd')
 @click.argument('model-file', type=click.Path(
     exists=True, file_okay=True, dir_okay=False, resolve_path=True))
+@click.option('--geometry-ids/--geometry-names', ' /-gn', help='Flag to note whether a '
+              'cleaned version of all geometry display names should be used instead '
+              'of identifiers when translating the Model to IDF. Using this flag will '
+              'affect all Rooms, Faces, Apertures, Doors, and Shades. It will '
+              'generally result in more read-able names in the IDF but this means that '
+              'it will not be easy to map the EnergyPlus results back to the original '
+              'Honeybee Model. Cases of duplicate IDs resulting from non-unique names '
+              'will be resolved by adding integers to the ends of the new IDs that are '
+              'derived from the name.', default=True, show_default=True)
+@click.option('--resource-ids/--resource-names', ' /-rn', help='Flag to note whether a '
+              'cleaned version of all resource display names should be used instead '
+              'of identifiers when translating the Model to IDF. Using this flag will '
+              'affect all Materials, Constructions, ConstructionSets, Schedules, '
+              'Loads, and ProgramTypes. It will generally result in more read-able '
+              'names for the resources in the IDF. Cases of duplicate IDs resulting '
+              'from non-unique names will be resolved by adding integers to the ends '
+              'of the new IDs that are derived from the name.',
+              default=True, show_default=True)
 @click.option('--osw-folder', '-osw', help='Deprecated input that is no longer used.',
               default=None,
               type=click.Path(file_okay=False, dir_okay=True, resolve_path=True))
 @click.option('--output-file', '-f', help='Optional SDD file to output the string '
               'of the translation. By default it printed out to stdout.', default='-',
               type=click.Path(file_okay=True, dir_okay=False, resolve_path=True))
-def model_to_sdd_cli(model_file, osw_folder, output_file):
+def model_to_sdd_cli(model_file, geometry_ids, resource_ids, osw_folder, output_file):
     """Translate a Honeybee Model file to a SDD file.
 
     \b
@@ -796,7 +814,9 @@ def model_to_sdd_cli(model_file, osw_folder, output_file):
         model_file: Full path to a Honeybee Model file (HBJSON or HBpkl).
     """
     try:
-        model_to_sdd(model_file, osw_folder, output_file)
+        geo_names = not geometry_ids
+        res_names = not resource_ids
+        model_to_sdd(model_file, geo_names, res_names, osw_folder, output_file)
     except Exception as e:
         _logger.exception('Model translation failed.\n{}'.format(e))
         sys.exit(1)
@@ -804,11 +824,32 @@ def model_to_sdd_cli(model_file, osw_folder, output_file):
         sys.exit(0)
 
 
-def model_to_sdd(model_file, osw_folder=None, output_file=None):
+def model_to_sdd(
+    model_file, geometry_names=False, resource_names=False,
+    osw_folder=None, output_file=None,
+    geometry_ids=True, resource_ids=True
+):
     """Translate a Honeybee Model file to a SDD file.
 
     Args:
         model_file: Full path to a Honeybee Model file (HBJSON or HBpkl).
+        geometry_names: Boolean to note whether a cleaned version of all geometry
+            display names should be used instead of identifiers when translating
+            the Model to OSM and IDF. Using this flag will affect all Rooms, Faces,
+            Apertures, Doors, and Shades. It will generally result in more read-able
+            names in the OSM and IDF but this means that it will not be easy to map
+            the EnergyPlus results back to the original Honeybee Model. Cases
+            of duplicate IDs resulting from non-unique names will be resolved
+            by adding integers to the ends of the new IDs that are derived from
+            the name. (Default: False).
+        resource_names: Boolean to note whether a cleaned version of all resource
+            display names should be used instead of identifiers when translating
+            the Model to OSM and IDF. Using this flag will affect all Materials,
+            Constructions, ConstructionSets, Schedules, Loads, and ProgramTypes.
+            It will generally result in more read-able names for the resources
+            in the OSM and IDF. Cases of duplicate IDs resulting from non-unique
+            names will be resolved by adding integers to the ends of the new IDs
+            that are derived from the name. (Default: False).
         osw_folder: Deprecated input that is no longer used.
         output_file: Optional SDD file to output the string of the translation.
             By default it will be returned from this method.
@@ -824,7 +865,27 @@ def model_to_sdd(model_file, osw_folder=None, output_file=None):
 
     # translate the model to an OpenStudio Model
     model = Model.from_file(model_file)
-    os_model = model_to_openstudio(model, use_simple_window_constructions=True)
+
+    if geometry_names:  # rename all face geometry so that it is easy to identify
+        model.reset_ids()  # sets the identifiers based on the display_name
+        for room in model.rooms:
+            room.display_name = None
+            for face in room.faces:
+                face.display_name = None
+                for ap in face.apertures:
+                    ap.display_name = None
+                for dr in face.apertures:
+                    dr.display_name = None
+            room.rename_faces_by_attribute()
+            room.rename_apertures_by_attribute()
+            room.rename_doors_by_attribute()
+        model.reset_ids()
+
+    os_model = model_to_openstudio(
+        model,
+        use_simple_window_constructions=True,
+        use_resource_names=resource_names
+    )
 
     # write the SDD
     out_path = None
