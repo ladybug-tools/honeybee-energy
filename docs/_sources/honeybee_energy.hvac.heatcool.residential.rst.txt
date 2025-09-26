@@ -1,0 +1,7 @@
+honeybee\_energy.hvac.heatcool.residential module
+=================================================
+
+.. automodule:: honeybee_energy.hvac.heatcool.residential
+   :members:
+   :undoc-members:
+   :show-inheritance:
