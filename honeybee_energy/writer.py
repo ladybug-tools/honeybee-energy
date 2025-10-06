@@ -1059,13 +1059,7 @@ def _preprocess_model_for_trace(
     # reset all display_names so that they are unique (derived from reset identifiers)
     model.reset_ids()  # sets the identifiers based on the display_name
     for room in model.rooms:
-        room.display_name = None
-        for face in room.faces:
-            face.display_name = None
-            for ap in face.apertures:
-                ap.display_name = None
-            for dr in face.apertures:
-                dr.display_name = None
+        room.display_name = room.identifier
         if room.story is not None and room.story.startswith('-'):
             room.story = 'neg{}'.format(room.story[1:])
 
