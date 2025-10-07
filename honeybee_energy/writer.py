@@ -1059,7 +1059,7 @@ def _preprocess_model_for_trace(
     # reset all display_names so that they are unique (derived from reset identifiers)
     model.reset_ids()  # sets the identifiers based on the display_name
     for room in model.rooms:
-        room.display_name = room.identifier
+        room.display_name = room.identifier.replace('_', ' ')
         if room.story is not None and room.story.startswith('-'):
             room.story = 'neg{}'.format(room.story[1:])
 
