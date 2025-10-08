@@ -292,8 +292,12 @@ def to_openstudio_sim_folder(
             workspace = idf_translator.translateModel(os_model)
             workspace.save(os_path(idf), overwrite=True)
             if strings_to_inject is not None and strings_to_inject != '':
-                with open(idf, 'a') as idf_file:
-                    idf_file.write(strings_to_inject)
+                if (sys.version_info < (3, 0)):  # we need to manually encode it as UTF-8
+                    with open(idf, 'a') as idf_file:
+                        idf_file.write(strings_to_inject.encode('ascii'))
+                else:
+                    with open(idf, 'a', encoding='ascii') as idf_file:
+                        idf_file.write(strings_to_inject)
 
     return osm, osw, idf
 
