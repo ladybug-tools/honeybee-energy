@@ -1,4 +1,4 @@
-FROM python:3.10-slim-bullseye
+FROM python:3.10-slim-bookworm
 
 LABEL maintainer="Ladybug Tools" email="info@ladybug.tools"
 
