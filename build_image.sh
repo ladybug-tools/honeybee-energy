@@ -27,14 +27,14 @@ tar zxvf ${LBT_MEASURES_TAR}
 mv lbt-measures-*/ ${LBT_MEASURES_FILENAME}
 
 # Get ironbug
-export IRONBUG_VERSION="1.19.1"
+export IRONBUG_VERSION="1.20.0"
 export IRONBUG_URL="https://github.com/MingboPeng/Ironbug/releases/download/v${IRONBUG_VERSION}/ironbug.console.linux-${IRONBUG_VERSION}.zip"
 export IRONBUG_ZIP='ironbug.console.linux.zip'
 export IRONBUG_FILENAME='ironbug'
 
 curl -SL -o ${IRONBUG_ZIP} ${IRONBUG_URL}
 unzip ${IRONBUG_ZIP} -d ironbug_unzip
-mv ironbug_unzip/src/Ironbug.Console/bin/Release/linux-x64 ironbug_unzip/src/Ironbug.Console/bin/Release/ironbug
+mv ironbug_unzip/src/Ironbug.Console/bin/Release/net8/linux-x64 ironbug_unzip/src/Ironbug.Console/bin/Release/ironbug
 mv ironbug_unzip/src/Ironbug.Console/bin/Release/ironbug ${IRONBUG_FILENAME}
 
 # build the docker image
