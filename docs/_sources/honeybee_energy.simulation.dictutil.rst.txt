@@ -1,0 +1,7 @@
+honeybee\_energy.simulation.dictutil module
+===========================================
+
+.. automodule:: honeybee_energy.simulation.dictutil
+   :members:
+   :undoc-members:
+   :show-inheritance:
