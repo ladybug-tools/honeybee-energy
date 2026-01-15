@@ -23,6 +23,7 @@ def test_gas_init(userdatadict):
     assert air.prandtl == air_dup.prandtl == pytest.approx(0.7263, rel=1e-2)
     assert air.user_data == userdatadict
 
+
 def test_gas_defaults():
     """Test the EnergyWindowMaterialGas default properties."""
     air = EnergyWindowMaterialGas('Default Gap')

@@ -7,8 +7,8 @@ export CONTAINER_NAME="${1:?$error_help}"
 export TAG="${2:?$error_help}"
 
 # Get OpenStudio
-export OPENSTUDIO_VERSION='3.9.0'
-export OPENSTUDIO_DOWNLOAD_URL='https://github.com/NREL/OpenStudio/releases/download/v3.9.0/OpenStudio-3.9.0+c77fbb9569-Ubuntu-22.04-x86_64.tar.gz'
+export OPENSTUDIO_VERSION='3.10.0'
+export OPENSTUDIO_DOWNLOAD_URL='https://github.com/NREL/OpenStudio/releases/download/v3.10.0/OpenStudio-3.10.0+86d7e215a1-Ubuntu-22.04-x86_64.tar.gz'
 export OPENSTUDIO_TAR_FILENAME='openstudio.tar.gz'
 export OPENSTUDIO_FILENAME='openstudio'
 
@@ -17,7 +17,7 @@ tar zxvf ${OPENSTUDIO_TAR_FILENAME}
 mv OpenStudio-*-Ubuntu-*/ ${OPENSTUDIO_FILENAME}
 
 # Get lbt-measures
-export LBT_MEASURES_VERSION="0.3.1"
+export LBT_MEASURES_VERSION="0.3.2"
 export LBT_MEASURES_URL="https://github.com/ladybug-tools/lbt-measures/archive/v${LBT_MEASURES_VERSION}.tar.gz"
 export LBT_MEASURES_TAR='lbt-measures.tar.gz'
 export LBT_MEASURES_FILENAME='measures-gem'
@@ -27,7 +27,7 @@ tar zxvf ${LBT_MEASURES_TAR}
 mv lbt-measures-*/ ${LBT_MEASURES_FILENAME}
 
 # Get ironbug
-export IRONBUG_VERSION="1.20.0"
+export IRONBUG_VERSION="1.21.0"
 export IRONBUG_URL="https://github.com/MingboPeng/Ironbug/releases/download/v${IRONBUG_VERSION}/ironbug.console.linux-${IRONBUG_VERSION}.zip"
 export IRONBUG_ZIP='ironbug.console.linux.zip'
 export IRONBUG_FILENAME='ironbug'
