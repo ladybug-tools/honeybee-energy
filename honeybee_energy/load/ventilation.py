@@ -3,7 +3,7 @@
 from __future__ import division
 
 from honeybee._lockable import lockable
-from honeybee.typing import float_positive
+from honeybee.typing import float_positive, valid_string
 
 from ._base import _LoadBase
 from ..schedule.ruleset import ScheduleRuleset
@@ -44,15 +44,20 @@ class Ventilation(_LoadBase):
         air_changes_per_hour: A numerical value for the design level of ventilation
             in air changes per hour (ACH) for the entire zone. This is particularly
             helpful for hospitals, where ventilation standards are often given
-            in ACH. Default: 0.
+            in ACH. (Default: 0).
         schedule: An optional ScheduleRuleset or ScheduleFixedInterval for the
             ventilation over the course of the year. The type of this schedule
             should be Fractional and the fractional values will get multiplied by
-            the total design flow rate (determined from the sum of the other
+            the total design flow rate (determined from the sum or max of the other
             4 fields) to yield a complete ventilation profile. Setting
             this schedule to be the occupancy schedule of the zone will mimic demand
             controlled ventilation. If None, the design level of ventilation will
-            be used throughout all timesteps of the simulation. Default: None.
+            be used throughout all timesteps of the simulation. (Default: None).
+        method: Text to set how the different ventilation criteria are reconciled
+            against one another. Choose from the options below. (Default: Sum).
+
+            * Sum
+            * Max
 
     Properties:
         * identifier
@@ -62,13 +67,15 @@ class Ventilation(_LoadBase):
         * flow_per_zone
         * air_changes_per_hour
         * schedule
+        * method
         * user_data
     """
     __slots__ = ('_flow_per_person', '_flow_per_area', '_flow_per_zone',
-                 '_air_changes_per_hour', '_schedule')
+                 '_air_changes_per_hour', '_schedule', '_method')
+    METHODS = ('Sum', 'Max')
 
     def __init__(self, identifier, flow_per_person=0, flow_per_area=0, flow_per_zone=0,
-                 air_changes_per_hour=0, schedule=None):
+                 air_changes_per_hour=0, schedule=None, method='Sum'):
         """Initialize Ventilation."""
         _LoadBase.__init__(self, identifier)
         self.flow_per_person = flow_per_person
@@ -76,6 +83,7 @@ class Ventilation(_LoadBase):
         self.flow_per_zone = flow_per_zone
         self.air_changes_per_hour = air_changes_per_hour
         self.schedule = schedule
+        self.method = method
         self._properties = VentilationProperties(self)
 
     @property
@@ -146,6 +154,30 @@ class Ventilation(_LoadBase):
             value.lock()   # lock editing in case schedule has multiple references
         self._schedule = value
 
+    @property
+    def method(self):
+        """Text to set how the ventilation criteria are reconciled against one another.
+
+        Choose from the options below.
+
+        * Sum
+        * Max
+        """
+        return self._method
+
+    @method.setter
+    def method(self, value):
+        clean_input = valid_string(value).lower()
+        for key in self.METHODS:
+            if key.lower() == clean_input:
+                value = key
+                break
+        else:
+            raise ValueError(
+                'Method {} is not recognized.\nChoose from the '
+                'following:\n{}'.format(value, self.METHODS))
+        self._method = value
+
     @classmethod
     def from_idf(cls, idf_string, schedule_dict):
         """Create an Ventilation object from an EnergyPlus IDF text string.
@@ -178,9 +210,12 @@ class Ventilation(_LoadBase):
             pass  # shorter ventilation definition lacking values
 
         # change the values to 0 if 'Sum' method is not used
+        method = 'Sum'
         try:
             if ep_strs[1].lower() == 'sum':
                 pass
+            elif ep_strs[1].lower() == 'maximum':
+                method = 'Max'
             elif ep_strs[1].lower() == 'flow/person':
                 area, zone, ach = 0, 0, 0
             elif ep_strs[1].lower() == 'flow/area':
@@ -206,7 +241,7 @@ class Ventilation(_LoadBase):
 
         # return the object and the zone id for the object
         obj_id = ep_strs[0].split('..')[0]
-        ventilation = cls(obj_id, person, area, zone, ach, sched)
+        ventilation = cls(obj_id, person, area, zone, ach, sched, method)
         return ventilation
 
     @classmethod
@@ -229,15 +264,16 @@ class Ventilation(_LoadBase):
             "flow_per_area": 0.0005, # flow per square meter of floor area
             "flow_per_zone": 0, # flow per zone
             "air_changes_per_hour": 0, # air changes per hour
-            "schedule": {} # ScheduleRuleset/ScheduleFixedInterval dictionary
+            "schedule": {}, # ScheduleRuleset/ScheduleFixedInterval dictionary
+            "method": "Sum"
             }
         """
         assert data['type'] == 'Ventilation', \
             'Expected Ventilation dictionary. Got {}.'.format(data['type'])
-        person, area, zone, ach = cls._optional_dict_keys(data)
+        person, area, zone, ach, method = cls._optional_dict_keys(data)
         sched = cls._get_schedule_from_dict(data['schedule']) if 'schedule' in data and \
             data['schedule'] is not None else None
-        new_obj = cls(data['identifier'], person, area, zone, ach, sched)
+        new_obj = cls(data['identifier'], person, area, zone, ach, sched, method)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
@@ -272,14 +308,14 @@ class Ventilation(_LoadBase):
         """
         assert data['type'] == 'VentilationAbridged', \
             'Expected VentilationAbridged dictionary. Got {}.'.format(data['type'])
-        person, area, zone, ach = cls._optional_dict_keys(data)
+        person, area, zone, ach, method = cls._optional_dict_keys(data)
         sched = None
         if 'schedule' in data and data['schedule'] is not None:
             try:
                 sched = schedule_dict[data['schedule']]
             except KeyError as e:
                 raise ValueError('Failed to find {} in the schedule_dict.'.format(e))
-        new_obj = cls(data['identifier'], person, area, zone, ach, sched)
+        new_obj = cls(data['identifier'], person, area, zone, ach, sched, method)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
@@ -312,8 +348,12 @@ class Ventilation(_LoadBase):
         """
         sched = self.schedule.identifier if self.schedule is not None else ''
         vent_obj_identifier = '{}..{}'.format(self.identifier, zone_identifier)
-        values = (vent_obj_identifier, 'Sum', self.flow_per_person, self.flow_per_area,
-                  self.flow_per_zone, self.air_changes_per_hour, sched)
+        method = 'Maximum' if self.method == 'Max' else 'Sum'
+        values = (
+            vent_obj_identifier, method,
+            self.flow_per_person, self.flow_per_area,
+            self.flow_per_zone, self.air_changes_per_hour, sched
+        )
         comments = ('name', 'flow rate method', 'flow per person {m3/s-person}',
                     'flow per floor area {m3/s-m2}', 'flow per zone {m3/s}',
                     'air changes per hour {1/hr}', 'outdoor air schedule name')
@@ -341,6 +381,8 @@ class Ventilation(_LoadBase):
         if self.schedule is not None:
             base['schedule'] = self.schedule.to_dict() if not \
                 abridged else self.schedule.identifier
+        if self.method != 'Sum':
+            base['method'] = self.method
         if self._display_name is not None:
             base['display_name'] = self.display_name
         if self._user_data is not None:
@@ -383,6 +425,7 @@ class Ventilation(_LoadBase):
                     for vent, w in zip(ventilations, weights)])
         ach = sum([vent.air_changes_per_hour * w
                    for vent, w in zip(ventilations, weights)])
+        method = 'Max' if all(vent.method == 'Max' for vent in ventilations) else 'Sum'
 
         # calculate the average schedules
         scheds = [vent.schedule for vent in ventilations]
@@ -398,7 +441,7 @@ class Ventilation(_LoadBase):
                 '{} Schedule'.format(identifier), scheds, u_weights, timestep_resolution)
 
         # return the averaged object
-        return Ventilation(identifier, person, area, zone, ach, sched)
+        return Ventilation(identifier, person, area, zone, ach, sched, method)
 
     @staticmethod
     def combine_room_ventilations(identifier, rooms, timestep_resolution=1):
@@ -448,6 +491,7 @@ class Ventilation(_LoadBase):
         zone = sum(vent.flow_per_zone for vent in ventilations)
         ach = sum([vent.air_changes_per_hour * w
                    for vent, w in zip(ventilations, vol_weights)])
+        method = 'Max' if all(vent.method == 'Max' for vent in ventilations) else 'Sum'
 
         # calculate the average schedules
         scheds = [vent.schedule for vent in ventilations]
@@ -462,7 +506,7 @@ class Ventilation(_LoadBase):
                     '{} Schedule'.format(identifier), scheds, timestep_resolution)
 
         # return the averaged object
-        return Ventilation(identifier, person, area, zone, ach, sched)
+        return Ventilation(identifier, person, area, zone, ach, sched, method)
 
     @staticmethod
     def _optional_dict_keys(data):
@@ -471,12 +515,16 @@ class Ventilation(_LoadBase):
         area = data['flow_per_area'] if 'flow_per_area' in data else 0
         zone = data['flow_per_zone'] if 'flow_per_zone' in data else 0
         ach = data['air_changes_per_hour'] if 'air_changes_per_hour' in data else 0
-        return person, area, zone, ach
+        method = data['method'] if 'method' in data else 'Sum'
+        return person, area, zone, ach, method
 
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""
-        return (self.identifier, self.flow_per_person, self.flow_per_area,
-                self.flow_per_zone, self.air_changes_per_hour, hash(self.schedule))
+        return (
+            self.identifier, self.flow_per_person, self.flow_per_area,
+            self.flow_per_zone, self.air_changes_per_hour, hash(self.schedule),
+            self.method
+        )
 
     def __hash__(self):
         return hash(self.__key())
@@ -490,7 +538,7 @@ class Ventilation(_LoadBase):
     def __copy__(self):
         new_obj = Ventilation(
             self.identifier, self.flow_per_person, self.flow_per_area,
-            self.flow_per_zone, self.air_changes_per_hour, self.schedule)
+            self.flow_per_zone, self.air_changes_per_hour, self.schedule, self.method)
         new_obj._display_name = self._display_name
         new_obj._user_data = None if self._user_data is None else self._user_data.copy()
         new_obj._properties._duplicate_extension_attr(self._properties)
