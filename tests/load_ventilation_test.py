@@ -11,6 +11,7 @@ from ladybug.dt import Time, Date
 import pytest
 from .fixtures.userdata_fixtures import userdatadict
 
+
 def test_ventilation_init(userdatadict):
     """Test the initialization of Ventilation and basic properties."""
     ventilation = Ventilation('Office Ventilation', 0.0025, 0.0006)
@@ -23,6 +24,7 @@ def test_ventilation_init(userdatadict):
     assert ventilation.flow_per_zone == 0
     assert ventilation.air_changes_per_hour == 0
     assert ventilation.schedule is None
+    assert ventilation.method == 'Sum'
     assert ventilation.user_data == userdatadict
 
 
@@ -68,6 +70,8 @@ def test_ventilation_setability(userdatadict):
     assert ventilation.air_changes_per_hour == 2
     ventilation.schedule = schedule
     assert ventilation.schedule == schedule
+    ventilation.method = 'max'
+    assert ventilation.method == 'Max'
 
 
 def test_ventilation_equality(userdatadict):
