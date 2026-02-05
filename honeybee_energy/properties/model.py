@@ -95,6 +95,7 @@ class ModelEnergyProperties(object):
         '020013': 'check_detailed_hvac_rooms',
         '020014': 'check_all_zones_have_one_hvac',
         '020101': 'check_maximum_elevation',
+        '020102': 'check_all_air_boundaries_with_window',
         '020201': 'check_interior_constructions_reversed'
     }
 
@@ -799,6 +800,7 @@ class ModelEnergyProperties(object):
         msgs.append(self.check_detailed_hvac_rooms(False, detailed))
         msgs.append(self.check_shw_rooms_in_model(False, detailed))
         msgs.append(self.check_maximum_elevation(1000, False, detailed))
+        msgs.append(self.check_all_air_boundaries_with_window(False, detailed))
         msgs.append(self.check_one_vegetation_material(False, detailed))
         msgs.append(self.check_interior_constructions_reversed(False, detailed))
 
@@ -838,6 +840,7 @@ class ModelEnergyProperties(object):
         msgs.append(self.check_detailed_hvac_rooms(False, detailed))
         msgs.append(self.check_shw_rooms_in_model(False, detailed))
         msgs.append(self.check_maximum_elevation(1000, False, detailed))
+        msgs.append(self.check_all_air_boundaries_with_window(False, detailed))
         msgs.append(self.check_one_vegetation_material(False, detailed))
         msgs.append(self.check_interior_constructions_reversed(False, detailed))
         # output a final report of errors or raise an exception
@@ -873,6 +876,7 @@ class ModelEnergyProperties(object):
         msgs.append(self.check_detailed_hvac_rooms(False, detailed))
         msgs.append(self.check_shw_rooms_in_model(False, detailed))
         msgs.append(self.check_maximum_elevation(1000, False, detailed))
+        msgs.append(self.check_all_air_boundaries_with_window(False, detailed))
         msgs.append(self.check_one_vegetation_material(False, detailed))
         msgs.append(self.check_interior_constructions_reversed(False, detailed))
         # output a final report of errors or raise an exception
@@ -1405,6 +1409,43 @@ class ModelEnergyProperties(object):
                     raise ValueError(msg)
                 return msg
         return [] if detailed else ''
+
+    def check_all_air_boundaries_with_window(self, raise_exception=True, detailed=False):
+        """Check there are no Rooms with windows and otherwise composed of AirBoundaries.
+
+        This is a requirement for EnergyPlus simulation since EnergyPlus will throw
+        an error if it encounters a Room composed entirely of AirBoundaries except
+        for one Face with a window.
+
+        Args:
+            raise_exception: Boolean to note whether a ValueError should be raised
+                if a Room composed entirely of AirBoundaries is found. (Default: True).
+            detailed: Boolean for whether the returned object is a detailed list of
+                dicts with error info or a string with a message. (Default: False).
+
+        Returns:
+            A string with the message or a list with a dictionary if detailed is True.
+        """
+        detailed = False if raise_exception else detailed
+        msgs = []
+        for room in self.host._rooms:
+            non_ab = [f for f in room._faces if not isinstance(f.type, AirBoundary)]
+            if all(len(f.apertures) > 0 for f in non_ab):
+                if len(non_ab) != 0:
+                    st_msg = 'is almost entirely composed of AirBoundary Faces with ' \
+                        'the other {} Faces having Apertures'.format(len(non_ab))
+                    msg = 'Room "{}" {}.\nIt should be merged with adjacent ' \
+                        'rooms.'.format(room.full_id, st_msg)
+                    msg = self.host._validation_message_child(
+                        msg, room, detailed, '020102',
+                        error_type='Room with Window Composed of AirBoundaries')
+                    msgs.append(msg)
+        if detailed:
+            return msgs
+        full_msg = '\n'.join(msgs)
+        if raise_exception and len(msgs) != 0:
+            raise ValueError(full_msg)
+        return full_msg
 
     def check_interior_constructions_reversed(
             self, raise_exception=True, detailed=False):
