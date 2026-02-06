@@ -1,0 +1,23 @@
+honeybee\_energy.lib package
+============================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   honeybee_energy.lib.constructions
+   honeybee_energy.lib.constructionsets
+   honeybee_energy.lib.materials
+   honeybee_energy.lib.programtypes
+   honeybee_energy.lib.schedules
+   honeybee_energy.lib.scheduletypelimits
+
+Module contents
+---------------
+
+.. automodule:: honeybee_energy.lib
+   :members:
+   :undoc-members:
+   :show-inheritance:
