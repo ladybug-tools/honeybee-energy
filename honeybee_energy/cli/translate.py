@@ -550,6 +550,21 @@ def model_to_idf(
               'used for all ground-contact floor faces. If unspecified, the ground '
               'types will be left as they are. Choose from: UndergroundSlab, '
               'SlabOnGrade, RaisedFloor.', type=str, default='', show_default=True)
+@click.option('--keep-geometry-ids/--reset-geometry-ids', ' /-gid', help='Flag to note '
+              'whether a cleaned version of geometry display names should be used '
+              'for the IDs that appear within the gbXML file. Using this flag will '
+              'affect all Rooms, Faces, Apertures, Doors, and Shades. Cases of '
+              'duplicate IDs resulting from non-unique names will be resolved by '
+              'adding integers to the ends of the new IDs that are '
+              'derived from the name.', default=True, show_default=True)
+@click.option('--keep-resource-ids/--reset-resource-ids', ' /-rid', help='Flag to note '
+              'whether a cleaned version of all resource display names should be '
+              'for the IDs that appear within the gbXML file. Using this flag will '
+              'affect all Materials, Constructions, ConstructionSets, Schedules, '
+              'Loads, and ProgramTypes. Cases of duplicate IDs resulting '
+              'from non-unique names will be resolved by adding integers to the ends '
+              'of the new IDs that are derived from the name.',
+              default=True, show_default=True)
 @click.option('--program-name', '-p', help='Optional text to set the name of the '
               'software that will appear under the programId and ProductName tags '
               'of the DocumentHistory section. This can be set things like "Ladybug '
@@ -562,12 +577,17 @@ def model_to_idf(
               'of OpenStudio will appear. Otherwise, this will default to "0.0.0" '
               'given that the version field is required.',
               type=str, default=None, show_default=True)
+@click.option('--gbxml-schema-version', '-gv', help='Optional text to set the '
+              'version of the gbXML schema that is specified in the XML header '
+              '(eg. "5.00"). If unspecified, this will default to the latest version.',
+              type=str, default=None, show_default=True)
 @click.option('--output-file', '-f', help='Optional gbXML file to output the string '
               'of the translation. By default it printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
 def model_to_gbxml_cli(
         model_file, osw_folder, default_subfaces, triangulate_non_planar, minimal,
-        interior_face_type, ground_face_type, program_name, program_version, output_file):
+        interior_face_type, ground_face_type, keep_geometry_ids, keep_resource_ids,
+        program_name, program_version, gbxml_schema_version, output_file):
     """Translate a Honeybee Model (HBJSON) to a gbXML file.
 
     \b
@@ -578,10 +598,13 @@ def model_to_gbxml_cli(
         triangulate_subfaces = not default_subfaces
         permit_non_planar = not triangulate_non_planar
         full_geometry = not minimal
+        reset_geometry_ids = not keep_geometry_ids
+        reset_resource_ids = not keep_resource_ids
         model_to_gbxml(
             model_file, osw_folder, triangulate_subfaces, permit_non_planar,
             full_geometry, interior_face_type, ground_face_type,
-            program_name, program_version, output_file)
+            reset_geometry_ids, reset_resource_ids,
+            program_name, program_version, gbxml_schema_version, output_file)
     except Exception as e:
         _logger.exception('Model translation failed.\n{}'.format(e))
         sys.exit(1)
@@ -593,8 +616,10 @@ def model_to_gbxml(
     model_file, osw_folder=None, triangulate_subfaces=False,
     permit_non_planar=False, full_geometry=False,
     interior_face_type='', ground_face_type='',
-    program_name=None, program_version=None, output_file=None,
-    default_subfaces=True, triangulate_non_planar=True, minimal=True
+    reset_geometry_ids=False, reset_resource_ids=False,
+    program_name=None, program_version=None, gbxml_schema_version=None, output_file=None,
+    default_subfaces=True, triangulate_non_planar=True, minimal=True,
+    keep_geometry_ids=True, keep_resource_ids=True
 ):
     """Translate a Honeybee Model file to a gbXML file.
 
@@ -620,6 +645,22 @@ def model_to_gbxml(
         ground_face_type: Text string for the type to be used for all ground-contact
             floor faces. If unspecified, the ground types will be left as they are.
             Choose from: UndergroundSlab, SlabOnGrade, RaisedFloor.
+        reset_geometry_ids: Boolean to note whether a cleaned version of geometry
+            display names should be used for the IDs that appear within
+            the gbXML file. Using this flag will affect all Rooms, Faces,
+            Apertures, Doors, and Shades. It will generally result in more
+            read-able IDs in the gbXML file but this means that it will not be
+            easy to map results back to the input Model. Cases of duplicate IDs
+            resulting from non-unique names will be resolved by adding integers
+            to the ends of the new IDs that are derived from the name. (Default: False).
+        reset_resource_ids: Boolean to note whether a cleaned version of all
+            resource display names should be used for the IDs that appear within
+            the gbXML file. Using this flag will affect all Materials,
+            Constructions, ConstructionSets, Schedules, Loads, and ProgramTypes.
+            It will generally result in more read-able names for the resources
+            in the gbXML file. Cases of duplicate IDs resulting from non-unique
+            names will be resolved by adding integers to the ends of the new
+            IDs that are derived from the name. (Default: False).
         program_name: Optional text to set the name of the software that will
             appear under the programId and ProductName tags of the DocumentHistory
             section. This can be set things like "Ladybug Tools" or "Pollination"
@@ -630,6 +671,9 @@ def model_to_gbxml(
             program_name is also unspecified, only the version of OpenStudio will
             appear. Otherwise, this will default to "0.0.0" given that the version
             field is required. (Default: None).
+        gbxml_schema_version: Optional text to set the version of the gbXML schema
+            that is specified in the XML header (eg. "5.00"). If None, this
+            will default to the latest version.
         output_file: Optional gbXML file to output the string of the translation.
             By default it will be returned from this method.
     """
@@ -648,7 +692,9 @@ def model_to_gbxml(
         model, triangulate_non_planar_orphaned=triangulate_non_planar,
         triangulate_subfaces=triangulate_subfaces, full_geometry=full_geometry,
         interior_face_type=interior_face_type, ground_face_type=ground_face_type,
-        program_name=program_name, program_version=program_version
+        reset_geometry_ids=reset_geometry_ids, reset_resource_ids=reset_resource_ids,
+        program_name=program_name, program_version=program_version,
+        gbxml_schema_version=gbxml_schema_version
     )
 
     # write out the gbXML file

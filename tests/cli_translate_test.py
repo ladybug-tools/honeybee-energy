@@ -51,8 +51,9 @@ def test_model_to_gbxml():
     runner = CliRunner()
     input_hb_model = './tests/json/ShoeBox.json'
 
-    in_args = [input_hb_model, '--program-name', 'Ladybug Tools',
-               '--program-version', '1.9']
+    in_args = [input_hb_model, '--reset-geometry-ids', '--reset-resource-ids',
+               '--program-name', 'Ladybug Tools', '--program-version', '1.9',
+               '--gbxml-schema-version', '5.00']
     result = runner.invoke(model_to_gbxml_cli, in_args)
     assert result.exit_code == 0
 
