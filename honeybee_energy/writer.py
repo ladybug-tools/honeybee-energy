@@ -785,6 +785,9 @@ def model_to_idf(
                     construction_strs.pop(-1)  # avoid duplicate specification
                 if constr.is_switchable_glazing:
                     materials.append(constr.switched_glass_material)
+                if constr.shade_location == 'Between':  # write the un-split gap
+                    gap_layer = constr.window_construction.materials[1]
+                    materials.append(gap_layer)
                 construction_strs.append(constr.to_shaded_idf())
             elif constr.is_dynamic:
                 dynamic_cons.append(constr)
