@@ -48,7 +48,6 @@ def test_simulate_model():
     ]
 
     result = runner.invoke(simulate_model, in_args)
-    print(result.output)
     assert result.exit_code == 0
 
     folder = os.path.join(folders.default_simulation_folder, 'shoebox')
@@ -70,7 +69,6 @@ def test_simulate_model_with_osm():
     ]
 
     result = runner.invoke(simulate_model, in_args)
-    print(result.output)
     assert result.exit_code == 0
 
     folder = os.path.join(folders.default_simulation_folder, 'shoe_box')

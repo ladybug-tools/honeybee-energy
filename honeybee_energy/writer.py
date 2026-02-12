@@ -1067,9 +1067,7 @@ def _preprocess_model_for_trace(
             room.story = 'neg{}'.format(room.story[1:])
 
     # remove the HVAC from any Rooms lacking setpoints
-    rem_msgs = model.properties.energy.remove_hvac_from_no_setpoints()
-    if len(rem_msgs) != 0:
-        print('\n'.join(rem_msgs))
+    model.properties.energy.remove_hvac_from_no_setpoints()
 
     # rename all face geometry so that it is easy to identify in TRACE 700
     for room in model.rooms:

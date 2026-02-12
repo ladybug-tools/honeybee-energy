@@ -429,9 +429,7 @@ def measure_compatible_model_json(
         parsed_model.triangulate_non_planar_quads(0.01)
 
     # remove the HVAC from any Rooms lacking setpoints
-    rem_msgs = parsed_model.properties.energy.remove_hvac_from_no_setpoints()
-    if len(rem_msgs) != 0:
-        print('\n'.join(rem_msgs))
+    parsed_model.properties.energy.remove_hvac_from_no_setpoints()
 
     # reset the IDs to be derived from the display_names if requested
     if use_geometry_names:
@@ -582,9 +580,7 @@ def trace_compatible_model_json(
             room.story = 'neg{}'.format(room.story[1:])
 
     # remove the HVAC from any Rooms lacking setpoints
-    rem_msgs = parsed_model.properties.energy.remove_hvac_from_no_setpoints()
-    if len(rem_msgs) != 0:
-        print('\n'.join(rem_msgs))
+    parsed_model.properties.energy.remove_hvac_from_no_setpoints()
 
     # get the dictionary representation of the Model and add auto-calculated properties
     model_dict = parsed_model.to_dict()
