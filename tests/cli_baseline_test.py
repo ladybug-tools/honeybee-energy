@@ -6,7 +6,6 @@ from honeybee_energy.hvac.allair.vav import VAV
 from honeybee.model import Model
 
 import json
-import pytest
 
 
 def test_baseline_geometry():
@@ -87,7 +86,6 @@ def test_leed_v4_summary():
 
     sql_base_path = './tests/result/sub_folder'
     result = runner.invoke(compute_leed_v4_summary, [sql_path, sql_base_path, '5A'])
-    print(result.output)
     assert result.exit_code == 0
     result_dict = json.loads(result.output)
     assert 'baseline_cost' in result_dict
