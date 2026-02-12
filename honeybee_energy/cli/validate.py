@@ -114,7 +114,7 @@ def validate_program_type(program_type_json):
             click.echo('Python re-serialization passed.')
         else:  # assume it's a ProgramTypeAbridged schema
             click.echo('Validating ProgramTypeAbridged JSON ...')
-            schema_programtype.ProgramTypeAbridged.parse_file(program_type_json)
+            schema_programtype.ProgramTypeAbridged.model_validate(data)
             click.echo('Pydantic validation passed.')
         # if we made it to this point, report that the object is valid
         click.echo('Congratulations! Your Program JSON is valid!')
@@ -150,11 +150,11 @@ def validate_schedule(schedule_json):
             click.echo('Python re-serialization passed.')
         elif data['type'] == 'ScheduleRulesetAbridged':
             click.echo('Validating ScheduleRulesetAbridged JSON ...')
-            schema_schedule.ScheduleRulesetAbridged.parse_file(schedule_json)
+            schema_schedule.ScheduleRulesetAbridged.model_validate(data)
             click.echo('Pydantic validation passed.')
         else:  # assume it's a ScheduleFixedIntervalAbridged schema
             click.echo('Validating ScheduleFixedIntervalAbridged JSON ...')
-            schema_schedule.ScheduleFixedIntervalAbridged.parse_file(schedule_json)
+            schema_schedule.ScheduleFixedIntervalAbridged.model_validate(data)
             click.echo('Pydantic validation passed.')
         # if we made it to this point, report that the object is valid
         click.echo('Congratulations! Your Schedule JSON is valid!')
