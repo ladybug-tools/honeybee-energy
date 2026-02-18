@@ -223,7 +223,7 @@ class ProgramType(object):
             sched.append(self.service_hot_water.schedule)
         if self.infiltration is not None:
             sched.append(self.infiltration.schedule)
-        if self.ventilation is not None and self.ventilation.schedule is not None:
+        if self.ventilation is not None and self.ventilation._schedule is not None:
             sched.append(self.ventilation.schedule)
         if self.setpoint is not None:
             sched.append(self.setpoint.heating_schedule)

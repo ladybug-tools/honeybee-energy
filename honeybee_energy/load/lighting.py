@@ -10,6 +10,7 @@ from ..schedule.ruleset import ScheduleRuleset
 from ..schedule.fixedinterval import ScheduleFixedInterval
 from ..reader import parse_idf_string
 from ..writer import generate_idf_string
+from ..lib.schedules import always_on
 from ..properties.extension import LightingProperties
 
 
@@ -26,7 +27,8 @@ class Lighting(_LoadBase):
         schedule: A ScheduleRuleset or ScheduleFixedInterval for the use of lights
             over the course of the year. The type of this schedule should be
             Fractional and the fractional values will get multiplied by the
-            watts_per_area to yield a complete lighting profile.
+            watts_per_area to yield a complete lighting profile. If None, an
+            Always On schedule will be used. (Default: None).
         return_air_fraction: A number between 0 and 1 for the fraction of the total
             lighting load that goes into the zone return air (into the zone outlet
             node). (Default: 0.0). (representative of pendant lighting).
@@ -52,7 +54,8 @@ class Lighting(_LoadBase):
     __slots__ = ('_watts_per_area', '_schedule', '_return_air_fraction',
                  '_radiant_fraction', '_visible_fraction', '_baseline_watts_per_area')
 
-    def __init__(self, identifier, watts_per_area, schedule, return_air_fraction=0.0,
+    def __init__(self, identifier, watts_per_area, schedule=None,
+                 return_air_fraction=0.0,
                  radiant_fraction=0.32, visible_fraction=0.25):
         """Initialize Lighting."""
         _LoadBase.__init__(self, identifier)
@@ -83,12 +86,15 @@ class Lighting(_LoadBase):
 
     @schedule.setter
     def schedule(self, value):
-        assert isinstance(value, (ScheduleRuleset, ScheduleFixedInterval)), \
-            'Expected ScheduleRuleset or ScheduleFixedInterval for Lighting ' \
-            'schedule. Got {}.'.format(type(value))
-        self._check_fractional_schedule_type(value, 'Lighting')
-        value.lock()   # lock editing in case schedule has multiple references
-        self._schedule = value
+        if value is not None:
+            assert isinstance(value, (ScheduleRuleset, ScheduleFixedInterval)), \
+                'Expected ScheduleRuleset or ScheduleFixedInterval for Lighting ' \
+                'schedule. Got {}.'.format(type(value))
+            self._check_fractional_schedule_type(value, 'Lighting')
+            value.lock()   # lock editing in case schedule has multiple references
+            self._schedule = value
+        else:
+            self._schedule = always_on
 
     @property
     def return_air_fraction(self):
@@ -273,7 +279,8 @@ class Lighting(_LoadBase):
         """
         assert data['type'] == 'Lighting', \
             'Expected Lighting dictionary. Got {}.'.format(data['type'])
-        sched = cls._get_schedule_from_dict(data['schedule'])
+        sched = cls._get_schedule_from_dict(data['schedule']) \
+            if 'schedule' in data and data['schedule'] is not None else None
         ret_fract, rad_fract, vis_fract = cls._optional_dict_keys(data)
         new_obj = cls(data['identifier'], data['watts_per_area'], sched,
                       ret_fract, rad_fract, vis_fract)
@@ -310,7 +317,8 @@ class Lighting(_LoadBase):
         assert data['type'] == 'LightingAbridged', \
             'Expected LightingAbridged dictionary. Got {}.'.format(data['type'])
         try:
-            sched = schedule_dict[data['schedule']]
+            sched = schedule_dict[data['schedule']] \
+                if 'schedule' in data and data['schedule'] is not None else None
         except KeyError as e:
             raise ValueError('Failed to find {} in the schedule_dict.'.format(e))
         ret_fract, rad_fract, vis_fract = cls._optional_dict_keys(data)

@@ -309,8 +309,8 @@ class ModelEnergyProperties(object):
                 self._check_and_add_schedule(shw.schedule, scheds)
             if infiltration is not None:
                 self._check_and_add_schedule(infiltration.schedule, scheds)
-            if ventilation is not None and ventilation.schedule is not None:
-                self._check_and_add_schedule(ventilation.schedule, scheds)
+            if ventilation is not None and ventilation._schedule is not None:
+                self._check_and_add_schedule(ventilation._schedule, scheds)
             if setpoint is not None:
                 self._check_and_add_schedule(setpoint.heating_schedule, scheds)
                 self._check_and_add_schedule(setpoint.cooling_schedule, scheds)
@@ -409,7 +409,7 @@ class ModelEnergyProperties(object):
 
     @property
     def electric_load_center(self):
-        """Get or set global parameters for ventilation cooling simulation."""
+        """Get or set global parameters for a building electric loads center."""
         return self._electric_load_center
 
     @electric_load_center.setter

@@ -5,6 +5,7 @@ from honeybee_energy.schedule.rule import ScheduleRule
 from honeybee_energy.schedule.ruleset import ScheduleRuleset
 
 import honeybee_energy.lib.scheduletypelimits as schedule_types
+from honeybee_energy.lib.schedules import always_on
 
 from ladybug.dt import Time, Date
 
@@ -23,7 +24,8 @@ def test_ventilation_init(userdatadict):
     assert ventilation.flow_per_area == 0.0006
     assert ventilation.flow_per_zone == 0
     assert ventilation.air_changes_per_hour == 0
-    assert ventilation.schedule is None
+    assert ventilation.schedule == always_on
+    assert ventilation._schedule is None
     assert ventilation.method == 'Sum'
     assert ventilation.user_data == userdatadict
 
@@ -181,4 +183,5 @@ def test_ventilation_average():
     lobby_vent.schedule = None
     office_avg = Ventilation.average('Average Ventilation', [office_vent, lobby_vent])
 
-    assert office_avg.schedule is None
+    assert office_avg._schedule is None
+    assert office_avg.schedule == always_on

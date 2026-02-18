@@ -10,6 +10,7 @@ from ..schedule.ruleset import ScheduleRuleset
 from ..schedule.fixedinterval import ScheduleFixedInterval
 from ..reader import parse_idf_string
 from ..writer import generate_idf_string
+from ..lib.schedules import always_on
 from ..properties.extension import InfiltrationProperties
 
 
@@ -34,6 +35,7 @@ class Infiltration(_LoadBase):
             over the course of the year. The type of this schedule should be
             Fractional and the fractional values will get multiplied by the
             flow_per_exterior_area to yield a complete infiltration profile.
+            If None, an Always On schedule will be used. (Default: None).
         constant_coefficient: A number for the fraction of the infiltration that
             remains constant in spite of exterior wind and the difference
             between interior/exterior temperature. EnergyPlus uses 1 by default but
@@ -63,7 +65,7 @@ class Infiltration(_LoadBase):
     __slots__ = ('_flow_per_exterior_area', '_schedule', '_constant_coefficient',
                  '_temperature_coefficient', '_velocity_coefficient')
 
-    def __init__(self, identifier, flow_per_exterior_area, schedule,
+    def __init__(self, identifier, flow_per_exterior_area, schedule=None,
                  constant_coefficient=1,
                  temperature_coefficient=0, velocity_coefficient=0):
         """Initialize Infiltration."""
@@ -99,12 +101,15 @@ class Infiltration(_LoadBase):
 
     @schedule.setter
     def schedule(self, value):
-        assert isinstance(value, (ScheduleRuleset, ScheduleFixedInterval)), \
-            'Expected ScheduleRuleset or ScheduleFixedInterval for Infiltration ' \
-            'schedule. Got {}.'.format(type(value))
-        self._check_fractional_schedule_type(value, 'Infiltration')
-        value.lock()   # lock editing in case schedule has multiple references
-        self._schedule = value
+        if value is not None:
+            assert isinstance(value, (ScheduleRuleset, ScheduleFixedInterval)), \
+                'Expected ScheduleRuleset or ScheduleFixedInterval for Infiltration ' \
+                'schedule. Got {}.'.format(type(value))
+            self._check_fractional_schedule_type(value, 'Infiltration')
+            value.lock()   # lock editing in case schedule has multiple references
+            self._schedule = value
+        else:
+            self._schedule = always_on
 
     @property
     def constant_coefficient(self):
@@ -258,7 +263,8 @@ class Infiltration(_LoadBase):
         """
         assert data['type'] == 'Infiltration', \
             'Expected Infiltration dictionary. Got {}.'.format(data['type'])
-        sched = cls._get_schedule_from_dict(data['schedule'])
+        sched = cls._get_schedule_from_dict(data['schedule']) \
+            if 'schedule' in data and data['schedule'] is not None else None
         const, tem, vel = cls._optional_dict_keys(data)
         new_obj = cls(data['identifier'], data['flow_per_exterior_area'],
                       sched, const, tem, vel)
@@ -297,7 +303,8 @@ class Infiltration(_LoadBase):
         assert data['type'] == 'InfiltrationAbridged', \
             'Expected InfiltrationAbridged dictionary. Got {}.'.format(data['type'])
         try:
-            sched = schedule_dict[data['schedule']]
+            sched = schedule_dict[data['schedule']] \
+                if 'schedule' in data and data['schedule'] is not None else None
         except KeyError as e:
             raise ValueError('Failed to find {} in the schedule_dict.'.format(e))
         const, tem, vel = cls._optional_dict_keys(data)

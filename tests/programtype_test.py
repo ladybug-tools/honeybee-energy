@@ -341,7 +341,7 @@ def test_program_type_average():
     assert office_avg.ventilation.flow_per_area == pytest.approx(0.00015, rel=1e-3)
     assert office_avg.ventilation.flow_per_zone == pytest.approx(0, rel=1e-3)
     assert office_avg.ventilation.air_changes_per_hour == pytest.approx(0, rel=1e-3)
-    assert office_avg.ventilation.schedule is None
+    assert office_avg.ventilation._schedule is None
 
     assert office_avg.setpoint.heating_setpoint == pytest.approx(21, rel=1e-3)
     assert office_avg.setpoint.cooling_setpoint == pytest.approx(24, rel=1e-3)
