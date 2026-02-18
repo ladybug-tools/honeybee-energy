@@ -10,6 +10,7 @@ from ..schedule.ruleset import ScheduleRuleset
 from ..schedule.fixedinterval import ScheduleFixedInterval
 from ..reader import parse_idf_string
 from ..writer import generate_idf_string
+from ..lib.schedules import always_on
 from ..properties.extension import ElectricEquipmentProperties, GasEquipmentProperties
 
 
@@ -26,7 +27,8 @@ class _EquipmentBase(_LoadBase):
         schedule: A ScheduleRuleset or ScheduleFixedInterval for the use of equipment
             over the course of the year. The type of this schedule should be
             Fractional and the fractional values will get multiplied by the
-            watts_per_area to yield a complete equipment profile.
+            watts_per_area to yield a complete equipment profile. If None, an
+            Always On schedule will be used. (Default: None).
         radiant_fraction: A number between 0 and 1 for the fraction of the total
             equipment load given off as long wave radiant heat. (Default: 0).
         latent_fraction: A number between 0 and 1 for the fraction of the total
@@ -54,7 +56,7 @@ class _EquipmentBase(_LoadBase):
                      'equipment per person {W/ppl}', 'latent fraction',
                      'radiant fraction', 'lost fraction')
 
-    def __init__(self, identifier, watts_per_area, schedule, radiant_fraction=0,
+    def __init__(self, identifier, watts_per_area, schedule=None, radiant_fraction=0,
                  latent_fraction=0, lost_fraction=0):
         """Initialize Equipment."""
         _LoadBase.__init__(self, identifier)
@@ -83,12 +85,15 @@ class _EquipmentBase(_LoadBase):
 
     @schedule.setter
     def schedule(self, value):
-        assert isinstance(value, (ScheduleRuleset, ScheduleFixedInterval)), \
-            'Expected ScheduleRuleset or ScheduleFixedInterval for equipment ' \
-            'schedule. Got {}.'.format(type(value))
-        self._check_fractional_schedule_type(value, 'Equipment')
-        value.lock()   # lock editing in case schedule has multiple references
-        self._schedule = value
+        if value is not None:
+            assert isinstance(value, (ScheduleRuleset, ScheduleFixedInterval)), \
+                'Expected ScheduleRuleset or ScheduleFixedInterval for equipment ' \
+                'schedule. Got {}.'.format(type(value))
+            self._check_fractional_schedule_type(value, 'Equipment')
+            value.lock()  # lock editing in case schedule has multiple references
+            self._schedule = value
+        else:
+            self._schedule = always_on
 
     @property
     def radiant_fraction(self):
@@ -232,7 +237,8 @@ class _EquipmentBase(_LoadBase):
         """Extract relevant properties from an equipment dictionary."""
         assert data['type'] == expected_type, \
             'Expected {} dictionary. Got {}.'.format(expected_type, data['type'])
-        sched = _EquipmentBase._get_schedule_from_dict(data['schedule'])
+        sched = _EquipmentBase._get_schedule_from_dict(data['schedule']) \
+            if 'schedule' in data and data['schedule'] is not None else None
         rad_fract, lat_fract, lost_fract = _EquipmentBase._optional_dict_keys(data)
         return sched, rad_fract, lat_fract, lost_fract
 
@@ -242,7 +248,8 @@ class _EquipmentBase(_LoadBase):
         assert data['type'] == expected_type, \
             'Expected {} dictionary. Got {}.'.format(expected_type, data['type'])
         try:
-            sched = schedule_dict[data['schedule']]
+            sched = schedule_dict[data['schedule']] \
+                if 'schedule' in data and data['schedule'] is not None else None
         except KeyError as e:
             raise ValueError('Failed to find {} in the schedule_dict.'.format(e))
         rad_fract, lat_fract, lost_fract = _EquipmentBase._optional_dict_keys(data)
@@ -316,7 +323,8 @@ class ElectricEquipment(_EquipmentBase):
         schedule: A ScheduleRuleset or ScheduleFixedInterval for the use of equipment
             over the course of the year. The type of this schedule should be
             Fractional and the fractional values will get multiplied by the
-            watts_per_area to yield a complete equipment profile.
+            watts_per_area to yield a complete equipment profile. If None, an
+            Always On schedule will be used. (Default: None).
         radiant_fraction: A number between 0 and 1 for the fraction of the total
             equipment load given off as long wave radiant heat. (Default: 0).
         latent_fraction: A number between 0 and 1 for the fraction of the total
@@ -339,7 +347,7 @@ class ElectricEquipment(_EquipmentBase):
     """
     __slots__ = ()
 
-    def __init__(self, identifier, watts_per_area, schedule, radiant_fraction=0,
+    def __init__(self, identifier, watts_per_area, schedule=None, radiant_fraction=0,
                  latent_fraction=0, lost_fraction=0):
         """Initialize Electric Equipment."""
         _EquipmentBase.__init__(self, identifier, watts_per_area, schedule,
@@ -550,7 +558,8 @@ class GasEquipment(_EquipmentBase):
         schedule: A ScheduleRuleset or ScheduleFixedInterval for the use of equipment
             over the course of the year. The type of this schedule should be
             Fractional and the fractional values will get multiplied by the
-            watts_per_area to yield a complete equipment profile.
+            watts_per_area to yield a complete equipment profile. If None, an
+            Always On schedule will be used. (Default: None).
         radiant_fraction: A number between 0 and 1 for the fraction of the total
             equipment load given off as long wave radiant heat. (Default: 0).
         latent_fraction: A number between 0 and 1 for the fraction of the total
@@ -573,7 +582,7 @@ class GasEquipment(_EquipmentBase):
     """
     __slots__ = ()
 
-    def __init__(self, identifier, watts_per_area, schedule, radiant_fraction=0,
+    def __init__(self, identifier, watts_per_area, schedule=None, radiant_fraction=0,
                  latent_fraction=0, lost_fraction=0):
         """Initialize Gas Equipment."""
         _EquipmentBase.__init__(self, identifier, watts_per_area, schedule,

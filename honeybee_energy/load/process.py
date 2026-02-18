@@ -11,6 +11,7 @@ from ..schedule.ruleset import ScheduleRuleset
 from ..schedule.fixedinterval import ScheduleFixedInterval
 from ..reader import parse_idf_string
 from ..writer import generate_idf_string
+from ..lib.schedules import always_on
 from ..properties.extension import ProcessProperties
 
 
@@ -30,10 +31,12 @@ class Process(_LoadBase):
         schedule: A ScheduleRuleset or ScheduleFixedInterval for the use of process
             over the course of the year. The type of this schedule should be
             Fractional and the fractional values will get multiplied by the
-            watts to yield a complete process load profile.
+            watts to yield a complete process load profile. If None, an
+            Always On schedule will be used. (Default: None).
         fuel_type: Text to denote the type of fuel consumed by the process.
             Using the "None" type indicates that no end uses will be associated
-            with the process, only the zone gains. Choose from the following.
+            with the process, only the zone gains. Choose from the
+            following. (Default: Electricity).
 
             * Electricity
             * NaturalGas
@@ -96,7 +99,7 @@ class Process(_LoadBase):
         'None'
     )
 
-    def __init__(self, identifier, watts, schedule, fuel_type,
+    def __init__(self, identifier, watts, schedule=None, fuel_type='Electricity',
                  end_use_category='Process', radiant_fraction=0,
                  latent_fraction=0, lost_fraction=0):
         """Initialize Process."""
@@ -129,12 +132,15 @@ class Process(_LoadBase):
 
     @schedule.setter
     def schedule(self, value):
-        assert isinstance(value, (ScheduleRuleset, ScheduleFixedInterval)), \
-            'Expected ScheduleRuleset or ScheduleFixedInterval for process ' \
-            'schedule. Got {}.'.format(type(value))
-        self._check_fractional_schedule_type(value, 'Equipment')
-        value.lock()   # lock editing in case schedule has multiple references
-        self._schedule = value
+        if value is not None:
+            assert isinstance(value, (ScheduleRuleset, ScheduleFixedInterval)), \
+                'Expected ScheduleRuleset or ScheduleFixedInterval for process ' \
+                'schedule. Got {}.'.format(type(value))
+            self._check_fractional_schedule_type(value, 'Equipment')
+            value.lock()   # lock editing in case schedule has multiple references
+            self._schedule = value
+        else:
+            self._schedule = always_on
 
     @property
     def fuel_type(self):
@@ -303,8 +309,11 @@ class Process(_LoadBase):
             }
         """
         cat, rad_f, lat_f, lost_f = cls._extract_dict_props(data, 'Process')
-        sched = cls._get_schedule_from_dict(data['schedule'])
-        new_obj = cls(data['identifier'], data['watts'], sched, data['fuel_type'],
+        sched = cls._get_schedule_from_dict(data['schedule']) \
+            if 'schedule' in data and data['schedule'] is not None else None
+        fuel_type = data['fuel_type'] if 'fuel_type' in data and \
+            data['fuel_type'] is not None else 'Electricity'
+        new_obj = cls(data['identifier'], data['watts'], sched, fuel_type,
                       cat, rad_f, lat_f, lost_f)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
@@ -342,10 +351,13 @@ class Process(_LoadBase):
         """
         cat, rad_f, lat_f, lost_f = cls._extract_dict_props(data, 'ProcessAbridged')
         try:
-            sched = schedule_dict[data['schedule']]
+            sched = schedule_dict[data['schedule']] \
+                if 'schedule' in data and data['schedule'] is not None else None
         except KeyError as e:
             raise ValueError('Failed to find {} in the schedule_dict.'.format(e))
-        new_obj = cls(data['identifier'], data['watts'], sched, data['fuel_type'],
+        fuel_type = data['fuel_type'] if 'fuel_type' in data and \
+            data['fuel_type'] is not None else 'Electricity'
+        new_obj = cls(data['identifier'], data['watts'], sched, fuel_type,
                       cat, rad_f, lat_f, lost_f)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']

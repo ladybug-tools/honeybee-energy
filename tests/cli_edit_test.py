@@ -30,7 +30,7 @@ def test_reset_resource_ids_humidification():
     assert result.exit_code == 0
     model_dict = json.loads(result.output)
     new_model = Model.from_dict(model_dict)
-    
+
     assert len(new_model.properties.energy.program_types) == 9
     assert len(new_model.properties.energy.schedules) == 51
     assert len(new_model.properties.energy.construction_sets) == 1

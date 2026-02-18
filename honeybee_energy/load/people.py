@@ -11,9 +11,8 @@ from ..schedule.ruleset import ScheduleRuleset
 from ..schedule.fixedinterval import ScheduleFixedInterval
 from ..reader import parse_idf_string
 from ..writer import generate_idf_string
-from ..properties.extension import PeopleProperties
-
 import honeybee_energy.lib.schedules as _sched_lib
+from ..properties.extension import PeopleProperties
 
 
 @lockable
@@ -29,13 +28,15 @@ class People(_LoadBase):
         occupancy_schedule: A ScheduleRuleset or ScheduleFixedInterval for the
             occupancy over the course of the year. The type of this schedule
             should be Fractional and the fractional values will get multiplied by
-            the people_per_area to yield a complete occupancy profile.
+            the people_per_area to yield a complete occupancy profile. If None, an
+            Always On schedule will be used. (Default: None).
         activity_schedule: A ScheduleRuleset or ScheduleFixedInterval for the
             activity of the occupants over the course of the year. The type of
             this schedule should be ActivityLevel and the values of the schedule equal
             to the number of Watts given off by an individual person in the room.
             If None, a default constant schedule with 120 Watts per person
-            will be used, which is typical of awake, adult humans who are seated.
+            will be used, which is typical of awake, adult humans who are
+            seated. (default: None).
         radiant_fraction: A number between 0 and 1 for the fraction of the
             sensible heat given off by people that is radiant (as opposed to
             convective). (Default: 0.3).
@@ -59,8 +60,8 @@ class People(_LoadBase):
     __slots__ = ('_people_per_area', '_occupancy_schedule', '_activity_schedule',
                  '_radiant_fraction', '_latent_fraction')
 
-    def __init__(self, identifier, people_per_area, occupancy_schedule,
-                 activity_schedule=None,
+    def __init__(self, identifier, people_per_area,
+                 occupancy_schedule=None, activity_schedule=None,
                  radiant_fraction=0.3, latent_fraction=autocalculate):
         """Initialize People."""
         _LoadBase.__init__(self, identifier)
@@ -99,12 +100,15 @@ class People(_LoadBase):
 
     @occupancy_schedule.setter
     def occupancy_schedule(self, value):
-        assert isinstance(value, (ScheduleRuleset, ScheduleFixedInterval)), \
-            'Expected ScheduleRuleset or ScheduleFixedInterval for People ' \
-            'occupancy_schedule. Got {}.'.format(type(value))
-        self._check_fractional_schedule_type(value, 'Occupancy')
-        value.lock()   # lock editing in case schedule has multiple references
-        self._occupancy_schedule = value
+        if value is not None:
+            assert isinstance(value, (ScheduleRuleset, ScheduleFixedInterval)), \
+                'Expected ScheduleRuleset or ScheduleFixedInterval for People ' \
+                'occupancy_schedule. Got {}.'.format(type(value))
+            self._check_fractional_schedule_type(value, 'Occupancy')
+            value.lock()   # lock editing in case schedule has multiple references
+            self._occupancy_schedule = value
+        else:
+            self._occupancy_schedule = _sched_lib.always_on
 
     @property
     def activity_schedule(self):
@@ -257,7 +261,9 @@ class People(_LoadBase):
         """
         assert data['type'] == 'People', \
             'Expected People dictionary. Got {}.'.format(data['type'])
-        occ_sched = cls._get_schedule_from_dict(data['occupancy_schedule'])
+        occ_sched = cls._get_schedule_from_dict(data['occupancy_schedule']) if \
+            'occupancy_schedule' in data and data['occupancy_schedule'] is not None \
+            else None
         act_sched = cls._get_schedule_from_dict(data['activity_schedule']) if \
             'activity_schedule' in data and data['activity_schedule'] is not None \
             else None
@@ -298,10 +304,12 @@ class People(_LoadBase):
         """
         assert data['type'] == 'PeopleAbridged', \
             'Expected PeopleAbridged dictionary. Got {}.'.format(data['type'])
+        occ_sch_id = data['occupancy_schedule'] if 'occupancy_schedule' in data and \
+            data['occupancy_schedule'] is not None else None
         act_sch_id = data['activity_schedule'] if 'activity_schedule' in data and \
             data['activity_schedule'] is not None else ''
         occ_sched, activity_sched = cls._get_occ_act_schedules_from_dict(
-            schedule_dict, data['occupancy_schedule'], act_sch_id)
+            schedule_dict, occ_sch_id, act_sch_id)
         rad_fract, lat_fract = cls._optional_dict_keys(data)
         new_obj = cls(data['identifier'], data['people_per_area'], occ_sched,
                       activity_sched, rad_fract, lat_fract)
@@ -452,10 +460,13 @@ class People(_LoadBase):
     @staticmethod
     def _get_occ_act_schedules_from_dict(schedule_dict, occ_sch_id, act_sch_id):
         """Get schedule objects from a dictionary."""
-        try:
-            occ_sched = schedule_dict[occ_sch_id]
-        except KeyError as e:
-            raise ValueError('Failed to find {} in the schedule_dict.'.format(e))
+        if occ_sch_id is None or occ_sch_id == '' or occ_sch_id.lower() == 'always on':
+            occ_sched = None
+        else:
+            try:
+                occ_sched = schedule_dict[occ_sch_id]
+            except KeyError as e:
+                raise ValueError('Failed to find {} in the schedule_dict.'.format(e))
         if act_sch_id == '' or act_sch_id.lower() == 'seated adult activity':
             activity_sched = None
         else:

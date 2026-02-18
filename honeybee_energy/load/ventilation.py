@@ -10,9 +10,9 @@ from ..schedule.ruleset import ScheduleRuleset
 from ..schedule.fixedinterval import ScheduleFixedInterval
 from ..reader import parse_idf_string
 from ..writer import generate_idf_string
-from ..properties.extension import VentilationProperties
-
+from ..lib.schedules import always_on
 import honeybee_energy.lib.scheduletypelimits as _type_lib
+from ..properties.extension import VentilationProperties
 
 
 @lockable
@@ -52,7 +52,8 @@ class Ventilation(_LoadBase):
             4 fields) to yield a complete ventilation profile. Setting
             this schedule to be the occupancy schedule of the zone will mimic demand
             controlled ventilation. If None, the design level of ventilation will
-            be used throughout all timesteps of the simulation. (Default: None).
+            be used throughout all timesteps of the simulation, meaning that
+            this schedule is Always On. (Default: None).
         method: Text to set how the different ventilation criteria are reconciled
             against one another. Choose from the options below. (Default: Sum).
 
@@ -142,7 +143,7 @@ class Ventilation(_LoadBase):
     @property
     def schedule(self):
         """Get or set a ScheduleRuleset or ScheduleFixedInterval for ventilation."""
-        return self._schedule
+        return self._schedule if self._schedule is not None else always_on
 
     @schedule.setter
     def schedule(self, value):
@@ -346,7 +347,7 @@ class Ventilation(_LoadBase):
                 ,                      !- Outdoor Air Flow Air Changes per Hour
                 OARequirements Sched;  !- Outdoor Air Schedule Name
         """
-        sched = self.schedule.identifier if self.schedule is not None else ''
+        sched = self._schedule.identifier if self._schedule is not None else ''
         vent_obj_identifier = '{}..{}'.format(self.identifier, zone_identifier)
         method = 'Maximum' if self.method == 'Max' else 'Sum'
         values = (
@@ -378,7 +379,7 @@ class Ventilation(_LoadBase):
             base['flow_per_zone'] = self.flow_per_zone
         if self.air_changes_per_hour != 0:
             base['air_changes_per_hour'] = self.air_changes_per_hour
-        if self.schedule is not None:
+        if self._schedule is not None:
             base['schedule'] = self.schedule.to_dict() if not \
                 abridged else self.schedule.identifier
         if self.method != 'Sum':
@@ -428,7 +429,7 @@ class Ventilation(_LoadBase):
         method = 'Max' if all(vent.method == 'Max' for vent in ventilations) else 'Sum'
 
         # calculate the average schedules
-        scheds = [vent.schedule for vent in ventilations]
+        scheds = [vent._schedule for vent in ventilations]
         if all(val is None for val in scheds):
             sched = None
         else:
@@ -494,7 +495,7 @@ class Ventilation(_LoadBase):
         method = 'Max' if all(vent.method == 'Max' for vent in ventilations) else 'Sum'
 
         # calculate the average schedules
-        scheds = [vent.schedule for vent in ventilations]
+        scheds = [vent._schedule for vent in ventilations]
         if any(val is None for val in scheds):
             sched = None
         else:
@@ -537,8 +538,9 @@ class Ventilation(_LoadBase):
 
     def __copy__(self):
         new_obj = Ventilation(
-            self.identifier, self.flow_per_person, self.flow_per_area,
-            self.flow_per_zone, self.air_changes_per_hour, self.schedule, self.method)
+            self._identifier, self._flow_per_person, self._flow_per_area,
+            self._flow_per_zone, self._air_changes_per_hour,
+            self._schedule, self._method)
         new_obj._display_name = self._display_name
         new_obj._user_data = None if self._user_data is None else self._user_data.copy()
         new_obj._properties._duplicate_extension_attr(self._properties)

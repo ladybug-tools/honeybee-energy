@@ -27,7 +27,8 @@ class ServiceHotWater(_LoadBase):
         schedule: A ScheduleRuleset or ScheduleFixedInterval for the use of hot water
             over the course of the year. The type of this schedule should be
             Fractional and the fractional values will get multiplied by the
-            flow_per_area to yield a complete water usage profile.
+            flow_per_area to yield a complete water usage profile. If None, an
+            Always On schedule will be used. (Default: None).
         target_temperature: The target temperature of the water out of the tap in
             Celsius. This the temperature after the hot water has been mixed
             with cold water from the water mains. The default essentially assumes
@@ -54,7 +55,7 @@ class ServiceHotWater(_LoadBase):
                  '_sensible_fraction', '_latent_fraction')
     WATER_HEAT_CAPACITY = 4179600  # volumetric heat capacity of water at 25 C (J/m3-K)
 
-    def __init__(self, identifier, flow_per_area, schedule, target_temperature=60,
+    def __init__(self, identifier, flow_per_area, schedule=None, target_temperature=60,
                  sensible_fraction=0.2, latent_fraction=0.05):
         """Initialize ServiceHotWater."""
         _LoadBase.__init__(self, identifier)
@@ -83,12 +84,15 @@ class ServiceHotWater(_LoadBase):
 
     @schedule.setter
     def schedule(self, value):
-        assert isinstance(value, (ScheduleRuleset, ScheduleFixedInterval)), \
-            'Expected ScheduleRuleset or ScheduleFixedInterval for hot water ' \
-            'schedule. Got {}.'.format(type(value))
-        self._check_fractional_schedule_type(value, 'ServiceHotWater')
-        value.lock()   # lock editing in case schedule has multiple references
-        self._schedule = value
+        if value is not None:
+            assert isinstance(value, (ScheduleRuleset, ScheduleFixedInterval)), \
+                'Expected ScheduleRuleset or ScheduleFixedInterval for hot water ' \
+                'schedule. Got {}.'.format(type(value))
+            self._check_fractional_schedule_type(value, 'ServiceHotWater')
+            value.lock()   # lock editing in case schedule has multiple references
+            self._schedule = value
+        else:
+            self._schedule = always_on
 
     @property
     def target_temperature(self):
@@ -302,7 +306,8 @@ class ServiceHotWater(_LoadBase):
         """
         assert data['type'] == 'ServiceHotWater', \
             'Expected ServiceHotWater dictionary. Got {}.'.format(data['type'])
-        sched = cls._get_schedule_from_dict(data['schedule'])
+        sched = cls._get_schedule_from_dict(data['schedule']) \
+            if 'schedule' in data and data['schedule'] is not None else None
         target, sens_fract, lat_fract = cls._optional_dict_keys(data)
         new_obj = cls(data['identifier'], data['flow_per_area'], sched,
                       target, sens_fract, lat_fract)
@@ -339,7 +344,8 @@ class ServiceHotWater(_LoadBase):
         assert data['type'] == 'ServiceHotWaterAbridged', \
             'Expected ServiceHotWaterAbridged dictionary. Got {}.'.format(data['type'])
         try:
-            sched = schedule_dict[data['schedule']]
+            sched = schedule_dict[data['schedule']]  \
+                if 'schedule' in data and data['schedule'] is not None else None
         except KeyError as e:
             raise ValueError('Failed to find {} in the schedule_dict.'.format(e))
         target, sens_fract, lat_fract = cls._optional_dict_keys(data)
