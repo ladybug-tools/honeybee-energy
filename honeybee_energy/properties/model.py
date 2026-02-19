@@ -42,7 +42,7 @@ from ..generator.loadcenter import ElectricLoadCenter
 from ..config import folders
 from ..lib.constructions import generic_context
 from ..lib.constructionsets import generic_construction_set
-from ..lib.schedules import always_on
+from ..lib.schedules import always_on, IMMUTABLE_SCHEDULES
 from ..lib.scheduletypelimits import fractional
 
 
@@ -1743,9 +1743,8 @@ class ModelEnergyProperties(object):
 
         # change the identifiers of the schedules
         if reset_schedules:
-            sch_skip = ('Seated Adult Activity', 'HumidNoLimit', 'DeHumidNoLimit')
             for sch in self.schedules:
-                if sch.identifier in sch_skip:
+                if sch.identifier in IMMUTABLE_SCHEDULES:
                     continue
                 sch.unlock()
                 sch.identifier = res_func(sch.display_name, sch_dict)
@@ -2387,10 +2386,9 @@ class ModelEnergyProperties(object):
 
         # change the identifiers of the schedules
         if reset_schedules:
-            sch_skip = ('Seated Adult Activity', 'HumidNoLimit', 'DeHumidNoLimit')
             model_sch = set()
             for sch in model.properties.energy.schedules:
-                if sch.identifier in sch_skip:
+                if sch.identifier in IMMUTABLE_SCHEDULES:
                     schedules[sch.identifier] = sch
                     model_sch.add(sch.identifier)
                     continue
