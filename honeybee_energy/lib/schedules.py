@@ -18,6 +18,9 @@ generic_office_cooling = _schedules['Generic Office Cooling']
 
 # make lists of schedules to look up items in the library
 SCHEDULES = tuple(_schedules.keys()) + tuple(_schedule_standards_dict.keys())
+IMMUTABLE_SCHEDULES = (
+    'Always On', 'Seated Adult Activity', 'HumidNoLimit', 'DeHumidNoLimit'
+)
 
 
 def schedule_by_identifier(schedule_identifier):
