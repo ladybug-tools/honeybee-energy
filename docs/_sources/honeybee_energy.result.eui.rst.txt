@@ -1,0 +1,7 @@
+honeybee\_energy.result.eui module
+==================================
+
+.. automodule:: honeybee_energy.result.eui
+   :members:
+   :undoc-members:
+   :show-inheritance:

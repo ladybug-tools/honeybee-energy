@@ -1,0 +1,7 @@
+honeybee\_energy.material.frame module
+======================================
+
+.. automodule:: honeybee_energy.material.frame
+   :members:
+   :undoc-members:
+   :show-inheritance:

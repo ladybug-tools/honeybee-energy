@@ -1,0 +1,7 @@
+honeybee\_energy.schedule.dictutil module
+=========================================
+
+.. automodule:: honeybee_energy.schedule.dictutil
+   :members:
+   :undoc-members:
+   :show-inheritance:

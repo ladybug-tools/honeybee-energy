@@ -1,0 +1,7 @@
+honeybee\_energy.schedule.typelimit module
+==========================================
+
+.. automodule:: honeybee_energy.schedule.typelimit
+   :members:
+   :undoc-members:
+   :show-inheritance:

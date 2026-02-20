@@ -1,0 +1,7 @@
+honeybee\_energy.hvac.heatcool.baseboard module
+===============================================
+
+.. automodule:: honeybee_energy.hvac.heatcool.baseboard
+   :members:
+   :undoc-members:
+   :show-inheritance:
