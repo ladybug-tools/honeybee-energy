@@ -1,0 +1,7 @@
+honeybee\_energy.baseline.pci module
+====================================
+
+.. automodule:: honeybee_energy.baseline.pci
+   :members:
+   :undoc-members:
+   :show-inheritance:
