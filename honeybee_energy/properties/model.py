@@ -1561,7 +1561,8 @@ class ModelEnergyProperties(object):
 
         # loop through the rooms and reset the air boundary flow rates if they are high
         if len(adj_map) != 0:
-            for room in self.host.rooms:
+            sort_rooms = sorted(self.host.rooms, key=lambda rm: rm.volume)
+            for room in sort_rooms:
                 rm_faces = room_faces[room.identifier]
                 if len(rm_faces) != 0:
                     total_flow, adjust_flow, adjust_faces = 0, 0, []
