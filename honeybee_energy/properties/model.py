@@ -1527,6 +1527,69 @@ class ModelEnergyProperties(object):
             raise ValueError(full_msg)
         return full_msg
 
+    def balance_air_boundary_flows(self, timestep=6):
+        """Reassign AirBoundary constructions to ensure air mixing less than room volume.
+
+        EnergyPlus does not currently check for the case that more air can be mixed
+        out of a zone in a given timestep than exists in the entire room volume,
+        resulting in potentially incorrect results. This is documented here.
+        https://github.com/NatLabRockies/EnergyPlus/issues/11150
+
+        Until the underlying issue in EnergyPlus is addressed, this method here
+        can be used to reassign air flows to air boundary constructions before
+        simulation to ensure that no more air than the room volume can be
+        mixed out in a given timestep.
+
+        Args:
+            timestep: An integer for the number of timesteps per hour at which the
+                simulation will be run. (Default: 6).
+        """
+        sec_ts = 3600 / timestep  # number of seconds in a simulation timestep
+        # build up a dictionary of all air boundary adjacencies in the model
+        adj_map, room_faces = {}, {}
+        for room in self.host.rooms:
+            rm_faces = []
+            for face in room.faces:
+                if isinstance(face.type, AirBoundary) and \
+                        isinstance(face.boundary_condition, Surface) and \
+                        isinstance(face.properties.energy.construction,
+                                   AirBoundaryConstruction):
+                    bc_obj = face.boundary_condition.boundary_condition_object
+                    adj_map[bc_obj] = face
+                    rm_faces.append(face)
+            room_faces[room.identifier] = rm_faces
+
+        # loop through the rooms and reset the air boundary flow rates if they are high
+        if len(adj_map) != 0:
+            for room in self.host.rooms:
+                rm_faces = room_faces[room.identifier]
+                if len(rm_faces) != 0:
+                    total_flow, adjust_flow, adjust_faces = 0, 0, []
+                    for face in rm_faces:
+                        f_con = face.properties.energy.construction
+                        face_flow = face.area * f_con.air_mixing_per_area * sec_ts
+                        total_flow += face_flow
+                        try:
+                            adj_map[face.identifier]
+                            adjust_flow += face_flow
+                            adjust_faces.append(face)
+                        except KeyError:  # face has already been adjusted
+                            pass
+                    if total_flow > room.volume and adjust_flow != 0:
+                        static_flow = total_flow - adjust_flow
+                        scale_fac = (room.volume - static_flow) / adjust_flow
+                        sc_fac = 0 if scale_fac < 0 else scale_fac
+                        for face in adjust_faces:
+                            f_con = face.properties.energy.construction.duplicate()
+                            f_con.air_mixing_per_area = f_con.air_mixing_per_area * sc_fac
+                            face.properties.energy.construction = f_con
+                            try:
+                                adj_face = adj_map[face.identifier]
+                                adj_face.properties.energy.construction = f_con
+                                adj_map.pop(adj_face.identifier)  # do not adjust it again
+                            except KeyError:  # missing adjacency
+                                pass
+
     def resolve_zones(self):
         """Resolve properties of Rooms across each zone such that E+ can simulate them.
 

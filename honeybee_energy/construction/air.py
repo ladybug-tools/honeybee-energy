@@ -213,9 +213,7 @@ class AirBoundaryConstruction(object):
 
             Construction:AirBoundary,
                 Air Wall,                !- Name
-                SimpleMixing,            !- Air Exchange Method
-                0.5,                     !- Simple Mixing Air Changes per Hour {1/hr}
-                ;                        !- Simple Mixing Schedule Name
+                None;                    !- Air Exchange Method
         """
         values = [self.identifier, 'None']
         comments = ('construction name', 'air exchange method')
@@ -302,8 +300,7 @@ class AirBoundaryConstruction(object):
 
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""
-        return (self._identifier, self._air_mixing_per_area,
-                hash(self._air_mixing_schedule))
+        return (self._identifier,)
 
     def __hash__(self):
         return hash(self.__key())
