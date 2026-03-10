@@ -1,6 +1,6 @@
 # coding=utf-8
-from honeybee_energy.run import measure_compatible_model_json, run_idf, \
-    prepare_idf_for_simulation, to_openstudio_osw
+from honeybee_energy.run import to_openstudio_sim_folder, run_idf, \
+    prepare_idf_for_simulation
 from honeybee_energy.result.err import Err
 from honeybee_energy.lib.programtypes import office_program
 from honeybee_energy.lib.materials import clear_glass, air_gap
@@ -20,7 +20,7 @@ from honeybee_energy.generator.pv import PVProperties
 
 from ladybug_geometry.geometry3d.pointvector import Vector3D
 from ladybug.dt import Date, Time
-from ladybug.futil import write_to_file
+from ladybug.futil import write_to_file, nukedir
 from ladybug.epw import EPW
 from ladybug.sql import SQLiteResult
 from honeybee.model import Model
@@ -33,49 +33,15 @@ import json
 import pytest
 
 
-def test_measure_compatible_model_json():
-    """Test measure_compatible_model_json."""
-    room = Room.from_box('TinyHouseZone', 120, 240, 96)
-    inches_conversion = Model.conversion_factor_to_meters('Inches')
-
-    model = Model('TinyHouse', [room], units='Inches')
-    model_json_path = './tests/simulation/model_inches.json'
-    with open(model_json_path, 'w') as fp:
-        json.dump(model.to_dict(included_prop=['energy']), fp)
-
-    osm_model_json = measure_compatible_model_json(model_json_path)
-    assert os.path.isfile(osm_model_json)
-
-    with open(osm_model_json) as json_file:
-        data = json.load(json_file)
-
-    parsed_model = Model.from_dict(data)
-
-    assert parsed_model.rooms[0].floor_area == \
-        pytest.approx(120 * 240 * (inches_conversion ** 2), rel=1e-3)
-    assert parsed_model.rooms[0].volume == \
-        pytest.approx(120 * 240 * 96 * (inches_conversion ** 3), rel=1e-3)
-    assert parsed_model.units == 'Meters'
-
-    os.remove(model_json_path)
-    os.remove(osm_model_json)
-
-
-def test_to_openstudio_osw():
-    """Test to_openstudio_osw."""
+def test_to_openstudio_sim_folder():
+    """Test the to_openstudio_sim_folder function."""
     # create the model
     room = Room.from_box('TinyHouseZone', 5, 10, 3)
     model = Model('TinyHouse', [room])
-    model_json_path = './tests/simulation/model_osw_test.json'
-    with open(model_json_path, 'w') as fp:
-        json.dump(model.to_dict(included_prop=['energy']), fp)
 
     # create the simulation parameter
     sim_par = SimulationParameter()
     sim_par.output.add_zone_energy_use()
-    simpar_json_path = './tests/simulation/simpar_osw_test.json'
-    with open(simpar_json_path, 'w') as fp:
-        json.dump(sim_par.to_dict(), fp)
 
     # create additional measures
     measure_path = './tests/measure/edit_fraction_radiant_of_lighting_and_equipment'
@@ -84,20 +50,21 @@ def test_to_openstudio_osw():
     measure.arguments[1].value = 0.25
 
     # test it without measures
-    folder = './tests/simulation/'
-    osw_path = os.path.join(folder, 'workflow.osw')
+    folder = './tests/simulation/to_sim_folder'
 
-    osw = to_openstudio_osw(folder, model_json_path, simpar_json_path)
-    assert os.path.isfile(osw_path)
-    os.remove(osw_path)
+    osm, osw, idf = to_openstudio_sim_folder(model, folder, sim_par=sim_par)
+    assert osw is None
+    assert os.path.isfile(osm)
+    assert os.path.isfile(idf)
+    nukedir(folder)
 
     # test it with measures
-    osw = to_openstudio_osw(folder, model_json_path, additional_measures=[measure])
-    assert os.path.isfile(osw_path)
-    os.remove(osw_path)
-
-    os.remove(model_json_path)
-    os.remove(simpar_json_path)
+    osm, osw, idf = to_openstudio_sim_folder(model, folder, sim_par=sim_par,
+                                             additional_measures=[measure])
+    assert os.path.isfile(osw)
+    assert os.path.isfile(osm)
+    assert idf is None
+    nukedir(folder)
 
 
 def test_run_idf():

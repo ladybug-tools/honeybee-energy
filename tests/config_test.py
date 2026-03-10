@@ -21,10 +21,6 @@ def test_config_init():
     assert hasattr(folders, 'openstudio_lib_path')
     assert folders.openstudio_lib_path is None or isinstance(folders.openstudio_lib_path, str)
 
-    assert hasattr(folders, 'honeybee_openstudio_gem_path')
-    assert folders.honeybee_openstudio_gem_path is None or \
-        isinstance(folders.honeybee_openstudio_gem_path, str)
-
     assert hasattr(folders, 'standards_data_folder')
     assert isinstance(folders.standards_data_folder, str)
     assert isinstance(folders.construction_lib, str)
