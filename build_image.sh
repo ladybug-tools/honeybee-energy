@@ -17,7 +17,7 @@ tar zxvf ${OPENSTUDIO_TAR_FILENAME}
 mv OpenStudio-*-Ubuntu-*/ ${OPENSTUDIO_FILENAME}
 
 # Get lbt-measures
-export LBT_MEASURES_VERSION="0.3.2"
+export LBT_MEASURES_VERSION="0.3.3"
 export LBT_MEASURES_URL="https://github.com/ladybug-tools/lbt-measures/archive/v${LBT_MEASURES_VERSION}.tar.gz"
 export LBT_MEASURES_TAR='lbt-measures.tar.gz'
 export LBT_MEASURES_FILENAME='measures-gem'

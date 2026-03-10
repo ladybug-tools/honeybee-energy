@@ -231,11 +231,13 @@ class Folders(object):
         self._view_data_measure_path = None
         self._inject_idf_measure_path = None
         self._efficiency_standard_measure_path = None
+        self._honeybee_adapter_path = None
         if path:
             result_mea = os.path.join(path, 'openstudio_results')
             view_mea = os.path.join(path, 'view_data')
             idf_mea = os.path.join(path, 'inject_idf')
             eff_mea = os.path.join(path, 'efficiency_standard')
+            adapter = os.path.join(path, 'honeybee_adapter.rb')
             if os.path.isdir(result_mea):
                 self._openstudio_results_measure_path = result_mea
             if os.path.isdir(view_mea):
@@ -244,6 +246,8 @@ class Folders(object):
                 self._inject_idf_measure_path = idf_mea
             if os.path.isdir(eff_mea):
                 self._efficiency_standard_measure_path = eff_mea
+            if os.path.isfile(adapter):
+                self._honeybee_adapter_path = adapter
 
         # set the lbt_measures_path
         self._lbt_measures_path = path
@@ -289,17 +293,10 @@ class Folders(object):
     def honeybee_openstudio_gem_path(self, path):
         if not path:  # check the default locations of the honeybee_openstudio_gem
             path = self._find_honeybee_openstudio_gem_path()
-
         # check that the library's sub-folders exist
-        self._honeybee_adapter_path = None
         if path:
             assert os.path.isdir(os.path.join(path, 'measures')), \
                 '{} lacks a "measures" folder.'.format(path)
-            assert os.path.isdir(os.path.join(path, 'files')), \
-                '{} lacks a "files" folder.'.format(path)
-            adapter = os.path.join(path, 'files', 'honeybee_adapter.rb')
-            self._honeybee_adapter_path = adapter if os.path.isfile(adapter) else None
-
         # set the honeybee_openstudio_gem_path
         self._honeybee_openstudio_gem_path = path
         if path and not self.mute:
