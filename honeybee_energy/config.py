@@ -277,10 +277,10 @@ class Folders(object):
 
     @property
     def honeybee_openstudio_gem_path(self):
-        """Get or set the path to the honeybee_openstudio_gem.
+        """Get the path to the honeybee_openstudio_gem.
 
-        This gem contains libraries and measures for translating between Honeybee
-        JSON schema and OpenStudio Model schema (OSM).
+        This Ruby gem contains libraries and measures for translating between
+        Honeybee JSON schema and OpenStudio Model schema (OSM).
         This folder must have the following sub-folders in order to be valid:
 
         * honeybee - Ruby library with modules for model translation to OpenStudio.
@@ -288,20 +288,6 @@ class Folders(object):
         * files - folder containing the adapter and other supporting files.
         """
         return self._honeybee_openstudio_gem_path
-
-    @honeybee_openstudio_gem_path.setter
-    def honeybee_openstudio_gem_path(self, path):
-        if not path:  # check the default locations of the honeybee_openstudio_gem
-            path = self._find_honeybee_openstudio_gem_path()
-        # check that the library's sub-folders exist
-        if path:
-            assert os.path.isdir(os.path.join(path, 'measures')), \
-                '{} lacks a "measures" folder.'.format(path)
-        # set the honeybee_openstudio_gem_path
-        self._honeybee_openstudio_gem_path = path
-        if path and not self.mute:
-            print('Path to the honeybee_openstudio_gem is set to: '
-                  '{}'.format(self._honeybee_openstudio_gem_path))
 
     @property
     def honeybee_adapter_path(self):
@@ -487,7 +473,6 @@ class Folders(object):
             "energyplus_path": r'',
             "openstudio_path": r'',
             "lbt_measures_path": r'',
-            "honeybee_openstudio_gem_path": r'',
             "ironbug_path": r'',
             "standards_data_folder": r'',
             "standards_extension_folders": [],
@@ -513,7 +498,7 @@ class Folders(object):
 
         # set the paths for lbt_measures and the honeybee_openstudio_gem
         self.lbt_measures_path = default_path["lbt_measures_path"]
-        self.honeybee_openstudio_gem_path = default_path["honeybee_openstudio_gem_path"]
+        self._honeybee_openstudio_gem_path = self._find_honeybee_openstudio_gem_path()
 
         # set the paths for ironbug
         self.ironbug_path = default_path["ironbug_path"]
@@ -556,15 +541,7 @@ class Folders(object):
                 lb_install, 'resources', 'measures', 'honeybee_openstudio_gem', 'lib')
             if os.path.isdir(measure_path):
                 return measure_path
-
-        # then check if there's a version installed in the OpenStudio folder
-        if self.openstudio_path:
-            os_root = os.path.split(self.openstudio_path)[0]
-            measure_path = os.path.join(os_root, 'honeybee_openstudio_gem', 'lib')
-            if os.path.isdir(measure_path):
-                return measure_path
-
-        return None  # No energy model measure is installed
+        return None  # No honeybee_openstudio_gem is installed
 
     def _find_ironbug_path_folder(self):
         """Find the ironbug_path in its default location.

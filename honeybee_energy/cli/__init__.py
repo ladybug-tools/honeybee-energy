@@ -41,7 +41,6 @@ def config(output_file):
             'ironbug_path': folders.ironbug_path,
             'ironbug_version': folders.ironbug_version_str,
             'lbt_measures_path': folders.lbt_measures_path,
-            'honeybee_openstudio_gem_path': folders.honeybee_openstudio_gem_path,
             'standards_data_folder': folders.standards_data_folder,
             'defaults_file': folders.defaults_file,
             'standards_extension_folders': folders.standards_extension_folders

@@ -75,21 +75,6 @@ def lbt_measures_path(folder_path):
     _set_config_variable(folder_path, 'lbt_measures_path')
 
 
-@set_config.command('honeybee-openstudio-gem-path')
-@click.argument('folder-path', required=False, type=click.Path(
-    exists=True, file_okay=False, dir_okay=True, resolve_path=True))
-def honeybee_openstudio_gem_path(folder_path):
-    """Set the honeybee-openstudio-gem-path configuration variable.
-
-    \b
-    Args:
-        folder_path: Path to a folder to be set as the honeybee-openstudio-gem-path.
-            If unspecified, the honeybee-openstudio-gem-path will be set back to
-            the default.
-    """
-    _set_config_variable(folder_path, 'honeybee_openstudio_gem_path')
-
-
 @set_config.command('standards-data-folder')
 @click.argument('folder-path', required=False, type=click.Path(
     exists=True, file_okay=False, dir_okay=True, resolve_path=True))
