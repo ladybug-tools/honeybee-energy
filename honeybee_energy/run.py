@@ -16,7 +16,6 @@ else:
     writemode = 'w'
 
 from ladybug.futil import write_to_file
-from honeybee.config import folders as hb_folders
 
 from .config import folders
 from .measure import Measure
@@ -297,21 +296,8 @@ def to_openstudio_sim_folder(
     return osm, osw, idf
 
 
-def from_osm_osw(osm_path, model_path=None, osw_directory=None):
-    """Create a .osw to translate OSM to a HBJSON file.
-
-    Args:
-        osm_path: File path to the OSM to be translated to HBJSON.
-        model_path: File path to where the Model HBJSON will be written. If None, it
-            will be output right next to the input file and given the same name.
-        osw_directory: The directory into which the .osw should be written. If None,
-            it will be written into the a temp folder in the default simulation folder.
-    """
-    return _import_model_osw(osm_path, 'openstudio', model_path, osw_directory)
-
-
-def to_empty_osm_osw(osw_directory, sim_par_json_path, epw_file=None):
-    """Create a .osw to produce an empty .osm file with no building geometry.
+def empty_osm(directory, sim_par, epw_file=None):
+    """Create an empty OSM file with no building geometry.
 
     This is useful for creating OpenStudio models to which a detailed Ironbug
     system will be added. Such models with only Ironbug components can simulate
@@ -322,46 +308,51 @@ def to_empty_osm_osw(osw_directory, sim_par_json_path, epw_file=None):
     can be set.
 
     Args:
-        osw_directory: The directory into which the .osw should be written and the
-            .osm will eventually be written into.
-        sim_par_json_path: File path to a SimulationParameter JSON.
+        directory: The directory into which the output files will be written to.
+        sim_par: A SimulationParameter object that describes all of the
+            settings for the simulation.
         epw_file: Optional file path to an EPW that should be associated with the
-            output energy model. If None, no EPW file will be written into the
-            OSW. (Default: None).
+            output energy model. If None, no EPW file will be associated with
+            the OSM. (Default: None).
 
     Returns:
-        The file path to the .osw written out by this method.
+        A tuple of two file paths.
+
+        -   osm -- Path to an OpenStudio Model (.osm) file containing the simulation
+            parameters and references to the EPW file.
+
+        -   idf -- Path to an EnergyPlus Input Data File (.idf) containing the
+            simulation parameters.
     """
-    # create the OSW dictionary with the simulation parameter step written
-    sim_par_dict = {
-        'arguments': {
-            'simulation_parameter_json': sim_par_json_path
-        },
-        'measure_dir_name': 'from_honeybee_simulation_parameter'
-    }
-    osw_dict = {'steps': [sim_par_dict]}
-
-    # assign the measure_paths to the osw_dict
-    osw_dict['measure_paths'] = []
-    if folders.honeybee_openstudio_gem_path:  # include honeybee-openstudio measure path
-        measure_dir = os.path.join(folders.honeybee_openstudio_gem_path, 'measures')
-        osw_dict['measure_paths'].append(measure_dir)
-
-    # assign the epw_file to the osw if it is input
+    # check that honeybee-openstudio is installed
+    try:
+        from honeybee_openstudio.openstudio import openstudio, OSModel, os_path
+        from honeybee_openstudio.simulation import simulation_parameter_to_openstudio, \
+            assign_epw_to_model
+    except ImportError as e:  # honeybee-openstudio is not installed
+        raise ImportError('{}\n{}'.format(HB_OS_MSG, e))
+    # set up the directory
+    if not os.path.isdir(directory):
+        os.makedirs(directory)
+    osm = os.path.abspath(os.path.join(directory, 'in.osm'))
+    # translate the Honeybee SimPar to OpenStudio
+    os_model = OSModel()
+    set_cz = True
+    if sim_par.sizing_parameter.climate_zone is not None:
+        set_cz = False
     if epw_file is not None:
-        osw_dict['weather_file'] = epw_file
-
-    # write the dictionary to a workflow.osw
-    osw_json = os.path.join(osw_directory, 'workflow.osw')
-    if (sys.version_info < (3, 0)):  # we need to manually encode it as UTF-8
-        with open(osw_json, writemode) as fp:
-            workflow_str = json.dumps(osw_dict, indent=4, ensure_ascii=False)
-            fp.write(workflow_str.encode('utf-8'))
+        assign_epw_to_model(epw_file, os_model, set_cz)
+    simulation_parameter_to_openstudio(sim_par, os_model)
+    os_model.save(os_path(osm), overwrite=True)
+    # translate the OSM to IDF
+    idf = os.path.abspath(os.path.join(directory, 'in.idf'))
+    if (sys.version_info < (3, 0)):
+        idf_translator = openstudio.EnergyPlusForwardTranslator()
     else:
-        with open(osw_json, writemode, encoding='utf-8') as fp:
-            workflow_str = json.dump(osw_dict, fp, indent=4, ensure_ascii=False)
-
-    return os.path.abspath(osw_json)
+        idf_translator = openstudio.energyplus.ForwardTranslator()
+    workspace = idf_translator.translateModel(os_model)
+    workspace.save(os_path(idf), overwrite=True)
+    return osm, idf
 
 
 def run_osw(osw_json, measures_only=True, silent=False):
@@ -546,51 +537,6 @@ def output_energyplus_files(directory):
     return sql, zsz, rdd, html, err
 
 
-def _import_model_osw(model_path, extension, output_path=None, osw_directory=None):
-    """Base function used for OSW translating from various formats to HBJSON.
-
-    Args:
-        model_path: File path to the file to be translated to HBJSON.
-        extension: Name of the file type to be translated (eg. gbxml).
-        output_path: File path to where the Model HBJSON will be written.
-        osw_directory: The directory into which the .osw should be written.
-    """
-    # create the dictionary with the OSW steps
-    osw_dict = {'steps': []}
-    model_measure_dict = {
-        'arguments': {
-            '{}_model'.format(extension): model_path
-        },
-        'measure_dir_name': 'from_{}_model'.format(extension)
-    }
-    if output_path is not None:
-        model_measure_dict['arguments']['output_file_path'] = output_path
-    osw_dict['steps'].append(model_measure_dict)
-
-    # add measure paths
-    osw_dict['measure_paths'] = []
-    if folders.honeybee_openstudio_gem_path:  # include honeybee-openstudio measure path
-        measure_dir = os.path.join(folders.honeybee_openstudio_gem_path, 'measures')
-        osw_dict['measure_paths'].append(measure_dir)
-
-    # write the dictionary to a workflow.osw
-    if osw_directory is None:
-        osw_directory = os.path.join(
-            hb_folders.default_simulation_folder, 'temp_translate')
-        if not os.path.isdir(osw_directory):
-            os.mkdir(osw_directory)
-    osw_json = os.path.join(osw_directory, 'translate_{}.osw'.format(extension))
-    if (sys.version_info < (3, 0)):  # we need to manually encode it as UTF-8
-        with open(osw_json, writemode) as fp:
-            workflow_str = json.dumps(osw_dict, indent=4, ensure_ascii=False)
-            fp.write(workflow_str.encode('utf-8'))
-    else:
-        with open(osw_json, writemode, encoding='utf-8') as fp:
-            workflow_str = json.dump(osw_dict, fp, indent=4, ensure_ascii=False)
-
-    return os.path.abspath(osw_json)
-
-
 def _check_osw(osw_json):
     """Prepare an OSW file to be run through OpenStudio CLI.
 
@@ -640,17 +586,15 @@ def _run_osw_windows(osw_json, measures_only=True, silent=False):
         # write a batch file to call OpenStudio CLI; useful for re-running the sim
         working_drive = directory[:2]
         measure_str = '-m ' if measures_only else ''
-        batch = '{}\n"{}" -I "{}" run --show-stdout {}-w "{}"'.format(
-            working_drive, folders.openstudio_exe, folders.honeybee_openstudio_gem_path,
-            measure_str, osw_json)
+        batch = '{}\n"{}" run --show-stdout {}-w "{}"'.format(
+            working_drive, folders.openstudio_exe, measure_str, osw_json)
         if all(ord(c) < 128 for c in batch):  # just run the batch file as it is
             batch_file = os.path.join(directory, 'run_workflow.bat')
             write_to_file(batch_file, batch, True)
             os.system('"{}"'.format(batch_file))  # run the batch file
             return directory
     # given .bat file restrictions with non-ASCII characters, run the sim with subprocess
-    cmds = [folders.openstudio_exe, '-I', folders.honeybee_openstudio_gem_path,
-            'run', '--show-stdout', '-w', osw_json]
+    cmds = [folders.openstudio_exe, 'run', '--show-stdout', '-w', osw_json]
     if measures_only:
         cmds.append('-m')
     process = subprocess.Popen(cmds, shell=silent)
@@ -680,9 +624,8 @@ def _run_osw_unix(osw_json, measures_only=True):
 
     # Write the shell script to call OpenStudio CLI
     measure_str = '-m ' if measures_only else ''
-    shell = '#!/usr/bin/env bash\n"{}" -I "{}" run --show-stdout {}-w "{}"'.format(
-        folders.openstudio_exe, folders.honeybee_openstudio_gem_path,
-        measure_str, osw_json)
+    shell = '#!/usr/bin/env bash\n"{}" run --show-stdout {}-w "{}"'.format(
+        folders.openstudio_exe, measure_str, osw_json)
     shell_file = os.path.join(directory, 'run_workflow.sh')
     write_to_file(shell_file, shell, True)
 
@@ -836,3 +779,67 @@ def _parse_os_cli_failure(directory):
     log_osw = OSW(os.path.join(directory, 'out.osw'))
     raise Exception(
         'Failed to run OpenStudio CLI:\n{}'.format('\n'.join(log_osw.errors)))
+
+
+"""Deprecated methods that depend on the old honeybee-openstudio Ruby gem."""
+
+
+def from_gbxml_osw(gbxml_path, model_path=None, osw_directory=None):
+    """Deprecated function that is no longer used."""
+    return _raise_deprecation('from_gbxml_osw')
+
+
+def from_osm_osw(osm_path, model_path=None, osw_directory=None):
+    """Deprecated function that is no longer used."""
+    return _raise_deprecation('from_osm_osw')
+
+
+def from_idf_osw(idf_path, model_path=None, osw_directory=None):
+    """Deprecated function that is no longer used."""
+    _raise_deprecation('from_idf_osw')
+
+
+def measure_compatible_model_json(
+        model_file_path, destination_directory=None, simplify_window_cons=False,
+        triangulate_sub_faces=True, triangulate_non_planar_orphaned=False,
+        enforce_rooms=False, use_geometry_names=False, use_resource_names=False):
+    """Deprecated function that is no longer used."""
+    _raise_deprecation('measure_compatible_model_json')
+
+
+def trace_compatible_model_json(
+        model_file_path, destination_directory=None, single_window=True,
+        rect_sub_distance='0.15m', frame_merge_distance='0.2m'):
+    """Deprecated function that is no longer used."""
+    _raise_deprecation('trace_compatible_model_json')
+
+
+def to_openstudio_osw(osw_directory, model_path, sim_par_json_path=None,
+                      additional_measures=None, base_osw=None, epw_file=None,
+                      schedule_directory=None, strings_to_inject=None,
+                      report_units=None, viz_variables=None):
+    """Deprecated function that is no longer used."""
+    _raise_deprecation('to_openstudio_osw')
+
+
+def to_gbxml_osw(model_path, output_path=None, osw_directory=None):
+    """Deprecated function that is no longer used."""
+    _raise_deprecation('to_gbxml_osw')
+
+
+def to_sdd_osw(model_path, output_path=None, osw_directory=None):
+    """Deprecated function that is no longer used."""
+    _raise_deprecation('to_sdd_osw')
+
+
+def to_empty_osm_osw(osw_directory, sim_par_json_path, epw_file=None):
+    """Deprecated function that is no longer used."""
+    _raise_deprecation('to_empty_osm_osw')
+
+
+def _raise_deprecation(func_name):
+    msg = 'The function "{}" has been deprecated.\nIf you are receiving this message, ' \
+        'it is likely because you are using an old Grasshopper component while ' \
+        'having newer core Python libraries installed.\nTo avoid this error, use ' \
+        'the updated Grasshopper component from your toolbar.'.format(func_name)
+    raise NotImplementedError(msg)

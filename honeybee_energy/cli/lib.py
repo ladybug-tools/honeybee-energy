@@ -7,11 +7,10 @@ import json
 import zipfile
 from datetime import datetime
 
-from honeybee.config import folders as hb_folders
 from honeybee_energy.config import folders
 from honeybee_energy.schedule.typelimit import ScheduleTypeLimit
 from honeybee_energy.material.dictutil import dict_to_material, MATERIAL_TYPES
-from honeybee_energy.run import run_osw, from_osm_osw, _parse_os_cli_failure
+from honeybee_energy.run import HB_OS_MSG
 
 from honeybee_energy.lib.materials import opaque_material_by_identifier, \
     window_material_by_identifier, OPAQUE_MATERIALS, WINDOW_MATERIALS
@@ -1063,12 +1062,53 @@ def add_osm_to_lib(osm_file, standards_folder, indent, osw_folder, log_file):
         osm_file: Path to a OpenStudio Model (OSM) file.
     """
     try:
+        # check that honeybee-openstudio is installed
+        try:
+            from honeybee_openstudio.openstudio import openstudio, os_path
+            from honeybee_openstudio.schedule import extract_all_schedules, \
+                schedule_type_limits_from_openstudio
+            from honeybee_openstudio.material import extract_all_materials
+            from honeybee_openstudio.construction import extract_all_constructions
+            from honeybee_openstudio.constructionset import construction_set_from_openstudio
+            from honeybee_openstudio.programtype import program_type_from_openstudio
+        except ImportError as e:  # honeybee-openstudio is not installed
+            raise ImportError('{}\n{}'.format(HB_OS_MSG, e))
+
         # set the folder to the default standards_folder if unspecified
         folder = standards_folder if standards_folder is not None else \
             folders.standards_data_folder
-        # translate the OSM to a HBJSON
-        model_dict = _translate_osm_to_hbjson(osm_file, osw_folder)
         base_name = os.path.basename(osm_file).lower().replace('.osm', '')
+
+        # get the version translator
+        assert os.path.isfile(osm_file), 'No file was found at: {}.'.format(osm_file)
+        if (sys.version_info < (3, 0)):
+            ver_translator = openstudio.VersionTranslator()
+        else:
+            ver_translator = openstudio.osversion.VersionTranslator()
+        os_model = ver_translator.loadModel(os_path(osm_file))
+        # print errors and warnings from the translation process
+        if not os_model.is_initialized():
+            errors = '\n'.join(str(err.logMessage()) for err in ver_translator.errors())
+            raise ValueError('Failed to load model from OSM.\n{}'.format(errors))
+        os_model = os_model.get()
+
+        # translate the OSM to a Honeybee objects
+        type_limits = {}
+        for os_type_lim in os_model.getScheduleTypeLimitss():
+            type_lim = schedule_type_limits_from_openstudio(os_type_lim)
+            type_limits[type_lim.identifier] = type_lim
+        schedules = extract_all_schedules(os_model)
+        materials = extract_all_materials(os_model)
+        constructions = extract_all_constructions(os_model, schedules)
+        construction_sets = {}
+        for os_cons_set in os_model.getDefaultConstructionSets():
+            if os_cons_set.nameString() != 'Default Generic Construction Set':
+                con_set = construction_set_from_openstudio(os_cons_set, constructions)
+                construction_sets[con_set.identifier] = con_set
+        program_types = {}
+        for os_space_type in os_model.getSpaceTypes():
+            program = program_type_from_openstudio(os_space_type, schedules)
+            program_types[program.identifier] = program
 
         # write each of the objects from the dictionary into the standards folder
         added_objs = []
@@ -1076,53 +1116,56 @@ def add_osm_to_lib(osm_file, standards_folder, indent, osw_folder, log_file):
         con_folder = os.path.join(folder, 'constructions')
         mat_json = os.path.join(con_folder, '{}_materials.json'.format(base_name))
         mat_dict = {}
-        for mat in model_dict['properties']['energy']['materials']:
-            if mat['identifier'] not in _default_mats:
-                added_objs.append(mat['identifier'])
-                mat_dict[mat['identifier']] = mat
+        for mat in materials.values():
+            if mat.identifier not in _default_mats:
+                added_objs.append(mat.identifier)
+                mat_dict[mat.identifier] = mat.to_dict()
         _update_user_json(mat_dict, mat_json, indent)
         # write the constructions
         con_json = os.path.join(con_folder, '{}_constructions.json'.format(base_name))
         con_dict = {}
-        for con in model_dict['properties']['energy']['constructions']:
-            if con['identifier'] not in _default_constrs:
-                added_objs.append(con['identifier'])
-                con_dict[con['identifier']] = con
+        for con in constructions.values():
+            if con.identifier not in _default_constrs:
+                added_objs.append(con.identifier)
+                try:
+                    con_dict[con.identifier] = con.to_dict(abridged=True)
+                except TypeError:  # no abridged option
+                    con_dict[con.identifier] = con.to_dict()
         _update_user_json(con_dict, con_json, indent)
         # write the construction sets
         c_set_folder = os.path.join(folder, 'constructionsets')
         c_set_json = os.path.join(c_set_folder, '{}.json'.format(base_name))
         c_set_dict = {}
-        for c_set in model_dict['properties']['energy']['construction_sets']:
-            if c_set['identifier'] not in _default_sets:
-                added_objs.append(c_set['identifier'])
-                c_set_dict[c_set['identifier']] = c_set
+        for c_set in construction_sets.values():
+            if c_set.identifier not in _default_sets:
+                added_objs.append(c_set.identifier)
+                c_set_dict[c_set.identifier] = c_set.to_dict(abridged=True)
         _update_user_json(c_set_dict, c_set_json, indent)
         # write the type limits
         sched_folder = os.path.join(folder, 'schedules')
         stl_json = os.path.join(sched_folder, '{}_type_limits.json'.format(base_name))
         sch_tl_dict = {}
-        for stl in model_dict['properties']['energy']['schedule_type_limits']:
-            if stl['identifier'] not in _schedule_type_limits:
-                added_objs.append(stl['identifier'])
-                sch_tl_dict[stl['identifier']] = stl
+        for stl in type_limits.values():
+            if stl.identifier not in _schedule_type_limits:
+                added_objs.append(stl.identifier)
+                sch_tl_dict[stl.identifier] = stl.to_dict()
         _update_user_json(sch_tl_dict, stl_json, indent)
         # write the schedules
         sch_json = os.path.join(sched_folder, '{}_schedules.json'.format(base_name))
         sch_dict = {}
-        for sch in model_dict['properties']['energy']['schedules']:
-            if sch['identifier'] not in _default_schedules:
-                added_objs.append(sch['identifier'])
-                sch_dict[sch['identifier']] = sch
+        for sch in schedules.values():
+            if sch.identifier not in _default_schedules:
+                added_objs.append(sch.identifier)
+                sch_dict[sch.identifier] = sch.to_dict(abridged=True)
         _update_user_json(sch_dict, sch_json, indent)
         # write the programs
         prog_folder = os.path.join(folder, 'programtypes')
         prog_json = os.path.join(prog_folder, '{}.json'.format(base_name))
         prog_dict = {}
-        for prog in model_dict['properties']['energy']['program_types']:
-            if prog['identifier'] not in _default_programs:
-                added_objs.append(prog['identifier'])
-                prog_dict[prog['identifier']] = prog
+        for prog in program_types.values():
+            if prog.identifier not in _default_programs:
+                added_objs.append(prog.identifier)
+                prog_dict[prog.identifier] = prog.to_dict(abridged=True)
         _update_user_json(prog_dict, prog_json, indent)
 
         # write a message into the log file
@@ -1134,21 +1177,3 @@ def add_osm_to_lib(osm_file, standards_folder, indent, osw_folder, log_file):
         sys.exit(1)
     else:
         sys.exit(0)
-
-
-def _translate_osm_to_hbjson(osm_file, osw_folder):
-    """Translate an OSM to a HBJSON for use in resource extraction commands."""
-    # come up with a temporary path to write the HBJSON
-    out_directory = os.path.join(
-        hb_folders.default_simulation_folder, 'temp_translate')
-    f_name = os.path.basename(osm_file).lower().replace('.osm', '.hbjson')
-    out_path = os.path.join(out_directory, f_name)
-    # run the OSW to translate the OSM to HBJSON
-    osw = from_osm_osw(osm_file, out_path, osw_folder)
-    # load the resulting HBJSON to a dictionary and return it
-    _, idf = run_osw(osw, silent=True)
-    if idf is not None and os.path.isfile(idf):
-        with open(out_path) as json_file:
-            return json.load(json_file)
-    else:
-        _parse_os_cli_failure(os.path.dirname(osw))
