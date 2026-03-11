@@ -3,7 +3,7 @@
 from __future__ import division
 
 from honeybee._lockable import lockable
-from honeybee.typing import float_positive, clean_and_id_ep_string
+from honeybee.typing import float_positive, float_in_range, clean_and_id_ep_string
 
 from ._base import _LoadBase
 from ..schedule.ruleset import ScheduleRuleset
@@ -40,17 +40,17 @@ class Infiltration(_LoadBase):
             remains constant in spite of exterior wind and the difference
             between interior/exterior temperature. EnergyPlus uses 1 by default but
             BLAST and DOE-2 (the EnergyPlus predecessors) used 0.606 and 0 for
-            this coefficient respectively. Default: 1.
+            this coefficient respectively. (Default: 1).
         temperature_coefficient: A number that will get multiplied by the difference
             in interior/exterior temperature (in C) to yield a coefficient that
             gets multiplied by the flow_per_exterior_area. EnergyPlus uses 0 by
             default but BLAST and DOE-2 (the EnergyPlus predecessors) used 0.03636
-            and 0 for this coefficient respectively. Default: 0.
+            and 0 for this coefficient respectively. (Default: 0).
         velocity_coefficient: A number that will get multiplied by the hourly
             exterior wind velocity (in m/s) to yield a coefficient that gets
             multiplied by the flow_per_exterior_area. EnergyPlus uses 0 by default
             but BLAST and DOE-2 (the EnergyPlus predecessors) used 0.1177 and 0.224
-            for this coefficient respectively. Default: 0.
+            for this coefficient respectively. (Default: 0).
 
     Properties:
         * identifier
@@ -119,8 +119,8 @@ class Infiltration(_LoadBase):
 
     @constant_coefficient.setter
     def constant_coefficient(self, value):
-        self._constant_coefficient = float_positive(
-            value, 'infiltration constant coefficient')
+        self._constant_coefficient = float_in_range(
+            value, input_name='infiltration constant coefficient')
 
     @property
     def temperature_coefficient(self):
@@ -130,8 +130,8 @@ class Infiltration(_LoadBase):
 
     @temperature_coefficient.setter
     def temperature_coefficient(self, value):
-        self._temperature_coefficient = float_positive(
-            value, 'infiltration temperature coefficient')
+        self._temperature_coefficient = float_in_range(
+            value, input_name='infiltration temperature coefficient')
 
     @property
     def velocity_coefficient(self):
@@ -140,8 +140,8 @@ class Infiltration(_LoadBase):
 
     @velocity_coefficient.setter
     def velocity_coefficient(self, value):
-        self._velocity_coefficient = float_positive(
-            value, 'infiltration velocity coefficient')
+        self._velocity_coefficient = float_in_range(
+            value, input_name='infiltration velocity coefficient')
 
     def diversify(self, count, flow_stdev=20, schedule_offset=1, timestep=1,
                   schedule_indices=None):
