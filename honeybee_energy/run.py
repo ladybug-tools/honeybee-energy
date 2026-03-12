@@ -16,10 +16,13 @@ else:
     writemode = 'w'
 
 from ladybug.futil import write_to_file
+from ladybug.epw import EPW
+from ladybug.stat import STAT
 
 from .config import folders
 from .measure import Measure
 from .result.osw import OSW
+from .simulation.parameter import SimulationParameter
 
 HB_OS_MSG = 'Honeybee-openstudio is not installed. Translation to OpenStudio cannot ' \
     'be performed.\nRun pip install honeybee-energy[openstudio] to get all ' \
@@ -296,62 +299,99 @@ def to_openstudio_sim_folder(
     return osm, osw, idf
 
 
-def empty_osm(directory, sim_par, epw_file=None):
-    """Create an empty OSM file with no building geometry.
+def empty_osm(sim_par=None, epw_file=None, osm_file=None, idf_file=None):
+    """Create an empty OSM or IDF file with no building geometry.
 
-    This is useful for creating OpenStudio models to which a detailed Ironbug
-    system will be added. Such models with only Ironbug components can simulate
+    This is useful as a starting point for OSMs to which detailed Ironbug systems
+    will be added. Such models with only Ironbug HVAC components can simulate
     in EnergyPlus if they use the LoadProfile:Plant object to represent the
-    building loads. They are useful for evaluating the performance of such heating
-    and cooling plants and, by setting the simulation parameters and EPW file
-    with the inputs to this method, any sizing criteria for the plant components
-    can be set.
+    building loads.
 
     Args:
-        directory: The directory into which the output files will be written to.
-        sim_par: A SimulationParameter object that describes all of the
-            settings for the simulation.
-        epw_file: Optional file path to an EPW that should be associated with the
-            output energy model. If None, no EPW file will be associated with
-            the OSM. (Default: None).
+        sim_par: A SimulationParameter object that describes all of the settings
+            for the simulation. If None, default parameters will be generated.
+        epw_file: Full path to an EPW file to be associated with the exported OSM.
+            This is typically not necessary but may be used when a sim-par-json is
+            specified that requests a HVAC sizing calculation to be run as part
+            of the translation process but no design days are inside this
+            simulation parameter.
+        osm_file: Optional path where the OSM will be output.
+        idf_file: Optional path where the IDF will be output.
 
     Returns:
         A tuple of two file paths.
 
         -   osm -- Path to an OpenStudio Model (.osm) file containing the simulation
-            parameters and references to the EPW file.
+            parameters and references to the EPW file. Will be None if no osm_file
+            was input.
 
         -   idf -- Path to an EnergyPlus Input Data File (.idf) containing the
-            simulation parameters.
+            simulation parameters. Will be None if no idf_file was input.
     """
     # check that honeybee-openstudio is installed
     try:
-        from honeybee_openstudio.openstudio import openstudio, OSModel, os_path
+        from honeybee_openstudio.openstudio import openstudio, os_path, OSModel
         from honeybee_openstudio.simulation import simulation_parameter_to_openstudio, \
             assign_epw_to_model
     except ImportError as e:  # honeybee-openstudio is not installed
         raise ImportError('{}\n{}'.format(HB_OS_MSG, e))
-    # set up the directory
-    if not os.path.isdir(directory):
-        os.makedirs(directory)
-    osm = os.path.abspath(os.path.join(directory, 'in.osm'))
-    # translate the Honeybee SimPar to OpenStudio
+
+    # initialize the OpenStudio model that will hold everything
     os_model = OSModel()
-    set_cz = True
-    if sim_par.sizing_parameter.climate_zone is not None:
-        set_cz = False
-    if epw_file is not None:
-        assign_epw_to_model(epw_file, os_model, set_cz)
-    simulation_parameter_to_openstudio(sim_par, os_model)
-    os_model.save(os_path(osm), overwrite=True)
-    # translate the OSM to IDF
-    idf = os.path.abspath(os.path.join(directory, 'in.idf'))
-    if (sys.version_info < (3, 0)):
-        idf_translator = openstudio.EnergyPlusForwardTranslator()
+    # generate default simulation parameters
+    if sim_par is None:
+        sim_par = SimulationParameter()
+        sim_par.output.add_zone_energy_use()
+        sim_par.output.add_hvac_energy_use()
+        sim_par.output.add_electricity_generation()
     else:
-        idf_translator = openstudio.energyplus.ForwardTranslator()
-    workspace = idf_translator.translateModel(os_model)
-    workspace.save(os_path(idf), overwrite=True)
+        sim_par = sim_par.duplicate()  # ensure input is not edited
+
+    # use any specified EPW files to assign design days and the climate zone
+    def ddy_from_epw(epw_file, sim_par):
+        """Produce a DDY from an EPW file."""
+        epw_obj = EPW(epw_file)
+        des_days = [epw_obj.approximate_design_day('WinterDesignDay'),
+                    epw_obj.approximate_design_day('SummerDesignDay')]
+        sim_par.sizing_parameter.design_days = des_days
+
+    if epw_file is not None:
+        epw_folder, epw_file_name = os.path.split(epw_file)
+        ddy_file = os.path.join(epw_folder, epw_file_name.replace('.epw', '.ddy'))
+        stat_file = os.path.join(epw_folder, epw_file_name.replace('.epw', '.stat'))
+        if len(sim_par.sizing_parameter.design_days) == 0 and \
+                os.path.isfile(ddy_file):
+            try:
+                sim_par.sizing_parameter.add_from_ddy_996_004(ddy_file)
+            except AssertionError:  # no design days within the DDY file
+                ddy_from_epw(epw_file, sim_par)
+        elif len(sim_par.sizing_parameter.design_days) == 0:
+            ddy_from_epw(epw_file, sim_par)
+        if sim_par.sizing_parameter.climate_zone is None and os.path.isfile(stat_file):
+            stat_obj = STAT(stat_file)
+            sim_par.sizing_parameter.climate_zone = stat_obj.ashrae_climate_zone
+        set_cz = True if sim_par.sizing_parameter.climate_zone is None else False
+        assign_epw_to_model(epw_file, os_model, set_cz)
+
+    # translate the simulation parameter
+    simulation_parameter_to_openstudio(sim_par, os_model)
+    gen_files, osm, idf = [], None, None
+
+    # write the OpenStudio Model if specified
+    if osm_file is not None:
+        osm = os.path.abspath(osm_file)
+        os_model.save(os_path(osm), overwrite=True)
+        gen_files.append(osm)
+    # write the IDF if specified
+    if idf_file is not None:
+        idf = os.path.abspath(idf_file)
+        if (sys.version_info < (3, 0)):
+            idf_translator = openstudio.EnergyPlusForwardTranslator()
+        else:
+            idf_translator = openstudio.energyplus.ForwardTranslator()
+        workspace = idf_translator.translateModel(os_model)
+        workspace.save(os_path(idf), overwrite=True)
+        gen_files.append(idf)
     return osm, idf
 
 

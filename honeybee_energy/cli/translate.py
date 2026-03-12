@@ -23,6 +23,7 @@ from honeybee_energy.schedule.dictutil import dict_to_schedule
 from honeybee_energy.schedule.ruleset import ScheduleRuleset
 from honeybee_energy.run import to_openstudio_sim_folder, run_osw, from_osm_osw, \
     _parse_os_cli_failure, HB_OS_MSG
+from honeybee_energy.run import empty_osm as create_empty_osm
 from honeybee_energy.writer import energyplus_idf_version, _preprocess_model_for_trace
 from honeybee_energy.config import folders
 
@@ -1120,6 +1121,93 @@ def model_from_gbxml(gbxml_file, reset_properties=False, osw_folder=None,
     model = model_from_gbxml_file(gbxml_file, reset_properties)
     # write out the file
     return process_content_to_output(json.dumps(model.to_dict()), output_file)
+
+
+@translate.command('empty-osm')
+@click.option('--sim-par-json', '-sp', help='Full path to a honeybee energy '
+              'SimulationParameter JSON that describes all of the settings for '
+              'the simulation. If None default parameters will be generated.',
+              default=None, show_default=True,
+              type=click.Path(exists=True, file_okay=True, dir_okay=False,
+                              resolve_path=True))
+@click.option('--epw-file', '-epw', help='Full path to an EPW file to be associated '
+              'with the exported OSM. This is typically not necessary but may be '
+              'used when a sim-par-json is specified that requests a HVAC sizing '
+              'calculation to be run as part of the translation process but no design '
+              'days are inside this simulation parameter.',
+              default=None, show_default=True,
+              type=click.Path(exists=True, file_okay=True, dir_okay=False,
+                              resolve_path=True))
+@click.option('--osm-file', '-osm', help='Optional path where the OSM will be written. '
+              'If unspecified, no OSM file will be written',
+              type=str, default=None, show_default=True)
+@click.option('--idf-file', '-idf', help='Optional path where the IDF will be written. '
+              'If unspecified, no IDF file will be written.',
+              type=str, default=None, show_default=True)
+@click.option('--log-file', '-log', help='Optional log file to output the paths to the '
+              'generated OSM and IDF files if they were successfully created. '
+              'By default this will be printed out to stdout.',
+              type=click.File('w'), default='-', show_default=True)
+def empty_osm_cli(sim_par_json, epw_file, osm_file, idf_file, log_file):
+    """Create an empty OSM or IDF file with no building geometry.
+
+    This is useful as a starting point for OSMs to which detailed Ironbug systems
+    will be added. Such models with only Ironbug HVAC components can simulate
+    in EnergyPlus if they use the LoadProfile:Plant object to represent the
+    building loads.
+    """
+    try:
+        empty_osm(sim_par_json, epw_file, osm_file, idf_file, log_file)
+    except Exception as e:
+        _logger.exception('Model creation failed.\n{}'.format(e))
+        sys.exit(1)
+    else:
+        sys.exit(0)
+
+
+def empty_osm(
+    sim_par_json=None, epw_file=None, osm_file=None, idf_file=None, log_file=None
+):
+    """Create an empty OSM or IDF file with no building geometry.
+
+    This is useful as a starting point for OSMs to which detailed Ironbug systems
+    will be added. Such models with only Ironbug HVAC components can simulate
+    in EnergyPlus if they use the LoadProfile:Plant object to represent the
+    building loads.
+
+    Args:
+        sim_par_json: Full path to a honeybee energy SimulationParameter JSON that
+            describes all of the settings for the simulation. If None, default
+            parameters will be generated.
+        epw_file: Full path to an EPW file to be associated with the exported OSM.
+            This is typically not necessary but may be used when a sim-par-json is
+            specified that requests a HVAC sizing calculation to be run as part
+            of the translation process but no design days are inside this
+            simulation parameter.
+        osm_file: Optional path where the OSM will be output.
+        idf_file: Optional path where the IDF will be output.
+        log_file: Optional log file to output the paths to the generated OSM and]
+            IDF files if they were successfully created. By default this string
+            will be returned from this method.
+    """
+    # generate default simulation parameters
+    if sim_par_json is None:
+        sim_par = None
+    else:
+        with open(sim_par_json) as json_file:
+            data = json.load(json_file)
+        sim_par = SimulationParameter.from_dict(data)
+
+    # create the empty files
+    osm, idf = create_empty_osm(sim_par, epw_file, osm_file, idf_file)
+
+    # collect the file paths to output
+    gen_files = []
+    if osm is not None:
+        gen_files.append(osm)
+    if idf is not None:
+        gen_files.append(idf)
+    return process_content_to_output(json.dumps(gen_files, indent=4), log_file)
 
 
 @translate.command('constructions-to-idf')
