@@ -1091,7 +1091,7 @@ class ModelEnergyProperties(object):
                 continue
             hvacs = [r.properties.energy.hvac for r in rooms
                      if r.properties.energy.hvac is not None]
-            if len(hvacs) > 1:
+            if len(set(hvacs)) > 1:
                 invalid_zones[zone] = [rooms, hvacs]
 
         # if multiple HVACs in the same zone were found, then report the issue
