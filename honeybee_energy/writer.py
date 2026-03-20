@@ -625,7 +625,7 @@ def room_to_idf(room):
 
 def model_to_idf(
     model, schedule_directory=None, use_ideal_air_equivalent=True,
-    patch_missing_adjacencies=False
+    patch_missing_adjacencies=False, timestep=6
 ):
     r"""Generate an IDF string representation of a Model.
 
@@ -652,6 +652,10 @@ def model_to_idf(
             in the model should be replaced with Adiabatic boundary conditions.
             This is useful when the input model is only a portion of a much
             larger model. (Default: False).
+        timestep: An integer for the simulation timestep, which will be
+            used to balance air boundary flows to ensure that there is never
+            more air than the room volume mixed at a given simulation timestep.
+            If None, no balancing of air boundary flows wil occur. (Default: 6).
 
     Usage:
 
@@ -705,6 +709,10 @@ def model_to_idf(
     if use_ideal_air_equivalent:
         for room in model.rooms:
             room.properties.energy.assign_ideal_air_equivalent()
+
+    # balance the air boundary flows if there is a timestep
+    if timestep is not None:
+        model.properties.energy.balance_air_boundary_flows(timestep)
 
     # patch missing adjacencies
     if patch_missing_adjacencies:
