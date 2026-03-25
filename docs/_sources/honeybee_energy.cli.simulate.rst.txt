@@ -1,0 +1,7 @@
+honeybee\_energy.cli.simulate module
+====================================
+
+.. automodule:: honeybee_energy.cli.simulate
+   :members:
+   :undoc-members:
+   :show-inheritance:
