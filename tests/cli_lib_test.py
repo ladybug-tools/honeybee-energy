@@ -1,11 +1,12 @@
 """Test cli lib module."""
 from click.testing import CliRunner
-from honeybee_energy.cli.lib import opaque_materials, window_materials, \
-    opaque_constructions, window_constructions, shade_constructions, construction_sets, \
-    schedule_type_limits, schedules, program_types, opaque_material_by_id, \
-    window_material_by_id, opaque_construction_by_id, window_construction_by_id, \
-    shade_construction_by_id, construction_set_by_id, schedule_type_limit_by_id, \
-    schedule_by_id, program_type_by_id, materials_by_id, constructions_by_id, \
+from honeybee_energy.cli.lib import opaque_materials_cli, window_materials_cli, \
+    opaque_constructions_cli, window_constructions_cli, shade_constructions_cli, \
+    construction_sets_cli, schedule_type_limits_cli, schedules_cli, program_types_cli, \
+    opaque_material_by_id, window_material_by_id, opaque_construction_by_id, \
+    window_construction_by_id, shade_construction_by_id, construction_set_by_id, \
+    schedule_type_limit_by_id, schedule_by_id, program_type_by_id, \
+    materials_by_id, constructions_by_id, \
     construction_sets_by_id, schedule_type_limits_by_id, schedules_by_id, \
     program_types_by_id, purge_lib, add_to_lib
 
@@ -26,22 +27,22 @@ def test_lib_constructions():
     """Test the existence of construction objects in the library."""
     runner = CliRunner()
 
-    result = runner.invoke(opaque_materials)
+    result = runner.invoke(opaque_materials_cli)
     assert result.exit_code == 0
 
-    result = runner.invoke(window_materials)
+    result = runner.invoke(window_materials_cli)
     assert result.exit_code == 0
 
-    result = runner.invoke(opaque_constructions)
+    result = runner.invoke(opaque_constructions_cli)
     assert result.exit_code == 0
 
-    result = runner.invoke(window_constructions)
+    result = runner.invoke(window_constructions_cli)
     assert result.exit_code == 0
 
-    result = runner.invoke(shade_constructions)
+    result = runner.invoke(shade_constructions_cli)
     assert result.exit_code == 0
 
-    result = runner.invoke(construction_sets)
+    result = runner.invoke(construction_sets_cli)
     assert result.exit_code == 0
 
 
@@ -49,13 +50,13 @@ def test_lib_schedules():
     """Test the existence of schedule objects in the library."""
     runner = CliRunner()
 
-    result = runner.invoke(schedule_type_limits)
+    result = runner.invoke(schedule_type_limits_cli)
     assert result.exit_code == 0
 
-    result = runner.invoke(schedules)
+    result = runner.invoke(schedules_cli)
     assert result.exit_code == 0
 
-    result = runner.invoke(program_types)
+    result = runner.invoke(program_types_cli)
     assert result.exit_code == 0
 
 
