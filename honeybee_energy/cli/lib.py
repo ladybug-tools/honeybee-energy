@@ -7,6 +7,9 @@ import json
 import zipfile
 from datetime import datetime
 
+from ladybug.commandutil import process_content_to_output
+from honeybee.search import filter_array_by_keywords
+
 from honeybee_energy.config import folders
 from honeybee_energy.schedule.typelimit import ScheduleTypeLimit
 from honeybee_energy.material.dictutil import dict_to_material, MATERIAL_TYPES
@@ -25,7 +28,7 @@ from honeybee_energy.lib.scheduletypelimits import schedule_type_limit_by_identi
 from honeybee_energy.lib.schedules import schedule_by_identifier, SCHEDULES, \
     lib_dict_abridged_to_schedule
 from honeybee_energy.lib.programtypes import program_type_by_identifier, PROGRAM_TYPES, \
-    lib_dict_abridged_to_program_type
+    STANDARDS_REGISTRY, lib_dict_abridged_to_program_type
 
 from honeybee_energy.lib._loadtypelimits import load_type_limits_from_folder, \
     _schedule_type_limits
@@ -49,13 +52,30 @@ def lib():
 
 
 @lib.command('opaque-materials')
-@click.option('--output-file', '-f', help='Optional file to output the JSON string of '
-              'the object. By default, it will be printed out to stdout',
-              type=click.File('w'), default='-', show_default=True)
-def opaque_materials(output_file):
+@click.option(
+    '--keyword', '-k', help='Text for an optional keyword to be used to filter '
+    'the output. If nothing is input here, all available materials will be output. '
+    'Multiple keywords can be requested by using multiple -k options. For example\n'
+    ' -k "Concrete" -k "Heavyweight"', type=str, default=None, multiple=True)
+@click.option(
+    '--split-words/--join-words', ' /-w', help='Flag to note whether strings '
+    'of multiple keywords (separated by spaces) are split into separate '
+    'keywords for searching. This results in a greater likelihood of finding '
+    'an item in the search but it is not be desirable when searching for a '
+    'specific word sequence.', default=True, show_default=True)
+@click.option(
+    '--identifiers/--json-objects', ' /-j', help='Flag to note whether to format the '
+    'output as an array of JSON objects instead of a plain text list of the '
+    'material identifiers.', default=True, show_default=True)
+@click.option(
+    '--output-file', '-f', help='Optional file to output the result. By default, it '
+    'is printed out to stdout', type=click.File('w'), default='-', show_default=True)
+def opaque_materials_cli(keyword, split_words, identifiers, output_file):
     """Get a list of all opaque materials in the standards library."""
     try:
-        output_file.write(json.dumps(OPAQUE_MATERIALS))
+        join_words = not split_words
+        json_objects = not identifiers
+        opaque_materials(keyword, join_words, json_objects, output_file)
     except Exception as e:
         _logger.exception('Failed to load opaque materials.\n{}'.format(e))
         sys.exit(1)
@@ -63,14 +83,68 @@ def opaque_materials(output_file):
         sys.exit(0)
 
 
+def opaque_materials(
+    keyword=None, join_words=False, json_objects=False, output_file=None,
+    split_words=True, identifiers=True
+):
+    """Get a list of all opaque materials in the standards library.
+
+    Args:
+        keyword: An optional keyword to be used to filter the output list of
+            materials. This can also be a list of keywords which will collectively
+            be used to filter the results. If None, all available materials
+            will be output. (Default: None).
+        join_words: Boolean to note whether strings of multiple keywords (separated
+            by spaces) are joined together or will be split into separate keywords
+            for searching. This results in a greater likelihood of finding an item but is
+            not desirable when searching for a specific word sequence. (Default: False).
+        json_objects: Boolean to note whether the output should be formatted as
+            an array of JSON objects instead of a plain text list of the material
+            identifiers currently in the library. (Default: False).
+        output_file: Optional file to output the full report of the validation.
+            If None, the string will simply be returned from this method.
+    """
+    # filter the objects by keywords
+    if keyword:
+        split_words = not join_words
+        kwd = [keyword] if isinstance(keyword, str) else keyword
+        mat_ids = sorted(filter_array_by_keywords(OPAQUE_MATERIALS, kwd, split_words))
+    else:
+        mat_ids = OPAQUE_MATERIALS
+    # output a list of identifiers or objects
+    if json_objects:
+        mat_objs = [opaque_material_by_identifier(m) for m in mat_ids]
+        out_str = json.dumps([m.to_dict() for m in mat_objs])
+    else:
+        out_str = '\n'.join(mat_ids)
+    return process_content_to_output(out_str, output_file)
+
+
 @lib.command('window-materials')
-@click.option('--output-file', '-f', help='Optional file to output the JSON string of '
-              'the object. By default, it will be printed out to stdout',
-              type=click.File('w'), default='-', show_default=True)
-def window_materials(output_file):
+@click.option(
+    '--keyword', '-k', help='Text for an optional keyword to be used to filter '
+    'the output. If nothing is input here, all available materials will be output. '
+    'Multiple keywords can be requested by using multiple -k options. For example\n'
+    ' -k "Generic" -k "Gap"', type=str, default=None, multiple=True)
+@click.option(
+    '--split-words/--join-words', ' /-w', help='Flag to note whether strings '
+    'of multiple keywords (separated by spaces) are split into separate '
+    'keywords for searching. This results in a greater likelihood of finding '
+    'an item in the search but it is not be desirable when searching for a '
+    'specific word sequence.', default=True, show_default=True)
+@click.option(
+    '--identifiers/--json-objects', ' /-j', help='Flag to note whether to format the '
+    'output as an array of JSON objects instead of a plain text list of the '
+    'material identifiers.', default=True, show_default=True)
+@click.option(
+    '--output-file', '-f', help='Optional file to output the result. By default, it '
+    'is printed out to stdout', type=click.File('w'), default='-', show_default=True)
+def window_materials_cli(keyword, split_words, identifiers, output_file):
     """Get a list of all window materials in the standards library."""
     try:
-        output_file.write(json.dumps(WINDOW_MATERIALS))
+        join_words = not split_words
+        json_objects = not identifiers
+        window_materials(keyword, join_words, json_objects, output_file)
     except Exception as e:
         _logger.exception('Failed to load window materials.\n{}'.format(e))
         sys.exit(1)
@@ -78,14 +152,68 @@ def window_materials(output_file):
         sys.exit(0)
 
 
+def window_materials(
+    keyword=None, join_words=False, json_objects=False, output_file=None,
+    split_words=True, identifiers=True
+):
+    """Get a list of all window materials in the standards library.
+
+    Args:
+        keyword: An optional keyword to be used to filter the output list of
+            materials. This can also be a list of keywords which will collectively
+            be used to filter the results. If None, all available materials
+            will be output. (Default: None).
+        join_words: Boolean to note whether strings of multiple keywords (separated
+            by spaces) are joined together or will be split into separate keywords
+            for searching. This results in a greater likelihood of finding an item but is
+            not desirable when searching for a specific word sequence. (Default: False).
+        json_objects: Boolean to note whether the output should be formatted as
+            an array of JSON objects instead of a plain text list of the material
+            identifiers currently in the library. (Default: False).
+        output_file: Optional file to output the full report of the validation.
+            If None, the string will simply be returned from this method.
+    """
+    # filter the objects by keywords
+    if keyword:
+        split_words = not join_words
+        kwd = [keyword] if isinstance(keyword, str) else keyword
+        mat_ids = sorted(filter_array_by_keywords(WINDOW_MATERIALS, kwd, split_words))
+    else:
+        mat_ids = WINDOW_MATERIALS
+    # output a list of identifiers or objects
+    if json_objects:
+        mat_objs = [window_material_by_identifier(m) for m in mat_ids]
+        out_str = json.dumps([m.to_dict() for m in mat_objs])
+    else:
+        out_str = '\n'.join(mat_ids)
+    return process_content_to_output(out_str, output_file)
+
+
 @lib.command('opaque-constructions')
-@click.option('--output-file', '-f', help='Optional file to output the JSON string of '
-              'the object. By default, it will be printed out to stdout',
-              type=click.File('w'), default='-', show_default=True)
-def opaque_constructions(output_file):
+@click.option(
+    '--keyword', '-k', help='Text for an optional keyword to be used to filter '
+    'the output. If nothing is input here, all available constructions will be output. '
+    'Multiple keywords can be requested by using multiple -k options. For example\n'
+    ' -k "Generic" -k "Underground"', type=str, default=None, multiple=True)
+@click.option(
+    '--split-words/--join-words', ' /-w', help='Flag to note whether strings '
+    'of multiple keywords (separated by spaces) are split into separate '
+    'keywords for searching. This results in a greater likelihood of finding '
+    'an item in the search but it is not be desirable when searching for a '
+    'specific word sequence.', default=True, show_default=True)
+@click.option(
+    '--identifiers/--json-objects', ' /-j', help='Flag to note whether to format the '
+    'output as an array of JSON objects instead of a plain text list of the '
+    'material identifiers.', default=True, show_default=True)
+@click.option(
+    '--output-file', '-f', help='Optional file to output the result. By default, it '
+    'is printed out to stdout', type=click.File('w'), default='-', show_default=True)
+def opaque_constructions_cli(keyword, split_words, identifiers, output_file):
     """Get a list of all opaque constructions in the standards library."""
     try:
-        output_file.write(json.dumps(OPAQUE_CONSTRUCTIONS))
+        join_words = not split_words
+        json_objects = not identifiers
+        opaque_constructions(keyword, join_words, json_objects, output_file)
     except Exception as e:
         _logger.exception('Failed to load opaque constructions.\n{}'.format(e))
         sys.exit(1)
@@ -93,14 +221,68 @@ def opaque_constructions(output_file):
         sys.exit(0)
 
 
+def opaque_constructions(
+    keyword=None, join_words=False, json_objects=False, output_file=None,
+    split_words=True, identifiers=True
+):
+    """Get a list of all opaque constructions in the standards library.
+
+    Args:
+        keyword: An optional keyword to be used to filter the output list of
+            constructions. This can also be a list of keywords which will collectively
+            be used to filter the results. If None, all available constructions
+            will be output. (Default: None).
+        join_words: Boolean to note whether strings of multiple keywords (separated
+            by spaces) are joined together or will be split into separate keywords
+            for searching. This results in a greater likelihood of finding an item but is
+            not desirable when searching for a specific word sequence. (Default: False).
+        json_objects: Boolean to note whether the output should be formatted as
+            an array of JSON objects instead of a plain text list of the construction
+            identifiers currently in the library. (Default: False).
+        output_file: Optional file to output the full report of the validation.
+            If None, the string will simply be returned from this method.
+    """
+    # filter the objects by keywords
+    if keyword:
+        split_words = not join_words
+        kwd = [keyword] if isinstance(keyword, str) else keyword
+        con_ids = sorted(filter_array_by_keywords(OPAQUE_CONSTRUCTIONS, kwd, split_words))
+    else:
+        con_ids = OPAQUE_CONSTRUCTIONS
+    # output a list of identifiers or objects
+    if json_objects:
+        con_objs = [opaque_construction_by_identifier(c) for c in con_ids]
+        out_str = json.dumps([c.to_dict() for c in con_objs])
+    else:
+        out_str = '\n'.join(con_ids)
+    return process_content_to_output(out_str, output_file)
+
+
 @lib.command('window-constructions')
-@click.option('--output-file', '-f', help='Optional file to output the JSON string of '
-              'the object. By default, it will be printed out to stdout',
-              type=click.File('w'), default='-', show_default=True)
-def window_constructions(output_file):
+@click.option(
+    '--keyword', '-k', help='Text for an optional keyword to be used to filter '
+    'the output. If nothing is input here, all available constructions will be output. '
+    'Multiple keywords can be requested by using multiple -k options. For example\n'
+    ' -k "Generic" -k "Double"', type=str, default=None, multiple=True)
+@click.option(
+    '--split-words/--join-words', ' /-w', help='Flag to note whether strings '
+    'of multiple keywords (separated by spaces) are split into separate '
+    'keywords for searching. This results in a greater likelihood of finding '
+    'an item in the search but it is not be desirable when searching for a '
+    'specific word sequence.', default=True, show_default=True)
+@click.option(
+    '--identifiers/--json-objects', ' /-j', help='Flag to note whether to format the '
+    'output as an array of JSON objects instead of a plain text list of the '
+    'material identifiers.', default=True, show_default=True)
+@click.option(
+    '--output-file', '-f', help='Optional file to output the result. By default, it '
+    'is printed out to stdout', type=click.File('w'), default='-', show_default=True)
+def window_constructions_cli(keyword, split_words, identifiers, output_file):
     """Get a list of all window constructions in the standards library."""
     try:
-        output_file.write(json.dumps(WINDOW_CONSTRUCTIONS))
+        join_words = not split_words
+        json_objects = not identifiers
+        window_constructions(keyword, join_words, json_objects, output_file)
     except Exception as e:
         _logger.exception('Failed to load window constructions.\n{}'.format(e))
         sys.exit(1)
@@ -108,14 +290,68 @@ def window_constructions(output_file):
         sys.exit(0)
 
 
+def window_constructions(
+    keyword=None, join_words=False, json_objects=False, output_file=None,
+    split_words=True, identifiers=True
+):
+    """Get a list of all window constructions in the standards library.
+
+    Args:
+        keyword: An optional keyword to be used to filter the output list of
+            constructions. This can also be a list of keywords which will collectively
+            be used to filter the results. If None, all available constructions
+            will be output. (Default: None).
+        join_words: Boolean to note whether strings of multiple keywords (separated
+            by spaces) are joined together or will be split into separate keywords
+            for searching. This results in a greater likelihood of finding an item but is
+            not desirable when searching for a specific word sequence. (Default: False).
+        json_objects: Boolean to note whether the output should be formatted as
+            an array of JSON objects instead of a plain text list of the construction
+            identifiers currently in the library. (Default: False).
+        output_file: Optional file to output the full report of the validation.
+            If None, the string will simply be returned from this method.
+    """
+    # filter the objects by keywords
+    if keyword:
+        split_words = not join_words
+        kwd = [keyword] if isinstance(keyword, str) else keyword
+        con_ids = sorted(filter_array_by_keywords(WINDOW_CONSTRUCTIONS, kwd, split_words))
+    else:
+        con_ids = WINDOW_CONSTRUCTIONS
+    # output a list of identifiers or objects
+    if json_objects:
+        con_objs = [window_construction_by_identifier(c) for c in con_ids]
+        out_str = json.dumps([c.to_dict() for c in con_objs])
+    else:
+        out_str = '\n'.join(con_ids)
+    return process_content_to_output(out_str, output_file)
+
+
 @lib.command('shade-constructions')
-@click.option('--output-file', '-f', help='Optional file to output the JSON string of '
-              'the object. By default, it will be printed out to stdout',
-              type=click.File('w'), default='-', show_default=True)
-def shade_constructions(output_file):
+@click.option(
+    '--keyword', '-k', help='Text for an optional keyword to be used to filter '
+    'the output. If nothing is input here, all available constructions will be output. '
+    'Multiple keywords can be requested by using multiple -k options. For example\n'
+    ' -k "Generic" -k "Context"', type=str, default=None, multiple=True)
+@click.option(
+    '--split-words/--join-words', ' /-w', help='Flag to note whether strings '
+    'of multiple keywords (separated by spaces) are split into separate '
+    'keywords for searching. This results in a greater likelihood of finding '
+    'an item in the search but it is not be desirable when searching for a '
+    'specific word sequence.', default=True, show_default=True)
+@click.option(
+    '--identifiers/--json-objects', ' /-j', help='Flag to note whether to format the '
+    'output as an array of JSON objects instead of a plain text list of the '
+    'material identifiers.', default=True, show_default=True)
+@click.option(
+    '--output-file', '-f', help='Optional file to output the result. By default, it '
+    'is printed out to stdout', type=click.File('w'), default='-', show_default=True)
+def shade_constructions_cli(keyword, split_words, identifiers, output_file):
     """Get a list of all shade constructions in the standards library."""
     try:
-        output_file.write(json.dumps(SHADE_CONSTRUCTIONS))
+        join_words = not split_words
+        json_objects = not identifiers
+        shade_constructions(keyword, join_words, json_objects, output_file)
     except Exception as e:
         _logger.exception('Failed to load shade constructions.\n{}'.format(e))
         sys.exit(1)
@@ -123,14 +359,86 @@ def shade_constructions(output_file):
         sys.exit(0)
 
 
+def shade_constructions(
+    keyword=None, join_words=False, json_objects=False, output_file=None,
+    split_words=True, identifiers=True
+):
+    """Get a list of all shade constructions in the standards library.
+
+    Args:
+        keyword: An optional keyword to be used to filter the output list of
+            constructions. This can also be a list of keywords which will collectively
+            be used to filter the results. If None, all available constructions
+            will be output. (Default: None).
+        join_words: Boolean to note whether strings of multiple keywords (separated
+            by spaces) are joined together or will be split into separate keywords
+            for searching. This results in a greater likelihood of finding an item but is
+            not desirable when searching for a specific word sequence. (Default: False).
+        json_objects: Boolean to note whether the output should be formatted as
+            an array of JSON objects instead of a plain text list of the construction
+            identifiers currently in the library. (Default: False).
+        output_file: Optional file to output the full report of the validation.
+            If None, the string will simply be returned from this method.
+    """
+    # filter the objects by keywords
+    if keyword:
+        split_words = not join_words
+        kwd = [keyword] if isinstance(keyword, str) else keyword
+        con_ids = sorted(filter_array_by_keywords(SHADE_CONSTRUCTIONS, kwd, split_words))
+    else:
+        con_ids = SHADE_CONSTRUCTIONS
+    # output a list of identifiers or objects
+    if json_objects:
+        con_objs = [shade_construction_by_identifier(c) for c in con_ids]
+        out_str = json.dumps([c.to_dict() for c in con_objs])
+    else:
+        out_str = '\n'.join(con_ids)
+    return process_content_to_output(out_str, output_file)
+
+
 @lib.command('construction-sets')
-@click.option('--output-file', '-f', help='Optional file to output the JSON string of '
-              'the object. By default, it will be printed out to stdout',
-              type=click.File('w'), default='-', show_default=True)
-def construction_sets(output_file):
+@click.option(
+    '--climate-zone', '-z', help='An optional integer between 0 and 8 for the '
+    'ASHRAE climate zone for which construction sets will be filtered. This can '
+    'include the letter associated with the zone (eg. 5A).', type=str, default=None)
+@click.option(
+    '--vintage', '-v', help='Optional text for the building vintage to filter the '
+    'sets. Choose from: "2019", "2016", "2013", "2010", "2007", "2004", '
+    '"1980_2004", "pre_1980". Note that vintages are often called "templates" '
+    'within the OpenStudio standards gem and this property effectively maps to '
+    'the standards gem "template".', type=str, default=None)
+@click.option(
+    '--construction-type', '-t', help='Optional text for the construction type '
+    'to filter the sets. Choose from: "SteelFramed", "WoodFramed", "Mass", '
+    '"Metal Building".', type=str, default=None)
+@click.option(
+    '--keyword', '-k', help='Text for an optional keyword to be used to filter the '
+    'output. If nothing is input here, all available construction sets will be output. '
+    'Multiple keywords can be requested by using multiple -k options. For example\n'
+    ' -k "Generic" -k "Context"', type=str, default=None, multiple=True)
+@click.option(
+    '--split-words/--join-words', ' /-w', help='Flag to note whether strings '
+    'of multiple keywords (separated by spaces) are split into separate '
+    'keywords for searching. This results in a greater likelihood of finding '
+    'an item in the search but it is not be desirable when searching for a '
+    'specific word sequence.', default=True, show_default=True)
+@click.option(
+    '--identifiers/--json-objects', ' /-j', help='Flag to note whether to format the '
+    'output as an array of JSON objects instead of a plain text list of the '
+    'material identifiers.', default=True, show_default=True)
+@click.option(
+    '--output-file', '-f', help='Optional file to output the result. By default, it '
+    'is printed out to stdout', type=click.File('w'), default='-', show_default=True)
+def construction_sets_cli(
+    climate_zone, vintage, construction_type, keyword, split_words,
+    identifiers, output_file
+):
     """Get a list of all construction sets in the standards library."""
     try:
-        output_file.write(json.dumps(CONSTRUCTION_SETS))
+        join_words = not split_words
+        json_objects = not identifiers
+        construction_sets(climate_zone, vintage, construction_type,
+                          keyword, join_words, json_objects, output_file)
     except Exception as e:
         _logger.exception('Failed to load construction sets.\n{}'.format(e))
         sys.exit(1)
@@ -138,14 +446,97 @@ def construction_sets(output_file):
         sys.exit(0)
 
 
+def construction_sets(
+    climate_zone=None, vintage=None, construction_type=None,
+    keyword=None, join_words=False, json_objects=False, output_file=None,
+    split_words=True, identifiers=True
+):
+    """Get a list of all construction sets in the standards library.
+
+    Args:
+        climate_zone: An optional integer between 0 and 8 for the ASHRAE climate
+            zone for which construction sets will be filtered. This can include
+            the letter associated with the zone (eg. 5A).
+        vintage: Optional text for the building vintage to filter the sets.
+            Choose from: "2019", "2016", "2013", "2010", "2007", "2004",
+            "1980_2004", "pre_1980".
+        construction_type: Optional text for the construction type to filter
+            the sets. Choose from: "SteelFramed", "WoodFramed", "Mass", "Metal Building".
+        keyword: An optional keyword to be used to filter the output list of
+            constructions. This can also be a list of keywords which will collectively
+            be used to filter the results. If None, all available constructions
+            will be output. (Default: None).
+        join_words: Boolean to note whether strings of multiple keywords (separated
+            by spaces) are joined together or will be split into separate keywords
+            for searching. This results in a greater likelihood of finding an item but is
+            not desirable when searching for a specific word sequence. (Default: False).
+        json_objects: Boolean to note whether the output should be formatted as
+            an array of JSON objects instead of a plain text list of the construction
+            identifiers currently in the library. (Default: False).
+        output_file: Optional file to output the full report of the validation.
+            If None, the string will simply be returned from this method.
+    """
+    # process the specific types of filters
+    base_str = ''
+    if vintage is not None:
+        assert vintage in STANDARDS_REGISTRY.keys(), \
+            'Input vintage "{}" is not valid. Choose from:\n' \
+            '{}'.format(vintage, '\n'.join(STANDARDS_REGISTRY.keys()))
+        base_str = '{}::'.format(vintage)
+    if climate_zone is not None:
+        c_zone = (climate_zone)[0]  # strip out any qualifiers like A, b, or C
+        assert 0 <= int(c_zone) <= 8, 'Input climate_zone "{}" is not valid. ' \
+            'Climate zone must be between 0 and 8.'.format(climate_zone)
+        base_str = '{}ClimateZone{}::'.format(base_str, c_zone)
+    if construction_type is not None:
+        CONSTRUCTION_TYPES = ('SteelFramed', 'WoodFramed', 'Mass', 'Metal Building')
+        assert construction_type in CONSTRUCTION_TYPES, \
+            'Input construction_type "{}" is not valid. Choose from:\n' \
+            '{}'.format(construction_type, '\n'.join(CONSTRUCTION_TYPES))
+        base_str = '{}{}'.format(base_str, construction_type)
+    if base_str:
+        con_ids = sorted(filter_array_by_keywords(CONSTRUCTION_SETS, [base_str]))
+    else:
+        con_ids = CONSTRUCTION_SETS
+    # filter the objects by keywords
+    if keyword:
+        split_words = not join_words
+        kwd = [keyword] if isinstance(keyword, str) else keyword
+        con_ids = sorted(filter_array_by_keywords(con_ids, kwd, split_words))
+    # output a list of identifiers or objects
+    if json_objects:
+        con_objs = [construction_set_by_identifier(c) for c in con_ids]
+        out_str = json.dumps([c.to_dict() for c in con_objs])
+    else:
+        out_str = '\n'.join(con_ids)
+    return process_content_to_output(out_str, output_file)
+
+
 @lib.command('schedule-type-limits')
-@click.option('--output-file', '-f', help='Optional file to output the JSON string of '
-              'the object. By default, it will be printed out to stdout',
-              type=click.File('w'), default='-', show_default=True)
-def schedule_type_limits(output_file):
+@click.option(
+    '--keyword', '-k', help='Text for an optional keyword to be used to filter '
+    'the output. If nothing is input here, all available limits will be output. '
+    'Multiple keywords can be requested by using multiple -k options. For example\n'
+    ' -k "Concrete" -k "Heavyweight"', type=str, default=None, multiple=True)
+@click.option(
+    '--split-words/--join-words', ' /-w', help='Flag to note whether strings '
+    'of multiple keywords (separated by spaces) are split into separate '
+    'keywords for searching. This results in a greater likelihood of finding '
+    'an item in the search but it is not be desirable when searching for a '
+    'specific word sequence.', default=True, show_default=True)
+@click.option(
+    '--identifiers/--json-objects', ' /-j', help='Flag to note whether to format the '
+    'output as an array of JSON objects instead of a plain text list of the '
+    'schedule type limit identifiers.', default=True, show_default=True)
+@click.option(
+    '--output-file', '-f', help='Optional file to output the result. By default, it '
+    'is printed out to stdout', type=click.File('w'), default='-', show_default=True)
+def schedule_type_limits_cli(keyword, split_words, identifiers, output_file):
     """Get a list of all schedule type limits in the standards library."""
     try:
-        output_file.write(json.dumps(SCHEDULE_TYPE_LIMITS))
+        join_words = not split_words
+        json_objects = not identifiers
+        schedule_type_limits(keyword, join_words, json_objects, output_file)
     except Exception as e:
         _logger.exception('Failed to load schedule type limits.\n{}'.format(e))
         sys.exit(1)
@@ -153,14 +544,68 @@ def schedule_type_limits(output_file):
         sys.exit(0)
 
 
+def schedule_type_limits(
+    keyword=None, join_words=False, json_objects=False, output_file=None,
+    split_words=True, identifiers=True
+):
+    """Get a list of all schedule type limits in the standards library.
+
+    Args:
+        keyword: An optional keyword to be used to filter the output list of
+            limits. This can also be a list of keywords which will collectively
+            be used to filter the results. If None, all available limits
+            will be output. (Default: None).
+        join_words: Boolean to note whether strings of multiple keywords (separated
+            by spaces) are joined together or will be split into separate keywords
+            for searching. This results in a greater likelihood of finding an item but is
+            not desirable when searching for a specific word sequence. (Default: False).
+        json_objects: Boolean to note whether the output should be formatted as
+            an array of JSON objects instead of a plain text list of the limit
+            identifiers currently in the library. (Default: False).
+        output_file: Optional file to output the full report of the validation.
+            If None, the string will simply be returned from this method.
+    """
+    # filter the objects by keywords
+    if keyword:
+        split_words = not join_words
+        kwd = [keyword] if isinstance(keyword, str) else keyword
+        stl_ids = sorted(filter_array_by_keywords(SCHEDULE_TYPE_LIMITS, kwd, split_words))
+    else:
+        stl_ids = SCHEDULE_TYPE_LIMITS
+    # output a list of identifiers or objects
+    if json_objects:
+        stl_objs = [schedule_type_limit_by_identifier(t) for t in stl_ids]
+        out_str = json.dumps([t.to_dict() for t in stl_objs])
+    else:
+        out_str = '\n'.join(stl_ids)
+    return process_content_to_output(out_str, output_file)
+
+
 @lib.command('schedules')
-@click.option('--output-file', '-f', help='Optional file to output the JSON string of '
-              'the object. By default, it will be printed out to stdout',
-              type=click.File('w'), default='-', show_default=True)
-def schedules(output_file):
+@click.option(
+    '--keyword', '-k', help='Text for an optional keyword to be used to filter '
+    'the output. If nothing is input here, all available schedules will be output. '
+    'Multiple keywords can be requested by using multiple -k options. For example\n'
+    ' -k "Concrete" -k "Heavyweight"', type=str, default=None, multiple=True)
+@click.option(
+    '--split-words/--join-words', ' /-w', help='Flag to note whether strings '
+    'of multiple keywords (separated by spaces) are split into separate '
+    'keywords for searching. This results in a greater likelihood of finding '
+    'an item in the search but it is not be desirable when searching for a '
+    'specific word sequence.', default=True, show_default=True)
+@click.option(
+    '--identifiers/--json-objects', ' /-j', help='Flag to note whether to format the '
+    'output as an array of JSON objects instead of a plain text list of the '
+    'schedule identifiers.', default=True, show_default=True)
+@click.option(
+    '--output-file', '-f', help='Optional file to output the result. By default, it '
+    'is printed out to stdout', type=click.File('w'), default='-', show_default=True)
+def schedules_cli(keyword, split_words, identifiers, output_file):
     """Get a list of all schedules in the standards library."""
     try:
-        output_file.write(json.dumps(SCHEDULES))
+        join_words = not split_words
+        json_objects = not identifiers
+        schedules(keyword, join_words, json_objects, output_file)
     except Exception as e:
         _logger.exception('Failed to load schedules.\n{}'.format(e))
         sys.exit(1)
@@ -168,19 +613,142 @@ def schedules(output_file):
         sys.exit(0)
 
 
+def schedules(
+    keyword=None, join_words=False, json_objects=False, output_file=None,
+    split_words=True, identifiers=True
+):
+    """Get a list of all schedules in the standards library.
+
+    Args:
+        keyword: An optional keyword to be used to filter the output list of
+            schedules. This can also be a list of keywords which will collectively
+            be used to filter the results. If None, all available limits
+            will be output. (Default: None).
+        join_words: Boolean to note whether strings of multiple keywords (separated
+            by spaces) are joined together or will be split into separate keywords
+            for searching. This results in a greater likelihood of finding an item but is
+            not desirable when searching for a specific word sequence. (Default: False).
+        json_objects: Boolean to note whether the output should be formatted as
+            an array of JSON objects instead of a plain text list of the schedule
+            identifiers currently in the library. (Default: False).
+        output_file: Optional file to output the full report of the validation.
+            If None, the string will simply be returned from this method.
+    """
+    # filter the objects by keywords
+    if keyword:
+        split_words = not join_words
+        kwd = [keyword] if isinstance(keyword, str) else keyword
+        sch_ids = sorted(filter_array_by_keywords(SCHEDULES, kwd, split_words))
+    else:
+        sch_ids = SCHEDULES
+    # output a list of identifiers or objects
+    if json_objects:
+        sch_objs = [schedule_by_identifier(t) for t in sch_ids]
+        out_str = json.dumps([t.to_dict() for t in sch_objs])
+    else:
+        out_str = '\n'.join(sch_ids)
+    return process_content_to_output(out_str, output_file)
+
+
 @lib.command('program-types')
-@click.option('--output-file', '-f', help='Optional file to output the JSON string of '
-              'the object. By default, it will be printed out to stdout',
-              type=click.File('w'), default='-', show_default=True)
-def program_types(output_file):
+@click.option(
+    '--building-type', '-b', help='Optional text to filter the programs by '
+    'building type (eg. "LargeOffice", "MidriseApartment", etc.).',
+    type=str, default=None)
+@click.option(
+    '--vintage', '-v', help='Optional text for the building vintage to filter the '
+    'sets. Choose from: "2019", "2016", "2013", "2010", "2007", "2004", '
+    '"1980_2004", "pre_1980". Note that vintages are often called "templates" '
+    'within the OpenStudio standards gem and this property effectively maps to '
+    'the standards gem "template".', type=str, default=None)
+@click.option(
+    '--keyword', '-k', help='Text for an optional keyword to be used to filter the '
+    'output. If nothing is input here, all available construction sets will be output. '
+    'Multiple keywords can be requested by using multiple -k options. For example\n'
+    ' -k "Generic" -k "Context"', type=str, default=None, multiple=True)
+@click.option(
+    '--split-words/--join-words', ' /-w', help='Flag to note whether strings '
+    'of multiple keywords (separated by spaces) are split into separate '
+    'keywords for searching. This results in a greater likelihood of finding '
+    'an item in the search but it is not be desirable when searching for a '
+    'specific word sequence.', default=True, show_default=True)
+@click.option(
+    '--identifiers/--json-objects', ' /-j', help='Flag to note whether to format the '
+    'output as an array of JSON objects instead of a plain text list of the '
+    'material identifiers.', default=True, show_default=True)
+@click.option(
+    '--output-file', '-f', help='Optional file to output the result. By default, it '
+    'is printed out to stdout', type=click.File('w'), default='-', show_default=True)
+def program_types_cli(
+    building_type, vintage, keyword, split_words, identifiers, output_file
+):
     """Get a list of all program_types in the standards library."""
     try:
-        output_file.write(json.dumps(PROGRAM_TYPES))
+        join_words = not split_words
+        json_objects = not identifiers
+        program_types(building_type, vintage, keyword, join_words,
+                      json_objects, output_file)
     except Exception as e:
         _logger.exception('Failed to load program types.\n{}'.format(e))
         sys.exit(1)
     else:
         sys.exit(0)
+
+
+def program_types(
+    building_type=None, vintage=None, keyword=None, join_words=False,
+    json_objects=False, output_file=None, split_words=True, identifiers=True
+):
+    """Get a list of all construction sets in the standards library.
+
+    Args:
+        building_type: Optional text to filter the programs by building
+            type (eg. "LargeOffice", "MidriseApartment", etc.).
+        vintage: Optional text for the building vintage to filter the sets.
+            Choose from: "2019", "2016", "2013", "2010", "2007", "2004",
+            "1980_2004", "pre_1980".
+        keyword: An optional keyword to be used to filter the output list of
+            constructions. This can also be a list of keywords which will collectively
+            be used to filter the results. If None, all available constructions
+            will be output. (Default: None).
+        join_words: Boolean to note whether strings of multiple keywords (separated
+            by spaces) are joined together or will be split into separate keywords
+            for searching. This results in a greater likelihood of finding an item but is
+            not desirable when searching for a specific word sequence. (Default: False).
+        json_objects: Boolean to note whether the output should be formatted as
+            an array of JSON objects instead of a plain text list of the construction
+            identifiers currently in the library. (Default: False).
+        output_file: Optional file to output the full report of the validation.
+            If None, the string will simply be returned from this method.
+    """
+    # process the specific types of filters
+    base_str = ''
+    if vintage is not None:
+        assert vintage in STANDARDS_REGISTRY.keys(), \
+            'Input vintage "{}" is not valid. Choose from:\n' \
+            '{}'.format(vintage, '\n'.join(STANDARDS_REGISTRY.keys()))
+        base_str = '{}::'.format(vintage)
+    if building_type is not None:
+        assert building_type in STANDARDS_REGISTRY['2019'], \
+            'Input building_type "{}" is not valid. Choose from:\n' \
+            '{}'.format(building_type, '\n'.join(STANDARDS_REGISTRY['2019']))
+        base_str = '{}{}'.format(base_str, building_type)
+    if base_str:
+        prog_ids = sorted(filter_array_by_keywords(PROGRAM_TYPES, [base_str]))
+    else:
+        prog_ids = PROGRAM_TYPES
+    # filter the objects by keywords
+    if keyword:
+        split_words = not join_words
+        kwd = [keyword] if isinstance(keyword, str) else keyword
+        prog_ids = sorted(filter_array_by_keywords(prog_ids, kwd, split_words))
+    # output a list of identifiers or objects
+    if json_objects:
+        con_objs = [program_type_by_identifier(p) for p in prog_ids]
+        out_str = json.dumps([p.to_dict() for p in con_objs])
+    else:
+        out_str = '\n'.join(prog_ids)
+    return process_content_to_output(out_str, output_file)
 
 
 @lib.command('opaque-material-by-id')
