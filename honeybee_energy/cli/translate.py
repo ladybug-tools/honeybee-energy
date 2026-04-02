@@ -195,12 +195,10 @@ def model_to_sim_folder(
 @click.option('--folder', '-f', help='Deprecated input that is no longer used.',
               default=None, show_default=True,
               type=click.Path(file_okay=False, dir_okay=True, resolve_path=True))
-@click.option('--osm-file', '-osm', help='Optional path where the OSM will be copied '
-              'after it is translated in the folder. If None, the file will not '
-              'be copied.', type=str, default=None, show_default=True)
-@click.option('--idf-file', '-idf', help='Optional path where the IDF will be copied '
-              'after it is translated in the folder. If None, the file will not '
-              'be copied.', type=str, default=None, show_default=True)
+@click.option('--osm-file', '-osm', help='Optional path where the OSM will be written.',
+              type=str, default=None, show_default=True)
+@click.option('--idf-file', '-idf', help='Optional path where the IDF will be written.',
+              type=str, default=None, show_default=True)
 @click.option('--geometry-ids/--geometry-names', ' /-gn', help='Flag to note whether a '
               'cleaned version of all geometry display names should be used instead '
               'of identifiers when translating the Model to OSM and IDF. '
