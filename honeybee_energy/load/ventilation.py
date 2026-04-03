@@ -179,6 +179,24 @@ class Ventilation(_LoadBase):
                 'following:\n{}'.format(value, self.METHODS))
         self._method = value
 
+    def room_absolute_flow(self, room):
+        """Get the total flow rate of ventilation air for a Room in m3/s.
+
+        The result of this method accounts for all four ways of specifying
+        ventilation and appropriately accounts for the Ventilation method.
+        """
+        total_flows = [self.flow_per_zone]
+        if self.flow_per_person != 0:
+            people = room.properties.energy.people
+            if people is not None:
+                person_count = people.people_per_area * room.floor_area
+                total_flows.append(self.flow_per_person * person_count)
+        if self.flow_per_area != 0:
+            total_flows.append(self.flow_per_area * room.floor_area)
+        if self.air_changes_per_hour != 0:
+            total_flows.append((self.air_changes_per_hour * room.volume) / 3600)
+        return sum(total_flows) if self.method == 'Sum' else max(total_flows)
+
     @classmethod
     def from_idf(cls, idf_string, schedule_dict):
         """Create an Ventilation object from an EnergyPlus IDF text string.

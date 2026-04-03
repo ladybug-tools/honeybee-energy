@@ -460,6 +460,22 @@ class RoomEnergyProperties(object):
         )
         return not all(load is None for load in load_attr)
 
+    @property
+    def infiltration_flow(self):
+        """Get the total flow rate of infiltration air for this Room in m3/s."""
+        infiltration = self.infiltration
+        if infiltration is None:
+            return 0
+        return infiltration.room_absolute_flow(self)
+
+    @property
+    def ventilation_flow(self):
+        """Get the total flow rate of ventilation air for this Room in m3/s."""
+        ventilation = self.ventilation
+        if ventilation is None:
+            return 0
+        return ventilation.room_absolute_flow(self)
+
     def absolute_people(self, person_count, conversion=1):
         """Set the absolute number of people in the Room.
 
