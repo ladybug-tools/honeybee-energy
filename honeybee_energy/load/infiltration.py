@@ -143,6 +143,10 @@ class Infiltration(_LoadBase):
         self._velocity_coefficient = float_in_range(
             value, input_name='infiltration velocity coefficient')
 
+    def room_absolute_flow(self, room):
+        """Get the total flow rate of infiltration air for a Room in m3/s."""
+        return self.flow_per_exterior_area * room.exposed_area
+
     def diversify(self, count, flow_stdev=20, schedule_offset=1, timestep=1,
                   schedule_indices=None):
         """Get an array of diversified Infiltration derived from this "average" one.
