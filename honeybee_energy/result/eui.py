@@ -15,7 +15,7 @@ def eui_from_sql(sql_results, absolute=False):
             be a directory or list of directories containing results, in which
             case, EUI will be calculated form all files ending in .sql.
         absolute: A boolean to note whether the output values are in absolute kWh
-            of energy use (True) instead if energy use intensity in kWh/m2 (False).
+            of energy use (True) instead of energy use intensity in kWh/m2 (False).
             Setting this to "True" can be useful when the model contains no
             floor area for which an intensity metric can be computed but there
             is still energy use to be evaluated. (Default: False).

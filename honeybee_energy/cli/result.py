@@ -191,12 +191,17 @@ def all_available_info(result_sql, output_file):
 @result.command('energy-use-intensity')
 @click.argument('result-paths', nargs=-1, required=True, type=click.Path(
     exists=True, file_okay=True, dir_okay=True, resolve_path=True))
+@click.option('--intensity/--absolute', help='Flag to note whether the output values '
+              'are in absolute kWh of energy use instead of energy use intensity '
+              'in kWh/m2. Using absolute kWh can be useful when the model contains no '
+              'floor area for which an intensity metric can be computed but there '
+              'is still energy use to be evaluated.', default=True, show_default=True)
 @click.option('--si/--ip', help='Flag to note whether the EUI should be in '
               'SI (kWh/m2) or IP (kBtu/ft2) units.', default=True, show_default=True)
 @click.option('--output-file', '-f', help='Optional file to output the result of the '
               'EUI calculation. By default, it will be printed to stdout',
               type=click.File('w'), default='-', show_default=True)
-def energy_use_intensity(result_paths, si, output_file):
+def energy_use_intensity(result_paths, intensity, si, output_file):
     """Get information about energy use intensity and an EUI breakdown by end use.
 
     \b
@@ -208,13 +213,24 @@ def energy_use_intensity(result_paths, si, output_file):
     """
     try:
         # assemble all of the eui results into a dictionary
-        result_dict = eui_from_sql(result_paths)
+        absolute = not intensity
+        result_dict = eui_from_sql(result_paths, absolute)
 
         # convert data to IP if requested
         if not si:
             eui_typ, a_typ, e_typ = EnergyIntensity(), Area(), Energy()
-            result_dict['eui'] = \
-                round(eui_typ.to_ip([result_dict['eui']], 'kWh/m2')[0][0], 3)
+            if absolute:
+                result_dict['eui'] = \
+                    round(e_typ.to_ip([result_dict['eui']], 'kWh')[0][0], 3)
+                result_dict['end_uses'] = \
+                    {key: round(e_typ.to_ip([val], 'kWh')[0][0], 3)
+                     for key, val in result_dict['end_uses'].items()}
+            else:
+                result_dict['eui'] = \
+                    round(eui_typ.to_ip([result_dict['eui']], 'kWh/m2')[0][0], 3)
+                result_dict['end_uses'] = \
+                    {key: round(eui_typ.to_ip([val], 'kWh/m2')[0][0], 3)
+                     for key, val in result_dict['end_uses'].items()}
             result_dict['total_floor_area'] = \
                 round(a_typ.to_ip([result_dict['total_floor_area']], 'm2')[0][0], 3)
             result_dict['conditioned_floor_area'] = \
@@ -222,9 +238,6 @@ def energy_use_intensity(result_paths, si, output_file):
                     [result_dict['conditioned_floor_area']], 'm2')[0][0], 3)
             result_dict['total_energy'] = \
                 round(e_typ.to_ip([result_dict['total_energy']], 'kWh')[0][0], 3)
-            result_dict['end_uses'] = \
-                {key: round(eui_typ.to_ip([val], 'kWh/m2')[0][0], 3)
-                 for key, val in result_dict['end_uses'].items()}
 
         # write everything into the output file
         output_file.write(json.dumps(result_dict, indent=4))
