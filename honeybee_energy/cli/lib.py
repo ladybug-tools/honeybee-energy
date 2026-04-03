@@ -729,14 +729,28 @@ def program_types(
             '{}'.format(vintage, '\n'.join(STANDARDS_REGISTRY.keys()))
         base_str = '{}::'.format(vintage)
     if building_type is not None:
-        assert building_type in STANDARDS_REGISTRY['2019'], \
-            'Input building_type "{}" is not valid. Choose from:\n' \
-            '{}'.format(building_type, '\n'.join(STANDARDS_REGISTRY['2019']))
-        base_str = '{}{}'.format(base_str, building_type)
+        if building_type not in ('Residential', 'NonResidential'):
+            assert building_type in STANDARDS_REGISTRY['2019'], \
+                'Input building_type "{}" is not valid. Choose from:\n' \
+                '{}'.format(building_type, '\n'.join(STANDARDS_REGISTRY['2019']))
+            base_str = '{}{}'.format(base_str, building_type)
     if base_str:
         prog_ids = sorted(filter_array_by_keywords(PROGRAM_TYPES, [base_str]))
     else:
         prog_ids = PROGRAM_TYPES
+    if building_type == 'Residential':
+        filter_prog_ids = []
+        for prog_id in prog_ids:
+            if '::MidriseApartment::' in prog_id or '::HighriseApartment::' in prog_id:
+                filter_prog_ids.append(prog_id)
+        prog_ids = filter_prog_ids
+    elif building_type == 'NonResidential':
+        filter_prog_ids = []
+        for prog_id in prog_ids:
+            if '::MidriseApartment::' not in prog_id and \
+                    '::HighriseApartment::' not in prog_id:
+                filter_prog_ids.append(prog_id)
+        prog_ids = filter_prog_ids
     # filter the objects by keywords
     if keyword:
         split_words = not join_words
