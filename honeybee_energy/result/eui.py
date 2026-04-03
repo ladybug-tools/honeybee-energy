@@ -5,7 +5,7 @@ from collections import OrderedDict
 from ladybug.sql import SQLiteResult
 
 
-def eui_from_sql(sql_results):
+def eui_from_sql(sql_results, absolute=False):
     """Get a dictionary of End Use Intensity (EUI) results from EnergyPlus SQLs.
 
     Args:
@@ -14,6 +14,11 @@ def eui_from_sql(sql_results):
             in which case EUI will be computed across all files. Lastly, it can
             be a directory or list of directories containing results, in which
             case, EUI will be calculated form all files ending in .sql.
+        absolute: A boolean to note whether the output values are in absolute kWh
+            of energy use (True) instead if energy use intensity in kWh/m2 (False).
+            Setting this to "True" can be useful when the model contains no
+            floor area for which an intensity metric can be computed but there
+            is still energy use to be evaluated. (Default: False).
 
     Returns:
         A dictionary with several keys.
@@ -21,7 +26,8 @@ def eui_from_sql(sql_results):
         -   eui -- A number for the total end use intensity. Specifically,
             this is the sum of all electricity, fuel, district heating/cooling,
             etc. divided by the gross floor area (including both conditioned
-            and unconditioned spaces). Units are kWh/m2.
+            and unconditioned spaces). Units are kWh/m2 unless absolute is True
+            in which case units are kWh.
 
         -   total_floor_area -- A number for the gross floor area of the building
             in m2. This excludes Rooms with True exclude_floor_area property.
@@ -32,7 +38,8 @@ def eui_from_sql(sql_results):
         -   total_energy -- A number for the total energy use of the building in kWh.
 
         -   end_uses -- A dictionary with the end use intensity for each of the end
-            uses of the building (eg. heating, cooling, lighting, etc.).
+            uses of the building (eg. heating, cooling, lighting, etc.). Units
+            are kWh/m2 unless absolute is True in which case units are kWh.
     """
     # set initial values that will be computed based on results
     total_floor_area, conditioned_floor_area, total_energy = 0, 0, 0
@@ -79,7 +86,17 @@ def eui_from_sql(sql_results):
                     end_uses[eu_cat] = total_use
 
     # assemble all of the results into a final dictionary
-    if total_floor_area != 0:
+    if absolute:
+        result_dict = {
+            'eui': round(total_energy, 3),
+            'total_floor_area': total_floor_area,
+            'conditioned_floor_area': conditioned_floor_area,
+            'total_energy': round(total_energy, 3)
+        }
+        result_dict['end_uses'] = OrderedDict(
+            [(key, round(val, 3)) for key, val in end_uses.items()]
+        )
+    elif total_floor_area != 0:
         result_dict = {
             'eui': round(total_energy / total_floor_area, 3),
             'total_floor_area': total_floor_area,
@@ -89,7 +106,7 @@ def eui_from_sql(sql_results):
         result_dict['end_uses'] = OrderedDict(
             [(key, round(val / total_floor_area, 3)) for key, val in end_uses.items()]
         )
-    else:
+    else:  # no EUI to be computed; just return zero for everything
         result_dict = {
             'eui': 0.0,
             'total_floor_area': total_floor_area,

@@ -284,7 +284,8 @@ output-table-summaryreports.html#outputtablesummaryreports)
                    'Boiler Electricity Energy',
                    'Water Heater NaturalGas Energy',
                    'Water Heater Electricity Energy',
-                   'Cooling Coil Water Heating Electricity Energy']
+                   'Cooling Coil Water Heating Electricity Energy',
+                   'Heat Pump Electricity Energy']
         for outp in outputs:
             self._outputs.add(outp)
 
@@ -353,10 +354,23 @@ output-table-summaryreports.html#outputtablesummaryreports)
         for outp in outputs:
             self._outputs.add(outp)
 
+    def add_plant_temperatures(self):
+        """Add outputs for heating/cooling plant loop temperatures for detailed systems.
+
+        This includes supply temperatures of all heating, cooling, and condenser
+        loops as well as temperatures for ground heat exchangers when they are
+        present.
+        """
+        outputs = ['Plant Supply Side Inlet Temperature', 
+                   'Ground Heat Exchanger Average Borehole Temperature',
+                   'Ground Heat Exchanger Farfield Ground Temperature']
+        for outp in outputs:
+            self._outputs.add(outp)
+
     def add_comfort_metrics(self):
         """Add outputs for zone thermal comfort analysis.
 
-        This includes air temperature, mean radiant temperature, relative
+        This includes room air temperature, mean radiant temperature, and relative
         humidity.
         """
         outputs = ['Zone Operative Temperature',
@@ -447,6 +461,16 @@ output-table-summaryreports.html#outputtablesummaryreports)
         self.add_surface_temperature()
         if include_stratification:
             self.add_stratification_variables()
+
+    def add_plant_variables(self):
+        """Add outputs designed for models of heating/cooling plants.
+
+        This includes both the heat transfer rate of any LoadProfile:Plant objects as
+        well as plant equipment energy use and plant loop temperatures.
+        """
+        self.add_hvac_energy_use()
+        self.add_plant_temperatures()
+        self._outputs.add('Plant Load Profile Heat Transfer Rate')
 
     @classmethod
     def from_idf(cls, table_style=None, output_variables=None, summary_reports=None,
