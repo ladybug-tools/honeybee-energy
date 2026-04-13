@@ -39,7 +39,7 @@ def _constrs_from_set_dict(con_set_dict):
     """
     constrs = {}
     for key in con_set_dict:
-        if isinstance(con_set_dict[key], dict):
+        if isinstance(con_set_dict[key], dict) and key != 'user_data':
             sub_dict = con_set_dict[key]
             for sub_key in sub_dict:
                 if sub_key != 'type':
@@ -73,7 +73,7 @@ def lib_dict_abridged_to_construction_set(con_set_dict, constructions):
         A Python object derived from the input con_set_dict.
     """
     for key in con_set_dict:
-        if isinstance(con_set_dict[key], dict):
+        if isinstance(con_set_dict[key], dict) and key != 'user_data':
             sub_dict = con_set_dict[key]
             for sub_key in sub_dict:
                 if sub_key == 'type' or sub_key in constructions:
