@@ -346,8 +346,6 @@ class RunPeriod(object):
                 No,   !- Apply Weekend Holiday Rule
                 Yes,  !- Use Weather File Rain Indicators
                 Yes;  !- Use Weather File Snow Indicators
-                   
-            
         """
         year = 2016 if self.is_leap_year else 2017
         values = ('CustomRunPeriod', self.start_date.month, self.start_date.day, year,

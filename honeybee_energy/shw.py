@@ -24,6 +24,8 @@ class SHWSystem(object):
             * HeatPump_WaterHeater
             * Gas_TanklessHeater
             * Electric_TanklessHeater
+            * District_WaterHeater
+            * District_TanklessHeater
 
         heater_efficiency: A number for the efficiency of the heater within
             the system. For Gas systems, this is the efficiency of the burner.
@@ -37,6 +39,8 @@ class SHWSystem(object):
             * HeatPump_WaterHeater - 3.5
             * Gas_TanklessHeater - 0.8
             * Electric_TanklessHeater - 1.0
+            * District_WaterHeater - 1.0
+            * District_TanklessHeater - 1.0
 
         ambient_condition: A number for the ambient temperature in which the hot
             water tank is located [C]. This can also be the identifier of a Room
@@ -62,14 +66,18 @@ class SHWSystem(object):
         'Electric_WaterHeater',
         'HeatPump_WaterHeater',
         'Gas_TanklessHeater',
-        'Electric_TanklessHeater'
+        'Electric_TanklessHeater',
+        'District_WaterHeater',
+        'District_TanklessHeater'
     )
     DEFAULT_EFFICIENCIES = {
         'Gas_WaterHeater': 0.8,
         'Electric_WaterHeater': 1.0,
         'HeatPump_WaterHeater': 3.5,
         'Gas_TanklessHeater': 0.8,
-        'Electric_TanklessHeater': 1.0
+        'Electric_TanklessHeater': 1.0,
+        'District_WaterHeater': 1.0,
+        'District_TanklessHeater': 1.0
     }
 
     def __init__(self, identifier, equipment_type='Gas_WaterHeater',
