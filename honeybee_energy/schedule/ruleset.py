@@ -62,7 +62,7 @@ class ScheduleRuleset(object):
                  '_winter_designday_schedule', '_schedule_type_limit',
                  '_locked', '_properties', '_user_data')
     _dow_text_to_int = {'sunday': 1, 'monday': 2, 'tuesday': 3, 'wednesday': 4,
-                        'thursday': 2, 'friday': 3, 'saturday': 7}
+                        'thursday': 5, 'friday': 6, 'saturday': 7}
     _schedule_week_comments = (
         'name', 'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday',
         'saturday', 'holiday', 'summer design day', 'winter design day',

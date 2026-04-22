@@ -385,8 +385,15 @@ class RoomEnergyProperties(object):
 
     @property
     def total_fan_flow(self):
-        """Get a number for the total process load in m3/s within the room."""
+        """Get a number for the total fan flow in m3/s within the room."""
         return sum([fan.flow_rate for fan in self._fans])
+
+    @property
+    def total_ventilation_flow(self):
+        """Get a number for the room's total ventilation outdoor air flow in m3/s."""
+        if self.ventilation is None:
+            return 0
+        return self.ventilation.room_absolute_flow(self.host)
 
     @property
     def process_loads(self):
