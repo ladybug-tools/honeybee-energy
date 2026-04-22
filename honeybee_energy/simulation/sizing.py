@@ -74,6 +74,7 @@ class SizingParameter(object):
             * QuickServiceRestaurant
             * Laboratory
             * Courthouse
+            * College
 
         bypass_efficiency_sizing: A boolean to indicate whether the efficiency
             standard should trigger a sizing run that sets the efficiencies
