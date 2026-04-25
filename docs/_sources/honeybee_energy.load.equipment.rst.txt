@@ -1,0 +1,7 @@
+honeybee\_energy.load.equipment module
+======================================
+
+.. automodule:: honeybee_energy.load.equipment
+   :members:
+   :undoc-members:
+   :show-inheritance:
