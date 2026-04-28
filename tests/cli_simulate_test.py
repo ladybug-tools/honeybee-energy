@@ -1,6 +1,6 @@
 """Test cli simulate module."""
 from click.testing import CliRunner
-from honeybee_energy.cli.simulate import simulate_model, simulate_osm, simulate_idf
+from honeybee_energy.cli.simulate import simulate_model_cli, simulate_osm, simulate_idf
 from honeybee.config import folders
 from ladybug.futil import nukedir
 
@@ -35,7 +35,7 @@ def test_simulate_osm():
     nukedir(folder)
 
 
-def test_simulate_model():
+def test_simulate_model_cli():
     runner = CliRunner()
     input_model = './tests/json/ShoeBox.json'
     input_epw = './tests/epw/chicago.epw'
@@ -47,7 +47,7 @@ def test_simulate_model():
         '--additional-idf', input_ground
     ]
 
-    result = runner.invoke(simulate_model, in_args)
+    result = runner.invoke(simulate_model_cli, in_args)
     assert result.exit_code == 0
 
     folder = os.path.join(folders.default_simulation_folder, 'shoebox')
@@ -56,7 +56,7 @@ def test_simulate_model():
     nukedir(folder)
 
 
-def test_simulate_model_with_osm():
+def test_simulate_model_cli_with_osm():
     runner = CliRunner()
     input_model = './tests/osm/shoe_box.osm'
     input_epw = './tests/epw/chicago.epw'
@@ -68,7 +68,7 @@ def test_simulate_model_with_osm():
         '--additional-idf', input_ground
     ]
 
-    result = runner.invoke(simulate_model, in_args)
+    result = runner.invoke(simulate_model_cli, in_args)
     assert result.exit_code == 0
 
     folder = os.path.join(folders.default_simulation_folder, 'shoe_box')
