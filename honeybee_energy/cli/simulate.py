@@ -6,6 +6,7 @@ import shutil
 import logging
 import json
 
+from ladybug.commandutil import process_content_to_output
 from ladybug.futil import preparedir
 from ladybug.epw import EPW
 from ladybug.stat import STAT
@@ -77,13 +78,13 @@ def simulate():
               'the simulation should be skipped if the Model has no Rooms and is '
               'therefore not simulate-able in EnergyPlus. Otherwise, this command '
               'will fail with an explicit error about the lack of rooms. Note that '
-              'the input model must be a HBJSON in order for this to work correctly',
+              'the input model must be a HBJSON in order for this to work correctly.',
               default=True, show_default=True)
 @click.option('--log-file', '-log', help='Optional log file to output the paths of the '
               'generated files (osw, osm, idf, sql, zsz, rdd, html, err) if successfully'
-              ' created. By default the list will be printed out to stdout',
+              ' created. By default the list will be printed out to stdout.',
               type=click.File('w'), default='-', show_default=True)
-def simulate_model(
+def simulate_model_cli(
     model_file, epw_file, sim_par_json, measures, additional_string, additional_idf,
     report_units, viz_variable, folder, enforce_rooms, log_file
 ):
@@ -95,137 +96,198 @@ def simulate_model(
         epw_file: Full path to an .epw file.
     """
     try:
-        # get a ddy variable that might get used later
-        epw_folder, epw_file_name = os.path.split(epw_file)
-        ddy_file = os.path.join(epw_folder, epw_file_name.replace('.epw', '.ddy'))
-        stat_file = os.path.join(epw_folder, epw_file_name.replace('.epw', '.stat'))
-
-        # sense what type of file has been input
-        file_type = _sense_input_file_type(model_file)
-        proj_name = os.path.basename(model_file).lower()
-
-        # set the default folder to the default if it's not specified
-        if folder is None:
-            for ext in ('.hbjson', '.json', '.osm', '.idf'):
-                proj_name = proj_name.replace(ext, '')
-            folder = os.path.join(folders.default_simulation_folder, proj_name)
-            folder = os.path.join(folder, 'energyplus', 'run') if file_type == 'idf' \
-                else os.path.join(folder, 'openstudio')
-        elif file_type == 'idf':  # ensure that all of the files end up in the same dir
-            folder = os.path.join(folder, 'run')
-        preparedir(folder, remove_content=False)
-
-        # process the simulation parameters and write new ones if necessary
-        def ddy_from_epw(epw_file, sim_par):
-            """Produce a DDY from an EPW file."""
-            epw_obj = EPW(epw_file)
-            des_days = [epw_obj.approximate_design_day('WinterDesignDay'),
-                        epw_obj.approximate_design_day('SummerDesignDay')]
-            sim_par.sizing_parameter.design_days = des_days
-
-        sim_par = None
-        if file_type == 'hbjson':
-            if sim_par_json is None or not os.path.isfile(sim_par_json):
-                sim_par = SimulationParameter()
-                sim_par.output.add_zone_energy_use()
-                sim_par.output.add_hvac_energy_use()
-                sim_par.output.add_electricity_generation()
-                sim_par.output.reporting_frequency = 'Monthly'
-            else:
-                with open(sim_par_json) as json_file:
-                    data = json.load(json_file)
-                sim_par = SimulationParameter.from_dict(data)
-            if len(sim_par.sizing_parameter.design_days) == 0 and \
-                    os.path.isfile(ddy_file):
-                try:
-                    sim_par.sizing_parameter.add_from_ddy_996_004(ddy_file)
-                except AssertionError:  # no design days within the DDY file
-                    ddy_from_epw(epw_file, sim_par)
-            elif len(sim_par.sizing_parameter.design_days) == 0:
-                ddy_from_epw(epw_file, sim_par)
-            if sim_par.sizing_parameter.climate_zone is None and \
-                    os.path.isfile(stat_file):
-                stat_obj = STAT(stat_file)
-                sim_par.sizing_parameter.climate_zone = stat_obj.ashrae_climate_zone
-
-        # process the measures input if it is specified
-        base_osw = None
-        if measures is not None and measures != '' and os.path.isdir(measures):
-            for f_name in os.listdir(measures):
-                if f_name.lower().endswith('.osw'):
-                    base_osw = os.path.join(measures, f_name)
-                    # write the path of the measures folder into the OSW
-                    with open(base_osw) as json_file:
-                        osw_dict = json.load(json_file)
-                    osw_dict['measure_paths'] = [os.path.abspath(measures)]
-                    with open(base_osw, 'w') as fp:
-                        json.dump(osw_dict, fp)
-                    break
-
-        # Write the osw file to translate the model to osm
-        strings_to_inject = additional_string if additional_string is not None else ''
-        if additional_idf is not None and os.path.isfile(additional_idf):
-            with open(additional_idf, "r") as add_idf_file:
-                strings_to_inject = strings_to_inject + '\n' + add_idf_file.read()
-
-        # run the Model re-serialization and convert to OSM, OSW, and IDF
-        osm, osw, idf = None, None, None
-        if file_type in ('hbjson', 'osm'):
-            if file_type == 'hbjson':
-                model = Model.from_hbjson(model_file)
-                if not enforce_rooms and len(model.rooms) == 0:
-                    sys.exit(0)
-                    return None
-            else:
-                model = model_file
-            osm, osw, idf = to_openstudio_sim_folder(
-                model, folder, epw_file=epw_file, sim_par=sim_par, enforce_rooms=True,
-                base_osw=base_osw, strings_to_inject=strings_to_inject,
-                report_units=report_units, viz_variables=viz_variable,
-                print_progress=True)
-        else:
-            idf = os.path.join(folder, 'in.idf')
-            if os.path.normcase(model_file) == os.path.normcase(idf):
-                shutil.copy(model_file, idf)
-
-        # run the simulation
-        sql = None
-        if idf is not None:  # run the IDF directly through E+
-            gen_files = [idf] if osm is None else [osm, idf]
-            sql, zsz, rdd, html, err = run_idf(idf, epw_file)
-            if err is not None and os.path.isfile(err):
-                gen_files.extend([sql, zsz, rdd, html, err])
-            else:
-                raise Exception('Running EnergyPlus failed.')
-        else:  # run the whole simulation with the OpenStudio CLI
-            gen_files = [osw]
-            osm, idf = run_osw(osw, measures_only=False)
-            if idf is not None and os.path.isfile(idf):
-                gen_files.extend([osm, idf])
-            else:
-                _parse_os_cli_failure(folder)
-            sql, zsz, rdd, html, err = output_energyplus_files(os.path.dirname(idf))
-            if os.path.isfile(err):
-                gen_files.extend([sql, zsz, rdd, html, err])
-            else:
-                raise Exception('Running EnergyPlus failed.')
-
-        # parse the error log and report any warnings
-        err_obj = Err(err)
-        for error in err_obj.fatal_errors:
-            log_file.write(err_obj.file_contents)  # log before raising the error
-            raise Exception(error)
-        if sql is not None and os.path.isfile('{}-journal'.format(sql)):
-            try:  # try to finish E+'s cleanup
-                os.remove('{}-journal'.format(sql))
-            except Exception:  # maybe the file is inaccessible
-                pass
-        log_file.write(json.dumps(gen_files, indent=4))
+        skip_no_rooms = not enforce_rooms
+        simulate_model(
+            model_file, epw_file, sim_par_json,
+            measures, additional_string, additional_idf,
+            report_units, viz_variable, folder, skip_no_rooms, log_file
+        )
     except Exception as e:
         _logger.exception('Model simulation failed.\n{}'.format(e))
         sys.exit(1)
     else:
         sys.exit(0)
+
+
+def simulate_model(
+    model_file, epw_file, sim_par_json=None,
+    measures=None, additional_string=None, additional_idf=None,
+    report_units=None, viz_variable=None, folder=None,
+    skip_no_rooms=False, log_file=None, enforce_rooms=True
+):
+    """Simulate a Model in EnergyPlus.
+
+    Args:
+        model_file: Full path to a Model file as either a HBJSON, OSM, or IDF.
+        epw_file: Full path to an .epw file.
+        sim_par_json: Full path to a honeybee energy SimulationParameter JSON
+            that describes all of the settings for the simulation. This will be
+            ignored if the input model-file is an OSM or IDF.
+        measures: Full path to a folder containing an OSW JSON be used as the
+            base for the execution of the OpenStudio CLI. While this OSW can
+            contain paths to measures that exist anywhere on the machine,
+            the best practice is to copy the measures into this measures
+            folder and use relative paths within the OSW. This makes it easier
+            to move the inputs for this command from one machine to another.
+        additional_string: An additional IDF text string to get appended to the
+            IDF before simulation. The input should include complete EnergyPlus
+            objects as a single string following the IDF format. This input can
+            be used to include small EnergyPlus objects that are not currently
+            supported by honeybee.
+        additional_idf: An IDF file with text to be appended before simulation.
+            This input can be used to include large EnergyPlus objects that are
+            not currently supported by honeybee.
+        report_units: Text to set the units of the OpenStudio Results report
+            that this command can output for each EnergyPlus model. Choose from
+            the following:
+
+            * none - no results report will be produced
+            * si - all units will be in SI
+            * ip - all units will be in IP
+
+        viz_variable: An optional list of text values for EnergyPlus output
+            variables to be visualized on the geometry in an output HTML report.
+            For example, ["Zone Air System Sensible Heating Rate", "Zone Air System
+            Sensible Cooling Rate"]. If None, no view_data report is produced.
+        folder: Folder on this computer, into which the IDF and result files 
+            will be written. If None, the files will be output to the honeybee
+            default simulation folder and placed in a project folder with the
+            same name as the model-file.
+        skip_no_rooms: Boolean to note whether the simulation should be skipped
+            if the Model has no Rooms and is therefore not simulate-able in
+            EnergyPlus. Otherwise, this command will fail with an explicit
+            error about the lack of rooms. Note that the input model must be a
+            HBJSON in order for this to work correctly.
+        log_file: Optional log file to output the paths of the generated
+            files (osw, osm, idf, sql, zsz, rdd, html, err) if successfully
+            created. By default the list will be returned from this method.
+    """
+    # get a ddy variable that might get used later
+    epw_folder, epw_file_name = os.path.split(epw_file)
+    ddy_file = os.path.join(epw_folder, epw_file_name.replace('.epw', '.ddy'))
+    stat_file = os.path.join(epw_folder, epw_file_name.replace('.epw', '.stat'))
+
+    # sense what type of file has been input
+    file_type = _sense_input_file_type(model_file)
+    proj_name = os.path.basename(model_file).lower()
+
+    # set the default folder to the default if it's not specified
+    if folder is None:
+        for ext in ('.hbjson', '.json', '.osm', '.idf'):
+            proj_name = proj_name.replace(ext, '')
+        folder = os.path.join(folders.default_simulation_folder, proj_name)
+        folder = os.path.join(folder, 'energyplus', 'run') if file_type == 'idf' \
+            else os.path.join(folder, 'openstudio')
+    elif file_type == 'idf':  # ensure that all of the files end up in the same dir
+        folder = os.path.join(folder, 'run')
+    preparedir(folder, remove_content=False)
+
+    # process the simulation parameters and write new ones if necessary
+    def ddy_from_epw(epw_file, sim_par):
+        """Produce a DDY from an EPW file."""
+        epw_obj = EPW(epw_file)
+        des_days = [epw_obj.approximate_design_day('WinterDesignDay'),
+                    epw_obj.approximate_design_day('SummerDesignDay')]
+        sim_par.sizing_parameter.design_days = des_days
+
+    sim_par = None
+    if file_type == 'hbjson':
+        if sim_par_json is None or not os.path.isfile(sim_par_json):
+            sim_par = SimulationParameter()
+            sim_par.output.add_zone_energy_use()
+            sim_par.output.add_hvac_energy_use()
+            sim_par.output.add_electricity_generation()
+            sim_par.output.reporting_frequency = 'Monthly'
+        else:
+            with open(sim_par_json) as json_file:
+                data = json.load(json_file)
+            sim_par = SimulationParameter.from_dict(data)
+        if len(sim_par.sizing_parameter.design_days) == 0 and \
+                os.path.isfile(ddy_file):
+            try:
+                sim_par.sizing_parameter.add_from_ddy_996_004(ddy_file)
+            except AssertionError:  # no design days within the DDY file
+                ddy_from_epw(epw_file, sim_par)
+        elif len(sim_par.sizing_parameter.design_days) == 0:
+            ddy_from_epw(epw_file, sim_par)
+        if sim_par.sizing_parameter.climate_zone is None and \
+                os.path.isfile(stat_file):
+            stat_obj = STAT(stat_file)
+            sim_par.sizing_parameter.climate_zone = stat_obj.ashrae_climate_zone
+
+    # process the measures input if it is specified
+    base_osw = None
+    if measures is not None and measures != '' and os.path.isdir(measures):
+        for f_name in os.listdir(measures):
+            if f_name.lower().endswith('.osw'):
+                base_osw = os.path.join(measures, f_name)
+                # write the path of the measures folder into the OSW
+                with open(base_osw) as json_file:
+                    osw_dict = json.load(json_file)
+                osw_dict['measure_paths'] = [os.path.abspath(measures)]
+                with open(base_osw, 'w') as fp:
+                    json.dump(osw_dict, fp)
+                break
+
+    # Write the osw file to translate the model to osm
+    strings_to_inject = additional_string if additional_string is not None else ''
+    if additional_idf is not None and os.path.isfile(additional_idf):
+        with open(additional_idf, "r") as add_idf_file:
+            strings_to_inject = strings_to_inject + '\n' + add_idf_file.read()
+
+    # run the Model re-serialization and convert to OSM, OSW, and IDF
+    osm, osw, idf = None, None, None
+    if file_type in ('hbjson', 'osm'):
+        if file_type == 'hbjson':
+            model = Model.from_hbjson(model_file)
+            if not enforce_rooms and len(model.rooms) == 0:
+                sys.exit(0)
+                return None
+        else:
+            model = model_file
+        osm, osw, idf = to_openstudio_sim_folder(
+            model, folder, epw_file=epw_file, sim_par=sim_par, enforce_rooms=True,
+            base_osw=base_osw, strings_to_inject=strings_to_inject,
+            report_units=report_units, viz_variables=viz_variable,
+            print_progress=True)
+    else:
+        idf = os.path.join(folder, 'in.idf')
+        if os.path.normcase(model_file) == os.path.normcase(idf):
+            shutil.copy(model_file, idf)
+
+    # run the simulation
+    sql = None
+    if idf is not None:  # run the IDF directly through E+
+        gen_files = [idf] if osm is None else [osm, idf]
+        sql, zsz, rdd, html, err = run_idf(idf, epw_file)
+        if err is not None and os.path.isfile(err):
+            gen_files.extend([sql, zsz, rdd, html, err])
+        else:
+            raise Exception('Running EnergyPlus failed.')
+    else:  # run the whole simulation with the OpenStudio CLI
+        gen_files = [osw]
+        osm, idf = run_osw(osw, measures_only=False)
+        if idf is not None and os.path.isfile(idf):
+            gen_files.extend([osm, idf])
+        else:
+            _parse_os_cli_failure(folder)
+        sql, zsz, rdd, html, err = output_energyplus_files(os.path.dirname(idf))
+        if os.path.isfile(err):
+            gen_files.extend([sql, zsz, rdd, html, err])
+        else:
+            raise Exception('Running EnergyPlus failed.')
+
+    # parse the error log and report any warnings
+    err_obj = Err(err)
+    for error in err_obj.fatal_errors:
+        log_file.write(err_obj.file_contents)  # log before raising the error
+        raise Exception(error)
+    if sql is not None and os.path.isfile('{}-journal'.format(sql)):
+        try:  # try to finish E+'s cleanup
+            os.remove('{}-journal'.format(sql))
+        except Exception:  # maybe the file is inaccessible
+            pass
+    return process_content_to_output(json.dumps(gen_files, indent=4), log_file)
 
 
 @simulate.command('osm')
