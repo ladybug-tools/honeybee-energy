@@ -10,6 +10,7 @@ from ..schedule.ruleset import ScheduleRuleset
 from ..schedule.fixedinterval import ScheduleFixedInterval
 from ..reader import parse_idf_string
 from ..writer import generate_idf_string
+from ..units import convert_infiltration_flow_per_exterior_area
 from ..lib.schedules import always_on
 from ..properties.extension import InfiltrationProperties
 
@@ -142,6 +143,18 @@ class Infiltration(_LoadBase):
     def velocity_coefficient(self, value):
         self._velocity_coefficient = float_in_range(
             value, input_name='infiltration velocity coefficient')
+
+    @property
+    def flow_per_exterior_area_si(self):
+        """Get the flow_per_exterior_area in the standard SI unit of L/s/m2."""
+        fpa = self.flow_per_exterior_area
+        return convert_infiltration_flow_per_exterior_area(fpa, 'si')
+
+    @property
+    def flow_per_exterior_area_ip(self):
+        """Get the flow_per_exterior_area in the standard IP unit of cfm/ft2."""
+        fpa = self.flow_per_exterior_area
+        return convert_infiltration_flow_per_exterior_area(fpa, 'ip')
 
     def room_absolute_flow(self, room):
         """Get the total flow rate of infiltration air for a Room in m3/s."""

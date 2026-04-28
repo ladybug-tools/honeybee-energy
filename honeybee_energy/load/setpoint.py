@@ -11,6 +11,7 @@ from ..schedule.ruleset import ScheduleRuleset
 from ..schedule.fixedinterval import ScheduleFixedInterval
 from ..reader import parse_idf_string
 from ..writer import generate_idf_string
+from ..units import convert_setpoint
 from ..properties.extension import SetpointProperties
 
 import honeybee_energy.lib.scheduletypelimits as _type_lib
@@ -269,6 +270,46 @@ class Setpoint(_LoadBase):
         """
         return self._max_schedule_value(self._dehumidifying_schedule) if \
             self._dehumidifying_schedule is not None else None
+
+    @property
+    def heating_setpoint_si(self):
+        """Get the heating_setpoint in the standard SI unit of C."""
+        return convert_setpoint(self.heating_setpoint, 'si')
+
+    @property
+    def heating_setpoint_ip(self):
+        """Get the heating_setpoint in the standard IP unit of F."""
+        return convert_setpoint(self.heating_setpoint, 'ip')
+
+    @property
+    def cooling_setpoint_si(self):
+        """Get the cooling_setpoint in the standard SI unit of C."""
+        return convert_setpoint(self.cooling_setpoint, 'si')
+
+    @property
+    def cooling_setpoint_ip(self):
+        """Get the cooling_setpoint in the standard IP unit of F."""
+        return convert_setpoint(self.cooling_setpoint, 'ip')
+
+    @property
+    def heating_setback_si(self):
+        """Get the heating_setback in the standard SI unit of C."""
+        return convert_setpoint(self.heating_setback, 'si')
+
+    @property
+    def heating_setback_ip(self):
+        """Get the heating_setback in the standard IP unit of F."""
+        return convert_setpoint(self.heating_setback, 'ip')
+
+    @property
+    def cooling_setback_si(self):
+        """Get the cooling_setback in the standard SI unit of C."""
+        return convert_setpoint(self.cooling_setback, 'si')
+
+    @property
+    def cooling_setback_ip(self):
+        """Get the cooling_setback in the standard IP unit of F."""
+        return convert_setpoint(self.cooling_setback, 'ip')
 
     def remove_humidity_setpoints(self):
         """Remove all humidity setpoints from this object."""
@@ -764,26 +805,6 @@ class Setpoint(_LoadBase):
             assert t_lim.upper_limit == 100, '{} schedule should have either no type ' \
                 'limit or an upper limit of 1. Got a schedule type with upper limit ' \
                 '[{}].'.format(obj_name, t_lim.upper_limit)
-
-    def _min_schedule_value(self, schedule):
-        """Extract the minimum value from a schedule."""
-        try:  # ScheduleRuleset
-            vals = []
-            for sch in schedule.typical_day_schedules:
-                vals.extend(sch.values)
-            return min(vals)
-        except AttributeError:  # ScheduleFixedInterval
-            return min(schedule.values)
-
-    def _max_schedule_value(self, schedule):
-        """Extract the maximum value from a schedule."""
-        try:  # ScheduleRuleset
-            vals = []
-            for sch in schedule.typical_day_schedules:
-                vals.extend(sch.values)
-            return max(vals)
-        except AttributeError:  # ScheduleFixedInterval
-            return max(schedule.values)
 
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""

@@ -14,19 +14,20 @@ import pytest
 from .fixtures.userdata_fixtures import userdatadict
 
 
-def test_people_init(userdatadict):
+def test_people_init():
     """Test the initialization of People and basic properties."""
     simple_office = ScheduleDay('Simple Weekday Occupancy', [0, 1, 0],
                                 [Time(0, 0), Time(9, 0), Time(17, 0)])
     occ_schedule = ScheduleRuleset('Office Occupancy', simple_office,
                                    None, schedule_types.fractional)
     people = People('Open Office Zone People', 0.05, occ_schedule)
-    people.user_data = userdatadict
     str(people)  # test the string representation
 
     assert people.identifier == 'Open Office Zone People'
     assert people.people_per_area == 0.05
     assert people.area_per_person == 20
+    assert people.people_per_area_si == 20
+    assert people.people_per_area_ip == 215.278
     assert people.occupancy_schedule.identifier == 'Office Occupancy'
     assert people.occupancy_schedule.schedule_type_limit == schedule_types.fractional
     assert people.occupancy_schedule == occ_schedule
@@ -35,7 +36,14 @@ def test_people_init(userdatadict):
     assert people.activity_schedule.values() == [120] * 8760
     assert people.radiant_fraction == 0.3
     assert people.latent_fraction == autocalculate
-    assert people.user_data == userdatadict
+
+    people.latent_fraction = 0.5
+    assert people.activity_max_sensible == 60
+    assert people.activity_max_sensible_si == 0.06
+    assert people.activity_max_sensible_ip == 204.7284
+    assert people.activity_max_latent == 60
+    assert people.activity_max_latent_si == 0.06
+    assert people.activity_max_latent_ip == 204.7284
 
 
 def test_people_setability(userdatadict):

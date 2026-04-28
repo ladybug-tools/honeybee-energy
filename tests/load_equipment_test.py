@@ -12,18 +12,19 @@ import pytest
 from .fixtures.userdata_fixtures import userdatadict
 
 
-def test_equipment_init(userdatadict):
+def test_equipment_init():
     """Test the initialization of ElectricEquipment and basic properties."""
     simple_office = ScheduleDay('Simple Weekday', [0, 1, 0],
                                 [Time(0, 0), Time(9, 0), Time(17, 0)])
     schedule = ScheduleRuleset('Office Equip', simple_office,
                                None, schedule_types.fractional)
     equipment = ElectricEquipment('Open Office Zone Equip', 8, schedule)
-    equipment.user_data = userdatadict
     str(equipment)  # test the string representation
 
     assert equipment.identifier == 'Open Office Zone Equip'
     assert equipment.watts_per_area == 8
+    assert equipment.watts_per_area_si == 8
+    assert equipment.watts_per_area_ip == pytest.approx(0.74322503925, rel=1e-3)
     assert equipment.schedule.identifier == 'Office Equip'
     assert equipment.schedule.schedule_type_limit == schedule_types.fractional
     assert equipment.schedule == schedule
@@ -31,21 +32,21 @@ def test_equipment_init(userdatadict):
     assert equipment.latent_fraction == 0
     assert equipment.lost_fraction == 0
     assert equipment.convected_fraction == 1
-    assert equipment.user_data == userdatadict
 
 
-def test_gas_equipment_init(userdatadict):
+def test_gas_equipment_init():
     """Test the initialization of GasEquipment and basic properties."""
     simple_office = ScheduleDay('Simple Weekday', [0, 1, 0],
                                 [Time(0, 0), Time(9, 0), Time(17, 0)])
     schedule = ScheduleRuleset('Kitchen Equip', simple_office,
                                None, schedule_types.fractional)
     equipment = GasEquipment('Kitchen Stove Equip', 8, schedule)
-    equipment.user_data = userdatadict
     str(equipment)  # test the string representation
 
     assert equipment.identifier == 'Kitchen Stove Equip'
     assert equipment.watts_per_area == 8
+    assert equipment.watts_per_area_si == 0.008
+    assert equipment.watts_per_area_ip == pytest.approx(2.535986641, rel=1e-3)
     assert equipment.schedule.identifier == 'Kitchen Equip'
     assert equipment.schedule.schedule_type_limit == schedule_types.fractional
     assert equipment.schedule == schedule
@@ -53,7 +54,6 @@ def test_gas_equipment_init(userdatadict):
     assert equipment.latent_fraction == 0
     assert equipment.lost_fraction == 0
     assert equipment.convected_fraction == 1
-    assert equipment.user_data == userdatadict
 
 
 def test_equipment_setability():

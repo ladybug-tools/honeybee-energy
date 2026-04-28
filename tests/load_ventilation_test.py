@@ -13,10 +13,9 @@ import pytest
 from .fixtures.userdata_fixtures import userdatadict
 
 
-def test_ventilation_init(userdatadict):
+def test_ventilation_init():
     """Test the initialization of Ventilation and basic properties."""
     ventilation = Ventilation('Office Ventilation', 0.0025, 0.0006)
-    ventilation.user_data = userdatadict 
     str(ventilation)  # test the string representation
 
     assert ventilation.identifier == 'Office Ventilation'
@@ -27,7 +26,16 @@ def test_ventilation_init(userdatadict):
     assert ventilation.schedule == always_on
     assert ventilation._schedule is None
     assert ventilation.method == 'Sum'
-    assert ventilation.user_data == userdatadict
+
+    assert ventilation.flow_per_person_si == 2.5
+    assert ventilation.flow_per_area_si == 0.6
+    assert ventilation.flow_per_zone_si == 0
+    assert ventilation.air_changes_per_hour_si == 0
+
+    assert ventilation.flow_per_person_ip == 5.2972
+    assert ventilation.flow_per_area_ip == pytest.approx(0.11811, rel=1e-3)
+    assert ventilation.flow_per_zone_ip == 0
+    assert ventilation.air_changes_per_hour_ip == 0
 
 
 def test_ventilation_init_schedule(userdatadict):

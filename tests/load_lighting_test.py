@@ -11,18 +11,20 @@ from ladybug.dt import Time, Date
 import pytest
 from .fixtures.userdata_fixtures import userdatadict
 
-def test_lighting_init(userdatadict): 
+
+def test_lighting_init():
     """Test the initialization of Lighting and basic properties."""
     simple_office = ScheduleDay('Simple Weekday', [0, 1, 0],
                                 [Time(0, 0), Time(9, 0), Time(17, 0)])
     schedule = ScheduleRuleset('Office Lighting', simple_office,
                                None, schedule_types.fractional)
     lighting = Lighting('Open Office Zone Lighting', 10, schedule)
-    lighting.user_data = userdatadict
     str(lighting)  # test the string representation
 
     assert lighting.identifier == 'Open Office Zone Lighting'
     assert lighting.watts_per_area == 10
+    assert lighting.watts_per_area_si == 10
+    assert lighting.watts_per_area_ip == pytest.approx(0.9290313, rel=1e-3)
     assert lighting.schedule.identifier == 'Office Lighting'
     assert lighting.schedule.schedule_type_limit == schedule_types.fractional
     assert lighting.schedule == schedule
@@ -30,7 +32,6 @@ def test_lighting_init(userdatadict):
     assert lighting.radiant_fraction == 0.32
     assert lighting.visible_fraction == 0.25
     assert lighting.baseline_watts_per_area == 11.84029
-    assert lighting.user_data == userdatadict
 
 
 def test_lighting_setability(userdatadict):

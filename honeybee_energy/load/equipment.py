@@ -10,6 +10,8 @@ from ..schedule.ruleset import ScheduleRuleset
 from ..schedule.fixedinterval import ScheduleFixedInterval
 from ..reader import parse_idf_string
 from ..writer import generate_idf_string
+from ..units import convert_electric_equipment_watts_per_area, \
+    convert_gas_equipment_watts_per_area
 from ..lib.schedules import always_on
 from ..properties.extension import ElectricEquipmentProperties, GasEquipmentProperties
 
@@ -457,6 +459,16 @@ class ElectricEquipment(_EquipmentBase):
             new_obj.properties._load_extension_attr_from_dict(data['properties'])
         return new_obj
 
+    @property
+    def watts_per_area_si(self):
+        """Get the watts_per_area in the standard SI unit of W/m2."""
+        return convert_electric_equipment_watts_per_area(self.watts_per_area, 'si')
+
+    @property
+    def watts_per_area_ip(self):
+        """Get the watts_per_area in the standard IP unit of W/ft2."""
+        return convert_electric_equipment_watts_per_area(self.watts_per_area, 'ip')
+
     def to_idf(self, zone_identifier):
         """IDF string representation of ElectricEquipment object.
 
@@ -692,6 +704,16 @@ class GasEquipment(_EquipmentBase):
             new_obj.properties._load_extension_attr_from_dict(data['properties'])
         return new_obj
 
+    @property
+    def watts_per_area_si(self):
+        """Get the watts_per_area in the standard SI unit of kW/m2."""
+        return convert_gas_equipment_watts_per_area(self.watts_per_area, 'si')
+
+    @property
+    def watts_per_area_ip(self):
+        """Get the watts_per_area in the standard IP unit of Btu/h-ft2."""
+        return convert_gas_equipment_watts_per_area(self.watts_per_area, 'ip')
+
     def to_idf(self, zone_identifier):
         """IDF string representation of GasEquipment object.
 
@@ -702,7 +724,7 @@ class GasEquipment(_EquipmentBase):
         Args:
             zone_identifier: Text for the zone identifier that the GasEquipment object
                 is assigned to
-            
+
         .. code-block:: shell
 
             GasEquipment,

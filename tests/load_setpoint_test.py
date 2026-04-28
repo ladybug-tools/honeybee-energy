@@ -11,14 +11,13 @@ import pytest
 from .fixtures.userdata_fixtures import userdatadict
 
 
-def test_setpoint_init(userdatadict):
+def test_setpoint_init():
     """Test the initialization of Setpoint and basic properties."""
     heat_setpt = ScheduleRuleset.from_constant_value(
         'Office Heating', 21, schedule_types.temperature)
     cool_setpt = ScheduleRuleset.from_constant_value(
         'Office Cooling', 24, schedule_types.temperature)
     setpoint = Setpoint('Office Setpoint', heat_setpt, cool_setpt)
-    setpoint.user_data = userdatadict
     str(setpoint)  # test the string representation
 
     assert setpoint.identifier == 'Office Setpoint'
@@ -35,7 +34,16 @@ def test_setpoint_init(userdatadict):
     assert setpoint.dehumidifying_setpoint is None
     assert setpoint.dehumidifying_setback is None
     assert setpoint.setpoint_cutout_difference == 0
-    assert setpoint.user_data == userdatadict
+
+    assert setpoint.heating_setpoint_si == 21
+    assert setpoint.heating_setback_si == 21
+    assert setpoint.cooling_setpoint_si == 24
+    assert setpoint.cooling_setback_si == 24
+
+    assert setpoint.heating_setpoint_ip == 69.8
+    assert setpoint.heating_setback_ip == 69.8
+    assert setpoint.cooling_setpoint_ip == 75.2
+    assert setpoint.cooling_setback_ip == 75.2
 
 
 def test_setpoint_init_with_setback(userdatadict):

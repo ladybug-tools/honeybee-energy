@@ -10,6 +10,9 @@ from ..schedule.ruleset import ScheduleRuleset
 from ..schedule.fixedinterval import ScheduleFixedInterval
 from ..reader import parse_idf_string
 from ..writer import generate_idf_string
+from ..units import convert_ventilation_flow_per_person, \
+    convert_ventilation_flow_per_area, convert_ventilation_flow_per_zone, \
+    convert_ventilation_air_changes_per_hour
 from ..lib.schedules import always_on
 import honeybee_energy.lib.scheduletypelimits as _type_lib
 from ..properties.extension import VentilationProperties
@@ -178,6 +181,46 @@ class Ventilation(_LoadBase):
                 'Method {} is not recognized.\nChoose from the '
                 'following:\n{}'.format(value, self.METHODS))
         self._method = value
+
+    @property
+    def flow_per_person_si(self):
+        """Get the flow_per_person in the standard SI unit of L/s/person."""
+        return convert_ventilation_flow_per_person(self.flow_per_person, 'si')
+
+    @property
+    def flow_per_person_ip(self):
+        """Get the flow_per_person in the standard IP unit of cfm/person."""
+        return convert_ventilation_flow_per_person(self.flow_per_person, 'ip')
+
+    @property
+    def flow_per_area_si(self):
+        """Get the flow_per_area in the standard SI unit of L/s/m2."""
+        return convert_ventilation_flow_per_area(self.flow_per_area, 'si')
+
+    @property
+    def flow_per_area_ip(self):
+        """Get the flow_per_area in the standard IP unit of cfm/ft2."""
+        return convert_ventilation_flow_per_area(self.flow_per_area, 'ip')
+
+    @property
+    def flow_per_zone_si(self):
+        """Get the flow_per_zone in the standard SI unit of L/s."""
+        return convert_ventilation_flow_per_zone(self.flow_per_zone, 'si')
+
+    @property
+    def flow_per_zone_ip(self):
+        """Get the flow_per_zone in the standard IP unit of cfm."""
+        return convert_ventilation_flow_per_zone(self.flow_per_zone, 'ip')
+
+    @property
+    def air_changes_per_hour_si(self):
+        """Get the air_changes_per_hour in the standard SI unit of ACH."""
+        return convert_ventilation_air_changes_per_hour(self.air_changes_per_hour, 'si')
+
+    @property
+    def air_changes_per_hour_ip(self):
+        """Get the air_changes_per_hour in the standard IP unit of ACH."""
+        return convert_ventilation_air_changes_per_hour(self.air_changes_per_hour, 'ip')
 
     def room_absolute_flow(self, room):
         """Get the total flow rate of ventilation air for a Room in m3/s.
