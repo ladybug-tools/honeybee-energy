@@ -11,6 +11,8 @@ from ..schedule.ruleset import ScheduleRuleset
 from ..schedule.fixedinterval import ScheduleFixedInterval
 from ..reader import parse_idf_string
 from ..writer import generate_idf_string
+from ..units import convert_people_per_area, convert_people_activity_max_sensible, \
+    convert_people_activity_max_latent
 import honeybee_energy.lib.schedules as _sched_lib
 from ..properties.extension import PeopleProperties
 
@@ -56,6 +58,8 @@ class People(_LoadBase):
         * radiant_fraction
         * latent_fraction
         * user_data
+        * activity_max_sensible
+        * activity_max_latent
     """
     __slots__ = ('_people_per_area', '_occupancy_schedule', '_activity_schedule',
                  '_radiant_fraction', '_latent_fraction')
@@ -149,6 +153,58 @@ class People(_LoadBase):
         else:
             self._latent_fraction = float_in_range(
                 value, 0.0, 1.0, 'people latent fraction')
+
+    @property
+    def activity_max_sensible(self):
+        """Get the maximum sensible heat [W/person] according to the activity schedule.
+
+        Note that, if the latent_fraction is autocalculate, it will be assumed
+        that half of the heat given off by each person is sensible.
+        """
+        sen_fract = 1 - self.latent_fraction \
+            if self.latent_fraction != autocalculate else 0.5
+        return self._max_schedule_value(self._activity_schedule) * sen_fract
+
+    @property
+    def activity_max_latent(self):
+        """Get the maximum latent heat [W/person] according to the activity schedule.
+
+        Note that, if the latent_fraction is autocalculate, it will be assumed
+        that half of the heat given off by each person is latent.
+        """
+        latent_fract = self.latent_fraction \
+            if self.latent_fraction != autocalculate else 0.5
+        return self._max_schedule_value(self._activity_schedule) * latent_fract
+
+    @property
+    def people_per_area_si(self):
+        """Get the people_per_area in the standard SI unit of m2/person."""
+        return convert_people_per_area(self.people_per_area, 'si')
+
+    @property
+    def people_per_area_ip(self):
+        """Get the people_per_area in the standard IP unit of ft2/person."""
+        return convert_people_per_area(self.people_per_area, 'ip')
+
+    @property
+    def activity_max_sensible_si(self):
+        """Get the maximum sensible heat in the standard SI unit of kW/person."""
+        return convert_people_activity_max_sensible(self.activity_max_sensible, 'si')
+
+    @property
+    def activity_max_sensible_ip(self):
+        """Get the maximum sensible heat in the standard IP unit of Btu/h/person."""
+        return convert_people_activity_max_sensible(self.activity_max_sensible, 'ip')
+
+    @property
+    def activity_max_latent_si(self):
+        """Get the maximum latent heat in the standard SI unit of kW/person."""
+        return convert_people_activity_max_latent(self.activity_max_latent, 'si')
+
+    @property
+    def activity_max_latent_ip(self):
+        """Get the maximum latent heat in the standard IP unit of Btu/h/person."""
+        return convert_people_activity_max_latent(self.activity_max_latent, 'ip')
 
     def diversify(self, count, occupancy_stdev=20, schedule_offset=1, timestep=1,
                   schedule_indices=None):

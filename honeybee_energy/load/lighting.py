@@ -10,6 +10,7 @@ from ..schedule.ruleset import ScheduleRuleset
 from ..schedule.fixedinterval import ScheduleFixedInterval
 from ..reader import parse_idf_string
 from ..writer import generate_idf_string
+from ..units import convert_lighting_watts_per_area
 from ..lib.schedules import always_on
 from ..properties.extension import LightingProperties
 
@@ -161,6 +162,16 @@ class Lighting(_LoadBase):
         if value is not None:
             value = float_positive(value, 'lighting baseline watts per area')
         self._baseline_watts_per_area = value
+
+    @property
+    def watts_per_area_si(self):
+        """Get the watts_per_area in the standard SI unit of W/m2."""
+        return convert_lighting_watts_per_area(self.watts_per_area, 'si')
+
+    @property
+    def watts_per_area_ip(self):
+        """Get the watts_per_area in the standard IP unit of W/ft2."""
+        return convert_lighting_watts_per_area(self.watts_per_area, 'ip')
 
     def diversify(self, count, watts_stdev=20, schedule_offset=1, timestep=1,
                   schedule_indices=None):

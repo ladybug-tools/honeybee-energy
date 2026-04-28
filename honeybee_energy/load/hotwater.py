@@ -10,6 +10,8 @@ from ..schedule.ruleset import ScheduleRuleset
 from ..schedule.fixedinterval import ScheduleFixedInterval
 from ..reader import parse_idf_string
 from ..writer import generate_idf_string
+from ..units import convert_service_hot_water_flow_per_area, \
+    convert_service_hot_water_target_temperature
 from ..lib.schedules import always_on
 from ..properties.extension import ServiceHotWaterProperties
 
@@ -130,6 +132,26 @@ class ServiceHotWater(_LoadBase):
     def lost_fraction(self):
         """Get the fraction of hot water heat that is lost down the drain."""
         return 1 - self._sensible_fraction - self._latent_fraction
+
+    @property
+    def flow_per_area_si(self):
+        """Get the flow_per_area in the standard SI unit of L/h/m2."""
+        return convert_service_hot_water_flow_per_area(self.flow_per_area, 'si')
+
+    @property
+    def flow_per_area_ip(self):
+        """Get the flow_per_area in the standard IP unit of gph/ft2."""
+        return convert_service_hot_water_flow_per_area(self.flow_per_area, 'ip')
+
+    @property
+    def target_temperature_si(self):
+        """Get the target_temperature in the standard SI unit of C."""
+        return convert_service_hot_water_target_temperature(self.target_temperature, 'si')
+
+    @property
+    def target_temperature_ip(self):
+        """Get the target_temperature in the standard IP unit of F."""
+        return convert_service_hot_water_target_temperature(self.target_temperature, 'ip')
 
     @property
     def standard_watts_per_area(self):

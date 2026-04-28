@@ -103,6 +103,26 @@ class _LoadBase(object):
                 'limit or an upper limit of 1. Got a schedule type with upper limit ' \
                 '[{}].'.format(obj_name, t_lim.upper_limit)
 
+    def _min_schedule_value(self, schedule):
+        """Extract the minimum value from a schedule."""
+        try:  # ScheduleRuleset
+            vals = []
+            for sch in schedule.typical_day_schedules:
+                vals.extend(sch.values)
+            return min(vals)
+        except AttributeError:  # ScheduleFixedInterval
+            return min(schedule.values)
+
+    def _max_schedule_value(self, schedule):
+        """Extract the maximum value from a schedule."""
+        try:  # ScheduleRuleset
+            vals = []
+            for sch in schedule.typical_day_schedules:
+                vals.extend(sch.values)
+            return max(vals)
+        except AttributeError:  # ScheduleFixedInterval
+            return max(schedule.values)
+
     @staticmethod
     def _check_avg_weights(load_objects, weights, obj_name):
         """Check input weights of an average calculation and generate them if None."""

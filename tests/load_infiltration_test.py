@@ -12,25 +12,25 @@ import pytest
 from .fixtures.userdata_fixtures import userdatadict
 
 
-def test_infiltration_init(userdatadict):
+def test_infiltration_init():
     """Test the initialization of Infiltration and basic properties."""
     simple_lobby = ScheduleDay('Simple Weekday', [0, 1, 0],
                                [Time(0, 0), Time(9, 0), Time(17, 0)])
     schedule = ScheduleRuleset('Lobby Infiltration Schedule', simple_lobby,
                                None, schedule_types.fractional)
     infiltration = Infiltration('Lobby Infiltration', 0.0003, schedule)
-    infiltration.user_data = userdatadict
     str(infiltration)  # test the string representation
 
     assert infiltration.identifier == 'Lobby Infiltration'
     assert infiltration.flow_per_exterior_area == 0.0003
+    assert infiltration.flow_per_exterior_area_si == 0.3
+    assert infiltration.flow_per_exterior_area_ip == pytest.approx(0.059055, rel=1e-3)
     assert infiltration.schedule.identifier == 'Lobby Infiltration Schedule'
     assert infiltration.schedule.schedule_type_limit == schedule_types.fractional
     assert infiltration.schedule == schedule
     assert infiltration.constant_coefficient == 1
     assert infiltration.temperature_coefficient == 0
     assert infiltration.velocity_coefficient == 0
-    assert infiltration.user_data == userdatadict
 
 
 def test_infiltration_setability(userdatadict):

@@ -14,26 +14,28 @@ import sys
 from .fixtures.userdata_fixtures import userdatadict
 
 
-def test_service_hot_water_init(userdatadict): 
+def test_service_hot_water_init(): 
     """Test the initialization of ServiceHotWater and basic properties."""
     simple_office = ScheduleDay('Simple Weekday', [0, 1, 0],
                                 [Time(0, 0), Time(9, 0), Time(17, 0)])
     schedule = ScheduleRuleset('Office Water Use', simple_office,
                                None, schedule_types.fractional)
     shw = ServiceHotWater('Office Hot Water', 0.1, schedule)
-    shw.user_data = userdatadict
     str(shw)  # test the string representation
 
     assert shw.identifier == 'Office Hot Water'
     assert shw.flow_per_area == 0.1
+    assert shw.flow_per_area_si == 0.1
+    assert shw.flow_per_area_ip == 0.0024542
     assert shw.schedule.identifier == 'Office Water Use'
     assert shw.schedule.schedule_type_limit == schedule_types.fractional
     assert shw.schedule == schedule
     assert shw.target_temperature == 60
+    assert shw.target_temperature_si == 60
+    assert shw.target_temperature_ip == 140
     assert shw.sensible_fraction == 0.2
     assert shw.latent_fraction == 0.05
     assert shw.lost_fraction == 0.75
-    assert shw.user_data == userdatadict
 
 
 def test_init_from_watts_per_area(userdatadict): 
