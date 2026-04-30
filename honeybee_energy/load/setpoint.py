@@ -11,7 +11,7 @@ from ..schedule.ruleset import ScheduleRuleset
 from ..schedule.fixedinterval import ScheduleFixedInterval
 from ..reader import parse_idf_string
 from ..writer import generate_idf_string
-from ..units import convert_setpoint
+from ..units import convert_setpoint, convert_setpoint_cutout_difference
 from ..properties.extension import SetpointProperties
 
 import honeybee_energy.lib.scheduletypelimits as _type_lib
@@ -310,6 +310,16 @@ class Setpoint(_LoadBase):
     def cooling_setback_ip(self):
         """Get the cooling_setback in the standard IP unit of F."""
         return convert_setpoint(self.cooling_setback, 'ip')
+
+    @property
+    def setpoint_cutout_difference_si(self):
+        """Get the setpoint cutout difference in the standard SI unit of dC."""
+        return convert_setpoint_cutout_difference(self._setpoint_cutout_difference, 'si')
+
+    @property
+    def setpoint_cutout_difference_ip(self):
+        """Get the setpoint cutout difference in the standard SI unit of dF."""
+        return convert_setpoint_cutout_difference(self._setpoint_cutout_difference, 'ip')
 
     def remove_humidity_setpoints(self):
         """Remove all humidity setpoints from this object."""

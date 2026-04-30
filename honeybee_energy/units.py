@@ -1,10 +1,11 @@
 """Utility functions for converting energy attributes to common units."""
 from __future__ import division
 import os
+import io
 import json
 
 units_path = os.path.join(os.path.dirname(__file__), 'units.json')
-with open(units_path, 'r') as uf:
+with io.open(units_path, encoding='utf-8') as uf:
     UNITS = json.load(uf)
 SAFE = {'__builtins__': {}}
 
@@ -76,4 +77,9 @@ def convert_ventilation_air_changes_per_hour(value, units='si'):
 
 def convert_setpoint(value, units='si'):
     group, atr = 'setpoint', 'heating_setpoint'
+    return eval(UNITS[group][atr]['convert_to_{}'.format(units)].format(x=value), SAFE)
+
+
+def convert_setpoint_cutout_difference(value, units='si'):
+    group, atr = 'setpoint', 'setpoint_cutout_difference'
     return eval(UNITS[group][atr]['convert_to_{}'.format(units)].format(x=value), SAFE)
