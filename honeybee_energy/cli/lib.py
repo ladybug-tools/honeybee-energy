@@ -101,8 +101,8 @@ def opaque_materials(
         json_objects: Boolean to note whether the output should be formatted as
             an array of JSON objects instead of a plain text list of the material
             identifiers currently in the library. (Default: False).
-        output_file: Optional file to output the full report of the validation.
-            If None, the string will simply be returned from this method.
+        output_file: Optional file to output the result. If None, the string
+            will be returned from this method.
     """
     # filter the objects by keywords
     if keyword:
@@ -170,8 +170,8 @@ def window_materials(
         json_objects: Boolean to note whether the output should be formatted as
             an array of JSON objects instead of a plain text list of the material
             identifiers currently in the library. (Default: False).
-        output_file: Optional file to output the full report of the validation.
-            If None, the string will simply be returned from this method.
+        output_file: Optional file to output the result. If None, the string
+            will be returned from this method.
     """
     # filter the objects by keywords
     if keyword:
@@ -239,8 +239,8 @@ def opaque_constructions(
         json_objects: Boolean to note whether the output should be formatted as
             an array of JSON objects instead of a plain text list of the construction
             identifiers currently in the library. (Default: False).
-        output_file: Optional file to output the full report of the validation.
-            If None, the string will simply be returned from this method.
+        output_file: Optional file to output the result. If None, the string
+            will be returned from this method.
     """
     # filter the objects by keywords
     if keyword:
@@ -308,8 +308,8 @@ def window_constructions(
         json_objects: Boolean to note whether the output should be formatted as
             an array of JSON objects instead of a plain text list of the construction
             identifiers currently in the library. (Default: False).
-        output_file: Optional file to output the full report of the validation.
-            If None, the string will simply be returned from this method.
+        output_file: Optional file to output the result. If None, the string
+            will be returned from this method.
     """
     # filter the objects by keywords
     if keyword:
@@ -377,8 +377,8 @@ def shade_constructions(
         json_objects: Boolean to note whether the output should be formatted as
             an array of JSON objects instead of a plain text list of the construction
             identifiers currently in the library. (Default: False).
-        output_file: Optional file to output the full report of the validation.
-            If None, the string will simply be returned from this method.
+        output_file: Optional file to output the result. If None, the string
+            will be returned from this method.
     """
     # filter the objects by keywords
     if keyword:
@@ -473,8 +473,8 @@ def construction_sets(
         json_objects: Boolean to note whether the output should be formatted as
             an array of JSON objects instead of a plain text list of the construction
             set identifiers currently in the library. (Default: False).
-        output_file: Optional file to output the full report of the validation.
-            If None, the string will simply be returned from this method.
+        output_file: Optional file to output the result. If None, the string
+            will be returned from this method.
     """
     # process the specific types of filters
     base_str = ''
@@ -562,8 +562,8 @@ def schedule_type_limits(
         json_objects: Boolean to note whether the output should be formatted as
             an array of JSON objects instead of a plain text list of the limit
             identifiers currently in the library. (Default: False).
-        output_file: Optional file to output the full report of the validation.
-            If None, the string will simply be returned from this method.
+        output_file: Optional file to output the result. If None, the string
+            will be returned from this method.
     """
     # filter the objects by keywords
     if keyword:
@@ -631,8 +631,8 @@ def schedules(
         json_objects: Boolean to note whether the output should be formatted as
             an array of JSON objects instead of a plain text list of the schedule
             identifiers currently in the library. (Default: False).
-        output_file: Optional file to output the full report of the validation.
-            If None, the string will simply be returned from this method.
+        output_file: Optional file to output the result. If None, the string
+            will be returned from this method.
     """
     # filter the objects by keywords
     if keyword:
@@ -718,8 +718,8 @@ def program_types(
         json_objects: Boolean to note whether the output should be formatted as
             an array of JSON objects instead of a plain text list of the program
             identifiers currently in the library. (Default: False).
-        output_file: Optional file to output the full report of the validation.
-            If None, the string will simply be returned from this method.
+        output_file: Optional file to output the result. If None, the string
+            will be returned from this method.
     """
     # process the specific types of filters
     base_str = ''
@@ -770,7 +770,7 @@ def program_types(
 @click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the object. By default, it will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
-def opaque_material_by_id(material_id, output_file):
+def opaque_material_by_id_cli(material_id, output_file):
     """Get an opaque material definition from the standards lib with its identifier.
 
     \b
@@ -778,15 +778,24 @@ def opaque_material_by_id(material_id, output_file):
         material_id: The identifier of an opaque material in the library.
     """
     try:
-        output_file.write(
-            json.dumps(opaque_material_by_identifier(material_id).to_dict())
-        )
+        opaque_material_by_id(material_id, output_file)
     except Exception as e:
-        _logger.exception(
-            'Retrieval from opaque material library failed.\n{}'.format(e))
+        _logger.exception('Retrieval from opaque material library failed.\n{}'.format(e))
         sys.exit(1)
     else:
         sys.exit(0)
+
+
+def opaque_material_by_id(material_id, output_file=None):
+    """Get an opaque material definition from the standards lib with its identifier.
+
+    Args:
+        material_id: The identifier of an opaque material in the library.
+        output_file: Optional file to output the result. If None, the string
+            will be returned from this method.
+    """
+    out_str = json.dumps(opaque_material_by_identifier(material_id).to_dict())
+    return process_content_to_output(out_str, output_file)
 
 
 @lib.command('window-material-by-id')
@@ -794,7 +803,7 @@ def opaque_material_by_id(material_id, output_file):
 @click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the object. By default, it will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
-def window_material_by_id(material_id, output_file):
+def window_material_by_id_cli(material_id, output_file):
     """Get a window material definition from the standards lib with its identifier.
 
     \b
@@ -802,15 +811,24 @@ def window_material_by_id(material_id, output_file):
         material_id: The identifier of an window material in the library.
     """
     try:
-        output_file.write(
-            json.dumps(window_material_by_identifier(material_id).to_dict())
-        )
+        window_material_by_id(material_id, output_file)
     except Exception as e:
-        _logger.exception(
-            'Retrieval from window material library failed.\n{}'.format(e))
+        _logger.exception('Retrieval from window material library failed.\n{}'.format(e))
         sys.exit(1)
     else:
         sys.exit(0)
+
+
+def window_material_by_id(material_id, output_file=None):
+    """Get a window material definition from the standards lib with its identifier.
+
+    Args:
+        material_id: The identifier of an window material in the library.
+        output_file: Optional file to output the result. If None, the string
+            will be returned from this method.
+    """
+    out_str = json.dumps(window_material_by_identifier(material_id).to_dict())
+    return process_content_to_output(out_str, output_file)
 
 
 @lib.command('opaque-construction-by-id')
@@ -820,7 +838,7 @@ def window_material_by_id(material_id, output_file):
 @click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the object. By default, it will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
-def opaque_construction_by_id(construction_id, complete, output_file):
+def opaque_construction_by_id_cli(construction_id, complete, output_file):
     """Get an opaque construction definition from the standards lib with its identifier.
 
     \b
@@ -829,14 +847,27 @@ def opaque_construction_by_id(construction_id, complete, output_file):
     """
     try:
         abridged = not complete
-        output_file.write(json.dumps(opaque_construction_by_identifier(
-            construction_id).to_dict(abridged=abridged)))
+        opaque_construction_by_id(construction_id, abridged, output_file)
     except Exception as e:
-        _logger.exception(
-            'Retrieval from opaque construction library failed.\n{}'.format(e))
+        _logger.exception('Retrieval from opaque construction library failed.\n{}'.format(e))
         sys.exit(1)
     else:
         sys.exit(0)
+
+
+def opaque_construction_by_id(
+    construction_id, abridged=False, output_file=None, complete=True
+):
+    """Get an opaque construction definition from the standards lib with its identifier.
+
+    Args:
+        construction_id: The identifier of an opaque construction in the library.
+        abridged: Boolean to note whether an abridged definition should be returned.
+        output_file: Optional file to output the result. If None, the string
+            will be returned from this method.
+    """
+    out_dict = opaque_construction_by_identifier(construction_id).to_dict(abridged=abridged)
+    return process_content_to_output(json.dumps(out_dict), output_file)
 
 
 @lib.command('window-construction-by-id')
@@ -846,7 +877,7 @@ def opaque_construction_by_id(construction_id, complete, output_file):
 @click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the object. By default, it will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
-def window_construction_by_id(construction_id, complete, output_file):
+def window_construction_by_id_cli(construction_id, complete, output_file):
     """Get a window construction definition from the standards lib with its identifier.
 
     \b
@@ -855,14 +886,27 @@ def window_construction_by_id(construction_id, complete, output_file):
     """
     try:
         abridged = not complete
-        output_file.write(json.dumps(window_construction_by_identifier(
-            construction_id).to_dict(abridged=abridged)))
+        window_construction_by_id(construction_id, abridged, output_file)
     except Exception as e:
-        _logger.exception(
-            'Retrieval from window construction library failed.\n{}'.format(e))
+        _logger.exception('Retrieval from window construction library failed.\n{}'.format(e))
         sys.exit(1)
     else:
         sys.exit(0)
+
+
+def window_construction_by_id(
+    construction_id, abridged=False, output_file=None, complete=True
+):
+    """Get a window construction definition from the standards lib with its identifier.
+
+    Args:
+        construction_id: The identifier of a window construction in the library.
+        abridged: Boolean to note whether an abridged definition should be returned.
+        output_file: Optional file to output the result. If None, the string
+            will be returned from this method.
+    """
+    out_dict = window_construction_by_identifier(construction_id).to_dict(abridged=abridged)
+    return process_content_to_output(json.dumps(out_dict), output_file)
 
 
 @lib.command('shade-construction-by-id')
@@ -870,7 +914,7 @@ def window_construction_by_id(construction_id, complete, output_file):
 @click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the object. By default, it will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
-def shade_construction_by_id(construction_id, output_file):
+def shade_construction_by_id_cli(construction_id, output_file):
     """Get a shade construction definition from the standards lib with its identifier.
 
     \b
@@ -878,14 +922,24 @@ def shade_construction_by_id(construction_id, output_file):
         construction_id: The identifier of a shade construction in the library.
     """
     try:
-        output_file.write(json.dumps(shade_construction_by_identifier(
-            construction_id).to_dict()))
+        shade_construction_by_id(construction_id, output_file)
     except Exception as e:
-        _logger.exception(
-            'Retrieval from shade construction library failed.\n{}'.format(e))
+        _logger.exception('Retrieval from shade construction library failed.\n{}'.format(e))
         sys.exit(1)
     else:
         sys.exit(0)
+
+
+def shade_construction_by_id(construction_id, output_file=None):
+    """Get a shade construction definition from the standards lib with its identifier.
+
+    Args:
+        construction_id: The identifier of a shade construction in the library.
+        output_file: Optional file to output the result. If None, the string
+            will be returned from this method.
+    """
+    out_str = json.dumps(shade_construction_by_identifier(construction_id).to_dict())
+    return process_content_to_output(out_str, output_file)
 
 
 @lib.command('construction-set-by-id')
@@ -898,7 +952,7 @@ def shade_construction_by_id(construction_id, output_file):
 @click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the object. By default, it will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
-def construction_set_by_id(construction_set_id, none_defaults, complete, output_file):
+def construction_set_by_id_cli(construction_set_id, none_defaults, complete, output_file):
     """Get a construction set definition from the standards lib with its identifier.
 
     \b
@@ -907,15 +961,33 @@ def construction_set_by_id(construction_set_id, none_defaults, complete, output_
     """
     try:
         abridged = not complete
-        c_set = construction_set_by_identifier(construction_set_id)
-        output_file.write(json.dumps(c_set.to_dict(
-            none_for_defaults=none_defaults, abridged=abridged)))
+        include_defaults = not none_defaults
+        construction_set_by_id(construction_set_id, include_defaults, abridged, output_file)
     except Exception as e:
-        _logger.exception(
-            'Retrieval from construction set library failed.\n{}'.format(e))
+        _logger.exception('Retrieval from construction set library failed.\n{}'.format(e))
         sys.exit(1)
     else:
         sys.exit(0)
+
+
+def construction_set_by_id(
+    construction_set_id, include_defaults=False, abridged=False, output_file=None,
+    complete=True, none_defaults=True
+):
+    """Get a construction set definition from the standards lib with its identifier.
+
+    Args:
+        construction_set_id: The identifier of a construction set in the library.
+        include_defaults: Boolean to note whether default constructions in the set
+            should be included in or should be None.
+        abridged: Boolean to note whether an abridged definition should be returned.
+        output_file: Optional file to output the result. If None, the string
+            will be returned from this method.
+    """
+    none_defaults = not include_defaults
+    c_set = construction_set_by_identifier(construction_set_id)
+    out_dict = c_set.to_dict(none_for_defaults=none_defaults, abridged=abridged)
+    return process_content_to_output(json.dumps(out_dict), output_file)
 
 
 @lib.command('schedule-type-limit-by-id')
@@ -923,7 +995,7 @@ def construction_set_by_id(construction_set_id, none_defaults, complete, output_
 @click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the object. By default, it will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
-def schedule_type_limit_by_id(schedule_type_limit_id, output_file):
+def schedule_type_limit_by_id_cli(schedule_type_limit_id, output_file):
     """Get a schedule type limit definition from the standards lib with its identifier.
 
     \b
@@ -931,14 +1003,25 @@ def schedule_type_limit_by_id(schedule_type_limit_id, output_file):
         schedule_type_limit_id: The identifier of a schedule type limit in the library.
     """
     try:
-        output_file.write(json.dumps(schedule_type_limit_by_identifier(
-            schedule_type_limit_id).to_dict()))
+        schedule_type_limit_by_id(schedule_type_limit_id, output_file)
     except Exception as e:
         _logger.exception(
             'Retrieval from schedule type limit library failed.\n{}'.format(e))
         sys.exit(1)
     else:
         sys.exit(0)
+
+
+def schedule_type_limit_by_id(schedule_type_limit_id, output_file=None):
+    """Get a schedule type limit definition from the standards lib with its identifier.
+
+    Args:
+        schedule_type_limit_id: The identifier of a schedule type limit in the library.
+        output_file: Optional file to output the result. If None, the string
+            will be returned from this method.
+    """
+    out_str = json.dumps(schedule_type_limit_by_identifier(schedule_type_limit_id).to_dict())
+    return process_content_to_output(out_str, output_file)
 
 
 @lib.command('schedule-by-id')
@@ -948,7 +1031,7 @@ def schedule_type_limit_by_id(schedule_type_limit_id, output_file):
 @click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the object. By default, it will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
-def schedule_by_id(schedule_id, complete, output_file):
+def schedule_by_id_cli(schedule_id, complete, output_file):
     """Get a schedule definition from the standards lib with its identifier.
 
     \b
@@ -957,13 +1040,25 @@ def schedule_by_id(schedule_id, complete, output_file):
     """
     try:
         abridged = not complete
-        output_file.write(json.dumps(schedule_by_identifier(
-            schedule_id).to_dict(abridged=abridged)))
+        schedule_by_id(schedule_id, abridged, output_file)
     except Exception as e:
         _logger.exception('Retrieval from schedule library failed.\n{}'.format(e))
         sys.exit(1)
     else:
         sys.exit(0)
+
+
+def schedule_by_id(schedule_id, abridged=False, output_file=None, complete=True):
+    """Get a schedule definition from the standards lib with its identifier.
+
+    Args:
+        schedule_id: The identifier of a schedule in the library.
+        abridged: Boolean to note whether an abridged definition should be returned.
+        output_file: Optional file to output the result. If None, the string
+            will be returned from this method.
+    """
+    out_dict = schedule_by_identifier(schedule_id).to_dict(abridged=abridged)
+    return process_content_to_output(json.dumps(out_dict), output_file)
 
 
 @lib.command('program-type-by-id')
@@ -973,7 +1068,7 @@ def schedule_by_id(schedule_id, complete, output_file):
 @click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the object. By default, it will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
-def program_type_by_id(program_type_id, complete, output_file):
+def program_type_by_id_cli(program_type_id, complete, output_file):
     """Get a program type definition from the standards lib with its identifier.
 
     \b
@@ -982,8 +1077,7 @@ def program_type_by_id(program_type_id, complete, output_file):
     """
     try:
         abridged = not complete
-        output_file.write(json.dumps(program_type_by_identifier(
-            program_type_id).to_dict(abridged=abridged)))
+        program_type_by_id(program_type_id, abridged, output_file)
     except Exception as e:
         _logger.exception('Retrieval from program type library failed.\n{}'.format(e))
         sys.exit(1)
@@ -991,12 +1085,25 @@ def program_type_by_id(program_type_id, complete, output_file):
         sys.exit(0)
 
 
+def program_type_by_id(program_type_id, abridged=False, output_file=None, complete=True):
+    """Get a program type definition from the standards lib with its identifier.
+
+    Args:
+        program_type_id: The identifier of a program type in the library.
+        abridged: Boolean to note whether an abridged definition should be returned.
+        output_file: Optional file to output the result. If None, the string
+            will be returned from this method.
+    """
+    out_dict = program_type_by_identifier(program_type_id).to_dict(abridged=abridged)
+    return process_content_to_output(json.dumps(out_dict), output_file)
+
+
 @lib.command('materials-by-id')
 @click.argument('material-ids', nargs=-1)
 @click.option('--output-file', '-f', help='Optional file to output the JSON strings of '
               'the objects. By default, it will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
-def materials_by_id(material_ids, output_file):
+def materials_by_id_cli(material_ids, output_file):
     """Get several material definitions from the standards lib at once.
 
     \b
@@ -1005,19 +1112,30 @@ def materials_by_id(material_ids, output_file):
             the library.
     """
     try:
-        mats = []
-        for mat_id in material_ids:
-            try:
-                mats.append(opaque_material_by_identifier(mat_id))
-            except ValueError:
-                mats.append(window_material_by_identifier(mat_id))
-        output_file.write(json.dumps([mat.to_dict() for mat in mats]))
+        materials_by_id(material_ids, output_file)
     except Exception as e:
-        _logger.exception(
-            'Retrieval from material library failed.\n{}'.format(e))
+        _logger.exception('Retrieval from material library failed.\n{}'.format(e))
         sys.exit(1)
     else:
         sys.exit(0)
+
+
+def materials_by_id(material_ids, output_file=None):
+    """Get several material definitions from the standards lib at once.
+
+    Args:
+        material_ids: A list of identifiers for materials in the library.
+        output_file: Optional file to output the result. If None, the string
+            will be returned from this method.
+    """
+    mats = []
+    for mat_id in material_ids:
+        try:
+            mats.append(opaque_material_by_identifier(mat_id))
+        except ValueError:
+            mats.append(window_material_by_identifier(mat_id))
+    out_str = json.dumps([mat.to_dict() for mat in mats])
+    return process_content_to_output(out_str, output_file)
 
 
 @lib.command('constructions-by-id')
@@ -1027,7 +1145,7 @@ def materials_by_id(material_ids, output_file):
 @click.option('--output-file', '-f', help='Optional file to output the JSON strings of '
               'the objects. By default, it will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
-def constructions_by_id(construction_ids, complete, output_file):
+def constructions_by_id_cli(construction_ids, complete, output_file):
     """Get several construction definitions from the standards lib at once.
 
     \b
@@ -1037,24 +1155,38 @@ def constructions_by_id(construction_ids, complete, output_file):
     """
     try:
         abridged = not complete
-        cons = []
-        for con_id in construction_ids:
-            try:
-                cons.append(opaque_construction_by_identifier(
-                    con_id).to_dict(abridged=abridged))
-            except ValueError:
-                try:
-                    cons.append(window_construction_by_identifier(
-                        con_id).to_dict(abridged=abridged))
-                except ValueError:
-                    cons.append(shade_construction_by_identifier(con_id).to_dict())
-        output_file.write(json.dumps(cons))
+        constructions_by_id(construction_ids, abridged, output_file)
     except Exception as e:
-        _logger.exception(
-            'Retrieval from construction library failed.\n{}'.format(e))
+        _logger.exception('Retrieval from construction library failed.\n{}'.format(e))
         sys.exit(1)
     else:
         sys.exit(0)
+
+
+def constructions_by_id(
+    construction_ids, abridged=False, output_file=None, complete=True
+):
+    """Get several construction definitions from the standards lib at once.
+
+    Args:
+        construction_ids: Any number of construction identifiers to be retrieved
+            from the library.
+        abridged: Boolean to note whether an abridged definition should be returned.
+        output_file: Optional file to output the result. If None, the string
+            will be returned from this method.
+    """
+    cons = []
+    for con_id in construction_ids:
+        try:
+            con = opaque_construction_by_identifier(con_id)
+            cons.append(con.to_dict(abridged=abridged))
+        except ValueError:
+            try:
+                con = window_construction_by_identifier(con_id)
+                cons.append(con.to_dict(abridged=abridged))
+            except ValueError:
+                cons.append(shade_construction_by_identifier(con_id).to_dict())
+    return process_content_to_output(json.dumps(cons), output_file)
 
 
 @lib.command('construction-sets-by-id')
@@ -1068,7 +1200,7 @@ def constructions_by_id(construction_ids, complete, output_file):
 @click.option('--output-file', '-f', help='Optional file to output the JSON string of '
               'the object. By default, it will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
-def construction_sets_by_id(construction_set_ids, none_defaults, complete, output_file):
+def construction_sets_by_id_cli(construction_set_ids, none_defaults, complete, output_file):
     """Get several construction set definitions from the standards lib at once.
 
     \b
@@ -1078,17 +1210,39 @@ def construction_sets_by_id(construction_set_ids, none_defaults, complete, outpu
     """
     try:
         abridged = not complete
-        cons = []
-        for con_id in construction_set_ids:
-            cons.append(construction_set_by_identifier(con_id))
-        output_file.write(json.dumps([con.to_dict(
-            none_for_defaults=none_defaults, abridged=abridged) for con in cons]))
+        include_defaults = not none_defaults
+        construction_sets_by_id(
+            construction_set_ids, include_defaults, abridged, output_file
+        )
     except Exception as e:
-        _logger.exception(
-            'Retrieval from construction set library failed.\n{}'.format(e))
+        _logger.exception('Retrieval from construction set library failed.\n{}'.format(e))
         sys.exit(1)
     else:
         sys.exit(0)
+
+
+def construction_sets_by_id(
+    construction_set_ids, include_defaults=False, abridged=False, output_file=None,
+    complete=True, none_defaults=True
+):
+    """Get several construction set definitions from the standards lib at once.
+
+    Args:
+        construction_set_ids: Any number of construction set identifiers to be
+            retrieved from the library.
+        include_defaults: Boolean to note whether default constructions in the set
+            should be included in or should be None.
+        abridged: Boolean to note whether an abridged definition should be returned.
+        output_file: Optional file to output the result. If None, the string
+            will be returned from this method.
+    """
+    none_defaults = not include_defaults
+    cons = []
+    for con_id in construction_set_ids:
+        cons.append(construction_set_by_identifier(con_id))
+    out_dict = [con.to_dict(none_for_defaults=none_defaults, abridged=abridged)
+                for con in cons]
+    return process_content_to_output(json.dumps(out_dict), output_file)
 
 
 @lib.command('schedule-type-limits-by-id')
@@ -1096,7 +1250,7 @@ def construction_sets_by_id(construction_set_ids, none_defaults, complete, outpu
 @click.option('--output-file', '-f', help='Optional file to output the JSON strings of '
               'the objects. By default, it will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
-def schedule_type_limits_by_id(schedule_type_limit_ids, output_file):
+def schedule_type_limits_by_id_cli(schedule_type_limit_ids, output_file):
     """Get several schedule type limit definitions from the standards lib at once.
 
     \b
@@ -1105,16 +1259,28 @@ def schedule_type_limits_by_id(schedule_type_limit_ids, output_file):
             retrieved from the library.
     """
     try:
-        stls = []
-        for stl_id in schedule_type_limit_ids:
-            stls.append(schedule_type_limit_by_identifier(stl_id))
-        output_file.write(json.dumps([stl.to_dict() for stl in stls]))
+        schedule_type_limits_by_id(schedule_type_limit_ids, output_file)
     except Exception as e:
-        _logger.exception(
-            'Retrieval from schedule type limit library failed.\n{}'.format(e))
+        _logger.exception('Retrieval from schedule type limit library failed.\n{}'.format(e))
         sys.exit(1)
     else:
         sys.exit(0)
+
+
+def schedule_type_limits_by_id(schedule_type_limit_ids, output_file=None):
+    """Get several schedule type limit definitions from the standards lib at once.
+
+    Args:
+        schedule_type_limit_ids: Any number of schedule type limit identifiers to be
+            retrieved from the library.
+        output_file: Optional file to output the result. If None, the string
+            will be returned from this method.
+    """
+    stls = []
+    for stl_id in schedule_type_limit_ids:
+        stls.append(schedule_type_limit_by_identifier(stl_id))
+    out_str = json.dumps([stl.to_dict() for stl in stls])
+    return process_content_to_output(out_str, output_file)
 
 
 @lib.command('schedules-by-id')
@@ -1124,7 +1290,7 @@ def schedule_type_limits_by_id(schedule_type_limit_ids, output_file):
 @click.option('--output-file', '-f', help='Optional file to output the JSON strings of '
               'the objects. By default, it will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
-def schedules_by_id(schedule_ids, complete, output_file):
+def schedules_by_id_cli(schedule_ids, complete, output_file):
     """Get several schedule definitions from the standards lib at once.
 
     \b
@@ -1134,15 +1300,29 @@ def schedules_by_id(schedule_ids, complete, output_file):
     """
     try:
         abridged = not complete
-        schs = []
-        for sch_id in schedule_ids:
-            schs.append(schedule_by_identifier(sch_id))
-        output_file.write(json.dumps([sch.to_dict(abridged=abridged) for sch in schs]))
+        schedules_by_id(schedule_ids, abridged, output_file)
     except Exception as e:
         _logger.exception('Retrieval from schedule library failed.\n{}'.format(e))
         sys.exit(1)
     else:
         sys.exit(0)
+
+
+def schedules_by_id(schedule_ids, abridged=False, output_file=None, complete=True):
+    """Get a schedule definition from the standards lib with its identifier.
+
+    Args:
+        schedule_ids: Any number of schedule identifiers to be retrieved from
+            the library.
+        abridged: Boolean to note whether an abridged definition should be returned.
+        output_file: Optional file to output the result. If None, the string
+            will be returned from this method.
+    """
+    schs = []
+    for sch_id in schedule_ids:
+        schs.append(schedule_by_identifier(sch_id))
+    out_str = json.dumps([sch.to_dict(abridged=abridged) for sch in schs])
+    return process_content_to_output(out_str, output_file)
 
 
 @lib.command('program-types-by-id')
@@ -1152,7 +1332,7 @@ def schedules_by_id(schedule_ids, complete, output_file):
 @click.option('--output-file', '-f', help='Optional file to output the JSON strings of '
               'the objects. By default, it will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
-def program_types_by_id(program_type_ids, complete, output_file):
+def program_types_by_id_cli(program_type_ids, complete, output_file):
     """Get several program type definitions from the standards lib at once.
 
     \b
@@ -1162,15 +1342,29 @@ def program_types_by_id(program_type_ids, complete, output_file):
     """
     try:
         abridged = not complete
-        prgs = []
-        for prg_id in program_type_ids:
-            prgs.append(program_type_by_identifier(prg_id))
-        output_file.write(json.dumps([prg.to_dict(abridged=abridged) for prg in prgs]))
+        program_types_by_id(program_type_ids, abridged, output_file)
     except Exception as e:
         _logger.exception('Retrieval from program type library failed.\n{}'.format(e))
         sys.exit(1)
     else:
         sys.exit(0)
+
+
+def program_types_by_id(program_type_ids, abridged=False, output_file=None, complete=True):
+    """Get a program type definition from the standards lib with its identifier.
+
+    Args:
+        program_type_ids: Any number of program type identifiers to be retrieved
+            from the library.
+        abridged: Boolean to note whether an abridged definition should be returned.
+        output_file: Optional file to output the result. If None, the string
+            will be returned from this method.
+    """
+    prgs = []
+    for prg_id in program_type_ids:
+        prgs.append(program_type_by_identifier(prg_id))
+    out_str = json.dumps([prg.to_dict(abridged=abridged) for prg in prgs])
+    return process_content_to_output(out_str, output_file)
 
 
 @lib.command('to-model-properties')
