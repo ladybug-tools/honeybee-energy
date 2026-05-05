@@ -84,7 +84,7 @@
     "infiltration": {
         "flow_per_exterior_area": {
             "units_hb": "m³/s/m²",
-            "units_si": "L/s/²",
+            "units_si": "L/s/m²",
             "units_ip": "cfm/ft²",
             "convert_to_si": "{x} * 1000",
             "convert_to_ip": "{x} * 196.85",
