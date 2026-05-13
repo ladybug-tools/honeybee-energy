@@ -281,6 +281,7 @@ output-table-summaryreports.html#outputtablesummaryreports)
                    'Baseboard Electricity Energy',
                    'Evaporative Cooler Electricity Energy',
                    'Hot_Water_Loop_Central_Air_Source_Heat_Pump Electricity Consumption',
+                   'Hot_Water_Loop_Supplemental_Air_Source_Heat_Pump Electricity Consumption',
                    'Boiler Electricity Energy',
                    'Water Heater NaturalGas Energy',
                    'Water Heater Electricity Energy',
