@@ -1,0 +1,7 @@
+honeybee\_energy.hvac.doas.radiant module
+=========================================
+
+.. automodule:: honeybee_energy.hvac.doas.radiant
+   :members:
+   :undoc-members:
+   :show-inheritance:
