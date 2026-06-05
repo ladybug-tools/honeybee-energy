@@ -199,6 +199,8 @@ def model_to_sim_folder(
               type=str, default=None, show_default=True)
 @click.option('--idf-file', '-idf', help='Optional path where the IDF will be written.',
               type=str, default=None, show_default=True)
+@click.option('--epjson-file', '-epjson', help='Optional path where the epJSON will '
+              'be written.', type=str, default=None, show_default=True)
 @click.option('--geometry-ids/--geometry-names', ' /-gn', help='Flag to note whether a '
               'cleaned version of all geometry display names should be used instead '
               'of identifiers when translating the Model to OSM and IDF. '
@@ -223,7 +225,7 @@ def model_to_sim_folder(
               'By default this will be printed out to stdout.',
               type=click.File('w'), default='-', show_default=True)
 def model_to_osm_cli(
-        model_file, sim_par_json, epw_file, folder, osm_file, idf_file,
+        model_file, sim_par_json, epw_file, folder, osm_file, idf_file, epjson_file,
         geometry_ids, resource_ids, log_file):
     """Translate a Honeybee Model file into an OpenStudio Model and corresponding IDF.
 
@@ -235,7 +237,7 @@ def model_to_osm_cli(
         geo_names = not geometry_ids
         res_names = not resource_ids
         model_to_osm(
-            model_file, sim_par_json, epw_file, folder, osm_file, idf_file,
+            model_file, sim_par_json, epw_file, folder, osm_file, idf_file, epjson_file,
             geo_names, res_names, log_file)
     except Exception as e:
         _logger.exception('Model translation failed.\n{}'.format(e))
@@ -246,7 +248,8 @@ def model_to_osm_cli(
 
 def model_to_osm(
     model_file, sim_par_json=None, epw_file=None, folder=None,
-    osm_file=None, idf_file=None, geometry_names=False, resource_names=False,
+    osm_file=None, idf_file=None, epjson_file=None,
+    geometry_names=False, resource_names=False,
     log_file=None, geometry_ids=True, resource_ids=True
 ):
     """Translate a Honeybee Model file into an OpenStudio Model and corresponding IDF.
@@ -264,6 +267,7 @@ def model_to_osm(
         folder: Deprecated input that is no longer used.
         osm_file: Optional path where the OSM will be output.
         idf_file: Optional path where the IDF will be output.
+        epjson_file: Optional path where the epJSON will be output.
         geometry_names: Boolean to note whether a cleaned version of all geometry
             display names should be used instead of identifiers when translating
             the Model to OSM and IDF. Using this flag will affect all Rooms, Faces,
@@ -287,7 +291,7 @@ def model_to_osm(
     """
     # check that honeybee-openstudio is installed
     try:
-        from honeybee_openstudio.openstudio import openstudio, OSModel
+        from honeybee_openstudio.openstudio import openstudio, OSModel, os_path
         from honeybee_openstudio.simulation import simulation_parameter_to_openstudio, \
             assign_epw_to_model
         from honeybee_openstudio.writer import model_to_openstudio
@@ -351,12 +355,32 @@ def model_to_osm(
         gen_files.append(osm)
 
     # write the IDF if specified
+    workspace = None
     if idf_file is not None:
         idf = os.path.abspath(idf_file)
         idf_translator = openstudio.energyplus.ForwardTranslator()
         workspace = idf_translator.translateModel(os_model)
         workspace.save(idf, overwrite=True)
         gen_files.append(idf)
+
+    # write the epJSON if specified
+    if epjson_file is not None:
+        # get the EnergyPlus schema file used in translation
+        ep_path = folders.energyplus_path
+        assert ep_path is not None, 'EnergyPlus must be installed to write epJSON.'
+        ep_schema = os.path.join(ep_path, 'Energy+.schema.epJSON')
+        assert os.path.isfile(ep_schema), \
+            'No epJSON schema file was found at: {}'.format(ep_schema)
+        # translate the model to an EnergyPlus workspace
+        epjson = os.path.abspath(epjson_file)
+        if workspace is None:
+            idf_translator = openstudio.energyplus.ForwardTranslator()
+            workspace = idf_translator.translateModel(os_model)
+        # use the epjson translator to convert the IDF to JSON
+        epjson_str = openstudio.epjson.toJSONString(workspace, os_path(ep_schema))
+        with open(epjson, 'w') as epj:
+            epj.write(epjson_str)
+        gen_files.append(epjson)
 
     return process_content_to_output(json.dumps(gen_files, indent=4), log_file)
 
