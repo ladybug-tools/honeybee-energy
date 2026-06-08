@@ -235,11 +235,11 @@ class _EquipmentBase(_LoadBase):
         return sched, rad_fract, lat_fract, lost_fract
 
     @staticmethod
-    def _extract_dict_props(data, expected_type):
+    def _extract_dict_props(data, expected_type, schedules=None):
         """Extract relevant properties from an equipment dictionary."""
         assert data['type'] == expected_type, \
             'Expected {} dictionary. Got {}.'.format(expected_type, data['type'])
-        sched = _EquipmentBase._get_schedule_from_dict(data['schedule']) \
+        sched = _EquipmentBase._get_schedule_from_dict(data['schedule'], schedules) \
             if 'schedule' in data and data['schedule'] is not None else None
         rad_fract, lat_fract, lost_fract = _EquipmentBase._optional_dict_keys(data)
         return sched, rad_fract, lat_fract, lost_fract
@@ -390,7 +390,7 @@ class ElectricEquipment(_EquipmentBase):
         return equipment, zone_id
 
     @classmethod
-    def from_dict(cls, data):
+    def from_dict(cls, data, schedules=None):
         """Create a ElectricEquipment object from a dictionary.
 
         Note that the dictionary must be a non-abridged version for this classmethod
@@ -398,6 +398,10 @@ class ElectricEquipment(_EquipmentBase):
 
         Args:
             data: A ElectricEquipment dictionary in following the format below.
+            schedules: Optional dictionary with schedule identifiers as keys and
+                honeybee schedule objects as values (either ScheduleRuleset or
+                ScheduleFixedInterval). When specified, these will be prioritized
+                over the child objects underneath their unabridged specification.
 
         .. code-block:: python
 
@@ -412,7 +416,8 @@ class ElectricEquipment(_EquipmentBase):
             "lost_fraction": 0 # fraction of heat that is lost
             }
         """
-        sched, rad_f, lat_f, lost_f = cls._extract_dict_props(data, 'ElectricEquipment')
+        sched, rad_f, lat_f, lost_f = \
+            cls._extract_dict_props(data, 'ElectricEquipment', schedules)
         new_obj = cls(data['identifier'], data['watts_per_area'],
                       sched, rad_f, lat_f, lost_f)
         if 'display_name' in data and data['display_name'] is not None:
@@ -635,7 +640,7 @@ class GasEquipment(_EquipmentBase):
         return equipment, zone_id
 
     @classmethod
-    def from_dict(cls, data):
+    def from_dict(cls, data, schedules=None):
         """Create a GasEquipment object from a dictionary.
 
         Note that the dictionary must be a non-abridged version for this classmethod
@@ -643,6 +648,10 @@ class GasEquipment(_EquipmentBase):
 
         Args:
             data: A GasEquipment dictionary in following the format below.
+            schedules: Optional dictionary with schedule identifiers as keys and
+                honeybee schedule objects as values (either ScheduleRuleset or
+                ScheduleFixedInterval). When specified, these will be prioritized
+                over the child objects underneath their unabridged specification.
 
         .. code-block:: python
 
@@ -657,7 +666,8 @@ class GasEquipment(_EquipmentBase):
             "lost_fraction": 0 # fraction of heat that is lost
             }
         """
-        sched, rad_f, lat_f, lost_f = cls._extract_dict_props(data, 'GasEquipment')
+        sched, rad_f, lat_f, lost_f = \
+            cls._extract_dict_props(data, 'GasEquipment', schedules)
         new_obj = cls(data['identifier'], data['watts_per_area'],
                       sched, rad_f, lat_f, lost_f)
         if 'display_name' in data and data['display_name'] is not None:

@@ -304,7 +304,7 @@ class ServiceHotWater(_LoadBase):
         return shw, zone_id, total_flow
 
     @classmethod
-    def from_dict(cls, data):
+    def from_dict(cls, data, schedules=None):
         """Create a ServiceHotWater object from a dictionary.
 
         Note that the dictionary must be a non-abridged version for this classmethod
@@ -312,6 +312,10 @@ class ServiceHotWater(_LoadBase):
 
         Args:
             data: A ServiceHotWater dictionary in following the format below.
+            schedules: Optional dictionary with schedule identifiers as keys and
+                honeybee schedule objects as values (either ScheduleRuleset or
+                ScheduleFixedInterval). When specified, these will be prioritized
+                over the child objects underneath their unabridged specification.
 
         .. code-block:: python
 
@@ -328,7 +332,7 @@ class ServiceHotWater(_LoadBase):
         """
         assert data['type'] == 'ServiceHotWater', \
             'Expected ServiceHotWater dictionary. Got {}.'.format(data['type'])
-        sched = cls._get_schedule_from_dict(data['schedule']) \
+        sched = cls._get_schedule_from_dict(data['schedule'], schedules) \
             if 'schedule' in data and data['schedule'] is not None else None
         target, sens_fract, lat_fract = cls._optional_dict_keys(data)
         new_obj = cls(data['identifier'], data['flow_per_area'], sched,

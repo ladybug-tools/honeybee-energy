@@ -455,7 +455,7 @@ class ScheduleFixedInterval(object):
                    0, interpolate)
 
     @classmethod
-    def from_dict(cls, data):
+    def from_dict(cls, data, schedule_type_limits=None):
         """Create a ScheduleFixedInterval from a dictionary.
 
         Note that the dictionary must be a non-abridged version for this
@@ -463,6 +463,10 @@ class ScheduleFixedInterval(object):
 
         Args:
             data: ScheduleFixedInterval dictionary following the format below.
+            schedule_type_limits: Optional dictionary with identifiers of schedule
+                type limits as keys and Python schedule type limit objects as values.
+                When specified, these will be prioritized over the child objects
+                underneath their unabridged specification.
 
         .. code-block:: python
 
@@ -483,7 +487,14 @@ class ScheduleFixedInterval(object):
 
         sched_type = None
         if 'schedule_type_limit' in data and data['schedule_type_limit'] is not None:
-            sched_type = ScheduleTypeLimit.from_dict(data['schedule_type_limit'])
+            if schedule_type_limits:
+                try:
+                    stl_id = data['schedule_type_limit']['identifier']
+                    sched_type = schedule_type_limits[stl_id]
+                except KeyError:  # nothing to prioritize
+                    pass
+            if sched_type is None:
+                sched_type = ScheduleTypeLimit.from_dict(data['schedule_type_limit'])
         timestep = 1
         if 'timestep' in data and data['timestep'] is not None:
             timestep = data['timestep']

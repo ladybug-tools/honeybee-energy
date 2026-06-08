@@ -584,14 +584,22 @@ class WindowConstructionShade(object):
         return self._properties
 
     @classmethod
-    def from_dict(cls, data):
+    def from_dict(cls, data, materials=None, schedules=None):
         """Create a WindowConstructionShade from a dictionary.
 
         Note that the dictionary must be a non-abridged version for this
         classmethod to work.
 
         Args:
-            data: A python dictionary in the following format
+            data: A python dictionary in the following format.
+            materials: Optional dictionary of material objects that might be used in the
+                construction with the material identifiers as the keys. When specified,
+                these will be prioritized over the child objects underneath their
+                unabridged specification.
+            schedules: Optional dictionary of schedule objects that might be used in the
+                construction with the schedule identifiers as the keys. When specified,
+                these will be prioritized over the child objects underneath their
+                unabridged specification.
 
         .. code-block:: python
 
@@ -612,13 +620,20 @@ class WindowConstructionShade(object):
             'Expected WindowConstructionShade. Got {}.'.format(data['type'])
 
         # re-serialize required inputs
-        window_constr = WindowConstruction.from_dict(data['window_construction'])
+        window_constr = WindowConstruction.from_dict(data['window_construction'], materials)
         shade_material = dict_to_material(data['shade_material'])
 
         # re-serialize optional inputs
         shade_location, control_type, setpoint = cls._from_dict_defaults(data)
-        schedule = dict_to_schedule(data['schedule']) if 'schedule' in data and \
-            data['schedule'] is not None else None
+        schedule = None
+        if 'schedule' in data and data['schedule'] is not None:
+            if schedules is not None:
+                try:
+                    schedule = schedules[data['schedule']['identifier']]
+                except KeyError:
+                    pass  # no schedule to override
+            if schedule is None:
+                schedule = dict_to_schedule(data['schedule'])
 
         new_obj = cls(data['identifier'], window_constr, shade_material, shade_location,
                       control_type, setpoint, schedule)

@@ -7,7 +7,7 @@ from honeybee_energy.schedule.fixedinterval import ScheduleFixedInterval
 SCHEDULE_TYPES = ('ScheduleRuleset', 'ScheduleFixedInterval')
 
 
-def dict_to_schedule(sch_dict, raise_exception=True):
+def dict_to_schedule(sch_dict, raise_exception=True, schedule_type_limits=None):
     """Get a Python object of any Schedule from a dictionary.
 
     Args:
@@ -15,6 +15,10 @@ def dict_to_schedule(sch_dict, raise_exception=True):
             that this should be a non-abridged dictionary to be valid.
         raise_exception: Boolean to note whether an exception should be raised
             if the object is not identified as a schedule. Default: True.
+        schedule_type_limits: Optional dictionary with identifiers of schedule
+            type limits as keys and Python schedule type limit objects as values.
+            When specified, these will be prioritized over the child objects
+            underneath their unabridged specification.
 
     Returns:
         A Python object derived from the input sch_dict.
@@ -25,9 +29,9 @@ def dict_to_schedule(sch_dict, raise_exception=True):
         raise ValueError('Schedule dictionary lacks required "type" key.')
 
     if sch_type == 'ScheduleRuleset':
-        return ScheduleRuleset.from_dict(sch_dict)
+        return ScheduleRuleset.from_dict(sch_dict, schedule_type_limits)
     elif sch_type == 'ScheduleFixedInterval':
-        return ScheduleFixedInterval.from_dict(sch_dict)
+        return ScheduleFixedInterval.from_dict(sch_dict, schedule_type_limits)
     elif raise_exception:
         raise ValueError('{} is not a recognized energy Schedule type'.format(sch_type))
 

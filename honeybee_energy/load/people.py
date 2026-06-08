@@ -293,7 +293,7 @@ class People(_LoadBase):
         return people, zone_id
 
     @classmethod
-    def from_dict(cls, data):
+    def from_dict(cls, data, schedules=None):
         """Create a People object from a dictionary.
 
         Note that the dictionary must be a non-abridged version for this classmethod
@@ -301,6 +301,10 @@ class People(_LoadBase):
 
         Args:
             data: A People dictionary in following the format below.
+            schedules: Optional dictionary with schedule identifiers as keys and
+                honeybee schedule objects as values (either ScheduleRuleset or
+                ScheduleFixedInterval). When specified, these will be prioritized
+                over the child objects underneath their unabridged specification.
 
         .. code-block:: python
 
@@ -317,11 +321,11 @@ class People(_LoadBase):
         """
         assert data['type'] == 'People', \
             'Expected People dictionary. Got {}.'.format(data['type'])
-        occ_sched = cls._get_schedule_from_dict(data['occupancy_schedule']) if \
-            'occupancy_schedule' in data and data['occupancy_schedule'] is not None \
+        occ_sched = cls._get_schedule_from_dict(data['occupancy_schedule'], schedules) \
+            if 'occupancy_schedule' in data and data['occupancy_schedule'] is not None \
             else None
-        act_sched = cls._get_schedule_from_dict(data['activity_schedule']) if \
-            'activity_schedule' in data and data['activity_schedule'] is not None \
+        act_sched = cls._get_schedule_from_dict(data['activity_schedule'], schedules) \
+            if 'activity_schedule' in data and data['activity_schedule'] is not None \
             else None
         rad_fract, lat_fract = cls._optional_dict_keys(data)
         new_obj = cls(data['identifier'], data['people_per_area'], occ_sched, act_sched,
