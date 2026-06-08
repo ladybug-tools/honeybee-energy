@@ -256,7 +256,7 @@ class Infiltration(_LoadBase):
         return infiltration, zone_id
 
     @classmethod
-    def from_dict(cls, data):
+    def from_dict(cls, data, schedules=None):
         """Create a Infiltration object from a dictionary.
 
         Note that the dictionary must be a non-abridged version for this classmethod
@@ -264,6 +264,10 @@ class Infiltration(_LoadBase):
 
         Args:
             data: A Infiltration dictionary in following the format below.
+            schedules: Optional dictionary with schedule identifiers as keys and
+                honeybee schedule objects as values (either ScheduleRuleset or
+                ScheduleFixedInterval). When specified, these will be prioritized
+                over the child objects underneath their unabridged specification.
 
         .. code-block:: python
 
@@ -280,7 +284,7 @@ class Infiltration(_LoadBase):
         """
         assert data['type'] == 'Infiltration', \
             'Expected Infiltration dictionary. Got {}.'.format(data['type'])
-        sched = cls._get_schedule_from_dict(data['schedule']) \
+        sched = cls._get_schedule_from_dict(data['schedule'], schedules) \
             if 'schedule' in data and data['schedule'] is not None else None
         const, tem, vel = cls._optional_dict_keys(data)
         new_obj = cls(data['identifier'], data['flow_per_exterior_area'],

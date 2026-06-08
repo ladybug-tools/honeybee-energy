@@ -412,7 +412,7 @@ class ConstructionSet(object):
                 'ConstructionSet'.format(boundary_condition))
 
     @classmethod
-    def from_dict(cls, data):
+    def from_dict(cls, data, constructions=None):
         """Create a ConstructionSet from a dictionary.
 
         Note that the dictionary must be a non-abridged version for this
@@ -421,6 +421,10 @@ class ConstructionSet(object):
         Args:
             data: Dictionary describing the ConstructionSet with the
                 format below.
+            constructions: Optional dictionary with construction identifiers as keys
+                and honeybee construction objects as values. When specified, these
+                will be prioritized over the child objects underneath their
+                unabridged specification.
 
         .. code-block:: python
 
@@ -441,29 +445,26 @@ class ConstructionSet(object):
             'Expected ConstructionSet. Got {}.'.format(data['type'])
 
         # build each of the sub-construction sets
-        wall_set = WallConstructionSet.from_dict(data['wall_set']) if 'wall_set' \
-            in data and data['wall_set'] is not None else None
-        floor_set = FloorConstructionSet.from_dict(data['floor_set']) if 'floor_set' \
-            in data and data['floor_set'] is not None else None
+        wall_set = WallConstructionSet.from_dict(data['wall_set'], constructions) \
+            if 'wall_set' in data and data['wall_set'] is not None else None
+        floor_set = FloorConstructionSet.from_dict(data['floor_set'], constructions) \
+            if 'floor_set' in data and data['floor_set'] is not None else None
         roof_ceiling_set = \
-            RoofCeilingConstructionSet.from_dict(data['roof_ceiling_set']) \
+            RoofCeilingConstructionSet.from_dict(data['roof_ceiling_set'], constructions) \
             if 'roof_ceiling_set' in data and data['roof_ceiling_set'] \
             is not None else None
-        aperture_set = ApertureConstructionSet.from_dict(data['aperture_set']) if \
+        aperture_set = \
+            ApertureConstructionSet.from_dict(data['aperture_set'], constructions) if \
             'aperture_set' in data and data['aperture_set'] is not None else None
-        door_set = DoorConstructionSet.from_dict(data['door_set']) if \
+        door_set = DoorConstructionSet.from_dict(data['door_set'], constructions) if \
             'door_set' in data and data['door_set'] is not None else None
-        shade_con = ShadeConstruction.from_dict(data['shade_construction']) if \
+        shade_con = cls._serialize_con(data['shade_construction'], constructions) if \
             'shade_construction' in data and data['shade_construction'] is not None \
             else None
         air_con = None
         if 'air_boundary_construction' in data and \
                 data['air_boundary_construction'] is not None:
-            if data['air_boundary_construction']['type'] == 'AirBoundaryConstruction':
-                air_con = AirBoundaryConstruction.from_dict(
-                    data['air_boundary_construction'])
-            else:
-                air_con = OpaqueConstruction.from_dict(data['air_boundary_construction'])
+            air_con = cls._serialize_con(data['air_boundary_construction'], constructions)
 
         new_obj = cls(data['identifier'], wall_set, floor_set, roof_ceiling_set,
                       aperture_set, door_set, shade_con, air_con)
@@ -472,6 +473,15 @@ class ConstructionSet(object):
         if 'user_data' in data and data['user_data'] is not None:
             new_obj.user_data = data['user_data']
         return new_obj
+
+    @staticmethod
+    def _serialize_con(con_data, constructions):
+        if constructions is not None:
+            try:
+                return constructions[con_data['identifier']]
+            except KeyError:
+                pass  # no construction to override
+        return dict_to_construction(con_data)
 
     @classmethod
     def from_dict_abridged(cls, data, construction_dict):
@@ -886,7 +896,7 @@ class _FaceSetBase(object):
             self._ground_construction is not None
 
     @classmethod
-    def from_dict(cls, data):
+    def from_dict(cls, data, constructions=None):
         """Create a SubSet from a dictionary.
 
         Note that the dictionary must be a non-abridged version for this
@@ -894,16 +904,20 @@ class _FaceSetBase(object):
 
         Args:
             data: Dictionary describing the Set of the object.
+            constructions: Optional dictionary with construction identifiers as keys
+                and honeybee construction objects as values. When specified, these
+                will be prioritized over the child objects underneath their
+                unabridged specification.
         """
         assert data['type'] == cls.__name__, \
             'Expected {}. Got {}.'.format(cls.__name__, data['type'])
-        extc = OpaqueConstruction.from_dict(data['exterior_construction']) \
+        extc = OpaqueConstruction.from_dict(data['exterior_construction'], constructions) \
             if 'exterior_construction' in data and data['exterior_construction'] \
             is not None else None
-        intc = OpaqueConstruction.from_dict(data['interior_construction']) \
+        intc = OpaqueConstruction.from_dict(data['interior_construction'], constructions) \
             if 'interior_construction' in data and data['interior_construction'] \
             is not None else None
-        gndc = OpaqueConstruction.from_dict(data['ground_construction']) \
+        gndc = OpaqueConstruction.from_dict(data['ground_construction'], constructions) \
             if 'ground_construction' in data and data['ground_construction'] \
             is not None else None
         return cls(extc, intc, gndc)
@@ -1275,7 +1289,7 @@ class ApertureConstructionSet(object):
             self._operable_construction is not None
 
     @classmethod
-    def from_dict(cls, data):
+    def from_dict(cls, data, constructions=None):
         """Create a ApertureConstructionSet from a dictionary.
 
         Note that the dictionary must be a non-abridged version for this
@@ -1283,22 +1297,35 @@ class ApertureConstructionSet(object):
 
         Args:
             data: Dictionary describing the Set of the object.
+            constructions: Optional dictionary with construction identifiers as keys
+                and honeybee construction objects as values. When specified, these
+                will be prioritized over the child objects underneath their
+                unabridged specification.
         """
         assert data['type'] == 'ApertureConstructionSet', \
             'Expected ApertureConstructionSet. Got {}.'.format(data['type'])
-        winc = dict_to_construction(data['window_construction']) \
+        winc = cls._serialize_con(data['window_construction'], constructions) \
             if 'window_construction' in data and data['window_construction'] \
             is not None else None
-        intc = dict_to_construction(data['interior_construction']) \
+        intc = cls._serialize_con(data['interior_construction'], constructions) \
             if 'interior_construction' in data and data['interior_construction'] \
             is not None else None
-        skyc = dict_to_construction(data['skylight_construction']) \
+        skyc = cls._serialize_con(data['skylight_construction'], constructions) \
             if 'skylight_construction' in data and data['skylight_construction'] \
             is not None else None
-        opc = dict_to_construction(data['operable_construction'])\
+        opc = cls._serialize_con(data['operable_construction'], constructions)\
             if 'operable_construction' in data and data['operable_construction'] \
             is not None else None
         return cls(winc, intc, skyc, opc)
+
+    @staticmethod
+    def _serialize_con(con_data, constructions):
+        if constructions is not None:
+            try:
+                return constructions[con_data['identifier']]
+            except KeyError:
+                pass  # no construction to override
+        return dict_to_construction(con_data)
 
     def to_dict(self, abridged=False, none_for_defaults=True):
         """Get ApertureConstructionSet as a dictionary.
@@ -1527,7 +1554,7 @@ class DoorConstructionSet(object):
             self._overhead_construction is None
 
     @classmethod
-    def from_dict(cls, data):
+    def from_dict(cls, data, constructions=None):
         """Create a DoorConstructionSet from a dictionary.
 
         Note that the dictionary must be a non-abridged version for this
@@ -1535,26 +1562,39 @@ class DoorConstructionSet(object):
 
         Args:
             data: Dictionary describing the Set of the object.
+            constructions: Optional dictionary with construction identifiers as keys
+                and honeybee construction objects as values. When specified, these
+                will be prioritized over the child objects underneath their
+                unabridged specification.
         """
         assert data['type'] == 'DoorConstructionSet', \
             'Expected DoorConstructionSet. Got {}.'.format(data['type'])
-        extc = OpaqueConstruction.from_dict(data['exterior_construction']) \
+        extc = cls._serialize_con(data['exterior_construction'], constructions) \
             if 'exterior_construction' in data and data['exterior_construction'] \
             is not None else None
-        intc = OpaqueConstruction.from_dict(data['interior_construction']) \
+        intc = cls._serialize_con(data['interior_construction'], constructions) \
             if 'interior_construction' in data and data['interior_construction'] \
             is not None else None
-        egc = dict_to_construction(data['exterior_glass_construction']) \
+        egc = cls._serialize_con(data['exterior_glass_construction'], constructions) \
             if 'exterior_glass_construction' in data and \
             data['exterior_glass_construction'] is not None else None
-        igc = dict_to_construction(data['interior_glass_construction']) \
+        igc = cls._serialize_con(data['interior_glass_construction'], constructions) \
             if 'interior_glass_construction' in data and \
             data['interior_glass_construction'] is not None else None
-        ohc = OpaqueConstruction.from_dict(data['overhead_construction']) \
+        ohc = cls._serialize_con(data['overhead_construction'], constructions) \
             if 'overhead_construction' in data and data['overhead_construction'] \
             is not None else None
 
         return cls(extc, intc, egc, igc, ohc)
+
+    @staticmethod
+    def _serialize_con(con_data, constructions):
+        if constructions is not None:
+            try:
+                return constructions[con_data['identifier']]
+            except KeyError:
+                pass  # no construction to override
+        return dict_to_construction(con_data)
 
     def to_dict(self, abridged=False, none_for_defaults=True):
         """Get the DoorConstructionSet as a dictionary.

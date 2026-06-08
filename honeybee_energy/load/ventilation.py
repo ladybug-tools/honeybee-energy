@@ -307,7 +307,7 @@ class Ventilation(_LoadBase):
         return ventilation
 
     @classmethod
-    def from_dict(cls, data):
+    def from_dict(cls, data, schedules=None):
         """Create a Ventilation object from a dictionary.
 
         Note that the dictionary must be a non-abridged version for this classmethod
@@ -315,6 +315,10 @@ class Ventilation(_LoadBase):
 
         Args:
             data: A Ventilation dictionary in following the format below.
+            schedules: Optional dictionary with schedule identifiers as keys and
+                honeybee schedule objects as values (either ScheduleRuleset or
+                ScheduleFixedInterval). When specified, these will be prioritized
+                over the child objects underneath their unabridged specification.
 
         .. code-block:: python
 
@@ -333,8 +337,8 @@ class Ventilation(_LoadBase):
         assert data['type'] == 'Ventilation', \
             'Expected Ventilation dictionary. Got {}.'.format(data['type'])
         person, area, zone, ach, method = cls._optional_dict_keys(data)
-        sched = cls._get_schedule_from_dict(data['schedule']) if 'schedule' in data and \
-            data['schedule'] is not None else None
+        sched = cls._get_schedule_from_dict(data['schedule'], schedules) \
+            if 'schedule' in data and data['schedule'] is not None else None
         new_obj = cls(data['identifier'], person, area, zone, ach, sched, method)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']

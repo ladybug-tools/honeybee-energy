@@ -256,7 +256,7 @@ class ProgramType(object):
         self._user_data = value
 
     @classmethod
-    def from_dict(cls, data):
+    def from_dict(cls, data, schedules=None):
         """Create a ProgramType from a dictionary.
 
         Note that the dictionary must be a non-abridged version for this
@@ -264,6 +264,10 @@ class ProgramType(object):
 
         Args:
             data: Dictionary describing the ProgramType with the format below.
+            schedules: Optional dictionary with schedule identifiers as keys and
+                honeybee schedule objects as values (either ScheduleRuleset or
+                ScheduleFixedInterval). When specified, these will be prioritized
+                over the child objects underneath their unabridged specification.
 
         .. code-block:: python
 
@@ -286,25 +290,26 @@ class ProgramType(object):
             'Expected ProgramType. Got {}.'.format(data['type'])
 
         # build each of the load objects
-        people = People.from_dict(data['people']) if 'people' in data and \
+        people = People.from_dict(data['people'], schedules) if 'people' in data and \
             data['people'] is not None else None
-        lighting = Lighting.from_dict(data['lighting']) if 'lighting' in data and \
+        lighting = Lighting.from_dict(data['lighting'], schedules) if 'lighting' in data and \
             data['lighting'] is not None else None
-        electric_equipment = ElectricEquipment.from_dict(data['electric_equipment']) \
+        electric_equipment = \
+            ElectricEquipment.from_dict(data['electric_equipment'], schedules) \
             if 'electric_equipment' in data and \
             data['electric_equipment'] is not None else None
-        gas_equipment = GasEquipment.from_dict(data['gas_equipment']) \
+        gas_equipment = GasEquipment.from_dict(data['gas_equipment'], schedules) \
             if 'gas_equipment' in data and \
             data['gas_equipment'] is not None else None
-        shw = ServiceHotWater.from_dict(data['service_hot_water']) \
+        shw = ServiceHotWater.from_dict(data['service_hot_water'], schedules) \
             if 'service_hot_water' in data and \
             data['service_hot_water'] is not None else None
-        infiltration = Infiltration.from_dict(data['infiltration']) if 'infiltration' \
-            in data and data['infiltration'] is not None else None
-        ventilation = Ventilation.from_dict(data['ventilation']) if 'ventilation' \
-            in data and data['ventilation'] is not None else None
-        setpoint = Setpoint.from_dict(data['setpoint']) if 'setpoint' in data and \
-            data['setpoint'] is not None else None
+        infiltration = Infiltration.from_dict(data['infiltration'], schedules) \
+            if 'infiltration' in data and data['infiltration'] is not None else None
+        ventilation = Ventilation.from_dict(data['ventilation'], schedules) \
+            if 'ventilation' in data and data['ventilation'] is not None else None
+        setpoint = Setpoint.from_dict(data['setpoint'], schedules) \
+            if 'setpoint' in data and data['setpoint'] is not None else None
 
         new_obj = cls(data['identifier'], people, lighting, electric_equipment,
                       gas_equipment, shw, infiltration, ventilation, setpoint)

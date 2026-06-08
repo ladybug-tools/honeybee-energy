@@ -2112,7 +2112,7 @@ class ModelEnergyProperties(object):
             self.electric_load_center.duplicate())
 
     @staticmethod
-    def load_properties_from_dict(data, skip_invalid=False):
+    def load_properties_from_dict(data, skip_invalid=False, prioritize_abridged=False):
         """Load model energy properties of a dictionary to Python objects.
 
         Loaded objects include Materials, Constructions, ConstructionSets,
@@ -2129,6 +2129,11 @@ class ModelEnergyProperties(object):
             skip_invalid: A boolean to note whether objects that cannot be loaded
                 should be ignored (True) or whether an exception should be raised
                 about the invalid object (False). (Default: False).
+            prioritize_abridged: A boolean to note whether unabridged objects should
+                prioritize loading child objects from the other abridged objects
+                under the energy properties (eg. ModelEnergyProperties.schedules)
+                as opposed to using the child objects underneath their unabridged
+                specification. (Default: False).
 
         Returns:
             A tuple with eight elements
@@ -2171,6 +2176,7 @@ class ModelEnergyProperties(object):
                 except Exception as e:
                     if not skip_invalid:
                         invalid_dict_error(t_lim, e)
+        a_stls = schedule_type_limits if prioritize_abridged else None
 
         # process all schedules in the ModelEnergyProperties dictionary
         schedules = {}
@@ -2179,13 +2185,15 @@ class ModelEnergyProperties(object):
             for sched in data['properties']['energy']['schedules']:
                 try:
                     if sched['type'] in SCHEDULE_TYPES:
-                        schedules[sched['identifier']] = dict_to_schedule(sched)
+                        schedules[sched['identifier']] = \
+                            dict_to_schedule(sched, schedule_type_limits=a_stls)
                     else:
-                        schedules[sched['identifier']] = dict_abridged_to_schedule(
-                            sched, schedule_type_limits)
+                        schedules[sched['identifier']] = \
+                            dict_abridged_to_schedule(sched, schedule_type_limits)
                 except Exception as e:
                     if not skip_invalid:
                         invalid_dict_error(sched, e)
+        a_schedules = schedules if prioritize_abridged else None
 
         # process all materials in the ModelEnergyProperties dictionary
         materials = {}
@@ -2197,6 +2205,7 @@ class ModelEnergyProperties(object):
                 except Exception as e:
                     if not skip_invalid:
                         invalid_dict_error(mat, e)
+        a_materials = materials if prioritize_abridged else None
 
         # process all constructions in the ModelEnergyProperties dictionary
         constructions = {}
@@ -2205,13 +2214,16 @@ class ModelEnergyProperties(object):
             for cnstr in data['properties']['energy']['constructions']:
                 try:
                     if cnstr['type'] in CONSTRUCTION_TYPES:
-                        constructions[cnstr['identifier']] = dict_to_construction(cnstr)
+                        constructions[cnstr['identifier']] = \
+                            dict_to_construction(cnstr, materials=a_materials,
+                                                 schedules=a_schedules)
                     else:
                         constructions[cnstr['identifier']] = \
                             dict_abridged_to_construction(cnstr, materials, schedules)
                 except Exception as e:
                     if not skip_invalid:
                         invalid_dict_error(cnstr, e)
+        a_constructions = constructions if prioritize_abridged else None
 
         # process all construction sets in the ModelEnergyProperties dictionary
         construction_sets = {}
@@ -2221,7 +2233,7 @@ class ModelEnergyProperties(object):
                 try:
                     if c_set['type'] == 'ConstructionSet':
                         construction_sets[c_set['identifier']] = \
-                            ConstructionSet.from_dict(c_set)
+                            ConstructionSet.from_dict(c_set, a_constructions)
                     else:
                         construction_sets[c_set['identifier']] = \
                             ConstructionSet.from_dict_abridged(c_set, constructions)
@@ -2236,7 +2248,8 @@ class ModelEnergyProperties(object):
             for p_typ in data['properties']['energy']['program_types']:
                 try:
                     if p_typ['type'] == 'ProgramType':
-                        program_types[p_typ['identifier']] = ProgramType.from_dict(p_typ)
+                        program_types[p_typ['identifier']] = \
+                            ProgramType.from_dict(p_typ, schedules=a_schedules)
                     else:
                         program_types[p_typ['identifier']] = \
                             ProgramType.from_dict_abridged(p_typ, schedules)

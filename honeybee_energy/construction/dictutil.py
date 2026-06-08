@@ -13,7 +13,7 @@ CONSTRUCTION_TYPES = \
      'WindowConstructionDynamic', 'ShadeConstruction', 'AirBoundaryConstruction')
 
 
-def dict_to_construction(constr_dict, raise_exception=True):
+def dict_to_construction(constr_dict, raise_exception=True, materials=None, schedules=None):
     """Get a Python object of any Construction from a dictionary.
 
     Args:
@@ -21,6 +21,14 @@ def dict_to_construction(constr_dict, raise_exception=True):
             that this should be a non-abridged dictionary to be valid.
         raise_exception: Boolean to note whether an excpetion should be raised
             if the object is not identified as a construction. Default: True.
+        materials: Optional dictionary of material objects that might be used in the
+            construction with the material identifiers as the keys. When specified,
+            these will be prioritized over the child objects underneath their
+            unabridged specification.
+        schedules: Optional dictionary of schedule objects that might be used in the
+            construction with the schedule identifiers as the keys. When specified,
+            these will be prioritized over the child objects underneath their
+            unabridged specification.
 
     Returns:
         A Python object derived from the input constr_dict.
@@ -31,17 +39,17 @@ def dict_to_construction(constr_dict, raise_exception=True):
         raise ValueError('Construction dictionary lacks required "type" key.')
 
     if constr_type == 'OpaqueConstruction':
-        return OpaqueConstruction.from_dict(constr_dict)
+        return OpaqueConstruction.from_dict(constr_dict, materials)
     elif constr_type == 'WindowConstruction':
-        return WindowConstruction.from_dict(constr_dict)
+        return WindowConstruction.from_dict(constr_dict, materials)
     elif constr_type == 'WindowConstructionShade':
-        return WindowConstructionShade.from_dict(constr_dict)
+        return WindowConstructionShade.from_dict(constr_dict, materials, schedules)
     elif constr_type == 'WindowConstructionDynamic':
-        return WindowConstructionDynamic.from_dict(constr_dict)
+        return WindowConstructionDynamic.from_dict(constr_dict, materials, schedules)
     elif constr_type == 'ShadeConstruction':
         return ShadeConstruction.from_dict(constr_dict)
     elif constr_type == 'AirBoundaryConstruction':
-        return AirBoundaryConstruction.from_dict(constr_dict)
+        return AirBoundaryConstruction.from_dict(constr_dict, schedules)
     elif raise_exception:
         raise ValueError(
             '{} is not a recognized energy Construction type'.format(constr_type))

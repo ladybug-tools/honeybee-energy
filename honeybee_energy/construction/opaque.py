@@ -254,14 +254,18 @@ class OpaqueConstruction(_ConstructionBase):
         return cls(ep_strs[0], materials)
 
     @classmethod
-    def from_dict(cls, data):
+    def from_dict(cls, data, materials=None):
         """Create a OpaqueConstruction from a dictionary.
 
         Note that the dictionary must be a non-abridged version for this
         classmethod to work.
 
         Args:
-            data: A python dictionary in the following format
+            data: A python dictionary in the following format.
+            materials: Optional dictionary of material objects that might be used in the
+                construction with the material identifiers as the keys. When specified,
+                these will be prioritized over the child objects underneath their
+                unabridged specification.
 
         .. code-block:: python
 
@@ -272,11 +276,25 @@ class OpaqueConstruction(_ConstructionBase):
             "materials": []  # list of unique material objects (from outside to inside)
             }
         """
+        # create the material object
         assert data['type'] == 'OpaqueConstruction', \
             'Expected OpaqueConstruction. Got {}.'.format(data['type'])
-        mat_layers = cls._old_schema_materials(data) if 'layers' in data else \
-            [dict_to_material(mat) for mat in data['materials']]
+        if 'layers' in data:
+            mat_layers = cls._old_schema_materials(data)
+        else:
+            mat_layers = []
+            for mat in data['materials']:
+                mat_obj = None
+                if materials is not None:
+                    try:
+                        mat_obj = materials[mat['identifier']]
+                    except KeyError:
+                        pass  # no material to override
+                if mat_obj is None:
+                    mat_obj = dict_to_material(mat)
+                mat_layers.append(mat_obj)
         new_obj = cls(data['identifier'], mat_layers)
+        # assign all of the optional attributes
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:

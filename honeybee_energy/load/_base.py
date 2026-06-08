@@ -165,8 +165,13 @@ class _LoadBase(object):
             return ScheduleFixedInterval.min_schedules(identifier, scheds)
 
     @staticmethod
-    def _get_schedule_from_dict(sch_dict):
+    def _get_schedule_from_dict(sch_dict, schedules=None):
         """Get a schedule object from a schedule dictionary."""
+        if schedules:
+            try:
+                return schedules[sch_dict['identifier']]
+            except KeyError:  # nothing to prioritize
+                pass
         if sch_dict['type'] == 'ScheduleRuleset':
             return ScheduleRuleset.from_dict(sch_dict)
         elif sch_dict['type'] == 'ScheduleFixedInterval':

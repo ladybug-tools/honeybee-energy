@@ -437,7 +437,7 @@ class Setpoint(_LoadBase):
         return setpoint
 
     @classmethod
-    def from_dict(cls, data):
+    def from_dict(cls, data, schedules=None):
         """Create a Setpoint object from a dictionary.
 
         Note that the dictionary must be a non-abridged version for this classmethod
@@ -445,6 +445,10 @@ class Setpoint(_LoadBase):
 
         Args:
             data: A Setpoint dictionary in following the format below.
+            schedules: Optional dictionary with schedule identifiers as keys and
+                honeybee schedule objects as values (either ScheduleRuleset or
+                ScheduleFixedInterval). When specified, these will be prioritized
+                over the child objects underneath their unabridged specification.
 
         .. code-block:: python
 
@@ -461,13 +465,15 @@ class Setpoint(_LoadBase):
         """
         assert data['type'] == 'Setpoint', \
             'Expected Setpoint dictionary. Got {}.'.format(data['type'])
-        heat_sched = cls._get_schedule_from_dict(data['heating_schedule'])
-        cool_sched = cls._get_schedule_from_dict(data['cooling_schedule'])
-        humid_sched = cls._get_schedule_from_dict(data['humidifying_schedule']) if \
-            'humidifying_schedule' in data and \
+        heat_sched = cls._get_schedule_from_dict(data['heating_schedule'], schedules)
+        cool_sched = cls._get_schedule_from_dict(data['cooling_schedule'], schedules)
+        humid_sched = \
+            cls._get_schedule_from_dict(data['humidifying_schedule'], schedules) \
+            if 'humidifying_schedule' in data and \
             data['humidifying_schedule'] is not None else None
-        dehumid_sched = cls._get_schedule_from_dict(data['dehumidifying_schedule']) if \
-            'dehumidifying_schedule' in data and \
+        dehumid_sched = \
+            cls._get_schedule_from_dict(data['dehumidifying_schedule'], schedules) \
+            if 'dehumidifying_schedule' in data and \
             data['dehumidifying_schedule'] is not None else None
         cut = data['setpoint_cutout_difference'] \
             if 'setpoint_cutout_difference' in data and \

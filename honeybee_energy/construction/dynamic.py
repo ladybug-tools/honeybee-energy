@@ -329,14 +329,22 @@ class WindowConstructionDynamic(object):
         self._user_data = value
 
     @classmethod
-    def from_dict(cls, data):
+    def from_dict(cls, data, materials=None, schedules=None):
         """Create a WindowConstructionDynamic from a dictionary.
 
         Note that the dictionary must be a non-abridged version for this
         classmethod to work.
 
         Args:
-            data: A python dictionary in the following format
+            data: A python dictionary in the following format.
+            materials: Optional dictionary of material objects that might be used in the
+                construction with the material identifiers as the keys. When specified,
+                these will be prioritized over the child objects underneath their
+                unabridged specification.
+            schedules: Optional dictionary of schedule objects that might be used in the
+                construction with the schedule identifiers as the keys. When specified,
+                these will be prioritized over the child objects underneath their
+                unabridged specification.
 
         .. code-block:: python
 
@@ -352,9 +360,17 @@ class WindowConstructionDynamic(object):
         assert data['type'] == 'WindowConstructionDynamic', \
             'Expected WindowConstructionDynamic. Got {}.'.format(data['type'])
         # re-serialize the inputs
-        constrs = [WindowConstruction.from_dict(c_dict)
+        constrs = [WindowConstruction.from_dict(c_dict, materials)
                    for c_dict in data['constructions']]
-        schedule = dict_to_schedule(data['schedule'])
+        schedule = None
+        if 'schedule' in data and data['schedule'] is not None:
+            if schedules is not None:
+                try:
+                    schedule = schedules[data['schedule']['identifier']]
+                except KeyError:
+                    pass  # no schedule to override
+            if schedule is None:
+                schedule = dict_to_schedule(data['schedule'])
         # create the object
         new_obj = cls(data['identifier'], constrs, schedule)
         if 'display_name' in data and data['display_name'] is not None:

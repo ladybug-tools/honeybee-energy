@@ -138,11 +138,15 @@ class AirBoundaryConstruction(object):
         return self._properties
 
     @classmethod
-    def from_dict(cls, data):
+    def from_dict(cls, data, schedules=None):
         """Create a AirBoundaryConstruction from a dictionary.
 
         Args:
-            data: A python dictionary in the following format
+            data: A python dictionary in the following format.
+            schedules: Optional dictionary of schedule objects that might be used in the
+                construction with the schedule identifiers as the keys. When specified,
+                these will be prioritized over the child objects underneath their
+                unabridged specification.
 
         .. code-block:: python
 
@@ -158,7 +162,14 @@ class AirBoundaryConstruction(object):
             'Expected AirBoundaryConstruction. Got {}.'.format(data['type'])
         a_mix = data['air_mixing_per_area'] if 'air_mixing_per_area' in data else 0.1
         if 'air_mixing_schedule' in data and data['air_mixing_schedule'] is not None:
-            a_sch = dict_to_schedule(data['air_mixing_schedule'])
+            a_sch = None
+            if schedules is not None:
+                try:
+                    a_sch = schedules[data['air_mixing_schedule']['identifier']]
+                except KeyError:
+                    pass  # no schedule to override
+            if a_sch is None:
+                a_sch = dict_to_schedule(data['air_mixing_schedule'])
         else:
             a_sch = always_on
         new_obj = cls(data['identifier'], a_mix, a_sch)
