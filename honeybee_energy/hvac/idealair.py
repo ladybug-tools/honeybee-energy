@@ -468,7 +468,7 @@ class IdealAirSystem(_HVACSystem):
                 ,                        !- Maximum Total Cooling Capacity {W}
                 ,                        !- Heating Availability Schedule Name
                 ,                        !- Cooling Availability Schedule Name
-                ConstantSensibleHeatRatio,  !- Dehumidification Control Type
+                None,                    !- Dehumidification Control Type
                 0.7,                     !- Cooling Sensible Heat Ratio
                 60,                      !- Dehumidification Setpoint {percent}
                 None,                    !- Humidification Control Type

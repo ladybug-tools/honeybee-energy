@@ -63,6 +63,33 @@ class Ventilation(_LoadBase):
             * Sum
             * Max
 
+        effectiveness_cooling: A positive number to note the air distribution
+            effectiveness of the ventilation system when it operates in cooling mode
+            (or how well the system is able to mix the air when cooling).
+            A value of 1 means that air is well mixed and specified air flows are not
+            adjusted in the course of simulation. Values less than 1 indicate systems
+            that do not mix the air as well and so the specified airflows are increased.
+            Values greater than 1 indicate systems that are particularly good at
+            delivering outdoor air to the occupied region of a room and so the
+            specified airflows can be reduced. (Default: 1).
+        effectiveness_heating: A positive number to note the air distribution
+            effectiveness of the ventilation system when it operates in heating mode
+            (or how well the system is able to mix the air when heating).
+            A value of 1 means that air is well mixed and specified air flows are not
+            adjusted in the course of simulation. Values less than 1 indicate systems
+            that do not mix the air as well and so the specified airflows are increased.
+            Values greater than 1 indicate systems that are particularly good at
+            delivering outdoor air to the occupied region of a room and so the
+            specified airflows can be reduced. (Default: 1).
+        secondary_recirculation: A number that is greater than or equal to zero,
+            which notes to note the fraction of a zone's recirculation air that
+            does not directly mix with the outdoor air. Used in cases where a
+            central ventilation system supplies several zones and the return
+            air is not collected through ducts back to the central air handler
+            (eg. a plenum return system is used). This means unused outdoor
+            ventilation air from other zones in the central system can be credited
+            to the room. (Default: 0).
+
     Properties:
         * identifier
         * display_name
@@ -72,14 +99,23 @@ class Ventilation(_LoadBase):
         * air_changes_per_hour
         * schedule
         * method
+        * effectiveness_cooling
+        * effectiveness_heating
+        * secondary_recirculation
         * user_data
     """
-    __slots__ = ('_flow_per_person', '_flow_per_area', '_flow_per_zone',
-                 '_air_changes_per_hour', '_schedule', '_method')
+    __slots__ = (
+        '_flow_per_person', '_flow_per_area', '_flow_per_zone', '_air_changes_per_hour',
+        '_schedule', '_method', '_effectiveness_cooling', '_effectiveness_heating',
+        '_secondary_recirculation'
+    )
     METHODS = ('Sum', 'Max')
 
-    def __init__(self, identifier, flow_per_person=0, flow_per_area=0, flow_per_zone=0,
-                 air_changes_per_hour=0, schedule=None, method='Sum'):
+    def __init__(
+        self, identifier, flow_per_person=0, flow_per_area=0, flow_per_zone=0,
+        air_changes_per_hour=0, schedule=None, method='Sum',
+        effectiveness_cooling=1, effectiveness_heating=1, secondary_recirculation=0
+    ):
         """Initialize Ventilation."""
         _LoadBase.__init__(self, identifier)
         self.flow_per_person = flow_per_person
@@ -88,6 +124,9 @@ class Ventilation(_LoadBase):
         self.air_changes_per_hour = air_changes_per_hour
         self.schedule = schedule
         self.method = method
+        self.effectiveness_cooling = effectiveness_cooling
+        self.effectiveness_heating = effectiveness_heating
+        self.secondary_recirculation = secondary_recirculation
         self._properties = VentilationProperties(self)
 
     @property
@@ -183,6 +222,44 @@ class Ventilation(_LoadBase):
         self._method = value
 
     @property
+    def effectiveness_cooling(self):
+        """Get or set a number for the air distribution effectiveness in cooling mode."""
+        return self._effectiveness_cooling
+
+    @effectiveness_cooling.setter
+    def effectiveness_cooling(self, value):
+        self._effectiveness_cooling = \
+            float_positive(value, 'ventilation effectiveness for cooling') \
+            if value is not None else 1
+        assert self._effectiveness_cooling != 0, \
+            'Ventilation effectiveness cannot be zero.'
+
+    @property
+    def effectiveness_heating(self):
+        """Get or set a number for the air distribution effectiveness in heating mode."""
+        return self._effectiveness_heating
+
+    @effectiveness_heating.setter
+    def effectiveness_heating(self, value):
+        self._effectiveness_heating = \
+            float_positive(value, 'ventilation effectiveness for heating') \
+            if value is not None else 1
+        assert self._effectiveness_heating != 0, \
+            'Ventilation effectiveness cannot be zero.'
+
+    @property
+    def secondary_recirculation(self):
+        """Get or set a number for the fraction of recirculation air not mixed outdoor air.
+        """
+        return self._secondary_recirculation
+
+    @secondary_recirculation.setter
+    def secondary_recirculation(self, value):
+        self._secondary_recirculation = \
+            float_positive(value, 'ventilation secondary recirculation') \
+            if value is not None else 0
+
+    @property
     def flow_per_person_si(self):
         """Get the flow_per_person in the standard SI unit of L/s/person."""
         return convert_ventilation_flow_per_person(self.flow_per_person, 'si')
@@ -223,10 +300,19 @@ class Ventilation(_LoadBase):
         return convert_ventilation_air_changes_per_hour(self.air_changes_per_hour, 'ip')
 
     def room_absolute_flow(self, room):
-        """Get the total flow rate of ventilation air for a Room in m3/s.
+        """Get the total flow rate of outdoor ventilation air for a Room in m3/s.
 
         The result of this method accounts for all four ways of specifying
         ventilation and appropriately accounts for the Ventilation method.
+        It also includes all effects of ventilation effectiveness (using the
+        lower of the two ventilation effectiveness between heating and cooling mode).
+
+        It does NOT include the effect of secondary recirculation given that the
+        effect of this is impossible to know without having the other rooms
+        included within the multi-path system.
+
+        Args:
+            room: The honeybee Room to which the ventilation object is assigned.
         """
         total_flows = [self.flow_per_zone]
         if self.flow_per_person != 0:
@@ -238,7 +324,9 @@ class Ventilation(_LoadBase):
             total_flows.append(self.flow_per_area * room.floor_area)
         if self.air_changes_per_hour != 0:
             total_flows.append((self.air_changes_per_hour * room.volume) / 3600)
-        return sum(total_flows) if self.method == 'Sum' else max(total_flows)
+        total_flow = sum(total_flows) if self.method == 'Sum' else max(total_flows)
+        vent_eff = min(self.effectiveness_cooling, self.effectiveness_heating)
+        return total_flow / vent_eff
 
     @classmethod
     def from_idf(cls, idf_string, schedule_dict):
@@ -331,15 +419,19 @@ class Ventilation(_LoadBase):
             "flow_per_zone": 0, # flow per zone
             "air_changes_per_hour": 0, # air changes per hour
             "schedule": {}, # ScheduleRuleset/ScheduleFixedInterval dictionary
-            "method": "Sum"
+            "method": "Sum",  # text for the ventilation method
+            "effectiveness_cooling": 1.0,  # effectiveness during cooling
+            "effectiveness_heating": 0.8,  # effectiveness during heating
+            "secondary_recirculation": 0  # fraction of secondary recirculated air
             }
         """
         assert data['type'] == 'Ventilation', \
             'Expected Ventilation dictionary. Got {}.'.format(data['type'])
-        person, area, zone, ach, method = cls._optional_dict_keys(data)
+        person, area, zone, ach, method, ce, he, rec = cls._optional_dict_keys(data)
         sched = cls._get_schedule_from_dict(data['schedule'], schedules) \
             if 'schedule' in data and data['schedule'] is not None else None
-        new_obj = cls(data['identifier'], person, area, zone, ach, sched, method)
+        new_obj = cls(data['identifier'], person, area, zone, ach,
+                      sched, method, ce, he, rec)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
@@ -369,19 +461,24 @@ class Ventilation(_LoadBase):
             "flow_per_area": 0.0005, # flow per square meter of floor area
             "flow_per_zone": 0, # flow per zone
             "air_changes_per_hour": 0, # air changes per hour
-            "schedule": "Office Ventilation Schedule" # Schedule identifier
+            "schedule": "Office Ventilation Schedule", # Schedule identifier
+            "method": "Sum",  # text for the ventilation method
+            "effectiveness_cooling": 1.0,  # effectiveness during cooling
+            "effectiveness_heating": 0.8,  # effectiveness during heating
+            "secondary_recirculation": 0  # fraction of secondary recirculated air
             }
         """
         assert data['type'] == 'VentilationAbridged', \
             'Expected VentilationAbridged dictionary. Got {}.'.format(data['type'])
-        person, area, zone, ach, method = cls._optional_dict_keys(data)
+        person, area, zone, ach, method, ce, he, rec = cls._optional_dict_keys(data)
         sched = None
         if 'schedule' in data and data['schedule'] is not None:
             try:
                 sched = schedule_dict[data['schedule']]
             except KeyError as e:
                 raise ValueError('Failed to find {} in the schedule_dict.'.format(e))
-        new_obj = cls(data['identifier'], person, area, zone, ach, sched, method)
+        new_obj = cls(data['identifier'], person, area, zone, ach,
+                      sched, method, ce, he, rec)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
@@ -394,8 +491,8 @@ class Ventilation(_LoadBase):
         """IDF string representation of Ventilation object.
 
         Note that this method only outputs a single string for the DesignSpecification:
-        OutdoorAir object and, to write everything needed to describe the object
-        into an IDF, this object's schedule must also be written.
+        OutdoorAir object. To write everything needed to describe the object into an IDF,
+        this object's schedule must also be written.
 
         Args:
             zone_identifier: Text for the zone identifier that the Ventilation
@@ -415,11 +512,19 @@ class Ventilation(_LoadBase):
         sched = self._schedule.identifier if self._schedule is not None else ''
         vent_obj_identifier = '{}..{}'.format(self.identifier, zone_identifier)
         method = 'Maximum' if self.method == 'Max' else 'Sum'
-        values = (
-            vent_obj_identifier, method,
-            self.flow_per_person, self.flow_per_area,
-            self.flow_per_zone, self.air_changes_per_hour, sched
-        )
+        if self.effectiveness_cooling == 1 and self.effectiveness_heating == 1:
+            values = (
+                vent_obj_identifier, method,
+                self.flow_per_person, self.flow_per_area,
+                self.flow_per_zone, self.air_changes_per_hour, sched
+            )
+        else:  # adjust the outdoor air need using the effectiveness
+            eff = min(self.effectiveness_cooling, self.effectiveness_heating)
+            values = (
+                vent_obj_identifier, method,
+                self.flow_per_person / eff, self.flow_per_area / eff,
+                self.flow_per_zone / eff, self.air_changes_per_hour / eff, sched
+            )
         comments = ('name', 'flow rate method', 'flow per person {m3/s-person}',
                     'flow per floor area {m3/s-m2}', 'flow per zone {m3/s}',
                     'air changes per hour {1/hr}', 'outdoor air schedule name')
@@ -449,6 +554,12 @@ class Ventilation(_LoadBase):
                 abridged else self.schedule.identifier
         if self.method != 'Sum':
             base['method'] = self.method
+        if self.effectiveness_cooling != 1:
+            base['effectiveness_cooling'] = self.effectiveness_cooling
+        if self.effectiveness_heating != 1:
+            base['effectiveness_heating'] = self.effectiveness_heating
+        if self.secondary_recirculation != 0:
+            base['secondary_recirculation'] = self.secondary_recirculation
         if self._display_name is not None:
             base['display_name'] = self.display_name
         if self._user_data is not None:
@@ -492,6 +603,16 @@ class Ventilation(_LoadBase):
         ach = sum([vent.air_changes_per_hour * w
                    for vent, w in zip(ventilations, weights)])
         method = 'Max' if all(vent.method == 'Max' for vent in ventilations) else 'Sum'
+        eff_cool = sum([vent.effectiveness_cooling * w
+                        for vent, w in zip(ventilations, weights)])
+        eff_heat = sum([vent.effectiveness_heating * w
+                        for vent, w in zip(ventilations, weights)])
+        sec_rec = sum([vent.secondary_recirculation * w
+                       for vent, w in zip(ventilations, weights)])
+        # round the effectiveness terms to avoid tolerance issues
+        eff_cool = round(eff_cool, 3)
+        eff_heat = round(eff_heat, 3)
+        sec_rec = round(sec_rec, 3)
 
         # calculate the average schedules
         scheds = [vent._schedule for vent in ventilations]
@@ -507,7 +628,8 @@ class Ventilation(_LoadBase):
                 '{} Schedule'.format(identifier), scheds, u_weights, timestep_resolution)
 
         # return the averaged object
-        return Ventilation(identifier, person, area, zone, ach, sched, method)
+        return Ventilation(identifier, person, area, zone, ach, sched, method,
+                           eff_cool, eff_heat, sec_rec)
 
     @staticmethod
     def combine_room_ventilations(identifier, rooms, timestep_resolution=1):
@@ -527,6 +649,10 @@ class Ventilation(_LoadBase):
         a different ventilation schedule, then a new schedule will be created
         using the maximum value across the two schedules at each timestep.
 
+        In the case of ventilation effectiveness and secondary recirculation,
+        the minimum effectiveness and recirculation fractions across the rooms
+        will be used.
+
         Args:
             identifier: Text string for a unique ID for the new Ventilation object.
                 Must be < 100 characters and not contain any EnergyPlus special
@@ -538,11 +664,13 @@ class Ventilation(_LoadBase):
                 which conflicting ventilation schedules will be resolved. (Default: 1).
         """
         # compute weights based on floor areas and volumes
-        ventilations, floor_areas, volumes = [], [], []
+        ventilations, floor_areas, volumes, scheds = [], [], [], []
         for room in rooms:
-            vent = Ventilation() if room.properties.energy.ventilation is None else \
-                room.properties.energy.ventilation
-            ventilations.append(vent)
+            if room.properties.energy.ventilation is None:
+                ventilations.append(Ventilation())
+            else:
+                ventilations.append(room.properties.energy.ventilation)
+                scheds.append(room.properties.energy.ventilation._schedule)
             floor_areas.append(room.floor_area)
             volumes.append(room.volume)
         total_floor = sum(floor_areas)
@@ -560,8 +688,7 @@ class Ventilation(_LoadBase):
         method = 'Max' if all(vent.method == 'Max' for vent in ventilations) else 'Sum'
 
         # calculate the average schedules
-        scheds = [vent._schedule for vent in ventilations]
-        if any(val is None for val in scheds):
+        if len(scheds) == 0 or any(val is None for val in scheds):
             sched = None
         else:
             base_sch = scheds[0]
@@ -571,8 +698,14 @@ class Ventilation(_LoadBase):
                 sched = Ventilation._max_schedule(
                     '{} Schedule'.format(identifier), scheds, timestep_resolution)
 
+        # get the minimum effectiveness and secondary recirculation
+        eff_cool = min(vent.effectiveness_cooling for vent in ventilations)
+        eff_heat = min(vent.effectiveness_heating for vent in ventilations)
+        sec_rec = min(vent.secondary_recirculation for vent in ventilations)
+
         # return the averaged object
-        return Ventilation(identifier, person, area, zone, ach, sched, method)
+        return Ventilation(identifier, person, area, zone, ach, sched, method,
+                           eff_cool, eff_heat, sec_rec)
 
     @staticmethod
     def _optional_dict_keys(data):
@@ -582,14 +715,18 @@ class Ventilation(_LoadBase):
         zone = data['flow_per_zone'] if 'flow_per_zone' in data else 0
         ach = data['air_changes_per_hour'] if 'air_changes_per_hour' in data else 0
         method = data['method'] if 'method' in data else 'Sum'
-        return person, area, zone, ach, method
+        cool_eff = data['effectiveness_cooling'] if 'effectiveness_cooling' in data else 1
+        heat_eff = data['effectiveness_heating'] if 'effectiveness_heating' in data else 1
+        rec = data['secondary_recirculation'] if 'secondary_recirculation' in data else 0
+        return person, area, zone, ach, method, cool_eff, heat_eff, rec
 
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""
         return (
             self.identifier, self.flow_per_person, self.flow_per_area,
             self.flow_per_zone, self.air_changes_per_hour, hash(self.schedule),
-            self.method
+            self.method, self.effectiveness_cooling, self.effectiveness_heating,
+            self.secondary_recirculation
         )
 
     def __hash__(self):
@@ -604,8 +741,10 @@ class Ventilation(_LoadBase):
     def __copy__(self):
         new_obj = Ventilation(
             self._identifier, self._flow_per_person, self._flow_per_area,
-            self._flow_per_zone, self._air_changes_per_hour,
-            self._schedule, self._method)
+            self._flow_per_zone, self._air_changes_per_hour, self._schedule,
+            self._method, self.effectiveness_cooling, self.effectiveness_heating,
+            self.secondary_recirculation
+        )
         new_obj._display_name = self._display_name
         new_obj._user_data = None if self._user_data is None else self._user_data.copy()
         new_obj._properties._duplicate_extension_attr(self._properties)
