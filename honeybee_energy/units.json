@@ -137,14 +137,14 @@
             "convert_from_ip": "{x} / 196.85"
         }
     },
-    "infiltration_flow": {
-        "units_hb": "m³/s",
-        "units_si": "L/s",
-        "units_ip": "cfm",
-        "convert_to_si": "{x} * 1000",
-        "convert_to_ip": "{x} * 2118.88",
-        "convert_from_si": "{x} / 1000",
-        "convert_from_ip": "{x} / 2118.88"
+    "infiltration_ach": {
+        "units_hb": "ACH",
+        "units_si": "ACH",
+        "units_ip": "ACH",
+        "convert_to_si": "{x}",
+        "convert_to_ip": "{x}",
+        "convert_from_si": "{x}",
+        "convert_from_ip": "{x}"
     },
     "ventilation": {
         "flow_per_person": {
