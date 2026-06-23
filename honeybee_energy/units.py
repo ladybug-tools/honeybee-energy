@@ -40,6 +40,11 @@ def convert_gas_equipment_watts_per_area(value, units='si'):
     return eval(UNITS[group][atr]['convert_to_{}'.format(units)].format(x=value), SAFE)
 
 
+def convert_gas_equipment_watts(value, units='si'):
+    group = 'gas_equipment_watts'
+    return eval(UNITS[group]['convert_to_{}'.format(units)].format(x=value), SAFE)
+
+
 def convert_service_hot_water_flow_per_area(value, units='si'):
     group, atr = 'service_hot_water', 'flow_per_area'
     return eval(UNITS[group][atr]['convert_to_{}'.format(units)].format(x=value), SAFE)
@@ -50,9 +55,19 @@ def convert_service_hot_water_target_temperature(value, units='si'):
     return eval(UNITS[group][atr]['convert_to_{}'.format(units)].format(x=value), SAFE)
 
 
+def convert_service_hot_water_flow(value, units='si'):
+    group = 'hot_water_flow'
+    return eval(UNITS[group]['convert_to_{}'.format(units)].format(x=value), SAFE)
+
+
 def convert_infiltration_flow_per_exterior_area(value, units='si'):
     group, atr = 'infiltration', 'flow_per_exterior_area'
     return eval(UNITS[group][atr]['convert_to_{}'.format(units)].format(x=value), SAFE)
+
+
+def convert_infiltration_flow(value, units='si'):
+    group = 'infiltration_flow'
+    return eval(UNITS[group]['convert_to_{}'.format(units)].format(x=value), SAFE)
 
 
 def convert_ventilation_flow_per_person(value, units='si'):

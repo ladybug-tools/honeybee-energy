@@ -70,7 +70,7 @@ class Ventilation(_LoadBase):
             adjusted in the course of simulation. Values less than 1 indicate systems
             that do not mix the air as well and so the specified airflows are increased.
             Values greater than 1 indicate systems that are particularly good at
-            delivering outdoor air to the occupied region of a room and so the
+            delivering outdoor air to the breathing zone of a room and so the
             specified airflows can be reduced. (Default: 1).
         effectiveness_heating: A positive number to note the air distribution
             effectiveness of the ventilation system when it operates in heating mode
@@ -79,10 +79,10 @@ class Ventilation(_LoadBase):
             adjusted in the course of simulation. Values less than 1 indicate systems
             that do not mix the air as well and so the specified airflows are increased.
             Values greater than 1 indicate systems that are particularly good at
-            delivering outdoor air to the occupied region of a room and so the
+            delivering outdoor air to the breathing zone of a room and so the
             specified airflows can be reduced. (Default: 1).
         secondary_recirculation: A number that is greater than or equal to zero,
-            which notes to note the fraction of a zone's recirculation air that
+            which notes the fraction of a zone's recirculation air that
             does not directly mix with the outdoor air. Used in cases where a
             central ventilation system supplies several zones and the return
             air is not collected through ducts back to the central air handler
