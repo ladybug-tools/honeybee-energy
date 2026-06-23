@@ -2393,9 +2393,9 @@ class ModelEnergyProperties(object):
 
         The identifiers of sub-objects included in the filter will cause the
         parent objects that use them to be included within the result. So,
-        if construction_ids includes a construction that is used within a
-        construction set in the input data, that construction set will appear
-        in the output.
+        if the input construction_ids includes a construction that is used within
+        a construction set in the input data, that construction set will appear
+        in the output along with all of its constituent constructions.
 
         This method is useful when trying to figure out which parent objects
         are updated when a given child object changes.

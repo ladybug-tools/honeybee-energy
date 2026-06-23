@@ -65,11 +65,6 @@ def convert_infiltration_flow_per_exterior_area(value, units='si'):
     return eval(UNITS[group][atr]['convert_to_{}'.format(units)].format(x=value), SAFE)
 
 
-def convert_infiltration_flow(value, units='si'):
-    group = 'infiltration_flow'
-    return eval(UNITS[group]['convert_to_{}'.format(units)].format(x=value), SAFE)
-
-
 def convert_ventilation_flow_per_person(value, units='si'):
     group, atr = 'ventilation', 'flow_per_person'
     return eval(UNITS[group][atr]['convert_to_{}'.format(units)].format(x=value), SAFE)
