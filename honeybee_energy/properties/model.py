@@ -2288,7 +2288,7 @@ class ModelEnergyProperties(object):
     def dump_properties_to_dict(
             materials=None, constructions=None, construction_sets=None,
             schedule_type_limits=None, schedules=None, program_types=None,
-            hvacs=None, shws=None):
+            hvacs=None, shws=None, abridged=True):
         """Get a ModelEnergyProperties dictionary from arrays of Python objects.
 
         Args:
@@ -2300,10 +2300,18 @@ class ModelEnergyProperties(object):
             program_types:  A list or tuple of program type objects.
             hvacs: A list or tuple of HVACSystem objects.
             shws:  A list or tuple of SHWSystem objects.
+            abridged: A boolean to note whether the objects in the returned
+                ModelEnergyProperties should all be abridged (True) or they should
+                be unabridged (False). Note that setting this to False will
+                result in getting several duplicated specifications of sub-objects.
+                For example, the same material can apear under
+                ModelEnergyProperties.materials, ModelEnergyProperties.constructions
+                and ModelEnergyProperties.construction_sets. (Default: True).
 
         Returns:
             data: A dictionary representation of ModelEnergyProperties. Note that
-                all objects in this dictionary will follow the abridged schema.
+                all objects in this dictionary will follow the abridged schema
+                unless abridged is set to False.
         """
         # process the input schedules and type limits
         type_lim = [] if schedule_type_limits is None else list(schedule_type_limits)
@@ -2362,19 +2370,150 @@ class ModelEnergyProperties(object):
         # add all object dictionaries into one object
         data = {'type': 'ModelEnergyProperties'}
         data['schedule_type_limits'] = [tl.to_dict() for tl in all_typ_lim]
-        data['schedules'] = [sch.to_dict(abridged=True) for sch in all_scheds]
-        data['program_types'] = [pro.to_dict(abridged=True) for pro in all_progs]
+        data['schedules'] = [sch.to_dict(abridged=abridged) for sch in all_scheds]
+        data['program_types'] = [pro.to_dict(abridged=abridged) for pro in all_progs]
         data['materials'] = [m.to_dict() for m in all_mats]
         data['constructions'] = []
         for con in all_cons:
             try:
-                data['constructions'].append(con.to_dict(abridged=True))
+                data['constructions'].append(con.to_dict(abridged=abridged))
             except TypeError:  # no abridged option
                 data['constructions'].append(con.to_dict())
-        data['construction_sets'] = [cs.to_dict(abridged=True) for cs in all_con_sets]
-        data['hvacs'] = [hv.to_dict(abridged=True) for hv in all_hvac]
-        data['shws'] = [sw.to_dict(abridged=True) for sw in all_shw]
+        data['construction_sets'] = [cs.to_dict(abridged=abridged) for cs in all_con_sets]
+        data['hvacs'] = [hv.to_dict(abridged=abridged) for hv in all_hvac]
+        data['shws'] = [sw.to_dict(abridged=abridged) for sw in all_shw]
         return data
+
+    @staticmethod
+    def filter_dict_by_identifiers(
+            data, material_ids=None, construction_ids=None, construction_set_ids=None,
+            schedule_type_limit_ids=None, schedule_ids=None, program_type_ids=None,
+            skip_invalid=False, prioritize_abridged=True, abridged=True):
+        """Get a ModelEnergyProperties dictionary filtered by object identifiers.
+
+        The identifiers of sub-objects included in the filter will cause the
+        parent objects that use them to be included within the result. So,
+        if construction_ids includes a construction that is used within a
+        construction set in the input data, that construction set will appear
+        in the output.
+
+        This method is useful when trying to figure out which parent objects
+        are updated when a given child object changes.
+
+        Args:
+            data: A dictionary representation of ModelEnergyProperties to be
+                filtered by identifiers.
+            material_ids: An optional list of material identifiers.
+            construction_ids: An optional list of construction identifiers.
+            construction_set_ids: An optional list of construction set identifiers.
+            schedule_type_limit_ids: An optional list of type limit identifiers.
+            schedule_ids: An optional list of schedule identifiers.
+            program_type_ids: An optional list of program type identifiers.
+            skip_invalid: A boolean to note whether objects that cannot be loaded
+                should be ignored (True) or whether an exception should be raised
+                about the invalid object (False). (Default: False).
+            prioritize_abridged: A boolean to note whether unabridged objects should
+                prioritize loading child objects from the other abridged objects
+                under the energy properties (eg. ModelEnergyProperties.schedules)
+                as opposed to using the child objects underneath their unabridged
+                specification. (Default: True).
+            abridged: A boolean to note whether the objects in the returned
+                ModelEnergyProperties should all be abridged (True) or they should
+                be unabridged (False). Note that setting this to False will
+                result in getting several duplicated specifications of sub-objects.
+                For example, the same material can apear under
+                ModelEnergyProperties.materials, ModelEnergyProperties.constructions
+                and ModelEnergyProperties.construction_sets. (Default: True).
+
+        Returns:
+            data: A dictionary representation of ModelEnergyProperties. Note that
+                all objects in this dictionary will follow the abridged schema
+                unless abridged is set to False.
+        """
+        # load the data to objects
+        b_dict = {'type': 'Model', 'properties': {'energy': data}}
+        result = ModelEnergyProperties.load_properties_from_dict(
+            b_dict, skip_invalid=skip_invalid, prioritize_abridged=prioritize_abridged
+        )
+        mats, cons, con_sets, stls, schs, programs, hvacs, shws = result
+
+        # create sets of the ids for filtering
+        mat_ids = set(material_ids) if material_ids is not None else set()
+        con_ids = set(construction_ids) if construction_ids is not None else set()
+        cs_ids = set(construction_set_ids) if construction_set_ids is not None else set()
+        stl_ids = set(schedule_type_limit_ids) if schedule_type_limit_ids is not None else set()
+        sch_ids = set(schedule_ids) if schedule_ids is not None else set()
+        prog_ids = set(program_type_ids) if program_type_ids is not None else set()
+
+        # filter the schedule type limits by ID
+        stls = {stl_id: stls[stl_id] for stl_id in stl_ids}
+
+        # filter the schedules by ID
+        filt_schs = {}
+        for sch_id, sch in schs.items():
+            if sch_id in sch_ids:
+                filt_schs[sch_id] = sch
+            elif len(stls) != 0 and sch.schedule_type_limit is not None and \
+                    sch.schedule_type_limit.identifier in stls:
+                filt_schs[sch_id] = sch
+        schs = filt_schs
+
+        # filter the programs by ID
+        filt_programs = {}
+        for program_id, program in programs.items():
+            if program_id in prog_ids:
+                filt_programs[program_id] = program
+            elif len(schs) != 0:
+                for sch in program.schedules:
+                    if sch.identifier in schs:
+                        filt_programs[program_id] = program
+                        break
+        programs = filt_programs
+
+        # filter the material objects based on the ids
+        mats = {mat_id: mats[mat_id] for mat_id in mat_ids}
+
+        # filter the construction objects based on the ids
+        filt_cons = {}
+        for con_id, con in cons.items():
+            if con_id in con_ids:
+                filt_cons[con_id] = con
+                break
+            elif isinstance(con, WindowConstructionDynamic):
+                for w_con in con.constructions:
+                    for mat_id in w_con.layers:
+                        if mat_id in mats:
+                            filt_cons[con_id] = con
+                            break
+                if con.schedule.identifier in schs:
+                    filt_cons[con_id] = con
+                break
+            if len(mats) != 0 and hasattr(con, 'layers'):
+                for mat_id in con.layers:
+                    if mat_id in mats:
+                        filt_cons[con_id] = con
+                        break
+            if isinstance(con, AirBoundaryConstruction):
+                if con.air_mixing_schedule.identifier in schs:
+                    filt_cons[con_id] = con
+        cons = filt_cons
+
+        # filter the construction sets by ID
+        filt_con_sets = {}
+        for con_set_id, con_set in con_sets.items():
+            if con_set_id in cs_ids:
+                filt_con_sets[con_set_id] = con_set
+            elif len(cons) != 0:
+                for con in con_set.modified_constructions:
+                    if con.identifier in cons:
+                        filt_con_sets[con_set_id] = con_set
+                        break
+        con_sets = filt_con_sets
+
+        # return the model energy properties
+        return ModelEnergyProperties.dump_properties_to_dict(
+            mats.values(), cons.values(), con_sets.values(), stls.values(), schs.values(),
+            programs.values(), hvacs.values(), shws.values(), abridged=abridged)
 
     @staticmethod
     def reset_resource_ids_in_dict(

@@ -192,7 +192,7 @@ class IdealAirSystem(_HVACSystem):
         """Get or set a number for the maximum heating capacity in Watts."""
         return self._heating_limit
 
-    @heating_limit.setter
+    @heating_limit.setter 
     def heating_limit(self, value):
         if value == autosize or value is None:
             self._heating_limit = autosize
