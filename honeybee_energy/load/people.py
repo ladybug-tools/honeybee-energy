@@ -163,7 +163,7 @@ class People(_LoadBase):
         """
         sen_fract = 1 - self.latent_fraction \
             if self.latent_fraction != autocalculate else 0.5
-        return self._max_schedule_value(self._activity_schedule) * sen_fract
+        return self._max_schedule_value(self._activity_schedule, False) * sen_fract
 
     @property
     def activity_max_latent(self):
@@ -174,7 +174,7 @@ class People(_LoadBase):
         """
         latent_fract = self.latent_fraction \
             if self.latent_fraction != autocalculate else 0.5
-        return self._max_schedule_value(self._activity_schedule) * latent_fract
+        return self._max_schedule_value(self._activity_schedule, False) * latent_fract
 
     @property
     def people_per_area_si(self):
