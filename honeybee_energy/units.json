@@ -26,16 +26,16 @@
             "convert_to_ip": "{x} * 3.41214",
             "convert_from_si": "{x} * 1000",
             "convert_from_ip": "{x} / 3.41214"
+        },
+        "count": {
+            "units_hb": "ppl",
+            "units_si": "ppl",
+            "units_ip": "ppl",
+            "convert_to_si": "{x}",
+            "convert_to_ip": "{x}",
+            "convert_from_si": "{x}",
+            "convert_from_ip": "{x}"
         }
-    },
-    "person_count": {
-        "units_hb": "ppl",
-        "units_si": "ppl",
-        "units_ip": "ppl",
-        "convert_to_si": "{x}",
-        "convert_to_ip": "{x}",
-        "convert_from_si": "{x}",
-        "convert_from_ip": "{x}"
     },
     "lighting": {
         "watts_per_area": {
@@ -46,16 +46,16 @@
             "convert_to_ip": "{x} / 10.7639",
             "convert_from_si": "{x}",
             "convert_from_ip": "{x} * 10.7639"
+        },
+        "watts": {
+            "units_hb": "W",
+            "units_si": "W",
+            "units_ip": "W",
+            "convert_to_si": "{x}",
+            "convert_to_ip": "{x}",
+            "convert_from_si": "{x}",
+            "convert_from_ip": "{x}"
         }
-    },
-    "lighting_watts": {
-        "units_hb": "W",
-        "units_si": "W",
-        "units_ip": "W",
-        "convert_to_si": "{x}",
-        "convert_to_ip": "{x}",
-        "convert_from_si": "{x}",
-        "convert_from_ip": "{x}"
     },
     "electric_equipment": {
         "watts_per_area": {
@@ -66,16 +66,16 @@
             "convert_to_ip": "{x} / 10.7639",
             "convert_from_si": "{x}",
             "convert_from_ip": "{x} * 10.7639"
+        },
+        "watts": {
+            "units_hb": "W",
+            "units_si": "W",
+            "units_ip": "W",
+            "convert_to_si": "{x}",
+            "convert_to_ip": "{x}",
+            "convert_from_si": "{x}",
+            "convert_from_ip": "{x}"
         }
-    },
-    "electric_equipment_watts": {
-        "units_hb": "W",
-        "units_si": "W",
-        "units_ip": "W",
-        "convert_to_si": "{x}",
-        "convert_to_ip": "{x}",
-        "convert_from_si": "{x}",
-        "convert_from_ip": "{x}"
     },
     "gas_equipment": {
         "watts_per_area": {
@@ -86,16 +86,16 @@
             "convert_to_ip": "{x} / 3.15459075",
             "convert_from_si": "{x} * 1000",
             "convert_from_ip": "{x} * 3.15459075"
+        },
+        "watts": {
+            "units_hb": "W",
+            "units_si": "kW",
+            "units_ip": "Btu/h",
+            "convert_to_si": "{x} / 1000",
+            "convert_to_ip": "{x} * 3.41214",
+            "convert_from_si": "{x} * 1000",
+            "convert_from_ip": "{x} / 3.41214"
         }
-    },
-    "gas_equipment_watts": {
-        "units_hb": "W",
-        "units_si": "kW",
-        "units_ip": "Btu/h",
-        "convert_to_si": "{x} / 1000",
-        "convert_to_ip": "{x} * 3.41214",
-        "convert_from_si": "{x} * 1000",
-        "convert_from_ip": "{x} / 3.41214"
     },
     "service_hot_water": {
         "flow_per_area": {
@@ -115,16 +115,16 @@
             "convert_to_ip": "{x} * 9 / 5 + 32",
             "convert_from_si": "{x}",
             "convert_from_ip": "({x} - 32) * 5 / 9"
+        },
+        "flow": {
+            "units_hb": "L/h",
+            "units_si": "L/h",
+            "units_ip": "gph",
+            "convert_to_si": "{x}",
+            "convert_to_ip": "{x} / 3.785",
+            "convert_from_si": "{x}",
+            "convert_from_ip": "{x} * 3.785"
         }
-    },
-    "hot_water_flow": {
-        "units_hb": "L/h",
-        "units_si": "L/h",
-        "units_ip": "gph",
-        "convert_to_si": "{x}",
-        "convert_to_ip": "{x} / 3.785",
-        "convert_from_si": "{x}",
-        "convert_from_ip": "{x} * 3.785"
     },
     "infiltration": {
         "flow_per_exterior_area": {
@@ -135,16 +135,16 @@
             "convert_to_ip": "{x} * 196.85",
             "convert_from_si": "{x} / 1000",
             "convert_from_ip": "{x} / 196.85"
+        },
+        "ach": {
+            "units_hb": "ACH",
+            "units_si": "ACH",
+            "units_ip": "ACH",
+            "convert_to_si": "{x}",
+            "convert_to_ip": "{x}",
+            "convert_from_si": "{x}",
+            "convert_from_ip": "{x}"
         }
-    },
-    "infiltration_ach": {
-        "units_hb": "ACH",
-        "units_si": "ACH",
-        "units_ip": "ACH",
-        "convert_to_si": "{x}",
-        "convert_to_ip": "{x}",
-        "convert_from_si": "{x}",
-        "convert_from_ip": "{x}"
     },
     "ventilation": {
         "flow_per_person": {
