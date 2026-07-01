@@ -1,0 +1,7 @@
+honeybee\_energy.cli.validate module
+====================================
+
+.. automodule:: honeybee_energy.cli.validate
+   :members:
+   :undoc-members:
+   :show-inheritance:
