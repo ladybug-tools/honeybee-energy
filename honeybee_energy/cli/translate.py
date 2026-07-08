@@ -24,7 +24,7 @@ from honeybee_energy.schedule.ruleset import ScheduleRuleset
 from honeybee_energy.run import to_openstudio_sim_folder, run_osw, from_osm_osw, \
     _parse_os_cli_failure, HB_OS_MSG
 from honeybee_energy.run import empty_osm as create_empty_osm
-from honeybee_energy.writer import energyplus_idf_version, _preprocess_model_for_trace
+from honeybee_energy.writer import energyplus_idf_version, _preprocess_model_for_trace_3dplus
 from honeybee_energy.config import folders
 
 _logger = logging.getLogger(__name__)
@@ -836,7 +836,7 @@ def model_to_trace_gbxml(
     # load the model and translate it to a gbXML string
     single_window = not detailed_windows
     model = Model.from_file(model_file)
-    model = _preprocess_model_for_trace(
+    model = _preprocess_model_for_trace_3dplus(
         model, single_window=single_window, rect_sub_distance=rect_sub_distance,
         frame_merge_distance=frame_merge_distance
     )
