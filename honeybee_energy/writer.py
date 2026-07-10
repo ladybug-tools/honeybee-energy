@@ -1,6 +1,7 @@
 # coding=utf-8
 """Methods to write to idf."""
 import math
+from collections import OrderedDict
 import xml.etree.ElementTree as ET
 try:
     from itertools import izip as zip  # python 2
@@ -12,6 +13,7 @@ from ladybug_geometry.geometry3d import Vector3D, Plane, Face3D
 from honeybee.typing import clean_string
 from honeybee.room import Room
 from honeybee.face import Face
+from honeybee.shade import Shade
 from honeybee.boundarycondition import Outdoors, Surface, Ground, boundary_conditions
 from honeybee.facetype import Wall, Floor, RoofCeiling, AirBoundary
 from honeybee.units import parse_distance_string, conversion_factor_to_meters
@@ -1118,9 +1120,11 @@ def shade_to_gbxml_element(
     # add the name and the associated space
     xml_name = ET.SubElement(xml_shade, 'Name')
     xml_name.text = str(shade.display_name)
-    top_parent = shade.top_level_parent
-    if isinstance(top_parent, Room):
-        ET.SubElement(xml_shade, 'AdjacentSpaceId', spaceIdRef=top_parent.identifier)
+    if not isinstance(shade, Shade):  # orphaned Face, Aperture or Door object
+        ET.SubElement(xml_shade, 'AdjacentSpaceId', spaceIdRef='Detached Shades')
+    elif isinstance(shade.top_level_parent, Room):
+        ET.SubElement(xml_shade, 'AdjacentSpaceId',
+                      spaceIdRef=shade.top_level_parent.identifier)
     elif shade.is_detached:
         ET.SubElement(xml_shade, 'AdjacentSpaceId', spaceIdRef='Detached Shades')
     else:
@@ -1288,7 +1292,10 @@ def face_to_gbxml_element(
     return xml_face
 
 
-def room_to_gbxml_element(room, ip_units=False, building_element=None):
+def room_to_gbxml_element(
+    room, ip_units=False, include_shell_geometry=False, include_space_boundaries=False,
+    tolerance=0.001, building_element=None
+):
     """Get a gbXML Space Element from a honeybee Room.
 
     Note that the Space elements of gbXML do not contain any geometry given that
@@ -1298,11 +1305,18 @@ def room_to_gbxml_element(room, ip_units=False, building_element=None):
         room: A honeybee Room for which an gbXML Space Element will be returned.
         ip_units: A boolean to note whether the space loads should be reported
             in IP units (True) or SI units (False). (Default: False).
+        include_shell_geometry: Boolean for whether shell geometry should be
+            included in the Space definition. (Default: False).
+        include_space_boundaries: Boolean for whether space boundaries should be
+            included in the Space definition. (Default: False).
+        tolerance: The minimum difference in coordinate values below which
+            vertices are considered to be identical. (Default: 0.001, suitable
+            for objects in Meters or Feet).
         building_element: An optional XML Element for the Building to which the
             space element will be added. If None, a new XML Element will be
             generated. (Default: None).
     """
-    # establish the properties of the shade object
+    # establish the properties of the room object
     story = clean_string(room.story) if room.story is not None else 'Unknown_Level'
     space_attr = {
         'id': room.identifier,
@@ -1311,6 +1325,7 @@ def room_to_gbxml_element(room, ip_units=False, building_element=None):
     }
 
     # create the Space element
+    decimal_count, _ = rounding_tolerance(tolerance)
     if building_element is not None:
         xml_space = ET.SubElement(building_element, 'Space', space_attr)
     else:
@@ -1319,9 +1334,9 @@ def room_to_gbxml_element(room, ip_units=False, building_element=None):
     xml_name = ET.SubElement(xml_space, 'Name')
     xml_name.text = str(room.display_name)
     xml_area = ET.SubElement(xml_space, 'Area')
-    xml_area.text = str(round(room.floor_area, 3))
+    xml_area.text = str(round(room.floor_area, decimal_count))
     xml_volume = ET.SubElement(xml_space, 'Volume')
-    xml_volume.text = str(round(room.volume, 3))
+    xml_volume.text = str(round(room.volume, decimal_count))
 
     # add the people loads if they exist
     people = room.properties.energy.people
@@ -1336,7 +1351,7 @@ def room_to_gbxml_element(room, ip_units=False, building_element=None):
         else:
             people_value, unit = people.people_per_area_si, 'SquareMPerPerson'
         xml_people = ET.SubElement(xml_space, 'LightPowerPerArea', unit=unit)
-        xml_people.text = str(round(people_value, 3))
+        xml_people.text = str(round(people_value, decimal_count))
 
     # add the lighting load if it exists
     lighting = room.properties.energy.lighting
@@ -1346,7 +1361,7 @@ def room_to_gbxml_element(room, ip_units=False, building_element=None):
         else:
             watts_per_area, unit = lighting.watts_per_area_si, 'WattPerSquareMeter'
         xml_lights = ET.SubElement(xml_space, 'LightPowerPerArea', unit=unit)
-        xml_lights.text = str(round(watts_per_area, 3))
+        xml_lights.text = str(round(watts_per_area, decimal_count))
 
     # add the equipment load if it exists
     electric_equip = room.properties.energy.electric_equipment
@@ -1361,7 +1376,7 @@ def room_to_gbxml_element(room, ip_units=False, building_element=None):
             unit = 'WattPerSquareFoot'
             watts_per_area = watts_per_area / 10.7639
         xml_equip = ET.SubElement(xml_space, 'EquipPowerPerArea', unit=unit)
-        xml_equip.text = str(round(watts_per_area, 3))
+        xml_equip.text = str(round(watts_per_area, decimal_count))
 
     # add the infiltration load if it exists
     inf_obj = room.properties.energy.infiltration
@@ -1369,7 +1384,7 @@ def room_to_gbxml_element(room, ip_units=False, building_element=None):
         inf_per_area = inf_obj.flow_per_exterior_area
         if inf_per_area <= 0.00015:
             inf_class = 'Tight'
-        elif inf_per_area <= 0.0003:
+        elif inf_per_area <= 0.00045:
             inf_class = 'Average'
         else:
             inf_class = 'Loose'
@@ -1379,14 +1394,61 @@ def room_to_gbxml_element(room, ip_units=False, building_element=None):
         total_ach = (total_inf * 3600) / room.volume
         blower_element = ET.SubElement(inf_element, 'BlowerDoorValue')
         blower_element.set('unit', 'AirChangesPerHour')
-        blower_element.text = str(round(total_ach, 3))
+        blower_element.text = str(round(total_ach, decimal_count))
+
+    # write the shell geometry and space boundaries if requested
+    if include_shell_geometry or include_space_boundaries:
+        geo_elements = []
+        for face in room:
+            # write the geometry of the face
+            geo_element = ET.Element(face_element, 'PlanarGeometry')
+            xml_poly = None
+            if explicit_holes and face_3d.has_holes:
+                xml_poly = ET.SubElement(geo_element, 'PolyLoop')
+                for pt in face_3d.boundary:
+                    xml_pt = ET.SubElement(xml_poly, 'CartesianPoint')
+                    for coord in pt:
+                        xml_coord = ET.SubElement(xml_pt, 'Coordinate')
+                        xml_coord.text = str(round(coord, decimal_count))
+                for hole in face_3d.holes:
+                    xml_poly = ET.SubElement(geo_element, 'PolyLoop')
+                    for pt in hole:
+                        xml_pt = ET.SubElement(xml_poly, 'CartesianPoint')
+                        for coord in pt:
+                            xml_coord = ET.SubElement(xml_pt, 'Coordinate')
+                            xml_coord.text = str(round(coord, decimal_count))
+            # write all vertices into one poly loop for shell geometry
+            xml_poly = ET.SubElement(geo_element, 'PolyLoop') \
+                if xml_poly is None else ET.Element('PolyLoop')
+            for pt in face_3d.vertices:
+                xml_pt = ET.SubElement(xml_poly, 'CartesianPoint')
+                for coord in pt:
+                    xml_coord = ET.SubElement(xml_pt, 'Coordinate')
+                    xml_coord.text = str(round(coord, decimal_count))
+            geo_elements.append(xml_poly)
+
+            # write the geometry as a space boundary if requested
+            if include_space_boundaries:
+                sb_element = ET.Element('SpaceBoundary')
+                sb_element.set('isSecondLevelBoundary', 'false')
+                sb_element.set('surfaceIdRef', face.identifier)
+                sb_element.append(geo_element)
+                xml_space.append(sb_element)
+                    
+        # write it as shell geometry if requested
+        if include_shell_geometry:
+            shell_element = ET.SubElement(xml_space, 'ShellGeometry')
+            shell_element.set('id', '{}Shell'.format(room.identifier))
+            shell_geo_element = ET.SubElement(shell_element, 'ClosedShell')
+            for xml_geo in geo_elements:
+                shell_geo_element
 
     return xml_space
 
 
 def model_to_gbxml_element(
     model, ip_units=False, include_shell_geometry=False, include_space_boundaries=False,
-    interior_face_type=None, ground_face_type=None,
+    interior_face_type='InteriorFloor', ground_face_type='AutoAssign',
     face_rename_format=None, subface_rename_format=None,
     reset_geometry_ids=False, reset_resource_ids=False,
     triangulate_subfaces=False, triangulate_non_planar=True, explicit_holes=False,
@@ -1403,11 +1465,21 @@ def model_to_gbxml_element(
         include_space_boundaries: Boolean for whether space boundaries should be included
              vs. just the minimal required non-manifold geometry. (Default: False).
         interior_face_type: Text string for the type to be used for all interior
-            floor faces. If unspecified, the interior types will be left as they are.
-            Choose from the following. InteriorFloor, Ceiling.
+            floor/ceiling faces. (Default: InteriorFloor). Choose from the following.
+
+            * InteriorFloor
+            * Ceiling
+
         ground_face_type: Text string for the type to be used for all ground-contact
-            floor faces. If unspecified, the ground types will be left as they are.
-            Choose from the following. UndergroundSlab, SlabOnGrade, RaisedFloor.
+            floor faces. If AutoAssign, the ground types will be SlabOnGrade for floors
+            belonging to rooms with any above-ground walls and UndergroundSlab
+            for floors with all underground walls. Choose from the following.
+
+            * AutoAssign
+            * UndergroundSlab
+            * SlabOnGrade
+            * RaisedFloor
+
         face_rename_format: An optional text string for the pattern with which
             faces will be renamed. Any property on the honeybee Face class may be
             used (eg. gbxml_str) and each property should be put in curly brackets.
@@ -1475,15 +1547,17 @@ def model_to_gbxml_element(
         model.convert_to_units('Feet')
     else:
         model.convert_to_units('Meters')
-    # as a good practice, remove degenerate geometry within tolerance of 0.01 feet/meters
+    # as a good practice, remove degenerate geometry within model tolerance
+    tol = model.tolerance
+    decimal_count, _ = rounding_tolerance(tol)
     try:
-        model.remove_degenerate_geometry(0.01)
+        model.remove_degenerate_geometry(tol)
     except ValueError:
         error = 'Failed to remove degenerate Rooms.\nYour Model units system is: {}. ' \
             'Is this correct?'.format(original_model.units)
         raise ValueError(error)
     if triangulate_non_planar:
-        model.triangulate_non_planar_quads(0.01)
+        model.triangulate_non_planar_quads(tol)
 
     # auto-assign stories if there are none
     if len(model.stories) == 0 and len(model.rooms) != 0:
@@ -1539,18 +1613,94 @@ def model_to_gbxml_element(
     xml_bldg_name = ET.SubElement(xml_bldg, 'Name')
     xml_bldg_name.text = str(model.display_name)
     xml_floor_area = ET.SubElement(xml_bldg, 'Area')
-    xml_floor_area.text = str(round(model.floor_area, 3))
+    xml_floor_area.text = str(round(model.floor_area, decimal_count))
 
-    # write all of the rooms into the gbXML as spaces and add a space for shades
-    story_dict = {}
+    # write all of the rooms into the gbXML as spaces
+    story_dict = OrderedDict()
     for room in model.rooms:
-        room_to_gbxml_element(room, ip_units)
+        room_to_gbxml_element(room, ip_units, tol, xml_bldg)
         try:
             story_dict[room.story].append(room)
         except KeyError:
             story_dict[room.story] = [room]
 
+    # add spaces for unassigned shades if they exist in the model
+    detached_shades, detached_sms, attached_shades, attached_sms = [], [], [], []
+    for face in model.orphaned_faces:
+        detached_shades.append(face)
+    for aperture in model.orphaned_apertures:
+        detached_shades.append(aperture)
+    for door in model.orphaned_doors:
+        detached_shades.append(door)
+    for shade in model.orphaned_shades:
+        if shade.is_detached:
+            detached_shades.append(shade)
+        else:
+            attached_shades.append(shade)
+    for shade_mesh in model.shade_meshes:
+        if shade_mesh.is_detached:
+            detached_sms.append(shade_mesh)
+        else:
+            attached_sms.append(shade_mesh)
+    if len(attached_shades) != 0 or len(attached_sms) != 0:
+        xml_shd_space = ET.SubElement(xml_bldg, 'Space', id='Attached_Shades')
+        xml_shd_name = ET.SubElement(xml_shd_space, 'Name')
+        xml_shd_name.text = 'Attached Shades'
+    if len(detached_shades) != 0 or len(detached_sms) != 0:
+        xml_shd_space = ET.SubElement(xml_bldg, 'Space', id='Detached_Shades')
+        xml_shd_name = ET.SubElement(xml_shd_space, 'Name')
+        xml_shd_name.text = 'Detached Shades'
+
     # get the stories of the model and write them into the gbXML
+    for story_name, story_rooms in story_dict.items():
+        elevation = min(r.min.z for r in story_rooms)
+        xml_story = ET.SubElement(xml_bldg, 'BuildingStorey', id=clean_string(story_name))
+        xml_story_name = ET.SubElement(xml_story, 'Name')
+        xml_story_name.text = story_name
+        xml_story_elev = ET.SubElement(xml_story, 'Level')
+        xml_story_elev.text = str(round(elevation, decimal_count))
+
+    # all of the room faces and openings to the gbxml ad non-manifold geometry
+    adj_to_ignore = set()
+    for room in model.rooms:
+        for face in room.faces:
+            # ensure that interior surfaces are not added twice
+            fbc = face.boundary_condition
+            if isinstance(fbc, Surface):
+                if face.identifier in adj_to_ignore:
+                    continue
+                if isinstance(face.type, RoofCeiling) and interior_face_type == 'InteriorFloor':
+                    continue
+                elif isinstance(face.type, Floor) and interior_face_type == 'Ceiling':
+                    continue
+                adj_to_ignore.add(fbc.boundary_condition_object)
+            # add the face element to the gbxml
+            xml_face = face_to_gbxml_element(
+                face, tolerance=tol, explicit_holes=explicit_holes,
+                campus_element=xml_campus
+            )
+            # if the floor type was specified, overwrite it
+            if ground_face_type != 'AutoAssign' and isinstance(fbc, Ground):
+                if isinstance(face.type, Floor):
+                    xml_face.set('surfaceType', ground_face_type)
+
+    # add all of the shade geometries to the gbxml
+    for shade in attached_shades:
+        shade_to_gbxml_element(shade, tol, explicit_holes, xml_campus)
+    for sm in attached_sms:
+        shade_mesh_to_gbxml_element(sm, tol, explicit_holes, xml_campus)
+    for shade in detached_shades:
+        shade_to_gbxml_element(shade, tol, explicit_holes, xml_campus)
+    for sm in detached_sms:
+        shade_mesh_to_gbxml_element(sm, tol, explicit_holes, xml_campus)
+
+    # add the construction objects and window types to the gbxml
+
+    # add the material objects to the gbxml
+
+    # add the zone information to the gbxml
+
+    # add the document history to the gbxml
 
     return gbxml_root
 
