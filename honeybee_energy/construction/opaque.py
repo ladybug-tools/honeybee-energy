@@ -3,8 +3,9 @@
 from __future__ import division
 
 import re
-
+import xml.etree.ElementTree as ET
 from honeybee._lockable import lockable
+from honeybee.typing import clean_string
 
 from ._base import _ConstructionBase
 from ..material.dictutil import dict_to_material
@@ -254,6 +255,52 @@ class OpaqueConstruction(_ConstructionBase):
         return cls(ep_strs[0], materials)
 
     @classmethod
+    def from_gbxml(cls, gbxml_str, materials):
+        """Create a OpaqueConstruction from an gbXML string.
+
+        Args:
+            gbxml_element: A Construction string from a gbXML file.
+            materials: A dictionary with identifiers of materials as keys and Python
+                material objects as values.
+
+        .. code-block:: xml
+
+            <Construction id="Generic_Roof">
+                <Name>Generic Roof</Name>
+                <LayerId layerIdRef="Generic_Roof_Membrane_Layer" />
+                <LayerId layerIdRef="Generic_50mm_Insulation_Layer" />
+                <LayerId layerIdRef="Generic_LW_Concrete_Layer" />
+                <LayerId layerIdRef="Generic_Ceiling_Air_Gap_Layer" />
+                <LayerId layerIdRef="Generic_Acoustic_Tile_Layer" />
+            </Construction>
+        """
+        gbxml_element = ET.fromstring(gbxml_str)
+        return cls.from_gbxml_element(gbxml_element, materials)
+
+    @classmethod
+    def from_gbxml_element(cls, gbxml_element, materials):
+        """Create a OpaqueConstruction from an gbXML Element.
+
+        Args:
+            gbxml_element: A Construction Element from a gbXML file.
+            materials: A dictionary with identifiers of materials as keys and Python
+                material objects as values.
+        """
+        con_id = gbxml_element.get('id').replace('_', ' ')
+        mat_layers = []
+        for xml_mat in gbxml_element.findall('LayerId'):
+            mat_id = xml_mat.get('layerIdRef')
+            try:
+                mat_layers.append(materials[mat_id.replace('_', ' ')])
+            except KeyError as e:
+                raise ValueError('Failed to find {} in materials.'.format(e))
+        new_obj = cls(con_id, mat_layers)
+        name = gbxml_element.find('Name')
+        if name is not None:
+            new_obj.display_name = name.text
+        return new_obj
+
+    @classmethod
     def from_dict(cls, data, materials=None):
         """Create a OpaqueConstruction from a dictionary.
 
@@ -356,6 +403,41 @@ class OpaqueConstruction(_ConstructionBase):
                 C12 - 2 IN HW CONCRETE;
         """
         return self._generate_idf_string('opaque', self.identifier, self.materials)
+
+    def to_gbxml_element(self, parent_element=None):
+        """Get a gbXML Construction Element representation of this object.
+
+        Note that gbXML only represents constructions with references to materials.
+        So it is also necessary to call each material's to_gbxml_element method
+        to get a complete representation of the construction in gbXML format.
+
+        Args:
+            parent_element: An optional XML Element for the gbXML root to which the
+                construction element will be added. If None, a new XML Element
+                will be generated. (Default: None).
+        """
+        # create the Surface element
+        con_id = clean_string(self.identifier)
+        if parent_element is not None:
+            xml_con = ET.SubElement(parent_element, 'Construction', id=con_id)
+        else:
+            xml_con = ET.Element('Construction', id=con_id)
+        # add the name and the material IDs
+        xml_name = ET.SubElement(xml_con, 'Name')
+        xml_name.text = str(self.display_name)
+        for mat in self.materials:
+            xml_mat = ET.SubElement(xml_con, 'LayerId')
+            xml_mat.set('layerIdRef', clean_string(mat.identifier))
+        return xml_con
+
+    def to_gbxml(self):
+        """Generate an gbXML string representation of this object."""
+        xml_root = self.to_gbxml_element()
+        try:  # try to indent the XML to make it read-able
+            ET.indent(xml_root)
+            return ET.tostring(xml_root, encoding='unicode')
+        except AttributeError:  # we are in Python 2 and no indent is available
+            return ET.tostring(xml_root)
 
     def to_radiance_solar_interior(self, specularity=0.0):
         """Honeybee Radiance modifier with the interior solar reflectance."""
