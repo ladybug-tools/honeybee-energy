@@ -204,6 +204,27 @@ def test_opaque_construction_from_idf():
     assert constr_str == new_constr_str
 
 
+def test_opaque_construction_to_gbxml():
+    """Test the OpaqueConstruction to gbxml method."""
+    concrete = EnergyMaterial('Concrete', 0.15, 2.31, 2322, 832)
+    insulation = EnergyMaterial('Insulation', 0.05, 0.049, 265, 836)
+    wall_gap = EnergyMaterial('Wall Air Gap', 0.1, 0.67, 1.2925, 1006.1)
+    gypsum = EnergyMaterial('Gypsum', 0.0127, 0.16, 784.9, 830)
+    wall_constr = OpaqueConstruction(
+        'Wall Construction', [concrete, insulation, wall_gap, gypsum])
+
+    constr_str = wall_constr.to_gbxml()
+    mat_dict = {mat.identifier: mat for mat in wall_constr.unique_materials}
+    new_wall_constr = OpaqueConstruction.from_gbxml(constr_str, mat_dict)
+    new_constr_str = new_wall_constr.to_gbxml()
+
+    assert 'Construction id="Wall_Construction"' in constr_str
+    assert wall_constr.r_value == new_wall_constr.r_value
+    assert wall_constr.r_factor == new_wall_constr.r_factor
+    assert wall_constr.thickness == new_wall_constr.thickness
+    assert constr_str == new_constr_str
+
+
 def test_opaque_dict_methods(userdatadict):
     """Test the to/from dict methods."""
     concrete = EnergyMaterial('Concrete', 0.15, 2.31, 2322, 832)
@@ -439,6 +460,21 @@ def test_window_construction_init_from_idf_file_frame():
     glaz_constr.frame = None
     assert glaz_constr.u_factor == pytest.approx(2.7359, rel=1e-2)
     assert glaz_constr.shgc == pytest.approx(0.688267, rel=1e-2)
+
+
+def test_window_construction_to_gbxml():
+    """Test the initialization of WindowConstruction.from_simple_parameters()."""
+    glaz_constr = WindowConstruction.from_simple_parameters(
+        'NECB Window Construction', 1.7, 0.4)
+
+    constr_str = glaz_constr.to_gbxml()
+    new_glaz_constr = WindowConstruction.from_gbxml(constr_str)
+    new_constr_str = new_glaz_constr.to_gbxml()
+
+    assert glaz_constr.identifier == new_glaz_constr.identifier
+    assert glaz_constr.u_factor == new_glaz_constr.u_factor
+    assert glaz_constr.thickness == new_glaz_constr.thickness
+    assert constr_str == new_constr_str
 
 
 def test_window_dict_methods(userdatadict):

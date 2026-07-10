@@ -3,9 +3,10 @@
 from __future__ import division
 
 import re
-
+import xml.etree.ElementTree as ET
+from ladybug.datatype.uvalue import UValue
 from honeybee._lockable import lockable
-from honeybee.typing import clean_rad_string
+from honeybee.typing import clean_rad_string, clean_string
 
 from ._base import _ConstructionBase
 from ..material.dictutil import dict_to_material
@@ -655,6 +656,45 @@ class WindowConstruction(_ConstructionBase):
         return cls(ep_strs[0], materials)
 
     @classmethod
+    def from_gbxml(cls, gbxml_str):
+        """Create a WindowConstruction from an gbXML string.
+
+        Args:
+            gbxml_element: A WindowType string from a gbXML file.
+
+        .. code-block:: xml
+
+            <WindowType id="Generic_Double_Pane">
+                <Name>Generic Double Pane</Name>
+                <Transmittance unit="Fraction" type="Visible" surfaceType="Both">0.63</Transmittance>
+                <U-value unit="WPerSquareMeterK">1.68</U-value>
+                <SolarHeatGainCoeff unit="Fraction">0.42</SolarHeatGainCoeff>
+            </WindowType>
+        """
+        gbxml_element = ET.fromstring(gbxml_str)
+        return cls.from_gbxml_element(gbxml_element)
+
+    @classmethod
+    def from_gbxml_element(cls, gbxml_element):
+        """Create a WindowConstruction from an gbXML Element.
+
+        Args:
+            gbxml_element: A WindowType Element from a gbXML file.
+        """
+        con_id = gbxml_element.get('id').replace('_', ' ')
+        t_vis = gbxml_element.find('Transmittance').text
+        u_factor = gbxml_element.find('U-value').text
+        shgc = gbxml_element.find('SolarHeatGainCoeff').text
+        simple_mat = EnergyWindowMaterialSimpleGlazSys(
+            '{}_mat'.format(con_id), u_factor, shgc, t_vis
+        )
+        new_obj = cls(con_id, [simple_mat])
+        name = gbxml_element.find('Name')
+        if name is not None:
+            new_obj.display_name = name.text
+        return new_obj
+
+    @classmethod
     def from_dict(cls, data, materials=None):
         """Create a WindowConstruction from a dictionary.
 
@@ -763,7 +803,7 @@ class WindowConstruction(_ConstructionBase):
         Returns:
             construction_idf -- Text string representation of the construction.
 
-        .. code-block:: 
+        .. code-block::
 
             Construction,
                 Generic Double Pane,      !- name
@@ -772,6 +812,61 @@ class WindowConstruction(_ConstructionBase):
                 Generic Clear Glass;      !- layer 3
         """
         return self._generate_idf_string('window', self.identifier, self.materials)
+
+    def to_gbxml_element(self, ip_units=False, parent_element=None):
+        """Get a gbXML WindowType Element representation of this object.
+
+        Args:
+            ip_units: A boolean to note whether the U-value should be reported
+                in IP units (True) or SI units (False). (Default: False).
+            parent_element: An optional XML Element for the gbXML root to which the
+                construction element will be added. If None, a new XML Element
+                will be generated. (Default: None).
+        """
+        # create the Surface element
+        con_id = clean_string(self.identifier)
+        if parent_element is not None:
+            xml_con = ET.SubElement(parent_element, 'WindowType', id=con_id)
+        else:
+            xml_con = ET.Element('WindowType', id=con_id)
+        # add the name
+        xml_name = ET.SubElement(xml_con, 'Name')
+        xml_name.text = str(self.display_name)
+        # add visible transmittance
+        t_vis_props = {
+            'unit': 'Fraction',
+            'type': 'Visible',
+            'surfaceType': 'Both'
+        }
+        xml_t_vis = ET.SubElement(xml_con, 'Transmittance', t_vis_props)
+        xml_t_vis.text = str(round(self.visible_transmittance, 3))
+        # add the U-factor
+        u_factor_unit = 'BtuPerHourSquareFtF' if ip_units else 'WPerSquareMeterK'
+        u_fac = self.materials[0].u_factor \
+            if isinstance(self.materials[0], EnergyWindowMaterialSimpleGlazSys) \
+            else self.u_factor
+        if ip_units:
+            u_fac = UValue().to_ip([u_fac], 'W/m2-K')[0][0]
+        xml_u_fac = ET.SubElement(xml_con, 'U-value', unit=u_factor_unit)
+        xml_u_fac.text = str(round(u_fac, 3))
+        # add the solar heat gain coefficient
+        xml_shgc = ET.SubElement(xml_con, 'SolarHeatGainCoeff', unit='Fraction')
+        xml_shgc.text = str(round(self.shgc, 3))
+        return xml_con
+
+    def to_gbxml(self, ip_units=False):
+        """Generate an gbXML string representation of this object.
+
+        Args:
+            ip_units: A boolean to note whether the U-value should be reported
+                in IP units (True) or SI units (False). (Default: False).
+        """
+        xml_root = self.to_gbxml_element()
+        try:  # try to indent the XML to make it read-able
+            ET.indent(xml_root)
+            return ET.tostring(xml_root, encoding='unicode')
+        except AttributeError:  # we are in Python 2 and no indent is available
+            return ET.tostring(xml_root)
 
     def to_radiance_solar(self):
         """Honeybee Radiance modifier with the solar transmittance."""

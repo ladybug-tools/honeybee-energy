@@ -2,15 +2,16 @@
 """AirBoundary Construction."""
 from __future__ import division
 
+import xml.etree.ElementTree as ET
+from honeybee._lockable import lockable
+from honeybee.typing import valid_ep_string, clean_string, float_positive
+
+from ..properties.extension import AirBoundaryConstructionProperties
 from ..schedule.dictutil import dict_to_schedule
 from ..schedule.ruleset import ScheduleRuleset
 from ..schedule.fixedinterval import ScheduleFixedInterval
 from ..writer import generate_idf_string
 from ..lib.schedules import always_on
-
-from honeybee._lockable import lockable
-from honeybee.typing import valid_ep_string, float_positive
-from ..properties.extension import AirBoundaryConstructionProperties
 
 
 @lockable
@@ -261,6 +262,34 @@ class AirBoundaryConstruction(object):
         comments = ('name', 'zone name', 'schedule name', 'flow method', 'flow rate',
                     'flow per floor area', 'flow per person', 'ach', 'source zone name')
         return generate_idf_string('ZoneCrossMixing', values, comments)
+
+    def to_gbxml_element(self, parent_element=None):
+        """Get a gbXML WindowType Element representation of this object.
+
+        Args:
+            parent_element: An optional XML Element for the gbXML root to which the
+                construction element will be added. If None, a new XML Element
+                will be generated. (Default: None).
+        """
+        # create the Surface element
+        con_id = clean_string(self.identifier)
+        if parent_element is not None:
+            xml_con = ET.SubElement(parent_element, 'WindowType', id=con_id)
+        else:
+            xml_con = ET.Element('WindowType', id=con_id)
+        # add the name
+        xml_name = ET.SubElement(xml_con, 'Name')
+        xml_name.text = str(self.display_name)
+        return xml_con
+
+    def to_gbxml(self):
+        """Generate an gbXML string representation of this object."""
+        xml_root = self.to_gbxml_element()
+        try:  # try to indent the XML to make it read-able
+            ET.indent(xml_root)
+            return ET.tostring(xml_root, encoding='unicode')
+        except AttributeError:  # we are in Python 2 and no indent is available
+            return ET.tostring(xml_root)
 
     def to_dict(self, abridged=False):
         """Air boundary construction dictionary representation."""

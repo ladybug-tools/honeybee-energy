@@ -537,6 +537,27 @@ class WindowConstructionDynamic(object):
             'EnergyManagementSystem:ProgramCallingManager', man_vals, man_com)
         return manager
 
+    def to_gbxml_element(self, ip_units=False, parent_element=None):
+        """Get a gbXML WindowType Element representation of this object.
+
+        Args:
+            ip_units: A boolean to note whether the U-value should be reported
+                in IP units (True) or SI units (False). (Default: False).
+            parent_element: An optional XML Element for the gbXML root to which the
+                construction element will be added. If None, a new XML Element
+                will be generated. (Default: None).
+        """
+        return self._constructions[0].to_gbxml_element(ip_units, parent_element)
+
+    def to_gbxml(self, ip_units=False):
+        """Generate an gbXML string representation of this object.
+
+        Args:
+            ip_units: A boolean to note whether the U-value should be reported
+                in IP units (True) or SI units (False). (Default: False).
+        """
+        return self._constructions[0].to_gbxml(ip_units)
+
     def to_radiance_solar(self):
         """Honeybee Radiance material for the first construction."""
         # TODO: add methods that can represent the dynamic window behavior

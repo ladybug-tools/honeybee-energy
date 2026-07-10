@@ -1208,7 +1208,7 @@ def sub_face_to_gbxml_element(
             be used. (Default: None).
     """
     # establish the properties of the opening object
-    construction = sub_face.properties.energy.construction.identifier.replace(' ', '_')
+    construction = clean_string(sub_face.properties.energy.construction.identifier)
     opening_attr = {
         'id': sub_face.identifier,
         'openingType': sub_face.gbxml_type,
@@ -1294,7 +1294,7 @@ def face_to_gbxml_element(
 
 def room_to_gbxml_element(
     room, ip_units=False, include_shell_geometry=False, include_space_boundaries=False,
-    tolerance=0.001, building_element=None
+    tolerance=0.001, explicit_holes=False, building_element=None
 ):
     """Get a gbXML Space Element from a honeybee Room.
 
@@ -1312,6 +1312,10 @@ def room_to_gbxml_element(
         tolerance: The minimum difference in coordinate values below which
             vertices are considered to be identical. (Default: 0.001, suitable
             for objects in Meters or Feet).
+        explicit_holes: Boolean to note whether holes in Face3Ds should be
+            represented explicitly with their own PolyLoop or the hole and boundary
+            should be collapsed into a single PolyLoop that winds inwards to
+            cut out the holes. (Default: False).
         building_element: An optional XML Element for the Building to which the
             space element will be added. If None, a new XML Element will be
             generated. (Default: None).
@@ -1401,8 +1405,8 @@ def room_to_gbxml_element(
         geo_elements = []
         for face in room:
             # write the geometry of the face
-            geo_element = ET.Element(face_element, 'PlanarGeometry')
-            xml_poly = None
+            geo_element = ET.Element('PlanarGeometry')
+            face_3d, xml_poly = face.geometry, None
             if explicit_holes and face_3d.has_holes:
                 xml_poly = ET.SubElement(geo_element, 'PolyLoop')
                 for pt in face_3d.boundary:
@@ -1417,6 +1421,7 @@ def room_to_gbxml_element(
                         for coord in pt:
                             xml_coord = ET.SubElement(xml_pt, 'Coordinate')
                             xml_coord.text = str(round(coord, decimal_count))
+
             # write all vertices into one poly loop for shell geometry
             xml_poly = ET.SubElement(geo_element, 'PolyLoop') \
                 if xml_poly is None else ET.Element('PolyLoop')
@@ -1434,14 +1439,15 @@ def room_to_gbxml_element(
                 sb_element.set('surfaceIdRef', face.identifier)
                 sb_element.append(geo_element)
                 xml_space.append(sb_element)
-                    
+
         # write it as shell geometry if requested
         if include_shell_geometry:
             shell_element = ET.SubElement(xml_space, 'ShellGeometry')
             shell_element.set('id', '{}Shell'.format(room.identifier))
             shell_geo_element = ET.SubElement(shell_element, 'ClosedShell')
             for xml_geo in geo_elements:
-                shell_geo_element
+                shell_geo_element.append(xml_geo)
+            xml_space.append(shell_element)
 
     return xml_space
 
@@ -1618,7 +1624,10 @@ def model_to_gbxml_element(
     # write all of the rooms into the gbXML as spaces
     story_dict = OrderedDict()
     for room in model.rooms:
-        room_to_gbxml_element(room, ip_units, tol, xml_bldg)
+        room_to_gbxml_element(
+            room, include_shell_geometry, include_space_boundaries,
+            tol, explicit_holes, xml_bldg
+        )
         try:
             story_dict[room.story].append(room)
         except KeyError:
