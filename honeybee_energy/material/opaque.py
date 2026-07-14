@@ -4,13 +4,19 @@
 The materials here are the only ones that can be used in opaque constructions.
 """
 from __future__ import division
+import xml.etree.ElementTree as ET
+
+from ladybug.datatype.distance import Distance
+from ladybug.datatype.conductivity import Conductivity
+from ladybug.datatype.density import Density
+from ladybug.datatype.specificheatcapacity import SpecificHeatCapacity
+from ladybug.datatype.rvalue import RValue
+from honeybee._lockable import lockable
+from honeybee.typing import float_in_range, float_positive, clean_rad_string, clean_string
 
 from ._base import _EnergyMaterialOpaqueBase
 from ..reader import parse_idf_string
 from ..writer import generate_idf_string
-
-from honeybee._lockable import lockable
-from honeybee.typing import float_in_range, float_positive, clean_rad_string
 from ..properties.extension import EnergyMaterialProperties, \
     EnergyMaterialNoMassProperties, EnergyMaterialVegetationProperties
 
@@ -249,6 +255,96 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
                 ep_strs[i] = idf_defaults[i]
         ep_strs.insert(5, ep_strs.pop(1))  # move roughness to correct place
         return cls(*ep_strs)
+
+    @classmethod
+    def from_gbxml(cls, gbxml_str):
+        """Create an EnergyMaterial from an gbXML string.
+
+        Args:
+            gbxml_element: A Material string from a gbXML file.
+
+        .. code-block:: xml
+
+            <Material id="Generic_LW_Concrete">
+                <Name>Generic LW Concrete</Name>
+                <Roughness value="MediumRough" />
+                <Thickness unit="Meters">0.1</Thickness>
+                <Conductivity unit="WPerMeterK">0.53</Conductivity>
+                <Density unit="KgPerCubicM">1280</Density>
+                <SpecificHeat unit="JPerKgK">840</SpecificHeat>
+                <Reflectance unit="Fraction" type="ExtIR">0.1</Reflectance>
+                <Reflectance unit="Fraction" type="IntIR">0.1</Reflectance>
+                <Reflectance unit="Fraction" type="ExtSolar">0.2</Reflectance>
+                <Reflectance unit="Fraction" type="IntSolar">0.2</Reflectance>
+                <Reflectance unit="Fraction" type="ExtVisible">0.2</Reflectance>
+                <Reflectance unit="Fraction" type="IntVisible">0.2</Reflectance>
+                <Absorptance unit="Fraction" type="ExtIR">0.9</Absorptance>
+                <Absorptance unit="Fraction" type="IntIR">0.9</Absorptance>
+                <Absorptance unit="Fraction" type="ExtSolar">0.8</Absorptance>
+                <Absorptance unit="Fraction" type="IntSolar">0.8</Absorptance>
+                <Absorptance unit="Fraction" type="ExtVisible">0.8</Absorptance>
+                <Absorptance unit="Fraction" type="IntVisible">0.8</Absorptance>
+            </Material>
+        """
+        gbxml_element = ET.fromstring(gbxml_str)
+        return cls.from_gbxml_element(gbxml_element)
+
+    @classmethod
+    def from_gbxml_element(cls, gbxml_element):
+        """Create an EnergyMaterial from an gbXML Element.
+
+        Args:
+            gbxml_element: A Material Element from a gbXML file.
+        """
+        # get all required properties and make the object
+        mat_id = gbxml_element.get('id').replace('_', ' ')
+        # get the thickness
+        xml_thickness = gbxml_element.find('Thickness')
+        thickness, t_unit = xml_thickness.text, xml_thickness.get('unit')
+        if t_unit != 'Meters':
+            assert t_unit == 'Feet', \
+                'Thickness unit "{}" is not supported'.format(t_unit)
+            thickness = round(Distance().to_si([thickness], 'ft')[0][0], 4)
+        # get the conductivity
+        xml_conductivity = gbxml_element.find('Conductivity')
+        conductivity, c_unit = xml_conductivity.text, xml_conductivity.get('unit')
+        if c_unit != 'WPerMeterK':
+            assert t_unit == 'BtuPerHourFtF', \
+                'Conductivity unit "{}" is not supported'.format(c_unit)
+            conductivity = \
+                round(Conductivity().to_si([conductivity], 'Btu/h-ft-F')[0][0], 3)
+        # get the density
+        xml_density = gbxml_element.find('Density')
+        density, d_unit = xml_density.text, xml_density.get('unit')
+        if d_unit != 'KgPerCubicM':
+            assert d_unit == 'LbsPerCubicFt', \
+                'Density unit "{}" is not supported'.format(d_unit)
+            density = round(Density().to_si([density], 'lb/ft3')[0][0], 3)
+        # get the specific heat
+        xml_sh = gbxml_element.find('SpecificHeat')
+        specific_heat, sh_unit = xml_sh.text, xml_sh.get('unit')
+        if sh_unit != 'JPerKgK':
+            assert sh_unit == 'BTUPerLbF', \
+                'Specific heat unit "{}" is not supported'.format(sh_unit)
+            specific_heat = \
+                round(SpecificHeatCapacity().to_si([specific_heat], 'Btu/lb-F')[0][0], 3)
+        new_obj = cls(mat_id, thickness, conductivity, density, specific_heat)
+        # add optional properties if they are found
+        rough = gbxml_element.find('Roughness')
+        if rough is not None:
+            new_obj.roughness = rough.text
+        for xml_abs in gbxml_element.findall('Absorptance'):
+            abs_type = xml_abs.get('type')
+            if abs_type == 'ExtIR':
+                new_obj.thermal_absorptance = xml_abs.text
+            elif abs_type == 'ExtSolar':
+                new_obj.solar_absorptance = xml_abs.text
+            elif abs_type == 'ExtVisible':
+                new_obj.visible_absorptance = xml_abs.text
+        name = gbxml_element.find('Name')
+        if name is not None:
+            new_obj.display_name = name.text
+        return new_obj
 
     @classmethod
     def from_dict(cls, data):
@@ -570,6 +666,64 @@ class EnergyMaterialNoMass(_EnergyMaterialOpaqueBase):
         return cls(*ep_strs)
 
     @classmethod
+    def from_gbxml(cls, gbxml_str):
+        """Create an EnergyMaterialNoMass from an gbXML string.
+
+        Args:
+            gbxml_element: A Material string from a gbXML file.
+
+        .. code-block:: xml
+
+            <Material id="Typical_Carpet_Pad">
+                <Name>Typical Carpet Pad</Name>
+                <Roughness value="VeryRough" />
+                <R-value unit="SquareMeterKPerW">0.21647998715210001</R-value>
+                <Absorptance unit="Fraction" type="ExtIR">0.9</Absorptance>
+                <Absorptance unit="Fraction" type="IntIR">0.9</Absorptance>
+                <Absorptance unit="Fraction" type="ExtSolar">0.7</Absorptance>
+                <Absorptance unit="Fraction" type="IntSolar">0.7</Absorptance>
+                <Absorptance unit="Fraction" type="ExtVisible">0.8</Absorptance>
+                <Absorptance unit="Fraction" type="IntVisible">0.8</Absorptance>
+            </Material>
+        """
+        gbxml_element = ET.fromstring(gbxml_str)
+        return cls.from_gbxml_element(gbxml_element)
+
+    @classmethod
+    def from_gbxml_element(cls, gbxml_element):
+        """Create an EnergyMaterialNoMass from an gbXML Element.
+
+        Args:
+            gbxml_element: A Material Element from a gbXML file.
+        """
+        # get all required properties and make the object
+        mat_id = gbxml_element.get('id').replace('_', ' ')
+        # get the r_value
+        xml_r_value = gbxml_element.find('R-value')
+        r_value, r_unit = xml_r_value.text, xml_r_value.get('unit')
+        if r_unit != 'SquareMeterKPerW':
+            assert r_unit == 'HrSquareFtFPerBTU', \
+                'R-value unit "{}" is not supported'.format(r_unit)
+            r_value = round(RValue().to_si([r_value], 'F-ft2-h/Btu')[0][0], 4)
+        new_obj = cls(mat_id, r_value)
+        # add optional properties if they are found
+        rough = gbxml_element.find('Roughness')
+        if rough is not None:
+            new_obj.roughness = rough.text
+        for xml_abs in gbxml_element.findall('Absorptance'):
+            abs_type = xml_abs.get('type')
+            if abs_type == 'ExtIR':
+                new_obj.thermal_absorptance = xml_abs.text
+            elif abs_type == 'ExtSolar':
+                new_obj.solar_absorptance = xml_abs.text
+            elif abs_type == 'ExtVisible':
+                new_obj.visible_absorptance = xml_abs.text
+        name = gbxml_element.find('Name')
+        if name is not None:
+            new_obj.display_name = name.text
+        return new_obj
+
+    @classmethod
     def from_dict(cls, data):
         """Create a EnergyMaterialNoMass from a dictionary.
 
@@ -630,6 +784,54 @@ class EnergyMaterialNoMass(_EnergyMaterialOpaqueBase):
         comments = ('name', 'roughness', 'r-value {m2-K/W}', 'thermal absorptance',
                     'solar absorptance', 'visible absorptance')
         return generate_idf_string('Material:NoMass', values, comments)
+
+    def to_gbxml_element(self, ip_units=False, parent_element=None):
+        """Get a gbXML Material Element representation of this object.
+
+        Args:
+            ip_units: A boolean to note whether the R-value should be reported
+                in IP units (True) or SI units (False). (Default: False).
+            parent_element: An optional XML Element for the gbXML root to which the
+                material element will be added. If None, a new XML Element
+                will be generated. (Default: None).
+        """
+        # create the Material element
+        con_id = clean_string(self.identifier)
+        if parent_element is not None:
+            xml_mat = ET.SubElement(parent_element, 'Material', id=con_id)
+        else:
+            xml_mat = ET.Element('Material', id=con_id)
+        # set the units of properties
+        if ip_units:
+            r_val_units = 'HrSquareFtFPerBTU'
+            r_val = round(RValue().to_ip([self.r_value], 'K-m2/W')[0][0], 4)
+        else:
+            r_val_units = 'SquareMeterKPerW'
+            r_val = round(self.r_value, 4)
+        # add the name and the required properties
+        xml_name = ET.SubElement(xml_mat, 'Name')
+        xml_name.text = str(self.display_name)
+        xml_rough = ET.SubElement(xml_mat, 'Roughness')
+        xml_rough.text = str(self.roughness)
+        xml_r_val = ET.SubElement(xml_mat, 'R-value', unit=r_val_units)
+        xml_r_val.text = str(r_val)
+        # add the reflectance and absorptance
+        self._add_gbxml_reflectance(xml_mat)
+        return xml_mat
+
+    def to_gbxml(self, ip_units=False):
+        """Generate an gbXML string representation of this object.
+
+        Args:
+            ip_units: A boolean to note whether the U-value should be reported
+                in IP units (True) or SI units (False). (Default: False).
+        """
+        xml_root = self.to_gbxml_element(ip_units)
+        try:  # try to indent the XML to make it read-able
+            ET.indent(xml_root)
+            return ET.tostring(xml_root, encoding='unicode')
+        except AttributeError:  # we are in Python 2 and no indent is available
+            return ET.tostring(xml_root)
 
     def to_radiance_solar(self, specularity=0.0):
         """Honeybee Radiance material from the solar reflectance of this material."""

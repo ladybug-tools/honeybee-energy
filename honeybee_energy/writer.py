@@ -19,6 +19,7 @@ from honeybee.facetype import Wall, Floor, RoofCeiling, AirBoundary
 from honeybee.units import parse_distance_string, conversion_factor_to_meters
 
 from .config import folders
+from .units import convert_ventilation_flow_per_zone
 
 
 """____________IDF TRANSLATORS____________"""
@@ -1324,7 +1325,7 @@ def room_to_gbxml_element(
     story = clean_string(room.story) if room.story is not None else 'Unknown_Level'
     space_attr = {
         'id': room.identifier,
-        'zoneIdRef': clean_string(room.zone),
+        'zoneIdRef': room.zone,
         'buildingStoreyIdRef': story
     }
 
@@ -1458,7 +1459,8 @@ def model_to_gbxml_element(
     face_rename_format=None, subface_rename_format=None,
     reset_geometry_ids=False, reset_resource_ids=False,
     triangulate_subfaces=False, triangulate_non_planar=True, explicit_holes=False,
-    program_name=None, program_version=None, gbxml_schema_version=None
+    total_ventilation=True, program_name=None, program_version=None,
+    gbxml_schema_version=None
 ):
     """Get a gbXML ElementTree that represents ann entire model.
 
@@ -1479,7 +1481,7 @@ def model_to_gbxml_element(
         ground_face_type: Text string for the type to be used for all ground-contact
             floor faces. If AutoAssign, the ground types will be SlabOnGrade for floors
             belonging to rooms with any above-ground walls and UndergroundSlab
-            for floors with all underground walls. Choose from the following.
+            for floors in rooms with all underground walls. Choose from the following.
 
             * AutoAssign
             * UndergroundSlab
@@ -1531,6 +1533,12 @@ def model_to_gbxml_element(
             represented explicitly with their own PolyLoop or the hole and boundary
             should be collapsed into a single PolyLoop that winds inwards to
             cut out the holes. (Default: False).
+        total_ventilation: Boolean to note whether outdoor air ventilation values
+            in the gbXML are written as a single total OAFlowPerZone (True)
+            or ventilation criteria are written as separate criteria (False).
+            That is, separate specifications for OAFlowPerPerson, OAFlowPerArea,
+            etc. Note that the total ventilation accounts for the ventilation
+            effectiveness while the individual flows do not. (Default: True).
         program_name: Optional text to set the name of the software that will
             appear under the programId and ProductName tags of the DocumentHistory
             section. This can be set things like "Ladybug Tools" or "Pollination"
@@ -1551,8 +1559,10 @@ def model_to_gbxml_element(
     # scale the model if the units are not meters
     if ip_units:
         model.convert_to_units('Feet')
+        scale_fac = conversion_factor_to_meters('Feet')
     else:
         model.convert_to_units('Meters')
+        scale_fac = 1
     # as a good practice, remove degenerate geometry within model tolerance
     tol = model.tolerance
     decimal_count, _ = rounding_tolerance(tol)
@@ -1568,6 +1578,12 @@ def model_to_gbxml_element(
     # auto-assign stories if there are none
     if len(model.stories) == 0 and len(model.rooms) != 0:
         model.assign_stories_by_floor_height()
+
+    # resolve the properties across zones
+    zone_name_dict = {r.identifier: r.zone for r in model.rooms}
+    for room in model.rooms:  # set all zone IDs to be acceptable in gbXML
+        room.zone = clean_string(room.zone)
+    single_zones, zone_dict = model.properties.energy.resolve_zones()
 
     # rename the faces, apertures, and doors if requested
     if face_rename_format:
@@ -1703,11 +1719,89 @@ def model_to_gbxml_element(
     for sm in detached_sms:
         shade_mesh_to_gbxml_element(sm, tol, explicit_holes, xml_campus)
 
+    # get the default generic construction set
+    # must be imported here to avoid circular imports
+    from .lib.constructionsets import generic_construction_set
+
     # add the construction objects and window types to the gbxml
+    if len(attached_shades) != 0 or len(attached_sms) != 0 or \
+            len(detached_shades) != 0 or len(detached_sms) != 0:
+        xml_shd_con = ET.SubElement(gbxml_root, 'Construction')
+        xml_shd_con.set('id', 'Shading_Surface_Without_Construction')
+        xml_shd_con_name = ET.SubElement(xml_shd_con, 'Name')
+        xml_shd_con_name.text = 'Shading Surface Without Construction'
+    materials = []
+    all_constrs = model.properties.energy.constructions + \
+        generic_construction_set.constructions_unique
+    for constr in set(all_constrs):
+        try:
+            if constr.__class__.__name__ == 'OpaqueConstruction':
+                materials.extend(constr.materials)
+            try:  # first assume it is a window construction
+                constr.to_gbxml_element(ip_units=ip_units, parent_element=gbxml_root)
+            except AttributeError:  # opaque or air boundary construction
+                constr.to_gbxml_element(parent_element=gbxml_root)
+        except AttributeError:  # ShadeConstruction; no need to write it
+            pass
 
     # add the material objects to the gbxml
+    for mat in set(materials):
+        mat.to_gbxml_element(ip_units=ip_units, parent_element=gbxml_root)
 
     # add the zone information to the gbxml
+    for room in single_zones:
+        e_prop = room.properties.energy
+        zone_dict[room.zone] = [(room,), None, e_prop.setpoint, e_prop.ventilation]
+    for zone_id, zone_data in zone_dict.items():
+        rooms, _, set_pt, vent = zone_data
+        xml_zone = ET.SubElement(gbxml_root, 'Zone', id=zone_id)
+        xml_zone_name = ET.SubElement(xml_zone, 'Name')
+        xml_zone_name.text = zone_name_dict[rooms[0].identifier]
+
+        # assign the setpoint to the zone
+        if set_pt:
+            xml_h_set = ET.SubElement(xml_zone, 'DesignHeatT', unit=t_units)
+            h_set = set_pt.heating_setpoint_ip if ip_units else set_pt.heating_setpoint
+            xml_h_set.text = str(round(h_set, 2))
+            xml_c_set = ET.SubElement(xml_zone, 'DesignCoolT', unit=t_units)
+            c_set = set_pt.cooling_setpoint_ip if ip_units else set_pt.cooling_setpoint
+            xml_c_set.text = str(round(c_set, 2))
+            if set_pt.humidifying_setpoint:
+                xml_hu_set = ET.SubElement(xml_zone, 'DesignHeatRH')
+                xml_hu_set.text = str(round(set_pt.humidifying_setpoint))
+                xml_dhu_set = ET.SubElement(xml_zone, 'DesignCoolRH')
+                xml_dhu_set.text = str(round(set_pt.dehumidifying_setpoint))
+
+        # assign the outdoor air criteria to the zone
+        if vent:
+            if total_ventilation:
+                rooms_si, vent_units, unit_abbrev = rooms, 'LPerSec', 'si'
+                if ip_units:
+                    rooms_si = [r.duplicate().scale(scale_fac) for r in rooms]
+                    vent_units, unit_abbrev = 'CFM', 'ip'
+                total_flows = [vent.flow_per_zone]
+                if vent.flow_per_person != 0:
+                    person_flow = 0
+                    for r in rooms_si:
+                        people = r.properties.energy.people
+                        if people is not None:
+                            person_count = people.people_per_area * r.floor_area
+                            person_flow += vent.flow_per_person * person_count
+                    total_flows.append(person_flow)
+                if vent.flow_per_area != 0:
+                    total_area = sum(r.floor_area for r in rooms_si)
+                    total_flows.append(vent.flow_per_area * total_area)
+                if vent.air_changes_per_hour != 0:
+                    total_volume = sum(r.volume for r in rooms_si)
+                    total_flows.append((vent.air_changes_per_hour * total_volume) / 3600)
+                total_flow = sum(total_flows) if vent.method == 'Sum' else max(total_flows)
+                vent_eff = min(vent.effectiveness_cooling, vent.effectiveness_heating)
+                total_flow = total_flow / vent_eff
+                if total_flow != 0:
+                    area_element = ET.SubElement(xml_zone, 'OAFlowPerZone')
+                    area_element.set('unit', vent_units)
+                    flow = convert_ventilation_flow_per_zone(total_flow, unit_abbrev)
+                    area_element.text = str(round(flow, 2))
 
     # add the document history to the gbxml
 

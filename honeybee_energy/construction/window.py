@@ -683,7 +683,10 @@ class WindowConstruction(_ConstructionBase):
         """
         con_id = gbxml_element.get('id').replace('_', ' ')
         t_vis = gbxml_element.find('Transmittance').text
-        u_factor = gbxml_element.find('U-value').text
+        xml_u_factor = gbxml_element.find('U-value')
+        u_factor, u_unit = xml_u_factor.text, xml_u_factor.get('unit')
+        if u_unit == 'BtuPerHourSquareFtF':
+            u_factor = UValue().to_si([u_factor], 'Btu/h-ft2-F')[0][0]
         shgc = gbxml_element.find('SolarHeatGainCoeff').text
         simple_mat = EnergyWindowMaterialSimpleGlazSys(
             '{}_mat'.format(con_id), u_factor, shgc, t_vis
@@ -861,7 +864,7 @@ class WindowConstruction(_ConstructionBase):
             ip_units: A boolean to note whether the U-value should be reported
                 in IP units (True) or SI units (False). (Default: False).
         """
-        xml_root = self.to_gbxml_element()
+        xml_root = self.to_gbxml_element(ip_units)
         try:  # try to indent the XML to make it read-able
             ET.indent(xml_root)
             return ET.tostring(xml_root, encoding='unicode')
