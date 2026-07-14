@@ -1,6 +1,8 @@
 # coding=utf-8
 """Methods to write to idf."""
 import math
+from datetime import datetime
+import platform
 from collections import OrderedDict
 import xml.etree.ElementTree as ET
 try:
@@ -1122,14 +1124,14 @@ def shade_to_gbxml_element(
     xml_name = ET.SubElement(xml_shade, 'Name')
     xml_name.text = str(shade.display_name)
     if not isinstance(shade, Shade):  # orphaned Face, Aperture or Door object
-        ET.SubElement(xml_shade, 'AdjacentSpaceId', spaceIdRef='Detached Shades')
+        ET.SubElement(xml_shade, 'AdjacentSpaceId', spaceIdRef='Detached_Shades')
     elif isinstance(shade.top_level_parent, Room):
         ET.SubElement(xml_shade, 'AdjacentSpaceId',
                       spaceIdRef=shade.top_level_parent.identifier)
     elif shade.is_detached:
-        ET.SubElement(xml_shade, 'AdjacentSpaceId', spaceIdRef='Detached Shades')
+        ET.SubElement(xml_shade, 'AdjacentSpaceId', spaceIdRef='Detached_Shades')
     else:
-        ET.SubElement(xml_shade, 'AdjacentSpaceId', spaceIdRef='Attached Shades')
+        ET.SubElement(xml_shade, 'AdjacentSpaceId', spaceIdRef='Attached_Shades')
     # add the geometry
     face_3d_to_gbxml_element(
         shade.geometry, parent_element=xml_shade,
@@ -1774,11 +1776,11 @@ def model_to_gbxml_element(
 
         # assign the outdoor air criteria to the zone
         if vent:
-            if total_ventilation:
-                rooms_si, vent_units, unit_abbrev = rooms, 'LPerSec', 'si'
+            if total_ventilation:  # write ventilation as a single air flow
+                rooms_si, flow_units, unit_abbrev = rooms, 'LPerSec', 'si'
                 if ip_units:
                     rooms_si = [r.duplicate().scale(scale_fac) for r in rooms]
-                    vent_units, unit_abbrev = 'CFM', 'ip'
+                    flow_units, unit_abbrev = 'CFM', 'ip'
                 total_flows = [vent.flow_per_zone]
                 if vent.flow_per_person != 0:
                     person_flow = 0
@@ -1798,14 +1800,308 @@ def model_to_gbxml_element(
                 vent_eff = min(vent.effectiveness_cooling, vent.effectiveness_heating)
                 total_flow = total_flow / vent_eff
                 if total_flow != 0:
-                    area_element = ET.SubElement(xml_zone, 'OAFlowPerZone')
-                    area_element.set('unit', vent_units)
+                    flow_element = ET.SubElement(xml_zone, 'OAFlowPerZone')
+                    flow_element.set('unit', flow_units)
                     flow = convert_ventilation_flow_per_zone(total_flow, unit_abbrev)
-                    area_element.text = str(round(flow, 2))
+                    flow_element.text = str(round(flow, 2))
+
+            else:  # write individual airflow criteria
+                ach = vent.air_changes_per_hour
+                if ip_units:
+                    per_person, per_area = vent.flow_per_person_ip, vent.flow_per_area_ip
+                    flow = vent.flow_per_zone_ip
+                    flow_units, per_area_units = 'CFM', 'CFMPerSquareFoot'
+                else:
+                    per_person, per_area = vent.flow_per_person_si, vent.flow_per_area_si
+                    flow = vent.flow_per_zone_si
+                    flow_units, per_area_units = 'LPerSec', 'LPerSecPerSquareM'
+                if per_person != 0:
+                    flow_element = ET.SubElement(xml_zone, 'OAFlowPerPerson')
+                    flow_element.set('unit', flow_units)
+                    flow_element.text = str(round(per_person, 2))
+                if per_area != 0:
+                    flow_element = ET.SubElement(xml_zone, 'OAFlowPerArea')
+                    flow_element.set('unit', per_area_units)
+                    flow_element.text = str(round(per_area, 3))
+                if ach != 0:
+                    flow_element = ET.SubElement(xml_zone, 'AirChangesPerHour')
+                    flow_element.text = str(round(ach, 3))
+                if flow != 0:
+                    flow_element = ET.SubElement(xml_zone, 'OAFlowPerZone')
+                    flow_element.set('unit', flow_units)
+                    flow_element.text = str(round(flow, 3))
 
     # add the document history to the gbxml
+    program_name = 'Ladybug Tools Python SDK' \
+        if program_name is None else program_name
+    program_version = 'Unknown' if program_version is None else program_version
+    xml_history = ET.SubElement(gbxml_root, 'DocumentHistory')
+    prog_id = clean_string(program_name).lower()
+    created_info = {
+        'programId': prog_id,
+        'date': str(datetime.now().astimezone().isoformat(timespec='seconds')),
+        'personId': 'unknown'
+    }
+    ET.SubElement(xml_history, 'CreatedBy', created_info)
+    xml_p_info = ET.SubElement(xml_history, 'ProgramInfo', id=prog_id)
+    xml_p_name = ET.SubElement(xml_p_info, 'ProductName')
+    xml_p_name.text = program_name
+    xml_c_name = ET.SubElement(xml_p_info, 'CompanyName')
+    xml_c_name.text = 'Ladybug Tools'
+    xml_version = ET.SubElement(xml_p_info, 'Version')
+    xml_version.text = str(program_version)
+    xml_platform = ET.SubElement(xml_p_info, 'Platform')
+    xml_platform.text = platform.system()
+    xml_person = ET.SubElement(xml_history, 'PersonInfo', id='unknown')
+    xml_f_name = ET.SubElement(xml_person, 'FirstName')
+    xml_f_name.text = 'Unknown'
+    xml_l_name = ET.SubElement(xml_person, 'LastName')
+    xml_l_name.text = 'Unknown'
 
     return gbxml_root
+
+
+def model_to_gbxml(
+    model, ip_units=False, include_shell_geometry=False, include_space_boundaries=False,
+    interior_face_type='InteriorFloor', ground_face_type='AutoAssign',
+    face_rename_format=None, subface_rename_format=None,
+    reset_geometry_ids=False, reset_resource_ids=False,
+    triangulate_subfaces=False, triangulate_non_planar=True, explicit_holes=False,
+    total_ventilation=True, program_name=None, program_version=None,
+    gbxml_schema_version=None
+):
+    """Get a gbXML string for a Model.
+
+    Args:
+        model: A honeybee Model for which a gbXML text string will be returned.
+        ip_units: A boolean to note whether the space loads should be reported
+            in IP units (True) or SI units (False). (Default: False).
+        include_shell_geometry: Boolean for whether shell geometry should be included vs.
+            just the minimal required non-manifold geometry. (Default: False).
+        include_space_boundaries: Boolean for whether space boundaries should be included
+             vs. just the minimal required non-manifold geometry. (Default: False).
+        interior_face_type: Text string for the type to be used for all interior
+            floor/ceiling faces. (Default: InteriorFloor). Choose from the following.
+
+            * InteriorFloor
+            * Ceiling
+
+        ground_face_type: Text string for the type to be used for all ground-contact
+            floor faces. If AutoAssign, the ground types will be SlabOnGrade for floors
+            belonging to rooms with any above-ground walls and UndergroundSlab
+            for floors in rooms with all underground walls. Choose from the following.
+
+            * AutoAssign
+            * UndergroundSlab
+            * SlabOnGrade
+            * RaisedFloor
+
+        face_rename_format: An optional text string for the pattern with which
+            faces will be renamed. Any property on the honeybee Face class may be
+            used (eg. gbxml_str) and each property should be put in curly brackets.
+            Nested properties can be specified by using "." to denote nesting levels
+            (eg. properties.energy.construction.display_name). Functions that
+            return string outputs can also be passed here as long as these
+            functions defaults specified for all arguments.
+        subface_rename_format: An optional text string for the pattern with which
+            apertures and doors will be renamed. Any property that exists on both
+            the honeybee Aperture and honeybee Door class may be used (eg. gbxml_str)
+            and each property should be put in curly brackets. Nested
+            properties can be specified by using "." to denote nesting levels
+            (eg. properties.energy.construction.display_name). Functions that
+            return string outputs can also be passed here as long as these
+            functions defaults specified for all arguments.
+        reset_geometry_ids: Boolean to note whether a cleaned version of geometry
+            display names should be used for the IDs that appear within
+            the gbXML file. Using this flag will affect all Rooms, Faces,
+            Apertures, Doors, and Shades. It will generally result in more
+            read-able IDs in the gbXML file but this means that it will not be
+            easy to map results back to the input Model. Cases of duplicate IDs
+            resulting from non-unique names will be resolved by adding integers
+            to the ends of the new IDs that are derived from the name. (Default: False).
+        reset_resource_ids: Boolean to note whether a cleaned version of all
+            resource display names should be used for the IDs that appear within
+            the gbXML file. Using this flag will affect all Materials,
+            Constructions, ConstructionSets, Schedules, Loads, and ProgramTypes.
+            It will generally result in more read-able names for the resources
+            in the gbXML file. Cases of duplicate IDs resulting from non-unique
+            names will be resolved by adding integers to the ends of the new
+            IDs that are derived from the name. (Default: False).
+        triangulate_non_planar_orphaned: Boolean to note whether any non-planar
+            orphaned geometry in the model should be triangulated.
+            This can be helpful because OpenStudio simply raises an error when
+            it encounters non-planar geometry, which would hinder the ability
+            to save files that are to be corrected later. (Default: False).
+        triangulate_subfaces: Boolean to note whether sub-faces (including
+            Apertures and Doors) should be triangulated if they have more
+            than 4 sides (True) or whether they should be left as they are (False).
+            This triangulation is necessary when exporting directly to EnergyPlus
+            since it cannot accept sub-faces with more than 4 vertices. (Default: True).
+        explicit_holes: Boolean to note whether holes in Surfaces should be
+            represented explicitly with their own PolyLoop or the hole and boundary
+            should be collapsed into a single PolyLoop that winds inwards to
+            cut out the holes. (Default: False).
+        total_ventilation: Boolean to note whether outdoor air ventilation values
+            in the gbXML are written as a single total OAFlowPerZone (True)
+            or ventilation criteria are written as separate criteria (False).
+            That is, separate specifications for OAFlowPerPerson, OAFlowPerArea,
+            etc. Note that the total ventilation accounts for the ventilation
+            effectiveness while the individual flows do not. (Default: True).
+        program_name: Optional text to set the name of the software that will
+            appear under the programId and ProductName tags of the DocumentHistory
+            section. This can be set things like "Ladybug Tools" or "Pollination"
+            or some other software in which this gbXML export capability is being
+            run. If None, the "OpenStudio" will be used. (Default: None).
+        program_version: Optional text to set the version of the software that
+            will appear under the DocumentHistory section. If None, and the
+            program_name is also unspecified, only the version of OpenStudio will
+            appear. Otherwise, this will default to "0.0.0" given that the version
+            field is required. (Default: None).
+        gbxml_schema_version: Optional text to set the version of the gbXML schema
+            that is specified in the XML header (eg. "5.00"). If None, this
+            will default to the latest version.
+    """
+    # create the XML string
+    xml_root = model_to_gbxml_element(
+        model, ip_units, include_shell_geometry, include_space_boundaries,
+        interior_face_type, ground_face_type, face_rename_format, subface_rename_format,
+        reset_geometry_ids, reset_resource_ids,
+        triangulate_subfaces, triangulate_non_planar, explicit_holes,
+        total_ventilation, program_name, program_version, gbxml_schema_version
+    )
+    try:  # try to indent the XML to make it read-able
+        ET.indent(xml_root)
+        return ET.tostring(xml_root, encoding='unicode', xml_declaration=True)
+    except AttributeError:  # we are in Python 2 and no indent is available
+        return ET.tostring(xml_root, xml_declaration=True)
+
+
+def shade_to_gbxml(shade, tolerance=0.001, explicit_holes=False):
+    """Get a gbXML Surface string from a honeybee Shade.
+
+    Args:
+        shade: A honeybee Shade for which an gbXML Surface string will be returned.
+        tolerance: The minimum difference in coordinate values below which
+            vertices are considered to be identical. (Default: 0.001, suitable
+            for objects in Meters or Feet).
+        explicit_holes: Boolean to note whether holes in the Face3D should be
+            represented explicitly with their own PolyLoop or the hole and boundary
+            should be collapsed into a single PolyLoop that winds inwards to
+            cut out the holes. (Default: False).
+    """
+    xml_root = shade_to_gbxml_element(shade, tolerance, explicit_holes)
+    try:  # try to indent the XML to make it read-able
+        ET.indent(xml_root)
+        return ET.tostring(xml_root, encoding='unicode')
+    except AttributeError:  # we are in Python 2 and no indent is available
+        return ET.tostring(xml_root)
+
+
+def shade_mesh_to_gbxml(shade_mesh, tolerance=0.001, explicit_holes=False):
+    """Get a gbXML string from a honeybee ShadeMesh.
+
+    Args:
+        shade_mesh: A honeybee ShadeMesh for which a gbXML Surface string
+            will be returned.
+        tolerance: The minimum difference in coordinate values below which
+            vertices are considered to be identical. (Default: 0.001, suitable
+            for objects in Meters or Feet).
+        explicit_holes: Boolean to note whether holes in the Face3D should be
+            represented explicitly with their own PolyLoop or the hole and boundary
+            should be collapsed into a single PolyLoop that winds inwards to
+            cut out the holes. (Default: False).
+    """
+    xml_roots = shade_mesh_to_gbxml_element(shade_mesh, tolerance, explicit_holes)
+    xml_strs = []
+    for xml_root in xml_roots:
+        try:  # try to indent the XML to make it read-able
+            ET.indent(xml_root)
+            xml_strs.append(ET.tostring(xml_root, encoding='unicode'))
+        except AttributeError:  # we are in Python 2 and no indent is available
+            xml_strs.append(ET.tostring(xml_root))
+    return '\n'.join(xml_strs)
+
+
+def sub_face_to_gbxml(sub_face, tolerance=0.001, explicit_holes=False):
+    """Get a gbXML Opening string from a honeybee Aperture or Door.
+
+    Args:
+        sub_face: A honeybee Aperture or Door for which a gbXML Opening string
+            object will be returned.
+        tolerance: The minimum difference in coordinate values below which
+            vertices are considered to be identical. (Default: 0.001, suitable
+            for objects in Meters or Feet).
+        explicit_holes: Boolean to note whether holes in the Face3D should be
+            represented explicitly with their own PolyLoop or the hole and boundary
+            should be collapsed into a single PolyLoop that winds inwards to
+            cut out the holes. (Default: False).
+    """
+    xml_root = sub_face_to_gbxml_element(sub_face, tolerance, explicit_holes)
+    try:  # try to indent the XML to make it read-able
+        ET.indent(xml_root)
+        return ET.tostring(xml_root, encoding='unicode')
+    except AttributeError:  # we are in Python 2 and no indent is available
+        return ET.tostring(xml_root)
+
+
+def face_to_gbxml(face, tolerance=0.001, explicit_holes=False):
+    """Get a gbXML Surface string from a honeybee Face.
+
+    Note that the resulting Surface element includes all Apertures and Doors
+    assigned to the Face as gbXML Openings.
+
+    Args:
+        face: A honeybee Face for which an gbXML Surface string will be returned.
+        tolerance: The minimum difference in coordinate values below which
+            vertices are considered to be identical. (Default: 0.001, suitable
+            for objects in Meters or Feet).
+        explicit_holes: Boolean to note whether holes in the Face3D should be
+            represented explicitly with their own PolyLoop or the hole and boundary
+            should be collapsed into a single PolyLoop that winds inwards to
+            cut out the holes. (Default: False).
+    """
+    xml_root = face_to_gbxml_element(face, tolerance, explicit_holes)
+    try:  # try to indent the XML to make it read-able
+        ET.indent(xml_root)
+        return ET.tostring(xml_root, encoding='unicode')
+    except AttributeError:  # we are in Python 2 and no indent is available
+        return ET.tostring(xml_root)
+
+
+def room_to_gbxml(
+    room, ip_units=False, include_shell_geometry=False, include_space_boundaries=False,
+    tolerance=0.001, explicit_holes=False
+):
+    """Get a gbXML Space string from a honeybee Room.
+
+    Note that the Space elements of gbXML do not contain any geometry given that
+    all geometry is specified with Surface elements.
+
+    Args:
+        room: A honeybee Room for which an gbXML Space string will be returned.
+        ip_units: A boolean to note whether the space loads should be reported
+            in IP units (True) or SI units (False). (Default: False).
+        include_shell_geometry: Boolean for whether shell geometry should be
+            included in the Space definition. (Default: False).
+        include_space_boundaries: Boolean for whether space boundaries should be
+            included in the Space definition. (Default: False).
+        tolerance: The minimum difference in coordinate values below which
+            vertices are considered to be identical. (Default: 0.001, suitable
+            for objects in Meters or Feet).
+        explicit_holes: Boolean to note whether holes in Face3Ds should be
+            represented explicitly with their own PolyLoop or the hole and boundary
+            should be collapsed into a single PolyLoop that winds inwards to
+            cut out the holes. (Default: False).
+    """
+    xml_root = room_to_gbxml_element(
+        room, ip_units, include_shell_geometry, include_space_boundaries,
+        tolerance, explicit_holes
+    )
+    try:  # try to indent the XML to make it read-able
+        ET.indent(xml_root)
+        return ET.tostring(xml_root, encoding='unicode')
+    except AttributeError:  # we are in Python 2 and no indent is available
+        return ET.tostring(xml_root)
 
 
 def _preprocess_model_for_trace_3dplus(

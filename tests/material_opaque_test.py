@@ -234,7 +234,7 @@ def test_material_nomass_init_from_idf():
 
 def test_material_nomass_to_from_gbxml():
     """Test the initialization of EnergyMaterial objects from gbXML strings."""
-    insul_r2 = EnergyMaterialNoMass('Insulation [R-2]', 2)
+    insul_r2 = EnergyMaterialNoMass('Insulation R-2', 2)
 
     mat_str = insul_r2.to_gbxml()
     new_mat = EnergyMaterialNoMass.from_gbxml(mat_str)

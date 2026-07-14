@@ -183,3 +183,21 @@ def test_writer_to_idf():
     assert 'Shading:Building:Detailed,' in idf_string
     assert 'ShadingProperty:Reflectance' in idf_string
     assert 'FrittedGlass' in idf_string
+
+
+def test_writer_to_gbxml():
+    """Test the Shade to_gbxml method."""
+    verts = [Point3D(0, 0, 0), Point3D(1, 0, 0), Point3D(1, 0, 3), Point3D(0, 0, 3)]
+    shade = Shade('overhang', Face3D(verts), is_detached=True)
+
+    assert hasattr(shade.to, 'gbxml')
+    gbxml_string = shade.to.gbxml(shade)
+    assert gbxml_string.startswith('<Surface ')
+    assert '<Name>overhang' in gbxml_string
+    assert 'Detached_Shades' in gbxml_string
+
+    assert hasattr(shade, 'to_gbxml')
+    gbxml_string = shade.to_gbxml()
+    assert gbxml_string.startswith('<Surface ')
+    assert '<Name>overhang' in gbxml_string
+    assert 'Detached_Shades' in gbxml_string

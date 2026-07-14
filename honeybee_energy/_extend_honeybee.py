@@ -32,7 +32,11 @@ from .properties.aperture import ApertureEnergyProperties
 from .properties.door import DoorEnergyProperties
 from .properties.shademesh import ShadeMeshEnergyProperties
 from .writer import model_to_idf, room_to_idf, face_to_idf, shade_to_idf, \
-    aperture_to_idf, door_to_idf, shade_mesh_to_idf
+    aperture_to_idf, door_to_idf, shade_mesh_to_idf, \
+    model_to_gbxml_element, room_to_gbxml_element, face_to_gbxml_element, \
+    shade_to_gbxml_element, sub_face_to_gbxml_element, shade_mesh_to_gbxml_element, \
+    model_to_gbxml, room_to_gbxml, face_to_gbxml, shade_to_gbxml, \
+    sub_face_to_gbxml, shade_mesh_to_gbxml
 from .boundarycondition import Adiabatic, OtherSideTemperature
 
 # set a hidden energy attribute on each core geometry Property class to None
@@ -97,7 +101,7 @@ ApertureProperties.energy = property(aperture_energy_properties)
 DoorProperties.energy = property(door_energy_properties)
 ShadeMeshProperties.energy = property(shade_mesh_energy_properties)
 
-# add energy writer to idf
+# add energy  translation methods to the writer modules
 model_writer.idf = model_to_idf
 room_writer.idf = room_to_idf
 face_writer.idf = face_to_idf
@@ -106,7 +110,23 @@ aperture_writer.idf = aperture_to_idf
 door_writer.idf = door_to_idf
 shade_mesh_writer.idf = shade_mesh_to_idf
 
-# add energy writer to core objects
+model_writer.gbxml = model_to_gbxml
+room_writer.gbxml = room_to_gbxml
+face_writer.gbxml = face_to_gbxml
+aperture_writer.gbxml = sub_face_to_gbxml
+door_writer.gbxml = sub_face_to_gbxml
+shade_writer.gbxml = shade_to_gbxml
+shade_mesh_writer.gbxml = shade_mesh_to_gbxml
+
+model_writer.gbxml_element = model_to_gbxml_element
+room_writer.gbxml_element = room_to_gbxml_element
+face_writer.gbxml_element = face_to_gbxml_element
+aperture_writer.gbxml_element = sub_face_to_gbxml_element
+door_writer.gbxml_element = sub_face_to_gbxml_element
+shade_writer.gbxml_element = shade_to_gbxml_element
+shade_mesh_writer.gbxml_element = shade_mesh_to_gbxml_element
+
+# add energy translation methods to core objects
 Model.to_idf = model_to_idf
 Room.to_idf = room_to_idf
 Face.to_idf = face_to_idf
@@ -114,6 +134,22 @@ Aperture.to_idf = aperture_to_idf
 Door.to_idf = door_to_idf
 Shade.to_idf = shade_to_idf
 ShadeMesh.to_idf = shade_mesh_to_idf
+
+Model.to_gbxml = model_to_gbxml
+Room.to_gbxml = room_to_gbxml
+Face.to_gbxml = face_to_gbxml
+Aperture.to_gbxml = sub_face_to_gbxml
+Door.to_gbxml = sub_face_to_gbxml
+Shade.to_gbxml = shade_to_gbxml
+ShadeMesh.to_gbxml = shade_mesh_to_gbxml
+
+Model.to_gbxml_element = model_to_gbxml_element
+Room.to_gbxml_element = room_to_gbxml_element
+Face.to_gbxml_element = face_to_gbxml_element
+Aperture.to_gbxml_element = sub_face_to_gbxml_element
+Door.to_gbxml_element = sub_face_to_gbxml_element
+Shade.to_gbxml_element = shade_to_gbxml_element
+ShadeMesh.to_gbxml_element = shade_mesh_to_gbxml_element
 
 # extend boundary conditions
 setattr(hbc, 'Adiabatic', Adiabatic)
