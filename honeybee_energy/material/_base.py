@@ -1,9 +1,14 @@
 # coding=utf-8
 """Base energy material."""
 from __future__ import division
+import xml.etree.ElementTree as ET
 
+from ladybug.datatype.distance import Distance
+from ladybug.datatype.conductivity import Conductivity
+from ladybug.datatype.density import Density
+from ladybug.datatype.specificheatcapacity import SpecificHeatCapacity
 from honeybee._lockable import lockable
-from honeybee.typing import valid_ep_string
+from honeybee.typing import valid_ep_string, clean_string
 
 
 @lockable
@@ -132,6 +137,105 @@ class _EnergyMaterialOpaqueBase(_EnergyMaterialBase):
     def is_window_material(self):
         """Boolean to note whether the material can be used for window surfaces."""
         return False
+
+    def to_gbxml_element(self, ip_units=False, parent_element=None):
+        """Get a gbXML Material Element representation of this object.
+
+        Args:
+            ip_units: A boolean to note whether the properties should be reported
+                in IP units (True) or SI units (False). (Default: False).
+            parent_element: An optional XML Element for the gbXML root to which the
+                material element will be added. If None, a new XML Element
+                will be generated. (Default: None).
+        """
+        # create the Material element
+        con_id = clean_string(self.identifier)
+        if parent_element is not None:
+            xml_mat = ET.SubElement(parent_element, 'Material', id=con_id)
+        else:
+            xml_mat = ET.Element('Material', id=con_id)
+        # set the units of properties
+        if ip_units:
+            thick_units, cond_units, dens_units, sh_units = \
+                'Feet', 'BtuPerHourFtF', 'LbsPerCubicFt', 'BTUPerLbF'
+            thick = round(Distance().to_ip([self.thickness], 'm')[0][0], 4)
+            cond = round(Conductivity().to_ip([self.conductivity], 'W/m-K')[0][0], 3)
+            dens = round(Density().to_ip([self.density], 'kg/m3')[0][0], 3)
+            sh = round(SpecificHeatCapacity().to_ip([self.specific_heat], 'J/kg-K')[0][0], 3)
+        else:
+            thick_units, cond_units, dens_units, sh_units = \
+                'Meters', 'WPerMeterK', 'KgPerCubicM', 'JPerKgK'
+            thick = round(self.thickness, 4)
+            cond = round(self.conductivity, 3)
+            dens = round(self.density, 2)
+            sh = round(self.specific_heat, 2)
+        # add the name and the required properties
+        xml_name = ET.SubElement(xml_mat, 'Name')
+        xml_name.text = str(self.display_name)
+        xml_rough = ET.SubElement(xml_mat, 'Roughness')
+        xml_rough.text = str(self.roughness)
+        xml_thick = ET.SubElement(xml_mat, 'Thickness', unit=thick_units)
+        xml_thick.text = str(thick)
+        xml_cond = ET.SubElement(xml_mat, 'Conductivity', unit=cond_units)
+        xml_cond.text = str(cond)
+        xml_dens = ET.SubElement(xml_mat, 'Density', unit=dens_units)
+        xml_dens.text = str(dens)
+        xml_sh = ET.SubElement(xml_mat, 'SpecificHeat', unit=sh_units)
+        xml_sh.text = str(sh)
+        # add the reflectance and absorptance
+        self._add_gbxml_reflectance(xml_mat)
+        return xml_mat
+
+    def to_gbxml(self, ip_units=False):
+        """Generate an gbXML string representation of this object.
+
+        Args:
+            ip_units: A boolean to note whether the U-value should be reported
+                in IP units (True) or SI units (False). (Default: False).
+        """
+        xml_root = self.to_gbxml_element(ip_units)
+        try:  # try to indent the XML to make it read-able
+            ET.indent(xml_root)
+            return ET.tostring(xml_root, encoding='unicode')
+        except AttributeError:  # we are in Python 2 and no indent is available
+            return ET.tostring(xml_root)
+
+    def _add_gbxml_reflectance(self, xml_mat):
+        """Add the reflectance and absorptance to a gbXML element of the material."""
+        # add the reflectance
+        xml_rf_sol = ET.SubElement(xml_mat, 'Reflectance', type='ExtSolar')
+        xml_rf_sol.text = str(round(self.solar_reflectance, 3))
+        xml_rb_sol = ET.SubElement(xml_mat, 'Reflectance', type='IntSolar')
+        xml_rb_sol.text = str(round(self.solar_reflectance, 3))
+        xml_rf_vis = ET.SubElement(xml_mat, 'Reflectance', type='ExtVisible')
+        xml_rf_vis.text = str(round(self.visible_reflectance, 3))
+        xml_rb_vis = ET.SubElement(xml_mat, 'Reflectance', type='IntVisible')
+        xml_rb_vis.text = str(round(self.visible_reflectance, 3))
+        therm_ref = 1 - self.thermal_absorptance
+        xml_rf_th = ET.SubElement(xml_mat, 'Reflectance', type='ExtIR')
+        xml_rf_th.text = str(round(therm_ref, 3))
+        xml_rb_th = ET.SubElement(xml_mat, 'Reflectance', type='IntIR')
+        xml_rb_th.text = str(round(therm_ref, 3))
+        all_r = (xml_rf_sol, xml_rb_sol, xml_rf_vis, xml_rb_vis, xml_rf_th, xml_rb_th)
+        for xml_ref in all_r:
+            xml_ref.set('unit', 'Fraction')
+            xml_ref.set('surfaceType', 'Both')
+        # add the absorptance
+        xml_af_sol = ET.SubElement(xml_mat, 'Absorptance', type='ExtSolar')
+        xml_af_sol.text = str(round(self.solar_absorptance, 3))
+        xml_ab_sol = ET.SubElement(xml_mat, 'Absorptance', type='IntSolar')
+        xml_ab_sol.text = str(round(self.solar_absorptance, 3))
+        xml_af_vis = ET.SubElement(xml_mat, 'Absorptance', type='ExtVisible')
+        xml_af_vis.text = str(round(self.visible_absorptance, 3))
+        xml_ab_vis = ET.SubElement(xml_mat, 'Absorptance', type='IntVisible')
+        xml_ab_vis.text = str(round(self.visible_absorptance, 3))
+        xml_af_th = ET.SubElement(xml_mat, 'Absorptance', type='ExtIR')
+        xml_af_th.text = str(round(self.thermal_absorptance, 3))
+        xml_ab_th = ET.SubElement(xml_mat, 'Absorptance', type='IntIR')
+        xml_ab_th.text = str(round(self.thermal_absorptance, 3))
+        all_a = (xml_af_sol, xml_ab_sol, xml_af_vis, xml_ab_vis, xml_af_th, xml_ab_th)
+        for xml_abs in all_a:
+            xml_ref.set('unit', 'Fraction')
 
     def __repr__(self):
         return 'Base Opaque Energy Material:\n{}'.format(self.display_name)

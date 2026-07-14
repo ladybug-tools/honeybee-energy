@@ -416,7 +416,7 @@ class OpaqueConstruction(_ConstructionBase):
                 construction element will be added. If None, a new XML Element
                 will be generated. (Default: None).
         """
-        # create the Surface element
+        # create the Construction element
         con_id = clean_string(self.identifier)
         if parent_element is not None:
             xml_con = ET.SubElement(parent_element, 'Construction', id=con_id)

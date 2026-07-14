@@ -139,6 +139,22 @@ def test_material_to_from_idf():
     assert idf_str == new_mat_1.to_idf()
 
 
+def test_material_to_from_gbxml():
+    """Test the initialization of EnergyMaterial objects from gbXML strings."""
+    concrete = EnergyMaterial('Concrete', 0.2, 0.5, 800, 1200)
+
+    mat_str = concrete.to_gbxml()
+    new_mat = EnergyMaterial.from_gbxml(mat_str)
+    new_mat_str = new_mat.to_gbxml()
+
+    assert concrete.identifier == new_mat.identifier
+    assert concrete.thickness == new_mat.thickness
+    assert concrete.conductivity == new_mat.conductivity
+    assert concrete.density == new_mat.density
+    assert concrete.specific_heat == new_mat.specific_heat
+    assert mat_str == new_mat_str
+
+
 def test_material_dict_methods(userdatadict):
     """Test the to/from dict methods."""
     material = EnergyMaterial('Concrete', 0.2, 0.5, 800, 1200)
@@ -214,6 +230,19 @@ def test_material_nomass_init_from_idf():
     idf_str = mat_1.to_idf()
     new_mat_1 = EnergyMaterialNoMass.from_idf(idf_str)
     assert idf_str == new_mat_1.to_idf()
+
+
+def test_material_nomass_to_from_gbxml():
+    """Test the initialization of EnergyMaterial objects from gbXML strings."""
+    insul_r2 = EnergyMaterialNoMass('Insulation [R-2]', 2)
+
+    mat_str = insul_r2.to_gbxml()
+    new_mat = EnergyMaterialNoMass.from_gbxml(mat_str)
+    new_mat_str = new_mat.to_gbxml()
+
+    assert insul_r2.identifier == new_mat.identifier
+    assert insul_r2.r_value == new_mat.r_value
+    assert mat_str == new_mat_str
 
 
 def test_material_nomass_dict_methods(userdatadict):
@@ -389,6 +418,24 @@ def test_greenroof_init_from_idf():
     new_idf_str = matter_1.to_idf()
     new_matter = EnergyMaterialVegetation.from_idf(new_idf_str)
     assert new_idf_str == new_matter.to_idf()
+
+
+def test_greenroof_to_from_gbxml():
+    """Test the initialization of EnergyMaterial objects from gbXML strings."""
+    g_roof1 = EnergyMaterialVegetation(
+        'tall grass', 0.5, 0.45, 1250, 950, 'Rough',
+        0.89, 0.65, 0.7, 0.5, 2, 0.35, 0.9, 275)
+
+    mat_str = g_roof1.to_gbxml()
+    new_mat = EnergyMaterial.from_gbxml(mat_str)
+    new_mat_str = new_mat.to_gbxml()
+
+    assert g_roof1.identifier == new_mat.identifier
+    assert g_roof1.thickness == new_mat.thickness
+    assert g_roof1.conductivity == new_mat.conductivity
+    assert g_roof1.density == new_mat.density
+    assert g_roof1.specific_heat == new_mat.specific_heat
+    assert mat_str == new_mat_str
 
 
 def test_greenroof_dict_methods(userdatadict):
