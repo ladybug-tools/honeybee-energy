@@ -243,6 +243,7 @@ def test_program_type_diversify():
         'Office Cooling Schedule', 24, schedule_types.temperature)
 
     people = People('Open Office People', 0.05, occ_schedule)
+    people.carbon_dioxide_generation_rate = 3.82e-8
     lighting = Lighting('Open Office Lighting', 10, light_schedule)
     equipment = ElectricEquipment('Open Office Equipment', 10, equip_schedule)
     infiltration = Infiltration('Office Infiltration', 0.00015, inf_schedule)
@@ -256,6 +257,7 @@ def test_program_type_diversify():
     for prog in div_programs:
         assert isinstance(prog, ProgramType)
         assert prog.people.people_per_area != people.people_per_area
+        assert prog.people.carbon_dioxide_generation_rate == 3.82e-8
         assert prog.lighting.watts_per_area != lighting.watts_per_area
         assert prog.electric_equipment.watts_per_area != equipment.watts_per_area
         assert prog.infiltration.flow_per_exterior_area != \
