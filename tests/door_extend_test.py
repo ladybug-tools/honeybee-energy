@@ -158,3 +158,30 @@ def test_writer_to_idf():
     assert 'wall_door,' in idf_string
     assert 'FenestrationSurface:Detailed,' in idf_string
     assert 'ConcreteDoor' in idf_string
+
+
+def test_writer_to_gbxml():
+    """Test the Door to_gbxml method."""
+    vertices_parent_wall = [[0, 0, 0], [0, 10, 0], [0, 10, 3], [0, 0, 3]]
+    vertices_wall = [[0, 1, 0.1], [0, 2, 0.1], [0, 2, 2.8], [0, 1, 2.8]]
+
+    wf = Face.from_vertices('wall_face', vertices_parent_wall)
+    wd = Door.from_vertices('wall_door', vertices_wall)
+    wf.add_door(wd)
+
+    concrete5 = EnergyMaterial('5cm Concrete', 0.05, 2.31, 2322, 832,
+                               'MediumRough', 0.95, 0.75, 0.8)
+    mass_constr = OpaqueConstruction('ConcreteDoor', [concrete5])
+    wd.properties.energy.construction = mass_constr
+
+    assert hasattr(wd.to, 'gbxml')
+    gbxml_string = wd.to.gbxml(wd)
+    assert 'wall_door' in gbxml_string
+    assert 'NonSlidingDoor' in gbxml_string
+    assert 'ConcreteDoor' in gbxml_string
+
+    assert hasattr(wd, 'to_gbxml')
+    gbxml_string = wd.to_gbxml()
+    assert 'wall_door' in gbxml_string
+    assert 'NonSlidingDoor' in gbxml_string
+    assert 'ConcreteDoor' in gbxml_string

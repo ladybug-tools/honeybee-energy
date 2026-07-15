@@ -1262,7 +1262,7 @@ def face_to_gbxml_element(
         'id': face.identifier,
         'surfaceType': face.gbxml_type,
         'constructionIdRef': construction,
-        'exposedToSun': sun_exposed
+        'exposedToSun': str(sun_exposed).lower()
     }
     # create the Surface element
     if campus_element is not None:
@@ -1357,7 +1357,7 @@ def room_to_gbxml_element(
             people_value, unit = people.people_per_area_ip, 'SquareFtPerPerson'
         else:
             people_value, unit = people.people_per_area_si, 'SquareMPerPerson'
-        xml_people = ET.SubElement(xml_space, 'LightPowerPerArea', unit=unit)
+        xml_people = ET.SubElement(xml_space, 'PeopleNumber', unit=unit)
         xml_people.text = str(round(people_value, decimal_count))
 
     # add the lighting load if it exists
@@ -1450,7 +1450,6 @@ def room_to_gbxml_element(
             shell_geo_element = ET.SubElement(shell_element, 'ClosedShell')
             for xml_geo in geo_elements:
                 shell_geo_element.append(xml_geo)
-            xml_space.append(shell_element)
 
     return xml_space
 
@@ -1640,12 +1639,13 @@ def model_to_gbxml_element(
     xml_floor_area.text = str(round(model.floor_area, decimal_count))
 
     # write all of the rooms into the gbXML as spaces
-    story_dict = OrderedDict()
+    story_dict, xml_rooms = OrderedDict(), []
     for room in model.rooms:
-        room_to_gbxml_element(
+        xml_room = room_to_gbxml_element(
             room, include_shell_geometry, include_space_boundaries,
             tol, explicit_holes, xml_bldg
         )
+        xml_rooms.append(xml_room)
         try:
             story_dict[room.story].append(room)
         except KeyError:
@@ -1688,7 +1688,7 @@ def model_to_gbxml_element(
         xml_story_elev.text = str(round(elevation, decimal_count))
 
     # all of the room faces and openings to the gbxml ad non-manifold geometry
-    adj_to_ignore = set()
+    adj_to_ignore = {}
     for room in model.rooms:
         for face in room.faces:
             # ensure that interior surfaces are not added twice
@@ -1700,7 +1700,7 @@ def model_to_gbxml_element(
                     continue
                 elif isinstance(face.type, Floor) and interior_face_type == 'Ceiling':
                     continue
-                adj_to_ignore.add(fbc.boundary_condition_object)
+                adj_to_ignore[fbc.boundary_condition_object] = face.identifier
             # add the face element to the gbxml
             xml_face = face_to_gbxml_element(
                 face, tolerance=tol, explicit_holes=explicit_holes,
@@ -1710,6 +1710,14 @@ def model_to_gbxml_element(
             if ground_face_type != 'AutoAssign' and isinstance(fbc, Ground):
                 if isinstance(face.type, Floor):
                     xml_face.set('surfaceType', ground_face_type)
+
+    # if space boundaries were requested, loop through adj_to_ignore and replace them
+    if include_space_boundaries:
+        for xml_room in xml_rooms:
+            for xml_sb in xml_room.findall('SpaceBoundary'):
+                srf_id = xml_sb.get('surfaceIdRef')
+                if srf_id in adj_to_ignore:
+                    xml_sb.set('surfaceIdRef', adj_to_ignore[srf_id])
 
     # add all of the shade geometries to the gbxml
     for shade in attached_shades:
@@ -1741,7 +1749,7 @@ def model_to_gbxml_element(
                 materials.extend(constr.materials)
             try:  # first assume it is a window construction
                 constr.to_gbxml_element(ip_units=ip_units, parent_element=gbxml_root)
-            except AttributeError:  # opaque or air boundary construction
+            except TypeError:  # opaque or air boundary construction
                 constr.to_gbxml_element(parent_element=gbxml_root)
         except AttributeError:  # ShadeConstruction; no need to write it
             pass
@@ -1779,7 +1787,11 @@ def model_to_gbxml_element(
             if total_ventilation:  # write ventilation as a single air flow
                 rooms_si, flow_units, unit_abbrev = rooms, 'LPerSec', 'si'
                 if ip_units:
-                    rooms_si = [r.duplicate().scale(scale_fac) for r in rooms]
+                    rooms_si = []
+                    for r in rooms:
+                        new_r = r.duplicate()
+                        new_r.scale(scale_fac)
+                        rooms_si.append(new_r)
                     flow_units, unit_abbrev = 'CFM', 'ip'
                 total_flows = [vent.flow_per_zone]
                 if vent.flow_per_person != 0:

@@ -389,6 +389,41 @@ def test_from_dict():
     assert new_room.to_dict() == rd
 
 
+def test_writer_to_gbxml():
+    """Test the Room to_gbxml method."""
+    room = Room.from_box('ClosedOffice', 5, 10, 3)
+    room.properties.energy.program_type = office_program
+    room.properties.energy.add_default_ideal_air()
+
+    assert hasattr(room.to, 'gbxml')
+    assert hasattr(room, 'to_gbxml')
+    gbxml_string = room.to_gbxml()
+    assert 'ClosedOffice' in gbxml_string
+    assert 'Space' in gbxml_string
+    assert 'PeopleNumber' in gbxml_string
+    assert 'SquareMPerPerson' in gbxml_string
+    assert 'LightPowerPerArea' in gbxml_string
+    assert 'WattPerSquareMeter' in gbxml_string
+    assert 'EquipPowerPerArea' in gbxml_string
+    assert 'InfiltrationFlow' in gbxml_string
+
+    gbxml_string = room.to_gbxml(ip_units=True)
+    assert 'SquareFtPerPerson' in gbxml_string
+    assert 'WattPerSquareFoot' in gbxml_string
+
+    gbxml_string = room.to_gbxml(include_shell_geometry=True)
+    assert gbxml_string.count('ShellGeometry') == 2
+    assert gbxml_string.count('ClosedShell') == 2
+
+    gbxml_string = room.to_gbxml(include_space_boundaries=True)
+    assert gbxml_string.count('SpaceBoundary') == 12
+
+    gbxml_string = room.to_gbxml(include_shell_geometry=True, include_space_boundaries=True)
+    assert gbxml_string.count('ShellGeometry') == 2
+    assert gbxml_string.count('ClosedShell') == 2
+    assert gbxml_string.count('SpaceBoundary') == 12
+
+
 def test_writer_to_idf():
     """Test the Room to_idf method."""
     room = Room.from_box('ClosedOffice', 5, 10, 3)

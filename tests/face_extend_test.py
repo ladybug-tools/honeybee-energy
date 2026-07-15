@@ -166,6 +166,34 @@ def test_writer_to_idf():
     assert 'BuildingSurface:Detailed,' in idf_string
 
 
+def test_writer_to_gbxml():
+    """Test the Face to_idf method."""
+    vertices_wall = [[0, 0, 0], [0, 10, 0], [0, 10, 3], [0, 0, 3]]
+    vertices_floor = [[0, 0, 0], [0, 10, 0], [10, 10, 0], [10, 0, 0]]
+    vertices_roof = [[10, 0, 3], [10, 10, 3], [0, 10, 3], [0, 0, 3]]
+    wf = Face.from_vertices('wall_face', vertices_wall)
+    rf = Face.from_vertices('roof_face', vertices_roof)
+    ff = Face.from_vertices('floor_face', vertices_floor)
+
+    assert hasattr(wf.to, 'gbxml')
+    gbxml_string = wf.to.gbxml(wf)
+    assert 'wall_face' in gbxml_string
+    assert 'ExteriorWall' in gbxml_string
+
+    assert hasattr(wf, 'to_gbxml')
+    gbxml_string = wf.to_gbxml()
+    assert 'wall_face' in gbxml_string
+    assert 'ExteriorWall' in gbxml_string
+
+    gbxml_string = rf.to_gbxml()
+    assert 'roof_face' in gbxml_string
+    assert 'Roof' in gbxml_string
+
+    gbxml_string = ff.to_gbxml()
+    assert 'floor_face' in gbxml_string
+    assert 'UndergroundSlab' in gbxml_string
+
+
 def test_adiabatic_bc():
     """Test the adiabatic boundary condition."""
     assert hasattr(boundary_conditions, 'adiabatic')

@@ -994,6 +994,70 @@ def test_writer_to_idf_space_vs_zone():
     """
 
 
+def test_writer_to_gbxml():
+    """Test the Model to.gbxml method."""
+    room = Room.from_box('TinyHouseZone', 5, 10, 3)
+    room.properties.energy.program_type = office_program
+    room.properties.energy.add_default_ideal_air()
+
+    stone = EnergyMaterial('Thick Stone', 0.3, 2.31, 2322, 832, 'Rough',
+                           0.95, 0.75, 0.8)
+    thermal_mass_constr = OpaqueConstruction('Thermal Mass Floor', [stone])
+    room[0].properties.energy.construction = thermal_mass_constr
+
+    south_face = room[3]
+    south_face.apertures_by_ratio(0.4, 0.01)
+    south_face.apertures[0].overhang(0.5, indoor=False)
+    south_face.apertures[0].overhang(0.5, indoor=True)
+    south_face.move_shades(Vector3D(0, 0, -0.5))
+    light_shelf_out = ShadeConstruction('OutdoorLightShelf', 0.5, 0.5)
+    light_shelf_in = ShadeConstruction('IndoorLightShelf', 0.7, 0.7)
+    south_face.apertures[0].outdoor_shades[0].properties.energy.construction = light_shelf_out
+    south_face.apertures[0].indoor_shades[0].properties.energy.construction = light_shelf_in
+
+    north_face = room[1]
+    north_face.overhang(0.25, indoor=False)
+    door_verts = [Point3D(2, 10, 0.1), Point3D(1, 10, 0.1),
+                  Point3D(1, 10, 2.5), Point3D(2, 10, 2.5)]
+    door = Door('FrontDoor', Face3D(door_verts))
+    north_face.add_door(door)
+
+    aperture_verts = [Point3D(4.5, 10, 1), Point3D(2.5, 10, 1),
+                      Point3D(2.5, 10, 2.5), Point3D(4.5, 10, 2.5)]
+    aperture = Aperture('FrontAperture', Face3D(aperture_verts))
+    triple_pane = WindowConstruction(
+        'Triple Pane Window', [clear_glass, air_gap, clear_glass, air_gap, clear_glass])
+    aperture.properties.energy.construction = triple_pane
+    north_face.add_aperture(aperture)
+
+    tree_canopy_geo = Face3D.from_regular_polygon(
+        6, 2, Plane(Vector3D(0, 0, 1), Point3D(5, -3, 4)))
+    tree_canopy = Shade('TreeCanopy', tree_canopy_geo)
+
+    table_geo = Face3D.from_rectangle(2, 2, Plane(o=Point3D(1.5, 4, 1)))
+    table = Shade('Table', table_geo)
+    room.add_indoor_shade(table)
+
+    pts = (Point3D(0, 0, 4), Point3D(0, 2, 4), Point3D(2, 2, 4),
+           Point3D(2, 0, 4), Point3D(4, 0, 4))
+    mesh = Mesh3D(pts, [(0, 1, 2, 3), (2, 3, 4)])
+    awning_1 = ShadeMesh('Awning_1', mesh)
+    bright_awning = ShadeConstruction('BrightAwning', 0.75, 0.75)
+    awning_1.properties.energy.construction = bright_awning
+
+    model = Model('TinyHouse', [room], orphaned_shades=[tree_canopy], shade_meshes=[awning_1])
+
+    assert hasattr(model.to, 'gbxml')
+    assert hasattr(model, 'to_gbxml')
+    gbxml_string = model.to_gbxml()
+    assert len(gbxml_string) != 0
+
+    gbxml_string = model.to_gbxml(
+        ip_units=True, include_shell_geometry=True, include_space_boundaries=True
+    )
+    assert len(gbxml_string) != 0
+
+
 def test_energy_ventilation_simulation_properties():
     """Test the existence of the ventilation simulation control properties."""
     room = Room.from_box('Tiny_House_Zone', 5, 10, 3)
