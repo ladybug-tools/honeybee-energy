@@ -47,6 +47,10 @@ class WindowConstruction(_ConstructionBase):
         * u_value
         * u_factor
         * r_factor
+        * r_value_ip
+        * u_value_ip
+        * u_factor_ip
+        * r_factor_ip
         * is_symmetric
         * has_frame
         * has_shade

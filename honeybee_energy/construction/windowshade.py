@@ -84,6 +84,10 @@ class WindowConstructionShade(object):
         * u_value
         * u_factor
         * r_factor
+        * r_value_ip
+        * u_value_ip
+        * u_factor_ip
+        * r_factor_ip
         * is_symmetric
         * is_switchable_glazing
         * has_frame
