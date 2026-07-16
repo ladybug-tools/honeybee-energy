@@ -877,15 +877,12 @@ def model_to_gbxml(
               'of OpenStudio will appear. Otherwise, this will default to "0.0.0" '
               'given that the version field is required.',
               type=str, default=None, show_default=True)
-@click.option('--osw-folder', '-osw', help='Deprecated input that is no longer used.',
-              default=None,
-              type=click.Path(file_okay=False, dir_okay=True, resolve_path=True))
 @click.option('--output-file', '-f', help='Optional gbXML file to output the string '
               'of the translation. By default it printed out to stdout.',
               type=click.File('w'), default='-', show_default=True)
 def model_to_trace_gbxml_cli(
         model_file, single_window, rect_sub_distance, frame_merge_distance,
-        program_name, program_version, osw_folder, output_file):
+        program_name, program_version, output_file):
     """Translate a Honeybee Model (HBJSON) to a gbXML file.
 
     \b
@@ -896,8 +893,7 @@ def model_to_trace_gbxml_cli(
         detailed_windows = not single_window
         model_to_trace_gbxml(
             model_file, detailed_windows, rect_sub_distance,
-            frame_merge_distance, osw_folder,
-            program_name, program_version, output_file)
+            frame_merge_distance, program_name, program_version, output_file)
     except Exception as e:
         _logger.exception('Model translation failed.\n{}'.format(e))
         sys.exit(1)
@@ -908,7 +904,7 @@ def model_to_trace_gbxml_cli(
 def model_to_trace_gbxml(
     model_file, detailed_windows=False, rect_sub_distance='0.15m',
     frame_merge_distance='0.2m', program_name=None, program_version=None,
-    osw_folder=None, output_file=None, single_window=True
+    output_file=None, single_window=True
 ):
     """Translate a Honeybee Model to a gbXML file that is compatible with TRACE 3D Plus.
 
@@ -940,18 +936,9 @@ def model_to_trace_gbxml(
             program_name is also unspecified, only the version of OpenStudio will
             appear. Otherwise, this will default to "0.0.0" given that the version
             field is required. (Default: None).
-        osw_folder: Deprecated input that is no longer used.
         output_file: Optional gbXML file to output the string of the translation.
             By default it will be returned from this method.
     """
-    # check that honeybee-openstudio is installed
-    try:
-        from honeybee_openstudio.writer import model_to_gbxml
-    except ImportError as e:  # honeybee-openstudio is not installed
-        raise ImportError('{}\n{}'.format(HB_OS_MSG, e))
-    if osw_folder is not None:
-        print('--osw-folder is deprecated and no longer used.')
-
     # load the model and translate it to a gbXML string
     single_window = not detailed_windows
     model = Model.from_file(model_file)
@@ -959,8 +946,8 @@ def model_to_trace_gbxml(
         model, single_window=single_window, rect_sub_distance=rect_sub_distance,
         frame_merge_distance=frame_merge_distance
     )
-    gbxml_str = model_to_gbxml(
-        model, program_name=program_name, program_version=program_version
+    gbxml_str = model.to_gbxml(
+        ip_units=True, program_name=program_name, program_version=program_version
     )
 
     # write out the gbXML file
