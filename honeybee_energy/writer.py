@@ -998,7 +998,8 @@ def _instance_in_array(object_instance, object_array):
 
 
 def face_3d_to_gbxml_element(
-    face_3d, tolerance=0.001, explicit_holes=False, parent_element=None, rect_origin=None
+    face_3d, tolerance=0.001, simple_rect_areas=False, explicit_holes=False,
+    parent_element=None, rect_origin=None
 ):
     """Get gbXML PlanarGeometry and RectangularGeometry Elements from a Face3D.
 
@@ -1008,6 +1009,15 @@ def face_3d_to_gbxml_element(
         tolerance: The minimum difference in coordinate values below which
             vertices are considered to be identical. (Default: 0.001, suitable
             for objects in Meters or Feet).
+        simple_rect_areas: Boolean to note whether the width and height of all
+            RectangularGeometry is set based on the bounding rectangle around
+            the geometry (False) or is set in a simplified manner with the
+            width always equal to geometry area and the height always equal
+            to one (True). Setting to True can ensure correct overall area of
+            the geometry in the destination software, particularly in cases where
+            the geometry is not rectangular. However, if the destination software
+            has a means of representing the 2D rectangular geometry in 3D, setting
+            this to True may not look correct. (Default: False).
         explicit_holes: Boolean to note whether holes in the Face3D should be
             represented explicitly with their own PolyLoop or the hole and boundary
             should be collapsed into a single PolyLoop that winds inwards to
@@ -1027,9 +1037,9 @@ def face_3d_to_gbxml_element(
     else:
         xml_rect_geo = ET.Element('RectangularGeometry')
         xml_plane_geo = ET.Element('PlanarGeometry')
+    decimal_count, _ = rounding_tolerance(tolerance)
 
     # extract all of the rectangular geometry properties
-    decimal_count, _ = rounding_tolerance(tolerance)
     rel_plane = face_3d.plane
     llc = face_3d.lower_left_corner
     urc = face_3d.upper_right_corner
@@ -1045,12 +1055,13 @@ def face_3d_to_gbxml_element(
     ref_plane = Plane(rel_plane.n, origin, proj_x)
     min_2d = ref_plane.xyz_to_xy(llc)
     max_2d = ref_plane.xyz_to_xy(urc)
-    width = round(max_2d.x - min_2d.x, decimal_count)
-    height = round(max_2d.y - min_2d.y, decimal_count)
+    if simple_rect_areas:
+        width = round(face_3d.area, decimal_count)
+        height = 1
+    else:
+        width = round(max_2d.x - min_2d.x, decimal_count)
+        height = round(max_2d.y - min_2d.y, decimal_count)
     origin_coords = origin if rect_origin is None else min_2d
-
-    if round(origin_coords.x, 4) == 1.0619 and round(origin_coords.z, 4) == 8.7826:
-        print(width, height)
 
     # add the rectangular geometry properties
     xml_origin = ET.SubElement(xml_rect_geo, 'CartesianPoint')
@@ -1094,7 +1105,8 @@ def face_3d_to_gbxml_element(
 
 
 def shade_to_gbxml_element(
-    shade, tolerance=0.001, explicit_holes=False, campus_element=None
+    shade, tolerance=0.001, simple_rect_areas=False, explicit_holes=False,
+    campus_element=None
 ):
     """Get a gbXML Surface Element from a honeybee Shade.
 
@@ -1104,6 +1116,15 @@ def shade_to_gbxml_element(
         tolerance: The minimum difference in coordinate values below which
             vertices are considered to be identical. (Default: 0.001, suitable
             for objects in Meters or Feet).
+        simple_rect_areas: Boolean to note whether the width and height of all
+            RectangularGeometry is set based on the bounding rectangle around
+            the geometry (False) or is set in a simplified manner with the
+            width always equal to geometry area and the height always equal
+            to one (True). Setting to True can ensure correct overall area of
+            the geometry in the destination software, particularly in cases where
+            the geometry is not rectangular. However, if the destination software
+            has a means of representing the 2D rectangular geometry in 3D, setting
+            this to True may not look correct. (Default: False).
         explicit_holes: Boolean to note whether holes in the Face3D should be
             represented explicitly with their own PolyLoop or the hole and boundary
             should be collapsed into a single PolyLoop that winds inwards to
@@ -1137,14 +1158,15 @@ def shade_to_gbxml_element(
         ET.SubElement(xml_shade, 'AdjacentSpaceId', spaceIdRef='Attached_Shades')
     # add the geometry
     face_3d_to_gbxml_element(
-        shade.geometry, parent_element=xml_shade,
-        tolerance=tolerance, explicit_holes=explicit_holes
+        shade.geometry, tolerance=tolerance, simple_rect_areas=simple_rect_areas,
+        explicit_holes=explicit_holes, parent_element=xml_shade
     )
     return xml_shade
 
 
 def shade_mesh_to_gbxml_element(
-    shade_mesh, tolerance=0.001, explicit_holes=False, campus_element=None
+    shade_mesh, tolerance=0.001, simple_rect_areas=False, explicit_holes=False,
+    campus_element=None
 ):
     """Get a list of gbXML Elements from a honeybee ShadeMesh.
 
@@ -1154,6 +1176,15 @@ def shade_mesh_to_gbxml_element(
         tolerance: The minimum difference in coordinate values below which
             vertices are considered to be identical. (Default: 0.001, suitable
             for objects in Meters or Feet).
+        simple_rect_areas: Boolean to note whether the width and height of all
+            RectangularGeometry is set based on the bounding rectangle around
+            the geometry (False) or is set in a simplified manner with the
+            width always equal to geometry area and the height always equal
+            to one (True). Setting to True can ensure correct overall area of
+            the geometry in the destination software, particularly in cases where
+            the geometry is not rectangular. However, if the destination software
+            has a means of representing the 2D rectangular geometry in 3D, setting
+            this to True may not look correct. (Default: False).
         explicit_holes: Boolean to note whether holes in the Face3D should be
             represented explicitly with their own PolyLoop or the hole and boundary
             should be collapsed into a single PolyLoop that winds inwards to
@@ -1184,14 +1215,16 @@ def shade_mesh_to_gbxml_element(
             ET.SubElement(xml_shade, 'AdjacentSpaceId', spaceIdRef='Attached Shades')
         # add the geometry
         face_3d_to_gbxml_element(
-            Face3D(face), parent_element=xml_shade, tolerance=tolerance
+            Face3D(face), tolerance=tolerance, simple_rect_areas=simple_rect_areas,
+            parent_element=xml_shade
         )
         xml_shades.append(xml_shade)
     return xml_shades
 
 
 def sub_face_to_gbxml_element(
-    sub_face, tolerance=0.001, explicit_holes=False, surface_element=None, rect_origin=None
+    sub_face, tolerance=0.001, simple_rect_areas=False, explicit_holes=False,
+    surface_element=None, rect_origin=None
 ):
     """Get a gbXML Opening Element from a honeybee Aperture or Door.
 
@@ -1201,6 +1234,15 @@ def sub_face_to_gbxml_element(
         tolerance: The minimum difference in coordinate values below which
             vertices are considered to be identical. (Default: 0.001, suitable
             for objects in Meters or Feet).
+        simple_rect_areas: Boolean to note whether the width and height of all
+            RectangularGeometry is set based on the bounding rectangle around
+            the geometry (False) or is set in a simplified manner with the
+            width always equal to geometry area and the height always equal
+            to one (True). Setting to True can ensure correct overall area of
+            the geometry in the destination software, particularly in cases where
+            the geometry is not rectangular. However, if the destination software
+            has a means of representing the 2D rectangular geometry in 3D, setting
+            this to True may not look correct. (Default: False).
         explicit_holes: Boolean to note whether holes in the Face3D should be
             represented explicitly with their own PolyLoop or the hole and boundary
             should be collapsed into a single PolyLoop that winds inwards to
@@ -1230,14 +1272,15 @@ def sub_face_to_gbxml_element(
     xml_name.text = str(sub_face.display_name)
     # add the geometry
     face_3d_to_gbxml_element(
-        sub_face.geometry, parent_element=xml_opening,
-        tolerance=tolerance, explicit_holes=explicit_holes, rect_origin=rect_origin
+        sub_face.geometry, tolerance=tolerance, simple_rect_areas=simple_rect_areas,
+        explicit_holes=explicit_holes, parent_element=xml_opening, rect_origin=rect_origin
     )
     return xml_opening
 
 
 def face_to_gbxml_element(
-    face, tolerance=0.001, explicit_holes=False, campus_element=None
+    face, tolerance=0.001, simple_rect_areas=False, explicit_holes=False,
+    campus_element=None
 ):
     """Get a gbXML Surface Element from a honeybee Face.
 
@@ -1249,6 +1292,15 @@ def face_to_gbxml_element(
         tolerance: The minimum difference in coordinate values below which
             vertices are considered to be identical. (Default: 0.001, suitable
             for objects in Meters or Feet).
+        simple_rect_areas: Boolean to note whether the width and height of all
+            RectangularGeometry is set based on the bounding rectangle around
+            the geometry (False) or is set in a simplified manner with the
+            width always equal to geometry area and the height always equal
+            to one (True). Setting to True can ensure correct overall area of
+            the geometry in the destination software, particularly in cases where
+            the geometry is not rectangular. However, if the destination software
+            has a means of representing the 2D rectangular geometry in 3D, setting
+            this to True may not look correct. (Default: False).
         explicit_holes: Boolean to note whether holes in the Face3D should be
             represented explicitly with their own PolyLoop or the hole and boundary
             should be collapsed into a single PolyLoop that winds inwards to
@@ -1282,8 +1334,8 @@ def face_to_gbxml_element(
         ET.SubElement(xml_face, 'AdjacentSpaceId', spaceIdRef=adj_room)
     # add the geometry
     face_3d_to_gbxml_element(
-        face.geometry, parent_element=xml_face,
-        tolerance=tolerance, explicit_holes=explicit_holes
+        face.geometry, tolerance=tolerance, simple_rect_areas=simple_rect_areas,
+        explicit_holes=explicit_holes, parent_element=xml_face,
     )
     # add the apertures and doors as Opening elements
     sub_faces = face.sub_faces
@@ -1291,7 +1343,8 @@ def face_to_gbxml_element(
         rect_origin = face.geometry.lower_left_corner
         for sf in sub_faces:
             sub_face_to_gbxml_element(
-                sf, tolerance=tolerance, explicit_holes=explicit_holes,
+                sf, tolerance=tolerance, simple_rect_areas=simple_rect_areas,
+                explicit_holes=explicit_holes,
                 surface_element=xml_face, rect_origin=rect_origin
             )
 
@@ -1480,7 +1533,8 @@ def model_to_gbxml_element(
     interior_face_type='InteriorFloor', ground_face_type='AutoAssign',
     face_rename_format=None, subface_rename_format=None,
     reset_geometry_ids=False, reset_resource_ids=False,
-    triangulate_subfaces=False, triangulate_non_planar=True, explicit_holes=False,
+    triangulate_subfaces=False, triangulate_non_planar=True,
+    simple_rect_areas=False, explicit_holes=False,
     total_ventilation=True, program_name=None, program_version=None,
     gbxml_schema_version=None
 ):
@@ -1552,6 +1606,15 @@ def model_to_gbxml_element(
             than 4 sides (True) or whether they should be left as they are (False).
             This triangulation is necessary when exporting directly to EnergyPlus
             since it cannot accept sub-faces with more than 4 vertices. (Default: True).
+        simple_rect_areas: Boolean to note whether the width and height of all
+            RectangularGeometry is set based on the bounding rectangle around
+            the geometry (False) or is set in a simplified manner with the
+            width always equal to geometry area and the height always equal
+            to one (True). Setting to True can ensure correct overall area of
+            the geometry in the destination software, particularly in cases where
+            the geometry is not rectangular. However, if the destination software
+            has a means of representing the 2D rectangular geometry in 3D, setting
+            this to True may not look correct. (Default: False).
         explicit_holes: Boolean to note whether holes in Surfaces should be
             represented explicitly with their own PolyLoop or the hole and boundary
             should be collapsed into a single PolyLoop that winds inwards to
@@ -1726,8 +1789,8 @@ def model_to_gbxml_element(
                 adj_to_ignore[fbc.boundary_condition_object] = face.identifier
             # add the face element to the gbxml
             xml_face = face_to_gbxml_element(
-                face, tolerance=tol, explicit_holes=explicit_holes,
-                campus_element=xml_campus
+                face, tolerance=tol, simple_rect_areas=simple_rect_areas,
+                explicit_holes=explicit_holes, campus_element=xml_campus
             )
             # if the floor type was specified, overwrite it
             if ground_face_type != 'AutoAssign' and isinstance(fbc, Ground):
@@ -1743,14 +1806,10 @@ def model_to_gbxml_element(
                     xml_sb.set('surfaceIdRef', adj_to_ignore[srf_id])
 
     # add all of the shade geometries to the gbxml
-    for shade in attached_shades:
-        shade_to_gbxml_element(shade, tol, explicit_holes, xml_campus)
-    for sm in attached_sms:
-        shade_mesh_to_gbxml_element(sm, tol, explicit_holes, xml_campus)
-    for shade in detached_shades:
-        shade_to_gbxml_element(shade, tol, explicit_holes, xml_campus)
-    for sm in detached_sms:
-        shade_mesh_to_gbxml_element(sm, tol, explicit_holes, xml_campus)
+    for shade in attached_shades + detached_shades:
+        shade_to_gbxml_element(shade, tol, simple_rect_areas, explicit_holes, xml_campus)
+    for sm in attached_sms + detached_sms:
+        shade_mesh_to_gbxml_element(sm, tol, simple_rect_areas, explicit_holes, xml_campus)
 
     # get the default generic construction set
     # must be imported here to avoid circular imports
@@ -1901,7 +1960,8 @@ def model_to_gbxml(
     interior_face_type='InteriorFloor', ground_face_type='AutoAssign',
     face_rename_format=None, subface_rename_format=None,
     reset_geometry_ids=False, reset_resource_ids=False,
-    triangulate_subfaces=False, triangulate_non_planar=True, explicit_holes=False,
+    triangulate_subfaces=False, triangulate_non_planar=True,
+    simple_rect_areas=False, explicit_holes=False,
     total_ventilation=True, program_name=None, program_version=None,
     gbxml_schema_version=None
 ):
@@ -1973,6 +2033,15 @@ def model_to_gbxml(
             than 4 sides (True) or whether they should be left as they are (False).
             This triangulation is necessary when exporting directly to EnergyPlus
             since it cannot accept sub-faces with more than 4 vertices. (Default: True).
+        simple_rect_areas: Boolean to note whether the width and height of all
+            RectangularGeometry is set based on the bounding rectangle around
+            the geometry (False) or is set in a simplified manner with the
+            width always equal to geometry area and the height always equal
+            to one (True). Setting to True can ensure correct overall area of
+            the geometry in the destination software, particularly in cases where
+            the geometry is not rectangular. However, if the destination software
+            has a means of representing the 2D rectangular geometry in 3D, setting
+            this to True may not look correct. (Default: False).
         explicit_holes: Boolean to note whether holes in Surfaces should be
             represented explicitly with their own PolyLoop or the hole and boundary
             should be collapsed into a single PolyLoop that winds inwards to
@@ -2002,7 +2071,7 @@ def model_to_gbxml(
         model, ip_units, include_shell_geometry, include_space_boundaries,
         interior_face_type, ground_face_type, face_rename_format, subface_rename_format,
         reset_geometry_ids, reset_resource_ids,
-        triangulate_subfaces, triangulate_non_planar, explicit_holes,
+        triangulate_subfaces, triangulate_non_planar, simple_rect_areas, explicit_holes,
         total_ventilation, program_name, program_version, gbxml_schema_version
     )
     try:  # try to indent the XML to make it read-able
@@ -2012,7 +2081,9 @@ def model_to_gbxml(
         return ET.tostring(xml_root, xml_declaration=True)
 
 
-def shade_to_gbxml(shade, tolerance=0.001, explicit_holes=False):
+def shade_to_gbxml(
+    shade, tolerance=0.001, simple_rect_areas=False, explicit_holes=False
+):
     """Get a gbXML Surface string from a honeybee Shade.
 
     Args:
@@ -2020,12 +2091,23 @@ def shade_to_gbxml(shade, tolerance=0.001, explicit_holes=False):
         tolerance: The minimum difference in coordinate values below which
             vertices are considered to be identical. (Default: 0.001, suitable
             for objects in Meters or Feet).
+        simple_rect_areas: Boolean to note whether the width and height of all
+            RectangularGeometry is set based on the bounding rectangle around
+            the geometry (False) or is set in a simplified manner with the
+            width always equal to geometry area and the height always equal
+            to one (True). Setting to True can ensure correct overall area of
+            the geometry in the destination software, particularly in cases where
+            the geometry is not rectangular. However, if the destination software
+            has a means of representing the 2D rectangular geometry in 3D, setting
+            this to True may not look correct. (Default: False).
         explicit_holes: Boolean to note whether holes in the Face3D should be
             represented explicitly with their own PolyLoop or the hole and boundary
             should be collapsed into a single PolyLoop that winds inwards to
             cut out the holes. (Default: False).
     """
-    xml_root = shade_to_gbxml_element(shade, tolerance, explicit_holes)
+    xml_root = shade_to_gbxml_element(
+        shade, tolerance, simple_rect_areas, explicit_holes
+    )
     try:  # try to indent the XML to make it read-able
         ET.indent(xml_root)
         return ET.tostring(xml_root, encoding='unicode')
@@ -2033,7 +2115,9 @@ def shade_to_gbxml(shade, tolerance=0.001, explicit_holes=False):
         return ET.tostring(xml_root)
 
 
-def shade_mesh_to_gbxml(shade_mesh, tolerance=0.001, explicit_holes=False):
+def shade_mesh_to_gbxml(
+    shade_mesh, tolerance=0.001, simple_rect_areas=False, explicit_holes=False
+):
     """Get a gbXML string from a honeybee ShadeMesh.
 
     Args:
@@ -2042,12 +2126,23 @@ def shade_mesh_to_gbxml(shade_mesh, tolerance=0.001, explicit_holes=False):
         tolerance: The minimum difference in coordinate values below which
             vertices are considered to be identical. (Default: 0.001, suitable
             for objects in Meters or Feet).
+        simple_rect_areas: Boolean to note whether the width and height of all
+            RectangularGeometry is set based on the bounding rectangle around
+            the geometry (False) or is set in a simplified manner with the
+            width always equal to geometry area and the height always equal
+            to one (True). Setting to True can ensure correct overall area of
+            the geometry in the destination software, particularly in cases where
+            the geometry is not rectangular. However, if the destination software
+            has a means of representing the 2D rectangular geometry in 3D, setting
+            this to True may not look correct. (Default: False).
         explicit_holes: Boolean to note whether holes in the Face3D should be
             represented explicitly with their own PolyLoop or the hole and boundary
             should be collapsed into a single PolyLoop that winds inwards to
             cut out the holes. (Default: False).
     """
-    xml_roots = shade_mesh_to_gbxml_element(shade_mesh, tolerance, explicit_holes)
+    xml_roots = shade_mesh_to_gbxml_element(
+        shade_mesh, tolerance, simple_rect_areas, explicit_holes
+    )
     xml_strs = []
     for xml_root in xml_roots:
         try:  # try to indent the XML to make it read-able
@@ -2058,7 +2153,9 @@ def shade_mesh_to_gbxml(shade_mesh, tolerance=0.001, explicit_holes=False):
     return '\n'.join(xml_strs)
 
 
-def sub_face_to_gbxml(sub_face, tolerance=0.001, explicit_holes=False):
+def sub_face_to_gbxml(
+    sub_face, tolerance=0.001, simple_rect_areas=False, explicit_holes=False
+):
     """Get a gbXML Opening string from a honeybee Aperture or Door.
 
     Args:
@@ -2067,12 +2164,23 @@ def sub_face_to_gbxml(sub_face, tolerance=0.001, explicit_holes=False):
         tolerance: The minimum difference in coordinate values below which
             vertices are considered to be identical. (Default: 0.001, suitable
             for objects in Meters or Feet).
+        simple_rect_areas: Boolean to note whether the width and height of all
+            RectangularGeometry is set based on the bounding rectangle around
+            the geometry (False) or is set in a simplified manner with the
+            width always equal to geometry area and the height always equal
+            to one (True). Setting to True can ensure correct overall area of
+            the geometry in the destination software, particularly in cases where
+            the geometry is not rectangular. However, if the destination software
+            has a means of representing the 2D rectangular geometry in 3D, setting
+            this to True may not look correct. (Default: False).
         explicit_holes: Boolean to note whether holes in the Face3D should be
             represented explicitly with their own PolyLoop or the hole and boundary
             should be collapsed into a single PolyLoop that winds inwards to
             cut out the holes. (Default: False).
     """
-    xml_root = sub_face_to_gbxml_element(sub_face, tolerance, explicit_holes)
+    xml_root = sub_face_to_gbxml_element(
+        sub_face, tolerance, simple_rect_areas, explicit_holes
+    )
     try:  # try to indent the XML to make it read-able
         ET.indent(xml_root)
         return ET.tostring(xml_root, encoding='unicode')
@@ -2080,7 +2188,7 @@ def sub_face_to_gbxml(sub_face, tolerance=0.001, explicit_holes=False):
         return ET.tostring(xml_root)
 
 
-def face_to_gbxml(face, tolerance=0.001, explicit_holes=False):
+def face_to_gbxml(face, tolerance=0.001, simple_rect_areas=False, explicit_holes=False):
     """Get a gbXML Surface string from a honeybee Face.
 
     Note that the resulting Surface element includes all Apertures and Doors
@@ -2091,12 +2199,23 @@ def face_to_gbxml(face, tolerance=0.001, explicit_holes=False):
         tolerance: The minimum difference in coordinate values below which
             vertices are considered to be identical. (Default: 0.001, suitable
             for objects in Meters or Feet).
+        simple_rect_areas: Boolean to note whether the width and height of all
+            RectangularGeometry is set based on the bounding rectangle around
+            the geometry (False) or is set in a simplified manner with the
+            width always equal to geometry area and the height always equal
+            to one (True). Setting to True can ensure correct overall area of
+            the geometry in the destination software, particularly in cases where
+            the geometry is not rectangular. However, if the destination software
+            has a means of representing the 2D rectangular geometry in 3D, setting
+            this to True may not look correct. (Default: False).
         explicit_holes: Boolean to note whether holes in the Face3D should be
             represented explicitly with their own PolyLoop or the hole and boundary
             should be collapsed into a single PolyLoop that winds inwards to
             cut out the holes. (Default: False).
     """
-    xml_root = face_to_gbxml_element(face, tolerance, explicit_holes)
+    xml_root = face_to_gbxml_element(
+        face, tolerance, simple_rect_areas, explicit_holes
+    )
     try:  # try to indent the XML to make it read-able
         ET.indent(xml_root)
         return ET.tostring(xml_root, encoding='unicode')
