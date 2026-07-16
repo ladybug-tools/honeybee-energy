@@ -546,33 +546,46 @@ def model_to_idf(
 @translate.command('model-to-gbxml')
 @click.argument('model-file', type=click.Path(
     exists=True, file_okay=True, dir_okay=False, resolve_path=True))
-@click.option('--osw-folder', '-osw',
-              help='Deprecated input that is no longer used.', default=None,
-              type=click.Path(file_okay=False, dir_okay=True, resolve_path=True))
-@click.option('--default-subfaces/--triangulate-subfaces', ' /-t',
-              help='Flag to note whether sub-faces (including Apertures and Doors) '
-              'should be triangulated if they have more than 4 sides (True) or whether '
-              'they should be left as they are (False). This triangulation is '
-              'necessary when exporting directly to EnergyPlus since it cannot accept '
-              'sub-faces with more than 4 vertices.', default=True, show_default=True)
-@click.option('--triangulate-non-planar/--permit-non-planar', ' /-np',
-              help='Flag to note whether any non-planar orphaned geometry in the '
-              'model should be triangulated upon export. This can be helpful because '
-              'OpenStudio simply raises an error when it encounters non-planar '
-              'geometry, which would hinder the ability to save gbXML files that are '
-              'to be corrected in other software.', default=True, show_default=True)
+@click.option('--si-units/--ip-units', '-si/-ip', help='Flag to note whether '
+              'the geometry, space loads, and construction properties are reported '
+              'in IP or SI units.', default=True, show_default=True)
 @click.option('--minimal/--full-geometry', ' /-fg', help='Flag to note whether space '
               'boundaries and shell geometry should be included in the exported '
-              'gbXML vs. just the minimal required non-manifold geometry.',
+              'gbXML vs. just the minimal required non-manifold geometry. Specifying '
+              '--full-geometry here will override the individual '
+              '--include-shell-geometry and --include-space-boundaries options',
               default=True, show_default=True)
+@click.option('--exclude-shell-geometry/--include-shell-geometry', ' /-sg',
+              help='Flag to note whether shell geometry should be included in the '
+              'exported gbXML', default=True, show_default=True)
+@click.option('--exclude-space-boundaries/--include-space-boundaries', ' /-sb',
+              help='Flag to note whether space boundaries should be included in the '
+              'exported gbXML', default=True, show_default=True)
 @click.option('--interior-face-type', '-ift', help='Text string for the type to be '
               'used for all interior floor faces. If unspecified, the interior types '
               'will be left as they are. Choose from: InteriorFloor, Ceiling.',
-              type=str, default='', show_default=True)
+              type=str, default='InteriorFloor', show_default=True)
 @click.option('--ground-face-type', '-gft', help='Text string for the type to be '
               'used for all ground-contact floor faces. If unspecified, the ground '
-              'types will be left as they are. Choose from: UndergroundSlab, '
-              'SlabOnGrade, RaisedFloor.', type=str, default='', show_default=True)
+              'types will be left as they are. Choose from: AutoAssign, UndergroundSlab,'
+              ' SlabOnGrade, RaisedFloor.',
+              type=str, default='AutoAssign', show_default=True)
+@click.option('--face-rename-format', '-fr', help='Text string for the pattern with '
+              'which faces will be renamed. Any property on the honeybee Face class may '
+              'be used (eg. gbxml_str) and each property should be put in curly brackets'
+              '. Nested properties can be specified by using "." to denote nesting '
+              'levels (eg. properties.energy.construction.display_name). Functions that '
+              'return string outputs can also be passed here as long as these functions '
+              'defaults specified for all arguments.',
+              type=str, default=None, show_default=True)
+@click.option('--subface-rename-format', '-sfr', help='Text string for the pattern with '
+              'which apertures and doors will be renamed. Any property on the honeybee '
+              'Aperture and Door class may be used (eg. gbxml_str) and each property '
+              'should be put in curly brackets. Nested properties can be specified by '
+              'using "." to denote nesting levels (eg. properties.energy.construction.'
+              'display_name). Functions that return string outputs can also be passed '
+              'here as long as these functions defaults specified for all arguments.',
+              type=str, default=None, show_default=True)
 @click.option('--keep-geometry-ids/--reset-geometry-ids', ' /-gid', help='Flag to note '
               'whether a cleaned version of geometry display names should be used '
               'for the IDs that appear within the gbXML file. Using this flag will '
@@ -588,12 +601,36 @@ def model_to_idf(
               'from non-unique names will be resolved by adding integers to the ends '
               'of the new IDs that are derived from the name.',
               default=True, show_default=True)
+@click.option('--default-subfaces/--triangulate-subfaces', ' /-t',
+              help='Flag to note whether sub-faces (including Apertures and Doors) '
+              'should be triangulated if they have more than 4 sides (True) or whether '
+              'they should be left as they are (False). This triangulation is '
+              'necessary when exporting directly to EnergyPlus since it cannot accept '
+              'sub-faces with more than 4 vertices.', default=True, show_default=True)
+@click.option('--triangulate-non-planar/--permit-non-planar', ' /-np',
+              help='Flag to note whether any non-planar orphaned geometry in the '
+              'model should be triangulated upon export. This can be helpful because '
+              'OpenStudio simply raises an error when it encounters non-planar '
+              'geometry, which would hinder the ability to save gbXML files that are '
+              'to be corrected in other software.', default=True, show_default=True)
+@click.option('--collapsed-holes/--explicit-holes', ' /-eh',
+              help='Flag to note whether holes in Surfaces should be represented '
+              'explicitly with their own PolyLoop or the hole and boundary '
+              'should be collapsed into a single PolyLoop that winds inwards to '
+              'cut out the holes.', default=True, show_default=True)
+@click.option('--total-ventilation/--ventilation-components', ' /-vc',
+              help='Flag to note whether outdoor air ventilation values in the gbXML '
+              'are written as a single total OAFlowPerZone or ventilation criteria '
+              'are written as separate criteria. That is, separate specifications '
+              'for OAFlowPerPerson, OAFlowPerArea, etc. Note that the total-ventilation '
+              'accounts for the ventilation effectiveness while the individual '
+              'flows do not.', default=True, show_default=True)
 @click.option('--program-name', '-p', help='Optional text to set the name of the '
               'software that will appear under the programId and ProductName tags '
               'of the DocumentHistory section. This can be set things like "Ladybug '
               'Tools" or "Pollination" or some other software in which this gbXML '
               'export capability is being run. If None, "OpenStudio" will be used.',
-              type=str, default=None, show_default=True)
+              type=str, default='Ladybug Tools CLI', show_default=True)
 @click.option('--program-version', '-v', help='Optional text to set the version of '
               'the software that will appear under the DocumentHistory section. '
               'If None, and the program_name is also unspecified, only the version '
@@ -608,9 +645,12 @@ def model_to_idf(
               'of the translation. By default it printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
 def model_to_gbxml_cli(
-        model_file, osw_folder, default_subfaces, triangulate_non_planar, minimal,
-        interior_face_type, ground_face_type, keep_geometry_ids, keep_resource_ids,
-        program_name, program_version, gbxml_schema_version, output_file):
+    model_file, si_units, minimal, exclude_shell_geometry, exclude_space_boundaries,
+    interior_face_type, ground_face_type, face_rename_format, subface_rename_format,
+    keep_geometry_ids, keep_resource_ids,
+    default_subfaces, triangulate_non_planar, collapsed_holes, total_ventilation,
+    program_name, program_version, gbxml_schema_version, output_file
+):
     """Translate a Honeybee Model (HBJSON) to a gbXML file.
 
     \b
@@ -618,16 +658,26 @@ def model_to_gbxml_cli(
         model_file: Full path to a Honeybee Model file (HBJSON or HBpkl).
     """
     try:
-        triangulate_subfaces = not default_subfaces
-        permit_non_planar = not triangulate_non_planar
+        ip_units = not si_units
         full_geometry = not minimal
+        include_shell_geometry = not exclude_shell_geometry
+        include_space_boundaries = not exclude_space_boundaries
         reset_geometry_ids = not keep_geometry_ids
         reset_resource_ids = not keep_resource_ids
+        triangulate_subfaces = not default_subfaces
+        permit_non_planar = not triangulate_non_planar
+        explicit_holes = not collapsed_holes
+        ventilation_components = not total_ventilation
         model_to_gbxml(
-            model_file, osw_folder, triangulate_subfaces, permit_non_planar,
-            full_geometry, interior_face_type, ground_face_type,
+            model_file, ip_units, full_geometry,
+            include_shell_geometry, include_space_boundaries,
+            interior_face_type, ground_face_type,
+            face_rename_format, subface_rename_format,
             reset_geometry_ids, reset_resource_ids,
-            program_name, program_version, gbxml_schema_version, output_file)
+            triangulate_subfaces, permit_non_planar, explicit_holes,
+            ventilation_components,
+            program_name, program_version, gbxml_schema_version, output_file
+        )
     except Exception as e:
         _logger.exception('Model translation failed.\n{}'.format(e))
         sys.exit(1)
@@ -636,38 +686,63 @@ def model_to_gbxml_cli(
 
 
 def model_to_gbxml(
-    model_file, osw_folder=None, triangulate_subfaces=False,
-    permit_non_planar=False, full_geometry=False,
-    interior_face_type='', ground_face_type='',
+    model_file, ip_units=False, full_geometry=False,
+    include_shell_geometry=False, include_space_boundaries=False,
+    interior_face_type='InteriorFloor', ground_face_type='AutoAssign',
+    face_rename_format=None, subface_rename_format=None,
     reset_geometry_ids=False, reset_resource_ids=False,
-    program_name=None, program_version=None, gbxml_schema_version=None, output_file=None,
-    default_subfaces=True, triangulate_non_planar=True, minimal=True,
+    triangulate_subfaces=False, permit_non_planar=False, explicit_holes=False,
+    ventilation_components=False, program_name='Ladybug Tools CLI', program_version=None,
+    gbxml_schema_version=None, output_file=None,
+    osw_folder=None, default_subfaces=True, triangulate_non_planar=True, minimal=True,
     keep_geometry_ids=True, keep_resource_ids=True
 ):
     """Translate a Honeybee Model file to a gbXML file.
 
     Args:
         model_file: Full path to a Honeybee Model file (HBJSON or HBpkl).
-        osw_folder: Deprecated input that is no longer used.
-        triangulate_subfaces: Boolean to note whether sub-faces (including
-            Apertures and Doors) should be triangulated if they have more
-            than 4 sides (True) or whether they should be left as they are (False).
-            This triangulation is necessary when exporting directly to EnergyPlus
-            since it cannot accept sub-faces with more than 4 vertices. (Default: False).
-        permit_non_planar: Boolean to note whether any non-planar orphaned geometry
-            in the model should be triangulated upon export. This can be helpful
-            because OpenStudio simply raises an error when it encounters non-planar
-            geometry, which would hinder the ability to save gbXML files that are
-            to be corrected in other software. (Default: False).
+        ip_units: A boolean to note whether the geometry, space loads, and
+            construction properties are reported in IP units (True) or SI
+            units (False). (Default: False).
         full_geometry: Boolean to note whether space boundaries and shell geometry
             should be included in the exported gbXML vs. just the minimal required
-            non-manifold geometry. (Default: False).
+            non-manifold geometry. Specifying True here will override the individual
+            include_shell_geometry and include_space_boundaries options. (Default: False).
+        include_shell_geometry: Boolean for whether shell geometry should be included vs.
+            just the minimal required non-manifold geometry. (Default: False).
+        include_space_boundaries: Boolean for whether space boundaries should be included
+             vs. just the minimal required non-manifold geometry. (Default: False).
         interior_face_type: Text string for the type to be used for all interior
-            floor faces. If unspecified, the interior types will be left as they are.
-            Choose from: InteriorFloor, Ceiling.
+            floor/ceiling faces. (Default: InteriorFloor). Choose from the following.
+
+            * InteriorFloor
+            * Ceiling
+
         ground_face_type: Text string for the type to be used for all ground-contact
-            floor faces. If unspecified, the ground types will be left as they are.
-            Choose from: UndergroundSlab, SlabOnGrade, RaisedFloor.
+            floor faces. If AutoAssign, the ground types will be SlabOnGrade for floors
+            belonging to rooms with any above-ground walls and UndergroundSlab
+            for floors in rooms with all underground walls. Choose from the following.
+
+            * AutoAssign
+            * UndergroundSlab
+            * SlabOnGrade
+            * RaisedFloor
+
+        face_rename_format: An optional text string for the pattern with which
+            faces will be renamed. Any property on the honeybee Face class may be
+            used (eg. gbxml_str) and each property should be put in curly brackets.
+            Nested properties can be specified by using "." to denote nesting levels
+            (eg. properties.energy.construction.display_name). Functions that
+            return string outputs can also be passed here as long as these
+            functions defaults specified for all arguments.
+        subface_rename_format: An optional text string for the pattern with which
+            apertures and doors will be renamed. Any property that exists on both
+            the honeybee Aperture and honeybee Door class may be used (eg. gbxml_str)
+            and each property should be put in curly brackets. Nested
+            properties can be specified by using "." to denote nesting levels
+            (eg. properties.energy.construction.display_name). Functions that
+            return string outputs can also be passed here as long as these
+            functions defaults specified for all arguments.
         reset_geometry_ids: Boolean to note whether a cleaned version of geometry
             display names should be used for the IDs that appear within
             the gbXML file. Using this flag will affect all Rooms, Faces,
@@ -684,6 +759,26 @@ def model_to_gbxml(
             in the gbXML file. Cases of duplicate IDs resulting from non-unique
             names will be resolved by adding integers to the ends of the new
             IDs that are derived from the name. (Default: False).
+        triangulate_subfaces: Boolean to note whether sub-faces (including
+            Apertures and Doors) should be triangulated if they have more
+            than 4 sides (True) or whether they should be left as they are (False).
+            This triangulation is necessary when exporting directly to EnergyPlus
+            since it cannot accept sub-faces with more than 4 vertices. (Default: True).
+        permit_non_planar: Boolean to note whether any non-planar orphaned geometry
+            in the model should be triangulated upon export. This can be helpful
+            because OpenStudio simply raises an error when it encounters non-planar
+            geometry, which would hinder the ability to save gbXML files that are
+            to be corrected in other software. (Default: False).
+        explicit_holes: Boolean to note whether holes in Surfaces should be
+            represented explicitly with their own PolyLoop or the hole and boundary
+            should be collapsed into a single PolyLoop that winds inwards to
+            cut out the holes. (Default: False).
+        ventilation_components: Boolean to note whether outdoor air ventilation values
+            in the gbXML are written as a single total OAFlowPerZone (True)
+            or ventilation criteria are written as separate criteria (False).
+            That is, separate specifications for OAFlowPerPerson, OAFlowPerArea,
+            etc. Note that the total ventilation accounts for the ventilation
+            effectiveness while the individual flows do not. (Default: True).
         program_name: Optional text to set the name of the software that will
             appear under the programId and ProductName tags of the DocumentHistory
             section. This can be set things like "Ladybug Tools" or "Pollination"
@@ -700,22 +795,21 @@ def model_to_gbxml(
         output_file: Optional gbXML file to output the string of the translation.
             By default it will be returned from this method.
     """
-    # check that honeybee-openstudio is installed
-    try:
-        from honeybee_openstudio.writer import model_to_gbxml
-    except ImportError as e:  # honeybee-openstudio is not installed
-        raise ImportError('{}\n{}'.format(HB_OS_MSG, e))
-    if osw_folder is not None:
-        print('--osw-folder is deprecated and no longer used.')
-
     # load the model and translate it to a gbXML string
     triangulate_non_planar = not permit_non_planar
+    total_ventilation = not ventilation_components
+    if full_geometry:
+        include_shell_geometry, include_space_boundaries = True, True
     model = Model.from_file(model_file)
-    gbxml_str = model_to_gbxml(
-        model, triangulate_non_planar_orphaned=triangulate_non_planar,
-        triangulate_subfaces=triangulate_subfaces, full_geometry=full_geometry,
+    gbxml_str = model.to_gbxml(
+        model, ip_units=ip_units, include_shell_geometry=include_shell_geometry,
+        include_space_boundaries=include_space_boundaries,
         interior_face_type=interior_face_type, ground_face_type=ground_face_type,
+        face_rename_format=face_rename_format, subface_rename_format=subface_rename_format,
         reset_geometry_ids=reset_geometry_ids, reset_resource_ids=reset_resource_ids,
+        triangulate_non_planar_orphaned=triangulate_non_planar,
+        triangulate_subfaces=triangulate_subfaces, explicit_holes=explicit_holes,
+        total_ventilation=total_ventilation,
         program_name=program_name, program_version=program_version,
         gbxml_schema_version=gbxml_schema_version
     )
