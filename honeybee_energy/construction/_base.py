@@ -1,14 +1,14 @@
 # coding=utf-8
 """Base Construction."""
 from __future__ import division
-
-from ..material.gas import EnergyWindowMaterialGas
-from ..writer import generate_idf_string
+import math
 
 from honeybee._lockable import lockable
 from honeybee.typing import valid_ep_string
 
-import math
+from ..material.gas import EnergyWindowMaterialGas
+from ..writer import generate_idf_string
+from ..units import convert_r_value, convert_u_value
 
 
 @lockable
@@ -31,6 +31,10 @@ class _ConstructionBase(object):
         * u_value
         * u_factor
         * r_factor
+        * r_value_ip
+        * u_value_ip
+        * u_factor_ip
+        * r_factor_ip
         * is_symmetric
         * has_frame
         * has_shade
@@ -139,6 +143,26 @@ class _ConstructionBase(object):
         Formulas for film coefficients come from EN673 / ISO10292.
         """
         return 1 / self.r_factor
+
+    @property
+    def r_value_ip(self):
+        """Get the r_value in the standard IP unit of ft2-F-h/Btu."""
+        return convert_r_value(self.r_value, 'ip')
+
+    @property
+    def u_value_ip(self):
+        """Get the u_value in the standard IP unit of Btu/ft2-F-h."""
+        return convert_u_value(self.u_value, 'ip')
+
+    @property
+    def r_factor_ip(self):
+        """Get the r_factor in the standard IP unit of ft2-F-h/Btu."""
+        return convert_r_value(self.r_factor, 'ip')
+
+    @property
+    def u_factor_ip(self):
+        """Get the u_factor in the standard IP unit of ft2-F-h/Btu."""
+        return convert_u_value(self.u_factor, 'ip')
 
     @property
     def is_symmetric(self):

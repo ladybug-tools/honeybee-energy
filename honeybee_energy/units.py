@@ -93,3 +93,28 @@ def convert_setpoint(value, units='si'):
 def convert_setpoint_cutout_difference(value, units='si'):
     group, atr = 'setpoint', 'setpoint_cutout_difference'
     return eval(UNITS[group][atr]['convert_to_{}'.format(units)].format(x=value), SAFE)
+
+
+def convert_r_value(value, units='si'):
+    group, atr = 'construction', 'r_value'
+    return eval(UNITS[group][atr]['convert_to_{}'.format(units)].format(x=value), SAFE)
+
+
+def convert_u_value(value, units='si'):
+    group, atr = 'construction', 'u_value'
+    return eval(UNITS[group][atr]['convert_to_{}'.format(units)].format(x=value), SAFE)
+
+
+def convert_thickness(value, units='si'):
+    group, atr = 'construction', 'thickness'
+    return eval(UNITS[group][atr]['convert_to_{}'.format(units)].format(x=value), SAFE)
+
+
+def convert_mass_area_density(value, units='si'):
+    group, atr = 'construction', 'mass_area_density'
+    return eval(UNITS[group][atr]['convert_to_{}'.format(units)].format(x=value), SAFE)
+
+
+def convert_area_heat_capacity(value, units='si'):
+    group, atr = 'construction', 'area_heat_capacity'
+    return eval(UNITS[group][atr]['convert_to_{}'.format(units)].format(x=value), SAFE)
