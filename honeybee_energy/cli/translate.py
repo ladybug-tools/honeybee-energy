@@ -694,8 +694,10 @@ def model_to_gbxml(
     triangulate_subfaces=False, permit_non_planar=False, explicit_holes=False,
     ventilation_components=False, program_name='Ladybug Tools CLI', program_version=None,
     gbxml_schema_version=None, output_file=None,
-    osw_folder=None, default_subfaces=True, triangulate_non_planar=True, minimal=True,
-    keep_geometry_ids=True, keep_resource_ids=True
+    si_units=True, minimal=True, exclude_shell_geometry=True, exclude_space_boundaries=True,
+    keep_geometry_ids=True, keep_resource_ids=True,
+    default_subfaces=True, triangulate_non_planar=True, collapsed_holes=True,
+    total_ventilation=True
 ):
     """Translate a Honeybee Model file to a gbXML file.
 
@@ -802,12 +804,12 @@ def model_to_gbxml(
         include_shell_geometry, include_space_boundaries = True, True
     model = Model.from_file(model_file)
     gbxml_str = model.to_gbxml(
-        model, ip_units=ip_units, include_shell_geometry=include_shell_geometry,
+        ip_units=ip_units, include_shell_geometry=include_shell_geometry,
         include_space_boundaries=include_space_boundaries,
         interior_face_type=interior_face_type, ground_face_type=ground_face_type,
         face_rename_format=face_rename_format, subface_rename_format=subface_rename_format,
         reset_geometry_ids=reset_geometry_ids, reset_resource_ids=reset_resource_ids,
-        triangulate_non_planar_orphaned=triangulate_non_planar,
+        triangulate_non_planar=triangulate_non_planar,
         triangulate_subfaces=triangulate_subfaces, explicit_holes=explicit_holes,
         total_ventilation=total_ventilation,
         program_name=program_name, program_version=program_version,

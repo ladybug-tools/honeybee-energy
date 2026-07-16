@@ -1049,6 +1049,9 @@ def face_3d_to_gbxml_element(
     height = round(max_2d.y - min_2d.y, decimal_count)
     origin_coords = origin if rect_origin is None else min_2d
 
+    if round(origin_coords.x, 4) == 1.0619 and round(origin_coords.z, 4) == 8.7826:
+        print(width, height)
+
     # add the rectangular geometry properties
     xml_origin = ET.SubElement(xml_rect_geo, 'CartesianPoint')
     for coord in origin_coords:
@@ -1060,9 +1063,9 @@ def face_3d_to_gbxml_element(
         xml_tilt = ET.SubElement(xml_rect_geo, 'Tilt')
         xml_tilt.text = str(round(tilt))
     xml_width = ET.SubElement(xml_rect_geo, 'Width')
-    xml_width.text = str(round(width))
+    xml_width.text = str(round(width, decimal_count))
     xml_height = ET.SubElement(xml_rect_geo, 'Height')
-    xml_height.text = str(round(height))
+    xml_height.text = str(round(height, decimal_count))
 
     # add the 3D vertices to PlanarGeometry
     if explicit_holes and face_3d.has_holes:
@@ -1341,9 +1344,11 @@ def room_to_gbxml_element(
     xml_name = ET.SubElement(xml_space, 'Name')
     xml_name.text = str(room.display_name)
     xml_area = ET.SubElement(xml_space, 'Area')
-    xml_area.text = str(round(room.floor_area, decimal_count))
+    xml_area.text = str(round(room.floor_area)) \
+        if ip_units else str(round(room.floor_area, 1))
     xml_volume = ET.SubElement(xml_space, 'Volume')
-    xml_volume.text = str(round(room.volume, decimal_count))
+    xml_volume.text = str(round(room.volume)) \
+        if ip_units else str(round(room.volume, 1))
 
     # add the people loads if they exist
     people = room.properties.energy.people
@@ -1358,7 +1363,23 @@ def room_to_gbxml_element(
         else:
             people_value, unit = people.people_per_area_si, 'SquareMPerPerson'
         xml_people = ET.SubElement(xml_space, 'PeopleNumber', unit=unit)
-        xml_people.text = str(round(people_value, decimal_count))
+        xml_people.text = str(round(people_value)) \
+            if ip_units else str(round(people_value, 1))
+        # write the people heat gain
+        if ip_units:
+            unit = 'BtuPerHourPerson'
+            sensible_ppl = people.activity_max_sensible_ip
+            latent_ppl = people.activity_max_latent_ip
+        else:
+            unit = 'WattPerPerson'
+            sensible_ppl = people.activity_max_sensible
+            latent_ppl = people.activity_max_latent
+        xml_s_ppl = ET.SubElement(xml_space, 'PeopleHeatGain',
+                                  unit=unit, heatGainType='Sensible')
+        xml_s_ppl.text = str(round(sensible_ppl))
+        xml_l_ppl = ET.SubElement(xml_space, 'PeopleHeatGain',
+                                  unit=unit, heatGainType='Latent')
+        xml_l_ppl.text = str(round(latent_ppl))
 
     # add the lighting load if it exists
     lighting = room.properties.energy.lighting
@@ -1521,7 +1542,7 @@ def model_to_gbxml_element(
             in the gbXML file. Cases of duplicate IDs resulting from non-unique
             names will be resolved by adding integers to the ends of the new
             IDs that are derived from the name. (Default: False).
-        triangulate_non_planar_orphaned: Boolean to note whether any non-planar
+        triangulate_non_planar: Boolean to note whether any non-planar
             orphaned geometry in the model should be triangulated.
             This can be helpful because OpenStudio simply raises an error when
             it encounters non-planar geometry, which would hinder the ability
@@ -1581,12 +1602,6 @@ def model_to_gbxml_element(
     if len(model.stories) == 0 and len(model.rooms) != 0:
         model.assign_stories_by_floor_height()
 
-    # resolve the properties across zones
-    zone_name_dict = {r.identifier: r.zone for r in model.rooms}
-    for room in model.rooms:  # set all zone IDs to be acceptable in gbXML
-        room.zone = clean_string(room.zone)
-    single_zones, zone_dict = model.properties.energy.resolve_zones()
-
     # rename the faces, apertures, and doors if requested
     if face_rename_format:
         for room in model.rooms:
@@ -1602,6 +1617,12 @@ def model_to_gbxml_element(
         model.reset_ids()
     if reset_resource_ids:
         model.properties.energy.reset_resource_ids()
+
+    # resolve the properties across zones
+    zone_name_dict = {r.identifier: r.zone for r in model.rooms}
+    for room in model.rooms:  # set all zone IDs to be acceptable in gbXML
+        room.zone = clean_string(room.zone)
+    single_zones, zone_dict = model.properties.energy.resolve_zones()
 
     # depending on the unit system, set the units for the file
     if not ip_units:
@@ -1637,13 +1658,14 @@ def model_to_gbxml_element(
     xml_bldg_name = ET.SubElement(xml_bldg, 'Name')
     xml_bldg_name.text = str(model.display_name)
     xml_floor_area = ET.SubElement(xml_bldg, 'Area')
-    xml_floor_area.text = str(round(model.floor_area, decimal_count))
+    xml_floor_area.text = str(round(model.floor_area)) \
+        if ip_units else str(round(model.floor_area, 1))
 
     # write all of the rooms into the gbXML as spaces
     story_dict, xml_rooms = OrderedDict(), []
     for room in model.rooms:
         xml_room = room_to_gbxml_element(
-            room, include_shell_geometry, include_space_boundaries,
+            room, ip_units, include_shell_geometry, include_space_boundaries,
             tol, explicit_holes, xml_bldg
         )
         xml_rooms.append(xml_room)
@@ -1941,7 +1963,7 @@ def model_to_gbxml(
             in the gbXML file. Cases of duplicate IDs resulting from non-unique
             names will be resolved by adding integers to the ends of the new
             IDs that are derived from the name. (Default: False).
-        triangulate_non_planar_orphaned: Boolean to note whether any non-planar
+        triangulate_non_planar: Boolean to note whether any non-planar
             orphaned geometry in the model should be triangulated.
             This can be helpful because OpenStudio simply raises an error when
             it encounters non-planar geometry, which would hinder the ability
