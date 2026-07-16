@@ -115,6 +115,10 @@ def test_people_equality(userdatadict):
     assert hash(people) != hash(people_dup)
     people_dup.carbon_dioxide_generation_rate = 3.82e-8
     assert people == people_dup
+    people.carbon_dioxide_generation_rate = 0.0
+    people_dup.carbon_dioxide_generation_rate = -0.0
+    assert people == people_dup
+    assert hash(people) == hash(people_dup)
     people_dup.people_per_area = 0.06
     assert people != people_dup
     assert people != people_alt

@@ -578,7 +578,7 @@ class People(_LoadBase):
         """A tuple based on the object properties, useful for hashing."""
         return (self.identifier, self.people_per_area, hash(self.occupancy_schedule),
                 hash(self.activity_schedule), self.radiant_fraction,
-                str(self.latent_fraction), str(self.carbon_dioxide_generation_rate))
+                str(self.latent_fraction), self.carbon_dioxide_generation_rate)
 
     def __hash__(self):
         return hash(self.__key())
@@ -592,8 +592,8 @@ class People(_LoadBase):
     def __copy__(self):
         new_obj = People(
             self.identifier, self.people_per_area, self.occupancy_schedule,
-            self.activity_schedule, self.radiant_fraction, self.latent_fraction)
-        new_obj.carbon_dioxide_generation_rate = self.carbon_dioxide_generation_rate
+            self.activity_schedule, self.radiant_fraction, self.latent_fraction,
+            self.carbon_dioxide_generation_rate)
         new_obj._display_name = self._display_name
         new_obj._user_data = None if self._user_data is None else self._user_data.copy()
         new_obj._properties._duplicate_extension_attr(self._properties)
