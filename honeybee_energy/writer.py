@@ -1467,8 +1467,9 @@ def model_to_gbxml_element(
 
     Args:
         model: A honeybee Model for which a gbXML ElementTree will be returned.
-        ip_units: A boolean to note whether the space loads should be reported
-            in IP units (True) or SI units (False). (Default: False).
+        ip_units: A boolean to note whether the geometry, space loads, and
+            construction properties are reported in IP units (True) or SI
+            units (False). (Default: False).
         include_shell_geometry: Boolean for whether shell geometry should be included vs.
             just the minimal required non-manifold geometry. (Default: False).
         include_space_boundaries: Boolean for whether space boundaries should be included
@@ -1886,8 +1887,9 @@ def model_to_gbxml(
 
     Args:
         model: A honeybee Model for which a gbXML text string will be returned.
-        ip_units: A boolean to note whether the space loads should be reported
-            in IP units (True) or SI units (False). (Default: False).
+        ip_units: A boolean to note whether the geometry, space loads, and
+            construction properties are reported in IP units (True) or SI
+            units (False). (Default: False).
         include_shell_geometry: Boolean for whether shell geometry should be included vs.
             just the minimal required non-manifold geometry. (Default: False).
         include_space_boundaries: Boolean for whether space boundaries should be included
