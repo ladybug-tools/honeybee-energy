@@ -8,7 +8,7 @@ from ladybug.datatype.conductivity import Conductivity
 from ladybug.datatype.density import Density
 from ladybug.datatype.specificheatcapacity import SpecificHeatCapacity
 from honeybee._lockable import lockable
-from honeybee.typing import valid_ep_string, clean_string
+from honeybee.typing import valid_ep_string, clean_xml_tag_string
 
 
 @lockable
@@ -149,7 +149,7 @@ class _EnergyMaterialOpaqueBase(_EnergyMaterialBase):
                 will be generated. (Default: None).
         """
         # create the Material element
-        con_id = clean_string(self.identifier)
+        con_id = clean_xml_tag_string(self.identifier)
         if parent_element is not None:
             xml_mat = ET.SubElement(parent_element, 'Material', id=con_id)
         else:

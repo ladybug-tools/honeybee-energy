@@ -4,7 +4,7 @@ from __future__ import division
 
 import xml.etree.ElementTree as ET
 from honeybee._lockable import lockable
-from honeybee.typing import valid_ep_string, clean_string, float_positive
+from honeybee.typing import valid_ep_string, clean_xml_tag_string, float_positive
 
 from ..properties.extension import AirBoundaryConstructionProperties
 from ..schedule.dictutil import dict_to_schedule
@@ -272,7 +272,7 @@ class AirBoundaryConstruction(object):
                 will be generated. (Default: None).
         """
         # create the Surface element
-        con_id = clean_string(self.identifier)
+        con_id = clean_xml_tag_string(self.identifier)
         if parent_element is not None:
             xml_con = ET.SubElement(parent_element, 'WindowType', id=con_id)
         else:

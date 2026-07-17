@@ -392,7 +392,7 @@ class RunPeriod(object):
     @staticmethod
     def _holiday_to_idf(date, count):
         """Convert a ladybug Date object to an IDF holiday string.
-        
+
             .. code-block:: shell
 
                 RunPeriodControl:SpecialDays,
