@@ -778,7 +778,7 @@ def model_to_gbxml(
             Apertures and Doors) should be triangulated if they have more
             than 4 sides (True) or whether they should be left as they are (False).
             This triangulation is necessary when exporting directly to EnergyPlus
-            since it cannot accept sub-faces with more than 4 vertices. (Default: True).
+            since it cannot accept sub-faces with more than 4 vertices. (Default: False).
         permit_non_planar: Boolean to note whether any non-planar orphaned geometry
             in the model should be triangulated upon export. This can be helpful
             because OpenStudio simply raises an error when it encounters non-planar
