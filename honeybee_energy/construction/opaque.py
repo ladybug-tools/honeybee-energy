@@ -5,7 +5,7 @@ from __future__ import division
 import re
 import xml.etree.ElementTree as ET
 from honeybee._lockable import lockable
-from honeybee.typing import clean_string
+from honeybee.typing import clean_xml_tag_string
 
 from ._base import _ConstructionBase
 from ..material.dictutil import dict_to_material
@@ -421,7 +421,7 @@ class OpaqueConstruction(_ConstructionBase):
                 will be generated. (Default: None).
         """
         # create the Construction element
-        con_id = clean_string(self.identifier)
+        con_id = clean_xml_tag_string(self.identifier)
         if parent_element is not None:
             xml_con = ET.SubElement(parent_element, 'Construction', id=con_id)
         else:
@@ -431,7 +431,7 @@ class OpaqueConstruction(_ConstructionBase):
         xml_name.text = str(self.display_name)
         for mat in self.materials:
             xml_mat = ET.SubElement(xml_con, 'LayerId')
-            xml_mat.set('layerIdRef', clean_string(mat.identifier))
+            xml_mat.set('layerIdRef', clean_xml_tag_string(mat.identifier))
         return xml_con
 
     def to_gbxml(self):

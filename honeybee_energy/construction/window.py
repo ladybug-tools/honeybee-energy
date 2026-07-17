@@ -6,7 +6,7 @@ import re
 import xml.etree.ElementTree as ET
 from ladybug.datatype.uvalue import UValue
 from honeybee._lockable import lockable
-from honeybee.typing import clean_rad_string, clean_string
+from honeybee.typing import clean_rad_string, clean_xml_tag_string
 
 from ._base import _ConstructionBase
 from ..material.dictutil import dict_to_material
@@ -831,7 +831,7 @@ class WindowConstruction(_ConstructionBase):
                 will be generated. (Default: None).
         """
         # create the Surface element
-        con_id = clean_string(self.identifier)
+        con_id = clean_xml_tag_string(self.identifier)
         if parent_element is not None:
             xml_con = ET.SubElement(parent_element, 'WindowType', id=con_id)
         else:
