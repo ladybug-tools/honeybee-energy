@@ -1605,7 +1605,7 @@ def model_to_gbxml_element(
             Apertures and Doors) should be triangulated if they have more
             than 4 sides (True) or whether they should be left as they are (False).
             This triangulation is necessary when exporting directly to EnergyPlus
-            since it cannot accept sub-faces with more than 4 vertices. (Default: True).
+            since it cannot accept sub-faces with more than 4 vertices. (Default: False).
         simple_rect_areas: Boolean to note whether the width and height of all
             RectangularGeometry is set based on the bounding rectangle around
             the geometry (False) or is set in a simplified manner with the
@@ -1695,8 +1695,23 @@ def model_to_gbxml_element(
         t_units, result_units = 'F', 'false'
         l_units, a_units, v_units = 'Feet', 'SquareFeet', 'CubicFeet'
 
+    # set the gbXML schema version in the header if specified
+    SCHEMA_VERSIONS = (
+        '0.35', '0.36', '0.37', '5.00', '5.01', '5.10', '5.11', '5.12',
+        '6.00', '6.01', '7.03', '8.01'
+    )
+    now_ver = SCHEMA_VERSIONS[-1]
+    if gbxml_schema_version is not None and gbxml_schema_version != now_ver:
+        if gbxml_schema_version not in SCHEMA_VERSIONS:
+            raise ValueError(
+                'The specified gbXML schema version "{}" is not recognized. '
+                'Please choose from the following: {}'.format(
+                    gbxml_schema_version, ', '.join(SCHEMA_VERSIONS)
+                )
+            )
+    gbxml_version = now_ver if gbxml_schema_version is None else gbxml_schema_version
+
     # create the ElementTree that holds everything
-    gbxml_version = '7.03' if gbxml_schema_version is None else gbxml_schema_version
     xsd_template = 'http://gbxml.org/schema/{}/GreenBuildingXML_Ver{}.xsd'
     xsd_url = xsd_template.format(gbxml_version.replace('.', '-'), gbxml_version)
     gbxml_attr = {
@@ -2032,7 +2047,7 @@ def model_to_gbxml(
             Apertures and Doors) should be triangulated if they have more
             than 4 sides (True) or whether they should be left as they are (False).
             This triangulation is necessary when exporting directly to EnergyPlus
-            since it cannot accept sub-faces with more than 4 vertices. (Default: True).
+            since it cannot accept sub-faces with more than 4 vertices. (Default: False).
         simple_rect_areas: Boolean to note whether the width and height of all
             RectangularGeometry is set based on the bounding rectangle around
             the geometry (False) or is set in a simplified manner with the
