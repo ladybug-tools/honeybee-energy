@@ -36,7 +36,7 @@ def test_people_init():
     assert people.activity_schedule.values() == [120] * 8760
     assert people.radiant_fraction == 0.3
     assert people.latent_fraction == autocalculate
-    assert people.carbon_dioxide_generation_rate is None
+    assert people.carbon_dioxide_generation_rate == 3.82e-8
 
     people.latent_fraction = 0.5
     assert people.activity_max_sensible == 60
@@ -77,12 +77,12 @@ def test_people_setability(userdatadict):
     assert people.radiant_fraction == 0.4
     people.latent_fraction = 0.2
     assert people.latent_fraction == 0.2
-    people.carbon_dioxide_generation_rate = 3.82e-8
-    assert people.carbon_dioxide_generation_rate == 3.82e-8
+    people.carbon_dioxide_generation_rate = 4e-8
+    assert people.carbon_dioxide_generation_rate == 4e-8
     people.carbon_dioxide_generation_rate = 0
     assert people.carbon_dioxide_generation_rate == 0
     people.carbon_dioxide_generation_rate = None
-    assert people.carbon_dioxide_generation_rate is None
+    assert people.carbon_dioxide_generation_rate == 3.82e-8
     with pytest.raises(AssertionError):
         people.carbon_dioxide_generation_rate = -1
 
@@ -99,7 +99,7 @@ def test_people_equality(userdatadict):
                                    [weekend_rule], schedule_types.fractional)
     people = People('Open Office Zone People', 0.05, occ_schedule)
     people.user_data = userdatadict
-    people.carbon_dioxide_generation_rate = 3.82e-8
+    people.carbon_dioxide_generation_rate = 4e-8
     people_dup = people.duplicate()
     people_alt = People('Open Office Zone People', 0.05,
                         ScheduleRuleset.from_constant_value(
@@ -108,12 +108,12 @@ def test_people_equality(userdatadict):
     assert people is people
     assert people is not people_dup
     assert people == people_dup
-    assert people_dup.carbon_dioxide_generation_rate == 3.82e-8
-    assert people.__copy__().carbon_dioxide_generation_rate == 3.82e-8
-    people_dup.carbon_dioxide_generation_rate = 4e-8
+    assert people_dup.carbon_dioxide_generation_rate == 4e-8
+    assert people.__copy__().carbon_dioxide_generation_rate == 4e-8
+    people_dup.carbon_dioxide_generation_rate = 5e-8
     assert people != people_dup
     assert hash(people) != hash(people_dup)
-    people_dup.carbon_dioxide_generation_rate = 3.82e-8
+    people_dup.carbon_dioxide_generation_rate = 4e-8
     assert people == people_dup
     people.carbon_dioxide_generation_rate = 0.0
     people_dup.carbon_dioxide_generation_rate = -0.0
@@ -176,23 +176,27 @@ def test_people_init_from_idf():
         ' ,                         !- floor area per person {m2/ppl}\n' \
         ' 0.3,                      !- radiant fraction\n' \
         ' autocalculate,            !- sensible heat fraction\n' \
-        ' Seated Adult Activity;    !- activity schedule name'
+        ' Seated Adult Activity,    !- activity schedule name\n' \
+        ' 3.82e-08;                 !- carbon dioxide generation rate {m3/s-W}'
     assert idf_str == expected
     rebuilt_people, rebuilt_zone_id = People.from_idf(idf_str, sched_dict)
     assert people == rebuilt_people
-    assert rebuilt_people.carbon_dioxide_generation_rate is None
+    assert rebuilt_people.carbon_dioxide_generation_rate == 3.82e-8
     assert zone_id == rebuilt_zone_id
 
-    people.carbon_dioxide_generation_rate = 3.82e-8
+    people.carbon_dioxide_generation_rate = 4e-8
     idf_str = people.to_idf(zone_id)
-    assert '3.82e-08;                 !- carbon dioxide generation rate {m3/s-W}' \
+    assert '4e-08;                    !- carbon dioxide generation rate {m3/s-W}' \
         in idf_str
     rebuilt_people, rebuilt_zone_id = People.from_idf(idf_str, sched_dict)
-    assert rebuilt_people.carbon_dioxide_generation_rate == 3.82e-8
+    assert rebuilt_people.carbon_dioxide_generation_rate == 4e-8
     assert rebuilt_zone_id == zone_id
-    blank_idf = idf_str.replace('3.82e-08;', ';')
-    rebuilt_people, _ = People.from_idf(blank_idf, sched_dict)
-    assert rebuilt_people.carbon_dioxide_generation_rate is None
+    legacy_idf = idf_str.replace(
+        ' Seated Adult Activity,    !- activity schedule name\n'
+        ' 4e-08;                    !- carbon dioxide generation rate {m3/s-W}',
+        ' Seated Adult Activity;    !- activity schedule name')
+    rebuilt_people, _ = People.from_idf(legacy_idf, sched_dict)
+    assert rebuilt_people.carbon_dioxide_generation_rate == 3.82e-8
 
 
 def test_people_dict_methods(userdatadict):
@@ -213,23 +217,23 @@ def test_people_dict_methods(userdatadict):
 
     ppl_dict = people.to_dict()
     assert 'carbon_dioxide_generation_rate' not in ppl_dict
-    assert People.from_dict(ppl_dict).carbon_dioxide_generation_rate is None
+    assert People.from_dict(ppl_dict).carbon_dioxide_generation_rate == 3.82e-8
     abridged = people.to_dict(abridged=True)
     assert 'carbon_dioxide_generation_rate' not in abridged
     rebuilt = People.from_dict_abridged(abridged, schedule_dict)
-    assert rebuilt.carbon_dioxide_generation_rate is None
+    assert rebuilt.carbon_dioxide_generation_rate == 3.82e-8
     new_people = People.from_dict(ppl_dict)
     assert new_people == people
     assert ppl_dict == new_people.to_dict()
 
-    people.carbon_dioxide_generation_rate = 3.82e-8
+    people.carbon_dioxide_generation_rate = 4e-8
     ppl_dict = people.to_dict()
-    assert ppl_dict['carbon_dioxide_generation_rate'] == 3.82e-8
-    assert People.from_dict(ppl_dict).carbon_dioxide_generation_rate == 3.82e-8
+    assert ppl_dict['carbon_dioxide_generation_rate'] == 4e-8
+    assert People.from_dict(ppl_dict).carbon_dioxide_generation_rate == 4e-8
     abridged = people.to_dict(abridged=True)
     rebuilt = People.from_dict_abridged(abridged, schedule_dict)
-    assert abridged['carbon_dioxide_generation_rate'] == 3.82e-8
-    assert rebuilt.carbon_dioxide_generation_rate == 3.82e-8
+    assert abridged['carbon_dioxide_generation_rate'] == 4e-8
+    assert rebuilt.carbon_dioxide_generation_rate == 4e-8
 
 
 def test_people_average():
@@ -257,7 +261,8 @@ def test_people_average():
     assert office_avg.people_per_area == pytest.approx(0.075, rel=1e-3)
     assert office_avg.radiant_fraction == pytest.approx(0.35, rel=1e-3)
     assert office_avg.latent_fraction == autocalculate
-    assert office_avg.carbon_dioxide_generation_rate is None
+    assert office_avg.carbon_dioxide_generation_rate == \
+        pytest.approx(3.82e-8, rel=1e-3)
 
     lobby_people.carbon_dioxide_generation_rate = 4e-8
     co2_avg = People.average(
