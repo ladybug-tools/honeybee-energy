@@ -47,6 +47,10 @@ class People(_LoadBase):
             input can also be an Autocalculate object, which will automatically
             estimate the latent fraction based on the occupant's activity level.
             (Default: autocalculate).
+        carbon_dioxide_generation_rate: A number greater than or equal to 0 for
+            the carbon dioxide generation rate per unit of activity level, in
+            m3/s-W. The default is the EnergyPlus default, which is
+            representative of the average adult. (Default: 3.82e-8).
 
     Properties:
         * identifier
@@ -57,16 +61,19 @@ class People(_LoadBase):
         * activity_schedule
         * radiant_fraction
         * latent_fraction
+        * carbon_dioxide_generation_rate
         * user_data
         * activity_max_sensible
         * activity_max_latent
     """
     __slots__ = ('_people_per_area', '_occupancy_schedule', '_activity_schedule',
-                 '_radiant_fraction', '_latent_fraction')
+                 '_radiant_fraction', '_latent_fraction',
+                 '_carbon_dioxide_generation_rate')
 
     def __init__(self, identifier, people_per_area,
                  occupancy_schedule=None, activity_schedule=None,
-                 radiant_fraction=0.3, latent_fraction=autocalculate):
+                 radiant_fraction=0.3, latent_fraction=autocalculate,
+                 carbon_dioxide_generation_rate=3.82e-8):
         """Initialize People."""
         _LoadBase.__init__(self, identifier)
         self.people_per_area = people_per_area
@@ -74,6 +81,7 @@ class People(_LoadBase):
         self.activity_schedule = activity_schedule
         self.radiant_fraction = radiant_fraction
         self.latent_fraction = latent_fraction
+        self.carbon_dioxide_generation_rate = carbon_dioxide_generation_rate
         self._properties = PeopleProperties(self)
 
     @property
@@ -153,6 +161,17 @@ class People(_LoadBase):
         else:
             self._latent_fraction = float_in_range(
                 value, 0.0, 1.0, 'people latent fraction')
+
+    @property
+    def carbon_dioxide_generation_rate(self):
+        """Get or set the carbon dioxide generation rate in m3/s-W."""
+        return self._carbon_dioxide_generation_rate
+
+    @carbon_dioxide_generation_rate.setter
+    def carbon_dioxide_generation_rate(self, value):
+        self._carbon_dioxide_generation_rate = \
+            float_positive(value, 'people carbon dioxide generation rate') \
+            if value is not None else 3.82e-8
 
     @property
     def activity_max_sensible(self):
@@ -280,6 +299,8 @@ class People(_LoadBase):
         lat_fract = autocalculate if ep_strs[8] == '' or \
             ep_strs[8].lower() == 'autocalculate' else 1 - float(ep_strs[8])
         rad_fract = ep_strs[7] if ep_strs[7] != '' else 0.3
+        co2_gen = ep_strs[10] if len(ep_strs) > 10 and ep_strs[10] != '' \
+            else 3.82e-8
 
         # extract the schedules from the string
         occ_sched, activity_sched = cls._get_occ_act_schedules_from_dict(
@@ -289,7 +310,7 @@ class People(_LoadBase):
         obj_id = ep_strs[0].split('..')[0]
         zone_id = ep_strs[1]
         people = cls(obj_id, ep_strs[5], occ_sched, activity_sched,
-                     rad_fract, lat_fract)
+                     rad_fract, lat_fract, co2_gen)
         return people, zone_id
 
     @classmethod
@@ -316,7 +337,8 @@ class People(_LoadBase):
             "occupancy_schedule": {}, # ScheduleRuleset/ScheduleFixedInterval dictionary
             "activity_schedule": {}, # ScheduleRuleset/ScheduleFixedInterval dictionary
             "radiant_fraction": 0.3, # fraction of sensible heat that is radiant
-            "latent_fraction": 0.2 # fraction of total heat that is latent
+            "latent_fraction": 0.2, # fraction of total heat that is latent
+            "carbon_dioxide_generation_rate": 4e-8 # optional rate in m3/s-W
             }
         """
         assert data['type'] == 'People', \
@@ -327,9 +349,9 @@ class People(_LoadBase):
         act_sched = cls._get_schedule_from_dict(data['activity_schedule'], schedules) \
             if 'activity_schedule' in data and data['activity_schedule'] is not None \
             else None
-        rad_fract, lat_fract = cls._optional_dict_keys(data)
+        rad_fract, lat_fract, co2_gen = cls._optional_dict_keys(data)
         new_obj = cls(data['identifier'], data['people_per_area'], occ_sched, act_sched,
-                      rad_fract, lat_fract)
+                      rad_fract, lat_fract, co2_gen)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
@@ -359,7 +381,8 @@ class People(_LoadBase):
             "occupancy_schedule": "Office Occupancy", # Schedule identifier
             "activity_schedule": "Office Activity", # Schedule identifier
             "radiant_fraction": 0.3, # fraction of sensible heat that is radiant
-            "latent_fraction": 0.2 # fraction of total heat that is latent
+            "latent_fraction": 0.2, # fraction of total heat that is latent
+            "carbon_dioxide_generation_rate": 4e-8 # optional rate in m3/s-W
             }
         """
         assert data['type'] == 'PeopleAbridged', \
@@ -370,9 +393,9 @@ class People(_LoadBase):
             data['activity_schedule'] is not None else ''
         occ_sched, activity_sched = cls._get_occ_act_schedules_from_dict(
             schedule_dict, occ_sch_id, act_sch_id)
-        rad_fract, lat_fract = cls._optional_dict_keys(data)
+        rad_fract, lat_fract, co2_gen = cls._optional_dict_keys(data)
         new_obj = cls(data['identifier'], data['people_per_area'], occ_sched,
-                      activity_sched, rad_fract, lat_fract)
+                      activity_sched, rad_fract, lat_fract, co2_gen)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
@@ -407,18 +430,21 @@ class People(_LoadBase):
                 ,                     !- Zone Floor Area per Person
                 0.3000,               !- Fraction Radiant
                 AUTOCALCULATE,        !- Sensible Heat Fraction
-                ACTIVITY_SCH;         !- Activity Level Schedule Name
+                ACTIVITY_SCH,         !- Activity Level Schedule Name
+                3.82e-08;             !- Carbon Dioxide Generation Rate
         """
         sens_fract = 'autocalculate' if self.latent_fraction == autocalculate else \
             1 - float(self.latent_fraction)
         values = ('{}..{}'.format(self.identifier, zone_identifier), zone_identifier,
                   self.occupancy_schedule.identifier, 'People/Area',
                   '', self.people_per_area, '', self.radiant_fraction, sens_fract,
-                  self.activity_schedule.identifier)
+                  self.activity_schedule.identifier,
+                  self.carbon_dioxide_generation_rate)
         comments = ('name', 'zone name', 'occupancy schedule name', 'occupancy method',
                     'number of people {ppl}', 'people per floor area {ppl/m2}',
                     'floor area per person {m2/ppl}', 'radiant fraction',
-                    'sensible heat fraction', 'activity schedule name')
+                    'sensible heat fraction', 'activity schedule name',
+                    'carbon dioxide generation rate {m3/s-W}')
         return generate_idf_string('People', values, comments)
 
     def to_dict(self, abridged=False):
@@ -435,6 +461,9 @@ class People(_LoadBase):
         base['radiant_fraction'] = self.radiant_fraction
         base['latent_fraction'] = self.latent_fraction if \
             isinstance(self.latent_fraction, float) else self.latent_fraction.to_dict()
+        if self.carbon_dioxide_generation_rate != 3.82e-8:
+            base['carbon_dioxide_generation_rate'] = \
+                self.carbon_dioxide_generation_rate
         if not abridged:
             base['occupancy_schedule'] = self.occupancy_schedule.to_dict()
             base['activity_schedule'] = self.activity_schedule.to_dict()
@@ -485,6 +514,8 @@ class People(_LoadBase):
             lat_fracts.append(ppl.latent_fraction * u_weights[i])
         else:
             lat_fract = sum(lat_fracts)
+        co2_gen = sum([ppl.carbon_dioxide_generation_rate * u_weights[i]
+                       for i, ppl in enumerate(peoples)])
 
         # calculate the average schedules
         occ_sched = People._average_schedule(
@@ -495,7 +526,8 @@ class People(_LoadBase):
             [ppl.activity_schedule for ppl in peoples], u_weights, timestep_resolution)
 
         # return the averaged people object
-        return People(identifier, ppl_area, occ_sched, act_sched, rad_fract, lat_fract)
+        return People(
+            identifier, ppl_area, occ_sched, act_sched, rad_fract, lat_fract, co2_gen)
 
     def _check_activity_schedule_type(self, schedule):
         """Check that the type limit of an input schedule is fractional."""
@@ -515,7 +547,9 @@ class People(_LoadBase):
         lat_fract = autocalculate if 'latent_fraction' not in data or \
             data['latent_fraction'] == autocalculate.to_dict() \
             else data['latent_fraction']
-        return rad_fract, lat_fract
+        co2_gen = data['carbon_dioxide_generation_rate'] \
+            if 'carbon_dioxide_generation_rate' in data else 3.82e-8
+        return rad_fract, lat_fract, co2_gen
 
     @staticmethod
     def _get_occ_act_schedules_from_dict(schedule_dict, occ_sch_id, act_sch_id):
@@ -542,7 +576,7 @@ class People(_LoadBase):
         """A tuple based on the object properties, useful for hashing."""
         return (self.identifier, self.people_per_area, hash(self.occupancy_schedule),
                 hash(self.activity_schedule), self.radiant_fraction,
-                str(self.latent_fraction))
+                str(self.latent_fraction), self.carbon_dioxide_generation_rate)
 
     def __hash__(self):
         return hash(self.__key())
@@ -556,7 +590,8 @@ class People(_LoadBase):
     def __copy__(self):
         new_obj = People(
             self.identifier, self.people_per_area, self.occupancy_schedule,
-            self.activity_schedule, self.radiant_fraction, self.latent_fraction)
+            self.activity_schedule, self.radiant_fraction, self.latent_fraction,
+            self.carbon_dioxide_generation_rate)
         new_obj._display_name = self._display_name
         new_obj._user_data = None if self._user_data is None else self._user_data.copy()
         new_obj._properties._duplicate_extension_attr(self._properties)
