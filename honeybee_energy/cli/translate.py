@@ -613,16 +613,18 @@ def model_to_idf(
               'OpenStudio simply raises an error when it encounters non-planar '
               'geometry, which would hinder the ability to save gbXML files that are '
               'to be corrected in other software.', default=True, show_default=True)
-@click.option('--bounding-rectangles/--simple-rect-areas', ' /-sra',
-              help='Flag to note whether the width and height of all '
-              'RectangularGeometry is set based on the bounding rectangle around '
-              'the geometry or is set in a simplified manner with the '
-              'width always equal to geometry area and the height always equal '
-              'to one. Using --simple-rect-areas can ensure correct overall area of '
-              'the geometry in the destination software, particularly in cases where '
-              'the geometry is not rectangular. However, if the destination software '
-              'has a means of representing the 2D rectangular geometry in 3D, setting '
-              'this to True may not look correct.', default=True, show_default=True)
+@click.option('--rect-geo-format', '-rg',
+              help='Text string to note how the rectangular geometry for '
+              'all Surfaces is written into the gbXML. BoundingRectangle sets the '
+              'width and height of the rectangular geometry using the bounding '
+              'rectangle around the geometry, which results in an overestimated '
+              'area for non-rectangular geo. SimpleArea will set the rectangle width '
+              'always equal to geometry area and the height always equal to one, '
+              'ensuring accurate areas and making it easy to check the geometry '
+              'area in the gbXML. SimpleAreaForNonRectOnly will report the width and '
+              'height of rectangular Face3D correctly but use simpler areas '
+              'for non-rectangular geometry.',
+              default='BoundingRectangle', show_default=True)
 @click.option('--collapsed-holes/--explicit-holes', ' /-eh',
               help='Flag to note whether holes in Surfaces should be represented '
               'explicitly with their own PolyLoop or the hole and boundary '
@@ -658,7 +660,7 @@ def model_to_gbxml_cli(
     model_file, si_units, minimal, exclude_shell_geometry, exclude_space_boundaries,
     interior_face_type, ground_face_type, face_rename_format, subface_rename_format,
     keep_geometry_ids, keep_resource_ids, default_subfaces, triangulate_non_planar,
-    bounding_rectangles, collapsed_holes, total_ventilation,
+    rect_geo_format, collapsed_holes, total_ventilation,
     program_name, program_version, gbxml_schema_version, output_file
 ):
     """Translate a Honeybee Model (HBJSON) to a gbXML file.
@@ -676,7 +678,6 @@ def model_to_gbxml_cli(
         reset_resource_ids = not keep_resource_ids
         triangulate_subfaces = not default_subfaces
         permit_non_planar = not triangulate_non_planar
-        simple_rect_areas = not bounding_rectangles
         explicit_holes = not collapsed_holes
         ventilation_components = not total_ventilation
         model_to_gbxml(
@@ -685,7 +686,7 @@ def model_to_gbxml_cli(
             interior_face_type, ground_face_type,
             face_rename_format, subface_rename_format,
             reset_geometry_ids, reset_resource_ids,
-            triangulate_subfaces, permit_non_planar, simple_rect_areas, explicit_holes,
+            triangulate_subfaces, permit_non_planar, rect_geo_format, explicit_holes,
             ventilation_components,
             program_name, program_version, gbxml_schema_version, output_file
         )
@@ -703,13 +704,12 @@ def model_to_gbxml(
     face_rename_format=None, subface_rename_format=None,
     reset_geometry_ids=False, reset_resource_ids=False,
     triangulate_subfaces=False, permit_non_planar=False,
-    simple_rect_areas=False, explicit_holes=False,
+    rect_geo_format='BoundingRectangle', explicit_holes=False,
     ventilation_components=False, program_name='Ladybug Tools CLI', program_version=None,
     gbxml_schema_version=None, output_file=None,
     si_units=True, minimal=True, exclude_shell_geometry=True, exclude_space_boundaries=True,
     keep_geometry_ids=True, keep_resource_ids=True,
-    default_subfaces=True, triangulate_non_planar=True,
-    bounding_rectangles=True, collapsed_holes=True,
+    default_subfaces=True, triangulate_non_planar=True, collapsed_holes=True,
     total_ventilation=True
 ):
     """Translate a Honeybee Model file to a gbXML file.
@@ -784,15 +784,22 @@ def model_to_gbxml(
             because OpenStudio simply raises an error when it encounters non-planar
             geometry, which would hinder the ability to save gbXML files that are
             to be corrected in other software. (Default: False).
-        simple_rect_areas: Boolean to note whether the width and height of all
-            RectangularGeometry is set based on the bounding rectangle around
-            the geometry (False) or is set in a simplified manner with the
-            width always equal to geometry area and the height always equal
-            to one (True). Setting to True can ensure correct overall area of
-            the geometry in the destination software, particularly in cases where
-            the geometry is not rectangular. However, if the destination software
-            has a means of representing the 2D rectangular geometry in 3D, setting
-            this to True may not look correct. (Default: False).
+        rect_geo_format: Text string to note how the rectangular geometry for
+            all Surfaces is written into the gbXML. BoundingRectangle sets the
+            width and height of the rectangular geometry using the bounding
+            rectangle around the geometry, which results in an overestimated
+            area for non-rectangular geo. SimpleArea will set the rectangle width
+            always equal to geometry area and the height always equal to one,
+            ensuring accurate areas and making it easy to check the geometry
+            area in the gbXML. SimpleAreaForNonRectOnly will report the width and
+            height of rectangular Face3D correctly but use simpler areas
+            for non-rectangular geometry. (Default: BoundingRectangle). Choose
+            from the following.
+
+            * BoundingRectangle
+            * SimpleArea
+            * SimpleAreaForNonRectOnly
+
         explicit_holes: Boolean to note whether holes in Surfaces should be
             represented explicitly with their own PolyLoop or the hole and boundary
             should be collapsed into a single PolyLoop that winds inwards to
@@ -833,7 +840,7 @@ def model_to_gbxml(
         reset_geometry_ids=reset_geometry_ids, reset_resource_ids=reset_resource_ids,
         triangulate_non_planar=triangulate_non_planar,
         triangulate_subfaces=triangulate_subfaces,
-        simple_rect_areas=simple_rect_areas, explicit_holes=explicit_holes,
+        rect_geo_format=rect_geo_format, explicit_holes=explicit_holes,
         total_ventilation=total_ventilation,
         program_name=program_name, program_version=program_version,
         gbxml_schema_version=gbxml_schema_version
