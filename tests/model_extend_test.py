@@ -1,4 +1,8 @@
 """Tests the features that honeybee_energy adds to honeybee_core Model."""
+import random
+import json
+import pytest
+
 from ladybug_geometry.geometry3d import Point3D, Vector3D, Plane, Face3D, \
     Polyface3D, Mesh3D
 
@@ -39,9 +43,6 @@ from honeybee_energy.lib.materials import clear_glass, air_gap, roof_membrane, \
 from honeybee_energy.lib.constructions import generic_exterior_wall, \
     generic_interior_wall, generic_interior_floor, generic_interior_ceiling, \
     generic_double_pane, generic_single_pane
-
-import random
-import pytest
 
 
 def test_energy_properties():
@@ -824,6 +825,23 @@ def test_load_dump_properties_from_dict():
                 assert item in new_prop_dict[key]
         else:
             assert new_prop_dict[key] == model_dict['properties']['energy'][key]
+
+
+def test_load_properties_from_dict_prioritize_abridged():
+    """Test the Model load_properties_from_dict method with prioritize_abridged."""
+    input_props = './tests/json/update_construction_set.json'
+    with open(input_props, 'r') as inf:
+        data = json.load(inf)
+
+    _, _, construction_sets, _, _, _, _, _ = \
+        ModelEnergyProperties.load_properties_from_dict(data, prioritize_abridged=False)
+    _, _, construction_sets_updated, _, _, _, _, _ = \
+        ModelEnergyProperties.load_properties_from_dict(data, prioritize_abridged=True)
+
+    con_set = list(construction_sets.values())[0]
+    con_set_updated = list(construction_sets_updated.values())[0]
+    assert len(con_set.wall_set.exterior_construction.materials) == 4
+    assert len(con_set_updated.wall_set.exterior_construction.materials) == 1
 
 
 def test_filter_dict_by_identifiers():

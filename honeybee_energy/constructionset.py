@@ -911,15 +911,18 @@ class _FaceSetBase(object):
         """
         assert data['type'] == cls.__name__, \
             'Expected {}. Got {}.'.format(cls.__name__, data['type'])
-        extc = OpaqueConstruction.from_dict(data['exterior_construction'], constructions) \
-            if 'exterior_construction' in data and data['exterior_construction'] \
-            is not None else None
-        intc = OpaqueConstruction.from_dict(data['interior_construction'], constructions) \
-            if 'interior_construction' in data and data['interior_construction'] \
-            is not None else None
-        gndc = OpaqueConstruction.from_dict(data['ground_construction'], constructions) \
-            if 'ground_construction' in data and data['ground_construction'] \
-            is not None else None
+        keys = ('exterior_construction', 'interior_construction', 'ground_construction')
+        cons = [None, None, None]
+        for i, key in enumerate(keys):
+            if key in data and data[key] is not None:
+                con = OpaqueConstruction.from_dict(data[key])
+                if constructions is not None:
+                    try:
+                        con = constructions[data[key]['identifier']]
+                    except KeyError:
+                        pass  # no construction to override
+                cons[i] = con
+        extc, intc, gndc = cons
         return cls(extc, intc, gndc)
 
     def to_dict(self, abridged=False, none_for_defaults=True):

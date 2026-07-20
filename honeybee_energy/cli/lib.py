@@ -64,18 +64,24 @@ def lib():
     'an item in the search but it is not be desirable when searching for a '
     'specific word sequence.', default=True, show_default=True)
 @click.option(
+    '--exclude-generic/--include-generic', ' /-j', help='Flag to note whether the '
+    'generic objects that always come with honeybee-energy should be included in '
+    'the result. Excluding generic objects helps avoid conflicts with the default '
+    'global construction set.', default=True, show_default=True)
+@click.option(
     '--identifiers/--json-objects', ' /-j', help='Flag to note whether to format the '
     'output as an array of JSON objects instead of a plain text list of the '
     'material identifiers.', default=True, show_default=True)
 @click.option(
     '--output-file', '-f', help='Optional file to output the result. By default, it '
     'is printed out to stdout', type=click.File('w'), default='-', show_default=True)
-def opaque_materials_cli(keyword, split_words, identifiers, output_file):
+def opaque_materials_cli(keyword, split_words, exclude_generic, identifiers, output_file):
     """Get a list of all opaque materials in the standards library."""
     try:
         join_words = not split_words
         json_objects = not identifiers
-        opaque_materials(keyword, join_words, json_objects, output_file)
+        include_generic = not exclude_generic
+        opaque_materials(keyword, join_words, include_generic, json_objects, output_file)
     except Exception as e:
         _logger.exception('Failed to load opaque materials.\n{}'.format(e))
         sys.exit(1)
@@ -84,8 +90,9 @@ def opaque_materials_cli(keyword, split_words, identifiers, output_file):
 
 
 def opaque_materials(
-    keyword=None, join_words=False, json_objects=False, output_file=None,
-    split_words=True, identifiers=True
+    keyword=None, join_words=False, include_generic=False, json_objects=False,
+    output_file=None,
+    split_words=True, exclude_generic=True, identifiers=True
 ):
     """Get a list of all opaque materials in the standards library.
 
@@ -98,6 +105,9 @@ def opaque_materials(
             by spaces) are joined together or will be split into separate keywords
             for searching. This results in a greater likelihood of finding an item but is
             not desirable when searching for a specific word sequence. (Default: False).
+        include_generic: Boolean to note whether the generic objects that always
+            come with honeybee-energy should be included in the result. Excluding generic
+            objects helps avoid conflicts with the default global construction set.
         json_objects: Boolean to note whether the output should be formatted as
             an array of JSON objects instead of a plain text list of the material
             identifiers currently in the library. (Default: False).
@@ -111,6 +121,8 @@ def opaque_materials(
         mat_ids = sorted(filter_array_by_keywords(OPAQUE_MATERIALS, kwd, split_words))
     else:
         mat_ids = OPAQUE_MATERIALS
+    if not include_generic:
+        mat_ids = [m_id for m_id in mat_ids if not m_id.startswith('Generic ')]
     # output a list of identifiers or objects
     if json_objects:
         mat_objs = [opaque_material_by_identifier(m) for m in mat_ids]
@@ -133,18 +145,24 @@ def opaque_materials(
     'an item in the search but it is not be desirable when searching for a '
     'specific word sequence.', default=True, show_default=True)
 @click.option(
+    '--exclude-generic/--include-generic', ' /-j', help='Flag to note whether the '
+    'generic objects that always come with honeybee-energy should be included in '
+    'the result. Excluding generic objects helps avoid conflicts with the default '
+    'global construction set.', default=True, show_default=True)
+@click.option(
     '--identifiers/--json-objects', ' /-j', help='Flag to note whether to format the '
     'output as an array of JSON objects instead of a plain text list of the '
     'material identifiers.', default=True, show_default=True)
 @click.option(
     '--output-file', '-f', help='Optional file to output the result. By default, it '
     'is printed out to stdout', type=click.File('w'), default='-', show_default=True)
-def window_materials_cli(keyword, split_words, identifiers, output_file):
+def window_materials_cli(keyword, split_words, exclude_generic, identifiers, output_file):
     """Get a list of all window materials in the standards library."""
     try:
         join_words = not split_words
         json_objects = not identifiers
-        window_materials(keyword, join_words, json_objects, output_file)
+        include_generic = not exclude_generic
+        window_materials(keyword, join_words, include_generic, json_objects, output_file)
     except Exception as e:
         _logger.exception('Failed to load window materials.\n{}'.format(e))
         sys.exit(1)
@@ -153,8 +171,9 @@ def window_materials_cli(keyword, split_words, identifiers, output_file):
 
 
 def window_materials(
-    keyword=None, join_words=False, json_objects=False, output_file=None,
-    split_words=True, identifiers=True
+    keyword=None, join_words=False, include_generic=False, json_objects=False,
+    output_file=None,
+    split_words=True, exclude_generic=False, identifiers=True
 ):
     """Get a list of all window materials in the standards library.
 
@@ -167,6 +186,9 @@ def window_materials(
             by spaces) are joined together or will be split into separate keywords
             for searching. This results in a greater likelihood of finding an item but is
             not desirable when searching for a specific word sequence. (Default: False).
+        include_generic: Boolean to note whether the generic objects that always
+            come with honeybee-energy should be included in the result. Excluding generic
+            objects helps avoid conflicts with the default global construction set.
         json_objects: Boolean to note whether the output should be formatted as
             an array of JSON objects instead of a plain text list of the material
             identifiers currently in the library. (Default: False).
@@ -180,6 +202,8 @@ def window_materials(
         mat_ids = sorted(filter_array_by_keywords(WINDOW_MATERIALS, kwd, split_words))
     else:
         mat_ids = WINDOW_MATERIALS
+    if not include_generic:
+        mat_ids = [m_id for m_id in mat_ids if not m_id.startswith('Generic ')]
     # output a list of identifiers or objects
     if json_objects:
         mat_objs = [window_material_by_identifier(m) for m in mat_ids]
@@ -202,18 +226,27 @@ def window_materials(
     'an item in the search but it is not be desirable when searching for a '
     'specific word sequence.', default=True, show_default=True)
 @click.option(
+    '--exclude-generic/--include-generic', ' /-j', help='Flag to note whether the '
+    'generic objects that always come with honeybee-energy should be included in '
+    'the result. Excluding generic objects helps avoid conflicts with the default '
+    'global construction set.', default=True, show_default=True)
+@click.option(
     '--identifiers/--json-objects', ' /-j', help='Flag to note whether to format the '
     'output as an array of JSON objects instead of a plain text list of the '
     'material identifiers.', default=True, show_default=True)
 @click.option(
     '--output-file', '-f', help='Optional file to output the result. By default, it '
     'is printed out to stdout', type=click.File('w'), default='-', show_default=True)
-def opaque_constructions_cli(keyword, split_words, identifiers, output_file):
+def opaque_constructions_cli(
+    keyword, split_words, exclude_generic, identifiers, output_file
+):
     """Get a list of all opaque constructions in the standards library."""
     try:
         join_words = not split_words
         json_objects = not identifiers
-        opaque_constructions(keyword, join_words, json_objects, output_file)
+        include_generic = not exclude_generic
+        opaque_constructions(keyword, join_words, include_generic, json_objects,
+                             output_file)
     except Exception as e:
         _logger.exception('Failed to load opaque constructions.\n{}'.format(e))
         sys.exit(1)
@@ -222,8 +255,9 @@ def opaque_constructions_cli(keyword, split_words, identifiers, output_file):
 
 
 def opaque_constructions(
-    keyword=None, join_words=False, json_objects=False, output_file=None,
-    split_words=True, identifiers=True
+    keyword=None, join_words=False, include_generic=False, json_objects=False,
+    output_file=None,
+    split_words=True, exclude_generic=False, identifiers=True
 ):
     """Get a list of all opaque constructions in the standards library.
 
@@ -236,6 +270,9 @@ def opaque_constructions(
             by spaces) are joined together or will be split into separate keywords
             for searching. This results in a greater likelihood of finding an item but is
             not desirable when searching for a specific word sequence. (Default: False).
+        include_generic: Boolean to note whether the generic objects that always
+            come with honeybee-energy should be included in the result. Excluding generic
+            objects helps avoid conflicts with the default global construction set.
         json_objects: Boolean to note whether the output should be formatted as
             an array of JSON objects instead of a plain text list of the construction
             identifiers currently in the library. (Default: False).
@@ -249,6 +286,15 @@ def opaque_constructions(
         con_ids = sorted(filter_array_by_keywords(OPAQUE_CONSTRUCTIONS, kwd, split_words))
     else:
         con_ids = OPAQUE_CONSTRUCTIONS
+    if not include_generic:
+        generic_cons = (
+            'Ceiling Plenum Top',
+            'Ceiling Plenum Bottom',
+            'Floor Plenum Top',
+            'Floor Plenum Bottom'
+        )
+        con_ids = [c_id for c_id in con_ids if not c_id.startswith('Generic ')
+                   and c_id not in generic_cons]
     # output a list of identifiers or objects
     if json_objects:
         con_objs = [opaque_construction_by_identifier(c) for c in con_ids]
@@ -271,18 +317,26 @@ def opaque_constructions(
     'an item in the search but it is not be desirable when searching for a '
     'specific word sequence.', default=True, show_default=True)
 @click.option(
+    '--exclude-generic/--include-generic', ' /-j', help='Flag to note whether the '
+    'generic objects that always come with honeybee-energy should be included in '
+    'the result. Excluding generic objects helps avoid conflicts with the default '
+    'global construction set.', default=True, show_default=True)
+@click.option(
     '--identifiers/--json-objects', ' /-j', help='Flag to note whether to format the '
     'output as an array of JSON objects instead of a plain text list of the '
     'material identifiers.', default=True, show_default=True)
 @click.option(
     '--output-file', '-f', help='Optional file to output the result. By default, it '
     'is printed out to stdout', type=click.File('w'), default='-', show_default=True)
-def window_constructions_cli(keyword, split_words, identifiers, output_file):
+def window_constructions_cli(
+    keyword, split_words, exclude_generic, identifiers, output_file
+):
     """Get a list of all window constructions in the standards library."""
     try:
         join_words = not split_words
         json_objects = not identifiers
-        window_constructions(keyword, join_words, json_objects, output_file)
+        include_generic = not exclude_generic
+        window_constructions(keyword, join_words, include_generic, json_objects, output_file)
     except Exception as e:
         _logger.exception('Failed to load window constructions.\n{}'.format(e))
         sys.exit(1)
@@ -291,8 +345,9 @@ def window_constructions_cli(keyword, split_words, identifiers, output_file):
 
 
 def window_constructions(
-    keyword=None, join_words=False, json_objects=False, output_file=None,
-    split_words=True, identifiers=True
+    keyword=None, join_words=False, json_objects=False, include_generic=False,
+    output_file=None,
+    split_words=True, exclude_generic=True, identifiers=True
 ):
     """Get a list of all window constructions in the standards library.
 
@@ -305,6 +360,9 @@ def window_constructions(
             by spaces) are joined together or will be split into separate keywords
             for searching. This results in a greater likelihood of finding an item but is
             not desirable when searching for a specific word sequence. (Default: False).
+        include_generic: Boolean to note whether the generic objects that always
+            come with honeybee-energy should be included in the result. Excluding generic
+            objects helps avoid conflicts with the default global construction set.
         json_objects: Boolean to note whether the output should be formatted as
             an array of JSON objects instead of a plain text list of the construction
             identifiers currently in the library. (Default: False).
@@ -318,6 +376,8 @@ def window_constructions(
         con_ids = sorted(filter_array_by_keywords(WINDOW_CONSTRUCTIONS, kwd, split_words))
     else:
         con_ids = WINDOW_CONSTRUCTIONS
+    if not include_generic:
+        con_ids = [c_id for c_id in con_ids if not c_id.startswith('Generic ')]
     # output a list of identifiers or objects
     if json_objects:
         con_objs = [window_construction_by_identifier(c) for c in con_ids]
@@ -340,18 +400,26 @@ def window_constructions(
     'an item in the search but it is not be desirable when searching for a '
     'specific word sequence.', default=True, show_default=True)
 @click.option(
+    '--exclude-generic/--include-generic', ' /-j', help='Flag to note whether the '
+    'generic objects that always come with honeybee-energy should be included in '
+    'the result. Excluding generic objects helps avoid conflicts with the default '
+    'global construction set.', default=True, show_default=True)
+@click.option(
     '--identifiers/--json-objects', ' /-j', help='Flag to note whether to format the '
     'output as an array of JSON objects instead of a plain text list of the '
     'material identifiers.', default=True, show_default=True)
 @click.option(
     '--output-file', '-f', help='Optional file to output the result. By default, it '
     'is printed out to stdout', type=click.File('w'), default='-', show_default=True)
-def shade_constructions_cli(keyword, split_words, identifiers, output_file):
+def shade_constructions_cli(
+    keyword, split_words, exclude_generic, identifiers, output_file
+):
     """Get a list of all shade constructions in the standards library."""
     try:
         join_words = not split_words
         json_objects = not identifiers
-        shade_constructions(keyword, join_words, json_objects, output_file)
+        include_generic = not exclude_generic
+        shade_constructions(keyword, join_words, include_generic, json_objects, output_file)
     except Exception as e:
         _logger.exception('Failed to load shade constructions.\n{}'.format(e))
         sys.exit(1)
@@ -360,8 +428,9 @@ def shade_constructions_cli(keyword, split_words, identifiers, output_file):
 
 
 def shade_constructions(
-    keyword=None, join_words=False, json_objects=False, output_file=None,
-    split_words=True, identifiers=True
+    keyword=None, join_words=False, include_generic=False, json_objects=False,
+    output_file=None,
+    split_words=True, exclude_generic=True, identifiers=True
 ):
     """Get a list of all shade constructions in the standards library.
 
@@ -374,6 +443,9 @@ def shade_constructions(
             by spaces) are joined together or will be split into separate keywords
             for searching. This results in a greater likelihood of finding an item but is
             not desirable when searching for a specific word sequence. (Default: False).
+        include_generic: Boolean to note whether the generic objects that always
+            come with honeybee-energy should be included in the result. Excluding generic
+            objects helps avoid conflicts with the default global construction set.
         json_objects: Boolean to note whether the output should be formatted as
             an array of JSON objects instead of a plain text list of the construction
             identifiers currently in the library. (Default: False).
@@ -387,6 +459,8 @@ def shade_constructions(
         con_ids = sorted(filter_array_by_keywords(SHADE_CONSTRUCTIONS, kwd, split_words))
     else:
         con_ids = SHADE_CONSTRUCTIONS
+    if not include_generic:
+        con_ids = [c_id for c_id in con_ids if not c_id.startswith('Generic ')]
     # output a list of identifiers or objects
     if json_objects:
         con_objs = [shade_construction_by_identifier(c) for c in con_ids]
@@ -423,6 +497,11 @@ def shade_constructions(
     'an item in the search but it is not be desirable when searching for a '
     'specific word sequence.', default=True, show_default=True)
 @click.option(
+    '--exclude-generic/--include-generic', ' /-j', help='Flag to note whether the '
+    'generic objects that always come with honeybee-energy should be included in '
+    'the result. Excluding generic objects helps avoid conflicts with the default '
+    'global construction set.', default=True, show_default=True)
+@click.option(
     '--identifiers/--json-objects', ' /-j', help='Flag to note whether to format the '
     'output as an array of JSON objects instead of a plain text list of the '
     'material identifiers.', default=True, show_default=True)
@@ -430,15 +509,16 @@ def shade_constructions(
     '--output-file', '-f', help='Optional file to output the result. By default, it '
     'is printed out to stdout', type=click.File('w'), default='-', show_default=True)
 def construction_sets_cli(
-    climate_zone, vintage, construction_type, keyword, split_words,
+    climate_zone, vintage, construction_type, keyword, split_words, exclude_generic,
     identifiers, output_file
 ):
     """Get a list of all construction sets in the standards library."""
     try:
         join_words = not split_words
         json_objects = not identifiers
-        construction_sets(climate_zone, vintage, construction_type,
-                          keyword, join_words, json_objects, output_file)
+        include_generic = not exclude_generic
+        construction_sets(climate_zone, vintage, construction_type, keyword, join_words,
+                          include_generic, json_objects, output_file)
     except Exception as e:
         _logger.exception('Failed to load construction sets.\n{}'.format(e))
         sys.exit(1)
@@ -447,9 +527,9 @@ def construction_sets_cli(
 
 
 def construction_sets(
-    climate_zone=None, vintage=None, construction_type=None,
-    keyword=None, join_words=False, json_objects=False, output_file=None,
-    split_words=True, identifiers=True
+    climate_zone=None, vintage=None, construction_type=None, keyword=None,
+    join_words=False, include_generic=False, json_objects=False, output_file=None,
+    split_words=True, exclude_generic=True, identifiers=True
 ):
     """Get a list of all construction sets in the standards library.
 
@@ -470,6 +550,9 @@ def construction_sets(
             by spaces) are joined together or will be split into separate keywords
             for searching. This results in a greater likelihood of finding an item but is
             not desirable when searching for a specific word sequence. (Default: False).
+        include_generic: Boolean to note whether the generic objects that always
+            come with honeybee-energy should be included in the result. Excluding generic
+            objects helps avoid conflicts with the default global construction set.
         json_objects: Boolean to note whether the output should be formatted as
             an array of JSON objects instead of a plain text list of the construction
             set identifiers currently in the library. (Default: False).
@@ -503,6 +586,8 @@ def construction_sets(
         split_words = not join_words
         kwd = [keyword] if isinstance(keyword, str) else keyword
         con_ids = sorted(filter_array_by_keywords(con_ids, kwd, split_words))
+    if not include_generic:
+        con_ids = [c_id for c_id in con_ids if c_id != 'Default Generic Construction Set']
     # output a list of identifiers or objects
     if json_objects:
         con_objs = [construction_set_by_identifier(c) for c in con_ids]
