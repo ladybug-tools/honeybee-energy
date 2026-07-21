@@ -1,0 +1,7 @@
+honeybee\_energy.load.ventilation module
+========================================
+
+.. automodule:: honeybee_energy.load.ventilation
+   :members:
+   :undoc-members:
+   :show-inheritance:

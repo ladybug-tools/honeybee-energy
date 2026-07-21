@@ -1,0 +1,10 @@
+honeybee\_energy.baseline.data package
+======================================
+
+Module contents
+---------------
+
+.. automodule:: honeybee_energy.baseline.data
+   :members:
+   :undoc-members:
+   :show-inheritance:

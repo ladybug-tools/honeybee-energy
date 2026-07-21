@@ -1,0 +1,6 @@
+setconfig
+=========
+
+.. click:: honeybee_energy.cli.setconfig:set_config
+   :prog: honeybee-energy set-config
+   :show-nested:
