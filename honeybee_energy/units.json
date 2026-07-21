@@ -254,9 +254,9 @@
             "units_hb": "m",
             "units_si": "mm",
             "units_ip": "in",
-            "convert_to_si": "{x} / 1000",
+            "convert_to_si": "{x} * 1000",
             "convert_to_ip": "{x} * 39.37017",
-            "convert_from_si": "{x} * 1000",
+            "convert_from_si": "{x} / 1000",
             "convert_from_ip": "{x} / 39.3701"
         },
         "mass_area_density": {
