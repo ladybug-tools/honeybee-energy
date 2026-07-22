@@ -896,6 +896,21 @@ def test_filter_dict_by_identifiers():
     assert len(filtered_e_props['program_types']) == 1
 
 
+def test_filter_dict_by_identifiers_construction():
+    """Test the filter_dict_by_identifiers method with a construction."""
+    input_props = './tests/json/model_energy_properties.json'
+    with open(input_props, 'r') as inf:
+        data = json.load(inf)
+
+    filtered_e_props = ModelEnergyProperties.filter_dict_by_identifiers(
+        data, construction_ids=['Typical Insulated Steel Framed Exterior Wall']
+    )
+
+    assert len(filtered_e_props['construction_sets']) == 1
+    assert len(filtered_e_props['constructions']) == 10
+    assert len(filtered_e_props['materials']) == 14
+
+
 def test_writer_to_idf():
     """Test the Model to.idf method."""
     room = Room.from_box('TinyHouseZone', 5, 10, 3)

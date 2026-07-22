@@ -1,0 +1,925 @@
+{
+  "type": "ModelEnergyProperties",
+  "global_construction_set": {},
+  "program_types": [],
+  "schedules": [],
+  "construction_sets": [
+    {
+      "type": "ConstructionSet",
+      "wall_set": {
+        "type": "WallConstructionSet",
+        "exterior_construction": {
+          "type": "OpaqueConstruction",
+          "identifier": "Typical Insulated Steel Framed Exterior Wall",
+          "materials": [
+            {
+              "type": "EnergyMaterial",
+              "roughness": "Smooth",
+              "thermal_absorptance": 0.9,
+              "solar_absorptance": 0.7,
+              "visible_absorptance": 0.7,
+              "thickness": 0.0254,
+              "conductivity": 0.7195184959232496,
+              "density": 1856.0042437235265,
+              "specific_heat": 839.4583814522845,
+              "user_data": { "source": "US DOE" },
+              "identifier": "25mm Stucco"
+            },
+            {
+              "type": "EnergyMaterial",
+              "roughness": "MediumSmooth",
+              "thermal_absorptance": 0.9,
+              "solar_absorptance": 0.7,
+              "visible_absorptance": 0.7,
+              "thickness": 0.0159,
+              "conductivity": 0.15989299909405463,
+              "density": 800.0018291911765,
+              "specific_heat": 1089.2971854559414,
+              "user_data": { "source": "US DOE" },
+              "identifier": "5/8 in. Gypsum Board"
+            },
+            {
+              "type": "EnergyMaterialNoMass",
+              "roughness": "MediumSmooth",
+              "thermal_absorptance": 0.9,
+              "solar_absorptance": 0.7,
+              "visible_absorptance": 0.7,
+              "r_value": 0.02822222224266701,
+              "user_data": { "source": "US DOE" },
+              "identifier": "Typical Insulation"
+            },
+            {
+              "type": "EnergyMaterial",
+              "roughness": "MediumSmooth",
+              "thermal_absorptance": 0.9,
+              "solar_absorptance": 0.7,
+              "visible_absorptance": 0.7,
+              "thickness": 0.0159,
+              "conductivity": 0.15989299909405463,
+              "density": 800.0018291911765,
+              "specific_heat": 1089.2971854559414,
+              "user_data": { "source": "US DOE" },
+              "identifier": "5/8 in. Gypsum Board"
+            }
+          ],
+          "user_data": { "source": "US DOE" }
+        },
+        "ground_construction": {
+          "type": "OpaqueConstruction",
+          "identifier": "Typical Insulated Basement Mass Wall",
+          "materials": [
+            {
+              "type": "EnergyMaterialNoMass",
+              "roughness": "MediumSmooth",
+              "thermal_absorptance": 0.9,
+              "solar_absorptance": 0.7,
+              "visible_absorptance": 0.7,
+              "r_value": 0.02822222224266701,
+              "user_data": { "source": "US DOE" },
+              "identifier": "Typical Insulation"
+            },
+            {
+              "type": "EnergyMaterial",
+              "roughness": "MediumRough",
+              "thermal_absorptance": 0.9,
+              "solar_absorptance": 0.7,
+              "visible_absorptance": 0.7,
+              "thickness": 0.2032,
+              "conductivity": 1.325113229991986,
+              "density": 1842.0042117126811,
+              "specific_heat": 911.4119570053389,
+              "user_data": { "source": "US DOE" },
+              "identifier": "8 in. Concrete Block Basement Wall"
+            }
+          ],
+          "user_data": { "source": "US DOE" }
+        },
+        "interior_construction": null
+      },
+      "floor_set": {
+        "type": "FloorConstructionSet",
+        "exterior_construction": {
+          "type": "OpaqueConstruction",
+          "identifier": "Typical Insulated Steel Framed Exterior Floor-R3",
+          "materials": [
+            {
+              "type": "EnergyMaterial",
+              "roughness": "Smooth",
+              "thermal_absorptance": 0.9,
+              "solar_absorptance": 0.7,
+              "visible_absorptance": 0.7,
+              "thickness": 0.0254,
+              "conductivity": 0.7195184959232496,
+              "density": 1856.0042437235265,
+              "specific_heat": 839.4583814522845,
+              "user_data": { "source": "US DOE" },
+              "identifier": "25mm Stucco"
+            },
+            {
+              "type": "EnergyMaterial",
+              "roughness": "MediumSmooth",
+              "thermal_absorptance": 0.9,
+              "solar_absorptance": 0.7,
+              "visible_absorptance": 0.7,
+              "thickness": 0.0159,
+              "conductivity": 0.15989299909405463,
+              "density": 800.0018291911765,
+              "specific_heat": 1089.2971854559414,
+              "user_data": { "source": "US DOE" },
+              "identifier": "5/8 in. Gypsum Board"
+            },
+            {
+              "type": "EnergyMaterialNoMass",
+              "roughness": "MediumSmooth",
+              "thermal_absorptance": 0.9,
+              "solar_absorptance": 0.7,
+              "visible_absorptance": 0.7,
+              "r_value": 0.17611018380988483,
+              "user_data": { "source": "US DOE" },
+              "identifier": "Typical Insulation-R1"
+            },
+            {
+              "type": "EnergyMaterial",
+              "roughness": "MediumSmooth",
+              "thermal_absorptance": 0.9,
+              "solar_absorptance": 0.7,
+              "visible_absorptance": 0.7,
+              "thickness": 0.0159,
+              "conductivity": 0.15989299909405463,
+              "density": 800.0018291911765,
+              "specific_heat": 1089.2971854559414,
+              "user_data": { "source": "US DOE" },
+              "identifier": "5/8 in. Gypsum Board"
+            },
+            {
+              "type": "EnergyMaterialNoMass",
+              "roughness": "VeryRough",
+              "thermal_absorptance": 0.9,
+              "solar_absorptance": 0.7,
+              "visible_absorptance": 0.8,
+              "r_value": 0.2164799871520999,
+              "user_data": { "source": "US DOE" },
+              "identifier": "Typical Carpet Pad"
+            }
+          ],
+          "user_data": { "source": "US DOE" }
+        },
+        "ground_construction": {
+          "type": "OpaqueConstruction",
+          "identifier": "Typical Insulated Carpeted 6in Slab Floor",
+          "materials": [
+            {
+              "type": "EnergyMaterialNoMass",
+              "roughness": "MediumSmooth",
+              "thermal_absorptance": 0.9,
+              "solar_absorptance": 0.7,
+              "visible_absorptance": 0.7,
+              "r_value": 0.02822222224266701,
+              "user_data": { "source": "US DOE" },
+              "identifier": "Typical Insulation"
+            },
+            {
+              "type": "EnergyMaterial",
+              "roughness": "MediumRough",
+              "thermal_absorptance": 0.9,
+              "solar_absorptance": 0.7,
+              "visible_absorptance": 0.7,
+              "thickness": 0.15239999999999998,
+              "conductivity": 2.308455174420426,
+              "density": 2322.005309227381,
+              "specific_heat": 831.4635397241673,
+              "user_data": { "source": "US DOE" },
+              "identifier": "6 in. Normalweight Concrete Floor"
+            },
+            {
+              "type": "EnergyMaterialNoMass",
+              "roughness": "VeryRough",
+              "thermal_absorptance": 0.9,
+              "solar_absorptance": 0.7,
+              "visible_absorptance": 0.8,
+              "r_value": 0.2164799871520999,
+              "user_data": { "source": "US DOE" },
+              "identifier": "Typical Carpet Pad"
+            }
+          ],
+          "user_data": { "source": "US DOE" }
+        },
+        "interior_construction": null
+      },
+      "roof_ceiling_set": {
+        "type": "RoofCeilingConstructionSet",
+        "exterior_construction": {
+          "type": "OpaqueConstruction",
+          "identifier": "Typical IEAD Roof-R14",
+          "materials": [
+            {
+              "type": "EnergyMaterial",
+              "roughness": "VeryRough",
+              "thermal_absorptance": 0.9,
+              "solar_absorptance": 0.7,
+              "visible_absorptance": 0.7,
+              "thickness": 0.009499999999999998,
+              "conductivity": 0.15989299909405608,
+              "density": 1121.29256381722,
+              "specific_heat": 1459.0586153813556,
+              "user_data": { "source": "US DOE" },
+              "identifier": "Roof Membrane"
+            },
+            {
+              "type": "EnergyMaterialNoMass",
+              "roughness": "MediumSmooth",
+              "thermal_absorptance": 0.9,
+              "solar_absorptance": 0.7,
+              "visible_absorptance": 0.7,
+              "r_value": 2.4655425733383876,
+              "user_data": { "source": "US DOE" },
+              "identifier": "Typical Insulation-R14"
+            },
+            {
+              "type": "EnergyMaterial",
+              "roughness": "Smooth",
+              "thermal_absorptance": 0.9,
+              "solar_absorptance": 0.7,
+              "visible_absorptance": 0.7,
+              "thickness": 0.0007999999999999979,
+              "conductivity": 45.24971874361766,
+              "density": 7824.017889489713,
+              "specific_heat": 499.67760800730963,
+              "user_data": { "source": "US DOE" },
+              "identifier": "Metal Roof Surface"
+            }
+          ],
+          "user_data": { "source": "US DOE" }
+        },
+        "ground_construction": null,
+        "interior_construction": null
+      },
+      "aperture_set": {
+        "type": "ApertureConstructionSet",
+        "interior_construction": null,
+        "operable_construction": {
+          "type": "WindowConstruction",
+          "materials": [
+            {
+              "type": "EnergyWindowMaterialSimpleGlazSys",
+              "vt": 0.11,
+              "u_factor": 6.92716,
+              "shgc": 0.25,
+              "user_data": { "source": "US DOE" },
+              "identifier": "U 1.22 SHGC 0.25 Simple Glazing"
+            }
+          ],
+          "user_data": { "source": "US DOE" },
+          "identifier": "U 1.22 SHGC 0.25 Simple Glazing Window"
+        },
+        "skylight_construction": {
+          "type": "WindowConstruction",
+          "materials": [
+            {
+              "type": "EnergyWindowMaterialGlazing",
+              "thickness": 0.005999999999999977,
+              "solar_transmittance": 0.24,
+              "solar_reflectance": 0.16,
+              "solar_reflectance_back": 0.32,
+              "visible_transmittance": 0.3,
+              "visible_reflectance": 0.16,
+              "visible_reflectance_back": 0.29,
+              "infrared_transmittance": 0,
+              "emissivity": 0.84,
+              "emissivity_back": 0.6,
+              "conductivity": 0.8993981199040626,
+              "dirt_correction": 1,
+              "solar_diffusing": false,
+              "user_data": { "source": "US DOE" },
+              "identifier": "REF B CLEAR HI 6MM"
+            }
+          ],
+          "user_data": { "source": "US DOE" },
+          "identifier": "U 1.98 SHGC 0.36 Sgl Ref-B-H Clr 6mm"
+        },
+        "window_construction": {
+          "type": "WindowConstruction",
+          "materials": [
+            {
+              "type": "EnergyWindowMaterialSimpleGlazSys",
+              "vt": 0.11,
+              "u_factor": 6.92716,
+              "shgc": 0.25,
+              "user_data": { "source": "US DOE" },
+              "identifier": "U 1.22 SHGC 0.25 Simple Glazing"
+            }
+          ],
+          "user_data": { "source": "US DOE" },
+          "identifier": "U 1.22 SHGC 0.25 Simple Glazing Window"
+        }
+      },
+      "door_set": {
+        "type": "DoorConstructionSet",
+        "exterior_construction": {
+          "type": "OpaqueConstruction",
+          "identifier": "Typical Insulated Metal Door",
+          "materials": [
+            {
+              "type": "EnergyMaterial",
+              "roughness": "Smooth",
+              "thermal_absorptance": 0.9,
+              "solar_absorptance": 0.7,
+              "visible_absorptance": 0.7,
+              "thickness": 0.0008000000000000003,
+              "conductivity": 45.249718743617805,
+              "density": 7824.017889489713,
+              "specific_heat": 499.6776080073138,
+              "user_data": { "source": "US DOE" },
+              "identifier": "F08 Metal surface"
+            },
+            {
+              "type": "EnergyMaterialNoMass",
+              "roughness": "MediumSmooth",
+              "thermal_absorptance": 0.9,
+              "solar_absorptance": 0.7,
+              "visible_absorptance": 0.7,
+              "r_value": 0.02822222224266701,
+              "user_data": { "source": "US DOE" },
+              "identifier": "Typical Insulation"
+            }
+          ],
+          "user_data": { "source": "US DOE" }
+        },
+        "exterior_glass_construction": {
+          "type": "WindowConstruction",
+          "materials": [
+            {
+              "type": "EnergyWindowMaterialGlazing",
+              "thickness": 0.005999999999999977,
+              "solar_transmittance": 0.066,
+              "solar_reflectance": 0.341,
+              "solar_reflectance_back": 0.493,
+              "visible_transmittance": 0.08,
+              "visible_reflectance": 0.41,
+              "visible_reflectance_back": 0.37,
+              "infrared_transmittance": 0,
+              "emissivity": 0.84,
+              "emissivity_back": 0.4,
+              "conductivity": 0.8993981199040626,
+              "dirt_correction": 1,
+              "solar_diffusing": false,
+              "user_data": { "source": "US DOE" },
+              "identifier": "REF A CLEAR LO 6MM"
+            }
+          ],
+          "user_data": { "source": "US DOE" },
+          "identifier": "U 0.88 SHGC 0.16 Sgl Ref-A-L Clr 6mm"
+        },
+        "interior_construction": null,
+        "interior_glass_construction": null,
+        "overhead_construction": {
+          "type": "OpaqueConstruction",
+          "identifier": "Typical Overhead Door",
+          "materials": [
+            {
+              "type": "EnergyMaterialNoMass",
+              "roughness": "MediumSmooth",
+              "thermal_absorptance": 0.9,
+              "solar_absorptance": 0.7,
+              "visible_absorptance": 0.7,
+              "r_value": 0.02822222224266701,
+              "user_data": { "source": "US DOE" },
+              "identifier": "Typical Insulation"
+            }
+          ],
+          "user_data": { "source": "US DOE" }
+        }
+      },
+      "shade_construction": null,
+      "air_boundary_construction": null,
+      "user_data": { "source": "US DOE" },
+      "identifier": "1980_2004::ClimateZone1::SteelFramed"
+    }
+  ],
+  "constructions": [
+    {
+      "type": "OpaqueConstruction",
+      "materials": [
+        {
+          "type": "EnergyMaterial",
+          "roughness": "Smooth",
+          "thermal_absorptance": 0.9,
+          "solar_absorptance": 0.7,
+          "visible_absorptance": 0.7,
+          "thickness": 0.0254,
+          "conductivity": 0.7195184959232496,
+          "density": 1856.0042437235265,
+          "specific_heat": 839.4583814522845,
+          "user_data": { "source": "US DOE" },
+          "identifier": "25mm Stucco"
+        },
+        {
+          "type": "EnergyMaterial",
+          "roughness": "MediumSmooth",
+          "thermal_absorptance": 0.9,
+          "solar_absorptance": 0.7,
+          "visible_absorptance": 0.7,
+          "thickness": 0.0159,
+          "conductivity": 0.15989299909405463,
+          "density": 800.0018291911765,
+          "specific_heat": 1089.2971854559414,
+          "user_data": { "source": "US DOE" },
+          "identifier": "5/8 in. Gypsum Board"
+        },
+        {
+          "type": "EnergyMaterialNoMass",
+          "roughness": "MediumSmooth",
+          "thermal_absorptance": 0.9,
+          "solar_absorptance": 0.7,
+          "visible_absorptance": 0.7,
+          "r_value": 0.02822222224266701,
+          "user_data": { "source": "US DOE" },
+          "identifier": "Typical Insulation"
+        },
+        {
+          "type": "EnergyMaterial",
+          "roughness": "MediumSmooth",
+          "thermal_absorptance": 0.9,
+          "solar_absorptance": 0.7,
+          "visible_absorptance": 0.7,
+          "thickness": 0.0159,
+          "conductivity": 0.15989299909405463,
+          "density": 800.0018291911765,
+          "specific_heat": 1089.2971854559414,
+          "user_data": { "source": "US DOE" },
+          "identifier": "5/8 in. Gypsum Board"
+        }
+      ],
+      "user_data": { "source": "US DOE" },
+      "identifier": "Typical Insulated Steel Framed Exterior Wall"
+    },
+    {
+      "type": "OpaqueConstruction",
+      "materials": [
+        {
+          "type": "EnergyMaterialNoMass",
+          "roughness": "MediumSmooth",
+          "thermal_absorptance": 0.9,
+          "solar_absorptance": 0.7,
+          "visible_absorptance": 0.7,
+          "r_value": 0.02822222224266701,
+          "user_data": { "source": "US DOE" },
+          "identifier": "Typical Insulation"
+        },
+        {
+          "type": "EnergyMaterial",
+          "roughness": "MediumRough",
+          "thermal_absorptance": 0.9,
+          "solar_absorptance": 0.7,
+          "visible_absorptance": 0.7,
+          "thickness": 0.2032,
+          "conductivity": 1.325113229991986,
+          "density": 1842.0042117126811,
+          "specific_heat": 911.4119570053389,
+          "user_data": { "source": "US DOE" },
+          "identifier": "8 in. Concrete Block Basement Wall"
+        }
+      ],
+      "user_data": { "source": "US DOE" },
+      "identifier": "Typical Insulated Basement Mass Wall"
+    },
+    {
+      "type": "OpaqueConstruction",
+      "materials": [
+        {
+          "type": "EnergyMaterial",
+          "roughness": "Smooth",
+          "thermal_absorptance": 0.9,
+          "solar_absorptance": 0.7,
+          "visible_absorptance": 0.7,
+          "thickness": 0.0254,
+          "conductivity": 0.7195184959232496,
+          "density": 1856.0042437235265,
+          "specific_heat": 839.4583814522845,
+          "user_data": { "source": "US DOE" },
+          "identifier": "25mm Stucco"
+        },
+        {
+          "type": "EnergyMaterial",
+          "roughness": "MediumSmooth",
+          "thermal_absorptance": 0.9,
+          "solar_absorptance": 0.7,
+          "visible_absorptance": 0.7,
+          "thickness": 0.0159,
+          "conductivity": 0.15989299909405463,
+          "density": 800.0018291911765,
+          "specific_heat": 1089.2971854559414,
+          "user_data": { "source": "US DOE" },
+          "identifier": "5/8 in. Gypsum Board"
+        },
+        {
+          "type": "EnergyMaterialNoMass",
+          "roughness": "MediumSmooth",
+          "thermal_absorptance": 0.9,
+          "solar_absorptance": 0.7,
+          "visible_absorptance": 0.7,
+          "r_value": 0.17611018380988483,
+          "user_data": { "source": "US DOE" },
+          "identifier": "Typical Insulation-R1"
+        },
+        {
+          "type": "EnergyMaterial",
+          "roughness": "MediumSmooth",
+          "thermal_absorptance": 0.9,
+          "solar_absorptance": 0.7,
+          "visible_absorptance": 0.7,
+          "thickness": 0.0159,
+          "conductivity": 0.15989299909405463,
+          "density": 800.0018291911765,
+          "specific_heat": 1089.2971854559414,
+          "user_data": { "source": "US DOE" },
+          "identifier": "5/8 in. Gypsum Board"
+        },
+        {
+          "type": "EnergyMaterialNoMass",
+          "roughness": "VeryRough",
+          "thermal_absorptance": 0.9,
+          "solar_absorptance": 0.7,
+          "visible_absorptance": 0.8,
+          "r_value": 0.2164799871520999,
+          "user_data": { "source": "US DOE" },
+          "identifier": "Typical Carpet Pad"
+        }
+      ],
+      "user_data": { "source": "US DOE" },
+      "identifier": "Typical Insulated Steel Framed Exterior Floor-R3"
+    },
+    {
+      "type": "OpaqueConstruction",
+      "materials": [
+        {
+          "type": "EnergyMaterialNoMass",
+          "roughness": "MediumSmooth",
+          "thermal_absorptance": 0.9,
+          "solar_absorptance": 0.7,
+          "visible_absorptance": 0.7,
+          "r_value": 0.02822222224266701,
+          "user_data": { "source": "US DOE" },
+          "identifier": "Typical Insulation"
+        },
+        {
+          "type": "EnergyMaterial",
+          "roughness": "MediumRough",
+          "thermal_absorptance": 0.9,
+          "solar_absorptance": 0.7,
+          "visible_absorptance": 0.7,
+          "thickness": 0.15239999999999998,
+          "conductivity": 2.308455174420426,
+          "density": 2322.005309227381,
+          "specific_heat": 831.4635397241673,
+          "user_data": { "source": "US DOE" },
+          "identifier": "6 in. Normalweight Concrete Floor"
+        },
+        {
+          "type": "EnergyMaterialNoMass",
+          "roughness": "VeryRough",
+          "thermal_absorptance": 0.9,
+          "solar_absorptance": 0.7,
+          "visible_absorptance": 0.8,
+          "r_value": 0.2164799871520999,
+          "user_data": { "source": "US DOE" },
+          "identifier": "Typical Carpet Pad"
+        }
+      ],
+      "user_data": { "source": "US DOE" },
+      "identifier": "Typical Insulated Carpeted 6in Slab Floor"
+    },
+    {
+      "type": "OpaqueConstruction",
+      "materials": [
+        {
+          "type": "EnergyMaterial",
+          "roughness": "VeryRough",
+          "thermal_absorptance": 0.9,
+          "solar_absorptance": 0.7,
+          "visible_absorptance": 0.7,
+          "thickness": 0.009499999999999998,
+          "conductivity": 0.15989299909405608,
+          "density": 1121.29256381722,
+          "specific_heat": 1459.0586153813556,
+          "user_data": { "source": "US DOE" },
+          "identifier": "Roof Membrane"
+        },
+        {
+          "type": "EnergyMaterialNoMass",
+          "roughness": "MediumSmooth",
+          "thermal_absorptance": 0.9,
+          "solar_absorptance": 0.7,
+          "visible_absorptance": 0.7,
+          "r_value": 2.4655425733383876,
+          "user_data": { "source": "US DOE" },
+          "identifier": "Typical Insulation-R14"
+        },
+        {
+          "type": "EnergyMaterial",
+          "roughness": "Smooth",
+          "thermal_absorptance": 0.9,
+          "solar_absorptance": 0.7,
+          "visible_absorptance": 0.7,
+          "thickness": 0.0007999999999999979,
+          "conductivity": 45.24971874361766,
+          "density": 7824.017889489713,
+          "specific_heat": 499.67760800730963,
+          "user_data": { "source": "US DOE" },
+          "identifier": "Metal Roof Surface"
+        }
+      ],
+      "user_data": { "source": "US DOE" },
+      "identifier": "Typical IEAD Roof-R14"
+    },
+    {
+      "type": "WindowConstruction",
+      "materials": [
+        {
+          "type": "EnergyWindowMaterialSimpleGlazSys",
+          "vt": 0.11,
+          "u_factor": 6.92716,
+          "shgc": 0.25,
+          "user_data": { "source": "US DOE" },
+          "identifier": "U 1.22 SHGC 0.25 Simple Glazing"
+        }
+      ],
+      "user_data": { "source": "US DOE" },
+      "identifier": "U 1.22 SHGC 0.25 Simple Glazing Window"
+    },
+    {
+      "type": "WindowConstruction",
+      "materials": [
+        {
+          "type": "EnergyWindowMaterialGlazing",
+          "thickness": 0.005999999999999977,
+          "solar_transmittance": 0.24,
+          "solar_reflectance": 0.16,
+          "solar_reflectance_back": 0.32,
+          "visible_transmittance": 0.3,
+          "visible_reflectance": 0.16,
+          "visible_reflectance_back": 0.29,
+          "infrared_transmittance": 0,
+          "emissivity": 0.84,
+          "emissivity_back": 0.6,
+          "conductivity": 0.8993981199040626,
+          "dirt_correction": 1,
+          "solar_diffusing": false,
+          "user_data": { "source": "US DOE" },
+          "identifier": "REF B CLEAR HI 6MM"
+        }
+      ],
+      "user_data": { "source": "US DOE" },
+      "identifier": "U 1.98 SHGC 0.36 Sgl Ref-B-H Clr 6mm"
+    },
+    {
+      "type": "OpaqueConstruction",
+      "materials": [
+        {
+          "type": "EnergyMaterial",
+          "roughness": "Smooth",
+          "thermal_absorptance": 0.9,
+          "solar_absorptance": 0.7,
+          "visible_absorptance": 0.7,
+          "thickness": 0.0008000000000000003,
+          "conductivity": 45.249718743617805,
+          "density": 7824.017889489713,
+          "specific_heat": 499.6776080073138,
+          "user_data": { "source": "US DOE" },
+          "identifier": "F08 Metal surface"
+        },
+        {
+          "type": "EnergyMaterialNoMass",
+          "roughness": "MediumSmooth",
+          "thermal_absorptance": 0.9,
+          "solar_absorptance": 0.7,
+          "visible_absorptance": 0.7,
+          "r_value": 0.02822222224266701,
+          "user_data": { "source": "US DOE" },
+          "identifier": "Typical Insulation"
+        }
+      ],
+      "user_data": { "source": "US DOE" },
+      "identifier": "Typical Insulated Metal Door"
+    },
+    {
+      "type": "WindowConstruction",
+      "materials": [
+        {
+          "type": "EnergyWindowMaterialGlazing",
+          "thickness": 0.005999999999999977,
+          "solar_transmittance": 0.066,
+          "solar_reflectance": 0.341,
+          "solar_reflectance_back": 0.493,
+          "visible_transmittance": 0.08,
+          "visible_reflectance": 0.41,
+          "visible_reflectance_back": 0.37,
+          "infrared_transmittance": 0,
+          "emissivity": 0.84,
+          "emissivity_back": 0.4,
+          "conductivity": 0.8993981199040626,
+          "dirt_correction": 1,
+          "solar_diffusing": false,
+          "user_data": { "source": "US DOE" },
+          "identifier": "REF A CLEAR LO 6MM"
+        }
+      ],
+      "user_data": { "source": "US DOE" },
+      "identifier": "U 0.88 SHGC 0.16 Sgl Ref-A-L Clr 6mm"
+    },
+    {
+      "type": "OpaqueConstruction",
+      "materials": [
+        {
+          "type": "EnergyMaterialNoMass",
+          "roughness": "MediumSmooth",
+          "thermal_absorptance": 0.9,
+          "solar_absorptance": 0.7,
+          "visible_absorptance": 0.7,
+          "r_value": 0.02822222224266701,
+          "user_data": { "source": "US DOE" },
+          "identifier": "Typical Insulation"
+        }
+      ],
+      "user_data": { "source": "US DOE" },
+      "identifier": "Typical Overhead Door"
+    }
+  ],
+  "materials": [
+    {
+      "type": "EnergyMaterial",
+      "roughness": "Smooth",
+      "thermal_absorptance": 0.9,
+      "solar_absorptance": 0.7,
+      "visible_absorptance": 0.7,
+      "thickness": 0.0254,
+      "conductivity": 0.7195184959232496,
+      "density": 1856.0042437235265,
+      "specific_heat": 839.4583814522845,
+      "user_data": { "source": "US DOE" },
+      "identifier": "25mm Stucco"
+    },
+    {
+      "type": "EnergyMaterial",
+      "roughness": "MediumSmooth",
+      "thermal_absorptance": 0.9,
+      "solar_absorptance": 0.7,
+      "visible_absorptance": 0.7,
+      "thickness": 0.0159,
+      "conductivity": 0.15989299909405463,
+      "density": 800.0018291911765,
+      "specific_heat": 1089.2971854559414,
+      "user_data": { "source": "US DOE" },
+      "identifier": "5/8 in. Gypsum Board"
+    },
+    {
+      "type": "EnergyMaterialNoMass",
+      "roughness": "MediumSmooth",
+      "thermal_absorptance": 0.9,
+      "solar_absorptance": 0.7,
+      "visible_absorptance": 0.7,
+      "r_value": 0.02822222224266701,
+      "user_data": { "source": "US DOE" },
+      "identifier": "Typical Insulation"
+    },
+    {
+      "type": "EnergyMaterial",
+      "roughness": "MediumRough",
+      "thermal_absorptance": 0.9,
+      "solar_absorptance": 0.7,
+      "visible_absorptance": 0.7,
+      "thickness": 0.2032,
+      "conductivity": 1.325113229991986,
+      "density": 1842.0042117126811,
+      "specific_heat": 911.4119570053389,
+      "user_data": { "source": "US DOE" },
+      "identifier": "8 in. Concrete Block Basement Wall"
+    },
+    {
+      "type": "EnergyMaterialNoMass",
+      "roughness": "MediumSmooth",
+      "thermal_absorptance": 0.9,
+      "solar_absorptance": 0.7,
+      "visible_absorptance": 0.7,
+      "r_value": 0.17611018380988483,
+      "user_data": { "source": "US DOE" },
+      "identifier": "Typical Insulation-R1"
+    },
+    {
+      "type": "EnergyMaterialNoMass",
+      "roughness": "VeryRough",
+      "thermal_absorptance": 0.9,
+      "solar_absorptance": 0.7,
+      "visible_absorptance": 0.8,
+      "r_value": 0.2164799871520999,
+      "user_data": { "source": "US DOE" },
+      "identifier": "Typical Carpet Pad"
+    },
+    {
+      "type": "EnergyMaterial",
+      "roughness": "MediumRough",
+      "thermal_absorptance": 0.9,
+      "solar_absorptance": 0.7,
+      "visible_absorptance": 0.7,
+      "thickness": 0.15239999999999998,
+      "conductivity": 2.308455174420426,
+      "density": 2322.005309227381,
+      "specific_heat": 831.4635397241673,
+      "user_data": { "source": "US DOE" },
+      "identifier": "6 in. Normalweight Concrete Floor"
+    },
+    {
+      "type": "EnergyMaterial",
+      "roughness": "VeryRough",
+      "thermal_absorptance": 0.9,
+      "solar_absorptance": 0.7,
+      "visible_absorptance": 0.7,
+      "thickness": 0.009499999999999998,
+      "conductivity": 0.15989299909405608,
+      "density": 1121.29256381722,
+      "specific_heat": 1459.0586153813556,
+      "user_data": { "source": "US DOE" },
+      "identifier": "Roof Membrane"
+    },
+    {
+      "type": "EnergyMaterialNoMass",
+      "roughness": "MediumSmooth",
+      "thermal_absorptance": 0.9,
+      "solar_absorptance": 0.7,
+      "visible_absorptance": 0.7,
+      "r_value": 2.4655425733383876,
+      "user_data": { "source": "US DOE" },
+      "identifier": "Typical Insulation-R14"
+    },
+    {
+      "type": "EnergyMaterial",
+      "roughness": "Smooth",
+      "thermal_absorptance": 0.9,
+      "solar_absorptance": 0.7,
+      "visible_absorptance": 0.7,
+      "thickness": 0.0007999999999999979,
+      "conductivity": 45.24971874361766,
+      "density": 7824.017889489713,
+      "specific_heat": 499.67760800730963,
+      "user_data": { "source": "US DOE" },
+      "identifier": "Metal Roof Surface"
+    },
+    {
+      "type": "EnergyWindowMaterialSimpleGlazSys",
+      "vt": 0.11,
+      "u_factor": 6.92716,
+      "shgc": 0.25,
+      "user_data": { "source": "US DOE" },
+      "identifier": "U 1.22 SHGC 0.25 Simple Glazing"
+    },
+    {
+      "type": "EnergyWindowMaterialGlazing",
+      "thickness": 0.005999999999999977,
+      "solar_transmittance": 0.24,
+      "solar_reflectance": 0.16,
+      "solar_reflectance_back": 0.32,
+      "visible_transmittance": 0.3,
+      "visible_reflectance": 0.16,
+      "visible_reflectance_back": 0.29,
+      "infrared_transmittance": 0,
+      "emissivity": 0.84,
+      "emissivity_back": 0.6,
+      "conductivity": 0.8993981199040626,
+      "dirt_correction": 1,
+      "solar_diffusing": false,
+      "user_data": { "source": "US DOE" },
+      "identifier": "REF B CLEAR HI 6MM"
+    },
+    {
+      "type": "EnergyMaterial",
+      "roughness": "Smooth",
+      "thermal_absorptance": 0.9,
+      "solar_absorptance": 0.7,
+      "visible_absorptance": 0.7,
+      "thickness": 0.0008000000000000003,
+      "conductivity": 45.249718743617805,
+      "density": 7824.017889489713,
+      "specific_heat": 499.6776080073138,
+      "user_data": { "source": "US DOE" },
+      "identifier": "F08 Metal surface"
+    },
+    {
+      "type": "EnergyWindowMaterialGlazing",
+      "thickness": 0.005999999999999977,
+      "solar_transmittance": 0.066,
+      "solar_reflectance": 0.341,
+      "solar_reflectance_back": 0.493,
+      "visible_transmittance": 0.08,
+      "visible_reflectance": 0.41,
+      "visible_reflectance_back": 0.37,
+      "infrared_transmittance": 0,
+      "emissivity": 0.84,
+      "emissivity_back": 0.4,
+      "conductivity": 0.8993981199040626,
+      "dirt_correction": 1,
+      "solar_diffusing": false,
+      "user_data": { "source": "US DOE" },
+      "identifier": "REF A CLEAR LO 6MM"
+    }
+  ]
+}
