@@ -240,7 +240,7 @@ def simulate_model(
     if file_type in ('hbjson', 'osm'):
         if file_type == 'hbjson':
             model = Model.from_hbjson(model_file)
-            if not enforce_rooms and len(model.rooms) == 0:
+            if skip_no_rooms and len(model.rooms) == 0:
                 sys.exit(0)
                 return None
         else:
