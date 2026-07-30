@@ -1750,7 +1750,12 @@ def model_to_gbxml_element(
                     sf.boundary_condition = Surface(sbc_objs, True)
 
     # resolve the properties across zones
-    zone_name_dict = {r.identifier: r.zone for r in model.rooms}
+    zone_name_dict = {}
+    for r in model.rooms:
+        if r._zone is None:
+            zone_name_dict[r.identifier] = r.display_name
+        else:
+            zone_name_dict[r.identifier] = r.zone
     for room in model.rooms:  # set all zone IDs to be acceptable in gbXML
         room.zone = clean_xml_tag_string(room.zone)
     single_zones, zone_dict = model.properties.energy.resolve_zones()
