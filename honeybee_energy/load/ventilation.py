@@ -667,7 +667,7 @@ class Ventilation(_LoadBase):
         ventilations, floor_areas, volumes, scheds = [], [], [], []
         for room in rooms:
             if room.properties.energy.ventilation is None:
-                ventilations.append(Ventilation())
+                ventilations.append(Ventilation('dummy_vent'))
             else:
                 ventilations.append(room.properties.energy.ventilation)
                 scheds.append(room.properties.energy.ventilation._schedule)
