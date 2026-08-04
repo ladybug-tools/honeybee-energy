@@ -198,12 +198,18 @@ class People(_LoadBase):
     @property
     def people_per_area_si(self):
         """Get the people_per_area in the standard SI unit of m2/person."""
-        return convert_people_per_area(self.people_per_area, 'si')
+        try:
+            return convert_people_per_area(self.people_per_area, 'si')
+        except ZeroDivisionError:
+            return float('inf')
 
     @property
     def people_per_area_ip(self):
         """Get the people_per_area in the standard IP unit of ft2/person."""
-        return convert_people_per_area(self.people_per_area, 'ip')
+        try:
+            return convert_people_per_area(self.people_per_area, 'ip')
+        except ZeroDivisionError:
+            return float('inf')
 
     @property
     def activity_max_sensible_si(self):
