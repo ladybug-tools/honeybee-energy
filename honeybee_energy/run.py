@@ -622,18 +622,17 @@ def _run_osw_windows(osw_json, measures_only=True, silent=False):
     # check the input file
     directory = _check_osw(osw_json)
 
-    if not silent:
-        # write a batch file to call OpenStudio CLI; useful for re-running the sim
-        working_drive = directory[:2]
-        measure_str = '-m ' if measures_only else ''
-        batch = '{}\n"{}" run --show-stdout {}-w "{}"'.format(
-            working_drive, folders.openstudio_exe, measure_str, osw_json)
-        if all(ord(c) < 128 for c in batch):  # just run the batch file as it is
-            batch_file = os.path.join(directory, 'run_workflow.bat')
-            write_to_file(batch_file, batch, True)
-            os.system('"{}"'.format(batch_file))  # run the batch file
-            return directory
-    # given .bat file restrictions with non-ASCII characters, run the sim with subprocess
+    # generate various arguments to pass to the openstudio command
+    working_drive = directory[:2]
+    measure_str = '-m ' if measures_only else ''
+
+    # write a batch file to call OpenStudio CLI; useful for re-running the sim
+    batch = '{}\n"{}" run --show-stdout {}-w "{}"'.format(
+        working_drive, folders.openstudio_exe, measure_str, osw_json)
+    batch_file = os.path.join(directory, 'run_workflow.bat')
+    write_to_file(batch_file, batch, True)
+
+    # run the sim with subprocess
     cmds = [folders.openstudio_exe, 'run', '--show-stdout', '-w', osw_json]
     if measures_only:
         cmds.append('-m')
@@ -736,23 +735,21 @@ def _run_idf_windows(idf_file_path, epw_file_path=None, expand_objects=True,
     # check and prepare the input files
     directory = prepare_idf_for_simulation(idf_file_path, epw_file_path)
 
-    if not silent:  # write a batch file; useful for re-running the sim
-        # generate various arguments to pass to the energyplus command
-        epw_str = '-w "{}"'.format(os.path.abspath(epw_file_path)) \
-            if epw_file_path is not None else ''
-        idd_str = '-i "{}"'.format(folders.energyplus_idd_path)
-        expand_str = ' -x' if expand_objects else ''
-        working_drive = directory[:2]
-        # write the batch file
-        batch = '{}\ncd "{}"\n"{}" {} {}{}'.format(
-            working_drive, directory, folders.energyplus_exe, epw_str,
-            idd_str, expand_str)
-        if all(ord(c) < 128 for c in batch):  # just run the batch file as it is
-            batch_file = os.path.join(directory, 'in.bat')
-            write_to_file(batch_file, batch, True)
-            os.system('"{}"'.format(batch_file))  # run the batch file
-            return directory
-    # given .bat file restrictions with non-ASCII characters, run the sim with subprocess
+    # generate various arguments to pass to the energyplus command
+    epw_str = '-w "{}"'.format(os.path.abspath(epw_file_path)) \
+        if epw_file_path is not None else ''
+    idd_str = '-i "{}"'.format(folders.energyplus_idd_path)
+    expand_str = ' -x' if expand_objects else ''
+    working_drive = directory[:2]
+
+    # write a batch file; useful for re-running the sim
+    batch = '{}\ncd "{}"\n"{}" {} {}{}'.format(
+        working_drive, directory, folders.energyplus_exe, epw_str,
+        idd_str, expand_str)
+    batch_file = os.path.join(directory, 'in.bat')
+    write_to_file(batch_file, batch, True)
+
+    # run the sim with subprocess
     cmds = [folders.energyplus_exe, '-i', folders.energyplus_idd_path]
     if epw_file_path is not None:
         cmds.append('-w')
