@@ -687,6 +687,10 @@ class Folders(object):
                 f_path = 'C:\\{}'.format(f)
                 if f.lower().startswith('openstudio') and os.path.isdir(f_path):
                     os_folders.append(f_path)
+            for f in os.listdir('C:\\Program Files\\'):
+                f_path = 'C:\\Program Files\\{}'.format(f)
+                if f.lower().startswith('openstudio') and os.path.isdir(f_path):
+                    os_folders.append(f_path)
         elif platform.system() == 'Darwin':  # search the Applications folder on Mac
             for f in os.listdir('/Applications/'):
                 f_path = '/Applications/{}'.format(f)

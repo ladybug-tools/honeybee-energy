@@ -7,8 +7,8 @@ export CONTAINER_NAME="${1:?$error_help}"
 export TAG="${2:?$error_help}"
 
 # Get OpenStudio
-export OPENSTUDIO_VERSION='3.10.0'
-export OPENSTUDIO_DOWNLOAD_URL='https://github.com/NREL/OpenStudio/releases/download/v3.10.0/OpenStudio-3.10.0+86d7e215a1-Ubuntu-22.04-x86_64.tar.gz'
+export OPENSTUDIO_VERSION='3.11.0'
+export OPENSTUDIO_DOWNLOAD_URL='https://github.com/NatLabRockies/OpenStudio/releases/download/v3.11.0/OpenStudio-3.11.0+241b8abb4d-Ubuntu-22.04-x86_64.tar.gz'
 export OPENSTUDIO_TAR_FILENAME='openstudio.tar.gz'
 export OPENSTUDIO_FILENAME='openstudio'
 
@@ -27,7 +27,7 @@ tar zxvf ${LBT_MEASURES_TAR}
 mv lbt-measures-*/ ${LBT_MEASURES_FILENAME}
 
 # Get ironbug
-export IRONBUG_VERSION="1.21.0"
+export IRONBUG_VERSION="1.25.0"
 export IRONBUG_URL="https://github.com/MingboPeng/Ironbug/releases/download/v${IRONBUG_VERSION}/ironbug.console.linux-${IRONBUG_VERSION}.zip"
 export IRONBUG_ZIP='ironbug.console.linux.zip'
 export IRONBUG_FILENAME='ironbug'
