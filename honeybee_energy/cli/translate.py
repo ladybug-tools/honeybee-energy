@@ -192,9 +192,6 @@ def model_to_sim_folder(
               default=None, show_default=True,
               type=click.Path(exists=True, file_okay=True, dir_okay=False,
                               resolve_path=True))
-@click.option('--folder', '-f', help='Deprecated input that is no longer used.',
-              default=None, show_default=True,
-              type=click.Path(file_okay=False, dir_okay=True, resolve_path=True))
 @click.option('--osm-file', '-osm', help='Optional path where the OSM will be written.',
               type=str, default=None, show_default=True)
 @click.option('--idf-file', '-idf', help='Optional path where the IDF will be written.',
@@ -220,13 +217,19 @@ def model_to_sim_folder(
               'Cases of duplicate IDs resulting from non-unique names will be resolved '
               'by adding integers to the ends of the new IDs that are derived from '
               'the name.', default=True, show_default=True)
+@click.option('--openstudio-version', '-v', help='Optional text to specify the version '
+              'of OpenStudio with which the OSM will be written (eg. "3.9.0"). '
+              'Versions going back to 3.7 are supported. If unspecified, the OSM will '
+              'be for the latest version of OpenStudio. Note that this option '
+              'will only change the version of the output --osm-file and NOT the '
+              '--idf-file or --epjson-file', type=str, default=None, show_default=True)
 @click.option('--log-file', '-log', help='Optional log file to output the paths to the '
               'generated OSM and IDF files if they were successfully created. '
               'By default this will be printed out to stdout.',
               type=click.File('w'), default='-', show_default=True)
 def model_to_osm_cli(
-        model_file, sim_par_json, epw_file, folder, osm_file, idf_file, epjson_file,
-        geometry_ids, resource_ids, log_file):
+        model_file, sim_par_json, epw_file, osm_file, idf_file, epjson_file,
+        geometry_ids, resource_ids, openstudio_version, log_file):
     """Translate a Honeybee Model file into an OpenStudio Model and corresponding IDF.
 
     \b
@@ -237,8 +240,9 @@ def model_to_osm_cli(
         geo_names = not geometry_ids
         res_names = not resource_ids
         model_to_osm(
-            model_file, sim_par_json, epw_file, folder, osm_file, idf_file, epjson_file,
-            geo_names, res_names, log_file)
+            model_file, sim_par_json, epw_file, osm_file, idf_file, epjson_file,
+            geo_names, res_names, openstudio_version, log_file
+        )
     except Exception as e:
         _logger.exception('Model translation failed.\n{}'.format(e))
         sys.exit(1)
@@ -247,9 +251,9 @@ def model_to_osm_cli(
 
 
 def model_to_osm(
-    model_file, sim_par_json=None, epw_file=None, folder=None,
+    model_file, sim_par_json=None, epw_file=None,
     osm_file=None, idf_file=None, epjson_file=None,
-    geometry_names=False, resource_names=False,
+    geometry_names=False, resource_names=False, openstudio_version=None,
     log_file=None, geometry_ids=True, resource_ids=True
 ):
     """Translate a Honeybee Model file into an OpenStudio Model and corresponding IDF.
@@ -264,7 +268,6 @@ def model_to_osm(
             specified that requests a HVAC sizing calculation to be run as part
             of the translation process but no design days are inside this
             simulation parameter.
-        folder: Deprecated input that is no longer used.
         osm_file: Optional path where the OSM will be output.
         idf_file: Optional path where the IDF will be output.
         epjson_file: Optional path where the epJSON will be output.
@@ -285,6 +288,12 @@ def model_to_osm(
             in the OSM and IDF. Cases of duplicate IDs resulting from non-unique
             names will be resolved by adding integers to the ends of the new IDs
             that are derived from the name. (Default: False).
+        openstudio_version: Optional text to specify the version of OpenStudio
+            with which the OSM will be written (eg. "3.9.0"). Versions going
+            back to 3.7 are supported. If None, the OSM will be for the latest
+            version of OpenStudio used by this package. Note that this input
+            will only change the version of the output osm_file and NOT the
+            idf_file or epjson_file. (Default: None).
         log_file: Optional log file to output the paths to the generated OSM and]
             IDF files if they were successfully created. By default this string
             will be returned from this method.
@@ -297,8 +306,6 @@ def model_to_osm(
         from honeybee_openstudio.writer import model_to_openstudio
     except ImportError as e:  # honeybee-openstudio is not installed
         raise ImportError('{}\n{}'.format(HB_OS_MSG, e))
-    if folder is not None:
-        print('--folder is deprecated and no longer used.')
 
     # initialize the OpenStudio model that will hold everything
     os_model = OSModel()
@@ -351,7 +358,18 @@ def model_to_osm(
     # write the OpenStudio Model if specified
     if osm_file is not None:
         osm = os.path.abspath(osm_file)
-        os_model.save(osm, overwrite=True)
+        if openstudio_version:
+            try:
+                from openstudiobackporter import Backporter
+            except ImportError as e:
+                msg = 'Openstudio-backporter is not installed. Translation to older ' \
+                    'versions of openStudio cannot be performed.\n{}'.format(e)
+                raise ImportError(msg)
+            backporter = Backporter(to_version=openstudio_version, save_intermediate=False)
+            os_model_idf = backporter.backport(idf_file=os_model)
+            os_model_idf.save(osm, overwrite=True)
+        else:
+            os_model.save(osm, overwrite=True)
         gen_files.append(osm)
 
     # write the IDF if specified
