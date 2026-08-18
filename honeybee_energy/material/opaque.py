@@ -333,7 +333,7 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
         # add optional properties if they are found
         rough = gbxml_element.find('Roughness')
         if rough is not None:
-            new_obj.roughness = rough.text
+            new_obj.roughness = rough.get('value')
         for xml_abs in gbxml_element.findall('Absorptance'):
             abs_type = xml_abs.get('type')
             if abs_type == 'ExtIR':
@@ -710,7 +710,7 @@ class EnergyMaterialNoMass(_EnergyMaterialOpaqueBase):
         # add optional properties if they are found
         rough = gbxml_element.find('Roughness')
         if rough is not None:
-            new_obj.roughness = rough.text
+            new_obj.roughness = rough.get('value')
         for xml_abs in gbxml_element.findall('Absorptance'):
             abs_type = xml_abs.get('type')
             if abs_type == 'ExtIR':
@@ -809,15 +809,16 @@ class EnergyMaterialNoMass(_EnergyMaterialOpaqueBase):
         else:
             r_val_units = 'SquareMeterKPerW'
             r_val = round(self.r_value, 4)
-        # add the name and the required properties
+        # add the name
         xml_name = ET.SubElement(xml_mat, 'Name')
         xml_name.text = str(self.display_name)
-        xml_rough = ET.SubElement(xml_mat, 'Roughness')
-        xml_rough.text = str(self.roughness)
+        # add the required properties
+        ET.SubElement(xml_mat, 'Roughness', value=self.roughness)
         xml_r_val = ET.SubElement(xml_mat, 'R-value', unit=r_val_units)
         xml_r_val.text = str(r_val)
         # add the reflectance and absorptance
         self._add_gbxml_reflectance(xml_mat)
+        self._add_gbxml_absorptance(xml_mat)
         return xml_mat
 
     def to_gbxml(self, ip_units=False):

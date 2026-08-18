@@ -1896,7 +1896,16 @@ def model_to_gbxml_element(
                     xml_sb.set('surfaceIdRef', adj_to_ignore[srf_id])
 
     # add all of the shade geometries to the gbxml
-    for shade in attached_shades + detached_shades:
+    room_shades = []
+    for room in model.rooms:
+        room_shades.extend(room._outdoor_shades)
+        for face in room.faces:
+            room_shades.extend(face._outdoor_shades)
+            for ap in face._apertures:
+                room_shades.extend(ap._outdoor_shades)
+            for dr in face._doors:
+                room_shades.extend(dr._outdoor_shades)
+    for shade in room_shades + attached_shades + detached_shades:
         shade.identifier = clean_xml_tag_string(shade.identifier)
         shade_to_gbxml_element(shade, tol, rect_geo_format, explicit_holes, xml_campus)
     for sm in attached_sms + detached_sms:

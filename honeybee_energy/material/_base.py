@@ -172,8 +172,7 @@ class _EnergyMaterialOpaqueBase(_EnergyMaterialBase):
         # add the name and the required properties
         xml_name = ET.SubElement(xml_mat, 'Name')
         xml_name.text = str(self.display_name)
-        xml_rough = ET.SubElement(xml_mat, 'Roughness')
-        xml_rough.text = str(self.roughness)
+        ET.SubElement(xml_mat, 'Roughness', value=self.roughness)
         xml_thick = ET.SubElement(xml_mat, 'Thickness', unit=thick_units)
         xml_thick.text = str(thick)
         xml_cond = ET.SubElement(xml_mat, 'Conductivity', unit=cond_units)
@@ -184,6 +183,7 @@ class _EnergyMaterialOpaqueBase(_EnergyMaterialBase):
         xml_sh.text = str(sh)
         # add the reflectance and absorptance
         self._add_gbxml_reflectance(xml_mat)
+        self._add_gbxml_absorptance(xml_mat)
         return xml_mat
 
     def to_gbxml(self, ip_units=False):
@@ -201,7 +201,7 @@ class _EnergyMaterialOpaqueBase(_EnergyMaterialBase):
             return ET.tostring(xml_root)
 
     def _add_gbxml_reflectance(self, xml_mat):
-        """Add the reflectance and absorptance to a gbXML element of the material."""
+        """Add the reflectance to a gbXML element of the material."""
         # add the reflectance
         xml_rf_sol = ET.SubElement(xml_mat, 'Reflectance', type='ExtSolar')
         xml_rf_sol.text = str(round(self.solar_reflectance, 3))
@@ -220,6 +220,9 @@ class _EnergyMaterialOpaqueBase(_EnergyMaterialBase):
         for xml_ref in all_r:
             xml_ref.set('unit', 'Fraction')
             xml_ref.set('surfaceType', 'Both')
+
+    def _add_gbxml_absorptance(self, xml_mat):
+        """Add the absorptance to a gbXML element of the material."""
         # add the absorptance
         xml_af_sol = ET.SubElement(xml_mat, 'Absorptance', type='ExtSolar')
         xml_af_sol.text = str(round(self.solar_absorptance, 3))
@@ -235,7 +238,7 @@ class _EnergyMaterialOpaqueBase(_EnergyMaterialBase):
         xml_ab_th.text = str(round(self.thermal_absorptance, 3))
         all_a = (xml_af_sol, xml_ab_sol, xml_af_vis, xml_ab_vis, xml_af_th, xml_ab_th)
         for xml_abs in all_a:
-            xml_ref.set('unit', 'Fraction')
+            xml_abs.set('unit', 'Fraction')
 
     def __repr__(self):
         return 'Base Opaque Energy Material:\n{}'.format(self.display_name)
