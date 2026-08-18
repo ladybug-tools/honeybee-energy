@@ -2023,9 +2023,13 @@ def model_to_gbxml_element(
     program_version = 'Unknown' if program_version is None else program_version
     xml_history = ET.SubElement(gbxml_root, 'DocumentHistory')
     prog_id = clean_xml_tag_string(program_name).lower()
+    try:
+        now_date = str(datetime.now().astimezone().isoformat(timespec='seconds'))
+    except Exception:  # python 2 machine not aware of the time zone
+        now_date = str(datetime.now().isoformat())
     created_info = {
         'programId': prog_id,
-        'date': str(datetime.now().astimezone().isoformat(timespec='seconds')),
+        'date': now_date,
         'personId': 'unknown'
     }
     ET.SubElement(xml_history, 'CreatedBy', created_info)
@@ -2177,7 +2181,8 @@ def model_to_gbxml(
         ET.indent(xml_root)
         return ET.tostring(xml_root, encoding='unicode', xml_declaration=True)
     except AttributeError:  # we are in Python 2 and no indent is available
-        return ET.tostring(xml_root, xml_declaration=True)
+        _et_indent(xml_root)
+        return ET.tostring(xml_root)
 
 
 def shade_to_gbxml(
@@ -2218,6 +2223,7 @@ def shade_to_gbxml(
         ET.indent(xml_root)
         return ET.tostring(xml_root, encoding='unicode')
     except AttributeError:  # we are in Python 2 and no indent is available
+        _et_indent(xml_root)
         return ET.tostring(xml_root)
 
 
@@ -2262,6 +2268,7 @@ def shade_mesh_to_gbxml(
             ET.indent(xml_root)
             xml_strs.append(ET.tostring(xml_root, encoding='unicode'))
         except AttributeError:  # we are in Python 2 and no indent is available
+            _et_indent(xml_root)
             xml_strs.append(ET.tostring(xml_root))
     return '\n'.join(xml_strs)
 
@@ -2305,6 +2312,7 @@ def sub_face_to_gbxml(
         ET.indent(xml_root)
         return ET.tostring(xml_root, encoding='unicode')
     except AttributeError:  # we are in Python 2 and no indent is available
+        _et_indent(xml_root)
         return ET.tostring(xml_root)
 
 
@@ -2349,6 +2357,7 @@ def face_to_gbxml(
         ET.indent(xml_root)
         return ET.tostring(xml_root, encoding='unicode')
     except AttributeError:  # we are in Python 2 and no indent is available
+        _et_indent(xml_root)
         return ET.tostring(xml_root)
 
 
@@ -2385,6 +2394,7 @@ def room_to_gbxml(
         ET.indent(xml_root)
         return ET.tostring(xml_root, encoding='unicode')
     except AttributeError:  # we are in Python 2 and no indent is available
+        _et_indent(xml_root)
         return ET.tostring(xml_root)
 
 
@@ -2491,3 +2501,20 @@ def _preprocess_model_for_trace_3dplus(
     model.reset_ids()
 
     return model
+
+
+def _et_indent(elem, level=0):
+    """Recursively add indentation to an XML ElementTree in Python 2."""
+    i = "\n" + level * "    "
+    if len(elem):
+        if not elem.text or not elem.text.strip():
+            elem.text = i + "    "
+        if not elem.tail or not elem.tail.strip():
+            elem.tail = i
+        for elem in elem:
+            _et_indent(elem, level + 1)
+        if not elem.tail or not elem.tail.strip():
+            elem.tail = i
+    else:
+        if level and (not elem.tail or not elem.tail.strip()):
+            elem.tail = i
