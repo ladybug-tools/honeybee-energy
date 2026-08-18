@@ -1,0 +1,7 @@
+honeybee\_energy.result.colorobj module
+=======================================
+
+.. automodule:: honeybee_energy.result.colorobj
+   :members:
+   :undoc-members:
+   :show-inheritance:

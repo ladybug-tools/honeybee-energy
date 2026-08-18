@@ -1,0 +1,7 @@
+honeybee\_energy.properties.door module
+=======================================
+
+.. automodule:: honeybee_energy.properties.door
+   :members:
+   :undoc-members:
+   :show-inheritance:

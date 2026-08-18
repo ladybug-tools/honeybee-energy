@@ -1,0 +1,7 @@
+honeybee\_energy.result.generation module
+=========================================
+
+.. automodule:: honeybee_energy.result.generation
+   :members:
+   :undoc-members:
+   :show-inheritance:

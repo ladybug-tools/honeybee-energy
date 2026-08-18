@@ -1,0 +1,7 @@
+honeybee\_energy.schedule.fixedinterval module
+==============================================
+
+.. automodule:: honeybee_energy.schedule.fixedinterval
+   :members:
+   :undoc-members:
+   :show-inheritance:

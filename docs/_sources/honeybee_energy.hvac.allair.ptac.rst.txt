@@ -1,0 +1,7 @@
+honeybee\_energy.hvac.allair.ptac module
+========================================
+
+.. automodule:: honeybee_energy.hvac.allair.ptac
+   :members:
+   :undoc-members:
+   :show-inheritance:
