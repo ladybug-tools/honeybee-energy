@@ -167,7 +167,7 @@ def test_writer_to_idf():
 
 
 def test_writer_to_gbxml():
-    """Test the Face to_idf method."""
+    """Test the Face to_gbxml method."""
     vertices_wall = [[0, 0, 0], [0, 10, 0], [0, 10, 3], [0, 0, 3]]
     vertices_floor = [[0, 0, 0], [0, 10, 0], [10, 10, 0], [10, 0, 0]]
     vertices_roof = [[10, 0, 3], [10, 10, 3], [0, 10, 3], [0, 0, 3]]

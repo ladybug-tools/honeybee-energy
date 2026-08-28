@@ -1059,7 +1059,10 @@ def face_3d_to_gbxml_element(
         proj_x = proj_y.rotate(rel_plane.n, math.pi / -2)
         tilt = math.degrees(face_3d.tilt)
         azimuth = math.degrees(face_3d.azimuth)
-    ref_plane = Plane(rel_plane.n, origin, proj_x)
+    try:
+        ref_plane = Plane(rel_plane.n, origin, proj_x)
+    except AssertionError:  # very odd case of the proj_x not being correct
+        ref_plane = Plane(rel_plane.n, origin)
     min_2d = ref_plane.xyz_to_xy(llc)
     max_2d = ref_plane.xyz_to_xy(urc)
     if rect_geo_format == 'BoundingRectangle':
