@@ -58,6 +58,15 @@ def test_model_to_gbxml():
     assert result.exit_code == 0
 
 
+def test_model_to_gbxml_zero_people():
+    runner = CliRunner()
+    input_hb_model = './tests/json/zero_people_model.hbjson'
+
+    in_args = [input_hb_model, '--reset-geometry-ids', '--ip-units']
+    result = runner.invoke(model_to_gbxml_cli, in_args)
+    assert result.exit_code == 0
+
+
 def test_model_to_trace_gbxml():
     runner = CliRunner()
     input_hb_model = './tests/json/ShoeBox.json'

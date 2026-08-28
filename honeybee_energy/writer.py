@@ -1458,24 +1458,25 @@ def room_to_gbxml_element(
             people_value, unit = people.people_per_area_ip, 'SquareFtPerPerson'
         else:
             people_value, unit = people.people_per_area_si, 'SquareMPerPerson'
-        xml_people = ET.SubElement(xml_space, 'PeopleNumber', unit=unit)
-        xml_people.text = str(round(people_value)) \
-            if ip_units else str(round(people_value, 1))
-        # write the people heat gain
-        if ip_units:
-            unit = 'BtuPerHourPerson'
-            sensible_ppl = people.activity_max_sensible_ip
-            latent_ppl = people.activity_max_latent_ip
-        else:
-            unit = 'WattPerPerson'
-            sensible_ppl = people.activity_max_sensible
-            latent_ppl = people.activity_max_latent
-        xml_s_ppl = ET.SubElement(xml_space, 'PeopleHeatGain',
-                                  unit=unit, heatGainType='Sensible')
-        xml_s_ppl.text = str(round(sensible_ppl))
-        xml_l_ppl = ET.SubElement(xml_space, 'PeopleHeatGain',
-                                  unit=unit, heatGainType='Latent')
-        xml_l_ppl.text = str(round(latent_ppl))
+        if people_value != 0 and people_value != float('inf'):
+            xml_people = ET.SubElement(xml_space, 'PeopleNumber', unit=unit)
+            xml_people.text = str(round(people_value)) \
+                if ip_units else str(round(people_value, 1))
+            # write the people heat gain
+            if ip_units:
+                unit = 'BtuPerHourPerson'
+                sensible_ppl = people.activity_max_sensible_ip
+                latent_ppl = people.activity_max_latent_ip
+            else:
+                unit = 'WattPerPerson'
+                sensible_ppl = people.activity_max_sensible
+                latent_ppl = people.activity_max_latent
+            xml_s_ppl = ET.SubElement(xml_space, 'PeopleHeatGain',
+                                      unit=unit, heatGainType='Sensible')
+            xml_s_ppl.text = str(round(sensible_ppl))
+            xml_l_ppl = ET.SubElement(xml_space, 'PeopleHeatGain',
+                                      unit=unit, heatGainType='Latent')
+            xml_l_ppl.text = str(round(latent_ppl))
 
     # add the lighting load if it exists
     lighting = room.properties.energy.lighting
@@ -1484,8 +1485,9 @@ def room_to_gbxml_element(
             watts_per_area, unit = lighting.watts_per_area_ip, 'WattPerSquareFoot'
         else:
             watts_per_area, unit = lighting.watts_per_area_si, 'WattPerSquareMeter'
-        xml_lights = ET.SubElement(xml_space, 'LightPowerPerArea', unit=unit)
-        xml_lights.text = str(round(watts_per_area, decimal_count))
+        if watts_per_area != 0:
+            xml_lights = ET.SubElement(xml_space, 'LightPowerPerArea', unit=unit)
+            xml_lights.text = str(round(watts_per_area, decimal_count))
 
     # add the equipment load if it exists
     electric_equip = room.properties.energy.electric_equipment
@@ -1499,8 +1501,9 @@ def room_to_gbxml_element(
         if ip_units:
             unit = 'WattPerSquareFoot'
             watts_per_area = watts_per_area / 10.7639
-        xml_equip = ET.SubElement(xml_space, 'EquipPowerPerArea', unit=unit)
-        xml_equip.text = str(round(watts_per_area, decimal_count))
+        if watts_per_area != 0:
+            xml_equip = ET.SubElement(xml_space, 'EquipPowerPerArea', unit=unit)
+            xml_equip.text = str(round(watts_per_area, decimal_count))
 
     # add the infiltration load if it exists
     inf_obj = room.properties.energy.infiltration
@@ -1512,13 +1515,14 @@ def room_to_gbxml_element(
             inf_class = 'Average'
         else:
             inf_class = 'Loose'
-        inf_element = ET.SubElement(xml_space, 'InfiltrationFlow')
-        inf_element.set('type', inf_class)
-        total_inf = inf_per_area * room.exposed_area
-        total_ach = (total_inf * 3600) / room.volume
-        blower_element = ET.SubElement(inf_element, 'BlowerDoorValue')
-        blower_element.set('unit', 'AirChangesPerHour')
-        blower_element.text = str(round(total_ach, decimal_count))
+        if inf_per_area != 0:
+            inf_element = ET.SubElement(xml_space, 'InfiltrationFlow')
+            inf_element.set('type', inf_class)
+            total_inf = inf_per_area * room.exposed_area
+            total_ach = (total_inf * 3600) / room.volume
+            blower_element = ET.SubElement(inf_element, 'BlowerDoorValue')
+            blower_element.set('unit', 'AirChangesPerHour')
+            blower_element.text = str(round(total_ach, decimal_count))
 
     # write the shell geometry and space boundaries if requested
     if include_shell_geometry or include_space_boundaries:
