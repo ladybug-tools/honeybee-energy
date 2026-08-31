@@ -11,7 +11,7 @@ from honeybee.boundarycondition import Outdoors, Surface, boundary_conditions
 from honeybee.facetype import AirBoundary, face_types
 from honeybee.extensionutil import model_extension_dicts
 from honeybee.checkdup import check_duplicate_identifiers
-from honeybee.units import conversion_factor_to_meters, parse_distance_string
+from honeybee.units import conversion_factor_to_meters
 from honeybee.typing import invalid_dict_error, clean_ep_string, \
     clean_and_id_ep_string, clean_and_number_ep_string
 from honeybee.face import Face
@@ -773,7 +773,6 @@ class ModelEnergyProperties(object):
         msgs = []
         tol = self.host.tolerance
         ang_tol = self.host.angle_tolerance
-        e_tol = parse_distance_string('1cm', self.host.units)
 
         # perform checks for duplicate identifiers, which might mess with other checks
         msgs.append(self.host.check_all_duplicate_identifiers(False, detailed))
@@ -781,7 +780,7 @@ class ModelEnergyProperties(object):
         # perform several checks for the Honeybee schema geometry rules
         msgs.append(self.host.check_planar(tol, False, detailed))
         msgs.append(self.host.check_self_intersecting(tol, False, detailed))
-        msgs.append(self.host.check_degenerate_rooms(e_tol, False, detailed))
+        msgs.append(self.host.check_degenerate_rooms(tol, False, detailed))
 
         # perform geometry checks related to parent-child relationships
         msgs.append(self.host.check_sub_faces_valid(tol, ang_tol, False, detailed))
@@ -1354,7 +1353,7 @@ class ModelEnergyProperties(object):
         """Check that no Rooms of the model are above a certain elevation.
 
         EnergyPlus computes wind speeds, air pressures, and adjusts outdoor
-        temperatures to account for the height above the ground using the Z values 
+        temperatures to account for the height above the ground using the Z values
         of the geometry coordinates. This is an important consideration when modeling
         skyscrapers but it can be detrimental when a building has been modeled
         with its coordinates at the height above sea level and the location
