@@ -13,7 +13,6 @@ from ladybug.stat import STAT
 from ladybug.futil import preparedir
 from honeybee.model import Model
 from honeybee.typing import clean_rad_string
-from honeybee.config import folders as hb_folders
 
 from honeybee_energy.simulation.parameter import SimulationParameter
 from honeybee_energy.construction.dictutil import dict_to_construction
@@ -21,8 +20,7 @@ from honeybee_energy.construction.opaque import OpaqueConstruction
 from honeybee_energy.construction.window import WindowConstruction
 from honeybee_energy.schedule.dictutil import dict_to_schedule
 from honeybee_energy.schedule.ruleset import ScheduleRuleset
-from honeybee_energy.run import to_openstudio_sim_folder, run_osw, from_osm_osw, \
-    _parse_os_cli_failure, HB_OS_MSG
+from honeybee_energy.run import to_openstudio_sim_folder, HB_OS_MSG
 from honeybee_energy.run import empty_osm as create_empty_osm
 from honeybee_energy.writer import energyplus_idf_version, _preprocess_model_for_trace_3dplus
 from honeybee_energy.config import folders
@@ -1000,13 +998,10 @@ def model_to_trace_gbxml(
               'from non-unique names will be resolved by adding integers to the ends '
               'of the new IDs that are derived from the name.',
               default=True, show_default=True)
-@click.option('--osw-folder', '-osw', help='Deprecated input that is no longer used.',
-              default=None,
-              type=click.Path(file_okay=False, dir_okay=True, resolve_path=True))
 @click.option('--output-file', '-f', help='Optional SDD file to output the string '
               'of the translation. By default it printed out to stdout.', default='-',
               type=click.Path(file_okay=True, dir_okay=False, resolve_path=True))
-def model_to_sdd_cli(model_file, geometry_ids, resource_ids, osw_folder, output_file):
+def model_to_sdd_cli(model_file, geometry_ids, resource_ids, output_file):
     """Translate a Honeybee Model file to a SDD file.
 
     \b
@@ -1016,7 +1011,7 @@ def model_to_sdd_cli(model_file, geometry_ids, resource_ids, osw_folder, output_
     try:
         geo_names = not geometry_ids
         res_names = not resource_ids
-        model_to_sdd(model_file, geo_names, res_names, osw_folder, output_file)
+        model_to_sdd(model_file, geo_names, res_names, output_file)
     except Exception as e:
         _logger.exception('Model translation failed.\n{}'.format(e))
         sys.exit(1)
@@ -1025,8 +1020,7 @@ def model_to_sdd_cli(model_file, geometry_ids, resource_ids, osw_folder, output_
 
 
 def model_to_sdd(
-    model_file, geometry_names=False, resource_names=False,
-    osw_folder=None, output_file=None,
+    model_file, geometry_names=False, resource_names=False, output_file=None,
     geometry_ids=True, resource_ids=True
 ):
     """Translate a Honeybee Model file to a SDD file.
@@ -1050,7 +1044,6 @@ def model_to_sdd(
             in the OSM and IDF. Cases of duplicate IDs resulting from non-unique
             names will be resolved by adding integers to the ends of the new IDs
             that are derived from the name. (Default: False).
-        osw_folder: Deprecated input that is no longer used.
         output_file: Optional SDD file to output the string of the translation.
             By default it will be returned from this method.
     """
@@ -1060,8 +1053,6 @@ def model_to_sdd(
         from honeybee_openstudio.writer import model_to_openstudio
     except ImportError as e:  # honeybee-openstudio is not installed
         raise ImportError('{}\n{}'.format(HB_OS_MSG, e))
-    if osw_folder is not None:
-        print('--folder is deprecated and no longer used.')
 
     # translate the model to an OpenStudio Model
     model = Model.from_file(model_file)
@@ -1115,13 +1106,10 @@ def model_to_sdd(
               'whether all energy properties should be reset to defaults upon import, '
               'meaning that only the geometry and boundary conditions are imported '
               'from the file.', default=True, show_default=True)
-@click.option('--osw-folder', '-osw', help='Deprecated input that is no longer used.',
-              default=None,
-              type=click.Path(file_okay=False, dir_okay=True, resolve_path=True))
 @click.option('--output-file', '-f', help='Optional HBJSON file to output the string '
               'of the translation. By default it printed out to stdout.',
               type=click.File('w'), default='-', show_default=True)
-def model_from_osm_cli(osm_file, keep_properties, osw_folder, output_file):
+def model_from_osm_cli(osm_file, keep_properties, output_file):
     """Translate a OpenStudio Model (OSM) to a Honeybee Model (HBJSON).
 
     \b
@@ -1130,7 +1118,7 @@ def model_from_osm_cli(osm_file, keep_properties, osw_folder, output_file):
     """
     try:
         reset_properties = not keep_properties
-        model_from_osm(osm_file, reset_properties, osw_folder, output_file)
+        model_from_osm(osm_file, reset_properties, output_file)
     except Exception as e:
         _logger.exception('Model translation failed.\n{}'.format(e))
         sys.exit(1)
@@ -1138,8 +1126,9 @@ def model_from_osm_cli(osm_file, keep_properties, osw_folder, output_file):
         sys.exit(0)
 
 
-def model_from_osm(osm_file, reset_properties=False, osw_folder=None, output_file=None,
-                   keep_properties=True):
+def model_from_osm(
+    osm_file, reset_properties=False, output_file=None, keep_properties=True
+):
     """Translate a OpenStudio Model (OSM) to a Honeybee Model (HBJSON).
 
     Args:
@@ -1147,7 +1136,6 @@ def model_from_osm(osm_file, reset_properties=False, osw_folder=None, output_fil
         reset_properties: Boolean to note whether all energy properties should be
             reset to defaults upon import, meaning that only the geometry and boundary
             conditions are imported from the Openstudio Model. (Default: False).
-        osw_folder: Deprecated input that is no longer used.
         output_file: Optional HBJSON file to output the string of the translation.
             If None, it will be returned from this method. (Default: None).
     """
@@ -1156,8 +1144,6 @@ def model_from_osm(osm_file, reset_properties=False, osw_folder=None, output_fil
         from honeybee_openstudio.reader import model_from_osm_file
     except ImportError as e:  # honeybee-openstudio is not installed
         raise ImportError('{}\n{}'.format(HB_OS_MSG, e))
-    if osw_folder is not None:
-        print('--folder is deprecated and no longer used.')
     # translate everything to a honeybee Model
     model = model_from_osm_file(osm_file, reset_properties)
     # write out the file
@@ -1171,13 +1157,10 @@ def model_from_osm(osm_file, reset_properties=False, osw_folder=None, output_fil
               'whether all energy properties should be reset to defaults upon import, '
               'meaning that only the geometry and boundary conditions are imported '
               'from the file.', default=True, show_default=True)
-@click.option('--osw-folder', '-osw', help='Deprecated input that is no longer used.',
-              default=None,
-              type=click.Path(file_okay=False, dir_okay=True, resolve_path=True))
 @click.option('--output-file', '-f', help='Optional HBJSON file to output the string '
               'of the translation. By default it printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
-def model_from_idf_cli(idf_file, keep_properties, osw_folder, output_file):
+def model_from_idf_cli(idf_file, keep_properties, output_file):
     """Translate an EnergyPlus Model (IDF) to a Honeybee Model (HBJSON).
 
     \b
@@ -1186,7 +1169,7 @@ def model_from_idf_cli(idf_file, keep_properties, osw_folder, output_file):
     """
     try:
         reset_properties = not keep_properties
-        model_from_idf(idf_file, reset_properties, osw_folder, output_file)
+        model_from_idf(idf_file, reset_properties, output_file)
     except Exception as e:
         _logger.exception('Model translation failed.\n{}'.format(e))
         sys.exit(1)
@@ -1194,8 +1177,9 @@ def model_from_idf_cli(idf_file, keep_properties, osw_folder, output_file):
         sys.exit(0)
 
 
-def model_from_idf(idf_file, reset_properties=False, osw_folder=None, output_file=None,
-                   keep_properties=True):
+def model_from_idf(
+    idf_file, reset_properties=False, output_file=None, keep_properties=True
+):
     """Translate an EnergyPlus Model (IDF) to a Honeybee Model (HBJSON).
 
     Args:
@@ -1203,7 +1187,6 @@ def model_from_idf(idf_file, reset_properties=False, osw_folder=None, output_fil
         reset_properties: Boolean to note whether all energy properties should be
             reset to defaults upon import, meaning that only the geometry and boundary
             conditions are imported from the EnergyPlus Model. (Default: False).
-        osw_folder: Deprecated input that is no longer used.
         output_file: Optional HBJSON file to output the string of the translation.
             If None, it will be returned from this method. (Default: None).
     """
@@ -1212,8 +1195,6 @@ def model_from_idf(idf_file, reset_properties=False, osw_folder=None, output_fil
         from honeybee_openstudio.reader import model_from_idf_file
     except ImportError as e:  # honeybee-openstudio is not installed
         raise ImportError('{}\n{}'.format(HB_OS_MSG, e))
-    if osw_folder is not None:
-        print('--folder is deprecated and no longer used.')
     # translate everything to a honeybee Model
     model = model_from_idf_file(idf_file, reset_properties)
     # write out the file
@@ -1227,13 +1208,10 @@ def model_from_idf(idf_file, reset_properties=False, osw_folder=None, output_fil
               'whether all energy properties should be reset to defaults upon import, '
               'meaning that only the geometry and boundary conditions are imported '
               'from the file.', default=True, show_default=True)
-@click.option('--osw-folder', '-osw', help='Deprecated input that is no longer used.',
-              default=None,
-              type=click.Path(file_okay=False, dir_okay=True, resolve_path=True))
 @click.option('--output-file', '-f', help='Optional HBJSON file to output the string '
               'of the translation. By default it printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
-def model_from_gbxml_cli(gbxml_file, keep_properties, osw_folder, output_file):
+def model_from_gbxml_cli(gbxml_file, keep_properties, output_file):
     """Translate a gbXML to a Honeybee Model (HBJSON).
 
     \b
@@ -1242,7 +1220,7 @@ def model_from_gbxml_cli(gbxml_file, keep_properties, osw_folder, output_file):
     """
     try:
         reset_properties = not keep_properties
-        model_from_gbxml(gbxml_file, reset_properties, osw_folder, output_file)
+        model_from_gbxml(gbxml_file, reset_properties, output_file)
     except Exception as e:
         _logger.exception('Model translation failed.\n{}'.format(e))
         sys.exit(1)
@@ -1250,8 +1228,9 @@ def model_from_gbxml_cli(gbxml_file, keep_properties, osw_folder, output_file):
         sys.exit(0)
 
 
-def model_from_gbxml(gbxml_file, reset_properties=False, osw_folder=None,
-                     output_file=None, keep_properties=True):
+def model_from_gbxml(
+    gbxml_file, reset_properties=False, output_file=None, keep_properties=True
+):
     """Translate a gbXML to a Honeybee Model (HBJSON).
 
     Args:
@@ -1259,7 +1238,6 @@ def model_from_gbxml(gbxml_file, reset_properties=False, osw_folder=None,
         reset_properties: Boolean to note whether all energy properties should be
             reset to defaults upon import, meaning that only the geometry and boundary
             conditions are imported from the gbXML Model. (Default: False).
-        osw_folder: Deprecated input that is no longer used.
         output_file: Optional HBJSON file to output the string of the translation.
             If None, it will be returned from this method. (Default: None).
     """
@@ -1268,8 +1246,6 @@ def model_from_gbxml(gbxml_file, reset_properties=False, osw_folder=None,
         from honeybee_openstudio.reader import model_from_gbxml_file
     except ImportError as e:  # honeybee-openstudio is not installed
         raise ImportError('{}\n{}'.format(HB_OS_MSG, e))
-    if osw_folder is not None:
-        print('--folder is deprecated and no longer used.')
     # translate everything to a honeybee Model
     model = model_from_gbxml_file(gbxml_file, reset_properties)
     # write out the file
@@ -1369,7 +1345,7 @@ def empty_osm(
 @click.option('--output-file', '-f', help='Optional IDF file to output the IDF string '
               'of the translation. By default this will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
-def construction_to_idf(construction_json, output_file):
+def constructions_to_idf_cli(construction_json, output_file):
     """Translate a Construction JSON file to an IDF using direct-to-idf translators.
 
     \b
@@ -1379,39 +1355,52 @@ def construction_to_idf(construction_json, output_file):
             the values are non-abridged Constructions.
     """
     try:
-        # re-serialize the Constructions to Python
-        with open(construction_json) as json_file:
-            data = json.load(json_file)
-        constr_list = data.values() if isinstance(data, dict) else data
-        constr_objs = [dict_to_construction(constr) for constr in constr_list]
-        mat_objs = set()
-        for constr in constr_objs:
-            try:
-                for mat in constr.materials:
-                    mat_objs.add(mat)
-                if constr.has_frame:
-                    mat_objs.add(constr.frame)
-                if constr.has_shade:
-                    if constr.is_switchable_glazing:
-                        mat_objs.add(constr.switched_glass_material)
-            except AttributeError:  # not a construction with materials
-                pass
-
-        # create the IDF strings
-        idf_str_list = []
-        idf_str_list.append('!-   ============== MATERIALS ==============\n')
-        idf_str_list.extend([mat.to_idf() for mat in mat_objs])
-        idf_str_list.append('!-   ============ CONSTRUCTIONS ============\n')
-        idf_str_list.extend([constr.to_idf() for constr in constr_objs])
-        idf_str = '\n\n'.join(idf_str_list)
-
-        # write out the IDF file
-        output_file.write(idf_str)
+        constructions_to_idf(construction_json, output_file)
     except Exception as e:
         _logger.exception('Construction translation failed.\n{}'.format(e))
         sys.exit(1)
     else:
         sys.exit(0)
+
+
+def constructions_to_idf(construction_json, output_file=None):
+    """Translate a Construction JSON file to an IDF using direct-to-idf translators.
+
+    Args:
+        construction_json: Full path to a Construction JSON file. This file should
+            either be an array of non-abridged Constructions or a dictionary where
+            the values are non-abridged Constructions.
+        output_file: Optional IDF file to output the string of the translation.
+            If None, it will be returned from this method. (Default: None).
+    """
+    # re-serialize the Constructions to Python
+    with open(construction_json) as json_file:
+        data = json.load(json_file)
+    constr_list = data.values() if isinstance(data, dict) else data
+    constr_objs = [dict_to_construction(constr) for constr in constr_list]
+    mat_objs = set()
+    for constr in constr_objs:
+        try:
+            for mat in constr.materials:
+                mat_objs.add(mat)
+            if constr.has_frame:
+                mat_objs.add(constr.frame)
+            if constr.has_shade:
+                if constr.is_switchable_glazing:
+                    mat_objs.add(constr.switched_glass_material)
+        except AttributeError:  # not a construction with materials
+            pass
+
+    # create the IDF strings
+    idf_str_list = []
+    idf_str_list.append('!-   ============== MATERIALS ==============\n')
+    idf_str_list.extend([mat.to_idf() for mat in mat_objs])
+    idf_str_list.append('!-   ============ CONSTRUCTIONS ============\n')
+    idf_str_list.extend([constr.to_idf() for constr in constr_objs])
+    idf_str = '\n\n'.join(idf_str_list)
+
+    # write out the IDF file
+    return process_content_to_output(idf_str, output_file)
 
 
 @translate.command('constructions-from-idf')
@@ -1423,7 +1412,7 @@ def construction_to_idf(construction_json, output_file):
 @click.option('--output-file', '-f', help='Optional JSON file to output the JSON '
               'string of the translation. By default this will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
-def construction_from_idf(construction_idf, indent, output_file):
+def constructions_from_idf_cli(construction_idf, indent, output_file):
     """Translate a Construction IDF file to a honeybee JSON as an array of constructions.
 
     \b
@@ -1432,24 +1421,41 @@ def construction_from_idf(construction_idf, indent, output_file):
             and materials in this file will be extracted.
     """
     try:
-        # re-serialize the Constructions to Python
-        opaque_constrs = OpaqueConstruction.extract_all_from_idf_file(construction_idf)
-        win_constrs = WindowConstruction.extract_all_from_idf_file(construction_idf)
-
-        # create the honeybee dictionaries
-        hb_obj_list = []
-        for constr in opaque_constrs[0]:
-            hb_obj_list.append(constr.to_dict())
-        for constr in win_constrs[0]:
-            hb_obj_list.append(constr.to_dict())
-
-        # write out the JSON file
-        output_file.write(json.dumps(hb_obj_list, indent=indent))
+        constructions_from_idf(construction_idf, indent, output_file)
     except Exception as e:
         _logger.exception('Construction translation failed.\n{}'.format(e))
         sys.exit(1)
     else:
         sys.exit(0)
+
+
+def constructions_from_idf(construction_idf, indent=None, output_file=None):
+    """Translate a Construction IDF file to a honeybee JSON.
+
+    The resulting JSON can be written into a user standards folder to add the
+    materials to a users standards library.
+
+    Args:
+        construction_idf: Full path to a Construction IDF file. Only the constructions
+            and materials in this file will be extracted.
+        indent: Optional integer to specify the indentation in the output JSON file.
+            Specifying an value here can produce more read-able JSONs. (Default: None).
+        output_file: Optional JSON file to output the string of the translation.
+            If None, it will be returned from this method. (Default: None).
+    """
+    # re-serialize the Constructions to Python
+    opaque_constrs = OpaqueConstruction.extract_all_from_idf_file(construction_idf)
+    win_constrs = WindowConstruction.extract_all_from_idf_file(construction_idf)
+
+    # create the honeybee dictionaries
+    hb_obj_dict = {}
+    for constr in opaque_constrs[0]:
+        hb_obj_dict[constr.identifier] = constr.to_dict()
+    for constr in win_constrs[0]:
+        hb_obj_dict[constr.identifier] = constr.to_dict()
+
+    # write out the JSON file
+    return process_content_to_output(json.dumps(hb_obj_dict, indent=indent), output_file)
 
 
 @translate.command('materials-from-osm')
@@ -1458,13 +1464,10 @@ def construction_from_idf(construction_idf, indent, output_file):
 @click.option('--indent', '-i', help='Optional integer to specify the indentation in '
               'the output JSON file. Specifying an value here can produce more read-able'
               ' JSONs.', type=int, default=None, show_default=True)
-@click.option('--osw-folder', '-osw', help='Deprecated input that is no longer used.',
-              default=None,
-              type=click.Path(file_okay=False, dir_okay=True, resolve_path=True))
 @click.option('--output-file', '-f', help='Optional JSON file to output the string '
               'of the translation. By default it printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
-def materials_from_osm(osm_file, indent, osw_folder, output_file):
+def materials_from_osm_cli(osm_file, indent, output_file):
     """Translate all Materials in an OpenStudio Model (OSM) to a Honeybee JSON.
 
     The resulting JSON can be written into a user standards folder to add the
@@ -1475,24 +1478,40 @@ def materials_from_osm(osm_file, indent, osw_folder, output_file):
         osm_file: Path to a OpenStudio Model (OSM) file.
     """
     try:
-        try:
-            from honeybee_openstudio.openstudio import openstudio
-            from honeybee_openstudio.material import extract_all_materials
-        except ImportError as e:  # honeybee-openstudio is not installed
-            raise ImportError('{}\n{}'.format(HB_OS_MSG, e))
-        ver_translator = openstudio.osversion.VersionTranslator()  # in case OSM is old
-        os_model = ver_translator.loadModel(osm_file)
-        if not os_model.is_initialized():
-            errors = '\n'.join(str(err.logMessage()) for err in ver_translator.errors())
-            raise ValueError('Failed to load model from OSM.\n{}'.format(errors))
-        materials = extract_all_materials(os_model.get())
-        out_dict = {mat.identifier: mat.to_dict() for mat in materials.values()}
-        output_file.write(json.dumps(out_dict, indent=indent))
+        materials_from_osm(osm_file, indent, output_file)
     except Exception as e:
         _logger.exception('Material translation failed.\n{}'.format(e))
         sys.exit(1)
     else:
         sys.exit(0)
+
+
+def materials_from_osm(osm_file, indent=None, output_file=None):
+    """Translate all Materials in an OpenStudio Model (OSM) to a Honeybee JSON.
+
+    The resulting JSON can be written into a user standards folder to add the
+    materials to a users standards library.
+
+    Args:
+        osm_file: Path to a OpenStudio Model (OSM) file.
+        indent: Optional integer to specify the indentation in the output JSON file.
+            Specifying an value here can produce more read-able JSONs. (Default: None).
+        output_file: Optional JSON file to output the string of the translation.
+            If None, it will be returned from this method. (Default: None).
+    """
+    try:
+        from honeybee_openstudio.openstudio import openstudio
+        from honeybee_openstudio.material import extract_all_materials
+    except ImportError as e:  # honeybee-openstudio is not installed
+        raise ImportError('{}\n{}'.format(HB_OS_MSG, e))
+    ver_translator = openstudio.osversion.VersionTranslator()  # in case OSM is old
+    os_model = ver_translator.loadModel(osm_file)
+    if not os_model.is_initialized():
+        errors = '\n'.join(str(err.logMessage()) for err in ver_translator.errors())
+        raise ValueError('Failed to load model from OSM.\n{}'.format(errors))
+    materials = extract_all_materials(os_model.get())
+    out_dict = {mat.identifier: mat.to_dict() for mat in materials.values()}
+    return process_content_to_output(json.dumps(out_dict, indent=indent), output_file)
 
 
 @translate.command('constructions-from-osm')
@@ -1507,13 +1526,10 @@ def materials_from_osm(osm_file, indent, osw_folder, output_file):
 @click.option('--indent', '-i', help='Optional integer to specify the indentation in '
               'the output JSON file. Specifying an value here can produce more read-able'
               ' JSONs.', type=int, default=None, show_default=True)
-@click.option('--osw-folder', '-osw', help='Deprecated input that is no longer used.',
-              default=None,
-              type=click.Path(file_okay=False, dir_okay=True, resolve_path=True))
 @click.option('--output-file', '-f', help='Optional JSON file to output the string '
               'of the translation. By default it printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
-def constructions_from_osm(osm_file, full, indent, osw_folder, output_file):
+def constructions_from_osm_cli(osm_file, full, indent, output_file):
     """Translate all Constructions in an OpenStudio Model (OSM) to a Honeybee JSON.
 
     The resulting JSON can be written into a user standards folder to add the
@@ -1524,30 +1540,53 @@ def constructions_from_osm(osm_file, full, indent, osw_folder, output_file):
         osm_file: Path to a OpenStudio Model (OSM) file.
     """
     try:
-        try:
-            from honeybee_openstudio.openstudio import openstudio
-            from honeybee_openstudio.construction import extract_all_constructions
-        except ImportError as e:  # honeybee-openstudio is not installed
-            raise ImportError('{}\n{}'.format(HB_OS_MSG, e))
-        ver_translator = openstudio.osversion.VersionTranslator()  # in case OSM is old
-        os_model = ver_translator.loadModel(osm_file)
-        if not os_model.is_initialized():
-            errors = '\n'.join(str(err.logMessage()) for err in ver_translator.errors())
-            raise ValueError('Failed to load model from OSM.\n{}'.format(errors))
-        constructions = extract_all_constructions(os_model.get())
         abridged = not full
-        out_dict = {}
-        for con in constructions.values():
-            try:
-                out_dict[con.identifier] = con.to_dict(abridged=abridged)
-            except TypeError:  # no abridged option
-                out_dict[con.identifier] = con.to_dict()
-        output_file.write(json.dumps(out_dict, indent=indent))
+        constructions_from_osm(osm_file, abridged, indent, output_file)
     except Exception as e:
         _logger.exception('Construction translation failed.\n{}'.format(e))
         sys.exit(1)
     else:
         sys.exit(0)
+
+
+def constructions_from_osm(
+    osm_file, abridged=False, indent=None, output_file=None, full=True
+):
+    """Translate all Constructions in an OpenStudio Model (OSM) to a Honeybee JSON.
+
+    The resulting JSON can be written into a user standards folder to add the
+    constructions to a users standards library.
+
+    Args:
+        osm_file: Path to a OpenStudio Model (OSM) file.
+        abridged: Boolean to note whether the objects should be translated as
+            an abridged specification instead of a specification that fully
+            describes the object. This option should be used when the
+            materials_from_osm function will be used to separately translate
+            all of the materials from the OSM. (Default: False).
+        indent: Optional integer to specify the indentation in the output JSON file.
+            Specifying an value here can produce more read-able JSONs. (Default: None).
+        output_file: Optional JSON file to output the string of the translation.
+            If None, it will be returned from this method. (Default: None).
+    """
+    try:
+        from honeybee_openstudio.openstudio import openstudio
+        from honeybee_openstudio.construction import extract_all_constructions
+    except ImportError as e:  # honeybee-openstudio is not installed
+        raise ImportError('{}\n{}'.format(HB_OS_MSG, e))
+    ver_translator = openstudio.osversion.VersionTranslator()  # in case OSM is old
+    os_model = ver_translator.loadModel(osm_file)
+    if not os_model.is_initialized():
+        errors = '\n'.join(str(err.logMessage()) for err in ver_translator.errors())
+        raise ValueError('Failed to load model from OSM.\n{}'.format(errors))
+    constructions = extract_all_constructions(os_model.get())
+    out_dict = {}
+    for con in constructions.values():
+        try:
+            out_dict[con.identifier] = con.to_dict(abridged=abridged)
+        except TypeError:  # no abridged option
+            out_dict[con.identifier] = con.to_dict()
+    return process_content_to_output(json.dumps(out_dict, indent=indent), output_file)
 
 
 @translate.command('construction-sets-from-osm')
@@ -1562,13 +1601,10 @@ def constructions_from_osm(osm_file, full, indent, osw_folder, output_file):
 @click.option('--indent', '-i', help='Optional integer to specify the indentation in '
               'the output JSON file. Specifying an value here can produce more read-able'
               ' JSONs.', type=int, default=None, show_default=True)
-@click.option('--osw-folder', '-osw', help='Deprecated input that is no longer used.',
-              default=None,
-              type=click.Path(file_okay=False, dir_okay=True, resolve_path=True))
 @click.option('--output-file', '-f', help='Optional JSON file to output the string '
               'of the translation. By default it printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
-def construction_sets_from_osm(osm_file, full, indent, osw_folder, output_file):
+def construction_sets_from_osm_cli(osm_file, full, indent, output_file):
     """Translate all ConstructionSets in an OpenStudio Model (OSM) to a Honeybee JSON.
 
     The resulting JSON can be written into a user standards folder to add the
@@ -1579,31 +1615,54 @@ def construction_sets_from_osm(osm_file, full, indent, osw_folder, output_file):
         osm_file: Path to a OpenStudio Model (OSM) file.
     """
     try:
-        try:
-            from honeybee_openstudio.openstudio import openstudio
-            from honeybee_openstudio.construction import extract_all_constructions
-            from honeybee_openstudio.constructionset import construction_set_from_openstudio
-        except ImportError as e:  # honeybee-openstudio is not installed
-            raise ImportError('{}\n{}'.format(HB_OS_MSG, e))
-        ver_translator = openstudio.osversion.VersionTranslator()  # in case OSM is old
-        os_model = ver_translator.loadModel(osm_file)
-        if not os_model.is_initialized():
-            errors = '\n'.join(str(err.logMessage()) for err in ver_translator.errors())
-            raise ValueError('Failed to load model from OSM.\n{}'.format(errors))
-        os_model = os_model.get()
-        constructions = extract_all_constructions(os_model)
         abridged = not full
-        out_dict = {}
-        for os_cons_set in os_model.getDefaultConstructionSets():
-            if os_cons_set.nameString() != 'Default Generic Construction Set':
-                con_set = construction_set_from_openstudio(os_cons_set, constructions)
-                out_dict[con_set.identifier] = con_set.to_dict(abridged=abridged)
-        output_file.write(json.dumps(out_dict, indent=indent))
+        construction_sets_from_osm(osm_file, abridged, indent, output_file)
     except Exception as e:
         _logger.exception('ConstructionSet translation failed.\n{}'.format(e))
         sys.exit(1)
     else:
         sys.exit(0)
+
+
+def construction_sets_from_osm(
+    osm_file, abridged=False, indent=None, output_file=None, full=True
+):
+    """Translate all ConstructionSets in an OpenStudio Model (OSM) to a Honeybee JSON.
+
+    The resulting JSON can be written into a user standards folder to add the
+    construction sets to a users standards library.
+
+    Args:
+        osm_file: Path to a OpenStudio Model (OSM) file.
+        abridged: Boolean to note whether the objects should be translated as
+            an abridged specification instead of a specification that fully
+            describes the object. This option should be used when the
+            constructions_from_osm function will be used to separately translate
+            all of the constructions from the OSM. (Default: False).
+        indent: Optional integer to specify the indentation in the output JSON file.
+            Specifying an value here can produce more read-able JSONs. (Default: None).
+        output_file: Optional JSON file to output the string of the translation.
+            If None, it will be returned from this method. (Default: None).
+    """
+    try:
+        from honeybee_openstudio.openstudio import openstudio
+        from honeybee_openstudio.construction import extract_all_constructions
+        from honeybee_openstudio.constructionset import construction_set_from_openstudio
+    except ImportError as e:  # honeybee-openstudio is not installed
+        raise ImportError('{}\n{}'.format(HB_OS_MSG, e))
+    ver_translator = openstudio.osversion.VersionTranslator()  # in case OSM is old
+    os_model = ver_translator.loadModel(osm_file)
+    if not os_model.is_initialized():
+        errors = '\n'.join(str(err.logMessage()) for err in ver_translator.errors())
+        raise ValueError('Failed to load model from OSM.\n{}'.format(errors))
+    os_model = os_model.get()
+    constructions = extract_all_constructions(os_model)
+    out_dict = {}
+    for os_cons_set in os_model.getDefaultConstructionSets():
+        if os_cons_set.nameString() != 'Default Generic Construction Set':
+            con_set = construction_set_from_openstudio(os_cons_set, constructions)
+            out_dict[con_set.identifier] = con_set.to_dict(abridged=abridged)
+    return process_content_to_output(json.dumps(out_dict, indent=indent), output_file)
 
 
 @translate.command('schedules-to-idf')
@@ -1612,7 +1671,7 @@ def construction_sets_from_osm(osm_file, full, indent, osw_folder, output_file):
 @click.option('--output-file', '-f', help='Optional IDF file to output the IDF '
               'string of the translation. By default this will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
-def schedule_to_idf(schedule_json, output_file):
+def schedules_to_idf_cli(schedule_json, output_file):
     """Translate a Schedule JSON file to an IDF using direct-to-idf translators.
 
     \b
@@ -1622,52 +1681,65 @@ def schedule_to_idf(schedule_json, output_file):
             the values are non-abridged Schedules.
     """
     try:
-        # re-serialize the Schedule to Python
-        with open(schedule_json) as json_file:
-            data = json.load(json_file)
-        sch_list = data.values() if isinstance(data, dict) else data
-        sch_objs = [dict_to_schedule(sch) for sch in sch_list]
-        type_objs = set()
-        for sch in sch_objs:
-            type_objs.add(sch.schedule_type_limit)
-
-        # set the schedule directory in case it is needed
-        sch_path = os.path.abspath(schedule_json) if 'stdout' in str(output_file) \
-            else os.path.abspath(str(output_file))
-        sch_directory = os.path.join(os.path.split(sch_path)[0], 'schedules')
-
-        # create the IDF strings
-        sched_strs = []
-        used_day_sched_ids = []
-        for sched in sch_objs:
-            try:  # ScheduleRuleset
-                year_schedule, week_schedules = sched.to_idf()
-                if week_schedules is None:  # ScheduleConstant
-                    sched_strs.append(year_schedule)
-                else:  # ScheduleYear
-                    # check that day schedules aren't referenced by other schedules
-                    day_scheds = []
-                    for day in sched.day_schedules:
-                        if day.identifier not in used_day_sched_ids:
-                            day_scheds.append(day.to_idf(sched.schedule_type_limit))
-                            used_day_sched_ids.append(day.identifier)
-                    sched_strs.extend([year_schedule] + week_schedules + day_scheds)
-            except AttributeError:  # ScheduleFixedInterval
-                sched_strs.append(sched.to_idf(sch_directory))
-        idf_str_list = []
-        idf_str_list.append('!-   ========= SCHEDULE TYPE LIMITS =========\n')
-        idf_str_list.extend([type_limit.to_idf() for type_limit in type_objs])
-        idf_str_list.append('!-   ============== SCHEDULES ==============\n')
-        idf_str_list.extend(sched_strs)
-        idf_str = '\n\n'.join(idf_str_list)
-
-        # write out the IDF file
-        output_file.write(idf_str)
+        schedules_to_idf(schedule_json, output_file)
     except Exception as e:
         _logger.exception('Schedule translation failed.\n{}'.format(e))
         sys.exit(1)
     else:
         sys.exit(0)
+
+
+def schedules_to_idf(schedule_json, output_file=None):
+    """Translate a Schedule JSON file to an IDF using direct-to-idf translators.
+
+    Args:
+        schedule_json: Full path to a Schedule JSON file. This file should
+            either be an array of non-abridged Schedules or a dictionary where
+            the values are non-abridged Schedules.
+        output_file: Optional IDF file to output the string of the translation.
+            If None, it will be returned from this method. (Default: None).
+    """
+    # re-serialize the Schedule to Python
+    with open(schedule_json) as json_file:
+        data = json.load(json_file)
+    sch_list = data.values() if isinstance(data, dict) else data
+    sch_objs = [dict_to_schedule(sch) for sch in sch_list]
+    type_objs = set()
+    for sch in sch_objs:
+        type_objs.add(sch.schedule_type_limit)
+
+    # set the schedule directory in case it is needed
+    sch_path = os.path.abspath(schedule_json) if 'stdout' in str(output_file) \
+        else os.path.abspath(str(output_file))
+    sch_directory = os.path.join(os.path.split(sch_path)[0], 'schedules')
+
+    # create the IDF strings
+    sched_strs = []
+    used_day_sched_ids = []
+    for sched in sch_objs:
+        try:  # ScheduleRuleset
+            year_schedule, week_schedules = sched.to_idf()
+            if week_schedules is None:  # ScheduleConstant
+                sched_strs.append(year_schedule)
+            else:  # ScheduleYear
+                # check that day schedules aren't referenced by other schedules
+                day_scheds = []
+                for day in sched.day_schedules:
+                    if day.identifier not in used_day_sched_ids:
+                        day_scheds.append(day.to_idf(sched.schedule_type_limit))
+                        used_day_sched_ids.append(day.identifier)
+                sched_strs.extend([year_schedule] + week_schedules + day_scheds)
+        except AttributeError:  # ScheduleFixedInterval
+            sched_strs.append(sched.to_idf(sch_directory))
+    idf_str_list = []
+    idf_str_list.append('!-   ========= SCHEDULE TYPE LIMITS =========\n')
+    idf_str_list.extend([type_limit.to_idf() for type_limit in type_objs])
+    idf_str_list.append('!-   ============== SCHEDULES ==============\n')
+    idf_str_list.extend(sched_strs)
+    idf_str = '\n\n'.join(idf_str_list)
+
+    # write out the IDF file
+    return process_content_to_output(idf_str, output_file)
 
 
 @translate.command('schedules-from-idf')
@@ -1679,8 +1751,11 @@ def schedule_to_idf(schedule_json, output_file):
 @click.option('--output-file', '-f', help='Optional JSON file to output the JSON '
               'string of the translation. By default this will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
-def schedule_from_idf(schedule_idf, indent, output_file):
-    """Translate a schedule IDF file to a honeybee JSON as an array of schedules.
+def schedules_from_idf_cli(schedule_idf, indent, output_file):
+    """Translate a schedule IDF file to a honeybee JSON.
+
+    The resulting JSON can be written into a user standards folder to add the
+    schedules to a users standards library.
 
     \b
     Args:
@@ -1688,17 +1763,34 @@ def schedule_from_idf(schedule_idf, indent, output_file):
             and schedule type limits in this file will be extracted.
     """
     try:
-        # re-serialize the schedules to Python
-        schedules = ScheduleRuleset.extract_all_from_idf_file(schedule_idf)
-        # create the honeybee dictionaries
-        hb_obj_list = [sch.to_dict() for sch in schedules]
-        # write out the JSON file
-        output_file.write(json.dumps(hb_obj_list, indent=indent))
+        schedules_from_idf(schedule_idf, indent, output_file)
     except Exception as e:
         _logger.exception('Schedule translation failed.\n{}'.format(e))
         sys.exit(1)
     else:
         sys.exit(0)
+
+
+def schedules_from_idf(schedule_idf, indent=None, output_file=None):
+    """Translate a schedule IDF file to a honeybee JSON.
+
+    The resulting JSON can be written into a user standards folder to add the
+    schedules to a users standards library.
+
+    Args:
+        schedule_idf: Full path to a Schedule IDF file. Only the schedules
+            and schedule type limits in this file will be extracted.
+        indent: Optional integer to specify the indentation in the output JSON file.
+            Specifying an value here can produce more read-able JSONs. (Default: None).
+        output_file: Optional JSON file to output the string of the translation.
+            If None, it will be returned from this method. (Default: None).
+    """
+    # re-serialize the schedules to Python
+    schedules = ScheduleRuleset.extract_all_from_idf_file(schedule_idf)
+    # create the honeybee dictionaries
+    hb_obj_list = {sch.identifier: sch.to_dict() for sch in schedules}
+    # write out the JSON file
+    return process_content_to_output(json.dumps(hb_obj_list, indent=indent), output_file)
 
 
 @translate.command('schedule-type-limits-from-osm')
@@ -1707,13 +1799,10 @@ def schedule_from_idf(schedule_idf, indent, output_file):
 @click.option('--indent', '-i', help='Optional integer to specify the indentation in '
               'the output JSON file. Specifying an value here can produce more read-able'
               ' JSONs.', type=int, default=None, show_default=True)
-@click.option('--osw-folder', '-osw', help='Deprecated input that is no longer used.',
-              default=None,
-              type=click.Path(file_okay=False, dir_okay=True, resolve_path=True))
 @click.option('--output-file', '-f', help='Optional JSON file to output the string '
               'of the translation. By default it printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
-def schedule_type_limits_from_osm(osm_file, indent, osw_folder, output_file):
+def schedule_type_limits_from_osm_cli(osm_file, indent, output_file):
     """Translate all ScheduleTypeLimits in an OpenStudio Model (OSM) to a Honeybee JSON.
 
     The resulting JSON can be written into a user standards folder to add the
@@ -1724,26 +1813,42 @@ def schedule_type_limits_from_osm(osm_file, indent, osw_folder, output_file):
         osm_file: Path to a OpenStudio Model (OSM) file.
     """
     try:
-        try:
-            from honeybee_openstudio.openstudio import openstudio
-            from honeybee_openstudio.schedule import schedule_type_limits_from_openstudio
-        except ImportError as e:  # honeybee-openstudio is not installed
-            raise ImportError('{}\n{}'.format(HB_OS_MSG, e))
-        ver_translator = openstudio.osversion.VersionTranslator()  # in case OSM is old
-        os_model = ver_translator.loadModel(osm_file)
-        if not os_model.is_initialized():
-            errors = '\n'.join(str(err.logMessage()) for err in ver_translator.errors())
-            raise ValueError('Failed to load model from OSM.\n{}'.format(errors))
-        out_dict = {}
-        for os_type_lim in os_model.get().getScheduleTypeLimitss():
-            type_lim = schedule_type_limits_from_openstudio(os_type_lim)
-            out_dict[type_lim.identifier] = type_lim.to_dict()
-        output_file.write(json.dumps(out_dict, indent=indent))
+        schedule_type_limits_from_osm(osm_file, indent, output_file)
     except Exception as e:
         _logger.exception('ScheduleTypeLimit translation failed.\n{}'.format(e))
         sys.exit(1)
     else:
         sys.exit(0)
+
+
+def schedule_type_limits_from_osm(osm_file, indent=None, output_file=None):
+    """Translate all ScheduleTypeLimits in an OpenStudio Model (OSM) to a Honeybee JSON.
+
+    The resulting JSON can be written into a user standards folder to add the
+    type limits to a users standards library.
+
+    Args:
+        osm_file: Path to a OpenStudio Model (OSM) file.
+        indent: Optional integer to specify the indentation in the output JSON file.
+            Specifying an value here can produce more read-able JSONs. (Default: None).
+        output_file: Optional JSON file to output the string of the translation.
+            If None, it will be returned from this method. (Default: None).
+    """
+    try:
+        from honeybee_openstudio.openstudio import openstudio
+        from honeybee_openstudio.schedule import schedule_type_limits_from_openstudio
+    except ImportError as e:  # honeybee-openstudio is not installed
+        raise ImportError('{}\n{}'.format(HB_OS_MSG, e))
+    ver_translator = openstudio.osversion.VersionTranslator()  # in case OSM is old
+    os_model = ver_translator.loadModel(osm_file)
+    if not os_model.is_initialized():
+        errors = '\n'.join(str(err.logMessage()) for err in ver_translator.errors())
+        raise ValueError('Failed to load model from OSM.\n{}'.format(errors))
+    out_dict = {}
+    for os_type_lim in os_model.get().getScheduleTypeLimitss():
+        type_lim = schedule_type_limits_from_openstudio(os_type_lim)
+        out_dict[type_lim.identifier] = type_lim.to_dict()
+    return process_content_to_output(json.dumps(out_dict, indent=indent), output_file)
 
 
 @translate.command('schedules-from-osm')
@@ -1758,13 +1863,10 @@ def schedule_type_limits_from_osm(osm_file, indent, osw_folder, output_file):
 @click.option('--indent', '-i', help='Optional integer to specify the indentation in '
               'the output JSON file. Specifying an value here can produce more read-able'
               ' JSONs.', type=int, default=None, show_default=True)
-@click.option('--osw-folder', '-osw', help='Deprecated input that is no longer used.',
-              default=None,
-              type=click.Path(file_okay=False, dir_okay=True, resolve_path=True))
 @click.option('--output-file', '-f', help='Optional JSON file to output the string '
               'of the translation. By default it printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
-def schedules_from_osm(osm_file, full, indent, osw_folder, output_file):
+def schedules_from_osm_cli(osm_file, full, indent, output_file):
     """Translate all Schedules in an OpenStudio Model (OSM) to a Honeybee JSON.
 
     The resulting JSON can be written into a user standards folder to add the
@@ -1775,27 +1877,48 @@ def schedules_from_osm(osm_file, full, indent, osw_folder, output_file):
         osm_file: Path to a OpenStudio Model (OSM) file.
     """
     try:
-        try:
-            from honeybee_openstudio.openstudio import openstudio
-            from honeybee_openstudio.schedule import extract_all_schedules
-        except ImportError as e:  # honeybee-openstudio is not installed
-            raise ImportError('{}\n{}'.format(HB_OS_MSG, e))
-        ver_translator = openstudio.osversion.VersionTranslator()  # in case OSM is old
-        os_model = ver_translator.loadModel(osm_file)
-        if not os_model.is_initialized():
-            errors = '\n'.join(str(err.logMessage()) for err in ver_translator.errors())
-            raise ValueError('Failed to load model from OSM.\n{}'.format(errors))
-        schedules = extract_all_schedules(os_model.get())
         abridged = not full
-        out_dict = {}
-        for sch in schedules.values():
-            out_dict[sch.identifier] = sch.to_dict(abridged=abridged)
-        output_file.write(json.dumps(out_dict, indent=indent))
+        schedules_from_osm(osm_file, abridged, indent, output_file)
     except Exception as e:
         _logger.exception('Schedule translation failed.\n{}'.format(e))
         sys.exit(1)
     else:
         sys.exit(0)
+
+
+def schedules_from_osm(osm_file, abridged=False, indent=None, output_file=None, full=True):
+    """Translate all Schedules in an OpenStudio Model (OSM) to a Honeybee JSON.
+
+    The resulting JSON can be written into a user standards folder to add the
+    schedules to a users standards library.
+
+    Args:
+        osm_file: Path to a OpenStudio Model (OSM) file.
+        abridged: Boolean to note whether the objects should be translated as
+            an abridged specification instead of a specification that fully
+            describes the object. This option should be used when the
+            schedule_type_limits_from_osm function will be used to separately
+            translate all of the constructions from the OSM. (Default: False).
+        indent: Optional integer to specify the indentation in the output JSON file.
+            Specifying an value here can produce more read-able JSONs. (Default: None).
+        output_file: Optional JSON file to output the string of the translation.
+            If None, it will be returned from this method. (Default: None).
+    """
+    try:
+        from honeybee_openstudio.openstudio import openstudio
+        from honeybee_openstudio.schedule import extract_all_schedules
+    except ImportError as e:  # honeybee-openstudio is not installed
+        raise ImportError('{}\n{}'.format(HB_OS_MSG, e))
+    ver_translator = openstudio.osversion.VersionTranslator()  # in case OSM is old
+    os_model = ver_translator.loadModel(osm_file)
+    if not os_model.is_initialized():
+        errors = '\n'.join(str(err.logMessage()) for err in ver_translator.errors())
+        raise ValueError('Failed to load model from OSM.\n{}'.format(errors))
+    schedules = extract_all_schedules(os_model.get())
+    out_dict = {}
+    for sch in schedules.values():
+        out_dict[sch.identifier] = sch.to_dict(abridged=abridged)
+    return process_content_to_output(json.dumps(out_dict, indent=indent), output_file)
 
 
 @translate.command('programs-from-osm')
@@ -1810,13 +1933,10 @@ def schedules_from_osm(osm_file, full, indent, osw_folder, output_file):
 @click.option('--indent', '-i', help='Optional integer to specify the indentation in '
               'the output JSON file. Specifying an value here can produce more read-able'
               ' JSONs.', type=int, default=None, show_default=True)
-@click.option('--osw-folder', '-osw', help='Deprecated input that is no longer used.',
-              default=None,
-              type=click.Path(file_okay=False, dir_okay=True, resolve_path=True))
 @click.option('--output-file', '-f', help='Optional JSON file to output the string '
               'of the translation. By default it printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
-def programs_from_osm(osm_file, full, indent, osw_folder, output_file):
+def programs_from_osm_cli(osm_file, full, indent, output_file):
     """Translate all ProgramTypes in an OpenStudio Model (OSM) to a Honeybee JSON.
 
     The resulting JSON can be written into a user standards folder to add the
@@ -1827,30 +1947,51 @@ def programs_from_osm(osm_file, full, indent, osw_folder, output_file):
         osm_file: Path to a OpenStudio Model (OSM) file.
     """
     try:
-        try:
-            from honeybee_openstudio.openstudio import openstudio
-            from honeybee_openstudio.schedule import extract_all_schedules
-            from honeybee_openstudio.programtype import program_type_from_openstudio
-        except ImportError as e:  # honeybee-openstudio is not installed
-            raise ImportError('{}\n{}'.format(HB_OS_MSG, e))
-        ver_translator = openstudio.osversion.VersionTranslator()  # in case OSM is old
-        os_model = ver_translator.loadModel(osm_file)
-        if not os_model.is_initialized():
-            errors = '\n'.join(str(err.logMessage()) for err in ver_translator.errors())
-            raise ValueError('Failed to load model from OSM.\n{}'.format(errors))
-        os_model = os_model.get()
-        schedules = extract_all_schedules(os_model)
         abridged = not full
-        out_dict = {}
-        for os_space_type in os_model.getSpaceTypes():
-            program = program_type_from_openstudio(os_space_type, schedules)
-            out_dict[program.identifier] = program.to_dict(abridged=abridged)
-        output_file.write(json.dumps(out_dict, indent=indent))
+        programs_from_osm(osm_file, abridged, indent, output_file)
     except Exception as e:
         _logger.exception('Program translation failed.\n{}'.format(e))
         sys.exit(1)
     else:
         sys.exit(0)
+
+
+def programs_from_osm(osm_file, abridged=False, indent=None, output_file=None, full=True):
+    """Translate all ProgramTypes in an OpenStudio Model (OSM) to a Honeybee JSON.
+
+    The resulting JSON can be written into a user standards folder to add the
+    programs to a users standards library.
+
+    Args:
+        osm_file: Path to a OpenStudio Model (OSM) file.
+        abridged: Boolean to note whether the objects should be translated as
+            an abridged specification instead of a specification that fully
+            describes the object. This option should be used when the
+            schedules_from_osm function will be used to separately
+            translate all of the constructions from the OSM. (Default: False).
+        indent: Optional integer to specify the indentation in the output JSON file.
+            Specifying an value here can produce more read-able JSONs. (Default: None).
+        output_file: Optional JSON file to output the string of the translation.
+            If None, it will be returned from this method. (Default: None).
+    """
+    try:
+        from honeybee_openstudio.openstudio import openstudio
+        from honeybee_openstudio.schedule import extract_all_schedules
+        from honeybee_openstudio.programtype import program_type_from_openstudio
+    except ImportError as e:  # honeybee-openstudio is not installed
+        raise ImportError('{}\n{}'.format(HB_OS_MSG, e))
+    ver_translator = openstudio.osversion.VersionTranslator()  # in case OSM is old
+    os_model = ver_translator.loadModel(osm_file)
+    if not os_model.is_initialized():
+        errors = '\n'.join(str(err.logMessage()) for err in ver_translator.errors())
+        raise ValueError('Failed to load model from OSM.\n{}'.format(errors))
+    os_model = os_model.get()
+    schedules = extract_all_schedules(os_model)
+    out_dict = {}
+    for os_space_type in os_model.getSpaceTypes():
+        program = program_type_from_openstudio(os_space_type, schedules)
+        out_dict[program.identifier] = program.to_dict(abridged=abridged)
+    return process_content_to_output(json.dumps(out_dict, indent=indent), output_file)
 
 
 @translate.command('model-occ-schedules')
@@ -1969,33 +2110,3 @@ def model_trans_schedules(model_file, period, output_file):
         sys.exit(1)
     else:
         sys.exit(0)
-
-
-def _run_translation_osw(osw, out_path):
-    """Generic function used by all import methods that run OpenStudio CLI."""
-    # run the measure to translate the model JSON to an openstudio measure
-    _, idf = run_osw(osw, silent=True)
-    if idf is not None and os.path.isfile(idf):
-        if out_path is not None:  # load the JSON string to stdout
-            with open(out_path) as json_file:
-                return json_file.read()
-    else:
-        _parse_os_cli_failure(os.path.dirname(osw))
-
-
-def _translate_osm_to_hbjson(osm_file, osw_folder):
-    """Translate an OSM to a HBJSON for use in resource extraction commands."""
-    # come up with a temporary path to write the HBJSON
-    out_directory = os.path.join(
-        hb_folders.default_simulation_folder, 'temp_translate')
-    f_name = os.path.basename(osm_file).lower().replace('.osm', '.hbjson')
-    out_path = os.path.join(out_directory, f_name)
-    # run the OSW to translate the OSM to HBJSON
-    osw = from_osm_osw(osm_file, out_path, osw_folder)
-    # load the resulting HBJSON to a dictionary and return it
-    _, idf = run_osw(osw, silent=True)
-    if idf is not None and os.path.isfile(idf):
-        with open(out_path) as json_file:
-            return json.load(json_file)
-    else:
-        _parse_os_cli_failure(os.path.dirname(osw))

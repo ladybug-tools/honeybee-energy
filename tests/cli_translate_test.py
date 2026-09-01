@@ -9,10 +9,11 @@ from honeybee.model import Model
 from honeybee_energy.cli.translate import model_to_osm_cli, model_to_idf_cli, \
     model_to_gbxml_cli, model_to_trace_gbxml_cli, model_to_sdd_cli, \
     model_from_gbxml_cli, model_from_osm_cli, model_from_idf_cli, \
-    construction_from_idf, construction_to_idf, schedule_to_idf, schedule_from_idf, \
+    constructions_from_idf_cli, constructions_to_idf_cli, \
+    schedules_to_idf_cli, schedules_from_idf_cli, \
     model_occ_schedules, model_trans_schedules, \
-    materials_from_osm, constructions_from_osm, construction_sets_from_osm, \
-    schedule_type_limits_from_osm, schedules_from_osm, programs_from_osm
+    materials_from_osm_cli, constructions_from_osm_cli, construction_sets_from_osm_cli, \
+    schedule_type_limits_from_osm_cli, schedules_from_osm_cli, programs_from_osm_cli
 
 
 def test_model_to_osm():
@@ -118,20 +119,20 @@ def test_model_from_idf():
     assert isinstance(model, Model)
 
 
-def test_construction_to_from_idf():
+def test_constructions_to_from_idf():
     runner = CliRunner()
     input_hb_constr = './tests/idf/GlzSys_Triple Clear_Avg.idf'
 
-    result = runner.invoke(construction_from_idf, [input_hb_constr])
+    result = runner.invoke(constructions_from_idf_cli, [input_hb_constr])
     assert result.exit_code == 0
 
     output_hb_json = './tests/json/GlzSys_Triple_Clear_Avg.json'
     result = runner.invoke(
-        construction_from_idf, [input_hb_constr, '--output-file', output_hb_json])
+        constructions_from_idf_cli, [input_hb_constr, '--output-file', output_hb_json])
     assert result.exit_code == 0
     assert os.path.isfile(output_hb_json)
 
-    result = runner.invoke(construction_to_idf, [output_hb_json])
+    result = runner.invoke(constructions_to_idf_cli, [output_hb_json])
     assert result.exit_code == 0
 
     os.remove(output_hb_json)
@@ -141,7 +142,7 @@ def test_materials_from_osm():
     runner = CliRunner()
     input_osm_file = './tests/osm/MidriseApartment-90.1-2019_CZ5.osm'
 
-    result = runner.invoke(materials_from_osm, [input_osm_file])
+    result = runner.invoke(materials_from_osm_cli, [input_osm_file])
     assert result.exit_code == 0
     result_dict = json.loads(result.output)
     assert len(result_dict) > 40
@@ -151,7 +152,7 @@ def test_constructions_from_osm():
     runner = CliRunner()
     input_osm_file = './tests/osm/MidriseApartment-90.1-2019_CZ5.osm'
 
-    result = runner.invoke(constructions_from_osm, [input_osm_file])
+    result = runner.invoke(constructions_from_osm_cli, [input_osm_file])
     assert result.exit_code == 0
     result_dict = json.loads(result.output)
     assert len(result_dict) > 30
@@ -161,7 +162,7 @@ def test_construction_sets_from_osm():
     runner = CliRunner()
     input_osm_file = './tests/osm/MidriseApartment-90.1-2019_CZ5.osm'
 
-    result = runner.invoke(construction_sets_from_osm, [input_osm_file])
+    result = runner.invoke(construction_sets_from_osm_cli, [input_osm_file])
     assert result.exit_code == 0
     result_dict = json.loads(result.output)
     assert len(result_dict) == 2
@@ -171,7 +172,7 @@ def test_schedule_type_limits_from_osm():
     runner = CliRunner()
     input_osm_file = './tests/osm/MidriseApartment-90.1-2019_CZ5.osm'
 
-    result = runner.invoke(schedule_type_limits_from_osm, [input_osm_file])
+    result = runner.invoke(schedule_type_limits_from_osm_cli, [input_osm_file])
     assert result.exit_code == 0
     result_dict = json.loads(result.output)
     assert len(result_dict) > 10
@@ -181,7 +182,7 @@ def test_schedules_from_osm():
     runner = CliRunner()
     input_osm_file = './tests/osm/MidriseApartment-90.1-2019_CZ5.osm'
 
-    result = runner.invoke(schedules_from_osm, [input_osm_file])
+    result = runner.invoke(schedules_from_osm_cli, [input_osm_file])
     assert result.exit_code == 0
     result_dict = json.loads(result.output)
     assert len(result_dict) > 100
@@ -191,7 +192,7 @@ def test_programs_from_osm():
     runner = CliRunner()
     input_osm_file = './tests/osm/MidriseApartment-90.1-2019_CZ5.osm'
 
-    result = runner.invoke(programs_from_osm, [input_osm_file])
+    result = runner.invoke(programs_from_osm_cli, [input_osm_file])
     assert result.exit_code == 0
     result_dict = json.loads(result.output)
     assert len(result_dict) == 20
@@ -201,16 +202,16 @@ def test_schedule_to_from_idf():
     runner = CliRunner()
     input_hb_sch = './tests/idf/OfficeOccupancySchedule.idf'
 
-    result = runner.invoke(schedule_from_idf, [input_hb_sch])
+    result = runner.invoke(schedules_from_idf_cli, [input_hb_sch])
     assert result.exit_code == 0
 
     output_hb_json = './tests/json/OfficeOccupancySchedule.json'
     result = runner.invoke(
-        schedule_from_idf, [input_hb_sch, '--output-file', output_hb_json])
+        schedules_from_idf_cli, [input_hb_sch, '--output-file', output_hb_json])
     assert result.exit_code == 0
     assert os.path.isfile(output_hb_json)
 
-    result = runner.invoke(schedule_to_idf, [output_hb_json])
+    result = runner.invoke(schedules_to_idf_cli, [output_hb_json])
     assert result.exit_code == 0
 
     os.remove(output_hb_json)
