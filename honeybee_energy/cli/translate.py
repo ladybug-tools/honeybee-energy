@@ -1403,8 +1403,8 @@ def constructions_to_idf(construction_json, output_file=None):
     return process_content_to_output(idf_str, output_file)
 
 
-@translate.command('constructions-from-idf')
-@click.argument('construction-idf', type=click.Path(
+@translate.command('materials-from-idf')
+@click.argument('material-idf', type=click.Path(
     exists=True, file_okay=True, dir_okay=False, resolve_path=True))
 @click.option('--indent', '-i', help='Optional integer to specify the indentation in '
               'the output JSON file. Specifying an value here can produce more read-able'
@@ -1412,8 +1412,65 @@ def constructions_to_idf(construction_json, output_file=None):
 @click.option('--output-file', '-f', help='Optional JSON file to output the JSON '
               'string of the translation. By default this will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
-def constructions_from_idf_cli(construction_idf, indent, output_file):
-    """Translate a Construction IDF file to a honeybee JSON as an array of constructions.
+def materials_from_idf_cli(material_idf, indent, output_file):
+    """Translate all materials in an IDF file to a honeybee JSON.
+
+    \b
+    Args:
+        material_idf: Full path to an IDF file. Only the materials in this file
+        will be extracted.
+    """
+    try:
+        materials_from_idf(material_idf, indent, output_file)
+    except Exception as e:
+        _logger.exception('Material translation failed.\n{}'.format(e))
+        sys.exit(1)
+    else:
+        sys.exit(0)
+
+
+def materials_from_idf(material_idf, indent=None, output_file=None):
+    """Translate all materials in an IDF file to a honeybee JSON.
+
+    The resulting JSON can be written into a user standards folder to add the
+    materials to a users standards library.
+
+    Args:
+        material_idf: Full path to an IDF file. Only the materials in this file
+            will be extracted.
+        indent: Optional integer to specify the indentation in the output JSON file.
+            Specifying an value here can produce more read-able JSONs. (Default: None).
+        output_file: Optional JSON file to output the string of the translation.
+            If None, it will be returned from this method. (Default: None).
+    """
+    # re-serialize the Materials to Python
+    opaque_mats = OpaqueConstruction.extract_all_from_idf_file(material_idf)
+    win_mats = WindowConstruction.extract_all_from_idf_file(material_idf)
+    # create the honeybee dictionaries
+    out_dict = {}
+    for mat in opaque_mats[1] + win_mats[1]:
+        out_dict[mat.identifier] = mat.to_dict()
+    # write out the JSON file
+    return process_content_to_output(json.dumps(out_dict, indent=indent), output_file)
+
+
+@translate.command('constructions-from-idf')
+@click.argument('construction-idf', type=click.Path(
+    exists=True, file_okay=True, dir_okay=False, resolve_path=True))
+@click.option('--full/--abridged', ' /-a', help='Flag to note whether the objects '
+              'should be translated as an abridged specification instead of a '
+              'specification that fully describes the object. This option should be '
+              'used when the materials-from-idf command will be used to separately '
+              'translate all of the materials from the IDF.',
+              default=True, show_default=True)
+@click.option('--indent', '-i', help='Optional integer to specify the indentation in '
+              'the output JSON file. Specifying an value here can produce more read-able'
+              ' JSONs.', type=int, default=None, show_default=True)
+@click.option('--output-file', '-f', help='Optional JSON file to output the JSON '
+              'string of the translation. By default this will be printed out to stdout',
+              type=click.File('w'), default='-', show_default=True)
+def constructions_from_idf_cli(construction_idf, full, indent, output_file):
+    """Translate all constructions in an IDF file to a honeybee JSON.
 
     \b
     Args:
@@ -1421,7 +1478,8 @@ def constructions_from_idf_cli(construction_idf, indent, output_file):
             and materials in this file will be extracted.
     """
     try:
-        constructions_from_idf(construction_idf, indent, output_file)
+        abridged = not full
+        constructions_from_idf(construction_idf, abridged, indent, output_file)
     except Exception as e:
         _logger.exception('Construction translation failed.\n{}'.format(e))
         sys.exit(1)
@@ -1429,15 +1487,22 @@ def constructions_from_idf_cli(construction_idf, indent, output_file):
         sys.exit(0)
 
 
-def constructions_from_idf(construction_idf, indent=None, output_file=None):
-    """Translate a Construction IDF file to a honeybee JSON.
+def constructions_from_idf(
+    construction_idf, abridged=False, indent=None, output_file=None, full=True
+):
+    """Translate all constructions in an IDF file to a honeybee JSON.
 
     The resulting JSON can be written into a user standards folder to add the
-    materials to a users standards library.
+    constructions to a users standards library.
 
     Args:
         construction_idf: Full path to a Construction IDF file. Only the constructions
             and materials in this file will be extracted.
+        abridged: Boolean to note whether the objects should be translated as
+            an abridged specification instead of a specification that fully
+            describes the object. This option should be used when the
+            materials_from_idf function will be used to separately translate
+            all of the materials from the IDF. (Default: False).
         indent: Optional integer to specify the indentation in the output JSON file.
             Specifying an value here can produce more read-able JSONs. (Default: None).
         output_file: Optional JSON file to output the string of the translation.
@@ -1446,16 +1511,15 @@ def constructions_from_idf(construction_idf, indent=None, output_file=None):
     # re-serialize the Constructions to Python
     opaque_constrs = OpaqueConstruction.extract_all_from_idf_file(construction_idf)
     win_constrs = WindowConstruction.extract_all_from_idf_file(construction_idf)
-
     # create the honeybee dictionaries
-    hb_obj_dict = {}
-    for constr in opaque_constrs[0]:
-        hb_obj_dict[constr.identifier] = constr.to_dict()
-    for constr in win_constrs[0]:
-        hb_obj_dict[constr.identifier] = constr.to_dict()
-
+    out_dict = {}
+    for con in opaque_constrs[0] + win_constrs[0]:
+        try:
+            out_dict[con.identifier] = con.to_dict(abridged=abridged)
+        except TypeError:  # no abridged option
+            out_dict[con.identifier] = con.to_dict()
     # write out the JSON file
-    return process_content_to_output(json.dumps(hb_obj_dict, indent=indent), output_file)
+    return process_content_to_output(json.dumps(out_dict, indent=indent), output_file)
 
 
 @translate.command('materials-from-osm')

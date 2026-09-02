@@ -9,7 +9,7 @@ from honeybee.model import Model
 from honeybee_energy.cli.translate import model_to_osm_cli, model_to_idf_cli, \
     model_to_gbxml_cli, model_to_trace_gbxml_cli, model_to_sdd_cli, \
     model_from_gbxml_cli, model_from_osm_cli, model_from_idf_cli, \
-    constructions_from_idf_cli, constructions_to_idf_cli, \
+    materials_from_idf_cli, constructions_from_idf_cli, constructions_to_idf_cli, \
     schedules_to_idf_cli, schedules_from_idf_cli, \
     model_occ_schedules, model_trans_schedules, \
     materials_from_osm_cli, constructions_from_osm_cli, construction_sets_from_osm_cli, \
@@ -122,6 +122,9 @@ def test_model_from_idf():
 def test_constructions_to_from_idf():
     runner = CliRunner()
     input_hb_constr = './tests/idf/GlzSys_Triple Clear_Avg.idf'
+
+    result = runner.invoke(materials_from_idf_cli, [input_hb_constr])
+    assert result.exit_code == 0
 
     result = runner.invoke(constructions_from_idf_cli, [input_hb_constr])
     assert result.exit_code == 0
