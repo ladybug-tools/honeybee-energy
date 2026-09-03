@@ -1,0 +1,7 @@
+honeybee\_energy.hvac.heatcool.windowac module
+==============================================
+
+.. automodule:: honeybee_energy.hvac.heatcool.windowac
+   :members:
+   :undoc-members:
+   :show-inheritance:

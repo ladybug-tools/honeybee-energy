@@ -1,0 +1,7 @@
+honeybee\_energy.load.infiltration module
+=========================================
+
+.. automodule:: honeybee_energy.load.infiltration
+   :members:
+   :undoc-members:
+   :show-inheritance:

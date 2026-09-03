@@ -1,0 +1,7 @@
+main
+====
+
+.. click:: honeybee_energy.cli.__init__:energy
+   :prog: honeybee-energy
+   :show-nested:
+   :commands: config
