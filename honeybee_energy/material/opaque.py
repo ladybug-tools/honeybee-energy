@@ -301,29 +301,29 @@ class EnergyMaterial(_EnergyMaterialOpaqueBase):
         mat_id = gbxml_element.get('id').replace('_', ' ')
         # get the thickness
         xml_thickness = gbxml_element.find('Thickness')
-        thickness, t_unit = xml_thickness.text, xml_thickness.get('unit')
+        thickness, t_unit = float(xml_thickness.text), xml_thickness.get('unit')
         if t_unit != 'Meters':
             assert t_unit == 'Feet', \
                 'Thickness unit "{}" is not supported'.format(t_unit)
             thickness = round(Distance().to_si([thickness], 'ft')[0][0], 4)
         # get the conductivity
         xml_conductivity = gbxml_element.find('Conductivity')
-        conductivity, c_unit = xml_conductivity.text, xml_conductivity.get('unit')
+        conductivity, c_unit = float(xml_conductivity.text), xml_conductivity.get('unit')
         if c_unit != 'WPerMeterK':
-            assert t_unit == 'BtuPerHourFtF', \
+            assert c_unit == 'BtuPerHourFtF', \
                 'Conductivity unit "{}" is not supported'.format(c_unit)
             conductivity = \
                 round(Conductivity().to_si([conductivity], 'Btu/h-ft-F')[0][0], 3)
         # get the density
         xml_density = gbxml_element.find('Density')
-        density, d_unit = xml_density.text, xml_density.get('unit')
+        density, d_unit = float(xml_density.text), xml_density.get('unit')
         if d_unit != 'KgPerCubicM':
             assert d_unit == 'LbsPerCubicFt', \
                 'Density unit "{}" is not supported'.format(d_unit)
             density = round(Density().to_si([density], 'lb/ft3')[0][0], 3)
         # get the specific heat
         xml_sh = gbxml_element.find('SpecificHeat')
-        specific_heat, sh_unit = xml_sh.text, xml_sh.get('unit')
+        specific_heat, sh_unit = float(xml_sh.text), xml_sh.get('unit')
         if sh_unit != 'JPerKgK':
             assert sh_unit == 'BTUPerLbF', \
                 'Specific heat unit "{}" is not supported'.format(sh_unit)
@@ -701,7 +701,7 @@ class EnergyMaterialNoMass(_EnergyMaterialOpaqueBase):
         mat_id = gbxml_element.get('id').replace('_', ' ')
         # get the r_value
         xml_r_value = gbxml_element.find('R-value')
-        r_value, r_unit = xml_r_value.text, xml_r_value.get('unit')
+        r_value, r_unit = float(xml_r_value.text), xml_r_value.get('unit')
         if r_unit != 'SquareMeterKPerW':
             assert r_unit == 'HrSquareFtFPerBTU', \
                 'R-value unit "{}" is not supported'.format(r_unit)

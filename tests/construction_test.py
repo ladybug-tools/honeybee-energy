@@ -225,6 +225,15 @@ def test_opaque_construction_to_gbxml():
     assert constr_str == new_constr_str
 
 
+def test_opaque_construction_extract_all_from_gbxml_file():
+    """Test the OpaqueConstruction textract_all_from_gbxml_file method."""
+    lbt_gbxml_file = './tests/gbxml/lbt_gb.xml'
+    constructions, materials = OpaqueConstruction.extract_all_from_gbxml_file(lbt_gbxml_file)
+
+    assert len(materials) == 26
+    assert len(constructions) == 18
+
+
 def test_opaque_dict_methods(userdatadict):
     """Test the to/from dict methods."""
     concrete = EnergyMaterial('Concrete', 0.15, 2.31, 2322, 832)

@@ -1522,6 +1522,125 @@ def constructions_from_idf(
     return process_content_to_output(json.dumps(out_dict, indent=indent), output_file)
 
 
+@translate.command('materials-from-gbxml')
+@click.argument('material-gbxml', type=click.Path(
+    exists=True, file_okay=True, dir_okay=False, resolve_path=True))
+@click.option('--indent', '-i', help='Optional integer to specify the indentation in '
+              'the output JSON file. Specifying an value here can produce more read-able'
+              ' JSONs.', type=int, default=None, show_default=True)
+@click.option('--output-file', '-f', help='Optional JSON file to output the JSON '
+              'string of the translation. By default this will be printed out to stdout',
+              type=click.File('w'), default='-', show_default=True)
+def materials_from_gbxml_cli(material_gbxml, indent, output_file):
+    """Translate all materials in an gbXML file to a honeybee JSON.
+
+    \b
+    Args:
+        material_gbxml: Full path to an gbXML file. Only the materials in this file
+        will be extracted.
+    """
+    try:
+        materials_from_gbxml(material_gbxml, indent, output_file)
+    except Exception as e:
+        _logger.exception('Material translation failed.\n{}'.format(e))
+        sys.exit(1)
+    else:
+        sys.exit(0)
+
+
+def materials_from_gbxml(material_gbxml, indent=None, output_file=None):
+    """Translate all materials in an gbXML file to a honeybee JSON.
+
+    The resulting JSON can be written into a user standards folder to add the
+    materials to a users standards library.
+
+    Args:
+        material_gbxml: Full path to an gbXML file. Only the materials in this file
+            will be extracted.
+        indent: Optional integer to specify the indentation in the output JSON file.
+            Specifying an value here can produce more read-able JSONs. (Default: None).
+        output_file: Optional JSON file to output the string of the translation.
+            If None, it will be returned from this method. (Default: None).
+    """
+    # re-serialize the Materials to Python
+    opaque_mats = OpaqueConstruction.extract_all_from_gbxml_file(material_gbxml)
+    win_mats = WindowConstruction.extract_all_from_gbxml_file(material_gbxml)
+    # create the honeybee dictionaries
+    out_dict = {}
+    for mat in opaque_mats[1] + win_mats[1]:
+        out_dict[mat.identifier] = mat.to_dict()
+    # write out the JSON file
+    return process_content_to_output(json.dumps(out_dict, indent=indent), output_file)
+
+
+@translate.command('constructions-from-gbxml')
+@click.argument('construction-gbxml', type=click.Path(
+    exists=True, file_okay=True, dir_okay=False, resolve_path=True))
+@click.option('--full/--abridged', ' /-a', help='Flag to note whether the objects '
+              'should be translated as an abridged specification instead of a '
+              'specification that fully describes the object. This option should be '
+              'used when the materials-from-gbxml command will be used to separately '
+              'translate all of the materials from the gbXML.',
+              default=True, show_default=True)
+@click.option('--indent', '-i', help='Optional integer to specify the indentation in '
+              'the output JSON file. Specifying an value here can produce more read-able'
+              ' JSONs.', type=int, default=None, show_default=True)
+@click.option('--output-file', '-f', help='Optional JSON file to output the JSON '
+              'string of the translation. By default this will be printed out to stdout',
+              type=click.File('w'), default='-', show_default=True)
+def constructions_from_gbxml_cli(construction_gbxml, full, indent, output_file):
+    """Translate all constructions in an gbXML file to a honeybee JSON.
+
+    \b
+    Args:
+        construction_gbxml: Full path to a Construction gbXML file. Only the constructions
+            and materials in this file will be extracted.
+    """
+    try:
+        abridged = not full
+        constructions_from_gbxml(construction_gbxml, abridged, indent, output_file)
+    except Exception as e:
+        _logger.exception('Construction translation failed.\n{}'.format(e))
+        sys.exit(1)
+    else:
+        sys.exit(0)
+
+
+def constructions_from_gbxml(
+    construction_gbxml, abridged=False, indent=None, output_file=None, full=True
+):
+    """Translate all constructions in an gbXML file to a honeybee JSON.
+
+    The resulting JSON can be written into a user standards folder to add the
+    constructions to a users standards library.
+
+    Args:
+        construction_gbxml: Full path to a Construction gbXML file. Only the constructions
+            and materials in this file will be extracted.
+        abridged: Boolean to note whether the objects should be translated as
+            an abridged specification instead of a specification that fully
+            describes the object. This option should be used when the
+            materials_from_gbxml function will be used to separately translate
+            all of the materials from the gbXML. (Default: False).
+        indent: Optional integer to specify the indentation in the output JSON file.
+            Specifying an value here can produce more read-able JSONs. (Default: None).
+        output_file: Optional JSON file to output the string of the translation.
+            If None, it will be returned from this method. (Default: None).
+    """
+    # re-serialize the Constructions to Python
+    opaque_constrs = OpaqueConstruction.extract_all_from_gbxml_file(construction_gbxml)
+    win_constrs = WindowConstruction.extract_all_from_gbxml_file(construction_gbxml)
+    # create the honeybee dictionaries
+    out_dict = {}
+    for con in opaque_constrs[0] + win_constrs[0]:
+        try:
+            out_dict[con.identifier] = con.to_dict(abridged=abridged)
+        except TypeError:  # no abridged option
+            out_dict[con.identifier] = con.to_dict()
+    # write out the JSON file
+    return process_content_to_output(json.dumps(out_dict, indent=indent), output_file)
+
+
 @translate.command('materials-from-osm')
 @click.argument('osm-file', type=click.Path(
     exists=True, file_okay=True, dir_okay=False, resolve_path=True))
