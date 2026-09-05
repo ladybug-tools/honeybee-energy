@@ -227,11 +227,16 @@ def test_opaque_construction_to_gbxml():
 
 def test_opaque_construction_extract_all_from_gbxml_file():
     """Test the OpaqueConstruction textract_all_from_gbxml_file method."""
-    lbt_gbxml_file = './tests/gbxml/lbt_gb.xml'
-    constructions, materials = OpaqueConstruction.extract_all_from_gbxml_file(lbt_gbxml_file)
+    os_gbxml_file = './tests/gbxml/openstudio_gb.xml'
+    constructions, materials = OpaqueConstruction.extract_all_from_gbxml_file(os_gbxml_file)
+    assert len(materials) == 27
+    assert len(constructions) == 19
 
-    assert len(materials) == 26
-    assert len(constructions) == 18
+    dsb_gbxml_file = './tests/gbxml/designbuilder_gb.xml'
+    constructions, materials = OpaqueConstruction.extract_all_from_gbxml_file(dsb_gbxml_file)
+    print(len(materials), len(constructions))
+    assert len(materials) == 18
+    assert len(constructions) == 9
 
 
 def test_opaque_dict_methods(userdatadict):

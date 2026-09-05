@@ -1947,6 +1947,13 @@ def model_to_gbxml_element(
     # add the material objects to the gbxml
     for mat in set(materials):
         mat.to_gbxml_element(ip_units=ip_units, parent_element=gbxml_root)
+        # add a Layer object for the material with the same name (like OpenStudio SDK)
+        clean_mat_id = clean_xml_tag_string(mat.identifier)
+        lay_id = '{}_Layer'.format(clean_mat_id)
+        xml_lay = ET.SubElement(gbxml_root, 'Layer', id=lay_id)
+        xml_name = ET.SubElement(xml_lay, 'Name')
+        xml_name.text = str(mat.display_name)
+        ET.SubElement(xml_lay, 'MaterialId', materialIdRef=str(clean_mat_id))
 
     # add the zone information to the gbxml
     for room in single_zones:

@@ -293,15 +293,19 @@ class OpaqueConstruction(_ConstructionBase):
         con_id = gbxml_element.get('id').replace('_', ' ')
         mat_layers = []
         for xml_mat in gbxml_element.findall('LayerId'):
-            mat_id = xml_mat.get('layerIdRef')
+            mat_id = xml_mat.get('layerIdRef').replace('_', ' ')
             try:
-                layer_obj = materials[mat_id.replace('_', ' ')]
-                if isinstance(layer_obj, (list, tuple)):
-                    mat_layers.extend(layer_obj)
-                else:
-                    mat_layers.append(layer_obj)
+                layer_obj = materials[mat_id]
             except KeyError as e:
-                raise ValueError('Failed to find {} in materials.'.format(e))
+                try:  # try stripping out _Layer added to the end
+                    mat_id = mat_id.replace('_Layer', '')
+                    layer_obj = materials[mat_id]
+                except KeyError:
+                    raise ValueError('Failed to find {} in materials.'.format(e))
+            if isinstance(layer_obj, (list, tuple)):
+                mat_layers.extend(layer_obj)
+            else:
+                mat_layers.append(layer_obj)
         new_obj = cls(con_id, mat_layers)
         name = gbxml_element.find('Name')
         if name is not None:
@@ -564,6 +568,12 @@ class OpaqueConstruction(_ConstructionBase):
             -   materials: A list of all opaque materials in the gbXML file as
                 honeybee_energy EnergyMaterial objects.
         """
+        # register all of the namespaces within OpenStudio-exported XMLs
+        ET.register_namespace('', 'http://www.gbxml.org/schema')
+        ET.register_namespace('xhtml', 'http://www.w3.org/1999/xhtml')
+        ET.register_namespace('xsi', 'http://www.w3.org/2001/XMLSchema-instance')
+        ET.register_namespace('xsd', 'http://www.w3.org/2001/XMLSchema')
+
         # load the file to an element tree
         tree = ET.parse(gbxml_file)
         root = tree.getroot()
@@ -592,7 +602,7 @@ class OpaqueConstruction(_ConstructionBase):
             layer_element_id = layer_element.get('id').replace('_', ' ')
             layers_def = []
             for mat_element in layer_element.findall(gbxml_header + 'MaterialId'):
-                mat_id = layer_element.get('materialIdRef').replace('_', ' ')
+                mat_id = mat_element.get('materialIdRef').replace('_', ' ')
                 layers_def.append(materials[mat_id])
             materials[layer_element_id] = layers_def
 
