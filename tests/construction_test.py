@@ -476,6 +476,19 @@ def test_window_construction_init_from_idf_file_frame():
     assert glaz_constr.shgc == pytest.approx(0.688267, rel=1e-2)
 
 
+def test_window_construction_extract_all_from_gbxml_file():
+    """Test the WindowConstruction textract_all_from_gbxml_file method."""
+    os_gbxml_file = './tests/gbxml/openstudio_gb.xml'
+    constructions, materials = WindowConstruction.extract_all_from_gbxml_file(os_gbxml_file)
+    assert len(materials) == 2
+    assert len(constructions) == 2
+
+    dsb_gbxml_file = './tests/gbxml/designbuilder_gb.xml'
+    constructions, materials = WindowConstruction.extract_all_from_gbxml_file(dsb_gbxml_file)
+    assert len(materials) == 1
+    assert len(constructions) == 1
+
+
 def test_window_construction_to_gbxml():
     """Test the initialization of WindowConstruction.from_simple_parameters()."""
     glaz_constr = WindowConstruction.from_simple_parameters(

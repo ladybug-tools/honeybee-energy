@@ -686,12 +686,30 @@ class WindowConstruction(_ConstructionBase):
             gbxml_element: A WindowType Element from a gbXML file.
         """
         con_id = gbxml_element.get('id').replace('_', ' ')
-        t_vis = gbxml_element.find('Transmittance').text
+        # get the u-factor
         xml_u_factor = gbxml_element.find('U-value')
-        u_factor, u_unit = xml_u_factor.text, xml_u_factor.get('unit')
+        u_factor, u_unit = float(xml_u_factor.text), xml_u_factor.get('unit')
         if u_unit == 'BtuPerHourSquareFtF':
             u_factor = UValue().to_si([u_factor], 'Btu/h-ft2-F')[0][0]
-        shgc = gbxml_element.find('SolarHeatGainCoeff').text
+        # get the solar heat gain coefficient
+        t_vis, t_sol = 0, None
+        for trans in gbxml_element.findall('Transmittance'):
+            if trans.get('type') == 'Visible':
+                t_vis = float(trans.text)
+            if trans.get('type') == 'Solar':
+                t_sol = float(trans.text)
+        shgc = gbxml_element.find('SolarHeatGainCoeff')
+        if shgc is None and t_sol is None:
+            raise AttributeError('Not enough solar data to compute SHGC.')
+        if shgc is None:
+            for pf_shgc in range(1, 100):
+                p_shgc = pf_shgc / 100
+                p_mat = EnergyWindowMaterialSimpleGlazSys('t', u_factor, p_shgc, t_vis)
+                if p_mat.solar_transmittance >= t_sol:
+                    shgc = p_shgc
+                    break
+        else:
+            shgc = float(shgc.text)
         simple_mat = EnergyWindowMaterialSimpleGlazSys(
             '{}_mat'.format(con_id), u_factor, shgc, t_vis
         )
@@ -1017,6 +1035,49 @@ class WindowConstruction(_ConstructionBase):
             for construct in constructions:
                 construct.frame = frame_materials[0]
         return constructions, materials + frame_materials
+
+    @staticmethod
+    def extract_all_from_gbxml_file(gbxml_file):
+        """Extract all WindowConstruction objects from an EnergyPlus gbXML file.
+
+        Args:
+            gbxml_file: A path to an gbXML file containing objects for window
+                constructions and corresponding materials.
+
+        Returns:
+            A tuple with two elements
+
+            -   constructions: A list of all WindowConstruction objects in the gbXML
+                file as honeybee_energy WindowConstruction objects.
+
+            -   materials: A list of all simple glazing materials in the gbXML file as
+                honeybee_energy EnergyWindowMaterialSimpleGlazSys objects.
+        """
+        # register all of the namespaces within OpenStudio-exported XMLs
+        ET.register_namespace('', 'http://www.gbxml.org/schema')
+        ET.register_namespace('xhtml', 'http://www.w3.org/1999/xhtml')
+        ET.register_namespace('xsi', 'http://www.w3.org/2001/XMLSchema-instance')
+        ET.register_namespace('xsd', 'http://www.w3.org/2001/XMLSchema')
+
+        # load the file to an element tree
+        tree = ET.parse(gbxml_file)
+        root = tree.getroot()
+        gbxml_header = r'{http://www.gbxml.org/schema}'
+
+        # extract all of the construction objects
+        constructions, materials = [], []
+        for con_element in root.findall(gbxml_header + 'WindowType'):
+            # Recursively strip namespaces from tags to make them parse-able
+            for elem in con_element.iter():
+                if '}' in elem.tag:
+                    elem.tag = elem.tag.split('}', 1)[1]
+            try:
+                con = WindowConstruction.from_gbxml_element(con_element)
+                constructions.append(con)
+                materials.append(con.materials[0])
+            except AttributeError:  # not enough info to make a window construction
+                pass
+        return constructions, materials
 
     def lock(self):
         """The lock() method will also lock the materials."""

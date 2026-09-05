@@ -11,6 +11,7 @@ from honeybee_energy.cli.translate import model_to_osm_cli, model_to_idf_cli, \
     model_from_gbxml_cli, model_from_osm_cli, model_from_idf_cli, \
     materials_from_idf_cli, constructions_from_idf_cli, constructions_to_idf_cli, \
     schedules_to_idf_cli, schedules_from_idf_cli, \
+    materials_from_gbxml_cli, constructions_from_gbxml_cli, \
     model_occ_schedules, model_trans_schedules, \
     materials_from_osm_cli, constructions_from_osm_cli, construction_sets_from_osm_cli, \
     schedule_type_limits_from_osm_cli, schedules_from_osm_cli, programs_from_osm_cli
@@ -139,6 +140,26 @@ def test_constructions_to_from_idf():
     assert result.exit_code == 0
 
     os.remove(output_hb_json)
+
+
+def test_materials_from_gbxml():
+    runner = CliRunner()
+    input_gbxml_file = './tests/gbxml/openstudio_gb.xml'
+
+    result = runner.invoke(materials_from_gbxml_cli, [input_gbxml_file])
+    assert result.exit_code == 0
+    result_dict = json.loads(result.output)
+    assert len(result_dict) > 27
+
+
+def test_constructions_from_gbxml():
+    runner = CliRunner()
+    input_gbxml_file = './tests/gbxml/openstudio_gb.xml'
+
+    result = runner.invoke(constructions_from_gbxml_cli, [input_gbxml_file])
+    assert result.exit_code == 0
+    result_dict = json.loads(result.output)
+    assert len(result_dict) > 19
 
 
 def test_materials_from_osm():
