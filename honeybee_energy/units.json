@@ -184,6 +184,35 @@
             "convert_from_ip": "{x}"
         }
     },
+    "exhaust": {
+        "flow_per_area": {
+            "units_hb": "m³/s/m²",
+            "units_si": "L/s/m²",
+            "units_ip": "cfm/ft²",
+            "convert_to_si": "{x} * 1000",
+            "convert_to_ip": "{x} * 196.85",
+            "convert_from_si": "{x} / 1000",
+            "convert_from_ip": "{x} / 196.85"
+        },
+        "flow_per_fixture": {
+            "units_hb": "m³/s",
+            "units_si": "L/s",
+            "units_ip": "cfm",
+            "convert_to_si": "{x} * 1000",
+            "convert_to_ip": "{x} * 2118.88",
+            "convert_from_si": "{x} / 1000",
+            "convert_from_ip": "{x} / 2118.88"
+        },
+        "pressure_rise": {
+            "units_hb": "Pa",
+            "units_si": "Pa",
+            "units_ip": "inH²O",
+            "convert_to_si": "{x}",
+            "convert_to_ip": "{x} * 0.00401865",
+            "convert_from_si": "{x}",
+            "convert_from_ip": "{x} / 0.00401865"
+        }
+    },
     "setpoint": {
         "heating_setpoint": {
             "units_hb": "°C",

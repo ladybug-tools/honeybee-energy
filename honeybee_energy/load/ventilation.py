@@ -20,7 +20,7 @@ from ..properties.extension import VentilationProperties
 
 @lockable
 class Ventilation(_LoadBase):
-    """A complete definition of ventilation, including schedules and load.
+    """A complete definition of ventilation, including schedules and flow rates.
 
     Note the the 4 ventilation types (flow_per_person, flow_per_area, flow_per_zone,
     and air_changes_per_hour) are ultimately added together to yield the ventilation
