@@ -1,0 +1,7 @@
+honeybee\_energy.simulation.sizing module
+=========================================
+
+.. automodule:: honeybee_energy.simulation.sizing
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,7 @@
+honeybee\_energy.simulation.daylightsaving module
+=================================================
+
+.. automodule:: honeybee_energy.simulation.daylightsaving
+   :members:
+   :undoc-members:
+   :show-inheritance:

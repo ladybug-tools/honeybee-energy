@@ -1,0 +1,7 @@
+honeybee\_energy.hvac.allair.furnace module
+===========================================
+
+.. automodule:: honeybee_energy.hvac.allair.furnace
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,7 @@
+honeybee\_energy.result.match module
+====================================
+
+.. automodule:: honeybee_energy.result.match
+   :members:
+   :undoc-members:
+   :show-inheritance:

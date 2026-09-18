@@ -1,0 +1,7 @@
+honeybee\_energy.construction.dynamic module
+============================================
+
+.. automodule:: honeybee_energy.construction.dynamic
+   :members:
+   :undoc-members:
+   :show-inheritance:

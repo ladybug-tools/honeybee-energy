@@ -1,0 +1,7 @@
+honeybee\_energy.properties.aperture module
+===========================================
+
+.. automodule:: honeybee_energy.properties.aperture
+   :members:
+   :undoc-members:
+   :show-inheritance:

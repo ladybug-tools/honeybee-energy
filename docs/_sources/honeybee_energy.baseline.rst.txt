@@ -1,0 +1,28 @@
+honeybee\_energy.baseline package
+=================================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   honeybee_energy.baseline.data
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   honeybee_energy.baseline.create
+   honeybee_energy.baseline.pci
+   honeybee_energy.baseline.result
+
+Module contents
+---------------
+
+.. automodule:: honeybee_energy.baseline
+   :members:
+   :undoc-members:
+   :show-inheritance:

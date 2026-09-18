@@ -1,0 +1,7 @@
+honeybee\_energy.ventcool.fan module
+====================================
+
+.. automodule:: honeybee_energy.ventcool.fan
+   :members:
+   :undoc-members:
+   :show-inheritance:
