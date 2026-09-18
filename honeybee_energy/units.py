@@ -85,6 +85,11 @@ def convert_ventilation_air_changes_per_hour(value, units='si'):
     return eval(UNITS[group][atr]['convert_to_{}'.format(units)].format(x=value), SAFE)
 
 
+def convert_pressure_rise(value, units='si'):
+    group, atr = 'exhaust', 'pressure_rise'
+    return eval(UNITS[group][atr]['convert_to_{}'.format(units)].format(x=value), SAFE)
+
+
 def convert_setpoint(value, units='si'):
     group, atr = 'setpoint', 'heating_setpoint'
     return eval(UNITS[group][atr]['convert_to_{}'.format(units)].format(x=value), SAFE)

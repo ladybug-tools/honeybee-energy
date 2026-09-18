@@ -176,7 +176,7 @@ class VentilationFan(object):
 
     @property
     def pressure_rise(self):
-        """Get or set a number for the fan flow rate in m3/s."""
+        """Get or set a number for the fan fan pressure rise in Pa."""
         if self._pressure_rise is not None:
             return self._pressure_rise
         return self._default_pressure_rise()
