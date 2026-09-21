@@ -475,5 +475,5 @@ class ExhaustAir(_LoadBase):
     def __repr__(self):
         return 'ExhaustAir: {} [{} m3/s-m2] [{} m3/fixture]'.format(
             self.display_name, round(self.flow_per_area, 6),
-            round(self.air_changes_per_hour, 3)
+            round(self.flow_per_fixture, 3)
         )
