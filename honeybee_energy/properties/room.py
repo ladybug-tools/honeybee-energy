@@ -18,6 +18,7 @@ from ..load.equipment import ElectricEquipment, GasEquipment
 from ..load.hotwater import ServiceHotWater
 from ..load.infiltration import Infiltration
 from ..load.ventilation import Ventilation
+from ..load.exhaust import ExhaustAir
 from ..load.setpoint import Setpoint
 from ..load.daylight import DaylightingControl
 from ..load.process import Process
@@ -73,6 +74,7 @@ class RoomEnergyProperties(object):
         * service_hot_water
         * infiltration
         * ventilation
+        * exhaust
         * setpoint
         * daylighting_control
         * window_vent_control
@@ -87,7 +89,7 @@ class RoomEnergyProperties(object):
     __slots__ = (
         '_host', '_program_type', '_construction_set', '_hvac', '_shw',
         '_people', '_lighting', '_electric_equipment', '_gas_equipment',
-        '_service_hot_water', '_infiltration', '_ventilation', '_setpoint',
+        '_service_hot_water', '_infiltration', '_ventilation', '_exhaust', '_setpoint',
         '_daylighting_control', '_window_vent_control', '_fans',
         '_internal_masses', '_process_loads'
     )
@@ -110,6 +112,7 @@ class RoomEnergyProperties(object):
         self._service_hot_water = None
         self._infiltration = None
         self._ventilation = None
+        self._exhaust = None
         self._setpoint = None
         self._daylighting_control = None
         self._window_vent_control = None
@@ -312,6 +315,22 @@ class RoomEnergyProperties(object):
         self._ventilation = value
 
     @property
+    def exhaust(self):
+        """Get or set a ExhaustAir object for the exhaust air requirement."""
+        if self._exhaust is not None:  # set by the user
+            return self._exhaust
+        else:
+            return self.program_type.exhaust
+
+    @exhaust.setter
+    def exhaust(self, value):
+        if value is not None:
+            assert isinstance(value, ExhaustAir), 'Expected ExhaustAir ' \
+                'for Room exhaust. Got {}'.format(type(value))
+            value.lock()   # lock because we don't duplicate the object
+        self._exhaust = value
+
+    @property
     def setpoint(self):
         """Get or set a Setpoint object for the temperature setpoints of the Room."""
         if self._setpoint is not None:  # set by the user
@@ -396,6 +415,14 @@ class RoomEnergyProperties(object):
         return self.ventilation.room_absolute_flow(self.host)
 
     @property
+    def total_infiltration_flow(self):
+        """Get the total flow rate of infiltration air for this Room in m3/s."""
+        infiltration = self.infiltration
+        if infiltration is None:
+            return 0
+        return infiltration.room_absolute_flow(self.host)
+
+    @property
     def process_loads(self):
         """Get or set an array of Process objects for process loads within the room."""
         return tuple(self._process_loads)
@@ -448,7 +475,7 @@ class RoomEnergyProperties(object):
         load_attr = (
             self._people, self._lighting, self._electric_equipment,
             self._gas_equipment, self._service_hot_water, self._infiltration,
-            self._ventilation, self._setpoint
+            self._ventilation, self.__exhaust, self._setpoint
         )
         return not all(load is None for load in load_attr)
 
@@ -457,8 +484,8 @@ class RoomEnergyProperties(object):
         """Boolean for whether the Room has SpaceType loads that override the Program.
 
         This property is the same as has_overridden_loads except that overridden
-        service_hot_water, ventilation, and setpoint are ignored given that they
-        replace the attributes assigned by OpenStudio SpaceTypes rather than being
+        service_hot_water, ventilation, exhaust, and setpoint are ignored given that
+        they replace the attributes assigned by OpenStudio SpaceTypes rather than being
         added to them.
         """
         load_attr = (
@@ -466,22 +493,6 @@ class RoomEnergyProperties(object):
             self._gas_equipment, self._infiltration
         )
         return not all(load is None for load in load_attr)
-
-    @property
-    def infiltration_flow(self):
-        """Get the total flow rate of infiltration air for this Room in m3/s."""
-        infiltration = self.infiltration
-        if infiltration is None:
-            return 0
-        return infiltration.room_absolute_flow(self)
-
-    @property
-    def ventilation_flow(self):
-        """Get the total flow rate of ventilation air for this Room in m3/s."""
-        ventilation = self.ventilation
-        if ventilation is None:
-            return 0
-        return ventilation.room_absolute_flow(self)
 
     def absolute_people(self, person_count, conversion=1):
         """Set the absolute number of people in the Room.
@@ -636,6 +647,25 @@ class RoomEnergyProperties(object):
         ventilation.air_changes_per_hour = 0
         ventilation.flow_per_zone = flow_rate
         self.ventilation = ventilation
+
+    def absolute_exhaust(self, flow_rate):
+        """Set the absolute flow rate of exhaust air for the Room in m3/s.
+
+        This overwrites all values of the RoomEnergyProperties's exhaust flow
+        but preserves the schedule. If the Room has no exhaust definition, a
+        new one with an Always On schedule will be created.
+
+        Args:
+            flow_rate: A number for the absolute of flow of exhaust air for
+                the room in cubic meters per second (m3/s). Note that inputting
+                a value here will overwrite all specification of exhaust air
+                currently on the room.
+        """
+        exhaust = self._dup_load('exhaust', ExhaustAir)
+        exhaust.flow_per_area = 0
+        exhaust.flow_per_fixture = flow_rate
+        exhaust.fixture_count = 1
+        self.exhaust = exhaust
 
     def add_process_load(self, process_load):
         """Add a Process load to this Room.
@@ -1140,7 +1170,7 @@ class RoomEnergyProperties(object):
         """Turn the host Room into a plenum with no internal loads.
 
         This includes removing all people, lighting, equipment, hot water, and
-        mechanical ventilation. By default, the heating/cooling system and
+        mechanical ventilation and exhaust. By default, the heating/cooling system and
         setpoints will also be removed but they can optionally be kept. Infiltration
         is kept by default but can optionally be removed as well.
 
@@ -1183,6 +1213,7 @@ class RoomEnergyProperties(object):
         self._gas_equipment = None
         self._service_hot_water = None
         self._ventilation = None
+        self._exhaust = None
         self._infiltration = infiltration
         self._setpoint = setpt
         self._process_loads = []
@@ -1256,6 +1287,7 @@ class RoomEnergyProperties(object):
         self._service_hot_water = None
         self._infiltration = None
         self._ventilation = None
+        self._exhaust = None
         self._setpoint = None
 
     def reset_constructions_to_set(self):
@@ -1314,6 +1346,7 @@ class RoomEnergyProperties(object):
             "service_hot_water": {},  # A ServiceHotWater dictionary
             "infiltration": {},  # A Infiltration dictionary
             "ventilation": {},  # A Ventilation dictionary
+            "exjaust": {},  # An ExhaustAir dictionary
             "setpoint": {},  # A Setpoint dictionary
             "daylighting_control": {},  # A DaylightingControl dictionary
             "window_vent_control": {},  # A VentilationControl dictionary
@@ -1353,6 +1386,8 @@ class RoomEnergyProperties(object):
             new_prop.infiltration = Infiltration.from_dict(data['infiltration'])
         if 'ventilation' in data and data['ventilation'] is not None:
             new_prop.ventilation = Ventilation.from_dict(data['ventilation'])
+        if 'exhaust' in data and data['exhaust'] is not None:
+            new_prop.exhaust = ExhaustAir.from_dict(data['exhaust'])
         if 'setpoint' in data and data['setpoint'] is not None:
             new_prop.setpoint = Setpoint.from_dict(data['setpoint'])
         if 'daylighting_control' in data and data['daylighting_control'] is not None:
@@ -1443,6 +1478,9 @@ class RoomEnergyProperties(object):
         if 'ventilation' in abridged_data and abridged_data['ventilation'] is not None:
             self.ventilation = Ventilation.from_dict_abridged(
                 abridged_data['ventilation'], schedules)
+        if 'exhaust' in abridged_data and abridged_data['exhaust'] is not None:
+            self.exhaust = ExhaustAir.from_dict_abridged(
+                abridged_data['exhaust'], schedules)
         if 'setpoint' in abridged_data and abridged_data['setpoint'] is not None:
             self.setpoint = Setpoint.from_dict_abridged(
                 abridged_data['setpoint'], schedules)
@@ -1528,6 +1566,8 @@ class RoomEnergyProperties(object):
             base['energy']['infiltration'] = self._infiltration.to_dict(abridged)
         if self._ventilation is not None:
             base['energy']['ventilation'] = self._ventilation.to_dict(abridged)
+        if self._exhaust is not None:
+            base['energy']['exhaust'] = self._exhaust.to_dict(abridged)
         if self._setpoint is not None:
             base['energy']['setpoint'] = self._setpoint.to_dict(abridged)
         if self._daylighting_control is not None:
@@ -1563,6 +1603,7 @@ class RoomEnergyProperties(object):
         new_room._service_hot_water = self._service_hot_water
         new_room._infiltration = self._infiltration
         new_room._ventilation = self._ventilation
+        new_room._exhaust = self._exhaust
         new_room._setpoint = self._setpoint
         if self._daylighting_control is not None:
             new_room._daylighting_control = self._daylighting_control.duplicate()
@@ -1600,6 +1641,8 @@ class RoomEnergyProperties(object):
         if not is_equivalent(self._infiltration, other._infiltration):
             return False
         if not is_equivalent(self._ventilation, other._ventilation):
+            return False
+        if not is_equivalent(self._exhaust, other._exhaust):
             return False
         if not is_equivalent(self._setpoint, other._setpoint):
             return False
@@ -1731,7 +1774,7 @@ class RoomEnergyProperties(object):
         except AttributeError:  # currently no load object; create a new one
             if load_class != Ventilation:
                 return load_class(load_id, 0, always_on)
-            else:  # it's a ventilation object
+            else:  # it's a ventilation  or exhaust object
                 return load_class(load_id)
 
     def _absolute_by_floor(self, load_obj, property_name, value, conversion):
