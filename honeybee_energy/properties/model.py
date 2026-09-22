@@ -292,6 +292,7 @@ class ModelEnergyProperties(object):
             shw = room.properties.energy._service_hot_water
             infiltration = room.properties.energy._infiltration
             ventilation = room.properties.energy._ventilation
+            exhaust = room.properties.energy._exhaust
             setpoint = room.properties.energy._setpoint
             window_vent = room.properties.energy._window_vent_control
             processes = room.properties.energy._process_loads
@@ -311,6 +312,8 @@ class ModelEnergyProperties(object):
                 self._check_and_add_schedule(infiltration.schedule, scheds)
             if ventilation is not None and ventilation._schedule is not None:
                 self._check_and_add_schedule(ventilation._schedule, scheds)
+            if exhaust is not None and exhaust._schedule is not None:
+                self._check_and_add_schedule(exhaust._schedule, scheds)
             if setpoint is not None:
                 self._check_and_add_schedule(setpoint.heating_schedule, scheds)
                 self._check_and_add_schedule(setpoint.cooling_schedule, scheds)
@@ -1613,7 +1616,7 @@ class ModelEnergyProperties(object):
         flow rates are added across the Rooms, flow-per-floor area gets recomputed using
         the floor area of each Room, ACH flow rates get recomputed using the volume
         of each Room, and the flow-per-person is set to the highest value of
-        the Rooms in the zone. If all Rooms have ventilation schedules, then these
+        the Rooms in the zone. If Rooms have ventilation schedules, then these
         are recomputed such that the highest value governs at each timestep.
 
         4. If not all of the Rooms of the zone have the same multiplier, then the
@@ -1776,8 +1779,8 @@ class ModelEnergyProperties(object):
         res_func = clean_and_number_ep_string
         mat_dict, con_dict, con_set_dict = {}, {}, {}
         sch_dict, sch_day_dict, prog_dict = {}, {}, {}
-        ppl_dict, lgt_dict, equip_dict, hw_dict, inf_dict, vent_dict, spt_dict = \
-            {}, {}, {}, {}, {}, {}, {}
+        ppl_dict, lgt_dict, equip_dict, hw_dict, inf_dict, vent_dict, ea_dict, spt_dict = \
+            {}, {}, {}, {}, {}, {}, {}, {}
         resource_map = {}
 
         # change the identifiers of the materials
@@ -1856,6 +1859,10 @@ class ModelEnergyProperties(object):
                     resource_map[prg.ventilation.identifier] = prg.ventilation
                     prg.ventilation.identifier = \
                         res_func(prg.ventilation.display_name, vent_dict)
+                if prg.exhaust is not None:
+                    resource_map[prg.exhaust.identifier] = prg.exhaust
+                    prg.exhaust.identifier = \
+                        res_func(prg.exhaust.display_name, ea_dict)
                 if prg.setpoint is not None:
                     resource_map[prg.setpoint.identifier] = prg.setpoint
                     prg.setpoint.identifier = \
