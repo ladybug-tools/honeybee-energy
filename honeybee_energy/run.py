@@ -749,15 +749,43 @@ def _run_idf_windows(idf_file_path, epw_file_path=None, expand_objects=True,
     batch_file = os.path.join(directory, 'in.bat')
     write_to_file(batch_file, batch, True)
 
-    # run the sim with subprocess
+    # build the command arguments
     cmds = [folders.energyplus_exe, '-i', folders.energyplus_idd_path]
     if epw_file_path is not None:
         cmds.append('-w')
         cmds.append(os.path.abspath(epw_file_path))
     if expand_objects:
         cmds.append('-x')
-    process = subprocess.Popen(cmds, cwd=directory, shell=silent)
-    process.communicate()  # prevents the script from running before command is done
+
+    # run the simulation
+    if silent or sys.version_info > (3, 0):  # run the command normally with subprocess
+        process = subprocess.Popen(cmds, cwd=directory, shell=silent)
+        process.communicate()  # prevents the script from running before command is done
+    else:  # prevent Rhino/Grasshopper from hijacking the streams and taking forever
+        from System.Diagnostics import Process, ProcessStartInfo, ProcessWindowStyle
+        exe_path = cmds[0]
+        sim_arguments = []
+        for arg in cmds[1:]:
+            if arg.startswith('-'):
+                sim_arguments.append(arg)
+            else:  # it is a file path
+                sim_arguments.append('"{}"'.format(arg))
+        sim_arguments = ' '.join(sim_arguments)
+        start_info = ProcessStartInfo()
+        start_info.FileName = exe_path
+        start_info.Arguments = sim_arguments
+        start_info.WorkingDirectory = directory
+        # Disable .NET stream interception so it falls back natively to the console window
+        start_info.RedirectStandardInput = False
+        start_info.RedirectStandardOutput = False
+        start_info.RedirectStandardError = False
+        # Force a brand new, visible console window to appear instantly
+        start_info.UseShellExecute = False    # Equivalent to shell=False
+        start_info.CreateNoWindow = False     # Ensures the window is visible
+        start_info.WindowStyle = ProcessWindowStyle.Normal
+        # Execute the simulation instantly
+        process = Process.Start(start_info)
+        process.WaitForExit()
 
     return directory
 
