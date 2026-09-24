@@ -277,5 +277,79 @@
             "convert_from_si": "{x}",
             "convert_from_ip": "{x} * 20442.2"
         }
+    },
+    "material": {
+        "thickness": {
+            "units_hb": "m",
+            "units_si": "mm",
+            "units_ip": "in",
+            "convert_to_si": "{x} * 1000",
+            "convert_to_ip": "{x} * 39.37017",
+            "convert_from_si": "{x} / 1000",
+            "convert_from_ip": "{x} / 39.37017"
+        },
+        "length": {
+            "units_hb": "m",
+            "units_si": "mm",
+            "units_ip": "in",
+            "convert_to_si": "{x} * 1000",
+            "convert_to_ip": "{x} * 39.37017",
+            "convert_from_si": "{x} / 1000",
+            "convert_from_ip": "{x} / 39.37017"
+        },
+        "conductivity": {
+            "units_hb": "W/m-K",
+            "units_si": "W/m-K",
+            "units_ip": "Btu-in/h-ft²⋅°F",
+            "convert_to_si": "{x}",
+            "convert_to_ip": "{x} * 6.93481276005548",
+            "convert_from_si": "{x}",
+            "convert_from_ip": "{x} / 6.93481276005548"
+        },
+        "density": {
+            "units_hb": "kg/m³",
+            "units_si": "kg/m³",
+            "units_ip": "lb/ft³",
+            "convert_to_si": "{x}",
+            "convert_to_ip": "{x} * 0.0624279606",
+            "convert_from_si": "{x}",
+            "convert_from_ip": "{x} / 0.0624279606"
+        },
+        "specific_heat": {
+            "units_hb": "J/kg-K",
+            "units_si": "J/kg-K",
+            "units_ip": "Btu/lb⋅°F",
+            "convert_to_si": "{x}",
+            "convert_to_ip": "{x} * 0.000238845897",
+            "convert_from_si": "{x}",
+            "convert_from_ip": "{x} / 0.000238845897"
+        },
+        "conductance": {
+            "units_hb": "W/m²-K",
+            "units_si": "W/m²-K",
+            "units_ip": "Btu/h-ft²⋅°F",
+            "convert_to_si": "{x}",
+            "convert_to_ip": "{x} / 5.678263337",
+            "convert_from_si": "{x}",
+            "convert_from_ip": "{x} * 5.678263337"
+        },
+        "r_value": {
+            "units_hb": "m²⋅K/W",
+            "units_si": "m²⋅K/W",
+            "units_ip": "ft²⋅°F⋅h/Btu",
+            "convert_to_si": "{x}",
+            "convert_to_ip": "{x} * 5.678263337",
+            "convert_from_si": "{x}",
+            "convert_from_ip": "{x} / 5.678263337"
+        },
+        "u_value": {
+            "units_hb": "W/m²⋅K",
+            "units_si": "W/m²⋅K",
+            "units_ip": "Btu/h⋅ft²⋅°F",
+            "convert_to_si": "{x}",
+            "convert_to_ip": "{x} / 5.678263337",
+            "convert_from_si": "{x}",
+            "convert_from_ip": "{x} * 5.678263337"
+        }
     }
 }
