@@ -9,6 +9,7 @@ from .load.equipment import ElectricEquipment, GasEquipment
 from .load.hotwater import ServiceHotWater
 from .load.infiltration import Infiltration
 from .load.ventilation import Ventilation
+from .load.exhaust import ExhaustAir
 from .load.setpoint import Setpoint
 
 from honeybee._lockable import lockable
@@ -57,17 +58,22 @@ class ProgramType(object):
         * infiltration
         * ventilation
         * setpoint
+        * exhaust
         * schedules
         * schedules_unique
         * user_data
     """
-    __slots__ = ('_identifier', '_display_name', '_people', '_lighting',
-                 '_electric_equipment', '_gas_equipment', '_service_hot_water',
-                 '_infiltration', '_ventilation', '_setpoint', '_locked', '_user_data')
+    __slots__ = (
+        '_identifier', '_display_name', '_people', '_lighting',
+        '_electric_equipment', '_gas_equipment', '_service_hot_water',
+        '_infiltration', '_ventilation', '_setpoint', '_exhaust', '_locked', '_user_data'
+    )
 
-    def __init__(self, identifier, people=None, lighting=None, electric_equipment=None,
-                 gas_equipment=None, service_hot_water=None,
-                 infiltration=None, ventilation=None, setpoint=None):
+    def __init__(
+        self, identifier, people=None, lighting=None,
+        electric_equipment=None, gas_equipment=None, service_hot_water=None,
+        infiltration=None, ventilation=None, setpoint=None, exhaust=None
+    ):
         """Initialize ProgramType"""
         self._locked = False  # unlocked by default
         self.identifier = identifier
@@ -80,6 +86,7 @@ class ProgramType(object):
         self.infiltration = infiltration
         self.ventilation = ventilation
         self.setpoint = setpoint
+        self.exhaust = exhaust
         self._user_data = None
 
     @property
@@ -195,6 +202,18 @@ class ProgramType(object):
         self._ventilation = value
 
     @property
+    def exhaust(self):
+        """Get or set a ExhaustAir object to describe the exhaust air requirement."""
+        return self._exhaust
+
+    @exhaust.setter
+    def exhaust(self, value):
+        if value is not None:
+            assert isinstance(value, ExhaustAir), 'Expected ExhaustAir ' \
+                'object for ProgramType.exhaust. Got {}.'.format(type(value))
+        self._exhaust = value
+
+    @property
     def setpoint(self):
         """Get or set a Setpoint object to describe the temperature setpoints."""
         return self._setpoint
@@ -225,6 +244,8 @@ class ProgramType(object):
             sched.append(self.infiltration.schedule)
         if self.ventilation is not None and self.ventilation._schedule is not None:
             sched.append(self.ventilation.schedule)
+        if self.exhaust is not None and self.exhaust._schedule is not None:
+            sched.append(self.exhaust.schedule)
         if self.setpoint is not None:
             sched.append(self.setpoint.heating_schedule)
             sched.append(self.setpoint.cooling_schedule)
@@ -280,8 +301,9 @@ class ProgramType(object):
             'electric_equipment': {},  # A ElectricEquipment dictionary
             'gas_equipment': {},  # A GasEquipment dictionary
             'service_hot_water': {},  # A ServiceHotWater dictionary
-            'infiltration': {},  # A Infliltration dictionary
+            'infiltration': {},  # A Infiltration dictionary
             'ventilation': {},  # A Ventilation dictionary
+            'exhaust': {},  # An ExhaustAir dictionary
             'setpoint': {}  # A Setpoint dictionary
             }
 
@@ -308,11 +330,13 @@ class ProgramType(object):
             if 'infiltration' in data and data['infiltration'] is not None else None
         ventilation = Ventilation.from_dict(data['ventilation'], schedules) \
             if 'ventilation' in data and data['ventilation'] is not None else None
+        exhaust = ExhaustAir.from_dict(data['exhaust'], schedules) \
+            if 'exhaust' in data and data['exhaust'] is not None else None
         setpoint = Setpoint.from_dict(data['setpoint'], schedules) \
             if 'setpoint' in data and data['setpoint'] is not None else None
 
         new_obj = cls(data['identifier'], people, lighting, electric_equipment,
-                      gas_equipment, shw, infiltration, ventilation, setpoint)
+                      gas_equipment, shw, infiltration, ventilation, setpoint, exhaust)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
@@ -343,6 +367,7 @@ class ProgramType(object):
             'service_hot_water': {},  # A ServiceHotWaterAbridged dictionary
             'infiltration': {},  # A InfiltrationAbridged dictionary
             'ventilation': {},  # A VentilationAbridged dictionary
+            'exhaust': {},  # A ExhaustAirAbridged dictionary
             'setpoint': {}  # A SetpointAbridged dictionary
             }
         """
@@ -351,14 +376,15 @@ class ProgramType(object):
 
         # build each of the load objects
         try:
-            people, lighting, electric_equipment, gas_equipment, shw, infiltration, \
-                ventilation, setpoint = cls._get_loads_from_abridged(data, schedule_dict)
+            people, lighting, electric_equipment, gas_equipment, shw, \
+                infiltration, ventilation, exhaust, setpoint = \
+                cls._get_loads_from_abridged(data, schedule_dict)
         except KeyError as e:
             raise ValueError(
                 'The following schedule is missing from the model: {}'.format(e)
             )
         new_obj = cls(data['identifier'], people, lighting, electric_equipment,
-                      gas_equipment, shw, infiltration, ventilation, setpoint)
+                      gas_equipment, shw, infiltration, ventilation, setpoint, exhaust)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
@@ -390,6 +416,8 @@ class ProgramType(object):
             base['infiltration'] = self.infiltration.to_dict(abridged)
         if self.ventilation is not None:
             base['ventilation'] = self.ventilation.to_dict(abridged)
+        if self.exhaust is not None:
+            base['exhaust'] = self.exhaust.to_dict(abridged)
         if self.setpoint is not None:
             base['setpoint'] = self.setpoint.to_dict(abridged)
 
@@ -535,6 +563,8 @@ class ProgramType(object):
                    if pr.infiltration is not None]
         vent_mtx = [[pr.ventilation, w] for pr, w in zip(program_types, weights)
                     if pr.ventilation is not None]
+        ea_mtx = [[pr.exhaust, w] for pr, w in zip(program_types, weights)
+                  if pr.exhaust is not None]
         setp_mtx = [[pr.setpoint, w] for pr, w in zip(program_types, weights)
                     if pr.setpoint is not None]
 
@@ -580,6 +610,12 @@ class ProgramType(object):
             ventilation = Ventilation.average(
                 '{}_Ventilation'.format(identifier), t_vent_mtx[0],
                 t_vent_mtx[1], timestep_resolution)
+        exhaust = None
+        if len(ea_mtx) != 0:
+            t_ea_mtx = tuple(zip(*ea_mtx))
+            exhaust = ExhaustAir.average(
+                '{}_ExhaustAir'.format(identifier), t_ea_mtx[0],
+                t_ea_mtx[1], timestep_resolution)
         setpoint = None
         if len(setp_mtx) != 0:
             t_setp_mtx = tuple(zip(*setp_mtx))
@@ -589,7 +625,8 @@ class ProgramType(object):
         # return the averaged object
         return ProgramType(
             identifier, people, lighting, electric_equipment, gas_equipment, shw,
-            infiltration, ventilation, setpoint)
+            infiltration, ventilation, setpoint, exhaust
+        )
 
     def duplicate(self):
         """Get a copy of this object."""
@@ -612,6 +649,8 @@ class ProgramType(object):
             self.infiltration.lock()
         if self.ventilation is not None:
             self.ventilation.lock()
+        if self.exhaust is not None:
+            self.exhaust.lock()
         if self.setpoint is not None:
             self.setpoint.lock()
 
@@ -632,6 +671,8 @@ class ProgramType(object):
             self.infiltration.unlock()
         if self.ventilation is not None:
             self.ventilation.unlock()
+        if self.exhaust is not None:
+            self.exhaust.unlock()
         if self.setpoint is not None:
             self.setpoint.unlock()
 
@@ -649,6 +690,7 @@ class ProgramType(object):
         shw = None
         infiltration = None
         ventilation = None
+        exhaust = None
         setpoint = None
         if 'people' in data and data['people'] is not None:
             people = People.from_dict_abridged(data['people'], schedule_dict)
@@ -669,10 +711,12 @@ class ProgramType(object):
         if 'ventilation' in data and data['ventilation'] is not None:
             ventilation = Ventilation.from_dict_abridged(
                 data['ventilation'], schedule_dict)
+        if 'exhaust' in data and data['exhaust'] is not None:
+            exhaust = ExhaustAir.from_dict_abridged(data['exhaust'], schedule_dict)
         if 'setpoint' in data and data['setpoint'] is not None:
             setpoint = Setpoint.from_dict_abridged(data['setpoint'], schedule_dict)
         return people, lighting, electric_equipment, gas_equipment, shw, \
-            infiltration, ventilation, setpoint
+            infiltration, ventilation, exhaust, setpoint
 
     @staticmethod
     def _instance_in_array(object_instance, object_array):
@@ -701,9 +745,12 @@ class ProgramType(object):
             self.infiltration is not None else None
         ventilation = self.ventilation.duplicate() if \
             self.ventilation is not None else None
+        exhaust = self.exhaust.duplicate() if self.exhaust is not None else None
         setpoint = self.setpoint.duplicate() if self.setpoint is not None else None
-        new_obj = ProgramType(self.identifier, people, lighting, electric_equipment,
-                              gas_equipment, shw, infiltration, ventilation, setpoint)
+        new_obj = ProgramType(
+            self.identifier, people, lighting, electric_equipment, gas_equipment, shw,
+            infiltration, ventilation, setpoint, exhaust
+        )
         new_obj._display_name = self._display_name
         new_obj._user_data = None if self._user_data is None else self._user_data.copy()
         return new_obj
@@ -713,7 +760,7 @@ class ProgramType(object):
         return (self.identifier, hash(self.people), hash(self.lighting),
                 hash(self.electric_equipment), hash(self.gas_equipment),
                 hash(self.service_hot_water), hash(self.infiltration),
-                hash(self.ventilation), hash(self.setpoint))
+                hash(self.ventilation), hash(self.exhaust), hash(self.setpoint))
 
     def __hash__(self):
         return hash(self.__key())

@@ -355,7 +355,7 @@ class ExhaustAir(_LoadBase):
         eff = sum([vent.efficiency * w
                    for vent, w in zip(exhaust_airs, weights)])
         # round the effectiveness terms to avoid tolerance issues
-        area = round(area, 3)
+        area = round(area, 6)
         press = round(press, 3)
         eff = round(eff, 3)
 
@@ -442,7 +442,7 @@ class ExhaustAir(_LoadBase):
         """Get the optional keys from an ExhaustAir dictionary."""
         area = data['flow_per_area'] if 'flow_per_area' in data else 0
         flow_per_fixture = data['flow_per_fixture'] if 'flow_per_fixture' in data else 0
-        fixture_count = data['fixture_count'] if 'fixture_count' in data else 0
+        fixture_count = data['fixture_count'] if 'fixture_count' in data else 1
         press = data['pressure_rise'] if 'pressure_rise' in data else 125
         eff = data['efficiency'] if 'efficiency' in data else 0.35
         return area, flow_per_fixture, fixture_count, press, eff
