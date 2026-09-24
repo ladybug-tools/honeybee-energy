@@ -42,10 +42,13 @@ class ProgramType(object):
             (Default: None).
         ventilation: A Ventilation object to describe the minimum outdoor air
             requirement of the program. If None, no ventilation requirement will
-            be assumed for the program. Default: None
+            be assumed for the program. (Default: None).
         setpoint: A Setpoint object to describe the temperature and humidity
             setpoints of the program.  If None, the ProgramType cannot be assigned
             to a Room that is conditioned. (Default: None).
+        exhaust: An ExhaustAir object to describe the exhaust air requirement of
+            the program. If None, no exhaust air requirement will be assumed for
+            the program. (Default: None).
 
     Properties:
         * identifier
@@ -244,8 +247,11 @@ class ProgramType(object):
             sched.append(self.infiltration.schedule)
         if self.ventilation is not None and self.ventilation._schedule is not None:
             sched.append(self.ventilation.schedule)
-        if self.exhaust is not None and self.exhaust._schedule is not None:
-            sched.append(self.exhaust.schedule)
+        if self.exhaust is not None:
+            if self.exhaust._schedule is not None:
+                sched.append(self.exhaust.schedule)
+            if self.exhaust._balancing_schedule is not None:
+                sched.append(self.exhaust.balancing_schedule)
         if self.setpoint is not None:
             sched.append(self.setpoint.heating_schedule)
             sched.append(self.setpoint.cooling_schedule)

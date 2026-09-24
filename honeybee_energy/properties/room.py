@@ -475,7 +475,7 @@ class RoomEnergyProperties(object):
         load_attr = (
             self._people, self._lighting, self._electric_equipment,
             self._gas_equipment, self._service_hot_water, self._infiltration,
-            self._ventilation, self.__exhaust, self._setpoint
+            self._ventilation, self._exhaust, self._setpoint
         )
         return not all(load is None for load in load_attr)
 
