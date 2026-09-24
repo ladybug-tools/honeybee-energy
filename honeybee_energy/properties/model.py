@@ -312,8 +312,11 @@ class ModelEnergyProperties(object):
                 self._check_and_add_schedule(infiltration.schedule, scheds)
             if ventilation is not None and ventilation._schedule is not None:
                 self._check_and_add_schedule(ventilation._schedule, scheds)
-            if exhaust is not None and exhaust._schedule is not None:
-                self._check_and_add_schedule(exhaust._schedule, scheds)
+            if exhaust is not None:
+                if exhaust._schedule is not None:
+                    self._check_and_add_schedule(exhaust._schedule, scheds)
+                if exhaust._balancing_schedule is not None:
+                    self._check_and_add_schedule(exhaust._balancing_schedule, scheds)
             if setpoint is not None:
                 self._check_and_add_schedule(setpoint.heating_schedule, scheds)
                 self._check_and_add_schedule(setpoint.cooling_schedule, scheds)

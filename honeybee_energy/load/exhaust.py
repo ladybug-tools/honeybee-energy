@@ -39,9 +39,9 @@ class ExhaustAir(_LoadBase):
         schedule: An optional ScheduleRuleset or ScheduleFixedInterval for the
             exhaust air ventilation over the course of the year. The type of this
             schedule should be Fractional and the fractional values get multiplied by
-            the total design flow rate to yield a complete ventilation profile.
-            Values of 0 in the schedule will shut the fan off completely. If None,
-            the design level of ventilation will be used throughout all timesteps
+            the total design flow rate to yield a complete exhaust air profile.
+            Values of 0 in the schedule will shut the exhaust fan off completely. If None,
+            the design level of exhaust air will be used throughout all timesteps
             of the simulation, meaning that this schedule is Always On. (Default: None).
         pressure_rise: A number for the the pressure rise across the fan in Pascals
             (N/m2). This is often a function of the fan speed and the conditions in
@@ -61,6 +61,18 @@ class ExhaustAir(_LoadBase):
             tend to be around 0.7 with most typical fan efficiencies between 0.5 and
             0.7. When filters are added, which is common for most exhaust fans,
             the total efficiency typically ends up between 0.3 and 0.4. (Default: 0.35).
+        balancing_schedule: An optional ScheduleRuleset or ScheduleFixedInterval
+            for the fraction of exhaust air that is unbalanced by simple airflows,
+            such as infiltration, natural ventilation, or zone mixing. Unbalanced
+            exhaust is modeled as being provided by the outdoor air system in the
+            central air system such that values of 1 in this schedule indicate
+            all exhaust air balancing done by the mechanical system and values of 0
+            indicate all air balanced by simple air flows. If None, then
+            all the exhaust air flow is assumed to be unbalanced by simple
+            airflows. The the flow rates at the zone return air node are reduced
+            by the flow rate that is being exhausted and the zone outdoor air
+            controller will ensure that the outdoor air flow rate is sufficient
+            to serve the exhaust. (Default: None).
 
     Properties:
         * identifier
@@ -71,16 +83,17 @@ class ExhaustAir(_LoadBase):
         * schedule
         * pressure_rise
         * efficiency
+        * balancing_schedule
         * user_data
     """
     __slots__ = (
         '_flow_per_area', '_flow_per_fixture', '_fixture_count', '_schedule',
-        '_pressure_rise', '_efficiency'
+        '_pressure_rise', '_efficiency', '_balancing_schedule'
     )
 
     def __init__(
         self, identifier, flow_per_area=0, flow_per_fixture=0, fixture_count=1,
-        schedule=None, pressure_rise=125, efficiency=0.35
+        schedule=None, pressure_rise=125, efficiency=0.35, balancing_schedule=None
     ):
         """Initialize ExhaustAir."""
         _LoadBase.__init__(self, identifier)
@@ -90,6 +103,7 @@ class ExhaustAir(_LoadBase):
         self.schedule = schedule
         self.pressure_rise = pressure_rise
         self.efficiency = efficiency
+        self.balancing_schedule = balancing_schedule
 
     @property
     def flow_per_area(self):
@@ -164,6 +178,22 @@ class ExhaustAir(_LoadBase):
         self._efficiency = value
 
     @property
+    def balancing_schedule(self):
+        """Get or set a ScheduleRuleset or ScheduleFixedInterval for the unbalanced air fraction.
+        """
+        return self._balancing_schedule if self._balancing_schedule is not None else always_on
+
+    @balancing_schedule.setter
+    def balancing_schedule(self, value):
+        if value is not None:
+            assert isinstance(value, (ScheduleRuleset, ScheduleFixedInterval)), \
+                'Expected ScheduleRuleset or ScheduleFixedInterval for ExhaustAir ' \
+                'balancing_schedule. Got {}.'.format(type(value))
+            self._check_fractional_schedule_type(value, 'ExhaustAir')
+            value.lock()   # lock editing in case schedule has multiple references
+        self._balancing_schedule = value
+
+    @property
     def flow_per_area_si(self):
         """Get the flow_per_area in the standard SI unit of L/s/m2."""
         return convert_ventilation_flow_per_area(self.flow_per_area, 'si')
@@ -232,6 +262,7 @@ class ExhaustAir(_LoadBase):
             "schedule": {}, # ScheduleRuleset/ScheduleFixedInterval dictionary
             "pressure_rise": 125, # fan pressure rise in Pa
             "efficiency": 0.35 # fan efficiency
+            "balancing_schedule": {}, # ScheduleRuleset/ScheduleFixedInterval dictionary
             }
         """
         assert data['type'] == 'ExhaustAir', \
@@ -239,7 +270,12 @@ class ExhaustAir(_LoadBase):
         area, fix_flow, fix_count, press, eff = cls._optional_dict_keys(data)
         sched = cls._get_schedule_from_dict(data['schedule'], schedules) \
             if 'schedule' in data and data['schedule'] is not None else None
-        new_obj = cls(data['identifier'], area, fix_flow, fix_count, sched, press, eff)
+        b_sched = cls._get_schedule_from_dict(data['balancing_schedule'], schedules) \
+            if 'balancing_schedule' in data and data['balancing_schedule'] is not None \
+            else None
+        new_obj = cls(
+            data['identifier'], area, fix_flow, fix_count, sched, press, eff, b_sched
+        )
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
@@ -270,7 +306,8 @@ class ExhaustAir(_LoadBase):
             "fixture_count": 1, # number of fixtures in the room
             "schedule": "Bathroom ExhaustAir Schedule", # Schedule identifier
             "pressure_rise": 125, # fan pressure rise in Pa
-            "efficiency": 0.35 # fan efficiency
+            "efficiency": 0.35, # fan efficiency
+            "balancing_schedule": "BR Makeup ExhaustAir Schedule", # Schedule identifier
             }
         """
         assert data['type'] == 'ExhaustAirAbridged', \
@@ -282,7 +319,15 @@ class ExhaustAir(_LoadBase):
                 sched = schedule_dict[data['schedule']]
             except KeyError as e:
                 raise ValueError('Failed to find {} in the schedule_dict.'.format(e))
-        new_obj = cls(data['identifier'], area, fix_flow, fix_count, sched, press, eff)
+        b_sched = None
+        if 'balancing_schedule' in data and data['balancing_schedule'] is not None:
+            try:
+                b_sched = schedule_dict[data['balancing_schedule']]
+            except KeyError as e:
+                raise ValueError('Failed to find {} in the schedule_dict.'.format(e))
+        new_obj = cls(
+            data['identifier'], area, fix_flow, fix_count, sched, press, eff, b_sched
+        )
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
@@ -315,6 +360,9 @@ class ExhaustAir(_LoadBase):
             base['pressure_rise'] = self.pressure_rise
         if self.efficiency != 0:
             base['efficiency'] = self.efficiency
+        if self._balancing_schedule is not None:
+            base['balancing_schedule'] = self.balancing_schedule.to_dict() if not \
+                abridged else self.balancing_schedule.identifier
         if self._display_name is not None:
             base['display_name'] = self.display_name
         if self._user_data is not None:
@@ -371,9 +419,21 @@ class ExhaustAir(_LoadBase):
                     scheds[i] = full_vent
             sched = ExhaustAir._average_schedule(
                 '{} Schedule'.format(identifier), scheds, u_weights, timestep_resolution)
+        
+        b_scheds = [vent._balancing_schedule for vent in exhaust_airs]
+        if all(val is None for val in b_scheds):
+            b_sched = None
+        else:
+            full_vent = ScheduleRuleset.from_constant_value(
+                'Full ExhaustAir', 1, _type_lib.fractional)
+            for i, sch in enumerate(b_scheds):
+                if sch is None:
+                    b_scheds[i] = full_vent
+            b_sched = ExhaustAir._average_schedule(
+                '{} Schedule'.format(identifier), b_scheds, u_weights, timestep_resolution)
 
         # return the averaged object
-        return ExhaustAir(identifier, area, fixture, 1, sched, press, eff)
+        return ExhaustAir(identifier, area, fixture, 1, sched, press, eff, b_sched)
 
     @staticmethod
     def combine_room_exhaust_airs(identifier, rooms, timestep_resolution=1):
@@ -403,13 +463,14 @@ class ExhaustAir(_LoadBase):
                 which conflicting ventilation schedules will be resolved. (Default: 1).
         """
         # compute weights based on floor areas and volumes
-        exhaust_airs, floor_areas, scheds = [], [], []
+        exhaust_airs, floor_areas, scheds, b_scheds = [], [], [], []
         for room in rooms:
             if room.properties.energy.exhaust_air is None:
                 exhaust_airs.append(ExhaustAir('dummy_ea'))
             else:
                 exhaust_airs.append(room.properties.energy.exhaust_air)
                 scheds.append(room.properties.energy.ventilation._schedule)
+                b_scheds.append(room.properties.energy.ventilation._balancing_schedule)
             floor_areas.append(room.floor_area)
         total_floor = sum(floor_areas)
         floor_weights = [ar / total_floor for ar in floor_areas]
@@ -434,8 +495,18 @@ class ExhaustAir(_LoadBase):
                 sched = ExhaustAir._max_schedule(
                     '{} Schedule'.format(identifier), scheds, timestep_resolution)
 
+        if all(val is None for val in b_scheds):
+            b_sched = None
+        else:
+            base_sch = b_scheds[0]
+            if all(sch is base_sch for sch in b_scheds) or len(set(b_scheds)) == 1:
+                b_sched = b_scheds[0]
+            else:
+                b_sched = ExhaustAir._max_schedule(
+                    '{} Schedule'.format(identifier), b_scheds, timestep_resolution)
+
         # return the averaged object
-        return ExhaustAir(identifier, area, fixture, 1, sched, press, eff)
+        return ExhaustAir(identifier, area, fixture, 1, sched, press, eff, b_sched)
 
     @staticmethod
     def _optional_dict_keys(data):
@@ -451,7 +522,8 @@ class ExhaustAir(_LoadBase):
         """A tuple based on the object properties, useful for hashing."""
         return (
             self.identifier, self.flow_per_area, self.flow_per_fixture,
-            self.fixture_count, hash(self.schedule), self.pressure_rise, self.efficiency
+            self.fixture_count, hash(self.schedule),
+            self.pressure_rise, self.efficiency, hash(self.balancing_schedule)
         )
 
     def __hash__(self):
@@ -466,7 +538,8 @@ class ExhaustAir(_LoadBase):
     def __copy__(self):
         new_obj = ExhaustAir(
             self._identifier, self._flow_per_area, self._flow_per_fixture,
-            self._fixture_count, self._schedule, self._pressure_rise, self.efficiency
+            self._fixture_count, self._schedule,
+            self._pressure_rise, self.efficiency, self.balancing_schedule
         )
         new_obj._display_name = self._display_name
         new_obj._user_data = None if self._user_data is None else self._user_data.copy()
