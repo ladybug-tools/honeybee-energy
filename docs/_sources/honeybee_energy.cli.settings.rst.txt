@@ -1,0 +1,7 @@
+honeybee\_energy.cli.settings module
+====================================
+
+.. automodule:: honeybee_energy.cli.settings
+   :members:
+   :undoc-members:
+   :show-inheritance:

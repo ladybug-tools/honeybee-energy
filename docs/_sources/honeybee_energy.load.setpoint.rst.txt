@@ -1,0 +1,7 @@
+honeybee\_energy.load.setpoint module
+=====================================
+
+.. automodule:: honeybee_energy.load.setpoint
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,7 @@
+honeybee\_energy.load.lighting module
+=====================================
+
+.. automodule:: honeybee_energy.load.lighting
+   :members:
+   :undoc-members:
+   :show-inheritance:
