@@ -12,7 +12,7 @@
         "activity_max_sensible": {
             "units_hb": "W/person",
             "units_si": "kW/person",
-            "units_ip": "Btu/h/person",
+            "units_ip": "Btu/(h·person)",
             "convert_to_si": "{x} / 1000",
             "convert_to_ip": "{x} * 3.41214",
             "convert_from_si": "{x} * 1000",
@@ -21,7 +21,7 @@
         "activity_max_latent": {
             "units_hb": "W/person",
             "units_si": "kW/person",
-            "units_ip": "Btu/h-person",
+            "units_ip": "Btu/(h·person)",
             "convert_to_si": "{x} / 1000",
             "convert_to_ip": "{x} * 3.41214",
             "convert_from_si": "{x} * 1000",
@@ -81,7 +81,7 @@
         "watts_per_area": {
             "units_hb": "W/m²",
             "units_si": "kW/m²",
-            "units_ip": "Btu/h-ft²",
+            "units_ip": "Btu/(h·ft²)",
             "convert_to_si": "{x} / 1000",
             "convert_to_ip": "{x} / 3.15459075",
             "convert_from_si": "{x} * 1000",
@@ -99,8 +99,8 @@
     },
     "service_hot_water": {
         "flow_per_area": {
-            "units_hb": "L/h/m²",
-            "units_si": "L/h/m²",
+            "units_hb": "L/(h·m²)",
+            "units_si": "L/(h·m²)",
             "units_ip": "gph/ft²",
             "convert_to_si": "{x}",
             "convert_to_ip": "{x} * 0.024542",
@@ -128,8 +128,8 @@
     },
     "infiltration": {
         "flow_per_exterior_area": {
-            "units_hb": "m³/s/m²",
-            "units_si": "L/s/m²",
+            "units_hb": "m³/(s·m²)",
+            "units_si": "L/(s·m²)",
             "units_ip": "cfm/ft²",
             "convert_to_si": "{x} * 1000",
             "convert_to_ip": "{x} * 196.85",
@@ -148,8 +148,8 @@
     },
     "ventilation": {
         "flow_per_person": {
-            "units_hb": "m³/s/person",
-            "units_si": "L/s/person",
+            "units_hb": "m³/(s·person)",
+            "units_si": "L/(s·person)",
             "units_ip": "cfm/person",
             "convert_to_si": "{x} * 1000",
             "convert_to_ip": "{x} * 2118.88",
@@ -157,8 +157,8 @@
             "convert_from_ip": "{x} / 2118.88"
         },
         "flow_per_area": {
-            "units_hb": "m³/s/m²",
-            "units_si": "L/s/m²",
+            "units_hb": "m³/(s·m²)",
+            "units_si": "L/(s·m²)",
             "units_ip": "cfm/ft²",
             "convert_to_si": "{x} * 1000",
             "convert_to_ip": "{x} * 196.85",
@@ -186,8 +186,8 @@
     },
     "exhaust": {
         "flow_per_area": {
-            "units_hb": "m³/s/m²",
-            "units_si": "L/s/m²",
+            "units_hb": "m³/(s·m²)",
+            "units_si": "L/(s·m²)",
             "units_ip": "cfm/ft²",
             "convert_to_si": "{x} * 1000",
             "convert_to_ip": "{x} * 196.85",
@@ -262,18 +262,18 @@
     },
     "construction": {
         "r_value": {
-            "units_hb": "m²⋅K/W",
-            "units_si": "m²⋅K/W",
-            "units_ip": "ft²⋅°F⋅h/Btu",
+            "units_hb": "m²·K/W",
+            "units_si": "m²·K/W",
+            "units_ip": "ft²·°F·h/Btu",
             "convert_to_si": "{x}",
             "convert_to_ip": "{x} * 5.678263337",
             "convert_from_si": "{x}",
             "convert_from_ip": "{x} / 5.678263337"
         },
         "u_value": {
-            "units_hb": "W/m²⋅K",
-            "units_si": "W/m²⋅K",
-            "units_ip": "Btu/h⋅ft²⋅°F",
+            "units_hb": "W/(m²·K)",
+            "units_si": "W/(m²·K)",
+            "units_ip": "Btu/(h·ft²·°F)",
             "convert_to_si": "{x}",
             "convert_to_ip": "{x} / 5.678263337",
             "convert_from_si": "{x}",
@@ -298,9 +298,9 @@
             "convert_from_ip": "{x} / 4.88243"
         },
         "area_heat_capacity": {
-            "units_hb": "J/K⋅m²",
-            "units_si": "J/K⋅m²",
-            "units_ip": "Btu/°F⋅ft²",
+            "units_hb": "J/(m²·K)",
+            "units_si": "J/(m²·K)",
+            "units_ip": "Btu/(ft²·°F)",
             "convert_to_si": "{x}",
             "convert_to_ip": "{x} / 20442.2",
             "convert_from_si": "{x}",
@@ -327,9 +327,9 @@
             "convert_from_ip": "{x} / 39.37017"
         },
         "conductivity": {
-            "units_hb": "W/m-K",
-            "units_si": "W/m-K",
-            "units_ip": "Btu-in/h-ft²⋅°F",
+            "units_hb": "W/(m·K)",
+            "units_si": "W/(m·K)",
+            "units_ip": "Btu·in/(h·ft²·°F)",
             "convert_to_si": "{x}",
             "convert_to_ip": "{x} * 6.93481276005548",
             "convert_from_si": "{x}",
@@ -345,36 +345,36 @@
             "convert_from_ip": "{x} / 0.0624279606"
         },
         "specific_heat": {
-            "units_hb": "J/kg-K",
-            "units_si": "J/kg-K",
-            "units_ip": "Btu/lb⋅°F",
+            "units_hb": "J/(kg·K)",
+            "units_si": "J/(kg·K)",
+            "units_ip": "Btu/(lb·°F)",
             "convert_to_si": "{x}",
             "convert_to_ip": "{x} * 0.000238845897",
             "convert_from_si": "{x}",
             "convert_from_ip": "{x} / 0.000238845897"
         },
         "conductance": {
-            "units_hb": "W/m²-K",
-            "units_si": "W/m²-K",
-            "units_ip": "Btu/h-ft²⋅°F",
+            "units_hb": "W/(m²·K)",
+            "units_si": "W/(m²·K)",
+            "units_ip": "Btu/(h·ft²·°F)",
             "convert_to_si": "{x}",
             "convert_to_ip": "{x} / 5.678263337",
             "convert_from_si": "{x}",
             "convert_from_ip": "{x} * 5.678263337"
         },
         "r_value": {
-            "units_hb": "m²⋅K/W",
-            "units_si": "m²⋅K/W",
-            "units_ip": "ft²⋅°F⋅h/Btu",
+            "units_hb": "m²·K/W",
+            "units_si": "m²·K/W",
+            "units_ip": "ft²·°F·h/Btu",
             "convert_to_si": "{x}",
             "convert_to_ip": "{x} * 5.678263337",
             "convert_from_si": "{x}",
             "convert_from_ip": "{x} / 5.678263337"
         },
         "u_value": {
-            "units_hb": "W/m²⋅K",
-            "units_si": "W/m²⋅K",
-            "units_ip": "Btu/h⋅ft²⋅°F",
+            "units_hb": "W/(m²·K)",
+            "units_si": "W/(m²·K)",
+            "units_ip": "Btu/(h·ft²·°F)",
             "convert_to_si": "{x}",
             "convert_to_ip": "{x} / 5.678263337",
             "convert_from_si": "{x}",
