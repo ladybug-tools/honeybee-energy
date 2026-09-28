@@ -35,7 +35,7 @@ class ExhaustAir(_LoadBase):
             etc. (Default: 0).
         fixture_count: An integer for the number of fixtures in the room. This
             is multiplied by the flow_per_fixture, which is then added to the
-            flow_per_area to yield the final exhaust air flow rate (Default: 1).
+            flow_per_area to yield the final exhaust air flow rate. (Default: 1).
         schedule: An optional ScheduleRuleset or ScheduleFixedInterval for the
             exhaust air ventilation over the course of the year. The type of this
             schedule should be Fractional and the fractional values get multiplied by
