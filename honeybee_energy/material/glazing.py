@@ -9,6 +9,13 @@ therefore must be the only material in its parent construction.
 """
 from __future__ import division
 import math
+import xml.etree.ElementTree as ET
+
+from ladybug.datatype.distance import Distance
+from ladybug.datatype.conductivity import Conductivity
+from honeybee._lockable import lockable
+from honeybee.typing import float_in_range, float_positive, clean_xml_tag_string
+from honeybee.altnumber import autocalculate
 
 from ._base import _EnergyMaterialWindowBase
 from ..properties.extension import (
@@ -17,10 +24,6 @@ from ..properties.extension import (
 )
 from ..reader import parse_idf_string
 from ..writer import generate_idf_string
-
-from honeybee._lockable import lockable
-from honeybee.typing import float_in_range, float_positive
-from honeybee.altnumber import autocalculate
 
 
 @lockable
@@ -368,6 +371,99 @@ class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
         return new_mat
 
     @classmethod
+    def from_gbxml(cls, gbxml_str):
+        """Create an EnergyWindowMaterialGlazing from an gbXML string.
+
+        Args:
+            gbxml_element: A Material string from a gbXML file.
+
+        .. code-block:: xml
+
+            <Glaze id="STD_EXTW-layer-1">
+                <Name>[STD_EXW] Outer Pane</Name>
+                <Thickness unit="Meters">0.006000</Thickness>
+                <Reflectance unit="Fraction" type="ExtSolar" surfaceType="1">0.289</Reflectance>
+                <Reflectance unit="Fraction" type="IntSolar" surfaceType="2">0.414</Reflectance>
+                <Reflectance unit="Fraction" type="ExtVisible" surfaceType="1">0.07</Reflectance>
+                <Reflectance unit="Fraction" type="IntVisible" surfaceType="2">0.07</Reflectance>
+                <Transmittance unit="Fraction" type="Solar" surfaceType="Both">0.409</Transmittance>
+                <Transmittance unit="Fraction" type="Visible" surfaceType="Both">0.78</Transmittance>
+                <Emittance unit="Fraction" type="ExtIR" surfaceType="1">0.837</Emittance>
+                <Emittance unit="Fraction" type="IntIR" surfaceType="2">0.042</Emittance>
+            </Glaze>
+        """
+        gbxml_element = ET.fromstring(gbxml_str)
+        return cls.from_gbxml_element(gbxml_element)
+
+    @classmethod
+    def from_gbxml_element(cls, gbxml_element):
+        """Create an EnergyWindowMaterialGlazing from an gbXML Glaze Element.
+
+        Args:
+            gbxml_element: A Glaze Element from a gbXML file.
+        """
+        # get all required properties and make the object
+        mat_id = gbxml_element.get('id').replace('_', ' ')
+        new_obj = cls(mat_id)
+
+        # get the thickness
+        xml_thickness = gbxml_element.find('Thickness')
+        if xml_thickness is not None:
+            thickness, t_unit = float(xml_thickness.text), xml_thickness.get('unit')
+            if t_unit != 'Meters':
+                assert t_unit == 'Feet', \
+                    'Thickness unit "{}" is not supported'.format(t_unit)
+                thickness = round(Distance().to_si([thickness], 'ft')[0][0], 4)
+            new_obj.thickness = thickness
+
+        # get the conductivity
+        xml_cond = gbxml_element.find('Conductivity')
+        if xml_cond is not None:
+            conductivity, c_unit = float(xml_cond.text), xml_cond.get('unit')
+            if c_unit != 'WPerMeterK':
+                assert c_unit == 'BtuPerHourFtF', \
+                    'Conductivity unit "{}" is not supported'.format(c_unit)
+                conductivity = Conductivity().to_si([conductivity], 'Btu/h-ft-F')[0][0]
+                conductivity = round(conductivity, 4)
+            new_obj.conductivity = conductivity
+
+        # get the transmittance
+        for xml_trans in gbxml_element.findall('Transmittance'):
+            trans_type = xml_trans.get('type')
+            if trans_type == 'Solar':
+                new_obj.solar_transmittance = xml_trans.text
+            elif trans_type == 'ExtVisible':
+                new_obj.visible_transmittance = xml_trans.text
+
+        # get the reflectance
+        for xml_ref in gbxml_element.findall('Reflectance'):
+            ref_type = xml_ref.get('type')
+            if ref_type == 'ExtSolar':
+                new_obj.solar_reflectance = xml_ref.text
+            elif ref_type == 'ExtVisible':
+                new_obj.visible_reflectance = xml_ref.text
+            elif ref_type == 'ExtIR':
+                new_obj.infrared_transmittance = xml_ref.text
+            elif ref_type == 'IntSolar':
+                new_obj.solar_reflectance_back = xml_ref.text
+            elif ref_type == 'IntVisible':
+                new_obj.visible_reflectance_back = xml_ref.text
+
+        # get the emissivity
+        for xml_emiss in gbxml_element.findall('Emittance'):
+            emiss_type = xml_emiss.get('type')
+            if emiss_type == 'ExtIR':
+                new_obj.emissivity = xml_emiss.text
+            elif emiss_type == 'IntIR':
+                new_obj.emissivity_back = xml_emiss.text
+
+        # assign the name
+        name = gbxml_element.find('Name')
+        if name is not None:
+            new_obj.display_name = name.text
+        return new_obj
+
+    @classmethod
     def from_dict(cls, data):
         """Create a EnergyWindowMaterialGlazing from a dictionary.
 
@@ -476,6 +572,94 @@ class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
                     'conductivity {W/m-K}', 'dirt correction factor',
                     'solar diffusing')
         return generate_idf_string('WindowMaterial:Glazing', values, comments)
+
+    def to_gbxml_element(self, ip_units=False, parent_element=None):
+        """Get a gbXML Glaze Element representation of this object.
+
+        Args:
+            ip_units: A boolean to note whether the properties should be reported
+                in IP units (True) or SI units (False). (Default: False).
+            parent_element: An optional XML Element for the WindowType to which the
+                Glaze element will be added. If None, a new XML Element
+                will be generated. (Default: None).
+        """
+        # create the Material element
+        mat_id = clean_xml_tag_string(self.identifier)
+        if parent_element is not None:
+            xml_mat = ET.SubElement(parent_element, 'Glaze', id=mat_id)
+        else:
+            xml_mat = ET.Element('Glaze', id=mat_id)
+        # set the units of properties
+        if ip_units:
+            thick_units, cond_units, = 'Feet', 'BtuPerHourFtF'
+            thick = round(Distance().to_ip([self.thickness], 'm')[0][0], 4)
+            cond = round(Conductivity().to_ip([self.conductivity], 'W/m-K')[0][0], 3)
+        else:
+            thick_units, cond_units = 'Meters', 'WPerMeterK'
+            thick = round(self.thickness, 4)
+            cond = round(self.conductivity, 3)
+        # add the name and the required properties
+        xml_name = ET.SubElement(xml_mat, 'Name')
+        xml_name.text = str(self.display_name)
+        xml_thick = ET.SubElement(xml_mat, 'Thickness', unit=thick_units)
+        xml_thick.text = str(thick)
+        xml_cond = ET.SubElement(xml_mat, 'Conductivity', unit=cond_units)
+        xml_cond.text = str(cond)
+        # add the reflectance and absorptance
+        self._add_gbxml_transmittance(xml_mat)
+        self._add_gbxml_reflectance(xml_mat)
+        return xml_mat
+
+    def to_gbxml(self, ip_units=False):
+        """Generate an gbXML string representation of this object.
+
+        Args:
+            ip_units: A boolean to note whether the U-value should be reported
+                in IP units (True) or SI units (False). (Default: False).
+        """
+        xml_root = self.to_gbxml_element(ip_units)
+        try:  # try to indent the XML to make it read-able
+            ET.indent(xml_root)
+            return ET.tostring(xml_root, encoding='unicode')
+        except AttributeError:  # we are in Python 2 and no indent is available
+            return ET.tostring(xml_root)
+
+    def _add_gbxml_reflectance(self, xml_mat):
+        """Add the reflectance to a gbXML element of the material."""
+        # add the reflectance
+        xml_rf_sol = ET.SubElement(xml_mat, 'Reflectance', type='ExtSolar')
+        xml_rf_sol.text = str(round(self.solar_reflectance, 3))
+        xml_rb_sol = ET.SubElement(xml_mat, 'Reflectance', type='IntSolar')
+        xml_rb_sol.text = str(round(self.solar_reflectance_back, 3))
+        xml_rf_vis = ET.SubElement(xml_mat, 'Reflectance', type='ExtVisible')
+        xml_rf_vis.text = str(round(self.visible_reflectance, 3))
+        xml_rb_vis = ET.SubElement(xml_mat, 'Reflectance', type='IntVisible')
+        xml_rb_vis.text = str(round(self.visible_reflectance_back, 3))
+        xml_rf_th = ET.SubElement(xml_mat, 'Emittance', type='ExtIR')
+        xml_rf_th.text = str(round(self.emissivity, 3))
+        xml_rb_th = ET.SubElement(xml_mat, 'Emittance', type='IntIR')
+        xml_rb_th.text = str(round(self.emissivity, 3))
+        all_r = (xml_rf_sol, xml_rb_sol, xml_rf_vis, xml_rb_vis, xml_rf_th, xml_rb_th)
+        for xml_ref in all_r:
+            xml_ref.set('unit', 'Fraction')
+            if xml_ref.get('type').startswith('Ext'):
+                xml_ref.set('surfaceType', '1')
+            elif xml_ref.get('type').startswith('Int'):
+                xml_ref.set('surfaceType', '2')
+
+    def _add_gbxml_transmittance(self, xml_mat):
+        """Add the transmittance to a gbXML element of the material."""
+        # add the absorptance
+        xml_t_sol = ET.SubElement(xml_mat, 'Transmittance', type='Solar')
+        xml_t_sol.text = str(round(self.solar_transmittance, 3))
+        xml_t_vis = ET.SubElement(xml_mat, 'Transmittance', type='Visible')
+        xml_t_vis.text = str(round(self.visible_transmittance, 3))
+        xml_t_ir = ET.SubElement(xml_mat, 'Transmittance', type='IR')
+        xml_t_ir.text = str(round(self.infrared_transmittance, 3))
+        all_t = (xml_t_sol, xml_t_vis, xml_t_ir)
+        for xml_tr in all_t:
+            xml_tr.set('unit', 'Fraction')
+            xml_tr.set('surfaceType', 'Both')
 
     def to_dict(self):
         """Energy Window Material Glazing dictionary representation."""

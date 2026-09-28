@@ -877,6 +877,10 @@ class WindowConstruction(_ConstructionBase):
         # add the solar heat gain coefficient
         xml_shgc = ET.SubElement(xml_con, 'SolarHeatGainCoeff', unit='Fraction')
         xml_shgc.text = str(round(self.shgc, 3))
+        # if the window construction has individual glazing layers, write them
+        if not isinstance(self.materials[0], EnergyWindowMaterialSimpleGlazSys):
+            pass
+
         return xml_con
 
     def to_gbxml(self, ip_units=False):
