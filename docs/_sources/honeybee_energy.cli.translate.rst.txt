@@ -1,0 +1,7 @@
+honeybee\_energy.cli.translate module
+=====================================
+
+.. automodule:: honeybee_energy.cli.translate
+   :members:
+   :undoc-members:
+   :show-inheritance:

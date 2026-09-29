@@ -1,0 +1,7 @@
+honeybee\_energy.result.rdd module
+==================================
+
+.. automodule:: honeybee_energy.result.rdd
+   :members:
+   :undoc-members:
+   :show-inheritance:

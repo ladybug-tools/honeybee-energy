@@ -1,0 +1,7 @@
+honeybee\_energy.load.hotwater module
+=====================================
+
+.. automodule:: honeybee_energy.load.hotwater
+   :members:
+   :undoc-members:
+   :show-inheritance:

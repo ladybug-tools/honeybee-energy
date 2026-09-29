@@ -1,0 +1,7 @@
+honeybee\_energy.hvac.heatcool.gasunit module
+=============================================
+
+.. automodule:: honeybee_energy.hvac.heatcool.gasunit
+   :members:
+   :undoc-members:
+   :show-inheritance:
