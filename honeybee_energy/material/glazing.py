@@ -432,7 +432,7 @@ class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
             trans_type = xml_trans.get('type')
             if trans_type == 'Solar':
                 new_obj.solar_transmittance = xml_trans.text
-            elif trans_type == 'ExtVisible':
+            elif trans_type == 'Visible':
                 new_obj.visible_transmittance = xml_trans.text
 
         # get the reflectance

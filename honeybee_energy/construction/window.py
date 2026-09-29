@@ -696,8 +696,10 @@ class WindowConstruction(_ConstructionBase):
         for trans in gbxml_element.findall('Transmittance'):
             if trans.get('type') == 'Visible':
                 t_vis = float(trans.text)
-            if trans.get('type') == 'Solar':
+            elif trans.get('type') == 'Solar':
                 t_sol = float(trans.text)
+            else:
+                t_sol = t_vis = float(trans.text)
         shgc = gbxml_element.find('SolarHeatGainCoeff')
         if shgc is None and t_sol is None:
             raise AttributeError('Not enough solar data to compute SHGC.')
@@ -710,13 +712,40 @@ class WindowConstruction(_ConstructionBase):
                     break
         else:
             shgc = float(shgc.text)
-        simple_mat = EnergyWindowMaterialSimpleGlazSys(
-            '{}_mat'.format(con_id), u_factor, shgc, t_vis
-        )
-        new_obj = cls(con_id, [simple_mat])
+        # we can create a simple construction but check if there are detailed layers
+        materials, frame = [], None
+        for child in gbxml_element:
+            # Recursively strip namespaces from tags to make them parse-able
+            for elem in child.iter():
+                if '}' in elem.tag:
+                    elem.tag = elem.tag.split('}', 1)[1]
+            # identify the type of layer that it might be
+            if child.tag == 'Glaze':
+                mat = EnergyWindowMaterialGlazing.from_gbxml_element(child)
+                materials.append(mat)
+            elif child.tag == 'Gap':
+                gas_type = child.get('gas')
+                if gas_type == 'Custom':
+                    mat = EnergyWindowMaterialGasCustom.from_gbxml_element(child)
+                else:
+                    mat = EnergyWindowMaterialGas.from_gbxml_element(child)
+                materials.append(mat)
+            elif child.tag == 'Frame':
+                frame = EnergyWindowFrame.from_gbxml_element(child)
+
+        # create the final construction
+        if len(materials) != 0:
+            new_obj = cls(con_id, materials)
+        else:
+            simple_mat = EnergyWindowMaterialSimpleGlazSys(
+                '{}_mat'.format(con_id), u_factor, shgc, t_vis
+            )
+            new_obj = cls(con_id, [simple_mat])
+        # add the optional attributes
         name = gbxml_element.find('Name')
         if name is not None:
             new_obj.display_name = name.text
+        new_obj.frame = frame
         return new_obj
 
     @classmethod
@@ -877,9 +906,14 @@ class WindowConstruction(_ConstructionBase):
         # add the solar heat gain coefficient
         xml_shgc = ET.SubElement(xml_con, 'SolarHeatGainCoeff', unit='Fraction')
         xml_shgc.text = str(round(self.shgc, 3))
+
         # if the window construction has individual glazing layers, write them
         if not isinstance(self.materials[0], EnergyWindowMaterialSimpleGlazSys):
-            pass
+            for mat in self.materials:
+                mat.to_gbxml_element(ip_units, xml_con)
+        # if the window has a frame, add it
+        if self.has_frame:
+            self.frame.to_gbxml_element(ip_units, xml_con)
 
         return xml_con
 
@@ -1078,7 +1112,9 @@ class WindowConstruction(_ConstructionBase):
             try:
                 con = WindowConstruction.from_gbxml_element(con_element)
                 constructions.append(con)
-                materials.append(con.materials[0])
+                materials.extend(con.materials)
+                if con.frame is not None:
+                    materials.append(con.frame)
             except AttributeError:  # not enough info to make a window construction
                 pass
         return constructions, materials

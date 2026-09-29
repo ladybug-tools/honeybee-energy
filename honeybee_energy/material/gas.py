@@ -5,6 +5,15 @@ They can only exist within window constructions bounded by glazing materials
 (they cannot be in the interior or exterior layer).
 """
 from __future__ import division
+import math
+import xml.etree.ElementTree as ET
+
+from ladybug.datatype.distance import Distance
+from ladybug.datatype.conductivity import Conductivity
+from ladybug.datatype.density import Density
+from honeybee._lockable import lockable
+from honeybee.typing import float_positive, float_in_range, tuple_with_length, \
+    clean_xml_tag_string
 
 from ._base import _EnergyMaterialWindowBase
 from ..properties.extension import (
@@ -14,11 +23,6 @@ from ..properties.extension import (
 )
 from ..reader import parse_idf_string
 from ..writer import generate_idf_string
-
-from honeybee._lockable import lockable
-from honeybee.typing import float_positive, float_in_range, tuple_with_length
-
-import math
 
 
 @lockable
@@ -82,7 +86,7 @@ class _EnergyWindowMaterialGasBase(_EnergyMaterialWindowBase):
 
     @property
     def density(self):
-        """Density of the gas at 0C and sea-level pressure [J/kg-K]."""
+        """Density of the gas at 0C and sea-level pressure [kg/m3]."""
         return self.density_at_temperature(273.15)
 
     @property
@@ -312,6 +316,67 @@ class _EnergyWindowMaterialGasBase(_EnergyMaterialWindowBase):
             delta_t, height, angle, t_kelvin, pressure) + \
             self.radiative_conductance(emissivity_1, emissivity_2, t_kelvin)
 
+    def to_gbxml_element(self, ip_units=False, parent_element=None):
+        """Get a gbXML Gap Element representation of this object.
+
+        Args:
+            ip_units: A boolean to note whether the properties should be reported
+                in IP units (True) or SI units (False). (Default: False).
+            parent_element: An optional XML Element for the WindowType to which the
+                gap element will be added. If None, a new XML Element will be
+                generated. (Default: None).
+        """
+        # create the Gap element
+        mat_id = clean_xml_tag_string(self.identifier)
+        if parent_element is not None:
+            xml_mat = ET.SubElement(parent_element, 'Gap', id=mat_id, gas='Custom')
+        else:
+            xml_mat = ET.Element('Gap', id=mat_id, gas='Custom')
+        # set the units of properties
+        if ip_units:
+            thick_units, cond_units, dens_units, visc_units = \
+                'Feet', 'BtuPerHourFtF', 'LbsPerCubicFt', 'PoundPerFootSec'
+            thick = round(Distance().to_ip([self.thickness], 'm')[0][0], 4)
+            cond = round(Conductivity().to_ip([self.conductivity], 'W/m-K')[0][0], 3)
+            dens = round(Density().to_ip([self.density], 'kg/m3')[0][0], 4)
+            visc = round(self.viscosity * 0.672, 7)
+        else:
+            thick_units, cond_units, dens_units, visc_units = \
+                'Meters', 'WPerMeterK', 'KgPerCubicM', 'KgPerMSec'
+            thick = round(self.thickness, 4)
+            cond = round(self.conductivity, 3)
+            dens = round(self.density, 4)
+            visc = round(self.viscosity, 7)
+        prandtl = round(self.prandtl, 3)
+        # add the name and the required properties
+        xml_name = ET.SubElement(xml_mat, 'Name')
+        xml_name.text = str(self.display_name)
+        xml_thick = ET.SubElement(xml_mat, 'Thickness', unit=thick_units)
+        xml_thick.text = str(thick)
+        xml_cond = ET.SubElement(xml_mat, 'Conductivity', unit=cond_units)
+        xml_cond.text = str(cond)
+        xml_dens = ET.SubElement(xml_mat, 'Density', unit=dens_units)
+        xml_dens.text = str(dens)
+        xml_visc = ET.SubElement(xml_mat, 'Viscosity', unit=visc_units)
+        xml_visc.text = str(visc)
+        xml_prandtl = ET.SubElement(xml_mat, 'PrandtlNumber')
+        xml_prandtl.text = str(prandtl)
+        return xml_mat
+
+    def to_gbxml(self, ip_units=False):
+        """Generate an gbXML string representation of this object.
+
+        Args:
+            ip_units: A boolean to note whether the properties should be reported
+                in IP units (True) or SI units (False). (Default: False).
+        """
+        xml_root = self.to_gbxml_element(ip_units)
+        try:  # try to indent the XML to make it read-able
+            ET.indent(xml_root)
+            return ET.tostring(xml_root, encoding='unicode')
+        except AttributeError:  # we are in Python 2 and no indent is available
+            return ET.tostring(xml_root)
+
 
 @lockable
 class EnergyWindowMaterialGas(_EnergyWindowMaterialGasBase):
@@ -390,6 +455,51 @@ class EnergyWindowMaterialGas(_EnergyWindowMaterialGasBase):
         return cls(ep_strs[0], ep_strs[2], ep_strs[1])
 
     @classmethod
+    def from_gbxml(cls, gbxml_str):
+        """Create an EnergyWindowMaterialGas from an gbXML string.
+
+        Args:
+            gbxml_element: A Gap string from a gbXML file.
+
+        .. code-block:: xml
+
+            <Gap id="STD_EXTW-layer-2" gas="Argon">
+                <Thickness unit="Meters">0.012</Thickness>
+            </Gap>
+        """
+        gbxml_element = ET.fromstring(gbxml_str)
+        return cls.from_gbxml_element(gbxml_element)
+
+    @classmethod
+    def from_gbxml_element(cls, gbxml_element):
+        """Create an EnergyMaterial from an gbXML Element.
+
+        Args:
+            gbxml_element: A Material Element from a gbXML file.
+        """
+        # get all required properties and make the object
+        mat_id = gbxml_element.get('id').replace('_', ' ')
+        new_obj = cls(mat_id)
+        # add optional properties if they are found
+        name = gbxml_element.find('Name')
+        if name is not None:
+            new_obj.display_name = name.text
+        # get the thickness
+        xml_thickness = gbxml_element.find('Thickness')
+        if xml_thickness is not None:
+            thickness, t_unit = float(xml_thickness.text), xml_thickness.get('unit')
+            if t_unit != 'Meters':
+                assert t_unit == 'Feet', \
+                    'Thickness unit "{}" is not supported'.format(t_unit)
+                thickness = round(Distance().to_si([thickness], 'ft')[0][0], 4)
+            new_obj.thickness = thickness
+        # get the gas type if it is supported
+        gas_type = gbxml_element.get('gas')
+        if gas_type in cls.GASES:
+            new_obj.gas_type = gas_type
+        return new_obj
+
+    @classmethod
     def from_dict(cls, data):
         """Create a EnergyWindowMaterialGas from a dictionary.
 
@@ -432,6 +542,36 @@ class EnergyWindowMaterialGas(_EnergyWindowMaterialGasBase):
         values = (self.identifier, self.gas_type, self.thickness)
         comments = ('name', 'gas type', 'thickness {m}')
         return generate_idf_string('WindowMaterial:Gas', values, comments)
+
+    def to_gbxml_element(self, ip_units=False, parent_element=None):
+        """Get a gbXML Gap Element representation of this object.
+
+        Args:
+            ip_units: A boolean to note whether the properties should be reported
+                in IP units (True) or SI units (False). (Default: False).
+            parent_element: An optional XML Element for the WindowType to which the
+                gap element will be added. If None, a new XML Element will be
+                generated. (Default: None).
+        """
+        # create the Gap element
+        mat_id = clean_xml_tag_string(self.identifier)
+        if parent_element is not None:
+            xml_mat = ET.SubElement(parent_element, 'Gap', id=mat_id, gas=self.gas_type)
+        else:
+            xml_mat = ET.Element('Gap', id=mat_id, gas=self.gas_type)
+        # set the units of properties
+        if ip_units:
+            thick_units = 'Feet'
+            thick = round(Distance().to_ip([self.thickness], 'm')[0][0], 4)
+        else:
+            thick_units = 'Meters'
+            thick = round(self.thickness, 4)
+        # add the name and the required properties
+        xml_name = ET.SubElement(xml_mat, 'Name')
+        xml_name.text = str(self.display_name)
+        xml_thick = ET.SubElement(xml_mat, 'Thickness', unit=thick_units)
+        xml_thick.text = str(thick)
+        return xml_mat
 
     def to_dict(self):
         """Energy Material Gas dictionary representation."""
@@ -943,6 +1083,69 @@ class EnergyWindowMaterialGasCustom(_EnergyWindowMaterialGasBase):
             clean_val = val if val != '' else 0
             eps_cl[i + 2] = clean_val
         return cls(*eps_cl)
+
+    @classmethod
+    def from_gbxml(cls, gbxml_str):
+        """Create an EnergyWindowMaterialGasCustom from an gbXML string.
+
+        Args:
+            gbxml_element: A Gap string from a gbXML file.
+
+        .. code-block:: xml
+
+            <Gap id="CarbonDioxide">
+                <Name>Carbon Dioxide</Name>
+                <Thickness unit="Meters">0.012</Thickness>
+                <Conductivity unit="WPerMeterK">0.0146</Conductivity>
+                <Viscosity unit="KgPerMSec">0.000014</SpecificHeat>
+                <PrandtlNumber unit="KgPerCubicM">0.76</Density>
+            </Gap>
+        """
+        gbxml_element = ET.fromstring(gbxml_str)
+        return cls.from_gbxml_element(gbxml_element)
+
+    @classmethod
+    def from_gbxml_element(cls, gbxml_element):
+        """Create an EnergyMaterial from an gbXML Element.
+
+        Args:
+            gbxml_element: A Material Element from a gbXML file.
+        """
+        # get all required properties and make the object
+        mat_id = gbxml_element.get('id').replace('_', ' ')
+        # get the thickness
+        xml_thickness = gbxml_element.find('Thickness')
+        thickness, t_unit = float(xml_thickness.text), xml_thickness.get('unit')
+        if t_unit != 'Meters':
+            assert t_unit == 'Feet', \
+                'Thickness unit "{}" is not supported'.format(t_unit)
+            thickness = round(Distance().to_si([thickness], 'ft')[0][0], 4)
+        # get the conductivity
+        xml_conductivity = gbxml_element.find('Conductivity')
+        conductivity, c_unit = float(xml_conductivity.text), xml_conductivity.get('unit')
+        if c_unit != 'WPerMeterK':
+            assert c_unit == 'BtuPerHourFtF', \
+                'Conductivity unit "{}" is not supported'.format(c_unit)
+            conductivity = \
+                round(Conductivity().to_si([conductivity], 'Btu/h-ft-F')[0][0], 3)
+        # get the viscosity
+        xml_visc = gbxml_element.find('Viscosity')
+        viscosity, v_unit = float(xml_visc.text), xml_visc.get('unit')
+        if v_unit != 'KgPerMSec':
+            assert xml_visc == 'PoundPerFootSec', \
+                'Viscosity unit "{}" is not supported'.format(v_unit)
+            viscosity = round(viscosity / 0.672, 7)
+        # get the PrandtlNumber
+        xml_prandtl = gbxml_element.find('PrandtlNumber')
+        prandtl = float(xml_prandtl.text)
+        # compute the specific heat from the PrandtlNumber, conductivity and viscosity
+        specific_heat = (prandtl * conductivity) / viscosity
+        new_obj = cls(mat_id, thickness, conductivity, viscosity, specific_heat)
+        # add optional properties if they are found
+        name = gbxml_element.find('Name')
+        if name is not None:
+            new_obj.display_name = name.text
+        return new_obj
 
     @classmethod
     def from_dict(cls, data):

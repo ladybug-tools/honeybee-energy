@@ -4,9 +4,13 @@
 The materials here can only be applied as frames to window constructions.
 """
 from __future__ import division
+import xml.etree.ElementTree as ET
 
+from ladybug.datatype.distance import Distance
+from ladybug.datatype.rvalue import RValue
 from honeybee._lockable import lockable
-from honeybee.typing import float_in_range, float_in_range_excl_incl, float_positive
+from honeybee.typing import float_in_range, float_in_range_excl_incl, float_positive, \
+    clean_and_id_string, clean_xml_tag_string
 
 from ._base import _EnergyMaterialBase
 from ..properties.extension import EnergyWindowFrameProperties
@@ -29,8 +33,8 @@ class EnergyWindowFrame(_EnergyMaterialBase):
             conduction effects into account [W/m2-K]. Values for typical frame
             materials are as follows.
 
-            * Aluminum with Thermal Break - 56.4 W/m2-K
-            * Aluminum One-Sided (Flush) - 10.7 W/m2-K
+            * Aluminum with Thermal Break - 5.68 W/m2-K
+            * Aluminum One-Sided (Flush) - 3.97 W/m2-K
             * Wood - 3.5 W/m2-K
             * Vinyl - 2.3 W/m2-K
 
@@ -240,6 +244,75 @@ class EnergyWindowFrame(_EnergyMaterialBase):
             ep_strs[6], ep_strs[7], ep_strs[8])
 
     @classmethod
+    def from_gbxml(cls, gbxml_str):
+        """Create an EnergyWindowFrame from an gbXML string.
+
+        Args:
+            gbxml_element: A Frame string from a gbXML file.
+
+        .. code-block:: xml
+
+            <Frame id="Wood_Frame_050_032" type="Wood">
+                <Name>Pine Wooden Frame</Name>
+                <Width unit="Meters">0.1</Thickness>
+                <R-value unit="SquareMeterKPerW">3.2</R-value>
+                <Absorptance unit="Fraction" type="ExtIR">0.9</Absorptance>
+            </Frame>
+        """
+        gbxml_element = ET.fromstring(gbxml_str)
+        return cls.from_gbxml_element(gbxml_element)
+
+    @classmethod
+    def from_gbxml_element(cls, gbxml_element):
+        """Create an EnergyWindowFrame from an gbXML Element.
+
+        Args:
+            gbxml_element: A Frame Element from a gbXML file.
+        """
+        # get all required properties and make the object
+        mat_id = gbxml_element.get('id')
+        mat_id = clean_and_id_string('Frame') if mat_id is None else mat_id.replace('_', ' ')
+
+        # get the width
+        width = 0.1
+        xml_width = gbxml_element.find('Width')
+        if xml_width is not None:
+            width, w_unit = float(xml_width.text), xml_width.get('unit')
+            if w_unit != 'Meters':
+                assert w_unit == 'Feet', \
+                    'Thickness unit "{}" is not supported'.format(w_unit)
+                width = round(Distance().to_si([width], 'ft')[0][0], 4)
+
+        # try to derive the conductance from the frame type
+        r_value = None
+        frame_type = gbxml_element.get('type')
+        if frame_type == 'Wood':
+            r_value = 3.5
+        elif frame_type == 'Vinyl':
+            r_value = 2.3
+        elif frame_type in ('Aluminum', 'AluminumWithBreak'):
+            r_value = 5.6
+
+        # see if the object is using IESVE's convention instead of gbXML schema
+        if r_value is None:
+            xml_r_value = gbxml_element.find('R-value')
+            if xml_r_value is not None:
+                r_value, r_unit = float(xml_r_value.text), xml_r_value.get('unit')
+                if r_unit != 'SquareMeterKPerW':
+                    assert r_unit == 'HrSquareFtFPerBTU', \
+                        'R-value unit "{}" is not supported'.format(r_unit)
+                    r_value = round(RValue().to_si([r_value], 'F-ft2-h/Btu')[0][0], 4)
+        if r_value is None:  # just assume that it is aluminum to import it
+            r_value = 5.6
+
+        new_obj = cls(mat_id, width, r_value)
+        # add optional properties if they are found
+        name = gbxml_element.find('Name')
+        if name is not None:
+            new_obj.display_name = name.text
+        return new_obj
+
+    @classmethod
     def from_dict(cls, data):
         """Create a EnergyWindowFrame from a dictionary.
 
@@ -285,7 +358,7 @@ class EnergyWindowFrame(_EnergyMaterialBase):
             new_mat.user_data = data['user_data']
         if 'properties' in data and data['properties'] is not None:
             new_mat._properties._load_extension_attr_from_dict(data['properties'])
-        
+
         return new_mat
 
     def to_idf(self):
@@ -312,6 +385,58 @@ class EnergyWindowFrame(_EnergyMaterialBase):
             'conductance {W/m2-K}', 'edge-to-center-of-glass conductance ratio',
             'solar absorptance', 'visible absorptance', 'thermal absorptance')
         return generate_idf_string('WindowProperty:FrameAndDivider', values, comments)
+
+    def to_gbxml_element(self, ip_units=False, parent_element=None):
+        """Get a gbXML Frame Element representation of this object.
+
+        Args:
+            ip_units: A boolean to note whether the R-value should be reported
+                in IP units (True) or SI units (False). (Default: False).
+            parent_element: An optional XML Element for the gbXML root to which the
+                material element will be added. If None, a new XML Element
+                will be generated. (Default: None).
+        """
+        # create the Material element
+        mat_id = clean_xml_tag_string(self.identifier)
+        if parent_element is not None:
+            xml_mat = ET.SubElement(parent_element, 'Frame', id=mat_id)
+        else:
+            xml_mat = ET.Element('Frame', id=mat_id)
+        # set the width
+        if ip_units:
+            width_units = 'Feet'
+            width = round(Distance().to_ip([self.width], 'm')[0][0], 4)
+        else:
+            width_units = 'Meters'
+            width = round(self.width, 4)
+        xml_width = ET.SubElement(xml_mat, 'Width', unit=width_units)
+        xml_width.text = str(width)
+        # derive the frame type from conductance
+        if self.conductance <= 3:
+            frame_type = 'Vinyl'
+        elif self.conductance >= 5:
+            frame_type = 'AluminumWithBreak'
+        else:
+            frame_type = 'Wood'
+        xml_mat.set('type', frame_type)
+        # add the name
+        xml_name = ET.SubElement(xml_mat, 'Name')
+        xml_name.text = str(self.display_name)
+        return xml_mat
+
+    def to_gbxml(self, ip_units=False):
+        """Generate an gbXML string representation of this object.
+
+        Args:
+            ip_units: A boolean to note whether the U-value should be reported
+                in IP units (True) or SI units (False). (Default: False).
+        """
+        xml_root = self.to_gbxml_element(ip_units)
+        try:  # try to indent the XML to make it read-able
+            ET.indent(xml_root)
+            return ET.tostring(xml_root, encoding='unicode')
+        except AttributeError:  # we are in Python 2 and no indent is available
+            return ET.tostring(xml_root)
 
     def to_dict(self):
         """EnergyWindowFrame dictionary representation."""
