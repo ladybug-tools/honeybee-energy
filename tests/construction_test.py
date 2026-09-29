@@ -234,9 +234,13 @@ def test_opaque_construction_extract_all_from_gbxml_file():
 
     dsb_gbxml_file = './tests/gbxml/designbuilder_gb.xml'
     constructions, materials = OpaqueConstruction.extract_all_from_gbxml_file(dsb_gbxml_file)
-    print(len(materials), len(constructions))
     assert len(materials) == 18
     assert len(constructions) == 9
+
+    iesve_gbxml_file = './tests/gbxml/iesve_gb.xml'
+    constructions, materials = OpaqueConstruction.extract_all_from_gbxml_file(iesve_gbxml_file)
+    assert len(materials) == 20
+    assert len(constructions) == 5
 
 
 def test_opaque_dict_methods(userdatadict):
@@ -488,6 +492,13 @@ def test_window_construction_extract_all_from_gbxml_file():
     assert len(materials) == 1
     assert len(constructions) == 1
 
+    iesve_gbxml_file = './tests/gbxml/iesve_gb.xml'
+    constructions, materials = WindowConstruction.extract_all_from_gbxml_file(iesve_gbxml_file)
+    assert len(materials) == 4
+    assert len(constructions) == 1
+    assert len(constructions[0].materials) == 3
+    assert constructions[0].has_frame
+
 
 def test_window_construction_to_gbxml():
     """Test the initialization of WindowConstruction.from_simple_parameters()."""
@@ -502,6 +513,40 @@ def test_window_construction_to_gbxml():
     assert glaz_constr.u_factor == new_glaz_constr.u_factor
     assert glaz_constr.thickness == new_glaz_constr.thickness
     assert constr_str == new_constr_str
+
+
+def test_window_construction_detailed_to_gbxml():
+    """Test the initialization of WindowConstruction objects and basic properties."""
+    lowe_glass = EnergyWindowMaterialGlazing(
+        'Low-e Glass', 0.00318, 0.4517, 0.359, 0.714, 0.207,
+        0, 0.84, 0.046578, 1.0)
+    clear_glass = EnergyWindowMaterialGlazing(
+        'Clear Glass', 0.005715, 0.770675, 0.07, 0.8836, 0.0804,
+        0, 0.84, 0.84, 1.0)
+    gap = EnergyWindowMaterialGas('air gap', thickness=0.0127)
+    frame = EnergyWindowFrame('Wooden Frame', 0.1, 3.5)
+    double_low_e = WindowConstruction(
+        'Double Low-E Window', [lowe_glass, gap, clear_glass])
+    double_clear = WindowConstruction(
+        'Double Clear Window', [clear_glass, gap, clear_glass])
+    triple_clear = WindowConstruction(
+        'Triple Clear Window', [clear_glass, gap, clear_glass, gap, clear_glass])
+    double_clear.frame = frame
+
+    constr_str = double_low_e.to_gbxml()
+    new_glaz_constr = WindowConstruction.from_gbxml(constr_str)
+    assert len(new_glaz_constr.materials) == 3
+    assert not new_glaz_constr.has_frame
+
+    constr_str = double_clear.to_gbxml()
+    new_glaz_constr = WindowConstruction.from_gbxml(constr_str)
+    assert len(new_glaz_constr.materials) == 3
+    assert new_glaz_constr.has_frame
+
+    constr_str = triple_clear.to_gbxml()
+    new_glaz_constr = WindowConstruction.from_gbxml(constr_str)
+    assert len(new_glaz_constr.materials) == 5
+    assert not new_glaz_constr.has_frame
 
 
 def test_window_dict_methods(userdatadict):
