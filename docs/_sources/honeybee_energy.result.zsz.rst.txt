@@ -1,0 +1,7 @@
+honeybee\_energy.result.zsz module
+==================================
+
+.. automodule:: honeybee_energy.result.zsz
+   :members:
+   :undoc-members:
+   :show-inheritance:

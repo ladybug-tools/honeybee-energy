@@ -1,0 +1,7 @@
+honeybee\_energy.properties.face module
+=======================================
+
+.. automodule:: honeybee_energy.properties.face
+   :members:
+   :undoc-members:
+   :show-inheritance:

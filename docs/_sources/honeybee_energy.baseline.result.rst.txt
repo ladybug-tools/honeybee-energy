@@ -1,0 +1,7 @@
+honeybee\_energy.baseline.result module
+=======================================
+
+.. automodule:: honeybee_energy.baseline.result
+   :members:
+   :undoc-members:
+   :show-inheritance:

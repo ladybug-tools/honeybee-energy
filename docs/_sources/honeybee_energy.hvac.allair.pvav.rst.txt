@@ -1,0 +1,7 @@
+honeybee\_energy.hvac.allair.pvav module
+========================================
+
+.. automodule:: honeybee_energy.hvac.allair.pvav
+   :members:
+   :undoc-members:
+   :show-inheritance:

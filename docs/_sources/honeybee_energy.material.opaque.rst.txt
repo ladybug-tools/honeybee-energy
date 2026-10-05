@@ -1,0 +1,7 @@
+honeybee\_energy.material.opaque module
+=======================================
+
+.. automodule:: honeybee_energy.material.opaque
+   :members:
+   :undoc-members:
+   :show-inheritance:
