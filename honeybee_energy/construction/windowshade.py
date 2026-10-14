@@ -88,6 +88,10 @@ class WindowConstructionShade(object):
         * u_value_ip
         * u_factor_ip
         * r_factor_ip
+        * u_factor_summer
+        * r_factor_summer
+        * u_factor_winter
+        * r_factor_winter
         * is_symmetric
         * is_switchable_glazing
         * has_frame
@@ -388,6 +392,42 @@ class WindowConstructionShade(object):
         Formulas for film coefficients come from EN673 / ISO10292.
         """
         return self._window_construction.u_factor
+
+    @property
+    def r_factor_summer(self):
+        """Construction R-factor in NFRC summer conditions [m2-K/W] (including air films).
+
+        Note that this excludes all effects of the shade layer.
+        Formulas for film coefficients come from come from ISO10292 and ISO15099.
+        """
+        return self._window_construction.r_factor_summer
+
+    @property
+    def u_factor_summer(self):
+        """Construction U-factor in NFRC summer conditions [W/m2-K] (including air films).
+
+        Note that this excludes all effects of the shade layer.
+        Formulas for film coefficients come from come from ISO10292 and ISO15099.
+        """
+        return self._window_construction.u_factor_summer
+
+    @property
+    def r_factor_winter(self):
+        """Construction R-factor in NFRC winter conditions [m2-K/W] (including air films).
+
+        Note that this excludes all effects of the shade layer.
+        Formulas for film coefficients come from come from ISO10292.
+        """
+        return self._window_construction.r_factor_winter
+
+    @property
+    def u_factor_winter(self):
+        """Construction U-factor in NFRC winter conditions [W/m2-K] (including air films).
+
+        Note that this excludes all effects of the shade layer.
+        Formulas for film coefficients come from come from ISO10292.
+        """
+        return self._window_construction.u_factor_winter
 
     @property
     def solar_transmittance(self):
