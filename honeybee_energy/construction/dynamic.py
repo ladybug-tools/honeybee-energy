@@ -54,6 +54,8 @@ class WindowConstructionDynamic(object):
         * outside_emissivity
         * solar_transmittance
         * visible_transmittance
+        * solar_transmissivity
+        * visible_transmissivity
         * shgc
         * shading_coefficient
         * thickness
@@ -252,6 +254,18 @@ class WindowConstructionDynamic(object):
         """Visible transmittance of the first window construction at normal incidence.
         """
         return self._constructions[0].visible_transmittance
+
+    @property
+    def solar_transmissivity(self):
+        """Get the solar transmissivity of all glazing panes at normal incidence.
+        """
+        return self._constructions[0].solar_transmissivity
+
+    @property
+    def visible_transmissivity(self):
+        """Get the visible transmissivity of all glazing panes at normal incidence.
+        """
+        return self._constructions[0].visible_transmissivity
 
     @property
     def shgc(self):

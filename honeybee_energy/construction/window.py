@@ -67,6 +67,8 @@ class WindowConstruction(_ConstructionBase):
         * visible_transmittance
         * visible_reflectance
         * visible_absorptance
+        * solar_transmissivity
+        * visible_transmissivity
         * shgc
         * shading_coefficient
         * thickness
@@ -337,6 +339,50 @@ class WindowConstruction(_ConstructionBase):
         """Get the combined visible absorptance of all window panes at normal incidence.
         """
         return sum(self.visible_optical_properties()[2])
+
+    @property
+    def solar_transmissivity(self):
+        """Get the combined solar transmissivity of all glazing panes at normal incidence.
+        """
+        # first collect all of the transmissivities and reflectances of glazing panes
+        trans, refs = [], []
+        for mat in self.materials:
+            if isinstance(mat, _EnergyWindowMaterialGlazingBase):
+                trans.append(mat.solar_transmissivity)
+                if len(refs) == 0:
+                    refs.append(mat.solar_reflectance_back)
+                else:
+                    refs.append(mat.solar_reflectance)
+        # if there is only one glazing pane, return its transmissivity
+        if len(trans) == 1:
+            return trans[0]
+        # if there are two or more panes, manage the reflections between them
+        tr_front, ref_front = trans[0], refs[0]
+        for i in range(len(trans) - 1):
+            tr_front = (tr_front * trans[i + 1]) / (1 - (ref_front * refs[i + 1]))
+        return tr_front
+
+    @property
+    def visible_transmissivity(self):
+        """Get the combined visible transmissivity of all glazing panes at normal incidence.
+        """
+        # first collect all of the transmissivities and reflectances of glazing panes
+        trans, refs = [], []
+        for mat in self.materials:
+            if isinstance(mat, _EnergyWindowMaterialGlazingBase):
+                trans.append(mat.visible_transmissivity)
+                if len(refs) == 0:
+                    refs.append(mat.visible_reflectance_back)
+                else:
+                    refs.append(mat.visible_reflectance)
+        # if there is only one glazing pane, return its transmissivity
+        if len(trans) == 1:
+            return trans[0]
+        # if there are two or more panes, manage the reflections between them
+        tr_front, ref_front = trans[0], refs[0]
+        for i in range(len(trans) - 1):
+            tr_front = (tr_front * trans[i + 1]) / (1 - (ref_front * refs[i + 1]))
+        return tr_front
 
     @property
     def shgc(self):

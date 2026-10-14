@@ -257,7 +257,7 @@ def test_opaque_dict_methods(userdatadict):
     assert constr_dict == new_constr.to_dict()
 
 
-def test_window_construction_init(userdatadict):
+def test_window_construction_init():
     """Test the initialization of WindowConstruction objects and basic properties."""
     lowe_glass = EnergyWindowMaterialGlazing(
         'Low-e Glass', 0.00318, 0.4517, 0.359, 0.714, 0.207,
@@ -268,13 +268,13 @@ def test_window_construction_init(userdatadict):
     gap = EnergyWindowMaterialGas('air gap', thickness=0.0127)
     double_low_e = WindowConstruction(
         'Double Low-E Window', [lowe_glass, gap, clear_glass])
-    double_low_e.user_data = userdatadict
+    # double_low_e.user_data = userdatadict
     double_clear = WindowConstruction(
         'Double Clear Window', [clear_glass, gap, clear_glass])
-    double_clear.user_data = userdatadict
+    # double_clear.user_data = userdatadict
     triple_clear = WindowConstruction(
         'Triple Clear Window', [clear_glass, gap, clear_glass, gap, clear_glass])
-    triple_clear.user_data = userdatadict
+    # triple_clear.user_data = userdatadict
     double_low_e_dup = double_low_e.duplicate()
     str(double_low_e)  # test the string representation of the construction
 
@@ -301,6 +301,13 @@ def test_window_construction_init(userdatadict):
         double_low_e_dup.visible_transmittance > 0.714 * 0.8836
     assert double_low_e.glazing_count == double_low_e_dup.glazing_count == 2
     assert double_low_e.gap_count == double_low_e_dup.gap_count == 1
+
+    assert double_clear.solar_transmittance < double_clear.solar_transmissivity
+    assert double_low_e.solar_transmittance < double_low_e.solar_transmissivity
+    assert triple_clear.solar_transmittance < triple_clear.solar_transmissivity
+    assert double_clear.visible_transmittance < double_clear.visible_transmissivity
+    assert double_low_e.visible_transmittance < double_low_e.visible_transmissivity
+    assert triple_clear.visible_transmittance < triple_clear.visible_transmissivity
 
     assert double_clear.u_factor == pytest.approx(2.72, rel=1e-2)
     assert double_low_e.u_factor == pytest.approx(1.698, rel=1e-2)

@@ -36,6 +36,15 @@ class _EnergyWindowMaterialGlazingBase(_EnergyMaterialWindowBase):
         """Boolean to note whether the material is a glazing layer."""
         return True
 
+    @staticmethod
+    def _transmissivity_from_transmittance(transmittance):
+        """Get transmissivity from a transmittance value"""
+        try:
+            return (math.sqrt(0.8402528435 + 0.0072522239 * (transmittance ** 2)) -
+                    0.9166530661) / 0.0036261119 / transmittance
+        except ZeroDivisionError:
+            return 0
+
 
 @lockable
 class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
@@ -689,15 +698,6 @@ class EnergyWindowMaterialGlazing(_EnergyWindowMaterialGlazingBase):
             base['properties'] = prop_dict
         return base
 
-    @staticmethod
-    def _transmissivity_from_transmittance(transmittance):
-        """Get transmissivity from a transmittance value"""
-        try:
-            return (math.sqrt(0.8402528435 + 0.0072522239 * (transmittance ** 2)) -
-                    0.9166530661) / 0.0036261119 / transmittance
-        except ZeroDivisionError:
-            return 0
-
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""
         return (self.identifier, self.thickness, self.solar_transmittance,
@@ -771,6 +771,8 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
         * visible_reflectance
         * visible_reflectance_back
         * visible_absorptance
+        * solar_transmissivity
+        * visible_transmissivity
         * thickness
         * user_data
         * properties
@@ -925,6 +927,16 @@ class EnergyWindowMaterialSimpleGlazSys(_EnergyWindowMaterialGlazingBase):
         This is the visible absorptance as understood by EnergyPlus.
         """
         return 1 - self.vt - self.visible_reflectance
+
+    @property
+    def solar_transmissivity(self):
+        """Get the solar transmissivity of the glass at normal incidence."""
+        return self._transmissivity_from_transmittance(self._solar_transmittance)
+
+    @property
+    def visible_transmissivity(self):
+        """Get the visible transmissivity of the glass at normal incidence."""
+        return self._transmissivity_from_transmittance(self._visible_transmittance)
 
     @property
     def thickness(self):
