@@ -305,6 +305,9 @@ def test_window_construction_init(userdatadict):
     assert double_clear.u_factor == pytest.approx(2.72, rel=1e-2)
     assert double_low_e.u_factor == pytest.approx(1.698, rel=1e-2)
     assert triple_clear.u_factor == pytest.approx(1.757, rel=1e-2)
+    assert double_clear.u_factor_summer == pytest.approx(2.80, rel=1e-2)
+    assert double_low_e.u_factor_summer == pytest.approx(1.581, rel=1e-2)
+    assert triple_clear.u_factor_summer == pytest.approx(1.92, rel=1e-2)
 
     assert double_low_e.inside_material == \
         double_low_e_dup.inside_material == clear_glass

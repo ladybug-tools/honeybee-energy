@@ -209,6 +209,38 @@ class WindowConstructionDynamic(object):
         return self._constructions[0].u_factor
 
     @property
+    def r_factor_summer(self):
+        """Construction R-factor in NFRC summer conditions [m2-K/W] (including air films).
+
+        Formulas for film coefficients come from come from ISO10292 and ISO15099.
+        """
+        return self._constructions[0].r_factor_summer
+
+    @property
+    def u_factor_summer(self):
+        """Construction U-factor in NFRC summer conditions [W/m2-K] (including air films).
+
+        Formulas for film coefficients come from come from ISO10292 and ISO15099.
+        """
+        return self._constructions[0].u_factor_summer
+
+    @property
+    def r_factor_winter(self):
+        """Construction R-factor in NFRC winter conditions [m2-K/W] (including air films).
+
+        Formulas for film coefficients come from come from ISO10292.
+        """
+        return self._constructions[0].r_factor_winter
+
+    @property
+    def u_factor_winter(self):
+        """Construction U-factor in NFRC winter conditions [W/m2-K] (including air films).
+
+        Formulas for film coefficients come from come from ISO10292.
+        """
+        return self._constructions[0].u_factor_winter
+
+    @property
     def solar_transmittance(self):
         """The solar transmittance of the first window construction at normal incidence.
         """

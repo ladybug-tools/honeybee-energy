@@ -51,6 +51,10 @@ class WindowConstruction(_ConstructionBase):
         * u_value_ip
         * u_factor_ip
         * r_factor_ip
+        * u_factor_summer
+        * r_factor_summer
+        * u_factor_winter
+        * r_factor_winter
         * is_symmetric
         * has_frame
         * has_shade
@@ -225,6 +229,62 @@ class WindowConstruction(_ConstructionBase):
         frame_area = ((1 + self.frame.width) ** 2) - 1
         total_u = (glass_u + (self.frame.u_value * frame_area)) / (1 + frame_area)
         return 1 / total_u
+
+    @property
+    def r_factor_summer(self):
+        """Construction R-factor in NFRC summer conditions [m2-K/W] (including air films).
+
+        Formulas for film coefficients come from come from ISO10292 and ISO15099.
+        """
+        # figure out the center-of-glass R-value
+        gap_count = self.gap_count
+        out_hc = self.out_h(wind_speed=2.75, t_kelvin=301.15)
+        if gap_count == 0:  # single pane or simple glazing system
+            cog_r = self.materials[0].r_value + (1 / out_hc) + \
+                (1 / self.in_h_simple())
+        else:
+            r_vals, emissivities = self._layered_r_value_initial(
+                gap_count, avg_t_guess=301.15, wind_speed=2.75
+            )
+            r_vals = self._solve_r_values_summer(r_vals, emissivities)
+            cog_r = sum(r_vals)
+        if self.frame is None:
+            return cog_r
+        # if there is a frame, account for it in the final R-value
+        glass_u = (1 / cog_r)
+        if self.frame.edge_to_center_ratio != 1 and not \
+                isinstance(self.materials[0], EnergyWindowMaterialSimpleGlazSys):
+            edge_u = self.frame.edge_to_center_ratio * glass_u
+            glass_u = (glass_u * self.COG_AREA) + (edge_u * self.EDGE_AREA)
+        frame_r = self.frame.r_value + (1 / out_hc) + (1 / self.in_h_simple())
+        frame_u = 1 / frame_r
+        frame_area = ((1 + self.frame.width) ** 2) - 1
+        total_u = (glass_u + (frame_u * frame_area)) / (1 + frame_area)
+        return 1 / total_u
+
+    @property
+    def u_factor_summer(self):
+        """Construction U-factor in NFRC summer conditions [W/m2-K] (including air films).
+
+        Formulas for film coefficients come from come from ISO10292 and ISO15099.
+        """
+        return 1 / self.r_factor_summer
+
+    @property
+    def r_factor_winter(self):
+        """Construction R-factor in NFRC winter conditions [m2-K/W] (including air films).
+
+        Formulas for film coefficients come from come from ISO10292.
+        """
+        return self.r_factor
+
+    @property
+    def u_factor_winter(self):
+        """Construction U-factor in NFRC winter conditions [W/m2-K] (including air films).
+
+        Formulas for film coefficients come from come from ISO10292.
+        """
+        return 1 / self.r_factor_winter
 
     @property
     def inside_emissivity(self):
@@ -1193,6 +1253,19 @@ class WindowConstruction(_ConstructionBase):
         while abs(r_next - r_last) > 0.001:  # 0.001 is the r-value tolerance
             r_last = sum(r_vals)
             temperatures = self._temperature_profile_from_r_values(r_vals)
+            r_vals = self._layered_r_value(temperatures, r_vals, emissivities)
+            r_next = sum(r_vals)
+        return r_vals
+
+    def _solve_r_values_summer(self, r_vals, emissivities):
+        """Iteratively solve for R-values."""
+        r_last = 0
+        r_next = sum(r_vals)
+        while abs(r_next - r_last) > 0.001:  # 0.001 is the r-value tolerance
+            r_last = sum(r_vals)
+            temperatures = self._temperature_profile_from_r_values(
+                r_vals, outside_temperature=32, inside_temperature=24
+            )
             r_vals = self._layered_r_value(temperatures, r_vals, emissivities)
             r_next = sum(r_vals)
         return r_vals
