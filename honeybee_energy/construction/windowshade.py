@@ -102,6 +102,7 @@ class WindowConstructionShade(object):
         * solar_transmittance
         * visible_transmittance
         * shgc
+        * shading_coefficient
         * thickness
         * glazing_count
         * gap_count
@@ -452,6 +453,17 @@ class WindowConstructionShade(object):
         Note that this excludes all effects of the shade layer.
         """
         return self._window_construction.shgc
+
+    @property
+    def shading_coefficient(self):
+        """Get the shading coefficient (SC) of the bare window construction.
+
+        Shading Coefficient is the ratio of the solar heat the makes it to the
+        interior compared to that of a standard 1/8-inch (or 3mm) clear float glass.
+        Clear float glass has a SHGC of 0.87 so the SC is computed by taking the
+        window construction's SHGC and dividing it by 0.87.
+        """
+        return self._window_construction.shading_coefficient
 
     @property
     def is_symmetric(self):
