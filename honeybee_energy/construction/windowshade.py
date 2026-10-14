@@ -101,6 +101,8 @@ class WindowConstructionShade(object):
         * outside_emissivity
         * solar_transmittance
         * visible_transmittance
+        * solar_transmissivity
+        * visible_transmissivity
         * shgc
         * shading_coefficient
         * thickness
@@ -445,6 +447,18 @@ class WindowConstructionShade(object):
         Note that this excludes all effects of the shade layer.
         """
         return self._window_construction.visible_transmittance
+
+    @property
+    def solar_transmissivity(self):
+        """Get the solar transmissivity of all glazing panes at normal incidence.
+        """
+        return self._window_construction.solar_transmissivity
+
+    @property
+    def visible_transmissivity(self):
+        """Get the visible transmissivity of all glazing panes at normal incidence.
+        """
+        return self._window_construction.visible_transmissivity
 
     @property
     def shgc(self):
