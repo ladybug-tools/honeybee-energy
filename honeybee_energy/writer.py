@@ -1309,6 +1309,9 @@ def sub_face_to_gbxml_element(
     # add the name and the associated space
     xml_name = ET.SubElement(xml_opening, 'Name')
     xml_name.text = str(sub_face.display_name)
+    if sub_face.user_data and 'CADObjectId' in sub_face.user_data:
+        xml_cad_id = ET.SubElement(xml_opening, 'CADObjectId')
+        xml_cad_id.text = str(sub_face.user_data['CADObjectId'])
     # add the geometry
     face_3d_to_gbxml_element(
         sub_face.geometry, tolerance=tolerance, rect_geo_format=rect_geo_format,
@@ -1373,6 +1376,9 @@ def face_to_gbxml_element(
     # add the name and the associated space
     xml_name = ET.SubElement(xml_face, 'Name')
     xml_name.text = str(face.display_name)
+    if face.user_data and 'CADObjectId' in face.user_data:
+        xml_cad_id = ET.SubElement(xml_face, 'CADObjectId')
+        xml_cad_id.text = str(face.user_data['CADObjectId'])
     if face.has_parent:
         ET.SubElement(xml_face, 'AdjacentSpaceId', spaceIdRef=face.parent.identifier)
     if isinstance(face.boundary_condition, Surface):
@@ -1442,6 +1448,9 @@ def room_to_gbxml_element(
     # add the name, area and volume properties
     xml_name = ET.SubElement(xml_space, 'Name')
     xml_name.text = str(room.display_name)
+    if room.user_data and 'CADObjectId' in room.user_data:
+        xml_cad_id = ET.SubElement(xml_space, 'CADObjectId')
+        xml_cad_id.text = str(room.user_data['CADObjectId'])
     xml_area = ET.SubElement(xml_space, 'Area')
     xml_area.text = str(round(room.floor_area)) \
         if ip_units else str(round(room.floor_area, 1))
@@ -1722,14 +1731,26 @@ def model_to_gbxml_element(
     if len(model.stories) == 0 and len(model.rooms) != 0:
         model.assign_stories_by_floor_height()
 
+    # store all identifiers under user_data to write them as CADObjectId
+    for room in model.rooms:
+        if not room.user_data or 'CADObjectId' not in room.user_data:
+            room.user_data = {'CADObjectId': room.identifier}
+        for face in room.faces:
+            if not face.user_data or 'CADObjectId' not in face.user_data:
+                face.user_data = {'CADObjectId': face.identifier}
+            for ap in face.apertures:
+                if not ap.user_data or 'CADObjectId' not in ap.user_data:
+                    ap.user_data = {'CADObjectId': ap.identifier}
+            for dr in face.doors:
+                if not dr.user_data or 'CADObjectId' not in dr.user_data:
+                    dr.user_data = {'CADObjectId': dr.identifier}
+
     # rename the faces, apertures, and doors if requested
     if face_rename_format:
-        for room in model.rooms:
-            room.rename_faces_by_attribute(face_rename_format)
+        model.rename_faces_by_attribute(face_rename_format)
     if subface_rename_format:
-        for room in model.rooms:
-            room.rename_apertures_by_attribute(subface_rename_format)
-            room.rename_doors_by_attribute(subface_rename_format)
+        model.rename_apertures_by_attribute(subface_rename_format)
+        model.rename_doors_by_attribute(subface_rename_format)
     # ensure all display_names are unique because some gbXML interfaces require this
     model.assign_unique_names()
     # reset the IDs to be derived from the display_names if requested
