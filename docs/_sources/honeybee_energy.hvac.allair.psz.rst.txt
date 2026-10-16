@@ -1,0 +1,7 @@
+honeybee\_energy.hvac.allair.psz module
+=======================================
+
+.. automodule:: honeybee_energy.hvac.allair.psz
+   :members:
+   :undoc-members:
+   :show-inheritance:

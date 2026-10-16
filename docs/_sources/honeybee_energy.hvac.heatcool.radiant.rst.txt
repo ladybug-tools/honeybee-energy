@@ -1,0 +1,7 @@
+honeybee\_energy.hvac.heatcool.radiant module
+=============================================
+
+.. automodule:: honeybee_energy.hvac.heatcool.radiant
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,7 @@
+honeybee\_energy.material.gas module
+====================================
+
+.. automodule:: honeybee_energy.material.gas
+   :members:
+   :undoc-members:
+   :show-inheritance:
