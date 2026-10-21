@@ -1,7 +1,6 @@
 # coding=utf-8
 """Room Energy Properties."""
 # import honeybee-core and ladybug-geometry modules
-from ladybug_geometry.geometry2d import Vector2D
 from ladybug_geometry.geometry3d import Vector3D, Point3D, Polyline3D, Face3D, Polyface3D
 from honeybee.checkdup import is_equivalent
 from honeybee.boundarycondition import Outdoors, Ground, Surface, boundary_conditions
@@ -766,7 +765,8 @@ class RoomEnergyProperties(object):
                     shade.properties.energy.construction = None
 
     def window_construction_by_orientation(
-            self, construction, orientation=0, offset=45, north_vector=Vector2D(0, 1)):
+        self, construction, orientation=0, offset=45, north_angle=0
+    ):
         """Set the construction of exterior Apertures in Walls facing a given orientation.
 
         This is useful for testing orientation-specific energy conservation
@@ -783,8 +783,9 @@ class RoomEnergyProperties(object):
                 For example, a value of 45 indicates that any Apertures falling
                 in the 90 degree range around the orientation will get the input
                 construction. (Default: 45).
-            north_vector: A ladybug_geometry Vector3D for the north direction.
-                Default is the Y-axis (0, 1).
+            north_angle: North angle in degrees. A number between -360 and 360 for the
+                counterclockwise difference between the North and the positive Y-axis in
+                degrees. 90 is West and 270 is East (Default: 0).
         """
         # determine the min and max values for orientation
         ori_min = orientation - offset
@@ -798,12 +799,12 @@ class RoomEnergyProperties(object):
             if isinstance(face.boundary_condition, Outdoors) and \
                     isinstance(face.type, Wall) and len(face._apertures) > 0:
                 if rev_vars:
-                    if face.horizontal_orientation(north_vector) > ori_min \
-                            or face.horizontal_orientation(north_vector) < ori_max:
+                    if face.horizontal_orientation(north_angle) > ori_min \
+                            or face.horizontal_orientation(north_angle) < ori_max:
                         for ap in face._apertures:
                             ap.properties.energy.construction = construction
                 else:
-                    if ori_min < face.horizontal_orientation(north_vector) < ori_max:
+                    if ori_min < face.horizontal_orientation(north_angle) < ori_max:
                         for ap in face._apertures:
                             ap.properties.energy.construction = construction
 

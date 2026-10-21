@@ -5,7 +5,6 @@ try:
 except ImportError:
     pass   # python 3
 
-from ladybug_geometry.geometry2d import Vector2D
 from ladybug_geometry.geometry3d import Point3D
 from honeybee.boundarycondition import Outdoors, Surface, boundary_conditions
 from honeybee.facetype import AirBoundary, face_types
@@ -504,7 +503,8 @@ class ModelEnergyProperties(object):
             room.properties.energy.remove_child_constructions()
 
     def window_construction_by_orientation(
-            self, construction, orientation=0, offset=45, north_vector=Vector2D(0, 1)):
+        self, construction, orientation=0, offset=45, north_angle=0
+    ):
         """Set the construction of exterior Apertures facing a given orientation.
 
         This is useful for testing orientation-specific energy conservation
@@ -521,12 +521,13 @@ class ModelEnergyProperties(object):
                 For example, a value of 45 indicates that any Apertures falling
                 in the 90 degree range around the orientation will get the input
                 construction. (Default: 45).
-            north_vector: A ladybug_geometry Vector3D for the north direction.
-                Default is the Y-axis (0, 1).
+            north_angle: North angle in degrees. A number between -360 and 360 for the
+                counterclockwise difference between the North and the positive Y-axis in
+                degrees. 90 is West and 270 is East (Default: 0).
         """
         for room in self._host.rooms:
             room.properties.energy.window_construction_by_orientation(
-                construction, orientation, offset, north_vector)
+                construction, orientation, offset, north_angle)
 
     def remove_hvac_from_no_setpoints(self):
         """Remove any HVAC systems assigned to Rooms that have no thermostat setpoints.
