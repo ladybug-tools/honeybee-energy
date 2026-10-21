@@ -1,0 +1,7 @@
+honeybee\_energy.simulation.shadowcalculation module
+====================================================
+
+.. automodule:: honeybee_energy.simulation.shadowcalculation
+   :members:
+   :undoc-members:
+   :show-inheritance:

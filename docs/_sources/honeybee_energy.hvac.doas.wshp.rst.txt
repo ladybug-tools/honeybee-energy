@@ -1,0 +1,7 @@
+honeybee\_energy.hvac.doas.wshp module
+======================================
+
+.. automodule:: honeybee_energy.hvac.doas.wshp
+   :members:
+   :undoc-members:
+   :show-inheritance:

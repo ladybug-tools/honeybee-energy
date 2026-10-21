@@ -1,0 +1,7 @@
+honeybee\_energy.hvac.doas.vrf module
+=====================================
+
+.. automodule:: honeybee_energy.hvac.doas.vrf
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,7 @@
+honeybee\_energy.result.err module
+==================================
+
+.. automodule:: honeybee_energy.result.err
+   :members:
+   :undoc-members:
+   :show-inheritance:

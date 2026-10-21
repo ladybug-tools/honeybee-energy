@@ -1,0 +1,7 @@
+honeybee\_energy.load.daylight module
+=====================================
+
+.. automodule:: honeybee_energy.load.daylight
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,7 @@
+honeybee\_energy.result.osw module
+==================================
+
+.. automodule:: honeybee_energy.result.osw
+   :members:
+   :undoc-members:
+   :show-inheritance:

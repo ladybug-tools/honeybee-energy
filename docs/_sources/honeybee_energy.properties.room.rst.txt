@@ -1,0 +1,7 @@
+honeybee\_energy.properties.room module
+=======================================
+
+.. automodule:: honeybee_energy.properties.room
+   :members:
+   :undoc-members:
+   :show-inheritance:

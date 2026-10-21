@@ -1,0 +1,7 @@
+honeybee\_energy.result.emissions module
+========================================
+
+.. automodule:: honeybee_energy.result.emissions
+   :members:
+   :undoc-members:
+   :show-inheritance:
