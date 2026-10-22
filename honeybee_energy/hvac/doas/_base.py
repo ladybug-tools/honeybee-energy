@@ -65,9 +65,11 @@ class _DOASBase(_TemplateSystem):
         * user_data
         * properties
     """
-    __slots__ = ('_sensible_heat_recovery', '_latent_heat_recovery',
-                 '_demand_controlled_ventilation', '_doas_availability_schedule',
-                 '_properties')
+    __slots__ = (
+        '_sensible_heat_recovery', '_latent_heat_recovery',
+        '_demand_controlled_ventilation', '_doas_availability_schedule',
+        '_properties'
+    )
     COOL_ONLY_TYPES = ('DOAS_FCU_Chiller', 'DOAS_FCU_ACChiller', 'DOAS_FCU_DCW')
     HEAT_ONLY_TYPES = ()
 
