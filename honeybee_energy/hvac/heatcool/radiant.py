@@ -56,6 +56,20 @@ class Radiant(_HeatCoolBase):
             * Radiant_DCW_ASHP
             * Radiant_DCW_DHW
 
+        unit_ventilators: Boolean to note whether individual zone ventilators are
+            included with the basic heating and cooling system (True) or the system only
+            performs heating and cooling without any ventilation (False). Unlike a DOAS,
+            unit ventilators do not pass the outdoor air through heating or cooling
+            coils to condition it for the space. However, heat recovery effectiveness
+            can be specified, which can temper the air supplied to the zone by the
+            ventilator with exhaust air. All air flow through this ventilator
+            is always balanced for each zone between supply and exhaust and the
+            total flow rate is determined by checking the ventilation and exhaust
+            requirements of the rooms to which the system is assigned. (Default: False).
+        sensible_heat_recovery: A number between 0 and 1 for the effectiveness of
+            sensible heat recovery within unit ventilators if specified. (Default: 0).
+        latent_heat_recovery: A number between 0 and 1 for the effectiveness of
+            latent heat recovery within unit ventilators if specified. (Default: 0).
         radiant_type: Text to indicate which faces are thermally active. Note
             that systems are assumed to be embedded in concrete slabs unless
             CeilingMetalPanel or FloorWithHardwood is specified. Choose from the
@@ -67,9 +81,6 @@ class Radiant(_HeatCoolBase):
             * CeilingMetalPanel
             * FloorWithHardwood
 
-        minimum_operation_time: A number for the minimum number of hours of operation
-            for the radiant system before it shuts off. Note that this has no effect
-            if the radiant_type is not in a slab. (Default: 1).
         switch_over_time: A number for the minimum number of hours for when the system
             can switch between heating and cooling. Note that this has no effect
             if the radiant_type is not in a slab. (Default: 24).
@@ -80,7 +91,6 @@ class Radiant(_HeatCoolBase):
         * vintage
         * equipment_type
         * radiant_type
-        * minimum_operation_time
         * switch_over_time
         * schedules
         * has_district_heating
@@ -88,7 +98,7 @@ class Radiant(_HeatCoolBase):
         * user_data
         * properties
     """
-    __slots__ = ('_radiant_type', '_minimum_operation_time', '_switch_over_time')
+    __slots__ = ('_radiant_type', '_switch_over_time')
 
     EQUIPMENT_TYPES = (
         'Radiant_Chiller_Boiler',
@@ -105,16 +115,20 @@ class Radiant(_HeatCoolBase):
     radiant_typeS = ('Floor', 'Ceiling', 'FloorWithCarpet',
                      'CeilingMetalPanel', 'FloorWithHardwood')
 
-    def __init__(self, identifier, vintage='ASHRAE_2019', equipment_type=None,
-                 radiant_type='Floor', minimum_operation_time=1,
-                 switch_over_time=24):
+    def __init__(
+        self, identifier, vintage='ASHRAE_2019', equipment_type=None,
+        unit_ventilators=False, sensible_heat_recovery=0, latent_heat_recovery=0,
+        radiant_type='Floor', switch_over_time=24
+    ):
         """Initialize HVACSystem."""
         # initialize base HVAC system properties
-        _HeatCoolBase.__init__(self, identifier, vintage, equipment_type)
+        _HeatCoolBase.__init__(
+            self, identifier, vintage, equipment_type, unit_ventilators,
+            sensible_heat_recovery, latent_heat_recovery
+        )
 
         # set the main features of the HVAC system
         self.radiant_type = radiant_type
-        self.minimum_operation_time = minimum_operation_time
         self.switch_over_time = switch_over_time
 
     @property
@@ -134,16 +148,6 @@ class Radiant(_HeatCoolBase):
                 'radiant_type {} is not recognized.\nChoose from the '
                 'following:\n{}'.format(value, self.radiant_typeS))
         self._radiant_type = value
-
-    @property
-    def minimum_operation_time(self):
-        """Get or set a the minimum hours of operation before the system shuts off."""
-        return self._minimum_operation_time
-
-    @minimum_operation_time.setter
-    def minimum_operation_time(self, value):
-        self._minimum_operation_time = \
-            float_positive(value, 'hvac minimum operation time')
 
     @property
     def switch_over_time(self):
@@ -170,16 +174,17 @@ class Radiant(_HeatCoolBase):
             "vintage": "ASHRAE_2019",  # text for the vintage of the template
             "equipment_type": "",  # text for the HVAC equipment type
             "radiant_type": "Ceiling",
-            "minimum_operation_time": 1,
             "switch_over_time": 24
             }
         """
         assert data['type'] == cls.__name__, \
             'Expected {} dictionary. Got {}.'.format(cls.__name__, data['type'])
         # extract the key features and properties of the HVAC
-        f_type, mot, sot = cls._radiant_properties_from_dict(data)
-        new_obj = cls(data['identifier'], data['vintage'], data['equipment_type'],
-                      f_type, mot, sot)
+        f_type, sot = cls._radiant_properties_from_dict(data)
+        new_obj = cls(
+            data['identifier'], data['vintage'], data['equipment_type'],
+            radiant_type=f_type, switch_over_time=sot
+        )
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
@@ -206,7 +211,6 @@ class Radiant(_HeatCoolBase):
             "vintage": "ASHRAE_2019",  # text for the vintage of the template
             "equipment_type": "",  # text for the HVAC equipment type
             "radiant_type": "Ceiling",
-            "minimum_operation_time": 1,
             "switch_over_time": 24
             }
         """
@@ -227,7 +231,6 @@ class Radiant(_HeatCoolBase):
         base['vintage'] = self.vintage
         base['equipment_type'] = self.equipment_type
         base['radiant_type'] = self.radiant_type
-        base['minimum_operation_time'] = self.minimum_operation_time
         base['switch_over_time'] = self.switch_over_time
         if self._display_name is not None:
             base['display_name'] = self.display_name
@@ -238,17 +241,16 @@ class Radiant(_HeatCoolBase):
     @staticmethod
     def _radiant_properties_from_dict(data):
         """Extract basic radiant properties from a dictionary and assign defaults."""
-        mot = data['minimum_operation_time'] if 'minimum_operation_time' in data else 1
         sot = data['switch_over_time'] if 'switch_over_time' in data else 24
         rad_type = data['radiant_type'] if 'radiant_type' in data and \
             data['radiant_type'] is not None else 'Floor'
-        return rad_type, mot, sot
+        return rad_type, sot
 
     def __copy__(self):
         new_obj = self.__class__(
             self._identifier, self._vintage, self._equipment_type,
-            self._radiant_type, self._minimum_operation_time,
-            self._switch_over_time)
+            self._radiant_type, self._switch_over_time
+        )
         new_obj._display_name = self._display_name
         new_obj._user_data = None if self._user_data is None else self._user_data.copy()
         return new_obj
@@ -256,8 +258,7 @@ class Radiant(_HeatCoolBase):
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""
         return (self._identifier, self._vintage, self._equipment_type,
-                self._radiant_type, self._minimum_operation_time,
-                self._switch_over_time)
+                self._radiant_type, self._switch_over_time)
 
     def __hash__(self):
         return hash(self.__key())
