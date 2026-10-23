@@ -68,6 +68,7 @@ class _AllAirBase(_TemplateSystem):
         * has_air_loop
         * has_district_heating
         * has_district_cooling
+        * balances_exhaust
         * user_data
         * properties
     """
@@ -169,6 +170,11 @@ class _AllAirBase(_TemplateSystem):
     def has_air_loop(self):
         """True for most All-Air systems but False for PTAC/PTHP."""
         return self._has_air_loop
+
+    @property
+    def balances_exhaust(self):
+        """True for most All-Air systems but False for PTAC/PTHP."""
+        return self.has_air_loop
 
     @property
     def properties(self):

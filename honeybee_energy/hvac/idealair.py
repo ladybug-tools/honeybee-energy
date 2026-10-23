@@ -74,6 +74,7 @@ class IdealAirSystem(_HVACSystem):
         * cooling_availability
         * schedules
         * has_air_loop
+        * balances_exhaust
         * properties
     """
     __slots__ = ('_economizer_type', '_demand_controlled_ventilation',
@@ -267,6 +268,11 @@ class IdealAirSystem(_HVACSystem):
     @property
     def has_district_cooling(self):
         """Get a boolean for whether the HVAC system has district cooling."""
+        return False
+
+    @property
+    def balances_exhaust(self):
+        """Always False for HeatCool systems."""
         return False
 
     @classmethod

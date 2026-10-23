@@ -76,8 +76,10 @@ class WSHPwithDOAS(_DOASBase):
         * demand_controlled_ventilation
         * doas_availability_schedule
         * schedules
+        * has_air_loop
         * has_district_heating
         * has_district_cooling
+        * balances_exhaust
         * user_data
         * properties
     """
