@@ -97,8 +97,10 @@ class VAV(_AllAirBase):
         * latent_heat_recovery
         * demand_controlled_ventilation
         * schedules
+        * has_air_loop
         * has_district_heating
         * has_district_cooling
+        * balances_exhaust
         * user_data
         * properties
 

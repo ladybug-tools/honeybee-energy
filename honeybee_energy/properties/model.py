@@ -31,6 +31,7 @@ from ..schedule.typelimit import ScheduleTypeLimit
 from ..schedule.ruleset import ScheduleRuleset
 from ..schedule.dictutil import SCHEDULE_TYPES, dict_to_schedule, \
     dict_abridged_to_schedule
+from ..load.ventilation import Ventilation
 from ..programtype import ProgramType
 from ..hvac.detailed import DetailedHVAC
 from ..hvac import HVAC_TYPES_DICT
@@ -1617,16 +1618,24 @@ class ModelEnergyProperties(object):
         3. If not all Rooms of a zone have the same ventilation requirements, these
         will be edited such that the ventilation requirement of the zone is equal
         to the sum of the individual room ventilation requirements. To total outdoor
-        flow rates are added across the Rooms, flow-per-floor area gets recomputed using
+        flow rates are added across the Rooms, flow-per-floor-area gets recomputed using
         the floor area of each Room, ACH flow rates get recomputed using the volume
         of each Room, and the flow-per-person is set to the highest value of
         the Rooms in the zone. If Rooms have ventilation schedules, then these
         are recomputed such that the highest value governs at each timestep.
 
-        4. If not all of the Rooms of the zone have the same multiplier, then the
+        4. Regardless of whether a zone is composed of multiple rooms or just one,
+        the total outdoor airflow requirement for each zone is evaluated against
+        the total exhaust airflow of the zone. If the exhaust airflow is greater
+        than the outdoor air flow and the zone has a HVAC system that lacks an
+        air loop to automatically balance the exhaust fan, the zone outdoor
+        air ventilation specification is adjusted such that the HVAC can supply
+        enough outdoor air to balance the exhaust air.
+
+        5. If not all of the Rooms of the zone have the same multiplier, then the
         highest multiplier of the rooms in the zone sets the multiplier of the zone.
 
-        5. If not all Rooms of the zone have the same exclude_floor_area value,
+        6. If not all Rooms of the zone have the same exclude_floor_area value,
         then the rooms with excluded floor area will be pulled out into separate
         zones from the ones that have included floor area, which will retain the
         original zone name.
@@ -1652,6 +1661,26 @@ class ModelEnergyProperties(object):
         for zone_name, rooms in self.host.zone_dict.items():
             if len(rooms) == 1:  # simple case of one room in the zone
                 room = rooms[0]
+                # if room has exhaust air and a HVAC with no air loop, check vent spec
+                exhaust = room.properties.energy.exhaust
+                hvac = room.properties.energy.hvac
+                if exhaust is not None and hvac is not None and not hvac.balances_exhaust:
+                    ex_total = exhaust.room_absolute_flow(room)
+                    vent = room.properties.energy.ventilation
+                    if ex_total != 0 and vent is None:
+                        vent_adj = Ventilation(exhaust.identifier)
+                        vent_adj.flow_per_area = exhaust.flow_per_area
+                        vent_adj.flow_per_zone = \
+                            exhaust.flow_per_fixture * exhaust.fixture_count
+                        room.properties.energy.ventilation = vent_adj
+                    else:
+                        vent_total = vent.room_absolute_flow(room)
+                        if ex_total > vent_total:
+                            vent_adj = vent.duplicate()
+                            add_flow = ex_total - vent_total
+                            vent_adj.flow_per_zone = vent_adj.flow_per_zone + add_flow
+                            room.properties.energy.ventilation = vent_adj
+                # if the zone and room match IDs, just write it as a single zone
                 if rooms[0].identifier == zone_name:
                     single_zones.append(rooms[0])
                     continue  # room can be written without the need for space vs. zone
@@ -1712,6 +1741,24 @@ class ModelEnergyProperties(object):
                     v_obj = [v for v in vents if v is not None][0]
                     vent = v_obj.combine_room_ventilations(
                         '{}_Vent'.format(zone_id), rooms)
+                # evaluate whether to adjust ventilation to meet exhaust air
+                exhausts = [r.properties.energy.exhaust for r in rooms]
+                hvacs = [r.properties.energy.hvac for r in rooms]
+                if any(ex is not None for ex in exhausts) and \
+                        any(h is not None and not h.balances_exhaust for h in hvacs):
+                    ex_total = 0
+                    for ex, room in zip(exhausts, rooms):
+                        if ex is not None:
+                            ex_total += ex.room_absolute_flow(room)
+                    vent_total = 0
+                    for v, room in zip(vents, rooms):
+                        if v is not None:
+                            vent_total += v.room_absolute_flow(room)
+                    if ex_total > vent_total:
+                        vent = Ventilation('{}_Exhaust'.format(zone_id)) \
+                            if vent is None else vent.duplicate()
+                        add_flow = ex_total - vent_total
+                        vent.flow_per_zone = vent.flow_per_zone + add_flow
                 # edit the rooms so that the setpoint and ventilation are consistent
                 for i, room in enumerate(rooms):
                     room.zone = zone_id

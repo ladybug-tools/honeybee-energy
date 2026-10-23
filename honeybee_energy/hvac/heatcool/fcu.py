@@ -57,14 +57,33 @@ class FCU(_HeatCoolBase):
             * FCU_DCW_GasHeaters
             * FCU_DCW
 
+        unit_ventilators: Boolean to note whether individual zone ventilators are
+            included with the basic heating and cooling system (True) or the system only
+            performs heating and cooling without any ventilation (False). Unlike a DOAS,
+            unit ventilators do not pass the outdoor air through heating or cooling
+            coils to condition it for the space. However, heat recovery effectiveness
+            can be specified, which can temper the air supplied to the zone by the
+            ventilator with exhaust air. All air flow through this ventilator
+            is always balanced for each zone between supply and exhaust and the
+            total flow rate is determined by checking the ventilation and exhaust
+            requirements of the rooms to which the system is assigned. (Default: False).
+        sensible_heat_recovery: A number between 0 and 1 for the effectiveness of
+            sensible heat recovery within unit ventilators if specified. (Default: 0).
+        latent_heat_recovery: A number between 0 and 1 for the effectiveness of
+            latent heat recovery within unit ventilators if specified. (Default: 0).
+
     Properties:
         * identifier
         * display_name
         * vintage
         * equipment_type
-        * schedules
+        * unit_ventilators
+        * sensible_heat_recovery
+        * latent_heat_recovery
+        * has_air_loop
         * has_district_heating
         * has_district_cooling
+        * balances_exhaust
         * user_data
         * properties
     """

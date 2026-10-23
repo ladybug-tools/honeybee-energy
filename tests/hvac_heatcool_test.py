@@ -487,18 +487,15 @@ def test_radiant_init(userdatadict):
     assert hvac_sys.identifier == 'Test System'
     assert hvac_sys.vintage == 'ASHRAE_2019'
     assert hvac_sys.equipment_type == 'Radiant_Chiller_Boiler'
-    assert hvac_sys.minimum_operation_time == 1
     assert hvac_sys.switch_over_time == 24
     assert hvac_sys.radiant_type == 'Floor'
 
     hvac_sys.vintage = 'ASHRAE_2010'
     hvac_sys.equipment_type = 'Radiant_Chiller_ASHP'
-    hvac_sys.minimum_operation_time = 0.5
     hvac_sys.switch_over_time = 12
     hvac_sys.radiant_type = 'Ceiling'
     assert hvac_sys.vintage == 'ASHRAE_2010'
     assert hvac_sys.equipment_type == 'Radiant_Chiller_ASHP'
-    assert hvac_sys.minimum_operation_time == 0.5
     assert hvac_sys.switch_over_time == 12
     assert hvac_sys.radiant_type == 'Ceiling'
     assert hvac_sys.user_data == userdatadict
@@ -544,7 +541,6 @@ def test_radiant_dict_methods(userdatadict):
     hvac_sys = Radiant('High Efficiency HVAC System')
     hvac_sys.vintage = 'ASHRAE_2010'
     hvac_sys.equipment_type = 'Radiant_Chiller_ASHP'
-    hvac_sys.minimum_operation_time = 0.5
     hvac_sys.switch_over_time = 12
     hvac_sys.radiant_type = 'Ceiling'
     hvac_sys.user_data = userdatadict
