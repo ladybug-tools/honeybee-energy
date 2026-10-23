@@ -90,9 +90,12 @@ class Radiant(_HeatCoolBase):
         * display_name
         * vintage
         * equipment_type
+        * unit_ventilators
+        * sensible_heat_recovery
+        * latent_heat_recovery
         * radiant_type
         * switch_over_time
-        * schedules
+        * has_air_loop
         * has_district_heating
         * has_district_cooling
         * user_data
@@ -173,8 +176,11 @@ class Radiant(_HeatCoolBase):
             "display_name": "Standard System",  # name for the HVAC
             "vintage": "ASHRAE_2019",  # text for the vintage of the template
             "equipment_type": "",  # text for the HVAC equipment type
-            "radiant_type": "Ceiling",
-            "switch_over_time": 24
+            "unit_ventilators": True,  # boolean for unit ventilators
+            "sensible_heat_recovery": 0.75,  # sensible heat recovery effectiveness
+            "latent_heat_recovery": 0.7,  # latent heat recovery effectiveness
+            "radiant_type": "CeilingMetalPanel",  # type of radiant system
+            "switch_over_time": 24  # number of hours to switch between heating + cooling
             }
         """
         assert data['type'] == cls.__name__, \
@@ -185,6 +191,12 @@ class Radiant(_HeatCoolBase):
             data['identifier'], data['vintage'], data['equipment_type'],
             radiant_type=f_type, switch_over_time=sot
         )
+        if 'unit_ventilators' in data:
+            new_obj.unit_ventilators = data['unit_ventilators']
+        if 'sensible_heat_recovery' in data:
+            new_obj.sensible_heat_recovery = data['sensible_heat_recovery']
+        if 'latent_heat_recovery' in data:
+            new_obj.latent_heat_recovery = data['latent_heat_recovery']
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
@@ -210,8 +222,11 @@ class Radiant(_HeatCoolBase):
             "display_name": "Standard System",  # name for the HVAC
             "vintage": "ASHRAE_2019",  # text for the vintage of the template
             "equipment_type": "",  # text for the HVAC equipment type
-            "radiant_type": "Ceiling",
-            "switch_over_time": 24
+            "unit_ventilators": True,  # boolean for unit ventilators
+            "sensible_heat_recovery": 0.75,  # sensible heat recovery effectiveness
+            "latent_heat_recovery": 0.7,  # latent heat recovery effectiveness
+            "radiant_type": "CeilingMetalPanel",  # type of radiant system
+            "switch_over_time": 24  # number of hours to switch between heating + cooling
             }
         """
         # this is the same as the from_dict method for as long as there are not schedules
@@ -232,6 +247,12 @@ class Radiant(_HeatCoolBase):
         base['equipment_type'] = self.equipment_type
         base['radiant_type'] = self.radiant_type
         base['switch_over_time'] = self.switch_over_time
+        if self.unit_ventilators:
+            base['unit_ventilators'] = self.unit_ventilators
+        if self.sensible_heat_recovery != 0:
+            base['sensible_heat_recovery'] = self.sensible_heat_recovery
+        if self.latent_heat_recovery != 0:
+            base['latent_heat_recovery'] = self.latent_heat_recovery
         if self._display_name is not None:
             base['display_name'] = self.display_name
         if self._user_data is not None:
@@ -249,6 +270,8 @@ class Radiant(_HeatCoolBase):
     def __copy__(self):
         new_obj = self.__class__(
             self._identifier, self._vintage, self._equipment_type,
+            self._unit_ventilators,
+            self._sensible_heat_recovery, self._latent_heat_recovery,
             self._radiant_type, self._switch_over_time
         )
         new_obj._display_name = self._display_name
@@ -257,8 +280,12 @@ class Radiant(_HeatCoolBase):
 
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""
-        return (self._identifier, self._vintage, self._equipment_type,
-                self._radiant_type, self._switch_over_time)
+        return (
+            self._identifier, self._vintage, self._equipment_type,
+            self._unit_ventilators,
+            self._sensible_heat_recovery, self._latent_heat_recovery,
+            self._radiant_type, self._switch_over_time
+        )
 
     def __hash__(self):
         return hash(self.__key())

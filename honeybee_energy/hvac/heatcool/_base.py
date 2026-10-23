@@ -125,7 +125,7 @@ class _HeatCoolBase(_TemplateSystem):
     @property
     def has_air_loop(self):
         """Always False for HeatCool systems."""
-        return self.has_air_loop
+        return False
 
     def to_ideal_air_equivalent(self):
         """Get a version of this HVAC as an IdealAirSystem."""
