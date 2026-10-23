@@ -150,6 +150,11 @@ class _DOASBase(_TemplateSystem):
         return True
 
     @property
+    def balances_exhaust(self):
+        """Always False for DOAS systems."""
+        return False
+
+    @property
     def properties(self):
         """Get properties for extensions."""
         return self._properties

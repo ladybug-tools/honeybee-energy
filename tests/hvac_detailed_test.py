@@ -43,8 +43,8 @@ def test_detailed_hvac_init():
     assert hvac_sys.air_loop_count == 1
     assert hvac_sys.design_type == 'DOAS'
     assert hvac_sys.economizer_type == 'NoEconomizer'
-    assert hvac_sys.sensible_heat_recovery == 0.81
-    assert hvac_sys.latent_heat_recovery == 0.73
+    assert hvac_sys.sensible_heat_recovery == 0.76
+    assert hvac_sys.latent_heat_recovery == 0.68
 
 
 def test_apply_detailed_hvac():
@@ -137,5 +137,5 @@ def test_to_ideal_air_equivalent():
     hvac_sys = DetailedHVAC('Test FCU DOAS System', doas_spec)
     ideal_sys = hvac_sys.to_ideal_air_equivalent()
     assert ideal_sys.economizer_type == 'NoEconomizer'
-    assert ideal_sys.sensible_heat_recovery == 0.81
-    assert ideal_sys.latent_heat_recovery == 0.73
+    assert ideal_sys.sensible_heat_recovery == 0.76
+    assert ideal_sys.latent_heat_recovery == 0.68

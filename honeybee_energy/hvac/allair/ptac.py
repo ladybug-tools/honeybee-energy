@@ -56,8 +56,10 @@ class PTAC(_AllAirBase):
         * vintage
         * equipment_type
         * schedules
+        * has_air_loop
         * has_district_heating
         * has_district_cooling
+        * balances_exhaust
         * user_data
         * properties
 

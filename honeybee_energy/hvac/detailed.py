@@ -28,7 +28,9 @@ class DetailedHVAC(_HVACSystem):
         * specification
         * thermal_zones
         * design_type
+        * has_air_loop
         * air_loop_count
+        * balances_exhaust
         * economizer_type
         * sensible_heat_recovery
         * latent_heat_recovery
@@ -163,6 +165,11 @@ class DetailedHVAC(_HVACSystem):
     def air_loop_count(self):
         """Get an integer for the number of air loops in the system."""
         return self._air_loop_count
+
+    @property
+    def balances_exhaust(self):
+        """True if the system can balance exhaust air. False if it cannot."""
+        return self.has_air_loop
 
     @property
     def economizer_type(self):

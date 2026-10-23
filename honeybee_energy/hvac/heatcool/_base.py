@@ -60,6 +60,7 @@ class _HeatCoolBase(_TemplateSystem):
         * has_air_loop
         * has_district_heating
         * has_district_cooling
+        * balances_exhaust
         * user_data
         * properties
     """
@@ -124,6 +125,11 @@ class _HeatCoolBase(_TemplateSystem):
 
     @property
     def has_air_loop(self):
+        """Always False for HeatCool systems."""
+        return False
+
+    @property
+    def balances_exhaust(self):
         """Always False for HeatCool systems."""
         return False
 

@@ -1664,7 +1664,7 @@ class ModelEnergyProperties(object):
                 # if room has exhaust air and a HVAC with no air loop, check vent spec
                 exhaust = room.properties.energy.exhaust
                 hvac = room.properties.energy.hvac
-                if exhaust is not None and hvac is not None and not hvac.has_air_loop:
+                if exhaust is not None and hvac is not None and not hvac.balances_exhaust:
                     ex_total = exhaust.room_absolute_flow(room)
                     vent = room.properties.energy.ventilation
                     if ex_total != 0 and vent is None:
@@ -1745,7 +1745,7 @@ class ModelEnergyProperties(object):
                 exhausts = [r.properties.energy.exhaust for r in rooms]
                 hvacs = [r.properties.energy.hvac for r in rooms]
                 if any(ex is not None for ex in exhausts) and \
-                        any(h is not None and not h.has_air_loop for h in hvacs):
+                        any(h is not None and not h.balances_exhaust for h in hvacs):
                     ex_total = 0
                     for ex, room in zip(exhausts, rooms):
                         if ex is not None:
