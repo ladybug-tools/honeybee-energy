@@ -42,19 +42,21 @@ class DetailedHVAC(_HVACSystem):
     OA_CONTROLLER = 'Ironbug.HVAC.IB_ControllerOutdoorAir'
     HEAT_RECOVERY = 'Ironbug.HVAC.IB_HeatExchangerAirToAirSensibleAndLatent'
     HR_SENSIBLE = (
-        'SensibleEffectivenessat75CoolingAirFlow',
-        'SensibleEffectivenessat75HeatingAirFlow'
+        'SensibleEffectivenessat100CoolingAirFlow',
+        'SensibleEffectivenessat100HeatingAirFlow'
     )
     HR_LATENT = (
-        'LatentEffectivenessat75CoolingAirFlow',
-        'LatentEffectivenessat75HeatingAirFlow'
+        'LatentEffectivenessat100CoolingAirFlow',
+        'LatentEffectivenessat100HeatingAirFlow'
     )
     ECONOMIZER_TYPES = ('NoEconomizer', 'DifferentialDryBulb', 'DifferentialEnthalpy',
                         'DifferentialDryBulbAndEnthalpy', 'FixedDryBulb',
                         'FixedEnthalpy', 'ElectronicEnthalpy')
 
-    __slots__ = ('_specification', '_thermal_zones', '_design_type', '_air_loop_count',
-                 '_economizer_type', '_sensible_heat_recovery', '_latent_heat_recovery')
+    __slots__ = (
+        '_specification', '_thermal_zones', '_design_type', '_air_loop_count',
+        '_economizer_type', '_sensible_heat_recovery', '_latent_heat_recovery'
+    )
 
     def __init__(self, identifier, specification):
         """Initialize DetailedHVAC."""
@@ -151,6 +153,11 @@ class DetailedHVAC(_HVACSystem):
         * HeatCool
         """
         return self._design_type
+
+    @property
+    def has_air_loop(self):
+        """True if the system includes air loops. False if not."""
+        return self._air_loop_count != 0
 
     @property
     def air_loop_count(self):

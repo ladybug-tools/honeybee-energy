@@ -60,6 +60,7 @@ class _DOASBase(_TemplateSystem):
         * demand_controlled_ventilation
         * doas_availability_schedule
         * schedules
+        * has_air_loop
         * has_district_heating
         * has_district_cooling
         * user_data
@@ -142,6 +143,11 @@ class _DOASBase(_TemplateSystem):
         if self._doas_availability_schedule is not None:
             schedules.append(self._doas_availability_schedule)
         return schedules
+
+    @property
+    def has_air_loop(self):
+        """Always True for DOAS systems."""
+        return True
 
     @property
     def properties(self):
