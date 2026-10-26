@@ -70,6 +70,13 @@ class Radiant(_HeatCoolBase):
             sensible heat recovery within unit ventilators if specified. (Default: 0).
         latent_heat_recovery: A number between 0 and 1 for the effectiveness of
             latent heat recovery within unit ventilators if specified. (Default: 0).
+        vent_availability_schedule: An optional On/Off discrete schedule to specify when
+            unit ventilators shut off (assuming that the unit_ventilators is True).
+            This will not only reduce heating and cooling load by preventing
+            outdoor air from flowing but will also shut off the fans, which can
+            result in more energy savings when spaces served by the ventilators
+            are completely unoccupied. If None, the unit ventilators will be
+            always on. (Default: None).
         radiant_type: Text to indicate which faces are thermally active. Note
             that systems are assumed to be embedded in concrete slabs unless
             CeilingMetalPanel or FloorWithHardwood is specified. Choose from the
@@ -93,6 +100,7 @@ class Radiant(_HeatCoolBase):
         * unit_ventilators
         * sensible_heat_recovery
         * latent_heat_recovery
+        * vent_availability_schedule
         * radiant_type
         * switch_over_time
         * has_air_loop
@@ -122,13 +130,14 @@ class Radiant(_HeatCoolBase):
     def __init__(
         self, identifier, vintage='ASHRAE_2019', equipment_type=None,
         unit_ventilators=False, sensible_heat_recovery=0, latent_heat_recovery=0,
+        vent_availability_schedule=None,
         radiant_type='Floor', switch_over_time=24
     ):
         """Initialize HVACSystem."""
         # initialize base HVAC system properties
         _HeatCoolBase.__init__(
             self, identifier, vintage, equipment_type, unit_ventilators,
-            sensible_heat_recovery, latent_heat_recovery
+            sensible_heat_recovery, latent_heat_recovery, vent_availability_schedule
         )
 
         # set the main features of the HVAC system
@@ -180,6 +189,7 @@ class Radiant(_HeatCoolBase):
             "unit_ventilators": True,  # boolean for unit ventilators
             "sensible_heat_recovery": 0.75,  # sensible heat recovery effectiveness
             "latent_heat_recovery": 0.7,  # latent heat recovery effectiveness
+            "vent_availability_schedule": {},  # Schedule for DOAS availability or None
             "radiant_type": "CeilingMetalPanel",  # type of radiant system
             "switch_over_time": 24  # number of hours to switch between heating + cooling
             }
@@ -187,17 +197,15 @@ class Radiant(_HeatCoolBase):
         assert data['type'] == cls.__name__, \
             'Expected {} dictionary. Got {}.'.format(cls.__name__, data['type'])
         # extract the key features and properties of the HVAC
+        vent_avail = cls._get_schedule_from_dict(data['vent_availability_schedule']) if \
+            'vent_availability_schedule' in data and \
+            data['vent_availability_schedule'] is not None else None
+        erv, sensible, latent = cls._properties_from_dict(data)
         f_type, sot = cls._radiant_properties_from_dict(data)
         new_obj = cls(
             data['identifier'], data['vintage'], data['equipment_type'],
-            radiant_type=f_type, switch_over_time=sot
+            erv, sensible, latent, vent_avail, radiant_type=f_type, switch_over_time=sot
         )
-        if 'unit_ventilators' in data:
-            new_obj.unit_ventilators = data['unit_ventilators']
-        if 'sensible_heat_recovery' in data:
-            new_obj.sensible_heat_recovery = data['sensible_heat_recovery']
-        if 'latent_heat_recovery' in data:
-            new_obj.latent_heat_recovery = data['latent_heat_recovery']
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
         if 'user_data' in data and data['user_data'] is not None:
@@ -226,12 +234,32 @@ class Radiant(_HeatCoolBase):
             "unit_ventilators": True,  # boolean for unit ventilators
             "sensible_heat_recovery": 0.75,  # sensible heat recovery effectiveness
             "latent_heat_recovery": 0.7,  # latent heat recovery effectiveness
+            "vent_availability_schedule": "",  # Schedule id for ventilation availability
             "radiant_type": "CeilingMetalPanel",  # type of radiant system
             "switch_over_time": 24  # number of hours to switch between heating + cooling
             }
         """
-        # this is the same as the from_dict method for as long as there are not schedules
-        return cls.from_dict(data)
+        assert cls.__name__ in data['type'], \
+            'Expected {} dictionary. Got {}.'.format(cls.__name__, data['type'])
+        # extract the schedule
+        vent_avail = None
+        if 'vent_availability_schedule' in data and \
+                data['vent_availability_schedule'] is not None:
+            try:
+                vent_avail = schedule_dict[data['vent_availability_schedule']]
+            except KeyError as e:
+                raise ValueError('Failed to find {} in the schedule_dict.'.format(e))
+        erv, sensible, latent = cls._properties_from_dict(data)
+        f_type, sot = cls._radiant_properties_from_dict(data)
+        new_obj = cls(
+            data['identifier'], data['vintage'], data['equipment_type'],
+            erv, sensible, latent, vent_avail, radiant_type=f_type, switch_over_time=sot
+        )
+        if 'display_name' in data and data['display_name'] is not None:
+            new_obj.display_name = data['display_name']
+        if 'user_data' in data and data['user_data'] is not None:
+            new_obj.user_data = data['user_data']
+        return new_obj
 
     def to_dict(self, abridged=False):
         """Radiant system dictionary representation.
@@ -254,6 +282,10 @@ class Radiant(_HeatCoolBase):
             base['sensible_heat_recovery'] = self.sensible_heat_recovery
         if self.latent_heat_recovery != 0:
             base['latent_heat_recovery'] = self.latent_heat_recovery
+        if self.vent_availability_schedule is not None:
+            base['vent_availability_schedule'] = \
+                self.vent_availability_schedule.identifier if \
+                abridged else self.vent_availability_schedule.to_dict()
         if self._display_name is not None:
             base['display_name'] = self.display_name
         if self._user_data is not None:
@@ -273,6 +305,7 @@ class Radiant(_HeatCoolBase):
             self._identifier, self._vintage, self._equipment_type,
             self._unit_ventilators,
             self._sensible_heat_recovery, self._latent_heat_recovery,
+            self._vent_availability_schedule,
             self._radiant_type, self._switch_over_time
         )
         new_obj._display_name = self._display_name
@@ -285,6 +318,7 @@ class Radiant(_HeatCoolBase):
             self._identifier, self._vintage, self._equipment_type,
             self._unit_ventilators,
             self._sensible_heat_recovery, self._latent_heat_recovery,
+            hash(self._vent_availability_schedule),
             self._radiant_type, self._switch_over_time
         )
 

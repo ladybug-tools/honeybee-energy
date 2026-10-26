@@ -45,10 +45,10 @@ class _DOASBase(_TemplateSystem):
             Rooms. (Default: False).
         doas_availability_schedule: An optional On/Off discrete schedule to set when
             the dedicated outdoor air system (DOAS) shuts off. This will not only
-            prevent any outdoor air from flowing thorough the system but will also
-            shut off the fans, which can result in more energy savings when spaces
-            served by the DOAS are completely unoccupied. If None, the DOAS will be
-            always on. (Default: None).
+            minimize heating and cooling load by preventing any outdoor air from
+            flowing thorough the system but will also shut off the fans, which can
+            result in more energy savings when spaces served by the DOAS are
+            completely unoccupied. If None, the DOAS will be always on. (Default: None).
 
     Properties:
         * identifier

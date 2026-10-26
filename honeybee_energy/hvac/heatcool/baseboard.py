@@ -54,6 +54,13 @@ class Baseboard(_HeatCoolBase):
             sensible heat recovery within unit ventilators if specified. (Default: 0).
         latent_heat_recovery: A number between 0 and 1 for the effectiveness of
             latent heat recovery within unit ventilators if specified. (Default: 0).
+        vent_availability_schedule: An optional On/Off discrete schedule to specify when
+            unit ventilators shut off (assuming that the unit_ventilators is True).
+            This will not only reduce heating and cooling load by preventing
+            outdoor air from flowing but will also shut off the fans, which can
+            result in more energy savings when spaces served by the ventilators
+            are completely unoccupied. If None, the unit ventilators will be
+            always on. (Default: None).
 
     Properties:
         * identifier
@@ -63,6 +70,7 @@ class Baseboard(_HeatCoolBase):
         * unit_ventilators
         * sensible_heat_recovery
         * latent_heat_recovery
+        * vent_availability_schedule
         * has_air_loop
         * has_district_heating
         * has_district_cooling
