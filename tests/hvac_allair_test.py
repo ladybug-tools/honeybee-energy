@@ -265,12 +265,12 @@ def test_ptac_init(userdatadict):
     hvac_sys.equipment_type = 'PTAC_DHW'
     with pytest.raises(AssertionError):
         hvac_sys.economizer_type = 'DifferentialDryBulb'
-    with pytest.raises(AssertionError):
-        hvac_sys.sensible_heat_recovery = 0.8
-    with pytest.raises(AssertionError):
-        hvac_sys.latent_heat_recovery = 0.65
+    hvac_sys.sensible_heat_recovery = 0.8
+    hvac_sys.latent_heat_recovery = 0.65
     assert hvac_sys.vintage == 'ASHRAE_2010'
     assert hvac_sys.equipment_type == 'PTAC_DHW'
+    assert hvac_sys.sensible_heat_recovery == 0.8
+    assert hvac_sys.latent_heat_recovery == 0.65
     assert hvac_sys.user_data == userdatadict
 
 

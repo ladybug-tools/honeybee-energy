@@ -137,7 +137,6 @@ class _AllAirBase(_TemplateSystem):
         if value is None or value == 0:
             self._sensible_heat_recovery = 0
         else:
-            self._air_loop_check('sensible_heat_recovery')
             self._sensible_heat_recovery = \
                 float_in_range(value, 0.0, 1.0, 'hvac sensible heat recovery')
 
@@ -151,7 +150,6 @@ class _AllAirBase(_TemplateSystem):
         if value is None or value == 0:
             self._latent_heat_recovery = 0
         else:
-            self._air_loop_check('latent_heat_recovery')
             self._latent_heat_recovery = \
                 float_in_range(value, 0.0, 1.0, 'hvac latent heat recovery')
 
