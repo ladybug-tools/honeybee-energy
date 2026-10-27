@@ -50,11 +50,20 @@ class PTAC(_AllAirBase):
             * PTAC
             * PTHP
 
+        sensible_heat_recovery: A number between 0 and 1 for the effectiveness
+            of sensible heat recovery within the system. When this is not zero,
+            heat recovery is modeled using an ERV connected to the PTAC. (Default: 0).
+        latent_heat_recovery: A number between 0 and 1 for the effectiveness
+            of latent heat recovery within the system. When this is not zero,
+            heat recovery is modeled using an ERV connected to the PTAC. (Default: 0).
+
     Properties:
         * identifier
         * display_name
         * vintage
         * equipment_type
+        * sensible_heat_recovery
+        * latent_heat_recovery
         * schedules
         * has_air_loop
         * has_district_heating
@@ -85,10 +94,17 @@ technical-resources/standards-and-guidelines/read-only-versions-of-ashrae-standa
     )
     _has_air_loop = False
 
-    def __init__(self, identifier, vintage='ASHRAE_2019', equipment_type=None):
+    def __init__(
+        self, identifier, vintage='ASHRAE_2019', equipment_type=None,
+        sensible_heat_recovery=0, latent_heat_recovery=0
+    ):
         """Initialize HVACSystem."""
         # initialize base HVAC system properties
-        _AllAirBase.__init__(self, identifier, vintage, equipment_type)
+        _AllAirBase.__init__(
+            self, identifier, vintage, equipment_type,
+            sensible_heat_recovery=sensible_heat_recovery,
+            latent_heat_recovery=latent_heat_recovery
+        )
 
     @classmethod
     def from_dict(cls, data):
@@ -109,9 +125,15 @@ technical-resources/standards-and-guidelines/read-only-versions-of-ashrae-standa
         """
         assert cls.__name__ in data['type'], \
             'Expected {} dictionary. Got {}.'.format(cls.__name__, data['type'])
-        new_obj = cls(data['identifier'], data['vintage'], data['equipment_type'])
+        _, sensible, latent, _ = cls._properties_from_dict(data)
+        new_obj = cls(data['identifier'], data['vintage'], data['equipment_type'],
+                      sensible, latent)
         if 'display_name' in data and data['display_name'] is not None:
             new_obj.display_name = data['display_name']
+        if 'user_data' in data and data['user_data'] is not None:
+            new_obj.user_data = data['user_data']
+        if 'properties' in data and data['properties'] is not None:
+            new_obj.properties._load_extension_attr_from_dict(data['properties'])
         return new_obj
 
     @classmethod
@@ -153,13 +175,21 @@ technical-resources/standards-and-guidelines/read-only-versions-of-ashrae-standa
             base['display_name'] = self.display_name
         base['vintage'] = self.vintage
         base['equipment_type'] = self.equipment_type
+        if self.sensible_heat_recovery != 0:
+            base['sensible_heat_recovery'] = self.sensible_heat_recovery
+        if self.latent_heat_recovery != 0:
+            base['latent_heat_recovery'] = self.latent_heat_recovery
         return base
 
     def __copy__(self):
-        new_obj = self.__class__(self.identifier, self.vintage, self.equipment_type)
+        new_obj = self.__class__(
+            self.identifier, self.vintage, self.equipment_type,
+            self._sensible_heat_recovery, self._latent_heat_recovery
+        )
         new_obj._display_name = self._display_name
         return new_obj
 
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""
-        return (self._identifier, self._vintage, self._equipment_type)
+        return (self._identifier, self._vintage, self._equipment_type,
+                self._sensible_heat_recovery, self._latent_heat_recovery)

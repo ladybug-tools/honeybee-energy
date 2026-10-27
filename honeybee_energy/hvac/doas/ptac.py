@@ -7,7 +7,7 @@ from ._base import _DOASBase
 from honeybee._lockable import lockable
 
 
-@lockable 
+@lockable
 class PTACwithDOAS(_DOASBase):
     """Packaged Terminal Air Conditioning (PTAC/HP) with DOAS HVAC system.
 
