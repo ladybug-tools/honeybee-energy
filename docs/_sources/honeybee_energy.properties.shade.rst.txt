@@ -1,0 +1,7 @@
+honeybee\_energy.properties.shade module
+========================================
+
+.. automodule:: honeybee_energy.properties.shade
+   :members:
+   :undoc-members:
+   :show-inheritance:

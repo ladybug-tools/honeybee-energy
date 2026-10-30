@@ -1,0 +1,23 @@
+honeybee\_energy.schedule package
+=================================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   honeybee_energy.schedule.day
+   honeybee_energy.schedule.dictutil
+   honeybee_energy.schedule.fixedinterval
+   honeybee_energy.schedule.rule
+   honeybee_energy.schedule.ruleset
+   honeybee_energy.schedule.typelimit
+
+Module contents
+---------------
+
+.. automodule:: honeybee_energy.schedule
+   :members:
+   :undoc-members:
+   :show-inheritance:
