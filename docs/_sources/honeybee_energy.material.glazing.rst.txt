@@ -1,0 +1,7 @@
+honeybee\_energy.material.glazing module
+========================================
+
+.. automodule:: honeybee_energy.material.glazing
+   :members:
+   :undoc-members:
+   :show-inheritance:

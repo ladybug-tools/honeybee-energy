@@ -1,0 +1,7 @@
+honeybee\_energy.internalmass module
+====================================
+
+.. automodule:: honeybee_energy.internalmass
+   :members:
+   :undoc-members:
+   :show-inheritance:

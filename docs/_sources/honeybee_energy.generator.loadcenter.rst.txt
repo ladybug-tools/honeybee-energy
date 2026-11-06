@@ -1,0 +1,7 @@
+honeybee\_energy.generator.loadcenter module
+============================================
+
+.. automodule:: honeybee_energy.generator.loadcenter
+   :members:
+   :undoc-members:
+   :show-inheritance:
