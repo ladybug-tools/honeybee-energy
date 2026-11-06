@@ -170,3 +170,17 @@ def test_simulation_parameter_dict_methods():
     new_sim_par.sizing_parameter.apply_location(sizing_alt[0].location)
     assert new_sim_par == sim_par
     assert sim_par_dict == new_sim_par.to_dict()
+
+
+def test_simulation_parameter_from_idf_site_location():
+    """Test from_idf with a Site:Location next to the design days."""
+    sim_par = SimulationParameter()
+    sim_par.sizing_parameter.add_from_ddy_996_004('./tests/ddy/chicago.ddy')
+    location = sim_par.sizing_parameter[0].location
+    idf_str = '\n'.join((location.to_idf(), sim_par.to_idf()))
+
+    rebuilt_sim_par = SimulationParameter.from_idf(idf_str)
+    assert len(rebuilt_sim_par.sizing_parameter) == len(sim_par.sizing_parameter)
+    for dday in rebuilt_sim_par.sizing_parameter:
+        assert dday.location.latitude == location.latitude
+        assert dday.location.longitude == location.longitude

@@ -12,6 +12,7 @@ from ..writer import generate_idf_string
 
 from honeybee.typing import int_positive, float_in_range
 from ladybug_geometry.geometry2d.pointvector import Vector2D
+from ladybug.location import Location
 
 import re
 import math
@@ -358,9 +359,10 @@ class SimulationParameter(object):
         except IndexError:  # No Sizing:Parameters in the file.
             sizing_str = None
         try:
-            location = loc_pattern.findall(idf_string)[0]
+            loc_str = loc_pattern.findall(idf_string)[0]
         except IndexError:  # No Site:Location in the file.
-            location = None
+            loc_str = None
+        location = Location.from_idf(loc_str) if loc_str is not None else None
         sizing_par = SizingParameter.from_idf(
             [dy[0] for dy in ddy_p.findall(idf_string)], sizing_str, location)
 
