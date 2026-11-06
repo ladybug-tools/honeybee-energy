@@ -10,6 +10,7 @@ from ladybug.commandutil import process_content_to_output
 from ladybug.analysisperiod import AnalysisPeriod
 from ladybug.epw import EPW
 from ladybug.stat import STAT
+from ladybug.projectinfo import ProjectInfo
 from ladybug.futil import preparedir
 from honeybee.model import Model
 from honeybee.typing import clean_rad_string
@@ -44,6 +45,14 @@ def translate():
               'an OSM or IDF.', default=None, show_default=True,
               type=click.Path(exists=False, file_okay=True, dir_okay=False,
                               resolve_path=True))
+@click.option('--project-info', '-pi', help='Full path to a ladybug ProjectInfo '
+              'JSON that describes criteria about the project site. This will be '
+              'used to fill in any information that is not described in the '
+              '--sim-par-json. Otherwise, --sim-par-json overrides '
+              'whatever is specified within the --project-info.',
+              default=None, show_default=True,
+              type=click.Path(exists=True, file_okay=True, dir_okay=False,
+                              resolve_path=True))
 @click.option('--measures', '-m', help='Full path to a folder containing an OSW JSON '
               'be used as the base for the execution of the OpenStudio CLI. While this '
               'OSW can contain paths to measures that exist anywhere on the machine, '
@@ -74,8 +83,8 @@ def translate():
               ' created. By default the list will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
 def model_to_sim_folder(
-    model_file, epw_file, sim_par_json, measures, additional_string, additional_idf,
-    folder, log_file
+    model_file, epw_file, sim_par_json, project_info,
+    measures, additional_string, additional_idf, folder, log_file
 ):
     """Simulate a Model in EnergyPlus.
 
@@ -109,16 +118,26 @@ def model_to_sim_folder(
                         epw_obj.approximate_design_day('SummerDesignDay')]
             sim_par.sizing_parameter.design_days = des_days
 
+        # load the project information if it exists
+        if project_info is not None:
+            with open(project_info) as json_file:
+                data = json.load(json_file)
+            project_info = ProjectInfo.from_dict(data)
+
         if sim_par_json is None or not os.path.isfile(sim_par_json):
             sim_par = SimulationParameter()
             sim_par.output.add_zone_energy_use()
             sim_par.output.add_hvac_energy_use()
             sim_par.output.add_electricity_generation()
             sim_par.output.reporting_frequency = 'Monthly'
+            if project_info is not None:
+                sim_par.assign_from_project_info(project_info, overwrite=True)
         else:
             with open(sim_par_json) as json_file:
                 data = json.load(json_file)
             sim_par = SimulationParameter.from_dict(data)
+            if project_info is not None:
+                sim_par.assign_from_project_info(project_info, overwrite=False)
         if len(sim_par.sizing_parameter.design_days) == 0 and \
                 os.path.isfile(ddy_file):
             try:
@@ -190,6 +209,14 @@ def model_to_sim_folder(
               default=None, show_default=True,
               type=click.Path(exists=True, file_okay=True, dir_okay=False,
                               resolve_path=True))
+@click.option('--project-info', '-pi', help='Full path to a ladybug ProjectInfo '
+              'JSON that describes criteria about the project site. This will be '
+              'used to fill in any information that is not described in the '
+              '--sim-par-json or --epw-file. Otherwise, these two options override '
+              'whatever is specified within the --project-info.',
+              default=None, show_default=True,
+              type=click.Path(exists=True, file_okay=True, dir_okay=False,
+                              resolve_path=True))
 @click.option('--osm-file', '-osm', help='Optional path where the OSM will be written.',
               type=str, default=None, show_default=True)
 @click.option('--idf-file', '-idf', help='Optional path where the IDF will be written.',
@@ -226,8 +253,9 @@ def model_to_sim_folder(
               'By default this will be printed out to stdout.',
               type=click.File('w'), default='-', show_default=True)
 def model_to_osm_cli(
-        model_file, sim_par_json, epw_file, osm_file, idf_file, epjson_file,
-        geometry_ids, resource_ids, openstudio_version, log_file):
+    model_file, sim_par_json, epw_file, project_info, osm_file, idf_file, epjson_file,
+    geometry_ids, resource_ids, openstudio_version, log_file
+):
     """Translate a Honeybee Model file into an OpenStudio Model and corresponding IDF.
 
     \b
@@ -238,7 +266,8 @@ def model_to_osm_cli(
         geo_names = not geometry_ids
         res_names = not resource_ids
         model_to_osm(
-            model_file, sim_par_json, epw_file, osm_file, idf_file, epjson_file,
+            model_file, sim_par_json, epw_file, project_info,
+            osm_file, idf_file, epjson_file,
             geo_names, res_names, openstudio_version, log_file
         )
     except Exception as e:
@@ -249,7 +278,7 @@ def model_to_osm_cli(
 
 
 def model_to_osm(
-    model_file, sim_par_json=None, epw_file=None,
+    model_file, sim_par_json=None, epw_file=None, project_info=None,
     osm_file=None, idf_file=None, epjson_file=None,
     geometry_names=False, resource_names=False, openstudio_version=None,
     log_file=None, geometry_ids=True, resource_ids=True
@@ -266,6 +295,11 @@ def model_to_osm(
             specified that requests a HVAC sizing calculation to be run as part
             of the translation process but no design days are inside this
             simulation parameter.
+        project_info: Full path to a ladybug ProjectInfo JSON that describes
+            criteria about the project site. This will be used to fill in any
+            information that is not described in the sim_par_json or epw_file.
+            Otherwise, these two options override whatever is specified within
+            the project_info.
         osm_file: Optional path where the OSM will be output.
         idf_file: Optional path where the IDF will be output.
         epjson_file: Optional path where the epJSON will be output.
@@ -307,6 +341,15 @@ def model_to_osm(
 
     # initialize the OpenStudio model that will hold everything
     os_model = OSModel()
+
+    # load the project information if it exists
+    if project_info is not None:
+        with open(project_info) as json_file:
+            data = json.load(json_file)
+        project_info = ProjectInfo.from_dict(data)
+        if epw_file is None:
+            epw_file = project_info.default_epw_file
+
     # generate default simulation parameters
     if sim_par_json is None:
         sim_par = SimulationParameter()
@@ -314,10 +357,14 @@ def model_to_osm(
         sim_par.output.add_hvac_energy_use()
         sim_par.output.add_electricity_generation()
         sim_par.output.reporting_frequency = 'Monthly'
+        if project_info is not None:
+            sim_par.assign_from_project_info(project_info, overwrite=True)
     else:
         with open(sim_par_json) as json_file:
             data = json.load(json_file)
         sim_par = SimulationParameter.from_dict(data)
+        if project_info is not None:
+            sim_par.assign_from_project_info(project_info, overwrite=False)
 
     # use any specified EPW files to assign design days and the climate zone
     def ddy_from_epw(epw_file, sim_par):
@@ -410,6 +457,14 @@ def model_to_osm(
               default=None, show_default=True,
               type=click.Path(exists=True, file_okay=True, dir_okay=False,
                               resolve_path=True))
+@click.option('--project-info', '-pi', help='Full path to a ladybug ProjectInfo '
+              'JSON that describes criteria about the project site. This will be '
+              'used to fill in any information that is not described in the '
+              '--sim-par-json. Otherwise, --sim-par-json overrides whatever '
+              'is specified within the --project-info.',
+              default=None, show_default=True,
+              type=click.Path(exists=True, file_okay=True, dir_okay=False,
+                              resolve_path=True))
 @click.option('--additional-str', '-a', help='Text string for additional lines that '
               'should be added to the IDF.', type=str, default='', show_default=True)
 @click.option('--compact-schedules/--csv-schedules', ' /-c', help='Flag to note '
@@ -443,8 +498,10 @@ def model_to_osm(
 @click.option('--output-file', '-f', help='Optional IDF file to output the IDF string '
               'of the translation. By default this will be printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
-def model_to_idf_cli(model_file, sim_par_json, additional_str, compact_schedules,
-                     hvac_to_ideal_air, geometry_ids, resource_ids, output_file):
+def model_to_idf_cli(
+    model_file, sim_par_json, project_info, additional_str, compact_schedules,
+    hvac_to_ideal_air, geometry_ids, resource_ids, output_file
+):
     """Translate a Model (HBJSON) file to a simplified IDF using direct-to-idf methods.
 
     The direct-to-idf methods are faster than those that translate the model
@@ -460,8 +517,9 @@ def model_to_idf_cli(model_file, sim_par_json, additional_str, compact_schedules
         geo_names = not geometry_ids
         res_names = not resource_ids
         model_to_idf(
-            model_file, sim_par_json, additional_str, csv_schedules,
-            hvac_check, geo_names, res_names, output_file)
+            model_file, sim_par_json, project_info, additional_str, csv_schedules,
+            hvac_check, geo_names, res_names, output_file
+        )
     except Exception as e:
         _logger.exception('Model translation failed.\n{}'.format(e))
         sys.exit(1)
@@ -470,7 +528,8 @@ def model_to_idf_cli(model_file, sim_par_json, additional_str, compact_schedules
 
 
 def model_to_idf(
-    model_file, sim_par_json=None, additional_str='', csv_schedules=False,
+    model_file, sim_par_json=None, project_info=None,
+    additional_str='', csv_schedules=False,
     hvac_check=False, geometry_names=False, resource_names=False, output_file=None,
     compact_schedules=True, hvac_to_ideal_air=True, geometry_ids=True, resource_ids=True
 ):
@@ -485,6 +544,10 @@ def model_to_idf(
         sim_par_json: Full path to a honeybee energy SimulationParameter JSON that
             describes all of the settings for the simulation. If None, default
             parameters will be generated.
+        project_info: Full path to a ladybug ProjectInfo JSON that describes
+            criteria about the project site. This will be used to fill in any
+            information that is not described in the sim_par_json. Otherwise,
+            the sim_par_json overrides whatever is specified within the project_info.
         additional_str: Text string for additional lines that should be added
             to the IDF.
         csv_schedules: Boolean to note whether any ScheduleFixedIntervals in the
@@ -515,17 +578,27 @@ def model_to_idf(
         output_file: Optional IDF file to output the IDF string of the translation.
             By default this string will be returned from this method.
     """
+    # load the project information if it exists
+    if project_info is not None:
+        with open(project_info) as json_file:
+            data = json.load(json_file)
+        project_info = ProjectInfo.from_dict(data)
+
     # load simulation parameters or generate default ones
     if sim_par_json is not None:
         with open(sim_par_json) as json_file:
             data = json.load(json_file)
         sim_par = SimulationParameter.from_dict(data)
+        if project_info is not None:
+            sim_par.assign_from_project_info(project_info, overwrite=False)
     else:
         sim_par = SimulationParameter()
         sim_par.output.add_zone_energy_use()
         sim_par.output.add_hvac_energy_use()
         sim_par.output.add_electricity_generation()
         sim_par.output.reporting_frequency = 'Monthly'
+        if project_info is not None:
+            sim_par.assign_from_project_info(project_info, overwrite=True)
 
     # re-serialize the Model to Python
     model = Model.from_file(model_file)
@@ -562,6 +635,12 @@ def model_to_idf(
 @translate.command('model-to-gbxml')
 @click.argument('model-file', type=click.Path(
     exists=True, file_okay=True, dir_okay=False, resolve_path=True))
+@click.option('--project-info', '-pi', help='Full path to a ladybug ProjectInfo '
+              'JSON that describes criteria about the project site. When specified, '
+              'this will result in the location, north_angle and building type '
+              'written into the gbXML.', default=None, show_default=True,
+              type=click.Path(exists=True, file_okay=True, dir_okay=False,
+                              resolve_path=True))
 @click.option('--si-units/--ip-units', '-si/-ip', help='Flag to note whether '
               'the geometry, space loads, and construction properties are reported '
               'in IP or SI units.', default=True, show_default=True)
@@ -673,7 +752,8 @@ def model_to_idf(
               'of the translation. By default it printed out to stdout',
               type=click.File('w'), default='-', show_default=True)
 def model_to_gbxml_cli(
-    model_file, si_units, minimal, exclude_shell_geometry, exclude_space_boundaries,
+    model_file, project_info, si_units,
+    minimal, exclude_shell_geometry, exclude_space_boundaries,
     interior_face_type, ground_face_type, face_rename_format, subface_rename_format,
     keep_geometry_ids, keep_resource_ids, default_subfaces, triangulate_non_planar,
     rect_geo_format, collapsed_holes, total_ventilation,
@@ -697,7 +777,7 @@ def model_to_gbxml_cli(
         explicit_holes = not collapsed_holes
         ventilation_components = not total_ventilation
         model_to_gbxml(
-            model_file, ip_units, full_geometry,
+            model_file, project_info, ip_units, full_geometry,
             include_shell_geometry, include_space_boundaries,
             interior_face_type, ground_face_type,
             face_rename_format, subface_rename_format,
@@ -714,7 +794,7 @@ def model_to_gbxml_cli(
 
 
 def model_to_gbxml(
-    model_file, ip_units=False, full_geometry=False,
+    model_file, project_info=None, ip_units=False, full_geometry=False,
     include_shell_geometry=False, include_space_boundaries=False,
     interior_face_type='InteriorFloor', ground_face_type='AutoAssign',
     face_rename_format=None, subface_rename_format=None,
@@ -732,6 +812,9 @@ def model_to_gbxml(
 
     Args:
         model_file: Full path to a Honeybee Model file (HBJSON or HBpkl).
+        project_info: Full path to a ladybug ProjectInfo JSON that describes
+            criteria about the project site. When specified, this will result
+            in the location, north_angle and building type written into the gbXML.
         ip_units: A boolean to note whether the geometry, space loads, and
             construction properties are reported in IP units (True) or SI
             units (False). (Default: False).
@@ -847,9 +930,14 @@ def model_to_gbxml(
     total_ventilation = not ventilation_components
     if full_geometry:
         include_shell_geometry, include_space_boundaries = True, True
+    if project_info is not None:
+        with open(project_info) as json_file:
+            data = json.load(json_file)
+            project_info = ProjectInfo.from_dict(data)
     model = Model.from_file(model_file)
     gbxml_str = model.to_gbxml(
-        ip_units=ip_units, include_shell_geometry=include_shell_geometry,
+        project_info=project_info, ip_units=ip_units,
+        include_shell_geometry=include_shell_geometry,
         include_space_boundaries=include_space_boundaries,
         interior_face_type=interior_face_type, ground_face_type=ground_face_type,
         face_rename_format=face_rename_format, subface_rename_format=subface_rename_format,

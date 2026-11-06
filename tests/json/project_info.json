@@ -1,0 +1,23 @@
+{
+    "type": "ProjectInfo",
+    "north_angle": 15.0,
+    "location": {
+        "city": "New York JFK",
+        "state": "-",
+        "country": "USA",
+        "latitude": 40.65,
+        "longitude": -73.8,
+        "time_zone": -5.0,
+        "elevation": 5.0,
+        "station_id": null,
+        "source": null,
+        "type": "Location"
+    },
+    "ashrae_climate_zone": "4A",
+    "building_type": [
+        "LargeOffice"
+    ],
+    "vintage": [
+        "ASHRAE_2019"
+    ]
+}

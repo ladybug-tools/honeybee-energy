@@ -1588,7 +1588,8 @@ def room_to_gbxml_element(
 
 
 def model_to_gbxml_element(
-    model, ip_units=False, include_shell_geometry=False, include_space_boundaries=False,
+    model, project_info=None, ip_units=False,
+    include_shell_geometry=False, include_space_boundaries=False,
     interior_face_type='InteriorFloor', ground_face_type='AutoAssign',
     face_rename_format=None, subface_rename_format=None,
     reset_geometry_ids=False, reset_resource_ids=False,
@@ -1601,6 +1602,9 @@ def model_to_gbxml_element(
 
     Args:
         model: A honeybee Model for which a gbXML ElementTree will be returned.
+        project_info: An optional ladybug ProjectInfo object that describes criteria
+            about the project site. When specified, this will result in the location,
+            north_angle and building type written into the gbXML. (Default: None).
         ip_units: A boolean to note whether the geometry, space loads, and
             construction properties are reported in IP units (True) or SI
             units (False). (Default: False).
@@ -1833,12 +1837,42 @@ def model_to_gbxml_element(
     xml_campus = ET.SubElement(gbxml_root, 'Campus', id='Facility')
     xml_campus_name = ET.SubElement(xml_campus, 'Name')
     xml_campus_name.text = 'Facility'
-    xml_bldg = ET.SubElement(xml_campus, 'Building')
+    bldg_type = project_info.gbxml_building_type \
+        if project_info is not None else 'Unknown'
+    bldg_attr = {
+        'id': clean_xml_tag_string(model.identifier),
+        'buildingType': bldg_type
+    }
+    xml_bldg = ET.SubElement(xml_campus, 'Building', bldg_attr)
     xml_bldg_name = ET.SubElement(xml_bldg, 'Name')
     xml_bldg_name.text = str(model.display_name)
     xml_floor_area = ET.SubElement(xml_bldg, 'Area')
     xml_floor_area.text = str(round(model.floor_area)) \
         if ip_units else str(round(model.floor_area, 1))
+
+    # add location info to the Campus if project_info is specified
+    if project_info is not None:
+        xml_location = ET.SubElement(xml_campus, 'Location')
+        xml_loc_address = ET.SubElement(xml_location, 'ZipcodeOrPostalCode')
+        xml_loc_address.text = str(model.display_name)
+        xml_north = ET.SubElement(xml_location, 'CADModelAzimuth')
+        north = project_info.north_angle + 360 \
+            if project_info.north_angle < 0 else project_info.north_angle
+        xml_north.text = str(north)
+        location = project_info.location
+        if location is not None:
+            if location.city is not None:
+                xml_loc_name = ET.SubElement(xml_location, 'Name')
+                xml_loc_name.text = str(location.city)
+            if location.station_id is not None:
+                xml_station = ET.SubElement(xml_location, 'StationId')
+                xml_station.text = str(location.station_id)
+            xml_lat = ET.SubElement(xml_location, 'Latitude')
+            xml_lat.text = str(location.latitude)
+            xml_long = ET.SubElement(xml_location, 'Longitude')
+            xml_long.text = str(location.longitude)
+            xml_elev = ET.SubElement(xml_location, 'Elevation')
+            xml_elev.text = str(location.elevation)
 
     # write all of the rooms into the gbXML as spaces
     story_dict, xml_rooms = OrderedDict(), []
@@ -2096,7 +2130,8 @@ def model_to_gbxml_element(
 
 
 def model_to_gbxml(
-    model, ip_units=False, include_shell_geometry=False, include_space_boundaries=False,
+    model, project_info=None, ip_units=False,
+    include_shell_geometry=False, include_space_boundaries=False,
     interior_face_type='InteriorFloor', ground_face_type='AutoAssign',
     face_rename_format=None, subface_rename_format=None,
     reset_geometry_ids=False, reset_resource_ids=False,
@@ -2109,6 +2144,9 @@ def model_to_gbxml(
 
     Args:
         model: A honeybee Model for which a gbXML text string will be returned.
+        project_info: An optional ladybug ProjectInfo object that describes criteria
+            about the project site. When specified, this will result in the location,
+            north_angle and building type written into the gbXML. (Default: None).
         ip_units: A boolean to note whether the geometry, space loads, and
             construction properties are reported in IP units (True) or SI
             units (False). (Default: False).
@@ -2215,7 +2253,7 @@ def model_to_gbxml(
     """
     # create the XML string
     xml_root = model_to_gbxml_element(
-        model, ip_units, include_shell_geometry, include_space_boundaries,
+        model, project_info, ip_units, include_shell_geometry, include_space_boundaries,
         interior_face_type, ground_face_type, face_rename_format, subface_rename_format,
         reset_geometry_ids, reset_resource_ids,
         triangulate_subfaces, triangulate_non_planar, rect_geo_format, explicit_holes,
