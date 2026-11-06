@@ -342,8 +342,8 @@ class _ConstructionBase(object):
                 if heat_g == 0:
                     continue
                 r_prev, r_follow = r_values[:i], r_values[i + 1:]
-                q_prev = heat_g * (1 - (sum(r_prev) / r_factor))
-                q_follow = heat_g * (1 - (sum(r_follow) / r_factor))
+                q_prev = heat_g * (sum(r_follow) + r_values[i] / 2) / r_factor
+                q_follow = heat_g * (sum(r_prev) + r_values[i] / 2) / r_factor
                 # add the heat transferred to the interior
                 for j in range(len(r_follow)):
                     temperatures[i + 1 + j] += q_follow * sum(r_follow[j:])
