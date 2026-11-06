@@ -98,6 +98,33 @@ def test_simulation_parameter_init_from_idf():
     assert rebuilt_sim_par.to_idf() == idf_str
 
 
+def test_simulation_parameter_from_idf_short_building():
+    """Test from_idf with a short Building object and a meter named after Building."""
+    short_bldg = 'Building,\n  Imported,  !- Name\n  30,  !- North Axis\n' \
+        '  Country;  !- Terrain\n'
+    sim_par = SimulationParameter.from_idf(short_bldg)
+    assert sim_par.north_angle == 30
+    assert sim_par.terrain_type == 'Country'
+
+    name_only = 'Building,\n  Imported;  !- Name\n'
+    sim_par = SimulationParameter.from_idf(name_only)
+    assert sim_par.north_angle == 0
+    assert sim_par.terrain_type == 'Suburbs'
+
+    sim_par = SimulationParameter.from_idf('Timestep,\n  4;\n')
+    assert sim_par.north_angle == 0
+    assert sim_par.terrain_type == 'City'
+
+    meter = 'Output:Meter:MeterFileOnly,EnergyTransfer:Building,hourly;\n'
+    sim_par = SimulationParameter.from_idf(meter)
+    assert sim_par.north_angle == 0
+    assert sim_par.terrain_type == 'City'
+
+    sim_par = SimulationParameter.from_idf(meter + short_bldg)
+    assert sim_par.north_angle == 30
+    assert sim_par.terrain_type == 'Country'
+
+
 def test_simulation_parameter_to_dict_simple():
     """Test the to_dict method with a simple SimulationParameter."""
     sim_par = SimulationParameter()

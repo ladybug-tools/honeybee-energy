@@ -278,7 +278,7 @@ class SimulationParameter(object):
         dls_pattern = re.compile(r"(?i)(RunPeriodControl:DaylightSavingTime,[\s\S]*?;)")
         timestep_pattern = re.compile(r"(?i)(Timestep,[\s\S]*?;)")
         sh_calc_pattern = re.compile(r"(?i)(ShadowCalculation,[\s\S]*?;)")
-        bldg_pattern = re.compile(r"(?i)(Building,[\s\S]*?;)")
+        bldg_pattern = re.compile(r"(?i)(?<![\w:])(Building,[\s\S]*?;)")
         control_pattern = re.compile(r"(?i)(SimulationControl,[\s\S]*?;)")
         sizing_pattern = re.compile(r"(?i)(Sizing:Parameters,[\s\S]*?;)")
         ddy_p = re.compile(r"(SizingPeriod:DesignDay,(.|\n)*?((;\s*!)|(;\s*\n)|(;\n)))")
@@ -335,14 +335,17 @@ class SimulationParameter(object):
         # process the Building within the idf_string
         try:
             bldg_str = bldg_pattern.findall(idf_string)[0]
-            bldg_prop = parse_idf_string(bldg_str)
-            north_angle = float(bldg_prop[1]) if bldg_prop[1] != '' else 0
-            terrain = bldg_prop[2].title() if bldg_prop[2] != '' else 'Suburbs'
-            solar_dist = bldg_prop[5] if bldg_prop[5] != '' else 'FullExterior'
         except IndexError:  # No Building in the file. Use honeybee default.
+            bldg_str = None
             north_angle = 0
             terrain = 'City'
             solar_dist = 'FullExteriorWithReflections'
+        if bldg_str is not None:  # fields left off the end take EnergyPlus defaults
+            bldg_prop = parse_idf_string(bldg_str)
+            bldg_prop.extend([''] * (6 - len(bldg_prop)))
+            north_angle = float(bldg_prop[1]) if bldg_prop[1] != '' else 0
+            terrain = bldg_prop[2].title() if bldg_prop[2] != '' else 'Suburbs'
+            solar_dist = bldg_prop[5] if bldg_prop[5] != '' else 'FullExterior'
 
         # process the ShadowCalculation within the idf_string
         try:
