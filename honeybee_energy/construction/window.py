@@ -202,7 +202,7 @@ class WindowConstruction(_ConstructionBase):
         frame_r = self.frame.r_value + (1 / self.out_h_simple()) + \
             (1 / self.in_h_simple())
         frame_u = 1 / frame_r
-        frame_area = ((1 + self.frame.width) ** 2) - 1
+        frame_area = ((1 + 2 * self.frame.width) ** 2) - 1
         total_u = (glass_u + (frame_u * frame_area)) / (1 + frame_area)
         return 1 / total_u
 
@@ -229,7 +229,7 @@ class WindowConstruction(_ConstructionBase):
                 isinstance(self.materials[0], EnergyWindowMaterialSimpleGlazSys):
             edge_u = self.frame.edge_to_center_ratio * glass_u
             glass_u = (glass_u * self.COG_AREA) + (edge_u * self.EDGE_AREA)
-        frame_area = ((1 + self.frame.width) ** 2) - 1
+        frame_area = ((1 + 2 * self.frame.width) ** 2) - 1
         total_u = (glass_u + (self.frame.u_value * frame_area)) / (1 + frame_area)
         return 1 / total_u
 
@@ -261,7 +261,7 @@ class WindowConstruction(_ConstructionBase):
             glass_u = (glass_u * self.COG_AREA) + (edge_u * self.EDGE_AREA)
         frame_r = self.frame.r_value + (1 / out_hc) + (1 / self.in_h_simple())
         frame_u = 1 / frame_r
-        frame_area = ((1 + self.frame.width) ** 2) - 1
+        frame_area = ((1 + 2 * self.frame.width) ** 2) - 1
         total_u = (glass_u + (frame_u * frame_area)) / (1 + frame_area)
         return 1 / total_u
 
@@ -415,7 +415,7 @@ class WindowConstruction(_ConstructionBase):
             for i, heat_g in enumerate(heat_gen):
                 if heat_g != 0:
                     frame_conducted += heat_g * (1 - (sum(r_values[i + 1:]) / r_factor))
-            frame_area = ((1 + self.frame.width) ** 2) - 1
+            frame_area = ((1 + 2 * self.frame.width) ** 2) - 1
             frame_conduct = frame_conducted * frame_area
             frame_sol_irr = sol_irr * frame_area
             return (transmitted + conducted + frame_conduct) / (sol_irr + frame_sol_irr)

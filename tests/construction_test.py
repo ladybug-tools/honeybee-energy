@@ -483,8 +483,8 @@ def test_window_construction_init_from_idf_file_frame():
     assert glaz_constr.identifier == glaz_constr.identifier == 'GlzSys_2'
     assert glaz_constr.has_frame
     assert isinstance(glaz_constr.frame, EnergyWindowFrame)
-    assert glaz_constr.u_factor == pytest.approx(3.29274, rel=1e-2)
-    assert glaz_constr.shgc == pytest.approx(0.6389, rel=1e-2)
+    assert glaz_constr.u_factor == pytest.approx(3.500406, rel=1e-2)
+    assert glaz_constr.shgc == pytest.approx(0.596980, rel=1e-2)
     glaz_constr.frame = None
     assert glaz_constr.u_factor == pytest.approx(2.7359, rel=1e-2)
     assert glaz_constr.shgc == pytest.approx(0.688267, rel=1e-2)
