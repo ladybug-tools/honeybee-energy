@@ -22,9 +22,12 @@ def test_model_to_osm():
     input_hb_model = './tests/json/ShoeBox.json'
     output_osm = './tests/json/ShoeBox.osm'
     output_idf = './tests/json/ShoeBox.idf'
+    proj_info = './tests/json/project_info.json'
 
-    in_args = [input_hb_model, '--geometry-names',
-               '--osm-file', output_osm, '--idf-file', output_idf]
+    in_args = [
+        input_hb_model, '--geometry-names', '--project-info', proj_info,
+        '--osm-file', output_osm, '--idf-file', output_idf
+    ]
     result = runner.invoke(model_to_osm_cli, in_args)
     assert result.exit_code == 0
 
@@ -37,8 +40,9 @@ def test_model_to_osm():
 def test_model_to_idf():
     runner = CliRunner()
     input_hb_model = './tests/json/ShoeBox.json'
+    proj_info = './tests/json/project_info.json'
 
-    result = runner.invoke(model_to_idf_cli, [input_hb_model])
+    result = runner.invoke(model_to_idf_cli, [input_hb_model, '--project-info', proj_info])
     assert result.exit_code == 0
 
     output_hb_model = './tests/json/ShoeBox.idf'
@@ -52,10 +56,14 @@ def test_model_to_idf():
 def test_model_to_gbxml():
     runner = CliRunner()
     input_hb_model = './tests/json/ShoeBox.json'
+    proj_info = './tests/json/project_info.json'
 
-    in_args = [input_hb_model, '--reset-geometry-ids', '--reset-resource-ids',
-               '--program-name', 'Ladybug Tools', '--program-version', '1.9',
-               '--gbxml-schema-version', '5.00']
+    in_args = [
+        input_hb_model, '--reset-geometry-ids', '--reset-resource-ids',
+        '--project-info', proj_info,
+        '--program-name', 'Ladybug Tools', '--program-version', '1.9',
+        '--gbxml-schema-version', '5.00'
+    ]
     result = runner.invoke(model_to_gbxml_cli, in_args)
     assert result.exit_code == 0
 

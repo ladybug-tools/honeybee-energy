@@ -1,6 +1,13 @@
 # coding=utf-8
 """Complete set of EnergyPlus Simulation Settings."""
 from __future__ import division
+import re
+import math
+
+from ladybug_geometry.geometry2d.pointvector import Vector2D
+from ladybug.location import Location
+from ladybug.projectinfo import ProjectInfo
+from honeybee.typing import int_positive, float_in_range
 
 from .output import SimulationOutput
 from .runperiod import RunPeriod
@@ -9,13 +16,6 @@ from .shadowcalculation import ShadowCalculation
 from .sizing import SizingParameter
 from ..reader import parse_idf_string
 from ..writer import generate_idf_string
-
-from honeybee.typing import int_positive, float_in_range
-from ladybug_geometry.geometry2d.pointvector import Vector2D
-from ladybug.location import Location
-
-import re
-import math
 
 
 class SimulationParameter(object):
@@ -182,9 +182,7 @@ class SimulationParameter(object):
         """Get or set a number between -360 and 360 for the north direction in degrees.
 
         This is the counterclockwise difference between the North and the positive
-        Y-axis. 90 is West and 270 is East (Default: 0). Note that this is different
-        than the convention used in EnergyPlus, which uses clockwise difference
-        instead of counterclockwise difference.
+        Y-axis. 90 is West and 270 is East (Default: 0).
         """
         return self._north_angle
 
@@ -253,6 +251,63 @@ class SimulationParameter(object):
         return generate_idf_string(
             'Site:WaterMainsTemperature', ('CorrelationFromWeatherFile',),
             ('calculation method',))
+
+    def assign_from_project_info(self, project_info, overwrite=False):
+        """Assign attributes to this simulation parameter from a ladybug ProjectInfo.
+
+        Args:
+            project_info: A ladybug ProjectInfo object to be used to set
+                simulation parameters.
+            overwrite: Boolean to note whether existing attributes on these
+                simulation parameters should be overwritten with the
+                information in the ProjectInfo. When False, design days from
+                the ProjectInfo will only be assigned if the simulation parameter
+                instance contains no design days and the ASHRAE climate zone,
+                building type, and efficiency standard will only be set if it
+                not currently assigned. When True, all existing attributes are
+                overwritten (including design days) and the north attribute is
+                also set according to whatever the ProjectInfo dictates.
+        """
+        # check that a ProjectInfo instance has been passes
+        assert isinstance(project_info, ProjectInfo), \
+            'Expected ProjectInfo. Got {}.'.format(type(project_info))
+        if overwrite:  # overwrite existing attributes
+            self.north_angle = project_info.north_angle
+            self.sizing_parameter.design_days = project_info.default_design_days
+            self.sizing_parameter.climate_zone = project_info.ashrae_climate_zone
+            if len(project_info.building_type) == 1:
+                self.sizing_parameter.building_type = project_info.building_type[0]
+            elif len(project_info.building_type) > 1:
+                self.sizing_parameter.building_type = 'MixedUse'
+            if len(project_info.vintage) == 1:
+                self.sizing_parameter.efficiency_standard = project_info.vintage[0]
+                self.sizing_parameter.bypass_efficiency_sizing = True
+        else:  # only assign attributes if they exist
+            if len(self.sizing_parameter.design_days) == 0:
+                self.sizing_parameter.design_days = project_info.default_design_days
+            if not self.sizing_parameter.climate_zone:
+                self.sizing_parameter.climate_zone = project_info.ashrae_climate_zone
+            if not self.sizing_parameter.building_type:
+                if len(project_info.building_type) == 1:
+                    self.sizing_parameter.building_type = project_info.building_type[0]
+                elif len(project_info.building_type) > 1:
+                    self.sizing_parameter.building_type = 'MixedUse'
+            if not self.sizing_parameter.efficiency_standard:
+                if len(project_info.vintage) == 1:
+                    self.sizing_parameter.efficiency_standard = project_info.vintage[0]
+                    self.sizing_parameter.bypass_efficiency_sizing = True
+
+    @classmethod
+    def from_project_info(cls, project_info):
+        """Create a SimulationParameter object from a ladybug ProjectInfo.
+
+        Args:
+            project_info: A ladybug ProjectInfo object to be used to set
+                simulation parameters.
+        """
+        sim_par = cls()
+        sim_par.assign_from_project_info(project_info, True)
+        return sim_par
 
     @classmethod
     def from_idf(cls, idf_string):
