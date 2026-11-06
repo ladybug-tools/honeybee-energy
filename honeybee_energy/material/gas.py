@@ -202,10 +202,10 @@ class _EnergyWindowMaterialGasBase(_EnergyMaterialWindowBase):
         elif angle < 90:
             g = 0.5 / ((1 + ((rayleigh / 3160) ** 20.6)) ** 0.1)
             n_u1 = (1 + (((0.0936 * (rayleigh ** 0.314)) / (1 + g)) ** 7)) ** (1 / 7)
-            n_u2 = (0.104 + (0.175 / (self.thickness / height))) * (rayleigh ** 0.283)
+            n_u2 = (0.104 + (0.175 / (height / self.thickness))) * (rayleigh ** 0.283)
             n_u_60 = max(n_u1, n_u2)
             n_u_90 = self.nusselt(delta_t, height, t_kelvin, pressure)
-            return (n_u_60 + n_u_90) / 2
+            return n_u_60 + (n_u_90 - n_u_60) * (angle - 60) / 30
         elif angle == 90:
             return self.nusselt(delta_t, height, t_kelvin, pressure)
         else:
