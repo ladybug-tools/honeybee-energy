@@ -42,6 +42,10 @@ class SimulationParameter(object):
             degrees. 90 is West and 270 is East (Default: 0).
         terrain_type: Text for the terrain type in which the model sits.
             Choose from: 'Ocean', 'Country', 'Suburbs', 'Urban', 'City'.(Default: 'City')
+        location: An optional Ladybug Location object to describe the exact latitude,
+            longitude, time zone and elevation of the project site. If None
+            the location specified within the EPW file will be used for the
+            simulation. (Default: None).
 
     Properties:
         * output
@@ -54,16 +58,19 @@ class SimulationParameter(object):
         * north_angle
         * north_vector
         * terrain_type
+        * location
     """
     __slots__ = ('_output', '_run_period', '_timestep', '_simulation_control',
                  '_shadow_calculation', '_sizing_parameter', '_north_angle',
-                 '_north_vector', '_terrain_type')
+                 '_north_vector', '_terrain_type', '_location')
     VALIDTIMESTEPS = (1, 2, 3, 4, 5, 6, 10, 12, 15, 20, 30, 60)
     TERRAIN_TYPES = ('Ocean', 'Country', 'Suburbs', 'Urban', 'City')
 
-    def __init__(self, output=None, run_period=None, timestep=6,
-                 simulation_control=None, shadow_calculation=None, sizing_parameter=None,
-                 north_angle=0, terrain_type='City'):
+    def __init__(
+        self, output=None, run_period=None, timestep=6,
+        simulation_control=None, shadow_calculation=None, sizing_parameter=None,
+        north_angle=0, terrain_type='City', location=None
+    ):
         """Initialize SimulationParameter."""
         self.output = output
         self.run_period = run_period
@@ -73,6 +80,7 @@ class SimulationParameter(object):
         self.sizing_parameter = sizing_parameter
         self.north_angle = north_angle
         self.terrain_type = terrain_type
+        self.location = location
 
     @property
     def output(self):
@@ -229,6 +237,18 @@ class SimulationParameter(object):
         else:
             self._terrain_type = 'City'
 
+    @property
+    def location(self):
+        """Get or set an optional Location object to override that within the EPW."""
+        return self._location
+
+    @location.setter
+    def location(self, value):
+        if value is not None:
+            assert isinstance(value, Location), 'Expected Location ' \
+                'for SimulationParameter location. Got {}.'.format(type(value))
+        self._location = value
+
     def building_idf(self, identifier='Building'):
         """Get an IDF string for an IDF Building object.
 
@@ -275,6 +295,7 @@ class SimulationParameter(object):
             self.north_angle = project_info.north_angle
             self.sizing_parameter.design_days = project_info.default_design_days
             self.sizing_parameter.climate_zone = project_info.ashrae_climate_zone
+            self.location = project_info.location
             if len(project_info.building_type) == 1:
                 self.sizing_parameter.building_type = project_info.building_type[0]
             elif len(project_info.building_type) > 1:
@@ -287,6 +308,8 @@ class SimulationParameter(object):
                 self.sizing_parameter.design_days = project_info.default_design_days
             if not self.sizing_parameter.climate_zone:
                 self.sizing_parameter.climate_zone = project_info.ashrae_climate_zone
+            if not self.location:
+                self.location = project_info.location
             if not self.sizing_parameter.building_type:
                 if len(project_info.building_type) == 1:
                     self.sizing_parameter.building_type = project_info.building_type[0]
@@ -420,12 +443,16 @@ class SimulationParameter(object):
             loc_str = loc_pattern.findall(idf_string)[0]
         except IndexError:  # No Site:Location in the file.
             loc_str = None
-        location = Location.from_idf(loc_str) if loc_str is not None else None
+        if loc_str is not None:
+            location = Location.from_idf(loc_str)
+            loc = location if parse_idf_string(loc_str)[-1].title() == 'Yes' else None
+        else:
+            location, loc = None, None
         sizing_par = SizingParameter.from_idf(
             [dy[0] for dy in ddy_p.findall(idf_string)], sizing_str, location)
 
         return cls(output, run_period, timestep, sim_control, shadow_calc,
-                   sizing_par, north_angle, terrain)
+                   sizing_par, north_angle, terrain, loc)
 
     @classmethod
     def from_dict(cls, data):
@@ -444,6 +471,9 @@ class SimulationParameter(object):
             "simulation_control": {}, # Honeybee SimulationControl dictionary
             "shadow_calculation": {}, # Honeybee ShadowCalculation dictionary
             "sizing_parameter": {} # Honeybee SizingParameter dictionary
+            "north_angle": 15, # North angle in degrees
+            "terrain_type": "City",  # Text for the terrain type in which the model sits
+            "location": {} # Ladybug Location dictionary
             }
         """
         assert data['type'] == 'SimulationParameter', \
@@ -471,9 +501,13 @@ class SimulationParameter(object):
         terrain_type = 'City'
         if 'terrain_type' in data and data['terrain_type'] is not None:
             terrain_type = data['terrain_type']
+        if 'location' in data and data['location'] is not None:
+            location = Location.from_dict(data['location'])
 
-        return cls(output, run_period, timestep, simulation_control,
-                   shadow_calculation, sizing_parameter, north_angle, terrain_type)
+        return cls(
+            output, run_period, timestep, simulation_control, shadow_calculation,
+            sizing_parameter, north_angle, terrain_type, location
+        )
 
     def to_idf(self, identifier='Building'):
         """Get an EnergyPlus string representation of the SimulationParameter.
@@ -571,6 +605,13 @@ class SimulationParameter(object):
             Site:WaterMainsTemperature,
                 CorrelationFromWeatherFile; !- calculation method
 
+            Site:Location,
+                New York JFK,
+                40.65,      !Latitude
+                -73.8,     !Longitude
+                -5.0,     !Time Zone
+                5.0,       !Elevation
+                Yes;       !Use location for simulation
 
         """
         sim_param_str = ['!-   ==========================================\n'
@@ -616,10 +657,17 @@ class SimulationParameter(object):
         sim_param_str.append(self.building_idf(identifier))
         sim_param_str.append(self.water_mains_idf())
 
+        # write the location object if specified
+        if self.location is not None:
+            last_line = '\n  Yes;       !Use location for simulation'
+            loc_str = self.location.to_idf().replace(';', ',') + last_line
+            sim_param_str.append(loc_str)
+
         return '\n\n'.join(sim_param_str)
 
     def to_dict(self):
         """SimulationParameter dictionary representation."""
+        loc = self.location.to_dict() if self.location is not None else None
         return {
             'type': 'SimulationParameter',
             'output': self.output.to_dict(),
@@ -629,7 +677,8 @@ class SimulationParameter(object):
             'shadow_calculation': self.shadow_calculation.to_dict(),
             'sizing_parameter': self.sizing_parameter.to_dict(),
             'north_angle': self.north_angle,
-            'terrain_type': self.terrain_type
+            'terrain_type': self.terrain_type,
+            'location': loc
         }
 
     def duplicate(self):
@@ -644,14 +693,18 @@ class SimulationParameter(object):
         return SimulationParameter(
             self.output.duplicate(), self.run_period.duplicate(), self.timestep,
             self.simulation_control.duplicate(), self.shadow_calculation.duplicate(),
-            self.sizing_parameter.duplicate(), self.north_angle, self.terrain_type)
+            self.sizing_parameter.duplicate(),
+            self.north_angle, self.terrain_type, self.location
+        )
 
     def __key(self):
         """A tuple based on the object properties, useful for hashing."""
-        return (hash(self.output), hash(self.run_period), self.timestep,
-                hash(self.simulation_control),
-                hash(self.shadow_calculation), hash(self.sizing_parameter),
-                self.north_angle, self.terrain_type)
+        return (
+            hash(self.output), hash(self.run_period), self.timestep,
+            hash(self.simulation_control),
+            hash(self.shadow_calculation), hash(self.sizing_parameter),
+            self.north_angle, self.terrain_type, hash(self.location)
+        )
 
     def __hash__(self):
         return hash(self.__key())
