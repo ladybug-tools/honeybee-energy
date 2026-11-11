@@ -1,6 +1,6 @@
 {
     "type": "ProjectInfo",
-    "north_angle": 15.0,
+    "north": 15.0,
     "location": {
         "city": "New York JFK",
         "state": "-",

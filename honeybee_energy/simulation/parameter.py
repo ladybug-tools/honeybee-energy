@@ -501,6 +501,7 @@ class SimulationParameter(object):
         terrain_type = 'City'
         if 'terrain_type' in data and data['terrain_type'] is not None:
             terrain_type = data['terrain_type']
+        location = None
         if 'location' in data and data['location'] is not None:
             location = Location.from_dict(data['location'])
 

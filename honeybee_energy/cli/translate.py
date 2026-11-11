@@ -631,7 +631,7 @@ def model_to_idf(
     exists=True, file_okay=True, dir_okay=False, resolve_path=True))
 @click.option('--project-info', '-pi', help='Full path to a ladybug ProjectInfo '
               'JSON that describes criteria about the project site. When specified, '
-              'this will result in the location, north_angle and building type '
+              'this will result in the location, north and building type '
               'written into the gbXML.', default=None, show_default=True,
               type=click.Path(exists=True, file_okay=True, dir_okay=False,
                               resolve_path=True))
@@ -808,7 +808,7 @@ def model_to_gbxml(
         model_file: Full path to a Honeybee Model file (HBJSON or HBpkl).
         project_info: Full path to a ladybug ProjectInfo JSON that describes
             criteria about the project site. When specified, this will result
-            in the location, north_angle and building type written into the gbXML.
+            in the location, north and building type written into the gbXML.
         ip_units: A boolean to note whether the geometry, space loads, and
             construction properties are reported in IP units (True) or SI
             units (False). (Default: False).
@@ -1060,6 +1060,12 @@ def model_to_trace_gbxml(
 @translate.command('model-to-sdd')
 @click.argument('model-file', type=click.Path(
     exists=True, file_okay=True, dir_okay=False, resolve_path=True))
+@click.option('--project-info', '-pi', help='Full path to a ladybug ProjectInfo '
+              'JSON that describes criteria about the project site. When specified, '
+              'this will result in the north written into the SDD XML.',
+              default=None, show_default=True,
+              type=click.Path(exists=True, file_okay=True, dir_okay=False,
+                              resolve_path=True))
 @click.option('--geometry-ids/--geometry-names', ' /-gn', help='Flag to note whether a '
               'cleaned version of all geometry display names should be used instead '
               'of identifiers when translating the Model to IDF. Using this flag will '
@@ -1081,7 +1087,7 @@ def model_to_trace_gbxml(
 @click.option('--output-file', '-f', help='Optional SDD file to output the string '
               'of the translation. By default it printed out to stdout.', default='-',
               type=click.Path(file_okay=True, dir_okay=False, resolve_path=True))
-def model_to_sdd_cli(model_file, geometry_ids, resource_ids, output_file):
+def model_to_sdd_cli(model_file, project_info, geometry_ids, resource_ids, output_file):
     """Translate a Honeybee Model file to a SDD file.
 
     \b
@@ -1091,7 +1097,7 @@ def model_to_sdd_cli(model_file, geometry_ids, resource_ids, output_file):
     try:
         geo_names = not geometry_ids
         res_names = not resource_ids
-        model_to_sdd(model_file, geo_names, res_names, output_file)
+        model_to_sdd(model_file, project_info, geo_names, res_names, output_file)
     except Exception as e:
         _logger.exception('Model translation failed.\n{}'.format(e))
         sys.exit(1)
@@ -1100,13 +1106,17 @@ def model_to_sdd_cli(model_file, geometry_ids, resource_ids, output_file):
 
 
 def model_to_sdd(
-    model_file, geometry_names=False, resource_names=False, output_file=None,
+    model_file, project_info=None, geometry_names=False, resource_names=False,
+    output_file=None,
     geometry_ids=True, resource_ids=True
 ):
     """Translate a Honeybee Model file to a SDD file.
 
     Args:
         model_file: Full path to a Honeybee Model file (HBJSON or HBpkl).
+        project_info: Full path to a ladybug ProjectInfo JSON that describes
+            criteria about the project site. When specified, this will result
+            in the north written into the SDD XML.
         geometry_names: Boolean to note whether a cleaned version of all geometry
             display names should be used instead of identifiers when translating
             the Model to OSM and IDF. Using this flag will affect all Rooms, Faces,
@@ -1129,13 +1139,21 @@ def model_to_sdd(
     """
     # check that honeybee-openstudio is installed
     try:
-        from honeybee_openstudio.openstudio import openstudio
+        from honeybee_openstudio.openstudio import openstudio, OSModel
+        from honeybee_openstudio.simulation import simulation_parameter_to_openstudio
         from honeybee_openstudio.writer import model_to_openstudio
     except ImportError as e:  # honeybee-openstudio is not installed
         raise ImportError('{}\n{}'.format(HB_OS_MSG, e))
 
     # translate the model to an OpenStudio Model
     model = Model.from_file(model_file)
+
+    # load the project information if it exists
+    sim_par = None
+    if project_info is not None:
+        project_info = ProjectInfo.from_json(project_info)
+        sim_par = SimulationParameter()
+        sim_par.assign_from_project_info(project_info, overwrite=True)
 
     if geometry_names:  # rename all face geometry so that it is easy to identify
         model.reset_ids()  # sets the identifiers based on the display_name
@@ -1152,9 +1170,11 @@ def model_to_sdd(
             room.rename_doors_by_attribute()
         model.reset_ids()
 
+    os_model = OSModel()
+    if sim_par is not None:
+        simulation_parameter_to_openstudio(sim_par, os_model)
     os_model = model_to_openstudio(
-        model,
-        use_simple_window_constructions=True,
+        model, os_model, use_simple_window_constructions=True,
         use_resource_names=resource_names
     )
 
