@@ -120,9 +120,7 @@ def model_to_sim_folder(
 
         # load the project information if it exists
         if project_info is not None:
-            with open(project_info) as json_file:
-                data = json.load(json_file)
-            project_info = ProjectInfo.from_dict(data)
+            project_info = ProjectInfo.from_json(project_info)
 
         if sim_par_json is None or not os.path.isfile(sim_par_json):
             sim_par = SimulationParameter()
@@ -344,9 +342,7 @@ def model_to_osm(
 
     # load the project information if it exists
     if project_info is not None:
-        with open(project_info) as json_file:
-            data = json.load(json_file)
-        project_info = ProjectInfo.from_dict(data)
+        project_info = ProjectInfo.from_json(project_info)
         if epw_file is None:
             epw_file = project_info.default_epw_file
 
@@ -580,9 +576,7 @@ def model_to_idf(
     """
     # load the project information if it exists
     if project_info is not None:
-        with open(project_info) as json_file:
-            data = json.load(json_file)
-        project_info = ProjectInfo.from_dict(data)
+        project_info = ProjectInfo.from_json(project_info)
 
     # load simulation parameters or generate default ones
     if sim_par_json is not None:
@@ -931,9 +925,7 @@ def model_to_gbxml(
     if full_geometry:
         include_shell_geometry, include_space_boundaries = True, True
     if project_info is not None:
-        with open(project_info) as json_file:
-            data = json.load(json_file)
-            project_info = ProjectInfo.from_dict(data)
+        project_info = ProjectInfo.from_json(project_info)
     model = Model.from_file(model_file)
     gbxml_str = model.to_gbxml(
         project_info=project_info, ip_units=ip_units,
