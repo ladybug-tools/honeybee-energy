@@ -1,0 +1,7 @@
+honeybee\_energy.programtype module
+===================================
+
+.. automodule:: honeybee_energy.programtype
+   :members:
+   :undoc-members:
+   :show-inheritance:

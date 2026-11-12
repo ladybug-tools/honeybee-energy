@@ -1,0 +1,6 @@
+baseline
+========
+
+.. click:: honeybee_energy.cli.baseline:baseline
+   :prog: honeybee-energy baseline
+   :show-nested:

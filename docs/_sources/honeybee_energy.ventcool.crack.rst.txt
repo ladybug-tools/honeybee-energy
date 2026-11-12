@@ -1,0 +1,7 @@
+honeybee\_energy.ventcool.crack module
+======================================
+
+.. automodule:: honeybee_energy.ventcool.crack
+   :members:
+   :undoc-members:
+   :show-inheritance:

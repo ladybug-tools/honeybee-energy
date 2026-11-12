@@ -1,0 +1,7 @@
+honeybee\_energy.load.people module
+===================================
+
+.. automodule:: honeybee_energy.load.people
+   :members:
+   :undoc-members:
+   :show-inheritance:
