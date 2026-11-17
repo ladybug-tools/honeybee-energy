@@ -1,0 +1,7 @@
+honeybee\_energy.schedule.ruleset module
+========================================
+
+.. automodule:: honeybee_energy.schedule.ruleset
+   :members:
+   :undoc-members:
+   :show-inheritance:

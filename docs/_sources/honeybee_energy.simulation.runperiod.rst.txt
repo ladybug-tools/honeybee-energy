@@ -1,0 +1,7 @@
+honeybee\_energy.simulation.runperiod module
+============================================
+
+.. automodule:: honeybee_energy.simulation.runperiod
+   :members:
+   :undoc-members:
+   :show-inheritance:

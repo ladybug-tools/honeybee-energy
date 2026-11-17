@@ -1,0 +1,6 @@
+edit
+====
+
+.. click:: honeybee_energy.cli.edit:edit
+   :prog: honeybee-energy edit
+   :show-nested:

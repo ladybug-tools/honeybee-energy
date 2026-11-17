@@ -1,0 +1,7 @@
+honeybee\_energy.measure module
+===============================
+
+.. automodule:: honeybee_energy.measure
+   :members:
+   :undoc-members:
+   :show-inheritance:

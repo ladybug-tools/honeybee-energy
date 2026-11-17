@@ -1,0 +1,7 @@
+honeybee\_energy.properties.extension module
+============================================
+
+.. automodule:: honeybee_energy.properties.extension
+   :members:
+   :undoc-members:
+   :show-inheritance:
