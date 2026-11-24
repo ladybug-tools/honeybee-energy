@@ -1405,7 +1405,8 @@ def face_to_gbxml_element(
 
 def room_to_gbxml_element(
     room, ip_units=False, include_shell_geometry=False, include_space_boundaries=False,
-    tolerance=0.001, explicit_holes=False, building_element=None
+    tolerance=0.001, explicit_holes=False, net_floor_area=False,
+    outer_wall_finish='Centerline', building_element=None
 ):
     """Get a gbXML Space Element from a honeybee Room.
 
@@ -1427,6 +1428,19 @@ def room_to_gbxml_element(
             represented explicitly with their own PolyLoop or the hole and boundary
             should be collapsed into a single PolyLoop that winds inwards to
             cut out the holes. (Default: False).
+        net_floor_area: Boolean to note whether the Space object uses net
+            floor area with construction thicknesses subtracted from the actual
+            floor area of the Room geometry (True) or whether the gross floor
+            area of the Room geometry is used instead (False). (Default: False).
+        outer_wall_finish: Text for the wall finish location of Faces with
+            Outdoor or Ground boundary condition. This is used in the computation
+            of net floor area and has no effect when net_floor_area is False.
+            Choose from the following. (Default: Centerline).
+
+            * Exterior
+            * Centerline
+            * Interior
+
         building_element: An optional XML Element for the Building to which the
             space element will be added. If None, a new XML Element will be
             generated. (Default: None).
@@ -1452,8 +1466,12 @@ def room_to_gbxml_element(
         xml_cad_id = ET.SubElement(xml_space, 'CADObjectId')
         xml_cad_id.text = str(room.user_data['CADObjectId'])
     xml_area = ET.SubElement(xml_space, 'Area')
-    xml_area.text = str(round(room.floor_area)) \
-        if ip_units else str(round(room.floor_area, 1))
+    units = 'Feet' if ip_units else 'Meters'
+    floor_area = room.floor_area if not net_floor_area else \
+        room.properties.energy.floor_area_with_constructions(
+            units, units, tolerance, outer_wall_finish
+        )
+    xml_area.text = str(round(floor_area)) if ip_units else str(round(floor_area, 1))
     xml_volume = ET.SubElement(xml_space, 'Volume')
     xml_volume.text = str(round(room.volume)) \
         if ip_units else str(round(room.volume, 1))
@@ -1595,6 +1613,7 @@ def model_to_gbxml_element(
     reset_geometry_ids=False, reset_resource_ids=False,
     triangulate_subfaces=False, triangulate_non_planar=True,
     rect_geo_format='BoundingRectangle', explicit_holes=False,
+    net_floor_area=False, outer_wall_finish='Centerline',
     total_ventilation=True, program_name=None, program_version=None,
     gbxml_schema_version=None
 ):
@@ -1689,6 +1708,19 @@ def model_to_gbxml_element(
             represented explicitly with their own PolyLoop or the hole and boundary
             should be collapsed into a single PolyLoop that winds inwards to
             cut out the holes. (Default: False).
+        net_floor_area: Boolean to note whether the Spaces in the gbXML use
+            net floor area with construction thicknesses subtracted from the
+            actual floor area of the Room geometries (True) or whether the
+            gross floor area of the Room geometry is used (False). (Default: False).
+        outer_wall_finish: Text for the wall finish location of Faces with
+            Outdoor or Ground boundary condition. This is used in the computation
+            of net floor area and has no effect when net_floor_area is False.
+            Choose from the following. (Default: Centerline).
+
+            * Exterior
+            * Centerline
+            * Interior
+
         total_ventilation: Boolean to note whether outdoor air ventilation values
             in the gbXML are written as a single total OAFlowPerZone (True)
             or ventilation criteria are written as separate criteria (False).
@@ -1847,8 +1879,9 @@ def model_to_gbxml_element(
     xml_bldg_name = ET.SubElement(xml_bldg, 'Name')
     xml_bldg_name.text = str(model.display_name)
     xml_floor_area = ET.SubElement(xml_bldg, 'Area')
-    xml_floor_area.text = str(round(model.floor_area)) \
-        if ip_units else str(round(model.floor_area, 1))
+    floor_area = model.floor_area if not net_floor_area else \
+        model.properties.energy.floor_area_with_constructions(outer_wall_finish)
+    xml_floor_area.text = str(round(floor_area)) if ip_units else str(round(floor_area, 1))
 
     # add location info to the Campus if project_info is specified
     if project_info is not None:
@@ -1879,7 +1912,7 @@ def model_to_gbxml_element(
     for room in model.rooms:
         xml_room = room_to_gbxml_element(
             room, ip_units, include_shell_geometry, include_space_boundaries,
-            tol, explicit_holes, xml_bldg
+            tol, explicit_holes, net_floor_area, outer_wall_finish, xml_bldg
         )
         xml_rooms.append(xml_room)
         try:
@@ -2137,6 +2170,7 @@ def model_to_gbxml(
     reset_geometry_ids=False, reset_resource_ids=False,
     triangulate_subfaces=False, triangulate_non_planar=True,
     rect_geo_format='BoundingRectangle', explicit_holes=False,
+    net_floor_area=False, outer_wall_finish='Centerline',
     total_ventilation=True, program_name=None, program_version=None,
     gbxml_schema_version=None
 ):
@@ -2231,6 +2265,19 @@ def model_to_gbxml(
             represented explicitly with their own PolyLoop or the hole and boundary
             should be collapsed into a single PolyLoop that winds inwards to
             cut out the holes. (Default: False).
+        net_floor_area: Boolean to note whether the Spaces in the gbXML use
+            net floor area with construction thicknesses subtracted from the
+            actual floor area of the Room geometries (True) or whether the
+            gross floor area of the Room geometry is used (False). (Default: False).
+        outer_wall_finish: Text for the wall finish location of Faces with
+            Outdoor or Ground boundary condition. This is used in the computation
+            of net floor area and has no effect when net_floor_area is False.
+            Choose from the following. (Default: Centerline).
+
+            * Exterior
+            * Centerline
+            * Interior
+
         total_ventilation: Boolean to note whether outdoor air ventilation values
             in the gbXML are written as a single total OAFlowPerZone (True)
             or ventilation criteria are written as separate criteria (False).
@@ -2257,7 +2304,8 @@ def model_to_gbxml(
         interior_face_type, ground_face_type, face_rename_format, subface_rename_format,
         reset_geometry_ids, reset_resource_ids,
         triangulate_subfaces, triangulate_non_planar, rect_geo_format, explicit_holes,
-        total_ventilation, program_name, program_version, gbxml_schema_version
+        net_floor_area, outer_wall_finish, total_ventilation,
+        program_name, program_version, gbxml_schema_version
     )
     try:  # try to indent the XML to make it read-able
         ET.indent(xml_root)
@@ -2445,7 +2493,8 @@ def face_to_gbxml(
 
 def room_to_gbxml(
     room, ip_units=False, include_shell_geometry=False, include_space_boundaries=False,
-    tolerance=0.001, explicit_holes=False
+    tolerance=0.001, explicit_holes=False,
+    net_floor_area=False, outer_wall_finish='Centerline'
 ):
     """Get a gbXML Space string from a honeybee Room.
 
@@ -2467,10 +2516,22 @@ def room_to_gbxml(
             represented explicitly with their own PolyLoop or the hole and boundary
             should be collapsed into a single PolyLoop that winds inwards to
             cut out the holes. (Default: False).
+        net_floor_area: Boolean to note whether the Space object uses net
+            floor area with construction thicknesses subtracted from the actual
+            floor area of the Room geometry (True) or whether the gross floor
+            area of the Room geometry is used instead (False). (Default: False).
+        outer_wall_finish: Text for the wall finish location of Faces with
+            Outdoor or Ground boundary condition. This is used in the computation
+            of net floor area and has no effect when net_floor_area is False.
+            Choose from the following. (Default: Centerline).
+
+            * Exterior
+            * Centerline
+            * Interior
     """
     xml_root = room_to_gbxml_element(
         room, ip_units, include_shell_geometry, include_space_boundaries,
-        tolerance, explicit_holes
+        tolerance, explicit_holes, net_floor_area, outer_wall_finish
     )
     try:  # try to indent the XML to make it read-able
         ET.indent(xml_root)
