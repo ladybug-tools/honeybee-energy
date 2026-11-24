@@ -719,6 +719,17 @@ def model_to_idf(
               'explicitly with their own PolyLoop or the hole and boundary '
               'should be collapsed into a single PolyLoop that winds inwards to '
               'cut out the holes.', default=True, show_default=True)
+@click.option('--gross-floor-area/--net-floor-area', ' /-nfa',
+              help='Flag to note whether whether the Spaces in the gbXML use '
+              'net floor area with construction thicknesses subtracted from the '
+              'actual floor area of the Room geometries (True) or whether the '
+              'gross floor area of the Room geometry is used (False).',
+              default=True, show_default=True)
+@click.option('--outer-wall-finish', '-owf', help='Text string for the wall finish '
+              'location of Faces with Outdoor or Ground boundary condition. This is '
+              'used in the computation of net floor area and has no effect when '
+              '--gross-floor-area is used. Choose from Exterior, Centerline, Interior.',
+              type=str, default='Centerline', show_default=True)
 @click.option('--total-ventilation/--ventilation-components', ' /-vc',
               help='Flag to note whether outdoor air ventilation values in the gbXML '
               'are written as a single total OAFlowPerZone or ventilation criteria '
@@ -750,8 +761,8 @@ def model_to_gbxml_cli(
     minimal, exclude_shell_geometry, exclude_space_boundaries,
     interior_face_type, ground_face_type, face_rename_format, subface_rename_format,
     keep_geometry_ids, keep_resource_ids, default_subfaces, triangulate_non_planar,
-    rect_geo_format, collapsed_holes, total_ventilation,
-    program_name, program_version, gbxml_schema_version, output_file
+    rect_geo_format, collapsed_holes, gross_floor_area, outer_wall_finish,
+    total_ventilation, program_name, program_version, gbxml_schema_version, output_file
 ):
     """Translate a Honeybee Model (HBJSON) to a gbXML file.
 
@@ -769,6 +780,7 @@ def model_to_gbxml_cli(
         triangulate_subfaces = not default_subfaces
         permit_non_planar = not triangulate_non_planar
         explicit_holes = not collapsed_holes
+        net_floor_area = not gross_floor_area
         ventilation_components = not total_ventilation
         model_to_gbxml(
             model_file, project_info, ip_units, full_geometry,
@@ -777,7 +789,7 @@ def model_to_gbxml_cli(
             face_rename_format, subface_rename_format,
             reset_geometry_ids, reset_resource_ids,
             triangulate_subfaces, permit_non_planar, rect_geo_format, explicit_holes,
-            ventilation_components,
+            net_floor_area, outer_wall_finish, ventilation_components,
             program_name, program_version, gbxml_schema_version, output_file
         )
     except Exception as e:
@@ -795,12 +807,13 @@ def model_to_gbxml(
     reset_geometry_ids=False, reset_resource_ids=False,
     triangulate_subfaces=False, permit_non_planar=False,
     rect_geo_format='BoundingRectangle', explicit_holes=False,
+    net_floor_area=False, outer_wall_finish='Centerline',
     ventilation_components=False, program_name='Ladybug Tools CLI', program_version=None,
     gbxml_schema_version=None, output_file=None,
     si_units=True, minimal=True, exclude_shell_geometry=True, exclude_space_boundaries=True,
     keep_geometry_ids=True, keep_resource_ids=True,
     default_subfaces=True, triangulate_non_planar=True, collapsed_holes=True,
-    total_ventilation=True
+    gross_floor_area=True, total_ventilation=True
 ):
     """Translate a Honeybee Model file to a gbXML file.
 
@@ -897,6 +910,19 @@ def model_to_gbxml(
             represented explicitly with their own PolyLoop or the hole and boundary
             should be collapsed into a single PolyLoop that winds inwards to
             cut out the holes. (Default: False).
+        net_floor_area: Boolean to note whether the Spaces in the gbXML use
+            net floor area with construction thicknesses subtracted from the
+            actual floor area of the Room geometries (True) or whether the
+            gross floor area of the Room geometry is used (False). (Default: False).
+        outer_wall_finish: Text for the wall finish location of Faces with
+            Outdoor or Ground boundary condition. This is used in the computation
+            of net floor area and has no effect when net_floor_area is False.
+            Choose from the following. (Default: Centerline).
+
+            * Exterior
+            * Centerline
+            * Interior
+
         ventilation_components: Boolean to note whether outdoor air ventilation values
             in the gbXML are written as a single total OAFlowPerZone (True)
             or ventilation criteria are written as separate criteria (False).
@@ -937,6 +963,7 @@ def model_to_gbxml(
         triangulate_non_planar=triangulate_non_planar,
         triangulate_subfaces=triangulate_subfaces,
         rect_geo_format=rect_geo_format, explicit_holes=explicit_holes,
+        net_floor_area=net_floor_area, outer_wall_finish=outer_wall_finish,
         total_ventilation=total_ventilation,
         program_name=program_name, program_version=program_version,
         gbxml_schema_version=gbxml_schema_version

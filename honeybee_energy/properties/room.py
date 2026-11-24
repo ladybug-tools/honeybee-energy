@@ -712,8 +712,14 @@ class RoomEnergyProperties(object):
         self._internal_masses = []
 
     def floor_area_with_constructions(
-            self, geometry_units, destination_units='Meters', tolerance=0.01):
-        """Get the floor area of the Room accounting for wall constructions.
+        self, geometry_units, destination_units='Meters', tolerance=0.01,
+        outer_wall_finish='Exterior'
+    ):
+        """Get the net floor area of the Room excluding all wall construction thicknesses.
+
+        Interior walls are assumed to always be at the wall centerline. Walls
+        with Outdoor or Ground boundary conditions are assumed to be at the
+        specified outer_wall_finish.
 
         Args:
             geometry_units: The units in which the Room geometry exists.
@@ -722,11 +728,27 @@ class RoomEnergyProperties(object):
             tolerance: The maximum difference between values at which point vertices
                 are considered to be the same. (Default: 0.01, suitable for objects
                 in meters).
+            outer_wall_finish: Text for the wall finish location of Faces with
+                Outdoor or Ground boundary condition. (Default: Exterior; consistent
+                with recommendations in EnergyPlus). Choose from the following.
+
+                * Exterior
+                * Centerline
+                * Interior
+
         """
         # get the area of the floors without accounting for constructions
         con_fac = conversion_factor_to_meters(geometry_units)
         floors = [face for face in self.host._faces if isinstance(face.type, Floor)]
         base_area = sum((f.area for f in floors)) * con_fac
+        # determine the factor to be used for outer walls
+        finish = outer_wall_finish.lower()
+        if finish == 'interior':
+            of = 0
+        elif finish == 'centerline':
+            of = 0.5
+        else:  # assume that it is at exterior wall finish
+            of = 1
         # subtract the thickness of the constructions from the base area
         seg_sub = 0
         for flr in floors:
@@ -737,8 +759,8 @@ class RoomEnergyProperties(object):
                 w_f = self._segment_wall_face(seg, tolerance)
                 if w_f is not None:
                     th = w_f.properties.energy.construction.thickness
-                    t_c = th if isinstance(flr.boundary_condition, (Outdoors, Ground)) \
-                        else th / 2
+                    t_c = th * of if isinstance(w_f.boundary_condition, (Outdoors, Ground)) \
+                        else th * 0.5
                     seg_sub += seg.length * t_c
         return (base_area - seg_sub) / conversion_factor_to_meters(destination_units)
 

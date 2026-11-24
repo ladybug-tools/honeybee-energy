@@ -483,6 +483,36 @@ class ModelEnergyProperties(object):
             self._check_and_add_obj_construction_inc_parent(dr, constructions)
         return list(set(constructions))
 
+    def floor_area_with_constructions(
+        self, outer_wall_finish='Exterior', destination_units=None
+    ):
+        """Get the net floor area of the Model all wall construction thicknesses.
+
+        Interior walls are assumed to always be at the wall centerline. Walls
+        with Outdoor or Ground boundary conditions are assumed to be at the
+        specified outer_wall_finish.
+
+        Args:
+            outer_wall_finish: Text for the wall finish location of Faces with
+                Outdoor or Ground boundary condition. (Default: Exterior; consistent
+                with recommendations in EnergyPlus). Choose from the following.
+
+                * Exterior
+                * Centerline
+                * Interior
+
+            destination_units: The "squared" units that the output value will
+                be in. If None, the output values will be in the same units
+                as the host model. (Default: None).
+        """
+        units, tol = self.host.units, self.host.tolerance
+        du = destination_units if destination_units is not None else units
+        total_area = 0
+        for room in self.host.rooms:
+            ep = room.properties.energy
+            total_area += ep.floor_area_with_constructions(units, du, tol, outer_wall_finish)
+        return total_area
+
     def autocalculate_ventilation_simulation_control(self):
         """Set geometry properties of ventilation_simulation_control with Model's rooms.
 
