@@ -1,0 +1,7 @@
+honeybee\_energy.hvac.doas.ptac module
+======================================
+
+.. automodule:: honeybee_energy.hvac.doas.ptac
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,7 @@
+honeybee\_energy.units module
+=============================
+
+.. automodule:: honeybee_energy.units
+   :members:
+   :undoc-members:
+   :show-inheritance:

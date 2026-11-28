@@ -1,0 +1,7 @@
+honeybee\_energy.generator.pv module
+====================================
+
+.. automodule:: honeybee_energy.generator.pv
+   :members:
+   :undoc-members:
+   :show-inheritance:

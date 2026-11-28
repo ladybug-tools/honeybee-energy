@@ -1,0 +1,7 @@
+honeybee\_energy.hvac.heatcool.wshp module
+==========================================
+
+.. automodule:: honeybee_energy.hvac.heatcool.wshp
+   :members:
+   :undoc-members:
+   :show-inheritance:

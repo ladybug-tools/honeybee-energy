@@ -1,0 +1,19 @@
+honeybee\_energy.generator package
+==================================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   honeybee_energy.generator.loadcenter
+   honeybee_energy.generator.pv
+
+Module contents
+---------------
+
+.. automodule:: honeybee_energy.generator
+   :members:
+   :undoc-members:
+   :show-inheritance:
